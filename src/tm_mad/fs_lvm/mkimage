@@ -78,6 +78,11 @@ LV_NAME="lv-one-$VM_ID-$DISK_ID"
 VG_NAME="vg-one-$DS_SYS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
+if [ -n "$FS" ] && ! contains "${SUPPORTED_FS}" "${FS}" ","; then
+    log_error "Unsupported file system type: ${FS}. Supported types are: ${SUPPORTED_FS}"
+    exit 1
+fi
+
 # Execute lvcreate with a lock in the frontend
 CREATE_CMD=$(cat <<EOF
     set -e -o pipefail
@@ -92,9 +97,6 @@ exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$CREATE_CMD" \
         "Error creating LV named $LV_NAME"
 
 MKIMAGE_CMD=$(cat <<EOF
-    # prints function content
-    $(type contains| grep -v 'is a function')
-
     set -e -o pipefail
     export PATH=/usr/sbin:/sbin:\$PATH
 
@@ -104,19 +106,12 @@ MKIMAGE_CMD=$(cat <<EOF
 
     # zero the volume
     if [ "${ZERO_LVM_ON_CREATE}" = "yes" ]; then
-        ${DD} if=/dev/zero of="${DEV}" bs=${DD_BLOCK_SIZE:-64k} || :
+        ${DD} if=/dev/zero of="${DEV}" bs=${DD_BLOCK_SIZE:-64k} 2> /dev/null || :
     fi
 
     [ "$FORMAT" = "swap" ] && mkswap ${DEV}
 
-    if [ ! -z "$FS" ]; then
-        contains "${SUPPORTED_FS}" "${FS}" ","
-
-        if [ $? != 0 ]; then
-            log_error "Unsupported file system type: ${FS}. Supported types are: ${SUPPORTED_FS}"
-            exit -1
-        fi
-
+    if [ -n "$FS" ]; then
         FS_OPTS=$(eval $(echo "echo \$FS_OPTS_$FS"))
         $MKFS -t ${FS} ${FS_OPTS} ${DEV}
     fi
@@ -128,4 +123,5 @@ EOF
 
 ssh_exec_and_log "$DST_HOST" "$MKIMAGE_CMD" \
         "Could not create image $DST_PATH"
+
 exit 0
