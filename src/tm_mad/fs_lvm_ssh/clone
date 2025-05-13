@@ -137,6 +137,7 @@ CREATE_CMD=$(cat <<EOF
             # -Zy is for auto-zeroing thin volumes. It already defaults to 'y' but just in case...
             $SUDO $LVCREATE -Zy -L ${SIZE}M --type thin-pool --thinpool $POOL_NAME $VG_NAME
             $SUDO $LVCHANGE -an $VG_NAME/$POOL_NAME
+            $SYNC
         fi
         $SUDO $LVCREATE -T $VG_NAME/$POOL_NAME -V ${SIZE}M -n $LV_NAME
     else
