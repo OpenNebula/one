@@ -31,7 +31,13 @@ import NestedLabelTree from '@modules/components/List/NestedLabelTree'
  * @param {object[]} props.selectedRows - Selected rows
  * @returns {ReactElement} Button component
  */
-const GlobalLabel = ({ selectedRows = [], type }) => {
+const GlobalLabel = ({
+  selectedRows = [],
+  type,
+  filters,
+  setFilter,
+  resetFilter,
+}) => {
   const [expanded, setExpanded] = useState([])
 
   const { labels } = useAuth()
@@ -76,6 +82,9 @@ const GlobalLabel = ({ selectedRows = [], type }) => {
             expanded={expanded}
             setExpanded={setExpanded}
             resourceType={type}
+            filters={filters}
+            setFilter={setFilter}
+            resetFilter={resetFilter}
           />
         )}
       </HeaderPopover>
@@ -87,6 +96,9 @@ GlobalLabel.propTypes = {
   selectedRows: PropTypes.array,
   useUpdateMutation: PropTypes.func,
   type: PropTypes.string,
+  filters: PropTypes.array,
+  setFilter: PropTypes.func,
+  resetFilter: PropTypes.func,
 }
 
 GlobalLabel.displayName = 'GlobalLabel'

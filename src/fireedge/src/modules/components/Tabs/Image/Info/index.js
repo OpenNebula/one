@@ -127,6 +127,7 @@ const ImageInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
           {...ATTRIBUTE_FUNCTION}
           attributes={TEMPLATE}
           actions={getActions(attributesPanel?.actions)}
+          filtersSpecialAttributes={false}
           title={Tr(T.Attributes)}
         />
       )}

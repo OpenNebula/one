@@ -236,7 +236,8 @@ export const QuotaControls = memo(
 
         const formatResourceNames = []
           .concat(result?.data)
-          ?.map(({ NAME }) => NAME)
+          ?.map(({ NAME } = {}) => NAME)
+          ?.filter(Boolean)
 
         setExistingResourceIds(formatResourceNames)
       }

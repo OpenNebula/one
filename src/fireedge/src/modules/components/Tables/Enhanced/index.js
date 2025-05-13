@@ -279,6 +279,13 @@ const EnhancedTable = ({
     }
   }
 
+  const inclusiveArrayMatch = (tRows, id, fv) =>
+    tRows.filter((row) => {
+      const rowVal = row.values[id]
+
+      return Array.isArray(rowVal) && fv.some((val) => rowVal.includes(val))
+    })
+
   const useTableProps = useTable(
     {
       columns,
@@ -287,6 +294,9 @@ const EnhancedTable = ({
       globalFilter,
       sortTypes,
       getRowId,
+      filterTypes: {
+        inclusiveArrayMatch,
+      },
       // When table has update, disable all of the auto resetting
       autoResetHiddenColumns: false,
       autoResetExpanded: false,
@@ -502,6 +512,9 @@ const EnhancedTable = ({
                 selectedRows={selectedRows}
                 useUpdateMutation={useUpdateMutation}
                 type={resourceType}
+                filters={state.filters}
+                setFilter={setFilter}
+                resetFilter={handleResetFilters}
               />
             )}
             <GlobalFilter {...useTableProps} />

@@ -1613,7 +1613,7 @@ module.exports = {
   Card: 'Card',
   Cardinality: 'Cardinality',
   FullPath: 'Full path',
-  AddNewLabel: 'Add new label',
+  AddNewLabel: 'New label',
   AddedNewLabel: 'Added new label',
   FailedApplyLabel: 'Could not apply label',
   Parent: 'Parent',

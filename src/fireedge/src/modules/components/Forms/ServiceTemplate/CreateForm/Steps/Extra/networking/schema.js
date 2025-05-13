@@ -67,7 +67,7 @@ const DESCRIPTION = {
 const SIZE = {
   name: 'size',
   label: 'Size',
-  dependOf: NETWORK_TYPE.name,
+  dependOf: 'type',
   type: INPUT_TYPES.TEXT,
   htmlType: (TYPE) => (!TYPE || TYPE !== 'reserve_from') && INPUT_TYPES.HIDDEN,
   validation: lazy((_, { parent } = {}) => {
@@ -92,9 +92,9 @@ const NETWORK_SELECTION = (required = false) => ({
   name: 'value',
   label: 'Network',
   type: INPUT_TYPES.TABLE,
+  dependOf: 'type',
   Table: (TYPE) =>
     TYPE === 'template_id' ? VnTemplatesTable.Table : VnsTable.Table,
-  dependOf: NETWORK_TYPE.name,
   validation: string().trim()[required ? 'required' : 'notRequired'](),
   grid: { md: 12 },
   singleSelect: true,

@@ -59,8 +59,7 @@ const AttributePanel = memo(
     const classes = useMemo(() => useStyles(theme), [theme])
 
     const canUseAction = useCallback(
-      (_name, action) =>
-        actions?.includes?.(action) && !filtersSpecialAttributes,
+      (action) => actions?.includes?.(action) && !filtersSpecialAttributes,
       [actions?.length]
     )
 
@@ -69,9 +68,9 @@ const AttributePanel = memo(
         name,
         value,
         showActionsOnHover: true,
-        canCopy: canUseAction(name, COPY),
-        canEdit: canUseAction(name, EDIT),
-        canDelete: canUseAction(name, DELETE),
+        canCopy: canUseAction(COPY),
+        canEdit: canUseAction(EDIT),
+        canDelete: canUseAction(DELETE),
         handleEdit,
         handleDelete,
         askToDelete,

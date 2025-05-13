@@ -34,6 +34,6 @@ export default [
     Header: T.Label,
     id: 'label',
     accessor: 'TEMPLATE.LABELS',
-    filter: 'arrIncludesSome',
+    filter: 'inclusiveArrayMatch',
   },
 ]

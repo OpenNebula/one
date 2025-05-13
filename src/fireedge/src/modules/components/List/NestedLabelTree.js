@@ -26,12 +26,12 @@ import { TreeView, TreeItem } from '@mui/lab'
 import { T, STYLE_BUTTONS, RESOURCE_NAMES } from '@ConstantsModule'
 import { get, merge, debounce, partition } from 'lodash'
 import { Box, TextField, Stack, useTheme } from '@mui/material'
-import { sentenceCase } from '@UtilsModule'
 import StatusChip from '@modules/components/Status/Chip'
 import { GroupAPI, UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
 import AddLabelDialog from '@modules/components/List/AddLabelDialog'
 import SubmitButton from '@modules/components/FormControl/SubmitButton'
 import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
+import { LABEL_COLUMN_ID } from '@modules/components/Tables/Enhanced/Utils'
 
 const renderTree = (
   defaultLabels,
@@ -58,9 +58,7 @@ const renderTree = (
     const isUser = nodeType === 'user' && labelType == null
     const selectedGroup = selectedLabels?.[nodeType]
     const nodeId = parentId ? `${parentId}/${key}` : key
-    const labelText = !isResource
-      ? sentenceCase(key?.replace(/\$/g, ''))
-      : `#${key}`
+    const labelText = !isResource ? key?.replace(/\$/g, '') : `#${key}`
     const inPath = selectedGroup?.some((label) => label.includes(nodeId))
     const isMainSelection = selectedGroup?.includes(nodeId)
     const isResourceParent =
@@ -182,11 +180,13 @@ const renderTree = (
                       type: STYLE_BUTTONS.TYPE.FILLED,
                       icon: <RemoveIcon />,
                       tooltip: T.Remove,
+                      'data-cy': `remove-${nodeType}/${nodeId}`,
                     }}
                     options={[
                       {
                         isConfirmDialog: true,
                         dialogProps: {
+                          disablePortal: true,
                           children: (
                             <p>{`${[
                               ...nodeId?.split('/')?.slice(0, -1),
@@ -235,6 +235,9 @@ const renderTree = (
  * @param {boolean} root0.enableAddDialog - Enables add new label button
  * @param {boolean} root0.renderResources - Render resources labels are applied to
  * @param {boolean} root0.disableSelect - Disable lable selection
+ * @param {Array} root0.filters - Current table filters
+ * @param {Function} root0.setFilter - Set table filters
+ * @param {Function} root0.resetFilter - Reset table filters
  * @returns {Component} - Nested tree view of labels
  */
 const NestedLabelTree = ({
@@ -243,6 +246,9 @@ const NestedLabelTree = ({
   renderResources = false,
   disableSelect = false,
   enableAddDialog = true,
+  filters,
+  setFilter,
+  resetFilter,
 }) => {
   const [expanded, setExpanded] = useState([])
   const { enqueueSuccess, enqueueError } = useGeneralApi()
@@ -494,6 +500,7 @@ const NestedLabelTree = ({
 
   const handleClearSelections = () => {
     setSelectedLabels([])
+    resetFilter()
   }
 
   const debouncedExpand = useMemo(
@@ -515,6 +522,20 @@ const NestedLabelTree = ({
 
     return () => debouncedExpand.cancel()
   }, [search])
+
+  const handleApplyFilter = () => {
+    const rawLabels = Object.values(selectedLabels)?.flat()
+    const fmtLabels = rawLabels?.map((lbl) =>
+      lbl?.split('/')?.slice(1)?.join('/').replace(/\$/g, '')
+    )
+    const currentFilter =
+      filters
+        ?.filter(({ id }) => id === LABEL_COLUMN_ID)
+        ?.map(({ value }) => value)
+        ?.flat() || []
+    const nextFilter = [...new Set([...currentFilter, ...fmtLabels])]
+    setFilter(LABEL_COLUMN_ID, nextFilter)
+  }
 
   const handleApplySelection = () => {
     if (!resourceType || !selectedRows || !rowIds) return
@@ -629,16 +650,28 @@ const NestedLabelTree = ({
             type={STYLE_BUTTONS.TYPE.FILLED}
           />
           {Object.values(selectedLabels)?.flat()?.length > 0 && (
-            <SubmitButton
-              data-cy={'clear-all'}
-              onClick={handleClearSelections}
-              isSubmitting={applyingUserLabel || applyingGroupLabel}
-              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
-              label={T.ClearSelection}
-              disabled={applyingUserLabel || applyingGroupLabel}
-              size={STYLE_BUTTONS.SIZE.MEDIUM}
-              type={STYLE_BUTTONS.TYPE.FILLED}
-            />
+            <>
+              <SubmitButton
+                data-cy={'clear-all'}
+                onClick={handleClearSelections}
+                isSubmitting={applyingUserLabel || applyingGroupLabel}
+                importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+                label={T.Clear}
+                disabled={applyingUserLabel || applyingGroupLabel}
+                size={STYLE_BUTTONS.SIZE.MEDIUM}
+                type={STYLE_BUTTONS.TYPE.FILLED}
+              />
+
+              <SubmitButton
+                data-cy={'apply-filter'}
+                onClick={handleApplyFilter}
+                importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+                label={T.Filter}
+                disabled={applyingUserLabel || applyingGroupLabel}
+                size={STYLE_BUTTONS.SIZE.MEDIUM}
+                type={STYLE_BUTTONS.TYPE.FILLED}
+              />
+            </>
           )}
           {resourceType &&
             selectedRows?.length > 0 &&
@@ -711,6 +744,9 @@ NestedLabelTree.propTypes = {
   enableAddDialog: PropTypes.bool,
   renderResources: PropTypes.bool,
   disableSelect: PropTypes.bool,
+  filters: PropTypes.array,
+  setFilter: PropTypes.func,
+  resetFilter: PropTypes.func,
 }
 
 export default NestedLabelTree

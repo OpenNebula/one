@@ -43,7 +43,7 @@ const COLUMNS = [
     Header: T.Label,
     id: 'label',
     accessor: 'TEMPLATE.LABELS',
-    filter: 'arrIncludesSome',
+    filter: 'inclusiveArrayMatch',
   },
   {
     Header: T.UsedLeases,
