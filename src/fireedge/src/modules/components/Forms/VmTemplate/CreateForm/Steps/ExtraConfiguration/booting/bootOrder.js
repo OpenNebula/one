@@ -108,9 +108,11 @@ const BootOrder = () => {
     () =>
       getValues(`${EXTRA_ID}.${STORAGE_ID}`)?.map((disk, idx) => {
         const isVolatile = !disk?.IMAGE && !disk?.IMAGE_ID
+        const id = disk?.DISK_ID ?? disk?.NAME?.match(/\d+/g)?.pop() ?? idx
+        const diskId = `disk${id}`
 
         return {
-          ID: `disk${disk?.DISK_ID}`,
+          ID: diskId,
           NAME: (
             <>
               <ImageIcon />
@@ -198,6 +200,7 @@ const BootOrder = () => {
                 return (
                   <Draggable
                     key={ID}
+                    data-cy={ID}
                     isDragDisabled={disabled}
                     draggableId={ID}
                     index={idx}
