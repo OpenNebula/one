@@ -32,6 +32,7 @@
 
         <xs:element name="CLUSTER_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="COLD_MIGRATE_MODE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="CONTEXT_ALLOW_ETH_UPDATES" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="CONTEXT_RESTRICTED_DIRS" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="CONTEXT_SAFE_DIRS" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="DATASTORE_CAPACITY_CHECK" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
