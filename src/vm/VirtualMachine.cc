@@ -3218,6 +3218,9 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     VectorAttribute * context_bck = obj_template->get("CONTEXT");
     VectorAttribute * context_new = tmpl->get("CONTEXT");
 
+    bool allow_eth_updates = false;
+    Nebula::instance().get_configuration_attribute("CONTEXT_ALLOW_ETH_UPDATES", allow_eth_updates);
+
     if ( context_bck == 0 && context_new != 0 )
     {
         err = "Virtual machine does not have context, cannot add a new one.";
@@ -3240,7 +3243,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
             if (in->first < ib->first)
             {
                 // Do not allow add new attribute with name ETHx_y
-                if (std::regex_match(in->first, regex("ETH\\d+_\\w+")))
+                if (!allow_eth_updates && std::regex_match(in->first, regex("ETH\\d+_\\w+")))
                 {
                     err = "Unable to add " + in->first +
                           ", update NIC to update network context";
@@ -3265,7 +3268,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
                 else
                 {
                     // Do not allow update attribute with name ETHx_y
-                    if (std::regex_match(in->first, regex("ETH\\d+_\\w+")))
+                    if (!allow_eth_updates && std::regex_match(in->first, regex("ETH\\d+_\\w+")))
                     {
                         err = "Unable to update " + in->first +
                               ", update NIC to update the network";
