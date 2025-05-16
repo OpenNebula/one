@@ -75,7 +75,7 @@ info-tabs:
     capacity_panel:
       enabled: true
       actions:
-        resize_capacity: true
+        resize: true
     monitoring_panel:
       enabled: true
       actions:
@@ -84,32 +84,28 @@ info-tabs:
       enabled: false
       actions:
         copy: true
-        add: true
+        add: false
         edit: false
         delete: false
 
   storage:
     enabled: true
     actions:
-      attach_disk:
+      disk-attach:
         enabled: true
       disk-detach: true
-      snapshot_disk_create: true
-      snapshot_disk_rename: true
-      snapshot_disk_revert: true
-      snapshot_disk_delete: true
-      resize_disk: true
+      disk-resize: true
       disk_saveas:
         enabled: true
 
   network:
     enabled: true
     actions:
-      attach_nic: true
-      detach_nic: true
-      update_nic: true
-      attach_secgroup: true
-      detach_secgroup: true
+      nic-attach: true
+      nic-detach: true
+      nic-update: true
+      sg-attach: true
+      sg-detach: true
 
   snapshot:
     enabled: true
@@ -127,9 +123,9 @@ info-tabs:
   sched_actions:
     enabled: true
     actions:
-      sched_action_create: true
-      sched_action_update: true
-      sched_action_delete: true
+      sched-add: true
+      sched-update: true
+      sched-delete: true
       charter_create: true
 
   configuration:

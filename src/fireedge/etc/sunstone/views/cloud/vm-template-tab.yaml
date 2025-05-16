@@ -26,7 +26,7 @@ actions:
   instantiate_dialog: true
   create_app_dialog: false # reference to create_dialog in marketplace-app-tab.yaml
   clone: false
-  delete: false
+  delete: true
   chown: false
   chgrp: false
   lock: false
