@@ -14,9 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+import { Graph, Tr, Translate } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { css } from '@emotion/css'
-import { Graph, Tr, Translate } from '@ComponentsModule'
 import {
   Box,
   LinearProgress,
@@ -178,7 +178,7 @@ const dataTypes = (theme) => ({
 const genericQuota = (quota) => {
   // Find the first object without the key 'CLUSTER_IDS' that is the generic quota
   if ([].concat(quota)) {
-    return quota.find((item) => !Object.hasOwn(item, 'CLUSTER_IDS')) ?? {}
+    return quota?.find?.((item) => !Object.hasOwn(item, 'CLUSTER_IDS')) ?? {}
   }
 }
 
