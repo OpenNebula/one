@@ -82,7 +82,7 @@ const Graphs = ({ id }) => {
             let yIdx = 0
 
             for (let i = 0; i < timestamps.length; i++) {
-              if (targetXId === timestamps[i]?.xId) {
+              if (timestamps[i]?.xIds?.includes(targetXId)) {
                 result[i] = yValues[yIdx]?.[labelPair] ?? null
                 yIdx++
               }
@@ -145,7 +145,7 @@ const Graphs = ({ id }) => {
             let yIdx = 0
 
             for (let i = 0; i < timestamps.length; i++) {
-              if (targetXId === timestamps[i]?.xId) {
+              if (timestamps[i]?.xIds?.includes(targetXId)) {
                 result[i] = yValues[yIdx]?.[labelPair] ?? null
                 yIdx++
               }

@@ -171,19 +171,23 @@ const Chartist = ({
       [[], []]
     )
 
-    const timestamps = [
-      ...new Set(
-        xValues
-          ?.flatMap((timestamp) =>
-            x?.map((transformX, xId) => ({
-              timestamp: transformX(timestamp),
-              xId,
-            }))
-          )
-          ?.filter(Boolean)
-          ?.sort((a, b) => a.timestamp - b.timestamp)
-      ),
-    ]
+    const timestamps = Array.from(
+      xValues.reduce((map, point) => {
+        x.forEach((transform, xId) => {
+          const ts = transform(point)
+          const entry = map.get(ts)
+          if (entry) {
+            if (!entry.includes(xId)) entry.push(xId)
+          } else {
+            map.set(ts, [xId])
+          }
+        })
+
+        return map
+      }, new Map())
+    )
+      .map(([timestamp, xIds]) => ({ timestamp, xIds }))
+      .sort((a, b) => a.timestamp - b.timestamp)
 
     if (!timestamps?.length) return []
 
