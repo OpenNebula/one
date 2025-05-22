@@ -79,5 +79,5 @@ require 'opennebula/backupjob_pool'
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '6.99.85'
+    VERSION = '6.99.90'
 end
