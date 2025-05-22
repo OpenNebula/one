@@ -1449,6 +1449,19 @@ module.exports = {
   PciDevices: 'PCI Devices',
   Profile: 'Profile',
   OsProfile: 'Operating System Profile',
+  FilterShortAddress: 'Short address',
+  FilterShortAddressConcept:
+    'Select PCI devices to filter by their short addresses.',
+  FilterPCIDevices: 'Filter PCI Devices',
+  vGPUProfile: 'vGPU Profile',
+  vGPUConcept:
+    'NVIDIA vGPU profiles assign custom amounts of dedicated graphics memory to each virtual machine.',
+  FilterExpression: 'Filter Expression',
+  PciConfigUpdated: 'PCI configuration updated #%s',
+  InvalidFilterExpression:
+    'Each expression must be in "vendor:device:class" format using 4-digit hex or "*"',
+  FilterExpressionConcept:
+    'Format is vendor:device:class with "*" as wild card. Example "10de:*,386e:0edc"',
   DeviceName: 'Device name',
   Device: 'Device',
   DeviceTooltip:

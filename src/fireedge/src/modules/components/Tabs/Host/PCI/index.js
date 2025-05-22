@@ -16,11 +16,11 @@
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 import { HostAPI } from '@FeaturesModule'
-import { Stack } from '@mui/material'
+import { Box } from '@mui/material'
 import { PcisTable } from '@modules/components/Tables'
 import { getHostPcis } from '@ModelsModule'
 import { T } from '@ConstantsModule'
-
+import { ProfileSelector } from '@modules/components/Tabs/Common/PCI'
 /**
  * Renders mainly information tab.
  *
@@ -29,18 +29,30 @@ import { T } from '@ConstantsModule'
  * @returns {ReactElement} Information tab
  */
 const HostPciTab = ({ id }) => {
+  const [update] = HostAPI.useUpdateHostMutation()
   const { data: host = {} } = HostAPI.useGetHostQuery({ id })
   const pcis = getHostPcis(host)
 
   return (
-    <Stack
-      display="grid"
-      gap="1em"
-      gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
-      padding={{ sm: '0.8em' }}
-    >
+    <Box display="grid" gridTemplateColumns="1fr 2fr" gap={1} height="100%">
+      <Box
+        sx={{
+          pr: 1,
+          borderRight: '1px solid',
+          borderColor: 'divider',
+          height: '100%',
+        }}
+      >
+        <ProfileSelector
+          id={id}
+          host={host}
+          update={update}
+          resource={host}
+          forceSync
+        />
+      </Box>
       <PcisTable.Table disableRowSelect disableGlobalSort pcis={pcis} />
-    </Stack>
+    </Box>
   )
 }
 

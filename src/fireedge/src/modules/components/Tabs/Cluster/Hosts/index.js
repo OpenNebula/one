@@ -15,11 +15,12 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { Stack } from '@mui/material'
+import { Box } from '@mui/material'
 import { HostsTable } from '@modules/components/Tables'
-import { ClusterAPI } from '@FeaturesModule'
+import { ClusterAPI, HostAPI } from '@FeaturesModule'
 import { useHistory, generatePath } from 'react-router-dom'
 import { PATH } from '@modules/components/path'
+import { ProfileSelector } from '@modules/components/Tabs/Common/PCI'
 const _ = require('lodash')
 
 /**
@@ -30,8 +31,10 @@ const _ = require('lodash')
  * @returns {ReactElement} Hosts tab
  */
 const Hosts = ({ id }) => {
+  const [update] = ClusterAPI.useUpdateClusterMutation()
   // Get info about the cluster
   const { data: cluster } = ClusterAPI.useGetClusterQuery({ id })
+  const { data: hosts = [] } = HostAPI.useGetHostsQuery()
 
   // Define function to get details of a host
   const history = useHistory()
@@ -42,29 +45,41 @@ const Hosts = ({ id }) => {
   }
 
   // Get hosts of the cluster
-  const hosts = _.isEmpty(cluster?.HOSTS)
+  const hostIds = _.isEmpty(cluster?.HOSTS)
     ? []
     : Array.isArray(cluster?.HOSTS?.ID)
     ? cluster?.HOSTS?.ID
     : [cluster?.HOSTS?.ID]
 
+  const filterHosts = []
+    .concat(hosts)
+    ?.filter(({ ID }) => hostIds?.includes(ID))
+
   return (
-    <div>
-      <Stack
-        display="grid"
-        gap="1em"
-        gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
-        padding={{ sm: '0.8em' }}
+    <Box display="grid" gridTemplateColumns="1fr 2fr" gap={1} height="100%">
+      <Box
+        sx={{
+          pr: 1,
+          borderRight: '1px solid',
+          borderColor: 'divider',
+          height: '100%',
+        }}
       >
-        <HostsTable.Table
-          disableRowSelect
-          filter={(dataToFilter) =>
-            dataToFilter.filter((host) => _.includes(hosts, host.ID))
-          }
-          onRowClick={(row) => handleRowClick(row.ID)}
+        <ProfileSelector
+          id={id}
+          host={filterHosts}
+          update={update}
+          resource={cluster}
         />
-      </Stack>
-    </div>
+      </Box>
+      <HostsTable.Table
+        disableRowSelect
+        filter={(dataToFilter) =>
+          dataToFilter.filter((host) => _.includes(hostIds, host.ID))
+        }
+        onRowClick={(row) => handleRowClick(row.ID)}
+      />
+    </Box>
   )
 }
 
