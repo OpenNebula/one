@@ -23,19 +23,19 @@ import {
   VrsTable,
   VrTabs,
 } from '@ComponentsModule'
-import { T, VmTemplate, SERVER_CONFIG } from '@ConstantsModule'
-import { useGeneral, VrAPI, useGeneralApi, useAuth } from '@FeaturesModule'
+import { SERVER_CONFIG, T, VmTemplate } from '@ConstantsModule'
+import { useAuth, useGeneral, useGeneralApi, VrAPI } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect, useState } from 'react'
 
 /**
  * Displays a list of VM Templates with a split pane between the list and selected row(s).
@@ -44,7 +44,7 @@ import { memo, ReactElement, useState, useEffect } from 'react'
  */
 export function VirtualRouters() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = VrsTable.Actions()
+  const actions = VrsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

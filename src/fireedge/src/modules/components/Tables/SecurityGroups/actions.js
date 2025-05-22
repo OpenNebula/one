@@ -14,25 +14,25 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { Plus, Group, Trash } from 'iconoir-react'
+import { Group, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { PATH, Form } from '@modules/components'
-import { useViews, SecurityGroupAPI } from '@FeaturesModule'
+import { SecurityGroupAPI, useViews } from '@FeaturesModule'
+import { Form, PATH } from '@modules/components'
 
 import {
   GlobalAction,
   createActions,
 } from '@modules/components/Tables/Enhanced/Utils'
 
-import { Tr, Translate } from '@modules/components/HOC'
 import {
   RESOURCE_NAMES,
   SEC_GROUP_ACTIONS,
-  T,
   STYLE_BUTTONS,
+  T,
 } from '@ConstantsModule'
+import { Tr, Translate } from '@modules/components/HOC'
 const { SecurityGroup, Vm } = Form
 
 const ListSecGroupNames = ({ rows = [] }) =>
@@ -68,9 +68,12 @@ const MessageToConfirmAction = (rows, message) => (
 /**
  * Generates the actions to operate resources on Security Groups table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [clone] = SecurityGroupAPI.useCloneSegGroupMutation()
@@ -250,6 +253,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => deleteSecGroup({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

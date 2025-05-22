@@ -17,9 +17,9 @@ import { Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
+import { BackupJobAPI, useViews } from '@FeaturesModule'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
-import { useViews, BackupJobAPI } from '@FeaturesModule'
-import { Plus, Group, Lock, PlayOutline, Trash } from 'iconoir-react'
+import { Group, Lock, PlayOutline, Plus, Trash } from 'iconoir-react'
 
 import { PATH } from '@modules/components/path'
 import {
@@ -27,14 +27,14 @@ import {
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
 
-import { Translate } from '@modules/components/HOC'
 import {
   BACKUPJOB_ACTIONS,
   RESOURCE_NAMES,
-  T,
   STYLE_BUTTONS,
+  T,
 } from '@ConstantsModule'
 import { isVmAvailableAction } from '@ModelsModule'
+import { Translate } from '@modules/components/HOC'
 
 const isDisabled = (action) => (rows) =>
   !isVmAvailableAction(
@@ -73,9 +73,12 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on Backup Jobs Template table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [changeOwnership] = BackupJobAPI.useChangeBackupJobOwnershipMutation()
@@ -251,6 +254,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => deleteBackupJob({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

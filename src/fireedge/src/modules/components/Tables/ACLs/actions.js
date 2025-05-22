@@ -14,20 +14,20 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { Plus, DesignPencil, Trash } from 'iconoir-react'
+import { DesignPencil, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useViews, AclAPI } from '@FeaturesModule'
+import { AclAPI, useViews } from '@FeaturesModule'
 
 import {
   createActions,
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
 
+import { ACL_ACTIONS, RESOURCE_NAMES, STYLE_BUTTONS, T } from '@ConstantsModule'
+import { Tr, Translate } from '@modules/components/HOC'
 import { PATH } from '@modules/components/path'
-import { Translate, Tr } from '@modules/components/HOC'
-import { RESOURCE_NAMES, T, ACL_ACTIONS, STYLE_BUTTONS } from '@ConstantsModule'
 
 import { translateACL } from '@ModelsModule'
 
@@ -62,9 +62,12 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on ACL table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [remove] = AclAPI.useRemoveAclMutation()
@@ -114,6 +117,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

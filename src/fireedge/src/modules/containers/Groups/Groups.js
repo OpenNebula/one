@@ -23,19 +23,19 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Group, T, SERVER_CONFIG } from '@ConstantsModule'
-import { GroupAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
+import { Group, SERVER_CONFIG, T } from '@ConstantsModule'
+import { GroupAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect, useState } from 'react'
 
 /**
  * Displays a list of Groups with a split pane between the list and selected row(s).
@@ -44,7 +44,7 @@ import { memo, ReactElement, useState, useEffect } from 'react'
  */
 export function Groups() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = GroupsTable.Actions()
+  const actions = GroupsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

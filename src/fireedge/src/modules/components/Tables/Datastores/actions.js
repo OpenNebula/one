@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { ClusterAPI, DatastoreAPI, useViews } from '@FeaturesModule'
 import { ChangeClusterForm } from '@modules/components/Forms/Cluster'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 import { Translate } from '@modules/components/HOC'
@@ -20,18 +21,17 @@ import {
   GlobalAction,
   createActions,
 } from '@modules/components/Tables/Enhanced/Utils'
-import { useViews, ClusterAPI, DatastoreAPI } from '@FeaturesModule'
-import { Plus, Group, MoreVert, Trash } from 'iconoir-react'
+import { Group, MoreVert, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { PATH } from '@modules/components/path'
 import {
   DATASTORE_ACTIONS,
   RESOURCE_NAMES,
-  T,
   STYLE_BUTTONS,
+  T,
 } from '@ConstantsModule'
+import { PATH } from '@modules/components/path'
 
 const MessageToConfirmAction = (rows) => {
   const names = rows?.map?.(({ original }) => original?.NAME)
@@ -54,9 +54,12 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on Datastore table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [enable] = DatastoreAPI.useEnableDatastoreMutation()
@@ -231,6 +234,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

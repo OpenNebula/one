@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Typography } from '@mui/material'
+import { Group, Lock, PlayOutline, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Typography } from '@mui/material'
-import { Plus, Trash, PlayOutline, Lock, Group } from 'iconoir-react'
 
 import { useViews, VmTemplateAPI, VrTemplateAPI } from '@FeaturesModule'
 
-import { ChangeUserForm, ChangeGroupForm } from '@modules/components/Forms/Vm'
+import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 import { CloneForm, DeleteForm } from '@modules/components/Forms/VmTemplate'
 import {
   createActions,
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
 
-import { Tr, Translate } from '@modules/components/HOC'
-import { PATH } from '@modules/components/path'
 import {
-  T,
-  VROUTER_TEMPLATE_ACTIONS,
   RESOURCE_NAMES,
   STYLE_BUTTONS,
+  T,
+  VROUTER_TEMPLATE_ACTIONS,
 } from '@ConstantsModule'
+import { Tr, Translate } from '@modules/components/HOC'
+import { PATH } from '@modules/components/path'
 
 const ListVrTemplateNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -67,10 +67,13 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on VM Template table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
   const history = useHistory()
+  const { setSelectedRows } = props
   const { view, getResourceView } = useViews()
 
   const [fetchVrs] = VrTemplateAPI.useLazyGetVrTemplatesQuery()
@@ -327,6 +330,7 @@ const Actions = () => {
                   const { image } = formData ?? {}
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id, image })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

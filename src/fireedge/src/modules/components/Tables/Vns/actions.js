@@ -14,11 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography, useTheme } from '@mui/material'
-import { Plus, Group, Lock, Trash } from 'iconoir-react'
+import { Group, Lock, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useViews, ClusterAPI, VnAPI } from '@FeaturesModule'
+import { ClusterAPI, VnAPI, useViews } from '@FeaturesModule'
 import { isVnAvailableAction } from '@ModelsModule'
 
 import { ChangeClusterForm } from '@modules/components/Forms/Cluster'
@@ -31,9 +31,9 @@ import {
 } from '@modules/components/Tables/Enhanced/Utils'
 import VnTemplatesTable from '@modules/components/Tables/VnTemplates'
 
-import { PATH } from '@modules/components/path'
-import { RESOURCE_NAMES, T, VN_ACTIONS, STYLE_BUTTONS } from '@ConstantsModule'
+import { RESOURCE_NAMES, STYLE_BUTTONS, T, VN_ACTIONS } from '@ConstantsModule'
 import { css } from '@emotion/css'
+import { PATH } from '@modules/components/path'
 
 const isDisabled = (action) => (rows) =>
   !isVnAvailableAction(
@@ -84,9 +84,12 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on Virtual networks table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [changeCluster] = ClusterAPI.useAddNetworkToClusterMutation()
@@ -370,6 +373,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

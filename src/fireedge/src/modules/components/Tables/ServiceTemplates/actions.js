@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Box, Typography } from '@mui/material'
+import { Group, PlayOutline, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Box, Typography } from '@mui/material'
-import { Plus, Trash, PlayOutline, Group } from 'iconoir-react'
 
-import { useViews, ServiceTemplateAPI } from '@FeaturesModule'
+import { ServiceTemplateAPI, useViews } from '@FeaturesModule'
 
-import { ChangeUserForm, ChangeGroupForm } from '@modules/components/Forms/Vm'
+import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 import {
   createActions,
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
 
+import {
+  RESOURCE_NAMES,
+  SERVICE_TEMPLATE_ACTIONS,
+  STYLE_BUTTONS,
+  T,
+} from '@ConstantsModule'
 import { Translate } from '@modules/components/HOC'
 import { PATH } from '@modules/components/path'
-import {
-  T,
-  SERVICE_TEMPLATE_ACTIONS,
-  RESOURCE_NAMES,
-  STYLE_BUTTONS,
-} from '@ConstantsModule'
 
 const ListServiceTemplateNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -66,9 +66,12 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on VM Template table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
 
@@ -232,6 +235,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

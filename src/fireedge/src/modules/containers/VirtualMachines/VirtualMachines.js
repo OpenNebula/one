@@ -54,7 +54,7 @@ export function VirtualMachines() {
   const [dismissError] = VmAPI.useUpdateUserTemplateMutation()
   const dispatch = useDispatch()
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = VmsTable.Actions(selectedRows)
+  const actions = VmsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   useEffect(() => {

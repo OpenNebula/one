@@ -18,21 +18,21 @@ import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useViews, GroupAPI } from '@FeaturesModule'
+import { GroupAPI, useViews } from '@FeaturesModule'
 
 import {
   createActions,
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
 
-import { PATH } from '@modules/components/path'
-import { Translate } from '@modules/components/HOC'
 import {
-  RESOURCE_NAMES,
-  T,
   GROUP_ACTIONS,
+  RESOURCE_NAMES,
   STYLE_BUTTONS,
+  T,
 } from '@ConstantsModule'
+import { Translate } from '@modules/components/HOC'
+import { PATH } from '@modules/components/path'
 
 const ListGroupNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -63,9 +63,12 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on Groups table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [remove] = GroupAPI.useRemoveGroupMutation()
@@ -120,6 +123,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

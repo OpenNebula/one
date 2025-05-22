@@ -26,21 +26,21 @@ import {
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useState, useEffect } from 'react'
+import { ReactElement, memo, useEffect, useState } from 'react'
 
-import { T, SERVER_CONFIG } from '@ConstantsModule'
+import { SERVER_CONFIG, T } from '@ConstantsModule'
 import {
   BackupJobAPI,
+  useAuth,
   useGeneral,
   useGeneralApi,
-  useAuth,
 } from '@FeaturesModule'
 
 /**
@@ -50,7 +50,7 @@ import {
  */
 export function BackupJobs() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = BackupJobsTable.Actions()
+  const actions = BackupJobsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

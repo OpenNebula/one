@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Typography, useTheme } from '@mui/material'
 import { css } from '@emotion/css'
+import { Typography, useTheme } from '@mui/material'
 import {
-  Plus,
   Cart,
   Group,
   Lock,
   PlayOutline,
+  Plus,
   SaveFloppyDisk,
+  Settings,
   TransitionRight,
   Trash,
-  Settings,
 } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useViews, useGeneralApi, DatastoreAPI, VmAPI } from '@FeaturesModule'
+import { DatastoreAPI, VmAPI, useGeneralApi, useViews } from '@FeaturesModule'
 
 import {
   GlobalAction,
@@ -37,10 +37,10 @@ import {
 } from '@modules/components/Tables/Enhanced/Utils'
 import VmTemplatesTable from '@modules/components/Tables/Vms/VmTemplateTable'
 
-import { PATH, Form } from '@modules/components'
-import { Translate } from '@modules/components/HOC'
-import { RESOURCE_NAMES, T, VM_ACTIONS, STYLE_BUTTONS } from '@ConstantsModule'
+import { RESOURCE_NAMES, STYLE_BUTTONS, T, VM_ACTIONS } from '@ConstantsModule'
 import { getLastHistory, isVmAvailableAction } from '@ModelsModule'
+import { Form, PATH } from '@modules/components'
+import { Translate } from '@modules/components/HOC'
 const { Vm, Backup } = Form
 
 const useTableStyles = () => ({
@@ -93,9 +93,12 @@ const MessageToConfirmAction = (rows) => (
 /**
  * Generates the actions to operate resources on VM table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const { enqueueSuccess } = useGeneralApi()
@@ -686,6 +689,7 @@ const Actions = () => {
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'terminate' }))
                   )
+                  setSelectedRows && setSelectedRows([])
                 },
               },
               {
@@ -703,6 +707,7 @@ const Actions = () => {
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'terminate-hard' }))
                   )
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

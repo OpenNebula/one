@@ -23,19 +23,19 @@ import {
   VmGroupTabs,
   VmGroupsTable,
 } from '@ComponentsModule'
-import { T, VmGroup, SERVER_CONFIG } from '@ConstantsModule'
-import { VmGroupAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
+import { SERVER_CONFIG, T, VmGroup } from '@ConstantsModule'
+import { VmGroupAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useState, useEffect } from 'react'
+import { ReactElement, memo, useEffect, useState } from 'react'
 
 /**
  * Displays a list of VmGroups with a split pane between the list and selected row(s).
@@ -44,7 +44,7 @@ import { ReactElement, memo, useState, useEffect } from 'react'
  */
 export function VmGroups() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = VmGroupsTable.Actions()
+  const actions = VmGroupsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

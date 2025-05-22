@@ -14,26 +14,26 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { Plus, Trash, MoreVert, Group } from 'iconoir-react'
+import { Group, MoreVert, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useViews, MarketplaceAPI } from '@FeaturesModule'
+import { MarketplaceAPI, useViews } from '@FeaturesModule'
 
 import {
   createActions,
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
 
-import { PATH } from '@modules/components/path'
-import { Translate } from '@modules/components/HOC'
 import {
-  RESOURCE_NAMES,
-  T,
   MARKETPLACE_ACTIONS,
+  RESOURCE_NAMES,
   STYLE_BUTTONS,
+  T,
 } from '@ConstantsModule'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
+import { Translate } from '@modules/components/HOC'
+import { PATH } from '@modules/components/path'
 
 const ListMarketplaceNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -66,9 +66,12 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on Groups table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [remove] = MarketplaceAPI.useRemoveMarketplaceMutation()
@@ -209,6 +212,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

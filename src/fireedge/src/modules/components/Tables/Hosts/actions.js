@@ -22,8 +22,8 @@ import {
   HOST_STATES,
   RESOURCE_NAMES,
   STATES,
-  T,
   STYLE_BUTTONS,
+  T,
 } from '@ConstantsModule'
 import {
   ClusterAPI,
@@ -68,9 +68,12 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on Host table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const dispatch = useDispatch()
   const { enqueueError, enqueueInfo } = useGeneralApi()
   const history = useHistory()
@@ -216,6 +219,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

@@ -23,24 +23,24 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Marketplace, T, SERVER_CONFIG } from '@ConstantsModule'
+import { Marketplace, SERVER_CONFIG, T } from '@ConstantsModule'
 import {
   MarketplaceAPI,
+  useAuth,
   useGeneral,
   useGeneralApi,
-  useAuth,
 } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect, useState } from 'react'
 
 /**
  * Displays a list of Marketplaces with a split pane between the list and selected row(s).
@@ -49,7 +49,7 @@ import { memo, ReactElement, useState, useEffect } from 'react'
  */
 export function Marketplaces() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = MarketplacesTable.Actions()
+  const actions = MarketplacesTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

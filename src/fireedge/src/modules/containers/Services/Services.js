@@ -17,14 +17,14 @@
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect, useState } from 'react'
 
 import {
   MultipleTags,
@@ -35,8 +35,8 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { T, SERVER_CONFIG } from '@ConstantsModule'
-import { ServiceAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
+import { SERVER_CONFIG, T } from '@ConstantsModule'
+import { ServiceAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 
 /**
  * Displays a list of Service with a split pane between
@@ -46,7 +46,7 @@ import { ServiceAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
  */
 export function Services() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = ServicesTable.Actions()
+  const actions = ServicesTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

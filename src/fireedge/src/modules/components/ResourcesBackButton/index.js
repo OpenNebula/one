@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, useTheme, useMediaQuery } from '@mui/material'
+import { SERVER_CONFIG } from '@ConstantsModule'
+import { useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import SplitPane from '@modules/components/SplitPane'
 import { GlobalActions } from '@modules/components/Tables/Enhanced/Utils'
 import Pagination from '@modules/components/Tables/Enhanced/pagination'
 import EnhancedTableStyles from '@modules/components/Tables/Enhanced/styles'
-import { SERVER_CONFIG } from '@ConstantsModule'
-import { useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
+import { Box, useMediaQuery, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -206,7 +206,7 @@ const ResourcesBackButton = memo(
                         condition={moreThanOneSelected}
                         valid={
                           <Pagination
-                            className={styles.pagination}
+                            styles={styles.pagination}
                             handleChangePage={(index) => setPageIndex(index)}
                             count={countSelectedRows}
                             showPageCount={true}

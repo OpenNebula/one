@@ -14,11 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { Plus, Cart, Group, Lock, MoreVert, Trash } from 'iconoir-react'
+import { Cart, Group, Lock, MoreVert, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useViews, ImageAPI } from '@FeaturesModule'
+import { ImageAPI, useViews } from '@FeaturesModule'
 
 import { CloneForm } from '@modules/components/Forms/Image'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
@@ -27,16 +27,16 @@ import {
   createActions,
 } from '@modules/components/Tables/Enhanced/Utils'
 
-import { PATH } from '@modules/components/path'
-import { Tr, Translate } from '@modules/components/HOC'
 import {
   IMAGE_ACTIONS,
   RESOURCE_NAMES,
+  STYLE_BUTTONS,
   T,
   VM_ACTIONS,
-  STYLE_BUTTONS,
 } from '@ConstantsModule'
 import { isVmAvailableAction } from '@ModelsModule'
+import { Tr, Translate } from '@modules/components/HOC'
+import { PATH } from '@modules/components/path'
 
 const isDisabled = (action) => (rows) =>
   !isVmAvailableAction(
@@ -72,9 +72,12 @@ const MessageToConfirmAction = (rows) => (
 /**
  * Generates the actions to operate resources on Image table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [clone] = ImageAPI.useCloneImageMutation()
@@ -347,6 +350,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => deleteImage({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

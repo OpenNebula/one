@@ -23,24 +23,24 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Datastore, T, SERVER_CONFIG } from '@ConstantsModule'
+import { Datastore, SERVER_CONFIG, T } from '@ConstantsModule'
 import {
   DatastoreAPI,
+  useAuth,
   useGeneral,
   useGeneralApi,
-  useAuth,
 } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect, useState } from 'react'
 
 /**
  * Displays a list of Datastores with a split pane between the list and selected row(s).
@@ -49,7 +49,7 @@ import { memo, ReactElement, useState, useEffect } from 'react'
  */
 export function Datastores() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = DatastoresTable.Actions()
+  const actions = DatastoresTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

@@ -17,7 +17,7 @@ import { Typography } from '@mui/material'
 import { Group, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 
-import { useViews, ImageAPI } from '@FeaturesModule'
+import { ImageAPI, useViews } from '@FeaturesModule'
 
 import { RestoreForm } from '@modules/components/Forms/Backup'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
@@ -26,14 +26,14 @@ import {
   createActions,
 } from '@modules/components/Tables/Enhanced/Utils'
 
-import { Translate } from '@modules/components/HOC'
 import {
   IMAGE_ACTIONS,
   RESOURCE_NAMES,
-  T,
   STYLE_BUTTONS,
+  T,
 } from '@ConstantsModule'
 import { isVmAvailableAction } from '@ModelsModule'
+import { Translate } from '@modules/components/HOC'
 
 const isDisabled = (action) => (rows) =>
   !isVmAvailableAction(
@@ -69,9 +69,12 @@ const MessageToConfirmAction = (rows) => (
 /**
  * Generates the actions to operate resources on Backup table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const { view, getResourceView } = useViews()
   const [changeOwnership] = ImageAPI.useChangeImageOwnershipMutation()
   const [restoreBackup] = ImageAPI.useRestoreBackupMutation()
@@ -217,6 +220,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => deleteImage({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

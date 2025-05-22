@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Typography } from '@mui/material'
+import { Cart, Group, Lock, PlayOutline, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Typography } from '@mui/material'
-import { Trash, PlayOutline, Lock, Group, Cart, Plus } from 'iconoir-react'
 
 import { useViews, VmTemplateAPI } from '@FeaturesModule'
 
@@ -25,14 +25,14 @@ import {
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
 
-import { Tr, Translate } from '@modules/components/HOC'
-import { PATH, Form } from '@modules/components'
 import {
-  T,
-  VM_TEMPLATE_ACTIONS,
   RESOURCE_NAMES,
   STYLE_BUTTONS,
+  T,
+  VM_TEMPLATE_ACTIONS,
 } from '@ConstantsModule'
+import { Form, PATH } from '@modules/components'
+import { Tr, Translate } from '@modules/components/HOC'
 const { Vm, VmTemplate } = Form
 
 const ListVmTemplateNames = ({ rows = [] }) =>
@@ -66,9 +66,12 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on VM Template table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
 
@@ -335,6 +338,7 @@ const Actions = () => {
                   const { image } = formData ?? {}
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id, image })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

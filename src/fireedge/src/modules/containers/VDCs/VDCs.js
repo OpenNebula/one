@@ -23,19 +23,19 @@ import {
   VDCsTable,
   VDCTabs,
 } from '@ComponentsModule'
-import { T, VmTemplate as VdcTemplate, SERVER_CONFIG } from '@ConstantsModule'
-import { useGeneral, VdcAPI, useGeneralApi, useAuth } from '@FeaturesModule'
+import { SERVER_CONFIG, T, VmTemplate as VdcTemplate } from '@ConstantsModule'
+import { useAuth, useGeneral, useGeneralApi, VdcAPI } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect, useState } from 'react'
 
 /**
  * Displays a list of VDCs with a split pane between the list and selected row(s).
@@ -44,7 +44,7 @@ import { memo, ReactElement, useState, useEffect } from 'react'
  */
 export function VDCs() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = VDCsTable.Actions()
+  const actions = VDCsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

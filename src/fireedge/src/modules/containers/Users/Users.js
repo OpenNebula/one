@@ -23,19 +23,19 @@ import {
   UserTabs,
   UsersTable,
 } from '@ComponentsModule'
-import { T, User, SERVER_CONFIG } from '@ConstantsModule'
-import { UserAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
+import { SERVER_CONFIG, T, User } from '@ConstantsModule'
+import { UserAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useState, useEffect } from 'react'
+import { ReactElement, memo, useEffect, useState } from 'react'
 
 /**
  * Displays a list of Users with a split pane between the list and selected row(s).
@@ -44,7 +44,7 @@ import { ReactElement, memo, useState, useEffect } from 'react'
  */
 export function Users() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = UsersTable.Actions()
+  const actions = UsersTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

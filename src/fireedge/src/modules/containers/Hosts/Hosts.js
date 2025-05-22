@@ -23,20 +23,20 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Host, T, SERVER_CONFIG } from '@ConstantsModule'
-import { HostAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
+import { Host, SERVER_CONFIG, T } from '@ConstantsModule'
+import { HostAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import { MuiProvider, SunstoneTheme } from '@ProvidersModule'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect, useState } from 'react'
 
 /**
  * Displays a list of Hosts with a split pane between the list and selected row(s).
@@ -45,7 +45,7 @@ import { memo, ReactElement, useState, useEffect } from 'react'
  */
 export function Hosts() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = HostsTable.Actions()
+  const actions = HostsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

@@ -23,19 +23,19 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Image, T, SERVER_CONFIG } from '@ConstantsModule'
-import { ImageAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
+import { Image, SERVER_CONFIG, T } from '@ConstantsModule'
+import { ImageAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect, useState } from 'react'
 
 /**
  * Displays a list of Backups with a split pane between the list and selected row(s).
@@ -44,7 +44,7 @@ import { memo, ReactElement, useState, useEffect } from 'react'
  */
 export function Backups() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = BackupsTable.Actions(selectedRows)
+  const actions = BackupsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
   const { refetch, isFetching } = ImageAPI.useGetBackupsQuery()
 

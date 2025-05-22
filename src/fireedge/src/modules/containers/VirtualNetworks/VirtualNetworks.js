@@ -23,19 +23,19 @@ import {
   VnTabs,
   VnsTable,
 } from '@ComponentsModule'
-import { T, VirtualNetwork, SERVER_CONFIG } from '@ConstantsModule'
-import { VnAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
+import { SERVER_CONFIG, T, VirtualNetwork } from '@ConstantsModule'
+import { VnAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useState, useEffect } from 'react'
+import { ReactElement, memo, useEffect, useState } from 'react'
 
 /**
  * Displays a list of Virtual Networks with a split pane between the list and selected row(s).
@@ -44,7 +44,7 @@ import { ReactElement, memo, useState, useEffect } from 'react'
  */
 export function VirtualNetworks() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = VnsTable.Actions()
+  const actions = VnsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

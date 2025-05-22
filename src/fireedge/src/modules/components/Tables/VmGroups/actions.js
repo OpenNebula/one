@@ -25,14 +25,14 @@ import {
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
 
-import { PATH } from '@modules/components/path'
-import { Translate } from '@modules/components/HOC'
 import {
   RESOURCE_NAMES,
+  STYLE_BUTTONS,
   T,
   VMGROUP_ACTIONS,
-  STYLE_BUTTONS,
 } from '@ConstantsModule'
+import { Translate } from '@modules/components/HOC'
+import { PATH } from '@modules/components/path'
 
 const ListVmGroupNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -63,9 +63,12 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 /**
  * Generates the actions to operate resources on VmGroup table.
  *
+ * @param {object} props - datatable props
+ * @param {Function} props.setSelectedRows - set selected rows
  * @returns {GlobalAction} - Actions
  */
-const Actions = () => {
+const Actions = (props = {}) => {
+  const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [enable] = VmGroupAPI.useUnlockVMGroupMutation()
@@ -151,6 +154,7 @@ const Actions = () => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id })))
+                  setSelectedRows && setSelectedRows([])
                 },
               },
             ],

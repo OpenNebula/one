@@ -17,14 +17,14 @@
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect, useState } from 'react'
 
 import {
   FilesTable,
@@ -35,8 +35,8 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Image, T, SERVER_CONFIG } from '@ConstantsModule'
-import { ImageAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
+import { Image, SERVER_CONFIG, T } from '@ConstantsModule'
+import { ImageAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 
 /**
  * Displays a list of Files with a split pane between the list and selected row(s).
@@ -45,7 +45,7 @@ import { ImageAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
  */
 export function Files() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = FilesTable.Actions()
+  const actions = FilesTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
 
   return (

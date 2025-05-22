@@ -34,7 +34,7 @@ import { ReactElement, useState } from 'react'
 export function ACLs() {
   const [selectedRows, setSelectedRows] = useState(() => [])
   const { zone } = useGeneral()
-  const actions = ACLsTable.Actions()
+  const actions = ACLsTable.Actions({ selectedRows, setSelectedRows })
 
   return (
     <TranslateProvider>

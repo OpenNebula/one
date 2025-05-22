@@ -17,14 +17,14 @@
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect, useState } from 'react'
 
 import {
   MultipleTags,
@@ -35,12 +35,12 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { T, SERVER_CONFIG } from '@ConstantsModule'
+import { SERVER_CONFIG, T } from '@ConstantsModule'
 import {
   ServiceTemplateAPI,
+  useAuth,
   useGeneral,
   useGeneralApi,
-  useAuth,
 } from '@FeaturesModule'
 
 /**
@@ -51,7 +51,10 @@ import {
  */
 export function ServiceTemplates() {
   const [selectedRows, setSelectedRows] = useState(() => [])
-  const actions = ServiceTemplatesTable.Actions()
+  const actions = ServiceTemplatesTable.Actions({
+    selectedRows,
+    setSelectedRows,
+  })
   const { zone } = useGeneral()
 
   return (
