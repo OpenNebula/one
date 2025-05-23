@@ -29,13 +29,14 @@ import { memo, ReactElement, useEffect, useState } from 'react'
 import {
   FilesTable,
   FileTabs,
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Image, SERVER_CONFIG, T } from '@ConstantsModule'
+import { Image, RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
 import { ImageAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 
 /**
@@ -94,9 +95,10 @@ export function Files() {
  * @param {Image} file - File to display
  * @param {Function} [gotoPage] - Function to navigate to a page of an Image
  * @param {Function} [unselect] - Function to unselect a Image
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Image details
  */
-const InfoTabs = memo(({ file, gotoPage, unselect }) => {
+const InfoTabs = memo(({ file, gotoPage, unselect, selectedRows }) => {
   const [getImage, { data: lazyData, isFetching }] =
     ImageAPI.useLazyGetImageQuery()
   const id = file?.ID ?? lazyData?.ID
@@ -136,6 +138,12 @@ const InfoTabs = memo(({ file, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.FILE}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

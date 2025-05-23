@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
@@ -23,7 +24,7 @@ import {
   VmGroupTabs,
   VmGroupsTable,
 } from '@ComponentsModule'
-import { SERVER_CONFIG, T, VmGroup } from '@ConstantsModule'
+import { RESOURCE_NAMES, SERVER_CONFIG, T, VmGroup } from '@ConstantsModule'
 import { VmGroupAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
@@ -95,9 +96,10 @@ export function VmGroups() {
  * @param {VmGroup} user - VmGroup to display
  * @param {Function} [gotoPage] - Function to navigate to a page of an VmGroup
  * @param {Function} [unselect] - Function to unselect a VmGroup
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} VmGroup details
  */
-const InfoTabs = memo(({ user, gotoPage, unselect }) => {
+const InfoTabs = memo(({ user, gotoPage, unselect, selectedRows }) => {
   const [get, { data: lazyData, isFetching }] =
     VmGroupAPI.useLazyGetVMGroupQuery()
   const id = user?.ID ?? lazyData?.ID
@@ -137,6 +139,12 @@ const InfoTabs = memo(({ user, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.VM_GROUP}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

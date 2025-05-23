@@ -27,6 +27,7 @@ import PropTypes from 'prop-types'
 import { memo, ReactElement, useEffect, useState } from 'react'
 
 import {
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   ServiceTemplatesTable,
@@ -35,7 +36,7 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { SERVER_CONFIG, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
 import {
   ServiceTemplateAPI,
   useAuth,
@@ -103,9 +104,10 @@ export function ServiceTemplates() {
  * @param {object} template - Service Template to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Service Template
  * @param {Function} [unselect] - Function to unselect a Service Template
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Service Template details
  */
-const InfoTabs = memo(({ template, gotoPage, unselect }) => {
+const InfoTabs = memo(({ template, gotoPage, unselect, selectedRows }) => {
   const [get, { data: lazyData, isFetching }] =
     ServiceTemplateAPI.useLazyGetServiceTemplateQuery()
   const id = template?.ID ?? lazyData?.ID
@@ -145,6 +147,12 @@ const InfoTabs = memo(({ template, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.SERVICE_TEMPLATE}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

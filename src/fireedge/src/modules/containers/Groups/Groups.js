@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   GroupsTable,
   GroupTabs,
   MultipleTags,
@@ -23,7 +24,7 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Group, SERVER_CONFIG, T } from '@ConstantsModule'
+import { Group, RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
 import { GroupAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
@@ -95,9 +96,10 @@ export function Groups() {
  * @param {Group} group - Group to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Group
  * @param {Function} [unselect] - Function to unselect a Group
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Group details
  */
-const InfoTabs = memo(({ group, gotoPage, unselect }) => {
+const InfoTabs = memo(({ group, gotoPage, unselect, selectedRows }) => {
   const [get, { data: lazyData, isFetching }] = GroupAPI.useLazyGetGroupQuery()
   const id = group?.ID ?? lazyData?.ID
 
@@ -136,6 +138,12 @@ const InfoTabs = memo(({ group, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.GROUP}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

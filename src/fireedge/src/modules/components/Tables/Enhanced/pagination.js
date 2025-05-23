@@ -45,10 +45,10 @@ const Pagination = ({
   const endItem = Math.min((pageIndex + 1) * pageSize, count)
 
   return (
-    <div className={styles.pagination}>
+    <div className={styles?.pagination}>
       {useTableProps?.setPageSize && (
         <>
-          <Typography className={styles.paginationText}>
+          <Typography className={styles?.paginationText}>
             {`${Tr(T.RowsPerPage)}`}
           </Typography>
           <Tooltip
@@ -56,7 +56,7 @@ const Pagination = ({
             arrow
             placement="top"
             disableInteractive
-            className={styles.left}
+            className={styles?.left}
           >
             <Select
               value={pageSize}
@@ -88,7 +88,7 @@ const Pagination = ({
       )}
       {showPageCount && (
         <>
-          <Typography className={styles.paginationText}>
+          <Typography className={styles?.paginationText}>
             {`${startItem}-${endItem} ${Tr(T.Of)} ${count}`}
           </Typography>
           <Button
@@ -97,7 +97,7 @@ const Pagination = ({
             onClick={handleBackButtonClick}
             size="small"
             color="inherit"
-            className={styles.paginationArrow}
+            className={styles?.paginationArrow}
           >
             <NavArrowLeft />
           </Button>
@@ -108,7 +108,7 @@ const Pagination = ({
             size="small"
             color="inherit"
             sx={{ minWidth: '1.5rem', height: '1.5rem', padding: '0.5rem' }}
-            className={styles.paginationArrow}
+            className={styles?.paginationArrow}
           >
             <NavArrowRight />
           </Button>

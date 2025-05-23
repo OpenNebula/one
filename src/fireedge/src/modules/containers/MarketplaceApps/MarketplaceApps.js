@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   MarketplaceAppsTable,
   MarketplaceAppsTabs,
   MultipleTags,
@@ -23,7 +24,12 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { MarketplaceApp, SERVER_CONFIG, T } from '@ConstantsModule'
+import {
+  MarketplaceApp,
+  RESOURCE_NAMES,
+  SERVER_CONFIG,
+  T,
+} from '@ConstantsModule'
 import {
   MarketplaceAppAPI,
   useAuth,
@@ -103,9 +109,10 @@ export function MarketplaceApps() {
  * @param {MarketplaceApp} app - Marketplace App to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Marketplace App
  * @param {Function} [unselect] - Function to unselect a Marketplace App
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Marketplace App details
  */
-const InfoTabs = memo(({ app, gotoPage, unselect }) => {
+const InfoTabs = memo(({ app, gotoPage, unselect, selectedRows }) => {
   const [get, queryState] = MarketplaceAppAPI.useLazyGetMarketplaceAppQuery()
   const { data: lazyData, isFetching } = queryState
 
@@ -147,6 +154,12 @@ const InfoTabs = memo(({ app, gotoPage, unselect }) => {
           </Stack>
 
           <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+            {fullModeDefault && (
+              <GlobalLabel
+                selectedRows={selectedRows}
+                type={RESOURCE_NAMES?.APP}
+              />
+            )}
             {!fullModeDefault && (
               <SubmitButton
                 data-cy="detail-full-mode"

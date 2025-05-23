@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
@@ -23,7 +24,7 @@ import {
   VmTemplateTabs,
   VmTemplatesTable,
 } from '@ComponentsModule'
-import { SERVER_CONFIG, T, VmTemplate } from '@ConstantsModule'
+import { RESOURCE_NAMES, SERVER_CONFIG, T, VmTemplate } from '@ConstantsModule'
 import {
   VmTemplateAPI,
   useAuth,
@@ -102,9 +103,10 @@ export function VmTemplates() {
  * @param {VmTemplate} template - VM Template id to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a VM Template
  * @param {Function} [unselect] - Function to unselect a VM Template
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} VM Template details
  */
-const InfoTabs = memo(({ template, gotoPage, unselect }) => {
+const InfoTabs = memo(({ template, gotoPage, unselect, selectedRows }) => {
   const [getTemplate, { data, isFetching }] =
     VmTemplateAPI.useLazyGetTemplateQuery()
   const id = template?.ID ?? data?.ID
@@ -145,6 +147,12 @@ const InfoTabs = memo(({ template, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.VM_TEMPLATE}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

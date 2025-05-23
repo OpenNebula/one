@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import {
-  Plus as AddIcon,
-  Trash as RemoveIcon,
-  NavArrowDown as ExpandMoreIcon,
-  NavArrowRight as ChevronRightIcon,
-} from 'iconoir-react'
-import { getColorFromString } from '@ModelsModule'
-import { Component, useState, useMemo, useCallback, useEffect } from 'react'
-import { TreeView, TreeItem } from '@mui/lab'
-import { T, STYLE_BUTTONS, RESOURCE_NAMES } from '@ConstantsModule'
-import { get, merge, debounce, partition } from 'lodash'
-import { Box, TextField, Stack, useTheme } from '@mui/material'
-import StatusChip from '@modules/components/Status/Chip'
+import { RESOURCE_NAMES, STYLE_BUTTONS, T } from '@ConstantsModule'
 import { GroupAPI, UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
-import AddLabelDialog from '@modules/components/List/AddLabelDialog'
+import { getColorFromString } from '@ModelsModule'
 import SubmitButton from '@modules/components/FormControl/SubmitButton'
 import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
+import AddLabelDialog from '@modules/components/List/AddLabelDialog'
+import StatusChip from '@modules/components/Status/Chip'
 import { LABEL_COLUMN_ID } from '@modules/components/Tables/Enhanced/Utils'
+import { TreeItem, TreeView } from '@mui/lab'
+import { Box, Stack, TextField, useTheme } from '@mui/material'
+import {
+  Plus as AddIcon,
+  NavArrowRight as ChevronRightIcon,
+  NavArrowDown as ExpandMoreIcon,
+  Trash as RemoveIcon,
+} from 'iconoir-react'
+import { debounce, get, merge, partition } from 'lodash'
+import PropTypes from 'prop-types'
+import { Component, useCallback, useEffect, useMemo, useState } from 'react'
 
 const renderTree = (
   defaultLabels,
@@ -662,15 +662,17 @@ const NestedLabelTree = ({
                 type={STYLE_BUTTONS.TYPE.FILLED}
               />
 
-              <SubmitButton
-                data-cy={'apply-filter'}
-                onClick={handleApplyFilter}
-                importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
-                label={T.Filter}
-                disabled={applyingUserLabel || applyingGroupLabel}
-                size={STYLE_BUTTONS.SIZE.MEDIUM}
-                type={STYLE_BUTTONS.TYPE.FILLED}
-              />
+              {filters && setFilter && resetFilter && (
+                <SubmitButton
+                  data-cy={'apply-filter'}
+                  onClick={handleApplyFilter}
+                  importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+                  label={T.Filter}
+                  disabled={applyingUserLabel || applyingGroupLabel}
+                  size={STYLE_BUTTONS.SIZE.MEDIUM}
+                  type={STYLE_BUTTONS.TYPE.FILLED}
+                />
+              )}
             </>
           )}
           {resourceType &&

@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
@@ -23,7 +24,7 @@ import {
   UserTabs,
   UsersTable,
 } from '@ComponentsModule'
-import { SERVER_CONFIG, T, User } from '@ConstantsModule'
+import { RESOURCE_NAMES, SERVER_CONFIG, T, User } from '@ConstantsModule'
 import { UserAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
@@ -95,9 +96,10 @@ export function Users() {
  * @param {User} user - User to display
  * @param {Function} [gotoPage] - Function to navigate to a page of an User
  * @param {Function} [unselect] - Function to unselect a User
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} User details
  */
-const InfoTabs = memo(({ user, gotoPage, unselect }) => {
+const InfoTabs = memo(({ user, gotoPage, unselect, selectedRows }) => {
   const [get, { data: lazyData, isFetching }] = UserAPI.useLazyGetUserQuery()
   const id = user?.ID ?? lazyData?.ID
 
@@ -124,6 +126,12 @@ const InfoTabs = memo(({ user, gotoPage, unselect }) => {
         mb={1}
       >
         <Stack direction="row">
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.USER}
+            />
+          )}
           {fullModeDefault && (
             <SubmitButton
               data-cy="detail-back"

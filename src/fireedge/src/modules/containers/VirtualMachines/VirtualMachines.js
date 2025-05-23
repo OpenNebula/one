@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
@@ -23,7 +24,7 @@ import {
   VmsTable,
   VmTabs,
 } from '@ComponentsModule'
-import { SERVER_CONFIG, T, VM } from '@ConstantsModule'
+import { RESOURCE_NAMES, SERVER_CONFIG, T, VM } from '@ConstantsModule'
 import {
   setSelectedIds,
   useAuth,
@@ -125,10 +126,11 @@ export function VirtualMachines() {
  * @param {VM} vm - VM to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a VM
  * @param {Function} [unselect] - Function to unselect a VM
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} VM details
  */
 const InfoTabs = memo(
-  ({ vm, gotoPage, unselect, handleDismissError, tags }) => {
+  ({ vm, gotoPage, unselect, handleDismissError, tags, selectedRows }) => {
     const [getVm, { data: lazyData, isFetching }] = VmAPI.useLazyGetVmQuery()
     const id = vm?.ID ?? lazyData?.ID
     const RowActions = VmsTable.RowActions
@@ -175,6 +177,12 @@ const InfoTabs = memo(
           />
 
           <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+            {fullModeDefault && (
+              <GlobalLabel
+                selectedRows={selectedRows}
+                type={RESOURCE_NAMES?.VM}
+              />
+            )}
             {!fullModeDefault && (
               <SubmitButton
                 data-cy="detail-full-mode"

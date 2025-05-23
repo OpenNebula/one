@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
@@ -23,7 +24,12 @@ import {
   VDCsTable,
   VDCTabs,
 } from '@ComponentsModule'
-import { SERVER_CONFIG, T, VmTemplate as VdcTemplate } from '@ConstantsModule'
+import {
+  RESOURCE_NAMES,
+  SERVER_CONFIG,
+  T,
+  VmTemplate as VdcTemplate,
+} from '@ConstantsModule'
 import { useAuth, useGeneral, useGeneralApi, VdcAPI } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
@@ -95,9 +101,10 @@ export function VDCs() {
  * @param {VdcTemplate} template - VDC Template id to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a VDC Template
  * @param {Function} [unselect] - Function to unselect a VDC Template
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} VDC Template details
  */
-const InfoTabs = memo(({ template, gotoPage, unselect }) => {
+const InfoTabs = memo(({ template, gotoPage, unselect, selectedRows }) => {
   const [getVDC, { data, isFetching }] = VdcAPI.useLazyGetVDCQuery()
   const id = template?.ID ?? data?.ID
 
@@ -136,6 +143,12 @@ const InfoTabs = memo(({ template, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.VDC}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

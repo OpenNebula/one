@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   HostsTable,
   HostTabs,
   MultipleTags,
@@ -23,7 +24,7 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Host, SERVER_CONFIG, T } from '@ConstantsModule'
+import { Host, RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
 import { HostAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import { MuiProvider, SunstoneTheme } from '@ProvidersModule'
@@ -98,9 +99,10 @@ export function Hosts() {
  * @param {Host} host - Host to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Host
  * @param {Function} [unselect] - Function to unselect a Host
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Host details
  */
-const InfoTabs = memo(({ host, gotoPage, unselect }) => {
+const InfoTabs = memo(({ host, gotoPage, unselect, selectedRows }) => {
   const [getVm, { data: lazyData, isFetching }] = HostAPI.useLazyGetHostQuery()
   const id = host?.ID ?? lazyData?.ID
 
@@ -139,6 +141,12 @@ const InfoTabs = memo(({ host, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.HOST}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

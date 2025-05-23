@@ -17,12 +17,20 @@
 import {
   BackupJobsTable,
   BackupJobsTabs,
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
+import { RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
+import {
+  BackupJobAPI,
+  useAuth,
+  useGeneral,
+  useGeneralApi,
+} from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
@@ -34,14 +42,6 @@ import {
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
 import { ReactElement, memo, useEffect, useState } from 'react'
-
-import { SERVER_CONFIG, T } from '@ConstantsModule'
-import {
-  BackupJobAPI,
-  useAuth,
-  useGeneral,
-  useGeneralApi,
-} from '@FeaturesModule'
 
 /**
  * Displays a list of Backup Jobs with a split pane between the list and selected row(s).
@@ -101,9 +101,10 @@ export function BackupJobs() {
  * @param {object} template - Backup Job Template id to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Backup Job Template
  * @param {Function} [unselect] - Function to unselect a Backup Job Template
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Backup Job Template details
  */
-const InfoTabs = memo(({ template, gotoPage, unselect }) => {
+const InfoTabs = memo(({ template, gotoPage, unselect, selectedRows }) => {
   const [getBackupJob, { data, isFetching }] =
     BackupJobAPI.useLazyGetBackupJobQuery()
   const id = template?.ID ?? data?.ID
@@ -143,6 +144,12 @@ const InfoTabs = memo(({ template, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.BACKUPJOBS}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

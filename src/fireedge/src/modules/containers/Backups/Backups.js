@@ -17,13 +17,14 @@
 import {
   BackupsTable,
   BackupTabs,
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Image, SERVER_CONFIG, T } from '@ConstantsModule'
+import { Image, RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
 import { ImageAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
@@ -98,9 +99,10 @@ export function Backups() {
  * @param {Image} image - Image to display
  * @param {Function} [gotoPage] - Function to navigate to a page of an Image
  * @param {Function} [unselect] - Function to unselect a Image
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Image details
  */
-const InfoTabs = memo(({ image, gotoPage, unselect }) => {
+const InfoTabs = memo(({ image, gotoPage, unselect, selectedRows }) => {
   const [getImage, { data: lazyData, isFetching }] =
     ImageAPI.useLazyGetImageQuery()
   const id = image?.ID ?? lazyData?.ID
@@ -140,6 +142,12 @@ const InfoTabs = memo(({ image, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.BACKUP}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

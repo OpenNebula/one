@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   MarketplacesTable,
   MarketplaceTabs,
   MultipleTags,
@@ -23,7 +24,7 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Marketplace, SERVER_CONFIG, T } from '@ConstantsModule'
+import { Marketplace, RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
 import {
   MarketplaceAPI,
   useAuth,
@@ -100,9 +101,10 @@ export function Marketplaces() {
  * @param {Marketplace} market - Marketplace to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Marketplace
  * @param {Function} [unselect] - Function to unselect a Marketplace
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Marketplace details
  */
-const InfoTabs = memo(({ market, gotoPage, unselect }) => {
+const InfoTabs = memo(({ market, gotoPage, unselect, selectedRows }) => {
   const [get, { data: lazyData, isFetching }] =
     MarketplaceAPI.useLazyGetMarketplaceQuery()
   const id = market?.ID ?? lazyData?.ID
@@ -142,6 +144,12 @@ const InfoTabs = memo(({ market, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.MARKETPLACE}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

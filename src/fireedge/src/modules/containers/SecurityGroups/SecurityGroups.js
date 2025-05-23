@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SecurityGroupsTable,
@@ -23,7 +24,7 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Image, SERVER_CONFIG, T } from '@ConstantsModule'
+import { Image, RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
 import {
   SecurityGroupAPI,
   useAuth,
@@ -100,9 +101,10 @@ export function SecurityGroups() {
  * @param {Image} securityGroup - Security Group to display
  * @param {Function} [gotoPage] - Function to navigate to a page of an Security Group
  * @param {Function} [unselect] - Function to unselect a Security Group
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Security Group details
  */
-const InfoTabs = memo(({ securityGroup, gotoPage, unselect }) => {
+const InfoTabs = memo(({ securityGroup, gotoPage, unselect, selectedRows }) => {
   const [getSecurityGroup, { data: lazyData, isFetching }] =
     SecurityGroupAPI.useLazyGetSecGroupQuery()
   const id = securityGroup?.ID ?? lazyData?.ID
@@ -142,6 +144,12 @@ const InfoTabs = memo(({ securityGroup, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.SEC_GROUP}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

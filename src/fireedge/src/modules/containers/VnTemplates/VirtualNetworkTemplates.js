@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
@@ -23,7 +24,12 @@ import {
   VnTemplateTabs,
   VnTemplatesTable,
 } from '@ComponentsModule'
-import { SERVER_CONFIG, T, VNetworkTemplate } from '@ConstantsModule'
+import {
+  RESOURCE_NAMES,
+  SERVER_CONFIG,
+  T,
+  VNetworkTemplate,
+} from '@ConstantsModule'
 import {
   VnTemplateAPI,
   useAuth,
@@ -100,9 +106,10 @@ export function VnTemplates() {
  * @param {VNetworkTemplate} vnTemplate - VNet Template to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a VNet Template
  * @param {Function} [unselect] - Function to unselect
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} VNet Template details
  */
-const InfoTabs = memo(({ vnTemplate, gotoPage, unselect }) => {
+const InfoTabs = memo(({ vnTemplate, gotoPage, unselect, selectedRows }) => {
   const [get, { data: lazyData, isFetching }] =
     VnTemplateAPI.useLazyGetVNTemplateQuery()
   const id = vnTemplate?.ID ?? lazyData?.ID
@@ -143,6 +150,12 @@ const InfoTabs = memo(({ vnTemplate, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.VN_TEMPLATE}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

@@ -17,13 +17,14 @@
 import {
   DatastoresTable,
   DatastoreTabs,
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Datastore, SERVER_CONFIG, T } from '@ConstantsModule'
+import { Datastore, RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
 import {
   DatastoreAPI,
   useAuth,
@@ -100,9 +101,10 @@ export function Datastores() {
  * @param {Datastore} datastore - Datastore to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Datastore
  * @param {Function} [unselect] - Function to unselect a Datastore
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Datastore details
  */
-const InfoTabs = memo(({ datastore, gotoPage, unselect }) => {
+const InfoTabs = memo(({ datastore, gotoPage, unselect, selectedRows }) => {
   const [getDatastore, { data: lazyData, isFetching }] =
     DatastoreAPI.useLazyGetDatastoreQuery()
   const id = datastore?.ID ?? lazyData?.ID
@@ -142,6 +144,12 @@ const InfoTabs = memo(({ datastore, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.DATASTORE}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

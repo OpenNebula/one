@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
@@ -23,7 +24,12 @@ import {
   VnTabs,
   VnsTable,
 } from '@ComponentsModule'
-import { SERVER_CONFIG, T, VirtualNetwork } from '@ConstantsModule'
+import {
+  RESOURCE_NAMES,
+  SERVER_CONFIG,
+  T,
+  VirtualNetwork,
+} from '@ConstantsModule'
 import { VnAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
@@ -95,9 +101,10 @@ export function VirtualNetworks() {
  * @param {VirtualNetwork} vnet - Virtual Network to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Virtual Network
  * @param {Function} [unselect] - Function to unselect
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Virtual Network details
  */
-const InfoTabs = memo(({ vnet, gotoPage, unselect }) => {
+const InfoTabs = memo(({ vnet, gotoPage, unselect, selectedRows }) => {
   const [get, { data: lazyData, isFetching }] = VnAPI.useLazyGetVNetworkQuery()
   const id = vnet?.ID ?? lazyData?.ID
 
@@ -136,6 +143,12 @@ const InfoTabs = memo(({ vnet, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.VNET}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"

@@ -17,13 +17,14 @@
 import {
   ClustersTable,
   ClusterTabs,
+  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Cluster, SERVER_CONFIG, T } from '@ConstantsModule'
+import { Cluster, RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
 import { ClusterAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
@@ -96,9 +97,10 @@ export function Clusters() {
  * @param {Cluster} cluster - Cluster to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Cluster
  * @param {Function} [unselect] - Function to unselect a Cluster
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Cluster details
  */
-const InfoTabs = memo(({ cluster, gotoPage, unselect }) => {
+const InfoTabs = memo(({ cluster, gotoPage, unselect, selectedRows }) => {
   const [get, { data: lazyData, isFetching }] =
     ClusterAPI.useLazyGetClustersQuery()
   const id = cluster?.ID ?? lazyData?.ID
@@ -138,6 +140,12 @@ const InfoTabs = memo(({ cluster, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {fullModeDefault && (
+            <GlobalLabel
+              selectedRows={selectedRows}
+              type={RESOURCE_NAMES?.CLUSTER}
+            />
+          )}
           {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"
