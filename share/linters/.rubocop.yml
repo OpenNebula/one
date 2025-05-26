@@ -22,6 +22,16 @@
 AllCops:
   TargetRubyVersion: 2.5.9
   Exclude:
+# one-ee-tools repo
+    - src/onegather/*
+    - src/onecfg/*/*/*
+    - src/onedb/*/*
+    - src/onesupport/*
+    - src/ovirtapi/tests/*
+    - src/oneverify/*
+    - src/onenetapp/*/*/*
+    - src/onecfg/*/*/*/*
+# one repo
     - /**/*.schema
     - src/onecfg/lib/config/type/yaml.rb
     - src/tm_mad
