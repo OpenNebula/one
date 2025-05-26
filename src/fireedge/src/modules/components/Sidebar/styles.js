@@ -70,8 +70,8 @@ export default (theme, fixed) => ({
     },
   }),
   drawerFixed: css({
-    width: sidebar.fixed,
-    visibility: 'visible',
+    width: sidebar.fixed + 'px !important',
+    visibility: 'visible !important',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
