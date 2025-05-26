@@ -14,14 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import {
-  object,
-  array,
-  string,
-  boolean,
-  number,
-  ref,
   ObjectSchema,
+  array,
+  boolean,
   mixed,
+  number,
+  object,
+  ref,
+  string,
 } from 'yup'
 
 import { useSelector } from 'react-redux'
@@ -68,7 +68,7 @@ const NAME = {
   validation: string()
     .trim()
     .required()
-    .default(() => undefined),
+    .default(() => ''),
   grid: { sm: 6, md: 4 },
   fieldProps: { freeSolo: true },
 }
