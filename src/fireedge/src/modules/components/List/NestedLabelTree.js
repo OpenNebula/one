@@ -248,7 +248,7 @@ const NestedLabelTree = ({
   enableAddDialog = true,
   filters,
   setFilter,
-  resetFilter,
+  resetFilter = () => undefined,
 }) => {
   const [expanded, setExpanded] = useState([])
   const { enqueueSuccess, enqueueError } = useGeneralApi()
