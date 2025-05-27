@@ -311,6 +311,29 @@ void Host::update_wilds()
         add_template_attribute("WILDS", wild.str());
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Cluster* Host::get_cluster() const
+{
+    if (cluster_obj != nullptr)
+    {
+        return cluster_obj.get();
+    }
+
+    if (cluster_id == -1)
+    {
+        return nullptr;
+    }
+
+    auto cpool = Nebula::instance().get_clpool();
+
+    cluster_obj = cpool->get_ro(cluster_id);
+
+    return cluster_obj.get();
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -492,9 +515,7 @@ void Host::get_hostcluster_attr(const std::string& name, std::string& value) con
         return;
     }
 
-    auto cpool = Nebula::instance().get_clpool();
-
-    if (auto cluster = cpool->get_ro(cluster_id))
+    if (auto cluster = get_cluster())
     {
         cluster->get_template_attribute(name, value);
     }
@@ -515,14 +536,9 @@ void Host::reserved_capacity(string& rcpu, string& rmem) const
     string cluster_rcpu = "";
     string cluster_rmem = "";
 
-    if (cluster_id != -1)
+    if (auto cluster = get_cluster())
     {
-        auto cpool = Nebula::instance().get_clpool();
-
-        if (auto cluster = cpool->get_ro(cluster_id))
-        {
-            cluster->get_reserved_capacity(cluster_rcpu, cluster_rmem);
-        }
+        cluster->get_reserved_capacity(cluster_rcpu, cluster_rmem);
     }
 
     if (rcpu.empty())

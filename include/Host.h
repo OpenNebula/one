@@ -21,6 +21,7 @@
 #include "HostTemplate.h"
 #include "HostMonitoringTemplate.h"
 #include "HostShare.h"
+#include "Cluster.h"
 #include "ClusterableSingle.h"
 #include "ObjectCollection.h"
 #include "NebulaLog.h"
@@ -336,7 +337,7 @@ public:
 
     void update_zombies(const std::set<int>& ids);
 
-        /**
+    /**
      *  Search the Object for a given attribute in a set of object specific
      *  routes.
      *    @param name of the attribute
@@ -401,6 +402,12 @@ private:
      */
     std::string cluster_template_xml;
 
+
+    /**
+     * Cached value of the Cluster object
+     */
+    mutable std::unique_ptr<Cluster> cluster_obj;
+
     // *************************************************************************
     // Constructor
     // *************************************************************************
@@ -429,6 +436,8 @@ private:
     void get_hostcluster_attr(const std::string& name, std::string& value) const;
 
     void update_wilds();
+
+    Cluster* get_cluster() const;
 
     /* ---------------------------------------------------------------------- */
     /* Functions to search for values in the HostXML object                   */
