@@ -445,7 +445,10 @@ int LibVirtDriver::validate_template(const VirtualMachine* vm, int hid,
 
     get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE", firmware);
 
-    if ( !firmware.empty() && !one_util::icasecmp(firmware, "BIOS") )
+    // Skip validation for BIOS (default) and auto (autoselection)
+    if ( !firmware.empty() &&
+         !one_util::icasecmp(firmware, "BIOS") &&
+         !one_util::icasecmp(firmware, "auto") )
     {
         string ovmf_uefis;
 
@@ -828,7 +831,25 @@ int LibVirtDriver::deployment_description_kvm(
     //  OS and boot options
     // ------------------------------------------------------------------------
 
-    file << "\t<os>" << endl;
+    // Check if firmware is set to auto for autoselection
+    string firmware;
+    bool boot_secure = false;
+
+    get_attribute(vm, host, cluster, "OS", "FIRMWARE", firmware);
+
+    get_attribute(vm, host, cluster, "OS", "FIRMWARE_SECURE", boot_secure);
+
+    bool is_efi_auto = one_util::icasecmp(firmware, "auto");
+    bool is_uefi     = !firmware.empty() && !one_util::icasecmp(firmware, "BIOS") && !is_efi_auto;
+
+    if (is_efi_auto)
+    {
+        file << "\t<os firmware='efi'>" << endl;
+    }
+    else
+    {
+        file << "\t<os>" << endl;
+    }
 
     get_attribute(vm, host, cluster, "OS", "ARCH", arch);
     get_attribute(vm, host, cluster, "OS", "MACHINE", machine);
@@ -882,19 +903,27 @@ int LibVirtDriver::deployment_description_kvm(
              << "</bootloader>\n";
     }
 
-    bool boot_secure = false;
-    string firmware;
+    if ( is_efi_auto )
+    {
+        // Check if secure boot is enabled
+        file << "\t\t<firmware>\n";
 
-    get_attribute(vm, host, cluster, "OS", "FIRMWARE", firmware);
+        if (boot_secure)
+        {
+            file << "\t\t\t<feature enabled='yes' name='secure-boot'/>\n";
+        }
+        else
+        {
+            file << "\t\t\t<feature enabled='no' name='secure-boot'/>\n";
+        }
 
-    bool is_uefi = !firmware.empty() && !one_util::icasecmp(firmware, "BIOS");
-
-    if ( is_uefi )
+        file << "\t\t</firmware>\n";
+    }
+    else if ( is_uefi )
     {
         string firmware_secure = "no";
 
-        if ( get_attribute(vm, host, cluster, "OS", "FIRMWARE_SECURE",
-                           boot_secure) && boot_secure)
+        if (boot_secure)
         {
             firmware_secure = "yes";
         }
