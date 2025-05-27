@@ -448,7 +448,7 @@ int LibVirtDriver::validate_template(const VirtualMachine* vm, int hid,
     // Skip validation for BIOS (default) and auto (autoselection)
     if ( !firmware.empty() &&
          !one_util::icasecmp(firmware, "BIOS") &&
-         !one_util::icasecmp(firmware, "auto") )
+         !one_util::icasecmp(firmware, "UEFI") )
     {
         string ovmf_uefis;
 
@@ -839,7 +839,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     get_attribute(vm, host, cluster, "OS", "FIRMWARE_SECURE", boot_secure);
 
-    bool is_efi_auto = one_util::icasecmp(firmware, "auto");
+    bool is_efi_auto = one_util::icasecmp(firmware, "UEFI");
     bool is_uefi     = !firmware.empty() && !one_util::icasecmp(firmware, "BIOS") && !is_efi_auto;
 
     if (is_efi_auto)
