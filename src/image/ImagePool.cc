@@ -412,6 +412,13 @@ int ImagePool::acquire_disk(int               vm_id,
         }
     }
 
+    // Generate SERIAL if set to "auto"
+    if (disk->vector_value("SERIAL") == "auto")
+    {
+        string serial = std::to_string(vm_id) + "-" + std::to_string(disk_id);
+        disk->replace("SERIAL", serial);
+    }
+
     disk->replace("DISK_ID", disk_id);
 
     return rc;

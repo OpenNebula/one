@@ -528,6 +528,7 @@ int LibVirtDriver::deployment_description_kvm(
     string discard;
     string source;
     string clone;
+    string serial;
     string blk_queues;
     string shareable;
     string ceph_host;
@@ -1091,6 +1092,7 @@ int LibVirtDriver::deployment_description_kvm(
         discard   = disk[i]->vector_value("DISCARD");
         source    = disk[i]->vector_value("SOURCE");
         clone     = disk[i]->vector_value("CLONE");
+        serial    = disk[i]->vector_value("SERIAL");
         blk_queues= disk[i]->vector_value("VIRTIO_BLK_QUEUES");
         shareable = disk[i]->vector_value("SHAREABLE");
 
@@ -1416,6 +1418,20 @@ int LibVirtDriver::deployment_description_kvm(
         if (shareable == "YES")
         {
             file << "\t\t\t<shareable/>" << endl;
+        }
+
+        // ---- serial attribute for the disk ----
+
+        if (!serial.empty())
+        {
+            if (type == "BLOCK" && disk_bus == "scsi")
+            {
+                vm->log("VMM", Log::WARNING, "Serial attribute ignored: not supported for SCSI block devices.");
+            }
+            else
+            {
+                file << "\t\t\t<serial>" << serial << "</serial>" << endl;
+            }
         }
 
         // ---- Image Format using qemu driver ----

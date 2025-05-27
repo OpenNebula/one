@@ -740,7 +740,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
 
             for (const auto& val : values)
             {
-                string current_val = disk->vector_value(val.first);
+                const string& current_val = disk->vector_value(val.first);
 
                 if (current_val.empty() && !val.second.empty())
                 {
@@ -751,7 +751,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         else
         {
             // Simple attribute, inherit value
-            string current_val = disk->vector_value(inherit);
+            const string& current_val = disk->vector_value(inherit);
             PoolObjectSQL::get_template_attribute(inherit, inherit_val);
 
             if (current_val.empty() && !inherit_val.empty())
