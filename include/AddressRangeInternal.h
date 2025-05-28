@@ -26,7 +26,7 @@ class VectorAttribute;
 class AddressRangeInternal : public AddressRange
 {
 public:
-    AddressRangeInternal(unsigned int _id):AddressRange(_id), next(0) {};
+    AddressRangeInternal(unsigned int _id):AddressRange(_id) {};
 
     virtual ~AddressRangeInternal() {};
 
@@ -91,11 +91,6 @@ public:
 
 private:
     /**
-     *  Lookup index for the next free address lease
-     */
-    unsigned int next;
-
-    /**
      *  Get a free lease
      *    @param index of the free lease, undefined if error
      *    @param msg with error description if any
@@ -110,7 +105,7 @@ private:
      *    @param msg with error description if any
      *    @return 0 on success -1 otherwise
      */
-    int get_range_addr(unsigned int& index, unsigned int sz, std::string& msg) const;
+    int get_range_addr(unsigned int& index, unsigned int sz, std::string& msg);
 };
 
 #endif
