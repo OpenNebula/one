@@ -1038,10 +1038,8 @@ module OneProvision
                     next unless facts[hostname]
 
                     begin
-                        host_mem = facts[hostname]['ansible_facts']\
-                            ['ansible_memtotal_mb']
-                        host_cpu = facts[hostname]['ansible_facts']\
-                            ['ansible_processor_count']
+                        host_mem = facts[hostname]['ansible_facts']['ansible_memtotal_mb']
+                        host_cpu = facts[hostname]['ansible_facts']['ansible_processor_count']
 
                         # Compute reserved CPU shares for host
                         res_cpu = case host_cpu
@@ -1155,8 +1153,7 @@ module OneProvision
 
                 begin
                     # asume all hosts have same default nic, use first
-                    nic = facts[facts.keys[0]]['ansible_facts']\
-                        ['ansible_default_ipv4']['interface']
+                    nic = facts[facts.keys[0]]['ansible_facts']['ansible_default_ipv4']['interface']
                 rescue StandardError
                     raise OneProvisionLoopException, 'Missing network facts'
                 end
@@ -1177,8 +1174,7 @@ module OneProvision
 
                 begin
                     # asume all hosts have same default nic, use first
-                    nic = facts[facts.keys[0]]['ansible_facts']\
-                        ['ansible_default_ipv4']['interface']
+                    nic = facts[facts.keys[0]]['ansible_facts']['ansible_default_ipv4']['interface']
                 rescue StandardError
                     raise OneProvisionLoopException, 'Missing network facts'
                 end
