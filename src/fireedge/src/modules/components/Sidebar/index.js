@@ -104,7 +104,7 @@ const Sidebar = ({ endpoints }) => {
       <Box className={classes.header}>
         <OpenNebulaLogo
           width="9.6875rem"
-          height={50}
+          height={57}
           withText
           className={classes.logo}
           disabledBetaText

@@ -113,7 +113,7 @@ export function OpenNebulaLoginHandler() {
       <Box className={classes.login}>
         <OpenNebulaLogo
           data-cy="opennebula-logo"
-          height={'7rem'}
+          height={'3rem'}
           width="100%"
           withText
         />

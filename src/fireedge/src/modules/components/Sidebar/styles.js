@@ -179,6 +179,6 @@ export default (theme, fixed) => ({
     marginRight: '0.75rem',
   }),
   subItem: css({
-    paddingLeft: '2.5rem',
+    paddingLeft: '2.5rem !important',
   }),
 })

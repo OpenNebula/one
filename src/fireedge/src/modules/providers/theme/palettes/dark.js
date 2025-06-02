@@ -38,6 +38,14 @@ export const darkPalette = {
     contrastText: '#fff',
   },
 
+  logo: {
+    color: sunstoneColors.white,
+    spinnerColor: primaryColor,
+    textColorOpen: sunstoneColors.white,
+    textColorNebula: sunstoneColors.white,
+    textColorBeta: primaryColor,
+  },
+
   // Main container of the app
   mainContainer: {
     backgroundColor: sunstoneColors.darkBlue[500],

@@ -38,6 +38,14 @@ export const lightPalette = {
     contrastText: '#fff',
   },
 
+  logo: {
+    color: primaryColor,
+    spinnerColor: sunstoneColors.white,
+    textColorOpen: primaryColor,
+    textColorNebula: primaryColor,
+    textColorBeta: sunstoneColors.white,
+  },
+
   // Main container of the app
   mainContainer: {
     backgroundColor: sunstoneColors.grey[100],
