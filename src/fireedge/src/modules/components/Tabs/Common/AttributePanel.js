@@ -14,12 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { css } from '@emotion/css'
-import { useMemo, memo, useCallback } from 'react'
 import { useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
+import { memo, useCallback, useMemo } from 'react'
 
-import { List } from '@modules/components/Tabs/Common'
 import { ACTIONS } from '@ConstantsModule'
+import { List } from '@modules/components/Tabs/Common'
 
 const {
   COPY_ATTRIBUTE: COPY,
@@ -54,6 +54,7 @@ const AttributePanel = memo(
     collapse = false,
     askToDelete = true,
     fullWidth = false,
+    enableEdit = () => true,
   }) => {
     const theme = useTheme()
     const classes = useMemo(() => useStyles(theme), [theme])
@@ -69,7 +70,7 @@ const AttributePanel = memo(
         value,
         showActionsOnHover: true,
         canCopy: canUseAction(COPY),
-        canEdit: canUseAction(EDIT),
+        canEdit: canUseAction(EDIT) && enableEdit(name),
         canDelete: canUseAction(DELETE),
         handleEdit,
         handleDelete,
@@ -104,6 +105,7 @@ AttributePanel.propTypes = {
   collapse: PropTypes.bool,
   askToDelete: PropTypes.bool,
   fullWidth: PropTypes.bool,
+  enableEdit: PropTypes.func,
 }
 
 AttributePanel.displayName = 'AttributePanel'

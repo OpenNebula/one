@@ -14,27 +14,27 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, Fragment, isValidElement } from 'react'
 import PropTypes from 'prop-types'
+import { Fragment, isValidElement, useMemo } from 'react'
 
 import {
-  styled,
   Accordion,
-  AccordionSummary,
   AccordionDetails,
+  AccordionSummary,
   Box,
   List,
   ListItem,
-  Typography,
   Paper,
+  styled,
+  Typography,
 } from '@mui/material'
 
+import { Tr } from '@modules/components/HOC'
 import {
   Attribute,
   AttributePropTypes,
 } from '@modules/components/Tabs/Common/Attribute'
 import AttributeCreateForm from '@modules/components/Tabs/Common/AttributeCreateForm'
-import { Tr } from '@modules/components/HOC'
 import { camelCase } from '@UtilsModule'
 
 const Title = styled(ListItem)(({ theme }) => ({

@@ -19,12 +19,12 @@ import { Link as RouterLink } from 'react-router-dom'
 
 import { InputAdornment, Link, Stack, Typography } from '@mui/material'
 
+import { useDialog } from '@HooksModule'
 import { DialogConfirmation } from '@modules/components/Dialogs'
 import { Actions, Inputs } from '@modules/components/Tabs/Common/Attribute'
-import { useDialog } from '@HooksModule'
 
-import { Translate, Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
+import { Tr, Translate } from '@modules/components/HOC'
 
 const Column = (props) => {
   const { isEditing, ...restProps } = props
@@ -231,7 +231,7 @@ const Attribute = memo(
               </Typography>
               <ActionWrapper {...(showActionsOnHover && { display: 'none' })}>
                 {value && canCopy && <Actions.Copy name={name} value={value} />}
-                {(value || numberOfParents > 0) && canEdit && (
+                {(value?.length >= 0 || numberOfParents > 0) && canEdit && (
                   <Actions.Edit
                     title={title || name}
                     name={name}

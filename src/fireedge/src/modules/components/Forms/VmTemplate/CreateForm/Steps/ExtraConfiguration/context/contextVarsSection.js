@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback, useMemo } from 'react'
-import PropTypes from 'prop-types'
-import { reach } from 'yup'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { Accordion, AccordionSummary, Box } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, useCallback, useMemo } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
+import { reach } from 'yup'
 
+import { SystemAPI, useGeneralApi } from '@FeaturesModule'
 import { SCHEMA as CONTEXT_SCHEMA } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
-import { useGeneralApi } from '@FeaturesModule'
 
+import { T } from '@ConstantsModule'
 import { Legend } from '@modules/components/Forms'
 import { AttributePanel } from '@modules/components/Tabs/Common'
 import { getUnknownAttributes } from '@UtilsModule'
-import { T } from '@ConstantsModule'
 
 export const SECTION_ID = 'CONTEXT'
 
@@ -39,6 +39,7 @@ export const SECTION_ID = 'CONTEXT'
  */
 const ContextVarsSection = ({ stepId, hypervisor }) => {
   const { enqueueError, setModifiedFields, setFieldPath } = useGeneralApi()
+  const { data: oneConfig = {} } = SystemAPI.useGetOneConfigQuery()
   const { setValue } = useFormContext()
 
   const customVars = useWatch({
@@ -106,6 +107,17 @@ const ContextVarsSection = ({ stepId, hypervisor }) => {
           handleDelete={handleChangeAttribute}
           attributes={unknownVars}
           filtersSpecialAttributes={false}
+          enableEdit={(name = '') => {
+            const regex = /^eth\d*(?:_[A-Za-z0-9]+)+$/i
+            if (regex.test(name)) {
+              return (
+                (oneConfig?.CONTEXT_ALLOW_ETH_UPDATES.toUpperCase?.() ?? '') ===
+                'YES'
+              )
+            }
+
+            return true
+          }}
         />
       </Accordion>
     </Box>
