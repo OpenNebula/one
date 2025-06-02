@@ -873,8 +873,6 @@ void Scheduler::match_schedule()
 {
     VirtualMachineXML * vm;
 
-    HostShareCapacity sr;
-
     int n_resources;
     int n_matched;
     int n_auth;
@@ -905,6 +903,7 @@ void Scheduler::match_schedule()
 
     for (auto vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
+        HostShareCapacity sr{};
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
         vm->get_capacity(sr);
@@ -1319,8 +1318,6 @@ void Scheduler::dispatch()
     ostringstream dss;
     string        error;
 
-    HostShareCapacity sr;
-
     int hid, dsid, cid, netid;
 
     unsigned int dispatched_vms = 0;
@@ -1355,6 +1352,7 @@ void Scheduler::dispatch()
     for (k = vm_rs.rbegin(); k != vm_rs.rend() &&
          ( dispatch_limit == 0 || dispatched_vms < dispatch_limit ); ++k)
     {
+        HostShareCapacity sr{};
         dispatched = false;
 
         vm = vmpool->get((*k)->oid);
