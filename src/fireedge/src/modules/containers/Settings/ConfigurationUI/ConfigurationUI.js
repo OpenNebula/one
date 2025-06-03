@@ -66,7 +66,8 @@ const Settings = () => {
   const { data: zones = [], isLoading } = ZoneAPI.useGetZonesQuery()
 
   const { changeAuthUser } = useAuthApi()
-  const { enqueueError, setTableViewMode, setFullMode } = useGeneralApi()
+  const { enqueueError, setTableViewMode, setFullMode, fixMenu } =
+    useGeneralApi()
   const [updateUser] = UserAPI.useUpdateUserMutation()
   const { views, view: userView, hasAccessToResource } = useViews()
   const userAccess = useMemo(() => hasAccessToResource(USER), [userView])
@@ -111,6 +112,9 @@ const Settings = () => {
       changeAuthUser({ ...user, ...newSettings })
 
       handleSubmit(handleUpdateUser)()
+
+      // update sidebar
+      fixMenu(formData?.SIDEBAR)
 
       // Update full mode and table mode
       setFullMode(formData?.FULL_SCREEN_INFO)

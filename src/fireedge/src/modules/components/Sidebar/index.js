@@ -14,32 +14,32 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
 import {
-  useTheme,
-  List,
-  Drawer,
   Box,
+  Drawer,
   IconButton,
+  List,
   useMediaQuery,
+  useTheme,
 } from '@mui/material'
 import PropTypes from 'prop-types'
-import { useLocation, matchPath } from 'react-router'
+import { useEffect, useMemo } from 'react'
+import { matchPath, useLocation } from 'react-router'
 
 import clsx from 'clsx'
 
 import {
-  Menu as MenuIcon,
   NavArrowLeft as ArrowLeftIcon,
   Cancel as CloseIcon,
+  Menu as MenuIcon,
 } from 'iconoir-react'
 
-import { useGeneral, useGeneralApi } from '@FeaturesModule'
+import { useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { OpenNebulaLogo } from '@modules/components/Icons'
 
-import sidebarStyles from '@modules/components/Sidebar/styles'
-import SidebarLink from '@modules/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from '@modules/components/Sidebar/SidebarCollapseItem'
+import SidebarLink from '@modules/components/Sidebar/SidebarLink'
+import sidebarStyles from '@modules/components/Sidebar/styles'
 
 const Sidebar = ({ endpoints }) => {
   const theme = useTheme()
@@ -51,6 +51,11 @@ const Sidebar = ({ endpoints }) => {
 
   const { isFixMenu } = useGeneral()
   const { fixMenu } = useGeneralApi()
+  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+
+  useEffect(() => {
+    fixMenu(fireedge?.SIDEBAR === 'true')
+  }, [fireedge])
 
   const classes = useMemo(
     () => sidebarStyles(theme, isFixMenu),

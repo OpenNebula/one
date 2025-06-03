@@ -473,6 +473,7 @@ module.exports = {
   Light: 'Light',
   System: 'System',
   Language: 'Language',
+  StuckSidebar: 'Stuck Sidebar',
   View: 'View',
   DefaultZoneEndpoint: 'Default Endpoint',
   Endpoint: 'Endpoint',
