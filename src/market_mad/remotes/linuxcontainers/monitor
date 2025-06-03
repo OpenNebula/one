@@ -68,7 +68,7 @@ class LinuxContainersMarket
         :fs            => 'ext4',
         :format        => 'raw',
         :agent         => 'OpenNebula',
-        :tested_apps   => ['almalinux', 'alpine', 'alt', 'amazonlinux', 'debian', 'devuan',
+        :tested_apps   => ['almalinux', 'alpine', 'amazonlinux', 'debian', 'devuan',
                            'fedora', 'opensuse', 'oracle', 'rockylinux', 'ubuntu'],
         :skip_untested => 'yes',
         :memory        => '768',
