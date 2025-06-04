@@ -255,6 +255,8 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
         {
             int num_vms = img->dec_running(vm_id);
 
+            img->update_modification_time();
+
             if (failed)
             {
                 img->set_state(Image::ERROR);
@@ -271,6 +273,8 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
         case Image::LOCKED_USED_PERS:
         {
             int num_vms = img->dec_running(vm_id);
+
+            img->update_modification_time();
 
             if (failed)
             {

@@ -547,6 +547,14 @@ public:
     };
 
     /**
+     * Set modification time to the current time
+     */
+    void update_modification_time()
+    {
+        modtime = time(nullptr);
+    }
+
+    /**
      * Clones this image template including image specific attributes: NAME,
      * TYPE, PATH, FORMAT, SIZE and PERSISTENT
      * @param new_name Value for the NAME attribute
@@ -609,6 +617,7 @@ public:
     {
         target_snapshot = -1;
     };
+
 
     /* ---------------------------------------------------------------------- */
     /* Incremental backups interface                                          */
@@ -676,6 +685,11 @@ private:
      *  Registration time
      */
     time_t       regtime;
+
+    /**
+     *  Time of last modification
+     */
+    time_t       modtime;
 
     /**
      *  Path to the image

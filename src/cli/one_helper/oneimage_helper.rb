@@ -235,6 +235,11 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.time_to_str(d['REGTIME'])
             end
 
+            column :MODTIME, 'Last modification time of the Image',
+                   :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d['MODTIME'])
+            end
+
             column :PERSISTENT, 'Whether the Image is persistent or not',
                    :size=>3 do |d|
                 OpenNebulaHelper.boolean_to_str(d['PERSISTENT'])
@@ -307,6 +312,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         size = OpenNebulaHelper.unit_to_str(image['SIZE'].to_i, {}, 'M')
         lock = OpenNebulaHelper.level_lock_to_str(image['LOCK/LOCKED'])
         regtime = OpenNebulaHelper.time_to_str(image['REGTIME'])
+        modtime = OpenNebulaHelper.time_to_str(image['MODTIME'])
         pers = OpenNebulaHelper.boolean_to_str(image['PERSISTENT'])
 
         CLIHelper.print_header(str_h1 % "IMAGE #{image['ID']} INFORMATION")
@@ -318,6 +324,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts format(str, 'DATASTORE', image['DATASTORE'])
         puts format(str, 'TYPE', image.type_str)
         puts format(str, 'REGISTER TIME', regtime)
+        puts format(str, 'LAST MODIFIED', modtime)
         puts format(str, 'PERSISTENT', pers)
         puts format(str, 'SOURCE', image['SOURCE'])
         puts format(str, 'PATH', path) if path && !path.empty?

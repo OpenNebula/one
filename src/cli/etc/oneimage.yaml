@@ -38,6 +38,10 @@
   :desc: Registration time of the Image
   :size: 15
 
+:MODTIME:
+  :desc: Last modified
+  :size: 15
+
 :PERSISTENT:
   :desc: Whether the Image is persistent or not
   :size: 3

@@ -39,6 +39,7 @@
         <xs:element name="DISK_TYPE" type="xs:integer"/>
         <xs:element name="PERSISTENT" type="xs:integer"/>
         <xs:element name="REGTIME" type="xs:integer"/>
+        <xs:element name="MODTIME" type="xs:integer"/>
         <xs:element name="SOURCE" type="xs:string"/>
         <xs:element name="PATH" type="xs:string"/>
         <xs:element name="FORMAT" type="xs:string"/>

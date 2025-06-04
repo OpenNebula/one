@@ -44,6 +44,7 @@ type Image struct {
 	DiskType       *int                `xml:"DISK_TYPE,omitempty"`
 	Persistent     *int                `xml:"PERSISTENT,omitempty"`
 	RegTime        int                 `xml:"REGTIME,omitempty"`
+	ModTime        int                 `xml:"MODTIME,omitempty"`
 	Source         string              `xml:"SOURCE,omitempty"`
 	Path           string              `xml:"PATH,omitempty"`
 	Fs             string              `xml:"FS,omitempty"`

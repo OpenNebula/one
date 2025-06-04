@@ -45,6 +45,7 @@ Image::Image(int             _uid,
     type(OS),
     disk_type(FILE),
     regtime(time(0)),
+    modtime(time(0)),
     source(""),
     path(""),
     format(""),
@@ -416,6 +417,7 @@ string& Image::to_xml(string& xml) const
         "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
         "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
         "<REGTIME>"        << regtime         << "</REGTIME>"     <<
+        "<MODTIME>"        << modtime         << "</MODTIME>"     <<
         "<SOURCE>"         << one_util::escape_xml(source) << "</SOURCE>" <<
         "<PATH>"           << one_util::escape_xml(path)   << "</PATH>"   <<
         "<FORMAT>"         << one_util::escape_xml(format) << "</FORMAT>" <<
@@ -473,6 +475,7 @@ int Image::from_xml(const string& xml)
     rc += xpath(int_disk_type,   "/IMAGE/DISK_TYPE", 0);
     rc += xpath(persistent_img,  "/IMAGE/PERSISTENT", 0);
     rc += xpath<time_t>(regtime, "/IMAGE/REGTIME",   0);
+    rc += xpath<time_t>(modtime, "/IMAGE/MODTIME",   0);
     rc += xpath(format,          "/IMAGE/FORMAT",   "");
 
     rc += xpath<long long>(size_mb, "/IMAGE/SIZE", 0);
