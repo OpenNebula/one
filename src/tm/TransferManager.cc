@@ -23,6 +23,7 @@
 #include "VirtualMachinePool.h"
 #include "LifeCycleManager.h"
 #include "ImagePool.h"
+#include "PlanManager.h"
 
 using namespace std;
 
@@ -478,6 +479,12 @@ error_attributes:
 error_common:
         nd.get_lcm()->trigger_prolog_failure(vid);
         vm->log("TrM", Log::ERROR, os);
+
+        if (vm->hasHistory() && vm->plan_id() >= -1)
+        {
+            auto planm = Nebula::instance().get_planm();
+            planm->action_failure(vm->plan_id(), vm->action_id());
+        }
 
         return;
     });
