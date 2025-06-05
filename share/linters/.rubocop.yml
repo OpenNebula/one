@@ -353,6 +353,9 @@ Layout/LineContinuationLeadingSpace:
 # STYLE
 #######
 
+Style/EmptyStringInsideInterpolation:
+    Enabled: false
+
 Style/RedundantFormat:
     Enabled: false
 
@@ -786,6 +789,12 @@ Metrics/AbcSize:
 # Disable method length
 Metrics/MethodLength:
   Enabled: false
+
+Naming/PredicatePrefix:
+    Enabled: false
+
+Naming/PredicateMethod:
+    Enabled: false
 
 Naming/VariableName:
     Enabled: false

@@ -536,7 +536,9 @@ class HookExecutionManager
             action = key.split(' ').shift.to_sym
 
             # remove action from key
+            # rubocop:disable Style/RedundantArrayFlatten
             key = key.split(' ')[1..-1].flatten.join(' ')
+            # rubocop:enable Style/RedundantArrayFlatten
 
             case action
             when :EVENT
