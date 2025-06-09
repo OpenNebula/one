@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, number } from 'yup'
-import { INPUT_TYPES, T, HYPERVISORS, Field } from '@ConstantsModule'
+import { Field, HYPERVISORS, INPUT_TYPES, T } from '@ConstantsModule'
 import { useDisableInputByUserAndConfig } from '@FeaturesModule'
+import { arrayToOptions } from '@UtilsModule'
+import { number, string } from 'yup'
 
 const { lxc } = HYPERVISORS
 
@@ -120,6 +121,26 @@ export const GENERAL_FIELDS = [
     htmlType: 'number',
     validation: number()
       .min(0)
+      .notRequired()
+      .default(() => undefined),
+  },
+  {
+    name: 'SERIAL',
+    label: T.Serial,
+    tooltip: T.IoThreadIdConcept,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    multiple: false,
+    fieldProps: {
+      freeSolo: true,
+    },
+    values: () =>
+      arrayToOptions(['auto'], {
+        addEmpty: true,
+        getText: (serial) => serial.toUpperCase(),
+        getValue: (serial) => serial,
+      }),
+    validation: string()
+      .trim(0)
       .notRequired()
       .default(() => undefined),
   },

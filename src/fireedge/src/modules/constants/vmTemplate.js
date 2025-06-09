@@ -94,7 +94,7 @@ export const COMMON_RESOLUTIONS = {
   custom: 'custom',
 }
 
-export const FIRMWARE_TYPES = ['BIOS']
+export const FIRMWARE_TYPES = ['BIOS', 'UEFI']
 
 export const PCI_TYPES = { MANUAL: 'pci_manual', AUTOMATIC: 'pci_automatic' }
 

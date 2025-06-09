@@ -13,22 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, useCallback } from 'react'
 
 import { ImageAPI } from '@FeaturesModule'
 import {
-  Permissions,
-  Ownership,
   AttributePanel,
+  Ownership,
+  Permissions,
 } from '@modules/components/Tabs/Common'
 import Information from '@modules/components/Tabs/Image/Info/information'
+import Serial from '@modules/components/Tabs/Image/Info/serial'
 
-import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
-import { getActionsAvailable, jsonToXml } from '@ModelsModule'
+import { filterAttributes, getActionsAvailable, jsonToXml } from '@ModelsModule'
+import { Tr } from '@modules/components/HOC'
 import { cloneObject, set } from '@UtilsModule'
+
+const HIDDEN_ATTRIBUTES_REG = /^(SERIAL)$/
 
 /**
  * Renders mainly information tab.
@@ -36,11 +39,18 @@ import { cloneObject, set } from '@UtilsModule'
  * @param {object} props - Props
  * @param {object} props.tabProps - Tab information
  * @param {string} props.id - Image id
- * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {object} props.oneConfig - OpenNebula configuration
  * @param {boolean} props.adminGroup - If the user is admin
+ * @param {string} props.resource - Resource type
  * @returns {ReactElement} Information tab
  */
-const ImageInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
+const ImageInfoTab = ({
+  tabProps = {},
+  id,
+  oneConfig,
+  adminGroup,
+  resource,
+}) => {
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
@@ -75,6 +85,10 @@ const ImageInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
     (actions) => getActionsAvailable(actions),
     [getActionsAvailable]
   )
+
+  const { attributes } = filterAttributes(TEMPLATE, {
+    hidden: HIDDEN_ATTRIBUTES_REG,
+  })
 
   const ATTRIBUTE_FUNCTION = {
     handleAdd: handleAttributeInXml,
@@ -122,10 +136,13 @@ const ImageInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
           groupName={GNAME}
         />
       )}
+      {resource === 'image' && (
+        <Serial {...ATTRIBUTE_FUNCTION} value={TEMPLATE?.SERIAL} />
+      )}
       {attributesPanel?.enabled && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
-          attributes={TEMPLATE}
+          attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
           filtersSpecialAttributes={false}
           title={Tr(T.Attributes)}
@@ -140,6 +157,7 @@ ImageInfoTab.propTypes = {
   id: PropTypes.string,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  resource: PropTypes.string,
 }
 
 ImageInfoTab.displayName = 'ImageInfoTab'

@@ -54,7 +54,7 @@ const Sidebar = ({ endpoints }) => {
   const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
 
   useEffect(() => {
-    fixMenu(fireedge?.SIDEBAR === 'true')
+    fireedge?.SIDEBAR === 'true' && fixMenu(true)
   }, [fireedge])
 
   const classes = useMemo(

@@ -114,7 +114,12 @@ const coreAuth = (
       setRes(res)
       const httpCodeError = err ? internalServerError : unauthorized
       updaterResponse(new Map(httpCodeError).toObject())
-      writeInLogger(httpCodeError)
+
+      const errorLogMessage = err
+        ? [[err], { format: 'Login user: %s' }]
+        : [httpCodeError?.message]
+
+      writeInLogger(...errorLogMessage)
       next()
     }
 

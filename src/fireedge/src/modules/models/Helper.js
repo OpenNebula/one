@@ -19,8 +19,8 @@ import {
   j2xParser as ParserToXml,
   X2jOptions,
 } from 'fast-xml-parser'
-import { DateTime, Settings } from 'luxon'
 import { isEmpty, isNaN } from 'lodash'
+import { DateTime, Settings } from 'luxon'
 
 import { sentenceCase } from '@UtilsModule'
 
@@ -322,6 +322,7 @@ export const getActionsAvailable = (actions = {}, hypervisor = '') =>
  * @param {string} id - Resource id
  * @param {object} oneConfig - OpenNEbula configuration
  * @param {boolean} adminGroup - If the user is admin
+ * @param {string} [resource] - Resource type, used to get the tab component
  * @returns {{
  * id: string,
  * name: string,
@@ -333,7 +334,8 @@ export const getAvailableInfoTabs = (
   getTabComponent,
   id,
   oneConfig,
-  adminGroup
+  adminGroup,
+  resource = ''
 ) =>
   Object.entries(infoTabs)
     ?.filter(([_, { enabled } = {}]) => !!enabled)
@@ -350,6 +352,7 @@ export const getAvailableInfoTabs = (
               id={id}
               oneConfig={oneConfig}
               adminGroup={adminGroup}
+              resource={resource}
             />
           ),
         }

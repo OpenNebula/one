@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { Alert, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
-import { OpenNebulaLogo } from '@modules/components/Icons'
 
 import { RESOURCE_NAMES } from '@ConstantsModule'
-import { useViews, useSystemData, ImageAPI } from '@FeaturesModule'
+import { ImageAPI, useSystemData, useViews } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
 
 import { BaseTab as Tabs } from '@modules/components/Tabs'
@@ -48,7 +48,8 @@ const ImageTabs = memo(({ id }) => {
       getTabComponent,
       id,
       oneConfig,
-      adminGroup
+      adminGroup,
+      resource
     )
   }, [view, id])
 

@@ -976,6 +976,7 @@ module.exports = {
   SizeOnUnits: 'Size on %s',
   Description: 'Description',
   RegistrationTime: 'Registration time',
+  ModificationTime: 'Modification time',
   StartTime: 'Start time',
   Started: 'Started',
   NotStartedYet: 'Not started yet',
@@ -2090,6 +2091,7 @@ module.exports = {
   Cbt: 'CBT',
   SnapshotFrequency: 'Snapshot Frequency in seconds',
   IoThreadId: 'IOTHREAD id',
+  Serial: 'Serial',
   IoThreadIdConcept: `
     Iothread id used by this disk. Default is round robin.
     Can be used only if IOTHREADS > 0. If this input is disabled

@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useMemo } from 'react'
-import { useTheme, Box, Typography, Paper } from '@mui/material'
+import { Box, Paper, Typography, useTheme } from '@mui/material'
+import { Book, DatabaseSettings, Folder, PlugTypeC } from 'iconoir-react'
 import PropTypes from 'prop-types'
-import { DatabaseSettings, Folder, PlugTypeC } from 'iconoir-react'
+import { ReactElement, memo, useMemo } from 'react'
 
 import DiskSnapshotCard from '@modules/components/Cards/DiskSnapshotCard'
+import { Tr } from '@modules/components/HOC'
 import { StatusChip } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
-import { Tr } from '@modules/components/HOC'
 
+import { Disk, DiskSnapshot, T } from '@ConstantsModule'
 import { getDiskName, getDiskType, stringToBoolean } from '@ModelsModule'
 import { prettyBytes, sentenceCase } from '@UtilsModule'
-import { T, Disk, DiskSnapshot } from '@ConstantsModule'
 
 const DiskCard = memo(
   /**
@@ -53,6 +53,7 @@ const DiskCard = memo(
       CLONE,
       IS_CONTEXT,
       SNAPSHOTS,
+      SERIAL,
     } = disk
 
     const size = useMemo(() => (+SIZE ? prettyBytes(+SIZE, 'MB') : '-'), [SIZE])
@@ -121,6 +122,12 @@ const DiskCard = memo(
               <span title={`${Tr(T.Datastore)}: ${DATASTORE}`}>
                 <DatabaseSettings />
                 <span data-cy="datastore">{` ${DATASTORE}`}</span>
+              </span>
+            )}
+            {SERIAL && (
+              <span title={`${Tr(T.Serial)}: ${SERIAL}`}>
+                <Book />
+                <span data-cy="serial">{` ${SERIAL}`}</span>
               </span>
             )}
             {+MONITOR_SIZE ? (

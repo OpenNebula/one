@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { ImageAPI } from '@FeaturesModule'
@@ -22,26 +22,26 @@ import { StatusChip } from '@modules/components/Status'
 import { List } from '@modules/components/Tabs/Common'
 
 import {
-  getDiskType,
-  getImageType,
-  getImageState,
-  timeToString,
-  booleanToString,
-  levelLockToString,
-} from '@ModelsModule'
-import {
-  arrayToOptions,
-  prettyBytes,
-  isRestrictedAttributes,
-} from '@UtilsModule'
-import {
-  T,
   Image,
   IMAGE_ACTIONS,
   IMAGE_TYPES,
   RESTRICTED_ATTRIBUTES_TYPE,
+  T,
 } from '@ConstantsModule'
+import {
+  booleanToString,
+  getDiskType,
+  getImageState,
+  getImageType,
+  levelLockToString,
+  timeToString,
+} from '@ModelsModule'
 import { PATH } from '@modules/components/path'
+import {
+  arrayToOptions,
+  isRestrictedAttributes,
+  prettyBytes,
+} from '@UtilsModule'
 
 /**
  * Renders mainly information tab.
@@ -65,6 +65,7 @@ const InformationPanel = ({ image = {}, actions, oneConfig, adminGroup }) => {
     PERSISTENT,
     LOCK,
     REGTIME,
+    MODTIME,
     DATASTORE_ID,
     DATASTORE = '--',
     VMS,
@@ -163,6 +164,11 @@ const InformationPanel = ({ image = {}, actions, oneConfig, adminGroup }) => {
       name: T.State,
       value: <StatusChip text={stateName} stateColor={stateColor} />,
       dataCy: 'state',
+    },
+    {
+      name: T.ModificationTime,
+      value: timeToString(MODTIME),
+      dataCy: 'modtime',
     },
     {
       name: T.RunningVMs,

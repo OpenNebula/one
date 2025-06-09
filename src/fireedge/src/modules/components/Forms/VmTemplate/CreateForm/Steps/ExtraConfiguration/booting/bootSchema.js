@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean } from 'yup'
+import { boolean, string } from 'yup'
 
-import { HostAPI, SystemAPI } from '@FeaturesModule'
-import { getKvmMachines } from '@ModelsModule'
-import { Field, arrayToOptions } from '@UtilsModule'
 import {
-  T,
-  INPUT_TYPES,
   CPU_ARCHITECTURES,
-  SD_DISK_BUSES,
   FIRMWARE_TYPES,
   HYPERVISORS,
+  INPUT_TYPES,
+  SD_DISK_BUSES,
+  T,
 } from '@ConstantsModule'
+import { HostAPI } from '@FeaturesModule'
+import { getKvmMachines } from '@ModelsModule'
+import { Field, arrayToOptions } from '@UtilsModule'
 
-const { lxc, kvm } = HYPERVISORS
+const { lxc } = HYPERVISORS
 
 /** @type {Field} CPU architecture field */
 export const ARCH = {
@@ -142,18 +142,7 @@ export const FIRMWARE = {
     .notRequired()
     .default(() => undefined),
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
-  values: ([templateHyperv, hypervisor = templateHyperv] = []) => {
-    const configurableHypervisors = [kvm]
-    const { data: { OVMF_UEFIS = '' } = {} } =
-      configurableHypervisors?.includes(hypervisor) &&
-      SystemAPI.useGetVmmConfigQuery({ hypervisor })
-
-    const types = FIRMWARE_TYPES.concat(
-      OVMF_UEFIS?.replace(/"/g, '')?.split(' ') ?? []
-    )
-
-    return arrayToOptions(types)
-  },
+  values: arrayToOptions(FIRMWARE_TYPES, { getText: (o) => o.toUpperCase() }),
   fieldProps: {
     freeSolo: true,
   },
