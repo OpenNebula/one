@@ -127,7 +127,7 @@ export const GENERAL_FIELDS = [
   {
     name: 'SERIAL',
     label: T.Serial,
-    tooltip: T.IoThreadIdConcept,
+    tooltip: T.SerialConcept,
     type: INPUT_TYPES.AUTOCOMPLETE,
     multiple: false,
     fieldProps: {

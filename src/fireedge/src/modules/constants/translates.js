@@ -2092,6 +2092,7 @@ module.exports = {
   SnapshotFrequency: 'Snapshot Frequency in seconds',
   IoThreadId: 'IOTHREAD id',
   Serial: 'Serial',
+  SerialConcept: `This field represents a unique identifier for the image`,
   IoThreadIdConcept: `
     Iothread id used by this disk. Default is round robin.
     Can be used only if IOTHREADS > 0. If this input is disabled
@@ -2412,7 +2413,7 @@ module.exports = {
   Rights: 'Rights',
 
   StartDate: 'Start Date',
-  EndDate: 'EndDate',
+  EndDate: 'End Date',
 
   /* NIC - card */
   'nic.card.automatic': 'Automatically selected',

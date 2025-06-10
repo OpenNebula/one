@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { SubmitButton, DateRangeFilter, Tr } from '@ComponentsModule'
-import { VmAPI, useGeneralApi } from '@FeaturesModule'
+import { DateRangeFilter, SubmitButton, Tr } from '@ComponentsModule'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
+import { VmAPI, useGeneralApi } from '@FeaturesModule'
 import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
 import { Box, Stack, Typography, useTheme } from '@mui/material'
 import { DateTime } from 'luxon'
@@ -50,12 +50,16 @@ export const Settings = () => {
     endDate: DateTime.now(),
   })
 
+  const [disable, setDisable] = useState(false)
+
   const handleDateChange = (newDateRange) => {
     setDateRange(newDateRange)
   }
 
   // Refetch data when click on Get showback button
-  const handleCalculateClick = async () => {
+  const handleCalculateClick = async (e) => {
+    e.preventDefault()
+    setDisable(true)
     const params = {
       startMonth: dateRange.startDate.month,
       startYear: dateRange.startDate.year,
@@ -69,10 +73,11 @@ export const Settings = () => {
     } catch (error) {
       enqueueError(T.ErrorShowbackCalculated, error.message)
     }
+    setDisable(false)
   }
 
   return (
-    <Box component="form">
+    <Box component="form" onSubmit={handleCalculateClick}>
       <Legend title={T['showback.title']} />
       <InternalWrapper>
         <Typography variant="body2" gutterBottom sx={{ m: '1rem' }}>
@@ -92,7 +97,7 @@ export const Settings = () => {
             views={['month', 'year']}
           />
           <SubmitButton
-            onClick={handleCalculateClick}
+            disabled={disable}
             importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
             size={STYLE_BUTTONS.SIZE.MEDIUM}
             type={STYLE_BUTTONS.TYPE.FILLED}

@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema } from 'yup'
-import {
-  Field,
-  arrayToOptions,
-  getValidationFromFields,
-  disableFields,
-} from '@UtilsModule'
-import { T, INPUT_TYPES, RESTRICTED_ATTRIBUTES_TYPE } from '@ConstantsModule'
-import {
-  IMAGE_LOCATION_TYPES,
-  IMAGE_LOCATION_FIELD,
-} from '@modules/components/Forms/Image/CreateForm/Steps/General/schema'
+import { INPUT_TYPES, RESTRICTED_ATTRIBUTES_TYPE, T } from '@ConstantsModule'
 import { SystemAPI } from '@FeaturesModule'
+import {
+  IMAGE_LOCATION_FIELD,
+  IMAGE_LOCATION_TYPES,
+} from '@modules/components/Forms/Image/CreateForm/Steps/General/schema'
+import {
+  arrayToOptions,
+  disableFields,
+  Field,
+  getValidationFromFields,
+} from '@UtilsModule'
+import { object, ObjectSchema, string } from 'yup'
 
 export const BUS_TYPES = {
   vd: T.Vd,
@@ -163,6 +163,29 @@ export const FS = {
   grid: { md: 6 },
 }
 
+/** @type {Field} SERIAL field */
+export const SERIAL = {
+  name: 'SERIAL',
+  label: T.Serial,
+  tooltip: T.SerialConcept,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  multiple: false,
+  fieldProps: {
+    freeSolo: true,
+  },
+  values: () =>
+    arrayToOptions(['auto'], {
+      addEmpty: true,
+      getText: (serial) => serial.toUpperCase(),
+      getValue: (serial) => serial,
+    }),
+  validation: string()
+    .trim(0)
+    .notRequired()
+    .default(() => undefined),
+  grid: { md: 6 },
+}
+
 /**
  * @param {object} oneConfig - Open Nebula configuration
  * @param {boolean} adminGroup - If the user belongs to oneadmin group
@@ -170,7 +193,15 @@ export const FS = {
  */
 export const FIELDS = (oneConfig, adminGroup) =>
   disableFields(
-    [DEV_PREFIX, DEVICE, CUSTOM_DEV_PREFIX, FORMAT_FIELD, FS, CUSTOM_FORMAT],
+    [
+      DEV_PREFIX,
+      DEVICE,
+      CUSTOM_DEV_PREFIX,
+      FORMAT_FIELD,
+      FS,
+      CUSTOM_FORMAT,
+      SERIAL,
+    ],
     '',
     oneConfig,
     adminGroup,
