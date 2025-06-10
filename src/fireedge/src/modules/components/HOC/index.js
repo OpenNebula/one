@@ -16,6 +16,7 @@
 export { default as AuthLayout } from '@modules/components/HOC/AuthLayout'
 export { default as ConditionalWrap } from '@modules/components/HOC/ConditionalWrap'
 export { default as InternalLayout } from '@modules/components/HOC/InternalLayout'
+export { default as ModalHost } from '@modules/components/HOC/ModalHost'
 
 export * from '@modules/components/HOC/AsyncLoadForm'
 export * from '@modules/components/HOC/Translate'

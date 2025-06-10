@@ -18,6 +18,26 @@ const { global } = require('window-or-global')
 const path = require('path')
 const { parse: yamlToJson } = require('yaml')
 
+const removeNulls = (obj) => {
+  if (obj === null) {
+    return {}
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(removeNulls)
+  }
+
+  if (typeof obj === 'object' && obj !== null) {
+    return Object.entries(obj).reduce((acc, [key, value]) => {
+      acc[key] = removeNulls(value)
+
+      return acc
+    }, {})
+  }
+
+  return obj
+}
+
 /**
  * Fetches the default labels configuration.
  *
@@ -38,7 +58,9 @@ const getDefaultLabels = async () => {
 
       const parsedFile = yamlToJson(fileContent)
 
-      return parsedFile
+      const fmtFile = removeNulls(parsedFile)
+
+      return fmtFile
     }
   } catch (error) {
     throw new Error('No default labels found')

@@ -24,11 +24,10 @@ import * as BackupJob from '@modules/components/Forms/BackupJob'
 import * as Cluster from '@modules/components/Forms/Cluster'
 import * as Datastore from '@modules/components/Forms/Datastore'
 import * as File from '@modules/components/Forms/File'
-import FormWithSchema from '@modules/components/Forms/FormWithSchema'
 import * as Group from '@modules/components/Forms/Group'
 import * as Host from '@modules/components/Forms/Host'
 import * as Image from '@modules/components/Forms/Image'
-import Legend from '@modules/components/Forms/Legend'
+import * as Labels from '@modules/components/Forms/Labels'
 import * as Marketplace from '@modules/components/Forms/Marketplace'
 import * as MarketplaceApp from '@modules/components/Forms/MarketplaceApp'
 import * as Provider from '@modules/components/Forms/Provider'
@@ -38,13 +37,15 @@ import * as Service from '@modules/components/Forms/Service'
 import * as ServiceTemplate from '@modules/components/Forms/ServiceTemplate'
 import * as Support from '@modules/components/Forms/Support'
 import * as User from '@modules/components/Forms/User'
-import * as Vn from '@modules/components/Forms/VNetwork'
 import * as Vdc from '@modules/components/Forms/Vdc'
 import * as Vm from '@modules/components/Forms/Vm'
 import * as VmGroup from '@modules/components/Forms/VmGroup'
 import * as VmTemplate from '@modules/components/Forms/VmTemplate'
+import * as Vn from '@modules/components/Forms/VNetwork'
 import * as VnTemplate from '@modules/components/Forms/VnTemplate'
 import * as VrTemplate from '@modules/components/Forms/VrTemplate'
+import FormWithSchema from '@modules/components/Forms/FormWithSchema'
+import Legend from '@modules/components/Forms/Legend'
 buildMethods()
 
 export {
@@ -64,6 +65,7 @@ export const Form = {
   Group,
   Host,
   Image,
+  Labels,
   Marketplace,
   MarketplaceApp,
   Provider,
@@ -73,11 +75,11 @@ export const Form = {
   ServiceTemplate,
   Support,
   User,
-  VnTemplate,
-  Vn,
-  VrTemplate,
   Vdc,
   Vm,
   VmGroup,
   VmTemplate,
+  Vn,
+  VnTemplate,
+  VrTemplate,
 }

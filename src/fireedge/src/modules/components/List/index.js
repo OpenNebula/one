@@ -17,12 +17,6 @@ import ListCards from '@modules/components/List/ListCards'
 import ListHeader from '@modules/components/List/ListHeader'
 import ListInfiniteScroll from '@modules/components/List/ListInfiniteScroll'
 import ListVirtualized from '@modules/components/List/ListVirtualized'
-import NestedLabelTree from '@modules/components/List/NestedLabelTree'
+export * from '@modules/components/List/NestedLabelTree'
 
-export {
-  ListCards,
-  ListHeader,
-  ListInfiniteScroll,
-  ListVirtualized,
-  NestedLabelTree,
-}
+export { ListCards, ListHeader, ListInfiniteScroll, ListVirtualized }

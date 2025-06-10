@@ -14,11 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { ReactElement, useMemo, useState } from 'react'
+import { ReactElement } from 'react'
 import { Stack } from '@mui/material'
 import SettingsIcon from 'iconoir-react/dist/LabelOutline'
 import { UseFiltersInstanceProps } from 'opennebula-react-table'
-import { useAuth } from '@FeaturesModule'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Translate } from '@modules/components/HOC'
 import HeaderPopover from '@modules/components/Header/Popover'
@@ -37,60 +36,44 @@ const GlobalLabel = ({
   filters,
   setFilter,
   resetFilter,
-}) => {
-  const [expanded, setExpanded] = useState([])
-
-  const { labels } = useAuth()
-
-  const parsedLabels = useMemo(
-    () => ({
-      user: labels?.user ?? {},
-      group: labels?.group ?? {},
-    }),
-    [labels]
-  )
-
-  return (
-    <Stack direction="row" gap="0.5em" flexWrap="wrap">
-      <HeaderPopover
-        key={'label-popover'}
-        id="filter-by-label"
-        icon={<SettingsIcon />}
-        headerTitle={<Translate word={T.FilterByLabel} />}
-        buttonLabel={<Translate word={T.Label} />}
-        buttonProps={{
-          'data-cy': 'filter-by-label',
-          importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
-          size: STYLE_BUTTONS.SIZE.MEDIUM,
-          type: STYLE_BUTTONS.TYPE.FILLED,
-          variant: 'outlined',
-          color: 'secondary',
-        }}
-        popperProps={{
-          placement: 'bottom-end',
-          sx: {
-            width: { xs: '100%', md: 600 },
-            maxHeight: '600px',
-            overflowY: 'auto',
-          },
-        }}
-      >
-        {() => (
-          <NestedLabelTree
-            selectedRows={selectedRows}
-            parsedLabels={parsedLabels}
-            expanded={expanded}
-            setExpanded={setExpanded}
-            resourceType={type}
-            filters={filters}
-            setFilter={setFilter}
-            resetFilter={resetFilter}
-          />
-        )}
-      </HeaderPopover>
-    </Stack>
-  )
-}
+}) => (
+  <Stack direction="row" gap="0.5em" flexWrap="wrap">
+    <HeaderPopover
+      key={'label-popover'}
+      id="filter-by-label"
+      icon={<SettingsIcon />}
+      headerTitle={<Translate word={T.Labels} />}
+      buttonLabel={<Translate word={T.Label} />}
+      buttonProps={{
+        'data-cy': 'filter-by-label',
+        importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+        size: STYLE_BUTTONS.SIZE.MEDIUM,
+        type: STYLE_BUTTONS.TYPE.FILLED,
+        variant: 'outlined',
+        color: 'secondary',
+      }}
+      popperProps={{
+        placement: 'bottom-end',
+        sx: {
+          width: { md: 620 },
+          maxHeight: '600px',
+          overflowY: 'auto',
+        },
+      }}
+    >
+      {({ handleClose }) => (
+        <NestedLabelTree
+          selectedRows={selectedRows}
+          resourceType={type}
+          filters={filters}
+          setFilter={setFilter}
+          resetFilter={resetFilter}
+          closeParent={handleClose}
+        />
+      )}
+    </HeaderPopover>
+  </Stack>
+)
 
 GlobalLabel.propTypes = {
   selectedRows: PropTypes.array,

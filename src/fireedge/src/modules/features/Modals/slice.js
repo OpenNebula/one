@@ -13,12 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { createSlice } from '@reduxjs/toolkit'
+import * as actions from '@modules/features/Modals/actions'
 
-export * from '@modules/features/SupportAuth'
-export * from '@modules/features/Persistent'
-export * from '@modules/features/OneApi'
-export * from '@modules/features/Guacamole'
-export * from '@modules/features/General'
-export * from '@modules/features/Modals'
-export * from '@modules/features/Auth'
-export * from '@modules/features/middleware'
+const initial = {
+  modals: [],
+}
+
+const slice = createSlice({
+  name: 'modals',
+  initialState: initial,
+  extraReducers: (builder) => {
+    builder
+      .addCase(actions.showModal, (state, { payload }) => {
+        state.modals.push(payload)
+      })
+      .addCase(actions.hideModal, (state, { payload: id }) => {
+        state.modals = state.modals?.filter((modal) => modal?.id !== id)
+      })
+  },
+})
+
+export { slice as ModalsSlice }

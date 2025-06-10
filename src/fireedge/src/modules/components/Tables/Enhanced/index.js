@@ -279,12 +279,25 @@ const EnhancedTable = ({
     }
   }
 
-  const inclusiveArrayMatch = (tRows, id, fv) =>
-    tRows.filter((row) => {
-      const rowVal = row.values[id]
+  const inclusiveArrayMatch = (tRows, id, filterValues) => {
+    const columnId = Array.isArray(id) ? id[0] : id
 
-      return Array.isArray(rowVal) && fv.some((val) => rowVal.includes(val))
+    return tRows.filter((row) => {
+      const label = row?.values?.[columnId]
+
+      if (!label || typeof label !== 'object') return false
+
+      const userLabels = [].concat(label?.user ?? [])
+      const groupLabels = Object.values(label?.group ?? {}).flat()
+      const allLabels = [...userLabels, ...groupLabels]
+      const normalize = (s) => s?.replace(/\$/g, '')
+
+      const normalizedLabels = allLabels?.map(normalize)
+      const normalizedFilters = filterValues?.map(normalize)
+
+      return normalizedFilters.some((fv) => normalizedLabels.includes(fv))
     })
+  }
 
   const useTableProps = useTable(
     {

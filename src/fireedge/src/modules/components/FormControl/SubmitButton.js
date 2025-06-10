@@ -111,7 +111,7 @@ const TooltipComponent = ({ tooltip, tooltipLink, tooltipprops, children }) => {
 }
 
 const SubmitButton = memo(
-  ({ isSubmitting, disabled, label, icon, ...props }) => {
+  ({ isSubmitting, disabled, label, icon, loadOnIcon = false, ...props }) => {
     const theme = useTheme()
 
     const classes = useMemo(
@@ -140,13 +140,21 @@ const SubmitButton = memo(
         <ButtonComponent
           classes={classes}
           disabled={disabled || isSubmitting}
-          icon={icon}
+          icon={
+            loadOnIcon && isSubmitting ? (
+              <CircularProgress size={progressSize} />
+            ) : (
+              icon
+            )
+          }
           aria-label={label ?? T.Submit}
           label={label}
           {...props}
         >
-          {isSubmitting && <CircularProgress size={progressSize} />}
-          {!isSubmitting &&
+          {!loadOnIcon && isSubmitting && (
+            <CircularProgress size={progressSize} />
+          )}
+          {(!isSubmitting || loadOnIcon) &&
             (icon ? (labelAndIcon ? Tr(label) : icon) : Tr(label))}
         </ButtonComponent>
       </TooltipComponent>
@@ -170,6 +178,7 @@ export const SubmitButtonPropTypes = {
   tooltipprops: PropTypes.object,
   isSubmitting: PropTypes.bool,
   disabled: PropTypes.bool,
+  loadOnIcon: PropTypes.bool,
   className: PropTypes.string,
   color: PropTypes.string,
   size: PropTypes.string,

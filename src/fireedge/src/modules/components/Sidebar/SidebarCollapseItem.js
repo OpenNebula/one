@@ -82,7 +82,9 @@ const SidebarCollapseItem = ({ title = '', routes = [], icon: Icon }) => {
           primaryTypographyProps={{ variant: 'body1' }}
         />
         {expanded ? (
-          <CollapseIcon className="itemCollapseLogo" />
+          hasRouteSelected ? null : (
+            <CollapseIcon className="itemCollapseLogo" />
+          )
         ) : (
           <ExpandMoreIcon className="itemExpandLogo" />
         )}

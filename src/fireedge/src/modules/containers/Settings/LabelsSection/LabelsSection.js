@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { ReactElement } from 'react'
-import { TranslateProvider, NestedLabelTree } from '@ComponentsModule'
+import { TranslateProvider, NestedLabelTable } from '@ComponentsModule'
 
 /**
  * Section to change labels.
@@ -24,6 +24,6 @@ import { TranslateProvider, NestedLabelTree } from '@ComponentsModule'
  */
 export const Settings = () => (
   <TranslateProvider>
-    <NestedLabelTree disableSelect enableAddDialog renderResources />
+    <NestedLabelTable />
   </TranslateProvider>
 )

@@ -55,7 +55,7 @@ const VmTemplatesTable = (props) => {
             labels,
             row?.ID,
             RESOURCE_NAMES.VM_TEMPLATE,
-            true
+            false
           ),
         },
       })),

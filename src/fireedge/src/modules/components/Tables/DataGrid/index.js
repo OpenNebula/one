@@ -15,10 +15,30 @@
  * ------------------------------------------------------------------------- */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { DataGrid } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+} from '@mui/x-data-grid'
 import { Box } from '@mui/material'
 import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
+
+const CustomToolbar = () => (
+  <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      gap: 1,
+      p: 1,
+      width: '100%',
+    }}
+  >
+    <GridToolbarColumnsButton />
+    <GridToolbarFilterButton />
+  </Box>
+)
 
 /**
  * Renders a data grid table using the provided data and columns.
@@ -26,9 +46,10 @@ import { T } from '@ConstantsModule'
  * @param {object} props - The properties for the component.
  * @param {Array} props.data - The data to be displayed in the table.
  * @param {Array} props.columns - The columns configuration for the table.
+ * @param {boolean} props.enableToolbar - Enables the table toolbar
  * @returns {React.Component} The rendered data grid table component.
  */
-const DataGridTable = ({ data, columns }) => {
+const DataGridTable = ({ data, columns, enableToolbar = false }) => {
   const flattenedData = data.flatMap((dataset) => dataset.data)
 
   return (
@@ -45,6 +66,13 @@ const DataGridTable = ({ data, columns }) => {
         rows={flattenedData.map((row, index) => ({ ...row, id: index }))}
         columns={columns}
         rowsPerPageOptions={[25, 50, 100]}
+        components={
+          enableToolbar
+            ? {
+                Toolbar: CustomToolbar,
+              }
+            : {}
+        }
         localeText={{
           columnMenuLabel: Tr(T.ColumnMenuLabel),
           columnMenuShowColumns: Tr(T.ColumnMenuShowColumns),
@@ -77,6 +105,7 @@ DataGridTable.propTypes = {
       width: PropTypes.number,
     })
   ).isRequired,
+  enableToolbar: PropTypes.boolean,
 }
 
 export default DataGridTable

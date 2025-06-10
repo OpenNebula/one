@@ -17,14 +17,9 @@ import { Actions, Commands } from 'server/utils/constants/commands/user'
 
 import { AuthSlice } from '@modules/features/Auth/slice'
 import { oneApi } from '@modules/features/OneApi/oneApi'
-import { get, set, unset, mergeWith, union, isEmpty } from 'lodash'
-import { encodeLabels, parseLabels } from '@UtilsModule'
-import { jsonToXml } from '@ModelsModule'
-
 import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
-  RESOURCE_NAMES_TO_CACHE_TAG,
 } from '@modules/features/OneApi/resources'
 
 import { User } from '@ConstantsModule'
@@ -547,140 +542,6 @@ const userApi = oneApi.injectEndpoints({
       transformResponse: (data) =>
         [data?.USER_QUOTA_POOL?.USER_QUOTA ?? []].flat(),
     }),
-    addUserLabel: builder.mutation({
-      /**
-       * Adds a new label to a user template without overwriting existing data.
-       *
-       * @param {object} params - Request parameters
-       * @param {string|number} params.id - User id
-       * @param {object} params.labels - ID grouped labels object
-       * @param {object} params.data - New label metadata
-       * @returns {number} User id
-       * @throws Fails when response isn't code 200
-       */
-      queryFn: async ({ id, labels, data = {} }, { dispatch }) => {
-        try {
-          const { resourceType, resourceIds } = data
-          const userData = await dispatch(
-            userApi.endpoints.getUser.initiate({ id })
-          ).unwrap()
-
-          const { TEMPLATE } = userData ?? {}
-
-          const cloneTemplate = structuredClone(TEMPLATE ?? {})
-
-          const existingLabels = parseLabels(get(cloneTemplate, 'LABELS', {}))
-
-          const existingLabelData = labels?.reduce((acc, label) => {
-            acc[label] = get(existingLabels, label, {})
-
-            return acc
-          }, {})
-
-          Object.entries(existingLabelData)?.forEach(([path, eData]) =>
-            set(
-              existingLabels,
-              path,
-              mergeWith(
-                {},
-                eData,
-                { [resourceType]: resourceIds },
-                (objValue, srcValue) => {
-                  if (Array.isArray(objValue) && Array.isArray(srcValue)) {
-                    return union(objValue, srcValue)
-                  }
-                }
-              )
-            )
-          )
-
-          const payload = {
-            id,
-            template: jsonToXml({ LABELS: encodeLabels(existingLabels) }),
-            replace: 1,
-          }
-
-          const response = await dispatch(
-            userApi.endpoints.updateUser.initiate({
-              ...payload,
-            })
-          ).unwrap()
-
-          return { data: { response, type: resourceType, ids: resourceIds } }
-        } catch (error) {
-          return { error }
-        }
-      },
-      invalidatesTags: ({ type }) => [
-        USER_POOL,
-        `${RESOURCE_NAMES_TO_CACHE_TAG?.[type]}_POOL`,
-      ],
-    }),
-    removeUserLabel: builder.mutation({
-      /**
-       * Removes a label from a user template.
-       *
-       * @param {object} params - Request parameters
-       * @param {string|number} params.id - User id
-       * @param {string} params.label - '.' separated label path.
-       * @returns {number} User id
-       * @throws Fails when response isn't code 200
-       */
-      queryFn: async ({ id, label }, { dispatch }) => {
-        try {
-          const userData = await dispatch(
-            userApi.endpoints.getUser.initiate({ id })
-          ).unwrap()
-
-          const { TEMPLATE } = userData ?? {}
-
-          const cloneTemplate = structuredClone(TEMPLATE ?? {})
-
-          const existingLabels = parseLabels(get(cloneTemplate, 'LABELS', {}))
-
-          const deletePath = (obj, path) => {
-            const parts = path.split('.')
-            const lastKey = parts.pop()
-            let parent = get(obj, parts)
-
-            if (Array.isArray(parent)) {
-              parent = parent.filter((val) => val !== lastKey)
-
-              if (isEmpty(parent)) {
-                unset(obj, parts)
-              } else {
-                set(obj, parts, parent)
-              }
-
-              return
-            }
-
-            unset(obj, path)
-          }
-
-          deletePath(existingLabels, label)
-
-          const payload = {
-            id,
-            template: jsonToXml({
-              ...cloneTemplate,
-              LABELS: encodeLabels(existingLabels),
-            }),
-            replace: 0,
-          }
-
-          const response = await dispatch(
-            userApi.endpoints.updateUser.initiate({
-              ...payload,
-            })
-          ).unwrap()
-
-          return { data: response }
-        } catch (error) {
-          return { error }
-        }
-      },
-    }),
     updateUserQuota: builder.mutation({
       /**
        * Sets the user quota limits.
@@ -728,8 +589,6 @@ const userQueries = (({
   useLazyGetUserQuotaQuery,
 
   // Mutations
-  useAddUserLabelMutation,
-  useRemoveUserLabelMutation,
   useAllocateUserMutation,
   useUpdateUserMutation,
   useLoginUserMutation,
@@ -753,8 +612,6 @@ const userQueries = (({
   useLazyGetUserQuotaQuery,
 
   // Mutations
-  useAddUserLabelMutation,
-  useRemoveUserLabelMutation,
   useAllocateUserMutation,
   useUpdateUserMutation,
   useLoginUserMutation,

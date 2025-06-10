@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from '@modules/components/HOC'
+import { CreateFormCallback } from '@UtilsModule'
 
-export * from '@modules/features/SupportAuth'
-export * from '@modules/features/Persistent'
-export * from '@modules/features/OneApi'
-export * from '@modules/features/Guacamole'
-export * from '@modules/features/General'
-export * from '@modules/features/Modals'
-export * from '@modules/features/Auth'
-export * from '@modules/features/middleware'
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Labels/CreateForm' }, configProps)
+
+export { CreateForm }

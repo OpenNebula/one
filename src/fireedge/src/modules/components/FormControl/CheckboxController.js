@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useCallback } from 'react'
+import { useEffect, memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -23,7 +23,7 @@ import {
   FormHelperText,
   Checkbox,
 } from '@mui/material'
-import { useController } from 'react-hook-form'
+import { useFormContext, useController, useWatch } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from '@modules/components/FormControl'
 import { Tr, labelCanBeTranslated } from '@modules/components/HOC'
@@ -44,6 +44,8 @@ const CheckboxController = memo(
     tooltip,
     fieldProps = {},
     readOnly = false,
+    watcher,
+    dependencies,
     onConditionChange,
   }) => {
     const {
@@ -64,6 +66,23 @@ const CheckboxController = memo(
       },
       [onChange, onConditionChange]
     )
+
+    // Add watcher to know if the dependencies fields have changes
+    const watch = useWatch({
+      name: dependencies,
+      disabled: dependencies == null,
+      defaultValue: Array.isArray(dependencies) ? [] : undefined,
+    })
+
+    const formContext = useFormContext()
+
+    useEffect(() => {
+      if (!watcher || !dependencies || !watch) return
+
+      const watcherValue = watcher(watch, { name, formContext })
+
+      watcherValue !== undefined && onChange(watcherValue)
+    }, [watch, watcher, dependencies])
 
     return (
       <FormControl error={Boolean(error)} margin="dense" sx={{ ...sx }}>
@@ -105,6 +124,11 @@ CheckboxController.propTypes = {
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
   onConditionChange: PropTypes.func,
+  watcher: PropTypes.func,
+  dependencies: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
 }
 
 CheckboxController.displayName = 'CheckboxController'

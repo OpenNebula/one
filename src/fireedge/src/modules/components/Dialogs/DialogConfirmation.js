@@ -54,7 +54,6 @@ import { T, STYLE_BUTTONS } from '@ConstantsModule'
 const DialogConfirmation = memo(
   ({
     open = true,
-    disablePortal = false,
     title = '',
     subheader,
     contentProps,
@@ -72,15 +71,34 @@ const DialogConfirmation = memo(
 
     return (
       <Dialog
-        disablePortal
         fullScreen={isMobile}
         PaperProps={{
           elevation: 0,
           sx: {
-            minWidth: fixedWidth ? '80vw' : 'auto',
-            minHeight: fixedHeight ? '80vh' : 'auto',
-            maxWidth: fixedWidth ? '80vw' : 'auto',
-            maxHeight: fixedHeight ? '80vh' : 'auto',
+            minWidth:
+              typeof fixedWidth === 'string'
+                ? fixedWidth
+                : fixedWidth
+                ? '80vw'
+                : 'auto',
+            minHeight:
+              typeof fixedWidth === 'string'
+                ? fixedWidth
+                : fixedWidth
+                ? '80vh'
+                : 'auto',
+            maxWidth:
+              typeof fixedWidth === 'string'
+                ? fixedWidth
+                : fixedWidth
+                ? '80vw'
+                : 'auto',
+            maxHeight:
+              typeof fixedWidth === 'string'
+                ? fixedWidth
+                : fixedWidth
+                ? '80vh'
+                : 'auto',
           },
         }}
         open={open}
@@ -153,7 +171,6 @@ const DialogConfirmation = memo(
 
 export const DialogPropTypes = {
   open: PropTypes.bool,
-  disablePortal: PropTypes.bool,
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   subheader: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   contentProps: PropTypes.object,

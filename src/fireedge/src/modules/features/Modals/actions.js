@@ -13,12 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { createAction } from '@reduxjs/toolkit'
 
-export * from '@modules/features/SupportAuth'
-export * from '@modules/features/Persistent'
-export * from '@modules/features/OneApi'
-export * from '@modules/features/Guacamole'
-export * from '@modules/features/General'
-export * from '@modules/features/Modals'
-export * from '@modules/features/Auth'
-export * from '@modules/features/middleware'
+export const showModal = createAction('Show modal')
+export const hideModal = createAction('Hide modal')

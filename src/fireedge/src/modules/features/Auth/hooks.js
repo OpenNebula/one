@@ -20,6 +20,7 @@ import { GeneralSlice } from '@modules/features/General/slice'
 import { AuthSlice, logout } from '@modules/features/Auth/slice'
 import { SystemAPI, oneApi } from '@modules/features/OneApi'
 import { parseLabels } from '@UtilsModule'
+import { merge } from 'lodash'
 import {
   _APPS,
   RESOURCE_NAMES,
@@ -80,6 +81,10 @@ export const useAuth = () => {
     return labels
   }, [user?.TEMPLATE?.LABELS])
 
+  const allLabels = { user: userLabels, group: groupLabels } ?? {}
+
+  const mergedLabels = merge({}, defaultLabels ?? {}, allLabels ?? {})
+
   return useMemo(
     () => ({
       ...auth,
@@ -95,7 +100,7 @@ export const useAuth = () => {
         ...(user?.TEMPLATE ?? {}),
         ...(user?.TEMPLATE?.FIREEDGE ?? {}),
       },
-      labels: { user: userLabels, group: groupLabels } ?? {},
+      labels: mergedLabels,
       isLogged:
         !!jwt &&
         !!user &&

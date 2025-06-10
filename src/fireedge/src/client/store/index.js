@@ -17,7 +17,6 @@ import { configureStore, Middleware, EnhancedStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query/react'
 import storage from 'redux-persist/lib/storage'
 import { persistStore, persistReducer } from 'redux-persist'
-
 import { isDevelopment } from '@UtilsModule'
 
 import {
@@ -26,6 +25,7 @@ import {
   SupportSlice,
   PersistentSlice,
   GuacamoleSlice,
+  ModalsSlice,
   oneApi,
   unauthenticatedMiddleware,
 } from '@FeaturesModule'
@@ -50,6 +50,7 @@ export const createStore = ({ initState = {}, extraMiddleware = [] }) => {
       [SupportSlice.name]: SupportSlice.reducer,
       [GeneralSlice.name]: GeneralSlice.reducer,
       [GuacamoleSlice.name]: GuacamoleSlice.reducer,
+      [ModalsSlice.name]: ModalsSlice.reducer,
       [oneApi.reducerPath]: oneApi.reducer,
       [PersistentSlice.name]: persistedReducer,
     },
@@ -59,7 +60,8 @@ export const createStore = ({ initState = {}, extraMiddleware = [] }) => {
         immutableCheck: true,
         serializableCheck: {
           ignoredActions: ['persist/PERSIST'],
-          ignoredPaths: ['persist'],
+          ignoredActionPaths: ['payload.form', 'payload.onSubmit'],
+          ignoredPaths: ['persist', 'modals'],
         },
       }).concat([
         ...extraMiddleware,

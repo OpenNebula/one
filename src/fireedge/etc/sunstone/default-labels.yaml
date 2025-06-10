@@ -1,23 +1,41 @@
 # -----------------------------------------------------------
 # Default Labels Configuration
 #
-# You can configure a set of default labels for both users and groups.
-# These labels will be shown as default empty options in the Sunstone UI,
-# but will not be stored in any template unless explicitly added.
+# This configuration defines default labels available for users and groups.
+# These labels appear as empty default options in the Sunstone UI but are not saved 
+# in any template until interacted with.
 #
-# Format:
+# Structure and Usage:
 #
-# - For `user`, paths are structured like:
-#     user:
-#       - Category/Subcategory
+# - For 'user' labels:
+#     Labels are organized as nested categories and subcategories under each user template.
 #
-# - For `group`, the first segment must be the group name, followed by the label hierarchy:
-#     group:
-#       - GroupName/Category/Subcategory
+#     Example:
 #
-# Example:
-#user:
-#  - Test1/A/B/C
+#       user:
+#         Test1:
+#           A:
+#             B:
+#               C:
 #
-#group:
-#  - oneadmin/Test2/D/E/F
+# - For 'group' labels:
+#     The first level key is the group name.
+#     Under each group, labels are organized similarly to users, with nested categories and subcategories.
+#
+#     Example:
+#       group:
+#         oneadmin:
+#           Test2:
+#             D:
+#               E:
+#                 F:
+#
+#         group-1:
+#           GroupLabel1:
+#             NestedLabel: { "vm-template": ["1","2","3"] }
+#
+# Note:
+# - Labels under each user or group can include information about the resources they are applied to. 
+#   Such as the example with "vm-template" containing an array of vm-template IDs.
+# - The default labels tree structure is merged together with the user/group defined tree, 
+#   with respect to the user/group tree.

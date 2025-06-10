@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
+import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 
-export * from '@modules/features/SupportAuth'
-export * from '@modules/features/Persistent'
-export * from '@modules/features/OneApi'
-export * from '@modules/features/Guacamole'
-export * from '@modules/features/General'
-export * from '@modules/features/Modals'
-export * from '@modules/features/Auth'
-export * from '@modules/features/middleware'
+import * as actions from '@modules/features/Modals/actions'
+import { ModalsSlice } from '@modules/features/Modals/slice'
+
+const { name: modalsSlice } = ModalsSlice
+
+export const useModals = () =>
+  useSelector((state) => state[modalsSlice], shallowEqual)
+
+export const useModalsApi = () => {
+  const dispatch = useDispatch()
+
+  return {
+    showModal: (modal) => dispatch(actions.showModal(modal)),
+    hideModal: (id) => dispatch(actions.hideModal(id)),
+  }
+}

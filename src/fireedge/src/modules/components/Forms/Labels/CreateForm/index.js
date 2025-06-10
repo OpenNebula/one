@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { createForm } from '@UtilsModule'
+import {
+  SCHEMA,
+  FIELDS,
+} from '@modules/components/Forms/Labels/CreateForm/schema'
 
-export * from '@modules/features/SupportAuth'
-export * from '@modules/features/Persistent'
-export * from '@modules/features/OneApi'
-export * from '@modules/features/Guacamole'
-export * from '@modules/features/General'
-export * from '@modules/features/Modals'
-export * from '@modules/features/Auth'
-export * from '@modules/features/middleware'
+const AddNewLabelForm = createForm(SCHEMA, FIELDS)
+
+export default AddNewLabelForm

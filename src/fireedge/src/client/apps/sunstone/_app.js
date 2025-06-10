@@ -23,6 +23,7 @@ import {
   NotifierUpload,
   PATH,
   AuthLayout,
+  ModalHost,
   TranslateProvider,
 } from '@ComponentsModule'
 
@@ -127,6 +128,7 @@ const SunstoneApp = () => {
             <Sidebar endpoints={endpoints} />
             <Notifier />
             <NotifierUpload />
+            <ModalHost />
           </>
         )}
         <Router

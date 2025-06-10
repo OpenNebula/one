@@ -71,15 +71,11 @@ export const StyledAutocompletePopper = styled('div')(({ theme }) => ({
  * @param {PopperProps} props - The props for the Popper component
  * @returns {ReactElement} Popper
  */
-export const PopperComponent = ({
-  disablePortal,
-  anchorEl,
-  open,
-  ...other
-}) => <StyledAutocompletePopper {...other} />
+export const PopperComponent = ({ anchorEl, open, ...other }) => (
+  <StyledAutocompletePopper {...other} />
+)
 
 PopperComponent.propTypes = {
   anchorEl: PropTypes.any,
-  disablePortal: PropTypes.bool,
   open: PropTypes.bool,
 }
