@@ -36,6 +36,9 @@ module.exports = {
   Last: 'Last',
   ApplyLabels: 'Apply labels',
   DeleteLabel: 'Delete label',
+  DeleteLabelConcept:
+    'Deleting a label will remove it from all its applied resources.',
+  DeleteTheFollowingLabel: 'Delete the following label',
   Apply: 'Apply',
   Label: 'Label',
   UserLabels: 'User labels',

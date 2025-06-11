@@ -87,7 +87,7 @@ const SmartActionButton = ({
         title: 'Create Label',
         dataCy: 'modal-create-label',
         fixedWidth: '500px',
-        fixedHeight: '400px',
+        fixedHeight: '500px',
       },
       form: Labels.CreateForm,
       onSubmit: handleSubmit,

@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import DataGridTable from '@modules/components/Tables/DataGrid'
 import SubmitButton from '@modules/components/FormControl/SubmitButton'
+import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
 import { useLabelTree } from '@modules/components/List/NestedLabelTree/reducer'
 import { useModalsApi, useAuth } from '@FeaturesModule'
 import { labelsToArray } from '@modules/components/List/NestedLabelTree/utils'
@@ -67,6 +68,11 @@ const LabelTable = () => {
   const fmtLabel = useCallback(
     (label) => {
       const lblPath = label?.split('/')
+      if (labelType === 'group') {
+        if (lblPath?.length <= 1) {
+          return // Exclude groups without labels
+        }
+      }
 
       return {
         id: label,
@@ -80,7 +86,7 @@ const LabelTable = () => {
   )
 
   const tableData = useMemo(
-    () => labelsArray?.[labelType]?.map(fmtLabel) ?? [],
+    () => labelsArray?.[labelType]?.map(fmtLabel)?.filter(Boolean) ?? [],
     [labelType, labelsArray]
   )
 
@@ -107,7 +113,7 @@ const LabelTable = () => {
         title: 'Create Label',
         dataCy: 'modal-create-label',
         fixedWidth: '500px',
-        fixedHeight: '400px',
+        fixedHeight: '500px',
       },
       form: Labels.CreateForm,
       onSubmit: handleSubmit,
@@ -151,15 +157,51 @@ const LabelTable = () => {
             justifyContent: 'center',
           }}
         >
-          <SubmitButton
-            data-cy={'remove-label'}
-            icon={<Trash />}
-            tooltip={T.Remove}
-            size={STYLE_BUTTONS.SIZE.MEDIUM}
-            type={STYLE_BUTTONS.TYPE.NOBORDER}
-            importance={STYLE_BUTTONS.IMPORTANCE.DANGER}
-            loadOnIcon
-            onClick={() => handleRemove(params.row)}
+          <ButtonToTriggerForm
+            buttonProps={{
+              importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+              size: STYLE_BUTTONS.SIZE.MEDIUM,
+              type: STYLE_BUTTONS.TYPE.NOBORDER,
+              icon: <Trash />,
+              tooltip: T.Remove,
+            }}
+            options={[
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  children: (
+                    <div style={{ padding: '8px' }}>
+                      <h2
+                        style={{
+                          fontSize: '18px',
+                          fontWeight: 'bold',
+                          marginBottom: '12px',
+                        }}
+                      >
+                        {T.DeleteLabelConcept}
+                      </h2>
+                      <p style={{ marginBottom: '8px' }}>
+                        {T.DeleteTheFollowingLabel}:
+                      </p>
+                      <div style={{ paddingLeft: '12px' }}>
+                        <div style={{ marginBottom: '6px' }}>
+                          <span style={{ fontWeight: 'bold' }}>Name: </span>
+                          <span>{params.row.name}</span>
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 'bold' }}>Path: </span>
+                          <span>{params.row.displayPath}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                  title: <p>{T.DeleteLabel}</p>,
+                  fixedWidth: '500px',
+                  fixedHeight: '400px',
+                },
+                onSubmit: () => handleRemove(params.row),
+              },
+            ]}
           />
         </Box>
       ),

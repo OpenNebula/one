@@ -27,8 +27,8 @@ const LABEL_NAME = {
   grid: { md: 12 },
   validation: string()
     .matches(
-      /^[a-zA-Z0-9]+$/,
-      'Name must only contain uppercase alphanumeric characters and no spaces'
+      /^[a-zA-Z0-9_-]+$/,
+      'Name must only contain alphanumeric characters, "-", "_" and no spaces'
     )
     .required(T.NewLabelname),
 }

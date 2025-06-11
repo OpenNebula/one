@@ -82,9 +82,9 @@ const DialogConfirmation = memo(
                 ? '80vw'
                 : 'auto',
             minHeight:
-              typeof fixedWidth === 'string'
-                ? fixedWidth
-                : fixedWidth
+              typeof fixedHeight === 'string'
+                ? fixedHeight
+                : fixedHeight
                 ? '80vh'
                 : 'auto',
             maxWidth:
@@ -94,9 +94,9 @@ const DialogConfirmation = memo(
                 ? '80vw'
                 : 'auto',
             maxHeight:
-              typeof fixedWidth === 'string'
-                ? fixedWidth
-                : fixedWidth
+              typeof fixedHeight === 'string'
+                ? fixedHeight
+                : fixedHeight
                 ? '80vh'
                 : 'auto',
           },

@@ -116,16 +116,23 @@ export const findNodePathByLabel = (tree, term, path = []) => {
  * @returns {string} - Node id
  */
 export const getNodeIdFromEvent = (event) => {
-  let el = event.target
-  while (el && !el.dataset.nodeid) {
-    el = el.parentElement
+  const el = event.target
+
+  const nodeIdContainer = el.closest('[data-nodeid]')
+  if (nodeIdContainer) {
+    return nodeIdContainer.dataset.nodeid
   }
 
-  if (!el) {
-    return null
+  const treeItemRoot = el.closest('[role="treeitem"]')
+
+  if (treeItemRoot) {
+    const labelDataNodeIdElement = treeItemRoot.querySelector('[data-nodeid]')
+    if (labelDataNodeIdElement) {
+      return labelDataNodeIdElement.dataset.nodeid
+    }
   }
 
-  return el.dataset.nodeid
+  return null
 }
 
 /**

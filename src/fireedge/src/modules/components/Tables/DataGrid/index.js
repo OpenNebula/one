@@ -15,11 +15,7 @@
  * ------------------------------------------------------------------------- */
 import React from 'react'
 import PropTypes from 'prop-types'
-import {
-  DataGrid,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton,
-} from '@mui/x-data-grid'
+import { DataGrid, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { Box } from '@mui/material'
 import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
@@ -35,7 +31,6 @@ const CustomToolbar = () => (
       width: '100%',
     }}
   >
-    <GridToolbarColumnsButton />
     <GridToolbarFilterButton />
   </Box>
 )
