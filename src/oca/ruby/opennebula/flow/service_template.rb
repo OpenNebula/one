@@ -319,13 +319,6 @@ module OpenNebula
 
         def allocate(template_json)
             template = JSON.parse(template_json)
-
-            # Compability mode v<7.0
-            rc = ServiceTemplate.convert_template(template) \
-                 if ServiceTemplate.old_format?(template)
-
-            return rc if OpenNebula.is_error?(rc)
-
             ServiceTemplate.validate(template)
 
             template['registration_time'] = Integer(Time.now)
@@ -535,6 +528,12 @@ module OpenNebula
         end
 
         def self.validate(template)
+            # Compability mode v<7.0
+            rc = ServiceTemplate.convert_template(template) \
+                if ServiceTemplate.old_format?(template)
+
+            raise Validator::ParseException(rc.message) if OpenNebula.is_error?(rc)
+
             validator = Validator::Validator.new(
                 :default_values => true,
                 :delete_extra_properties => false,
@@ -809,7 +808,7 @@ module OpenNebula
         def self.convert_template(body)
             body['roles'].each do |role|
                 # Mandatory
-                role['template_id'] = role['vm_template']
+                role['template_id'] = role['vm_template'].to_i
                 role['type']        = 'vm'
 
                 # Optional attributes
