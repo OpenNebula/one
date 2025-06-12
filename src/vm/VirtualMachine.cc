@@ -3143,6 +3143,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
 
         // Remove equal values from the new context
         map<string, string> equal_values;
+        map<string, string> eth_updates;
 
         auto in = context_new->value().cbegin();
         auto ib = context_bck->value().cbegin();
@@ -3152,13 +3153,20 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
         {
             if (in->first < ib->first)
             {
-                // Do not allow add new attribute with name ETHx_y
-                if (!allow_eth_updates && std::regex_match(in->first, regex("ETH\\d+_\\w+")))
+                if (std::regex_match(in->first, regex("ETH\\d+_\\w+")))
                 {
-                    err = "Unable to add " + in->first +
-                          ", update NIC to update network context";
+                    if (allow_eth_updates)
+                    {
+                        eth_updates.insert(make_pair(in->first, in->second));
+                    }
+                    else
+                    {
+                        // Do not allow add new attribute with name ETHx_y
+                        err = "Unable to add " + in->first +
+                              ", update NIC to update network context";
 
-                    return -1;
+                        return -1;
+                    }
                 }
 
                 context_changed = true;
@@ -3177,13 +3185,20 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
                 }
                 else
                 {
-                    // Do not allow update attribute with name ETHx_y
-                    if (!allow_eth_updates && std::regex_match(in->first, regex("ETH\\d+_\\w+")))
+                    if (std::regex_match(in->first, regex("ETH\\d+_\\w+")))
                     {
-                        err = "Unable to update " + in->first +
-                              ", update NIC to update the network";
+                        if (allow_eth_updates)
+                        {
+                            eth_updates.insert(make_pair(in->first, in->second));
+                        }
+                        else
+                        {
+                            // Do not allow update attribute with name ETHx_y
+                            err = "Unable to update " + in->first +
+                                  ", update NIC to update network context";
 
-                        return -1;
+                            return -1;
+                        }
                     }
 
                     context_changed = true;
@@ -3201,19 +3216,17 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
 
         for (const auto& attr : equal_values)
         {
+            if (!append && attr.first == "NETWORK")
+            {
+                // Regenerate NETWORK context in replace mode
+                continue;
+            }
+
             context_new->remove(attr.first);
         }
 
         context_new->replace("TARGET",  context_bck->vector_value("TARGET"));
         context_new->replace("DISK_ID", context_bck->vector_value("DISK_ID"));
-
-        // In case of replace, keep NETWORK attribute to regenerate net context
-        auto it_net = equal_values.find("NETWORK");
-
-        if ( it_net != equal_values.end() )
-        {
-            context_new->replace("NETWORK", it_net->second);
-        }
 
         obj_template->remove(context_bck);
         obj_template->set(context_new);
@@ -3227,6 +3240,12 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
         }
 
         context_new = obj_template->get("CONTEXT");
+
+        // Manual overrides of ETH* attributes
+        for (const auto& eth_update : eth_updates)
+        {
+            context_new->replace(eth_update.first, eth_update.second);
+        }
 
         if (append)
         {
