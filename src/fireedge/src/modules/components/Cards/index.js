@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import ACLCardCLI from '@modules/components/Cards/ACLCards/ACLCardCLI'
 import ACLCardIcons from '@modules/components/Cards/ACLCards/ACLCardIcons'
 import ACLCardNames from '@modules/components/Cards/ACLCards/ACLCardNames'
-import ACLCardCLI from '@modules/components/Cards/ACLCards/ACLCardCLI'
+import ACLCardReadableRule from '@modules/components/Cards/ACLCards/ACLCardReadableRule'
 import ACLCardResources from '@modules/components/Cards/ACLCards/ACLCardResources'
 import ACLCardRule from '@modules/components/Cards/ACLCards/ACLCardRule'
-import ACLCardReadableRule from '@modules/components/Cards/ACLCards/ACLCardReadableRule'
 import AddressRangeCard from '@modules/components/Cards/AddressRangeCard'
 import ApplicationCard from '@modules/components/Cards/ApplicationCard'
 import ApplicationNetworkCard from '@modules/components/Cards/ApplicationNetworkCard'
@@ -29,6 +29,7 @@ import DatastoreCard from '@modules/components/Cards/DatastoreCard'
 import DiskCard from '@modules/components/Cards/DiskCard'
 import DiskSnapshotCard from '@modules/components/Cards/DiskSnapshotCard'
 import EmptyCard from '@modules/components/Cards/EmptyCard'
+import GroupCard from '@modules/components/Cards/GroupCard'
 import HostCard from '@modules/components/Cards/HostCard'
 import ImageCreateCard from '@modules/components/Cards/ImageCreateCard'
 import ImageSnapshotCard from '@modules/components/Cards/ImageSnapshotCard'
@@ -38,8 +39,6 @@ import NetworkCard from '@modules/components/Cards/NetworkCard'
 import NicCard from '@modules/components/Cards/NicCard'
 import PciCard from '@modules/components/Cards/PciCard'
 import PolicyCard from '@modules/components/Cards/PolicyCard'
-import ProvisionCard from '@modules/components/Cards/ProvisionCard'
-import ProvisionTemplateCard from '@modules/components/Cards/ProvisionTemplateCard'
 import ScheduleActionCard from '@modules/components/Cards/ScheduleActionCard'
 import SecurityGroupCard from '@modules/components/Cards/SecurityGroupCard'
 import SelectCard from '@modules/components/Cards/SelectCard'
@@ -49,20 +48,19 @@ import SnapshotCard from '@modules/components/Cards/SnapshotCard'
 import SupportCard from '@modules/components/Cards/SupportCard'
 import TierCard from '@modules/components/Cards/TierCard'
 import UserCard from '@modules/components/Cards/UserCard'
-import GroupCard from '@modules/components/Cards/GroupCard'
 import VirtualDataCenterCard from '@modules/components/Cards/VirtualDataCenterCard'
-import VmGroupCard from '@modules/components/Cards/VmGroupCard'
 import VirtualMachineCard from '@modules/components/Cards/VirtualMachineCard'
+import VmGroupCard from '@modules/components/Cards/VmGroupCard'
 import VmTemplateCard from '@modules/components/Cards/VmTemplateCard'
 import WavesCard from '@modules/components/Cards/WavesCard'
 
 export {
+  ACLCardCLI,
   ACLCardIcons,
   ACLCardNames,
-  ACLCardCLI,
+  ACLCardReadableRule,
   ACLCardResources,
   ACLCardRule,
-  ACLCardReadableRule,
   AddressRangeCard,
   ApplicationCard,
   ApplicationNetworkCard,
@@ -73,6 +71,7 @@ export {
   DiskCard,
   DiskSnapshotCard,
   EmptyCard,
+  GroupCard,
   HostCard,
   ImageCreateCard,
   ImageSnapshotCard,
@@ -82,8 +81,6 @@ export {
   NicCard,
   PciCard,
   PolicyCard,
-  ProvisionCard,
-  ProvisionTemplateCard,
   ScheduleActionCard,
   SecurityGroupCard,
   SelectCard,
@@ -93,10 +90,9 @@ export {
   SupportCard,
   TierCard,
   UserCard,
-  GroupCard,
   VirtualDataCenterCard,
-  VmGroupCard,
   VirtualMachineCard,
+  VmGroupCard,
   VmTemplateCard,
   WavesCard,
 }

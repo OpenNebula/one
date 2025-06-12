@@ -16,7 +16,6 @@
 import { Box, Stack, Tooltip, Typography, useTheme } from '@mui/material'
 import clsx from 'clsx'
 import {
-  Cloud,
   Group,
   Lock,
   Server,
@@ -44,13 +43,13 @@ import {
   getVNManager,
 } from '@ModelsModule'
 
-import { getResourceLabels } from '@UtilsModule'
 import {
   RESOURCE_NAMES,
   T,
   VirtualNetwork,
   VNET_THRESHOLD,
 } from '@ConstantsModule'
+import { getResourceLabels } from '@UtilsModule'
 
 const NetworkCard = memo(
   /**
@@ -68,17 +67,8 @@ const NetworkCard = memo(
     const { labels } = useAuth()
     const LABELS = getResourceLabels(labels, network?.ID, RESOURCE_NAMES.VNET)
 
-    const {
-      ID,
-      NAME,
-      UNAME,
-      GNAME,
-      LOCK,
-      CLUSTERS,
-      TEMPLATE: { PROVISION } = {},
-    } = network
+    const { ID, NAME, UNAME, GNAME, LOCK, CLUSTERS } = network
 
-    const provisionId = PROVISION?.ID
     const { color: stateColor, name: stateName } =
       getVirtualNetworkState(network)
     const error = useMemo(() => getErrorMessage(network), [network])
@@ -155,12 +145,6 @@ const NetworkCard = memo(
                 <Stack direction="row" justifyContent="end" alignItems="center">
                   <MultipleTags tags={clusters} />
                 </Stack>
-              </span>
-            )}
-            {provisionId && (
-              <span title={`${Tr(T.ProvisionId)}: #${provisionId}`}>
-                <Cloud />
-                <span>{` ${provisionId}`}</span>
               </span>
             )}
           </div>

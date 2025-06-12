@@ -51,13 +51,8 @@ const COLUMNS = [
     accessor: 'USED_LEASES',
     sortType: 'number',
   },
-  {
-    Header: T.ProvisionId,
-    id: 'provision_id',
-    accessor: 'TEMPLATE.PROVISION.ID',
-  },
 ]
 
-COLUMNS.noFilterIds = ['id', 'name', 'used_leases', 'provision_id']
+COLUMNS.noFilterIds = ['id', 'name', 'used_leases']
 
 export default COLUMNS

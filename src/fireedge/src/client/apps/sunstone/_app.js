@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useEffect, useMemo } from 'react'
-import { ENDPOINTS, getEndpointsByView } from 'client/apps/sunstone/routes'
-import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
-import Router from 'client/router'
 import {
-  Notifier,
-  Sidebar,
-  NotifierUpload,
-  PATH,
   AuthLayout,
   ModalHost,
+  Notifier,
+  NotifierUpload,
+  PATH,
+  Sidebar,
   TranslateProvider,
 } from '@ComponentsModule'
+import { ENDPOINTS, getEndpointsByView } from 'client/apps/sunstone/routes'
+import Router from 'client/router'
+import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
+import { ReactElement, useEffect, useMemo } from 'react'
 
 import { _APPS } from '@ConstantsModule'
-import { isDevelopment, processTabManifest } from '@UtilsModule'
 import {
-  useGeneralApi,
-  useAuth,
-  useViews,
   oneApi,
   SupportAPI,
   SystemAPI,
+  useAuth,
+  useGeneralApi,
+  useViews,
 } from '@FeaturesModule'
+import { isDevelopment, processTabManifest } from '@UtilsModule'
 
 export const APP_NAME = _APPS.sunstone
 
@@ -92,25 +92,8 @@ const SunstoneApp = () => {
       processTabManifest(tabManifest)
     )
 
-    // Temporary patch to 7.0. Remove when 7.0.0.1 with OneForm is released
-    const routesToRemove = [
-      'Providers',
-      'Create Provider',
-      'Update Provider',
-      'Provisions',
-      'Create Provision',
-      'Update Provision',
-    ]
-
-    const viewEndpointsPatch = viewEndpoints.map((section) => ({
-      ...section,
-      routes: section?.routes?.filter(
-        (route) => !routesToRemove.includes(route.title)
-      ),
-    }))
-
     return showSupportTab(
-      fixedEndpoints.concat(viewEndpointsPatch),
+      fixedEndpoints.concat(viewEndpoints),
       isSupportSuccess
     )
   }, [tabManifest, view, isSupportSuccess, isManifestLoaded, isManifestLoading])

@@ -16,9 +16,7 @@
 
 const appName = 'fireedge'
 const appNameSunstone = 'sunstone'
-const appNameProvision = 'provision'
 const internalSunstonePath = `${appName}/${appNameSunstone}`
-const internalProvisionPath = `${appName}/${appNameProvision}`
 const baseUrl = `${appName ? `/${appName}/` : '/'}`
 const baseUrlWebsockets = 'websockets/'
 const severityPrepend = 'severity_'
@@ -34,7 +32,6 @@ const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
 const defaultIp = 'localhost'
 const protocol = 'http'
 const defaults = {
-  defaultAppNameProvision: appNameProvision,
   defaultTypeCrypto: 'aes-256-cbc',
   /**
    * Empty function.
@@ -62,10 +59,6 @@ const defaults = {
   defaultFilesWebsockets: {
     hooks: {
       path: `${baseUrl}${baseUrlWebsockets}hooks`,
-      methods: ['GET', 'POST'],
-    },
-    [appNameProvision]: {
-      path: `${baseUrl}${baseUrlWebsockets}${appNameProvision}`,
       methods: ['GET', 'POST'],
     },
   },
@@ -105,18 +98,12 @@ const defaults = {
     parseAttributeValue: true,
     trimValues: true,
   },
-  defaultCommandProvision: `one${appNameProvision}`,
-  defaultCommandProvisionTemplate: `one${appNameProvision}-template`,
-  defaultCommandProvider: 'oneprovider',
   defaultCommandVM: 'onevm',
   defaultCommandMarketApp: 'onemarketapp',
-  defaultFolderTmpProvision: 'tmp',
   defaultHideCredentials: true,
   defaultHideCredentialReplacer: '****',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
   defaultSunstonePath: internalSunstonePath,
-  defaultProvisionPath: internalProvisionPath,
-  defaultProvidersConfigPath: 'providers.d',
   defaultLogsLevels: ['error', 'warm', 'info', 'http', 'verbose', 'debug'],
   defaultLogMessageLength: 100,
   defaultTypeLog: 'prod',
@@ -173,7 +160,6 @@ const defaults = {
   defaultConfigFile: `${appName}-server.conf`,
   defaultSunstoneViews: `${appNameSunstone}-views.yaml`,
   defaultSunstoneConfig: `${appNameSunstone}-server.conf`,
-  defaultProvisionConfig: `${appNameProvision}-server.conf`,
   defaultApiTimeout: 45000,
   protectedConfigData: {
     [appNameSunstone]: [
@@ -184,10 +170,6 @@ const defaults = {
       'max_upload_file_size',
       'proxy',
       'token_remote_support',
-    ],
-    [appNameProvision]: [
-      'oneprovision_prepend_command',
-      'oneprovision_optional_create_command',
     ],
   },
 

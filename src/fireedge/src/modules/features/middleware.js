@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { isRejectedWithValue, Middleware, Dispatch } from '@reduxjs/toolkit'
+import { Dispatch, isRejectedWithValue, Middleware } from '@reduxjs/toolkit'
 
+import { T } from '@ConstantsModule'
+import { logout } from '@modules/features/Auth/slice'
 import { oneApi } from '@modules/features/OneApi'
-import { AuthSlice, logout } from '@modules/features/Auth/slice'
-import { T, ONEADMIN_GROUP_ID } from '@ConstantsModule'
-const { name: authName } = AuthSlice
 
 /**
  * @param {{ dispatch: Dispatch }} params - Redux parameters
@@ -33,26 +32,6 @@ export const unauthenticatedMiddleware =
       (isRejectedWithValue(action) && action.payload.status === 401)
     ) {
       dispatch(logout(T.SessionExpired))
-    }
-
-    return next(action)
-  }
-
-/**
- * @param {{ dispatch: Dispatch, getState: function():object }} params - Redux parameters
- * @returns {Middleware} - Middleware to logout when user isn't in oneadmin group
- */
-export const onlyForOneadminMiddleware =
-  ({ dispatch, getState }) =>
-  (next) =>
-  (action) => {
-    const groups = getState()?.[authName]?.user?.GROUPS?.ID
-
-    if (!logout.match(action) && !!groups?.length) {
-      const ensuredGroups = [groups].flat()
-
-      !ensuredGroups.includes(ONEADMIN_GROUP_ID) &&
-        dispatch(logout(T.OnlyForOneadminGroup))
     }
 
     return next(action)

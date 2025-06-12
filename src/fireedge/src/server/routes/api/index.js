@@ -55,7 +55,6 @@ const routes = [
   'vm',
   'vmpool',
   'zendesk',
-  'oneprovision',
   'sunstone',
   'system',
   'support',

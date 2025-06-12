@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ThunkDispatch, ThunkAction } from 'redux-thunk'
+import { ThunkAction, ThunkDispatch } from 'redux-thunk'
 import socketIO, { Socket } from 'socket.io-client'
 
+import { SOCKETS, WEBSOCKET_URL } from '@ConstantsModule'
 import { updateResourceOnPool } from '@modules/features/OneApi/common'
-import { WEBSOCKET_URL, SOCKETS } from '@ConstantsModule'
 
 /**
  * @typedef {'VM'|'HOST'|'IMAGE'|'NET'} HookObjectName
@@ -100,6 +100,7 @@ const UpdateFromSocket =
     { id },
     { cacheEntryRemoved, cacheDataLoaded, updateCachedData, getState, dispatch }
   ) => {
+    console.log('aca -->', id)
     const { zone } = getState().general
     const { jwt: token } = getState().auth
 
@@ -111,6 +112,7 @@ const UpdateFromSocket =
 
       const listener = ({ data } = {}) => {
         const value = getResourceValueFromEventState(data)
+        console.log('-->', value)
 
         if (!value) return
 

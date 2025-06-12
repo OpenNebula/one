@@ -80,11 +80,6 @@ const COLUMNS = [
     accessor: 'USED_MB',
     sortType: 'number',
   },
-  {
-    Header: 'Provision ID',
-    id: 'provision-id',
-    accessor: 'PROVISION.ID',
-  },
 ]
 
 COLUMNS.noFilterIds = ['id', 'name']

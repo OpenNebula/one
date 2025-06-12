@@ -20,11 +20,11 @@ import useFetchAll from '@modules/hooks/useFetchAll'
 import useList from '@modules/hooks/useList'
 import useListForm from '@modules/hooks/useListForm'
 import useNearScreen from '@modules/hooks/useNearScreen'
-import useSearch from '@modules/hooks/useSearch'
-import useSocket from '@modules/hooks/useSocket'
 import useResizeObserver from '@modules/hooks/useResizeObserver'
+import useSearch from '@modules/hooks/useSearch'
 
 export {
+  CLIPBOARD_STATUS,
   useClipboard,
   useDialog,
   useFetch,
@@ -32,8 +32,6 @@ export {
   useList,
   useListForm,
   useNearScreen,
-  useSearch,
-  useSocket,
   useResizeObserver,
-  CLIPBOARD_STATUS,
+  useSearch,
 }

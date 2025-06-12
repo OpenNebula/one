@@ -19,6 +19,7 @@ import AuthAPI from '@modules/features/OneApi/auth'
 import BackupJobAPI from '@modules/features/OneApi/backupjobs'
 import ClusterAPI from '@modules/features/OneApi/cluster'
 import DatastoreAPI from '@modules/features/OneApi/datastore'
+import GroupAPI from '@modules/features/OneApi/group'
 import HostAPI from '@modules/features/OneApi/host'
 import ImageAPI from '@modules/features/OneApi/image'
 import LogoAPI from '@modules/features/OneApi/logo'
@@ -26,10 +27,14 @@ import MarketplaceAPI from '@modules/features/OneApi/marketplace'
 import MarketplaceAppAPI from '@modules/features/OneApi/marketplaceApp'
 import VnAPI from '@modules/features/OneApi/network'
 import VnTemplateAPI from '@modules/features/OneApi/networkTemplate'
-import ProviderAPI from '@modules/features/OneApi/provider'
-import ProvisionAPI from '@modules/features/OneApi/provision'
+import { oneApi } from '@modules/features/OneApi/oneApi'
+import {
+  DOCUMENT,
+  DOCUMENT_POOL,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from '@modules/features/OneApi/resources'
 import SecurityGroupAPI from '@modules/features/OneApi/securityGroup'
-import GroupAPI from '@modules/features/OneApi/group'
 import ServiceAPI from '@modules/features/OneApi/service'
 import ServiceTemplateAPI from '@modules/features/OneApi/serviceTemplate'
 import * as SocketAPI from '@modules/features/OneApi/socket'
@@ -44,24 +49,15 @@ import VmTemplateAPI from '@modules/features/OneApi/vmTemplate'
 import VrAPI from '@modules/features/OneApi/vrouter'
 import VrTemplateAPI from '@modules/features/OneApi/vrouterTemplate'
 import ZoneAPI from '@modules/features/OneApi/zone'
-import { oneApi } from '@modules/features/OneApi/oneApi'
-import {
-  DOCUMENT,
-  DOCUMENT_POOL,
-  ONE_RESOURCES,
-  ONE_RESOURCES_POOL,
-  PROVISION_CONFIG,
-  PROVISION_RESOURCES,
-} from '@modules/features/OneApi/resources'
 
 export {
   AclAPI,
   AuthAPI,
   BackupJobAPI,
   ClusterAPI,
+  DatastoreAPI,
   DOCUMENT,
   DOCUMENT_POOL,
-  DatastoreAPI,
   GroupAPI,
   HostAPI,
   ImageAPI,
@@ -70,10 +66,7 @@ export {
   MarketplaceAppAPI,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
-  PROVISION_CONFIG,
-  PROVISION_RESOURCES,
-  ProviderAPI,
-  ProvisionAPI,
+  oneApi,
   SecurityGroupAPI,
   ServiceAPI,
   ServiceTemplateAPI,
@@ -91,5 +84,4 @@ export {
   VrAPI,
   VrTemplateAPI,
   ZoneAPI,
-  oneApi,
 }

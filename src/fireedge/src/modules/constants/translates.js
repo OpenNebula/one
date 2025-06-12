@@ -104,12 +104,9 @@ module.exports = {
   CreateMarketplace: 'Create Marketplace',
   CreateMarketApp: 'Create App',
   CreateApp: 'Create App',
-  CreateProvider: 'Create Provider',
-  CreateProvision: 'Create Provision',
   CreateSecurityGroup: 'Create Security Group',
   CreateServiceTemplate: 'Create Service Template',
   CreateVirtualRouterTemplate: 'Create Virtual Router Template',
-  EditProvisionTemplate: 'Edit Provision template',
   InstantiateServiceTemplate: 'Instantiate Service Template',
   InstantiateVirtualRouterTemplate: 'Instantiate Virtual Router Template',
   InstantiateVirtualRouter: 'Instantiate Virtual Router',
@@ -409,13 +406,8 @@ module.exports = {
   Vrouter: 'Vrouter',
   SessionExpired: 'Sorry, your session has expired',
   WrongUsernamePassword: 'Wrong username or password',
-  OnlyForOneadminGroup:
-    'Only members of the oneadmin group can access OneProvision functionality',
   SomethingWrong: 'Something go wrong',
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
-  CannotConnectOneProvision: 'Cannot connect to OneProvision server',
-  ErrorOneProvisionGUI:
-    'FireEdge is not correctly configured to operate the OneProvision GUI',
   ContactYourAdmin: 'Please contact your system administrator',
   NotFound: 'Not found',
   Timeout: 'Timeout',
@@ -448,13 +440,8 @@ module.exports = {
   ConfigurePolicies: 'Configure policies',
   ConfigureTemplate: 'Configure template',
 
-  /* steps form - provision */
-  ProviderOverview: 'Provider overview',
-  ProvisionOverview: 'Provision overview',
   ConfigureConnection: 'Configure connection',
   Location: 'Location',
-  ProviderTemplate: 'Provider template',
-  ProvisionTemplate: 'Provision template',
   ConfigureInputs: 'Configure inputs',
   UserInputs: 'User inputs',
   Log: 'Log',
@@ -464,7 +451,6 @@ module.exports = {
   CleanupConcept: 'Delete all vms and images first, then delete the resources',
   Force: 'Force',
   ForceConcept: 'Force configure to execute',
-  ConfigureProvision: 'Configure provision %s',
 
   /* sections */
   Dashboard: 'Dashboard',
@@ -961,12 +947,6 @@ module.exports = {
   ApplicationsInstances: 'Applications instances',
   Tier: 'Tier',
   Tiers: 'Tiers',
-
-  /* sections - provision */
-  Provider: 'Provider',
-  Providers: 'Providers',
-  Provision: 'Provision',
-  Provisions: 'Provisions',
 
   /* tabs */
   Drivers: 'Drivers',
@@ -2085,7 +2065,6 @@ module.exports = {
     Device to map image disk.
     If set, it will overwrite the default device mapping`,
   BusAdapterController: 'Bus adapter controller',
-  DiskProvisioningType: 'Disk provisioning type',
   Cache: 'Cache',
   IoPolicy: 'IO Policy',
   Discard: 'Discard',
@@ -2111,10 +2090,6 @@ module.exports = {
     Can be used only if IOTHREADS > 0. If this input is disabled
     please first configure IOTHREADS value on OS & CPU -> Features`,
   ImageLocation: 'Image Location',
-
-  /* Provision schema */
-  /* Provision - general */
-  ProvisionId: 'Provision ID',
 
   /* User inputs */
   ErrorUserInputDuplicated: 'User input name already exists',
@@ -2524,12 +2499,6 @@ module.exports = {
   InfoDisconnected: 'Disconnected',
   InfoEnableOpenNebulaMarketplace: 'Enabled OpenNebula Public marketplace',
   InfoServiceActionRole: 'Starting %s action on role: %s',
-  InfoProvisionCreate: 'Creating provision',
-  InfoProvisionConfigure: 'Configuring provision - ID: %s',
-  InfoProvisionDelete: 'Deleting provision - ID: %s',
-  InfoProvisionAddHost: 'Adding %s Host%s',
-  InfoProvisionConfigureHost: 'Configuring host - ID: %s',
-  InfoProvisionDeleteHost: 'Deleting Host - ID: %s',
   InfoVRTemplateInstantiated: 'VR Template instantiated %s',
   InfoVMTemplateInstantiated: 'VM Template instantiated x%s - %s',
   InfoVNTemplateInstantiated: 'VN Template instantiated - %s',

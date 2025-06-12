@@ -117,16 +117,6 @@ export const PATH = {
     },
   },
   INFRASTRUCTURE: {
-    PROVIDERS: {
-      LIST: '/providers',
-      CREATE: '/providers/create',
-      EDIT: '/providers/edit/:id',
-    },
-    PROVISIONS: {
-      LIST: '/provisions',
-      CREATE: '/provisions/create',
-      EDIT: '/provisions/edit/:id',
-    },
     CLUSTERS: {
       LIST: `/${RESOURCE_NAMES.CLUSTER}`,
       DETAIL: `/${RESOURCE_NAMES.CLUSTER}/:id`,

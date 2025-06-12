@@ -38,9 +38,4 @@ export default [
     accessor: (row) => getTotalOfResources(row?.VNETS),
     sortType: 'number',
   },
-  {
-    Header: 'Provider',
-    id: 'PROVIDER_NAME',
-    accessor: (row) => row?.TEMPLATE?.PROVISION?.PROVIDER_NAME,
-  },
 ]

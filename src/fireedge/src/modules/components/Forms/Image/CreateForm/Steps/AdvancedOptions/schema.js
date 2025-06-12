@@ -187,7 +187,7 @@ export const SERIAL = {
 }
 
 /**
- * @param {object} oneConfig - Open Nebula configuration
+ * @param {object} oneConfig - OpenNebula configuration
  * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {Field[]} Fields
  */

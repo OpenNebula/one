@@ -24,7 +24,7 @@ export const STEP_ID = 'zone'
  * @param {object} props - props
  * @param {Array} props.zones - zones
  * @param {string} props.id - form id
- * @returns {JSXElementConstructor} Provision App
+ * @returns {JSXElementConstructor} Zone select App
  */
 const ZoneSelect = ({ zones, id }) => (
   <FormWithSchema id={id} cy={`${STEP_ID}`} fields={FIELDS(zones)} />

@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, Stack, Tooltip, Typography, useTheme } from '@mui/material'
-import clsx from 'clsx'
-import PropTypes from 'prop-types'
-import { memo, ReactElement, useMemo } from 'react'
-import MultipleTags from '@modules/components/MultipleTagsCard'
-import {
-  Cloud,
-  Group,
-  Lock,
-  Server,
-  User,
-  WarningCircledOutline as WarningIcon,
-} from 'iconoir-react'
+import { Datastore, DS_THRESHOLD, RESOURCE_NAMES, T } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
+import MultipleTags from '@modules/components/MultipleTagsCard'
 import {
   LinearProgressWithLabel,
   StatusChip,
   StatusCircle,
 } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
-import { Datastore, DS_THRESHOLD, RESOURCE_NAMES, T } from '@ConstantsModule'
+import { Box, Stack, Tooltip, Typography, useTheme } from '@mui/material'
+import clsx from 'clsx'
+import {
+  Group,
+  Lock,
+  Server,
+  User,
+  WarningCircledOutline as WarningIcon,
+} from 'iconoir-react'
+import PropTypes from 'prop-types'
+import { memo, ReactElement, useMemo } from 'react'
 
-import { getResourceLabels } from '@UtilsModule'
 import { useAuth } from '@FeaturesModule'
 import {
   getColorFromString,
@@ -44,6 +42,7 @@ import {
   getDatastoreType,
   getErrorMessage,
 } from '@ModelsModule'
+import { getResourceLabels } from '@UtilsModule'
 
 const DatastoreCard = memo(
   /**
@@ -60,7 +59,7 @@ const DatastoreCard = memo(
     const { labels } = useAuth()
     const LABELS = getResourceLabels(labels, ds?.ID, RESOURCE_NAMES.DATASTORE)
 
-    const { ID, NAME, UNAME, GNAME, CLUSTERS, LOCK, PROVISION_ID } = ds
+    const { ID, NAME, UNAME, GNAME, CLUSTERS, LOCK } = ds
 
     const type = getDatastoreType(ds)
     const { color: stateColor, name: stateName } = getDatastoreState(ds)
@@ -128,12 +127,6 @@ const DatastoreCard = memo(
               <Group />
               <span>{` ${GNAME}`}</span>
             </span>
-            {PROVISION_ID && (
-              <span title={`${Tr(T.ProvisionId)}: #${PROVISION_ID}`}>
-                <Cloud />
-                <span>{` ${PROVISION_ID}`}</span>
-              </span>
-            )}
             {!!clusters?.length && (
               <span title={`${Tr(T.Clusters)}`}>
                 <Server />

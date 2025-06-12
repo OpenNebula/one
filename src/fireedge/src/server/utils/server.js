@@ -55,7 +55,6 @@ const {
   defaultConfigFile,
   defaultLogFilename,
   defaultLogPath,
-  defaultSharePath,
   defaultSystemPath,
   defaultSourceSystemPath,
   defaultVarPath,
@@ -69,8 +68,6 @@ const {
   defaultSunstonePath,
   defaultSunstoneViews,
   defaultSunstoneConfig,
-  defaultProvisionPath,
-  defaultProvisionConfig,
   defaultDownloader,
   defaultEmptyFunction,
   defaultTabManifestFilename,
@@ -537,9 +534,6 @@ const genPathResources = () => {
 
   const ONE_LOCATION = env && env.ONE_LOCATION
   const LOG_LOCATION = !ONE_LOCATION ? defaultLogPath : `${ONE_LOCATION}/var`
-  const SHARE_LOCATION = !ONE_LOCATION
-    ? defaultSharePath
-    : `${ONE_LOCATION}/share`
   const SYSTEM_LOCATION =
     (devMode && resolve(__dirname, '..', '..', 'client')) ||
     (!ONE_LOCATION
@@ -610,17 +604,8 @@ const genPathResources = () => {
     if (!global.paths.CPI) {
       global.paths.CPI = `${VAR_LOCATION}/${defaultAppName}`
     }
-    if (!global.paths.PROVISION_PATH) {
-      global.paths.PROVISION_PATH = `${ETC_LOCATION}/${defaultProvisionPath}/`
-    }
-    if (!global.paths.PROVISION_CONFIG) {
-      global.paths.PROVISION_CONFIG = `${ETC_LOCATION}/${defaultProvisionPath}/${defaultProvisionConfig}`
-    }
     if (!global.paths.ETC_CPI) {
       global.paths.ETC_CPI = `${ETC_LOCATION}/${defaultAppName}`
-    }
-    if (!global.paths.SHARE_CPI) {
-      global.paths.SHARE_CPI = `${SHARE_LOCATION}/oneprovision/edge-clusters`
     }
   }
 }

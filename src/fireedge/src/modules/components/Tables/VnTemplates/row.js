@@ -17,12 +17,12 @@
 import PropTypes from 'prop-types'
 
 import { Typography, useTheme } from '@mui/material'
-import { Cloud, Group, Lock, User } from 'iconoir-react'
+import { Group, Lock, User } from 'iconoir-react'
 import { useMemo } from 'react'
 
+import { T } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
 import { rowStyles } from '@modules/components/Tables/styles'
-import { T } from '@ConstantsModule'
 
 import { timeFromMilliseconds } from '@ModelsModule'
 
@@ -37,7 +37,7 @@ const Row = ({
 }) => {
   const theme = useTheme()
   const classes = useMemo(() => rowStyles(theme), [theme])
-  const { ID, NAME, UNAME, GNAME, LOCK, REGTIME, PROVISION_ID } = value
+  const { ID, NAME, UNAME, GNAME, LOCK, REGTIME } = value
 
   const time = timeFromMilliseconds(+REGTIME)
   const timeAgo = `registered ${time.toRelative()}`
@@ -61,12 +61,6 @@ const Row = ({
             <Group />
             <span>{` ${GNAME}`}</span>
           </span>
-          {PROVISION_ID && (
-            <span title={`${Tr(T.ProvisionId)}: #${PROVISION_ID}`}>
-              <Cloud />
-              <span>{` ${PROVISION_ID}`}</span>
-            </span>
-          )}
         </div>
       </div>
     </div>

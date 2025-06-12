@@ -16,16 +16,14 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 
 import { enqueueSnackbar } from '@modules/features/General/actions'
-import { http, generateKey, requestConfig, formatError } from '@UtilsModule'
-import { httpCodes } from 'server/utils/constants'
 import {
   DOCUMENT,
   DOCUMENT_POOL,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
-  PROVISION_CONFIG,
-  PROVISION_RESOURCES,
 } from '@modules/features/OneApi/resources'
+import { formatError, generateKey, http, requestConfig } from '@UtilsModule'
+import { httpCodes } from 'server/utils/constants'
 
 const oneApi = createApi({
   reducerPath: 'oneApi',
@@ -83,18 +81,8 @@ const oneApi = createApi({
     ...Object.values(ONE_RESOURCES_POOL),
     ...Object.values(DOCUMENT),
     ...Object.values(DOCUMENT_POOL),
-    ...Object.values(PROVISION_CONFIG),
-    ...Object.values(PROVISION_RESOURCES),
   ],
   endpoints: () => ({}),
 })
 
-export {
-  DOCUMENT,
-  DOCUMENT_POOL,
-  ONE_RESOURCES,
-  ONE_RESOURCES_POOL,
-  PROVISION_CONFIG,
-  PROVISION_RESOURCES,
-  oneApi,
-}
+export { DOCUMENT, DOCUMENT_POOL, ONE_RESOURCES, ONE_RESOURCES_POOL, oneApi }

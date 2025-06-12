@@ -240,8 +240,6 @@ const getDefaultFilesforApps = (
         }
       }
       break
-    case 'provision':
-      break
     default:
       break
   }

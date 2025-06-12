@@ -193,34 +193,6 @@
 - title: Infrastructure
   icon: CloudSync
   routes:
-    - title: Providers
-      path: /providers
-      sidebar: true
-      forceShow: true
-      icon: DatabaseSettings
-      Component: Providers
-    - title: Create Provider
-      path: /providers/create
-      forceShow: true
-      Component: CreateProvider
-    - title: Update Provider
-      path: /providers/edit/:id
-      forceShow: true
-      Component: CreateProvider
-    - title: Provisions
-      path: /provisions
-      sidebar: true
-      forceShow: true
-      icon: SettingsCloud
-      Component: Provisions
-    - title: Create Provision
-      path: /provisions/create
-      forceShow: true
-      Component: CreateProvision
-    - title: Update Provision
-      path: /provisions/edit/:id
-      forceShow: true
-      Component: CreateProvision
     - title: Clusters
       path: /cluster
       sidebar: true

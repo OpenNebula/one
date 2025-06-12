@@ -72,8 +72,6 @@ export const WEBSOCKET_URL = `${APP_URL}/websockets`
 export const STATIC_FILES_URL = `${APP_URL}/client/assets`
 export const IMAGES_URL = `${STATIC_FILES_URL}/images`
 export const LOGO_IMAGES_URL = `${IMAGES_URL}/logos`
-export const PROVIDER_IMAGES_URL = `${IMAGES_URL}/providers`
-export const PROVISION_IMAGES_URL = `${IMAGES_URL}/provisions`
 export const DEFAULT_IMAGE = `${IMAGES_URL}/default.webp`
 export const IMAGE_FORMATS = ['webp', 'png', 'jpg']
 
@@ -171,7 +169,6 @@ export const SOCKETS = {
   CONNECT: 'connect',
   DISCONNECT: 'disconnect',
   HOOKS: 'hooks',
-  PROVISION: 'provision',
   GUACAMOLE: 'guacamole',
   EXTERNAL_GUACAMOLE: 'external-guacamole',
 }
@@ -209,9 +206,8 @@ export const RESOURCE_NAMES = {
 
 export * as T from '@modules/constants/translates'
 
-export * as ACTIONS from '@modules/constants/actions'
-export * as STATES from '@modules/constants/states'
 export * from '@modules/constants/acl'
+export * as ACTIONS from '@modules/constants/actions'
 export * from '@modules/constants/backupjob'
 export * from '@modules/constants/cluster'
 export * from '@modules/constants/color'
@@ -228,20 +224,20 @@ export * from '@modules/constants/marketplace'
 export * from '@modules/constants/marketplaceApp'
 export * from '@modules/constants/network'
 export * from '@modules/constants/networkTemplate'
-export * from '@modules/constants/provision'
 export * from '@modules/constants/quota'
 export * from '@modules/constants/scheduler'
 export * from '@modules/constants/securityGroup'
 export * from '@modules/constants/serviceTemplate'
+export * as STATES from '@modules/constants/states'
 export * from '@modules/constants/styles'
 export * from '@modules/constants/support'
 export * from '@modules/constants/system'
 export * from '@modules/constants/user'
 export * from '@modules/constants/userInput'
-export * from '@modules/constants/vRouter'
-export * from '@modules/constants/vRouterTemplate'
 export * from '@modules/constants/vdc'
 export * from '@modules/constants/vm'
 export * from '@modules/constants/vmGroup'
 export * from '@modules/constants/vmTemplate'
+export * from '@modules/constants/vRouter'
+export * from '@modules/constants/vRouterTemplate'
 export * from '@modules/constants/zone'
