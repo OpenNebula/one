@@ -31,6 +31,7 @@
 #include <fstream>
 #include <libgen.h>
 #include <math.h>
+#include <iomanip>
 
 using namespace std;
 
@@ -639,6 +640,7 @@ int LibVirtDriver::deployment_description_kvm(
     string vm_bus;
     string vm_slot;
     string vm_func;
+    string vm_index;
 
     bool pae         = false;
     bool acpi        = false;
@@ -2138,6 +2140,7 @@ int LibVirtDriver::deployment_description_kvm(
         vm_bus     = pci[i]->vector_value("VM_BUS");
         vm_slot    = pci[i]->vector_value("VM_SLOT");
         vm_func    = pci[i]->vector_value("VM_FUNCTION");
+        vm_index   = pci[i]->vector_value("VM_BUS_INDEX");
 
         string uuid = pci[i]->vector_value("UUID");
         string mdev = pci[i]->vector_value("MDEV_MODE");
@@ -2182,11 +2185,17 @@ int LibVirtDriver::deployment_description_kvm(
                  << " function=" << one_util::escape_xml_attr("0x" + func)
                  << "/>\n";
             file << "\t\t\t</source>\n";
-
         }
 
-        if ( !vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
-             !vm_func.empty() )
+        if (!vm_index.empty())
+        {
+            file << "\t\t\t\t<address type='pci'"
+                 << " domain='0x0000' slot='0000' function='0' "
+                 << " bus=" << one_util::escape_xml_attr(vm_index)
+                 << "/>\n";
+        }
+        else if (!vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
+             !vm_func.empty())
         {
             file << "\t\t\t\t<address type='pci'"
                  << " domain="   << one_util::escape_xml_attr(vm_domain)
@@ -2206,6 +2215,7 @@ int LibVirtDriver::deployment_description_kvm(
     if (found != std::string::npos || arch == "aarch64" )
     {
         int q35_root_ports = 0;
+
         get_attribute(nullptr, host, cluster, "Q35_ROOT_PORTS", q35_root_ports);
 
         if (!q35_root_ports)
@@ -2216,13 +2226,90 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t<devices>" << endl;
         file << "\t\t<controller index='0' type='pci' model='pcie-root'/>" << endl;
 
-        for (int i=0; i<q35_root_ports; ++i)
+        if (nodes.empty()) //Flat PCI hierarchy
         {
-            file << "\t\t<controller type='pci' model='pcie-root-port'/>" << endl;
-        }
+            for (int i=0; i<q35_root_ports; ++i)
+            {
+                file << "\t\t<controller type='pci' model='pcie-root-port'/>" << endl;
+            }
 
-        file << "\t\t<controller type='pci' model='pcie-to-pci-bridge'/>" << endl;
-        file << "\t</devices>" << endl;
+            file << "\t\t<controller type='pci' model='pcie-to-pci-bridge'/>" << endl;
+            file << "\t</devices>" << endl;
+        }
+        else //PCIe expander bus in each NUMA node
+        {
+            ostringstream to_h_s;
+
+            to_h_s << showbase << internal << setfill('0') << hex << setw(4);
+
+            for (unsigned int i = 0; i < nodes.size(); i++)
+            {
+                unsigned int bus_i = 20 + i * 14;
+
+                to_h_s << (0x20 + 0x20 * i);
+
+                string bus_i_s = to_h_s.str();
+
+                to_h_s.str("");
+
+                //PCIe expander bus in NUMA node i
+                file << "\t\t<controller type='pci' index='"<< bus_i <<"'"
+                     << " model='pcie-expander-bus'>" << endl
+                     << "\t\t\t<target busNr='" << bus_i_s << "'>" << endl
+                     << "\t\t\t\t<node>" << i << "</node>" << endl
+                     << "\t\t\t</target>" << endl
+                     << "\t\t</controller>" << endl;
+
+                //4 PCIe root ports
+                for (unsigned int j = 0; j < 4; j++)
+                {
+                    unsigned int root_i = bus_i + 1 + j;
+
+                    file << "\t\t<controller type='pci' index='" << root_i << "'"
+                         << " model='pcie-root-port'>" << endl
+                         << "\t\t\t<address type='pci' bus='" << bus_i << "'"
+                         << " slot='0' function='" << j << "'";
+
+                    if ( j == 0)
+                    {
+                        file << " multifunction='on'/>" << endl;
+                    }
+                    else
+                    {
+                        file << "/>" << endl;
+                    }
+
+                    file << "\t\t</controller>" << endl;
+                }
+
+                //8 port PCIe switch
+                unsigned int sw_i = bus_i + 5;
+
+                file << "\t\t<controller type='pci' index='" << sw_i << "'"
+                     << " model='pcie-switch-upstream-port'>" << endl
+                     << "\t\t\t<address type='pci' bus='" << bus_i + 1 << "'"
+                     << " slot='0' function='0'/>"
+                     << "\t\t</controller>";
+
+                for (unsigned int j = 0; j < 8; j++)
+                {
+                    unsigned int root_i = sw_i + 1 + j;
+
+                    file << "\t\t<controller type='pci' index='" << root_i << "'"
+                         << " model='pcie-switch-downstream-port'>" << endl
+                         << "\t\t\t<address type='pci' bus='" << sw_i << "'"
+                         << " slot='" << j << "' function='0'/>" << endl
+                         << "\t\t</controller>" << endl;
+                }
+            }
+
+            //Adds pcie-to-pci bridge in the first pcie port in NUMA node 0
+            file << "\t\t<controller type='pci' model='pcie-to-pci-bridge'>" << endl
+                 << "\t\t\t<address type='pci' bus='22' slot='0' function='0'/>" << endl
+                 << "\t\t</controller>" << endl;
+
+            file << "\t</devices>" << endl;
+        }
     }
 
 

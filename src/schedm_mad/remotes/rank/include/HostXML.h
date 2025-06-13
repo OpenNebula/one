@@ -55,7 +55,7 @@ public:
         mem_usage  += sr.mem;
 
         //Empty vGPU profile - can be used to check profile availability
-        pci.add(sr.pci, sr.vmid, "");
+        pci.add(sr);
 
         numa.add(sr);
 

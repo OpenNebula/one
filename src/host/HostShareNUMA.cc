@@ -1052,8 +1052,8 @@ bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
 int HostShareNUMA::make_hugepage_topology(HostShareCapacity &sr,
                                           unsigned long hpsz_kb, bool do_alloc)
 {
-    unsigned long n_hp = sr.mem / hpsz_kb; //sr.mem = SUM(sr.nodes.memory)
-    unsigned long node_fhp = 0;
+    long long n_hp = sr.mem / hpsz_kb; //sr.mem = SUM(sr.nodes.memory)
+    long long node_fhp = 0;
 
     int node_id = -1;
 
@@ -1156,7 +1156,7 @@ int HostShareNUMA::make_affined_topology(HostShareCapacity &sr, int node_id,
     // -------------------------------------------------------------------------
     // Check that the node has enough free huge pages
     // -------------------------------------------------------------------------
-    unsigned long n_hp = 0;
+    long long n_hp = 0;
 
     HostShareNode::HugePage * hpage = nullptr;
 

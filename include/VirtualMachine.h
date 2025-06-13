@@ -379,8 +379,11 @@ public:
 
     bool test_machine_type(const std::string& machine_type) const
     {
-        VectorAttribute * os = obj_template->get("OS");
+        return test_machine_type(obj_template->get("OS"), machine_type);
+    }
 
+    static bool test_machine_type(VectorAttribute * os, const std::string& machine_type)
+    {
         if ( os == nullptr )
         {
             return false;
@@ -1497,7 +1500,14 @@ public:
     // ------------------------------------------------------------------------
 
     /**
-     *  Checks the attributes of a PCI device
+     *  Checks the attributes of a PCI device. It also cleans allocation attributes:
+     *    - NUMA_NODE
+     *    - UUID
+     *    - DOMAIN, BUS, SLOT, FUNCITION
+     *    - ADDRESS, PREV_ADDRESS
+     *    - MDEV_MODE
+     *
+     *  VM_BUS is also set to the the default PCI passthrough bus if not set.
      */
     static int check_pci_attributes(VectorAttribute * pci, std::string& err);
 

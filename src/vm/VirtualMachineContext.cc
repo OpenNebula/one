@@ -132,7 +132,11 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         return 0;
     }
 
-    //Generate dynamic context attributes
+    // -------------------------------------------------------------------------
+    // Generate dynamic context attributes
+    //   - Network
+    //   - PCI guest address
+    //--------------------------------------------------------------------------
     int rc = generate_network_context(context, error_str, false); //no AUTO mode
 
     if ( rc == 0 )
@@ -149,6 +153,27 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         return -1;
     }
 
+    vector<VectorAttribute *> vatts;
+
+    obj_template->get("PCI", vatts);
+
+    for(auto& pci : vatts)
+    {
+        ostringstream cvar;
+
+        cvar << "PCI" << pci->vector_value("PCI_ID") << "_ADDRESS";
+
+        string cval = pci->vector_value("VM_ADDRESS");
+
+        if (!cval.empty())
+        {
+            context->replace(cvar.str(), cval);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Context Files
+    //--------------------------------------------------------------------------
     file.open(history->context_file.c_str(), ios::out);
 
     if (file.fail() == true)
@@ -160,10 +185,11 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         return -1;
     }
 
+    auto& nd = Nebula::instance();
     files    = context->vector_value("FILES");
 
-    auto& nd = Nebula::instance();
     string restricted_dirs, safe_dirs;
+
     nd.get_configuration_attribute("CONTEXT_RESTRICTED_DIRS", restricted_dirs);
     nd.get_configuration_attribute("CONTEXT_SAFE_DIRS", safe_dirs);
 
@@ -173,7 +199,9 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     one_util::split_unique(safe_dirs, ' ', safe);
 
     set<string> files_set;
+
     one_util::split_unique(files, ' ', files_set);
+
     for (auto& f : files_set)
     {
         if (is_restricted(f, restricted, safe))
@@ -204,6 +232,9 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         }
     }
 
+    // -------------------------------------------------------------------------
+    // TOKEN for OneGate
+    //--------------------------------------------------------------------------
     context->vector_value("TOKEN", token);
 
     if (token)
@@ -253,6 +284,9 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         files += (" " + history->token_file);
     }
 
+    // -------------------------------------------------------------------------
+    // Context file generation
+    // -------------------------------------------------------------------------
     decrypt();
 
     const map<string, string>& values = context->value();
@@ -503,12 +537,8 @@ static void parse_pci_context_network(const std::vector<ContextVariable>& cvars,
     }
 }
 
-/**
- *  Generate the PCI related CONTEXT setions, i.e. PCI_*. This function
- *  is also adds basic network attributes for pass-through NICs
- *    @param context attribute of the VM
- *    @return true if the net context was generated.
- */
+/* -------------------------------------------------------------------------- */
+
 bool VirtualMachine::generate_pci_context(VectorAttribute * context)
 {
     bool net_context;
@@ -516,29 +546,23 @@ bool VirtualMachine::generate_pci_context(VectorAttribute * context)
 
     context->vector_value("NETWORK", net_context);
 
+    if (!net_context)
+    {
+        return false;
+    }
+
     int num_vatts = obj_template->get("PCI", vatts);
 
     for(int i=0; i<num_vatts; i++)
     {
-        if ( net_context && vatts[i]->vector_value("TYPE") == "NIC" )
+        if ( vatts[i]->vector_value("TYPE") == "NIC" )
         {
             parse_pci_context_network(NETWORK_CONTEXT, context, vatts[i]);
             parse_pci_context_network(NETWORK6_CONTEXT, context, vatts[i]);
         }
-
-        ostringstream cvar;
-
-        cvar << "PCI" << vatts[i]->vector_value("PCI_ID") << "_ADDRESS";
-
-        string cval = vatts[i]->vector_value("VM_ADDRESS");
-
-        if (!cval.empty())
-        {
-            context->replace(cvar.str(), cval);
-        }
     }
 
-    return net_context;
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */

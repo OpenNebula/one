@@ -354,6 +354,49 @@ int VirtualMachine::check_pci_attributes(VectorAttribute * pci, string& error_st
         return -1;
     }
 
+    // Save default passthrough bus in PCI if not set
+    string bus = pci->vector_value("VM_BUS");
+
+    if ( bus.empty() )
+    {
+        Nebula& nd = Nebula::instance();
+
+        nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", bus);
+
+        pci->replace("VM_BUS", bus);
+    }
+    else
+    {
+        unsigned int ibus;
+        istringstream iss(bus);
+
+        iss >> hex >> ibus;
+
+        if (iss.fail() || !iss.eof())
+        {
+            error_str = "Wrong VM_BUS in PCI attribute";
+            return -1;
+        }
+    }
+
+    // Clear PCI allocation parameters
+    static vector<string> rm_attr = {
+        "DOMAIN",
+        "BUS",
+        "SLOT",
+        "FUNCTION",
+        "ADDRESS",
+        "PREV_ADDRESS",
+        "NUMA_NODE",
+        "UUID",
+        "MDEV_MODE"
+    };
+
+    for (const auto& attr : rm_attr)
+    {
+        pci->remove(attr);
+    }
+
     return 0;
 }
 
@@ -372,22 +415,10 @@ int VirtualMachine::parse_pci(string& error_str, Template * tmpl)
         obj_template->set(*it);
     }
 
-    Nebula& nd = Nebula::instance();
-    string  default_bus;
-
-    nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
-
     for (auto& attr : array_pci)
     {
         if ( check_pci_attributes(attr, error_str) != 0 )
         {
-            return -1;
-        }
-
-        if ( HostSharePCI::set_pci_address(attr, default_bus,
-                                           test_machine_type("q35"), true) != 0 )
-        {
-            error_str = "Wrong BUS in PCI attribute";
             return -1;
         }
     }

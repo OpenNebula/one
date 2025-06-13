@@ -20,6 +20,8 @@
 #include "Template.h"
 #include "Attribute.h"
 
+#include "VirtualMachine.h"
+
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
@@ -49,6 +51,8 @@ struct HostShareCapacity
     long long mem;
     long long disk;
 
+    bool is_q35;
+
     std::string vgpu_profile;
 
     std::vector<VectorAttribute *> pci;
@@ -68,7 +72,12 @@ struct HostShareCapacity
         float fcpu;
 
         pci.clear();
+
         nodes.clear();
+
+        vgpu_profile = "";
+
+        is_q35 = false;
 
         vmid = vid;
 
@@ -95,6 +104,8 @@ struct HostShareCapacity
         tmpl.get("NUMA_NODE", nodes);
 
         topology = tmpl.get("TOPOLOGY");
+
+        is_q35 = VirtualMachine::test_machine_type(tmpl.get("OS"), "q35");
 
         return;
     }

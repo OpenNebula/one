@@ -3731,10 +3731,10 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
     if ( is_pci )
     {
-        Nebula& nd = Nebula::instance();
-        string bus;
-
         std::vector<const VectorAttribute*> pcis;
+        vector<VectorAttribute *> nodes;
+
+        std::map<unsigned int, std::set<unsigned int>> palloc;
 
         int max_pci_id = -1;
 
@@ -3743,6 +3743,7 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
         for (const auto& pci: pcis)
         {
             int pci_id;
+            unsigned int numa_node;
 
             pci->vector_value("PCI_ID", pci_id, -1);
 
@@ -3750,16 +3751,28 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
             {
                 max_pci_id = pci_id;
             }
+
+            if (pci->vector_value("NUMA_NODE", numa_node) != -1)
+            {
+                unsigned int index;
+
+                if ( pci->vector_value("VM_BUS_INDEX", index) != -1 )
+                {
+                    std::set<unsigned int>& ports = palloc[numa_node];
+                    ports.insert(index);
+                }
+            }
         }
 
         _new_nic->replace("PCI_ID", max_pci_id + 1);
 
-        nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", bus);
+        bool numa = obj_template->get("NUMA_NODE", nodes) > 0;
 
-        if ( HostSharePCI::set_pci_address(_new_nic.get(), bus,
-                                           test_machine_type("q35"), false) != 0 )
+        if (HostSharePCI::set_pci_address(_new_nic.get(),
+                                          palloc,
+                                          test_machine_type("q35"),
+                                          numa) == -1)
         {
-            err = "Wrong BUS in PCI attribute";
             return -1;
         }
     }
@@ -3879,6 +3892,8 @@ int VirtualMachine::attach_pci(VectorAttribute * vpci, string& err)
 {
     std::vector<const VectorAttribute*> pcis;
 
+    std::map<unsigned int, std::set<unsigned int>> palloc;
+
     int max_pci_id = -1;
 
     obj_template->get("PCI", pcis);
@@ -3887,34 +3902,47 @@ int VirtualMachine::attach_pci(VectorAttribute * vpci, string& err)
     {
         int pci_id;
 
+        unsigned int numa_node;
+
         pci->vector_value("PCI_ID", pci_id, -1);
 
         if (pci_id > max_pci_id)
         {
             max_pci_id = pci_id;
         }
+
+        if (pci->vector_value("NUMA_NODE", numa_node) != -1)
+        {
+            unsigned int index;
+
+            if ( pci->vector_value("VM_BUS_INDEX", index) != -1 )
+            {
+                std::set<unsigned int>& ports = palloc[numa_node];
+                ports.insert(index);
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
-    // Setup PCI attribute & Context
+    // Setup PCI attribute & Context (VM running at host and PCI is allocated)
     // -------------------------------------------------------------------------
-    Nebula& nd = Nebula::instance();
     std::unique_ptr<VectorAttribute> _new_pci(vpci->clone());
-
-    string bus;
 
     _new_pci->replace("PCI_ID", max_pci_id + 1);
 
-    nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", bus);
+    add_pci_context(_new_pci.get());
 
-    if ( HostSharePCI::set_pci_address(_new_pci.get(), bus,
-                                       test_machine_type("q35"), false) != 0 )
+    vector<VectorAttribute *> nodes;
+
+    bool numa = obj_template->get("NUMA_NODE", nodes) > 0;
+
+    if (HostSharePCI::set_pci_address(_new_pci.get(),
+                                      palloc,
+                                      test_machine_type("q35"),
+                                      numa) == -1)
     {
-        err = "Wrong BUS in PCI attribute";
         return -1;
     }
-
-    add_pci_context(_new_pci.get());
 
     // -------------------------------------------------------------------------
     // Add new nic to template

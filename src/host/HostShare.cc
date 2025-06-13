@@ -343,7 +343,7 @@ void HostShare::add(HostShareCapacity &sr)
 
     ds.add(sr);
 
-    pci.add(sr.pci, sr.vmid, sr.vgpu_profile);
+    pci.add(sr);
 
     numa.add(sr);
 
@@ -359,7 +359,7 @@ void HostShare::del(HostShareCapacity &sr)
 
     ds.del(sr);
 
-    pci.del(sr.pci, sr.vmid);
+    pci.del(sr);
 
     numa.del(sr);
 
