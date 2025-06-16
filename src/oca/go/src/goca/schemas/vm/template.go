@@ -157,6 +157,19 @@ func (t *Template) GetNICs() []shared.NIC {
 	return nics
 }
 
+// GetNICAliases allow to get NIC Aliases from Template
+func (t *Template) GetNICAliases() []shared.NIC {
+
+	vecs := t.GetVectors(string(shared.NICAliasVec))
+	nicAliases := make([]shared.NIC, len(vecs))
+
+	for i, v := range vecs {
+		nicAliases[i] = shared.NIC{*v}
+	}
+
+	return nicAliases
+}
+
 // AddDisk allow to add a disk to the template
 func (t *Template) AddDisk() *shared.Disk {
 	disk := shared.NewDisk()
