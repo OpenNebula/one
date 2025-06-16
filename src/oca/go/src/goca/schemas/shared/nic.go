@@ -67,7 +67,6 @@ const (
 	SchedRequirements NICKeys = "SCHED_REQUIREMENTS"
 	SchedRank         NICKeys = "SCHED_RANK"
 	Name              NICKeys = "NAME"
-	Parent            NICKeys = "PARENT"
 	External          NICKeys = "EXTERNAL"
 	ExternalIP        NICKeys = "EXTERNAL_IP"
 	Method            NICKeys = "METHOD"
@@ -75,12 +74,24 @@ const (
 	DNS               NICKeys = "DNS"
 	FloatingIP        NICKeys = "FLOATING_IP"
 	FloatingOnly      NICKeys = "FLOATING_ONLY"
+	AliasIDs          NICKeys = "ALIAS_IDS"
+	//NICAlias stuff
+	NICAliasVec      string  = "NIC_ALIAS"
+	NICAliasID       NICKeys = "ALIAS_ID"
+	NICAliasParent   NICKeys = "PARENT"
+	NICAliasParentID NICKeys = "PARENT_ID"
 )
 
 // NewNIC returns a structure disk entity to build
 func NewNIC() *NIC {
 	return &NIC{
 		dyn.Vector{XMLName: xml.Name{Local: NICVec}},
+	}
+}
+
+func NewNICAlias() *NIC {
+	return &NIC{
+		dyn.Vector{XMLName: xml.Name{Local: NICAliasVec}},
 	}
 }
 
