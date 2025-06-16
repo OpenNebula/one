@@ -21,7 +21,6 @@ import Split, { SplitOptions } from 'split-grid'
 
 const Gutter = styled(Divider)(({ theme, direction = 'row' }) => ({
   position: 'relative',
-  cursor: `${direction}-resize`,
   height: 8,
   marginBlock: '1em',
   background: `linear-gradient(
@@ -92,9 +91,6 @@ const useSplitGrid = (options) => {
         <Gutter
           key={`gutter-${direction}-${track}`}
           className="gutter"
-          direction={direction}
-          track={track}
-          onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
         />
       )
