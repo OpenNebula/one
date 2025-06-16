@@ -63,4 +63,4 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 ## Acknowledgements
 
-Some of the software features included in this repository have been made possible through the funding of the following innovation projects: [SovereignEdge.Cognit](https://cognit.sovereignedge.eu/), [ONEedge5G](https://opennebula.io/innovation/oneedge5g/), and [ONEnextgen](http://onenextgen.eu/).
+Some of the software features included in this repository have been made possible through the funding of the following innovation projects: [ONEnextgen](http://onenextgen.eu/), [ONEedge5G](https://opennebula.io/innovation/oneedge5g/), and [SovereignEdge.Cognit](https://cognit.sovereignedge.eu/).
