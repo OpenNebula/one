@@ -2214,7 +2214,8 @@ int LibVirtDriver::deployment_description_kvm(
 
     if (found != std::string::npos || arch == "aarch64" )
     {
-        int q35_root_ports = 0;
+        int  q35_root_ports = 0;
+        bool q35_numa_topo  = true;
 
         get_attribute(nullptr, host, cluster, "Q35_ROOT_PORTS", q35_root_ports);
 
@@ -2222,6 +2223,8 @@ int LibVirtDriver::deployment_description_kvm(
         {
             q35_root_ports = Q35_ROOT_DEFAULT_PORTS;
         }
+
+        get_attribute(nullptr, host, cluster, "Q35_NUMA_PCIE", q35_numa_topo);
 
         file << "\t<devices>" << endl;
         file << "\t\t<controller index='0' type='pci' model='pcie-root'/>" << endl;
@@ -2236,7 +2239,7 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<controller type='pci' model='pcie-to-pci-bridge'/>" << endl;
             file << "\t</devices>" << endl;
         }
-        else //PCIe expander bus in each NUMA node
+        else if (q35_numa_topo) //PCIe expander bus in each NUMA node
         {
             ostringstream to_h_s;
 
