@@ -26,7 +26,7 @@ SRC=$1
 DST=$2
 SNAP_ID=$3
 VM_ID=$4
-DS_ID=$5
+DS_IMG_ID=$5
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -68,9 +68,9 @@ DEV="/dev/${LV_FULL}"
 
 if is_undeployed "$VM_ID" "$SRC_HOST"; then
 
-    # get BRIDGE_LIST from datastore
+    # get BRIDGE_LIST from image datastore
     XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-    IFS= read -r -d '' BRIDGE_LIST < <(onedatastore show -x "$DS_SYS_ID" \
+    IFS= read -r -d '' BRIDGE_LIST < <(onedatastore show -x "$DS_IMG_ID" \
         | $XPATH /DATASTORE/TEMPLATE/BRIDGE_LIST )
 
     if [ -n "$BRIDGE_LIST" ]; then
