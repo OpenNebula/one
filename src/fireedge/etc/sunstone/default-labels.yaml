@@ -39,3 +39,7 @@
 #   Such as the example with "vm-template" containing an array of vm-template IDs.
 # - The default labels tree structure is merged together with the user/group defined tree, 
 #   with respect to the user/group tree.
+
+group: {}
+
+user: {}
