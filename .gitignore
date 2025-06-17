@@ -73,3 +73,12 @@ share/context/*
 
 # backups
 *.*-
+
+# vendor
+src/datastore_mad/remotes/restic/vendor/bin/
+src/oneprometheus/vendor/alertmanager.arm64/
+src/oneprometheus/vendor/alertmanager/
+src/oneprometheus/vendor/node_exporter.arm64/
+src/oneprometheus/vendor/node_exporter/
+src/oneprometheus/vendor/prometheus.arm64/
+src/oneprometheus/vendor/prometheus/

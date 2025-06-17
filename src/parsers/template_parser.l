@@ -54,7 +54,7 @@ CDATA "\]\]\>"
 [[:blank:]\n]+    ;
 
  /* ------------------------------------------------------------------------- */
- /* Variable: Alpha numeric charatcers and '_'                                */
+ /* Variable: Alpha numeric characters and '_'                                */
  /* ------------------------------------------------------------------------- */
 [[:alnum:]_]+  { yylval_param->val_str = mem_collector_strdup(mc,yytext);
                  return VARIABLE; }

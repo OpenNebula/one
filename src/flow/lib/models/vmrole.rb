@@ -435,7 +435,7 @@ module OpenNebula
                 action = @@default_shutdown
             end
 
-            nodes[0..n_nodes - 1].each do |node|
+            nodes[0..(n_nodes - 1)].each do |node|
                 vm_id = node['deploy_id']
 
                 Log.debug(LOG_COMP,
