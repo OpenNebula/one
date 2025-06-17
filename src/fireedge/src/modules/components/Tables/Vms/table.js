@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
+import { ReactElement, useEffect, useMemo } from 'react'
 
 import { useAuth, useViews, VmAPI } from '@FeaturesModule'
 
@@ -58,6 +58,7 @@ const VmsTable = (props) => {
     filterData = [],
     filterLoose = true,
     enabledFullScreen = false,
+    handleRefetch,
     ...rest
   } = props ?? {}
   const { labels } = useAuth()
@@ -126,6 +127,12 @@ const VmsTable = (props) => {
       }),
     }
   )
+
+  useEffect(() => {
+    if (handleRefetch && refetch) {
+      handleRefetch(refetch)
+    }
+  }, [handleRefetch, refetch])
 
   const fmtData = useMemo(
     () =>

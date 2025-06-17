@@ -43,7 +43,7 @@ import {
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useCallback, useEffect, useState } from 'react'
+import { memo, ReactElement, useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 /**
@@ -57,6 +57,19 @@ export function VirtualMachines() {
   const [selectedRows, setSelectedRows] = useState(() => [])
   const actions = VmsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
+  const refetchRef = useRef(null)
+
+
+  const handleRefetch = useCallback((refresh) => {
+    refetchRef.current = refresh
+  }, [])
+  
+  const handleUseRefetch = useCallback(() => {
+    if (typeof refetchRef.current === 'function') {
+      refetchRef.current()
+    }
+  }, [])
+
 
   useEffect(() => {
     const selectedIds = selectedRows.map((row) => row.original.ID)
@@ -87,6 +100,7 @@ export function VirtualMachines() {
             initialState={{
               selectedRowIds: props.selectedRowsTable,
             }}
+            handleRefetch={handleRefetch}
           />
         )}
         simpleGroupsTags={(props) => {
@@ -109,6 +123,7 @@ export function VirtualMachines() {
           props?.selectedRows && (propsInfo.tags = props.tags)
           props?.gotoPage && (propsInfo.gotoPage = props.gotoPage)
           props?.unselect && (propsInfo.unselect = props.unselect)
+          propsInfo.handleUseRefetch = handleUseRefetch
           props.moreThanOneSelected &&
             props.handleDismissError &&
             (propsInfo.handleDismissError = props.handleDismissError)
@@ -130,7 +145,7 @@ export function VirtualMachines() {
  * @returns {ReactElement} VM details
  */
 const InfoTabs = memo(
-  ({ vm, gotoPage, unselect, handleDismissError, tags, selectedRows }) => {
+  ({ vm, gotoPage, unselect, handleDismissError, tags, selectedRows, handleUseRefetch }) => {
     const [getVm, { data: lazyData, isFetching }] = VmAPI.useLazyGetVmQuery()
     const id = vm?.ID ?? lazyData?.ID
     const RowActions = VmsTable.RowActions
@@ -200,7 +215,10 @@ const InfoTabs = memo(
               icon={<RefreshDouble />}
               tooltip={Tr(T.Refresh)}
               isSubmitting={isFetching}
-              onClick={() => getVm({ id })}
+              onClick={async () => {
+                await getVm({ id })
+                handleUseRefetch && await handleUseRefetch()
+              }}
             />
             {typeof unselect === 'function' && (
               <SubmitButton
@@ -224,6 +242,7 @@ InfoTabs.propTypes = {
   gotoPage: PropTypes.func,
   unselect: PropTypes.func,
   handleDismissError: PropTypes.func,
+  handleUseRefetch: PropTypes.func,
 }
 
 InfoTabs.displayName = 'InfoTabs'
