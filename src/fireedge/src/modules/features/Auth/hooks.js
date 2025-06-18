@@ -60,6 +60,8 @@ export const useAuth = () => {
     skip: !jwt || !user?.GROUPS?.ID,
   })
 
+  const isOneAdmin = user?.ID === ONEADMIN_ID
+
   const authGroups = useMemo(() => {
     if (!groups) return []
 
@@ -81,15 +83,31 @@ export const useAuth = () => {
     return labels
   }, [user?.TEMPLATE?.LABELS])
 
+  const allGroupNames = [].concat(groups)?.map((group) => group?.NAME)
+  const ownGroupNames = [].concat(authGroups?.map((group) => group?.NAME))
+
+  const filteredDefaultLabelGroups =
+    Object.fromEntries(
+      Object.entries(defaultLabels.group ?? {}).filter(
+        ([key]) =>
+          allGroupNames?.includes(key) &&
+          (isOneAdmin || ownGroupNames?.includes(key))
+      )
+    ) ?? {}
+
   const allLabels = { user: userLabels, group: groupLabels } ?? {}
 
-  const mergedLabels = merge({}, defaultLabels ?? {}, allLabels ?? {})
+  const mergedLabels = merge(
+    {},
+    { ...defaultLabels, group: filteredDefaultLabelGroups },
+    allLabels
+  )
 
   return useMemo(
     () => ({
       ...auth,
       user,
-      isOneAdmin: user?.ID === ONEADMIN_ID,
+      isOneAdmin: isOneAdmin,
       groups: authGroups,
       defaultLabels: defaultLabels,
       // Merge user settings with the defaults
