@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { useAuth, useViews, VmTemplateAPI } from '@FeaturesModule'
+import { getColorFromString, timeToString } from '@ModelsModule'
 import MultipleTags from '@modules/components/MultipleTags'
 import EnhancedTable, {
   createColumns,
@@ -20,11 +23,8 @@ import EnhancedTable, {
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import VmTemplateColumns from '@modules/components/Tables/VmTemplates/columns'
 import VmTemplateRow from '@modules/components/Tables/VmTemplates/row'
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useAuth, useViews, VmTemplateAPI } from '@FeaturesModule'
-import { getColorFromString, timeToString } from '@ModelsModule'
-import { ReactElement, useEffect, useMemo } from 'react'
 import { getResourceLabels } from '@UtilsModule'
+import { ReactElement, useEffect, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'vm-templates'
 
@@ -55,7 +55,7 @@ const VmTemplatesTable = (props) => {
             labels,
             row?.ID,
             RESOURCE_NAMES.VM_TEMPLATE,
-            false
+            true
           ),
         },
       })),

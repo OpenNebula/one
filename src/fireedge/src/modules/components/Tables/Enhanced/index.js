@@ -53,8 +53,8 @@ import {
   GlobalSearch,
   GlobalSelectedRows,
   GlobalSort,
-  SwitchTableView,
   LABEL_COLUMN_ID,
+  SwitchTableView,
 } from '@modules/components/Tables/Enhanced/Utils'
 import Pagination from '@modules/components/Tables/Enhanced/pagination'
 import EnhancedTableStyles from '@modules/components/Tables/Enhanced/styles'
@@ -281,19 +281,22 @@ const EnhancedTable = ({
 
   const inclusiveArrayMatch = (tRows, id, filterValues) => {
     const columnId = Array.isArray(id) ? id[0] : id
+    const normalize = (s) => s?.replace(/\$/g, '')
+    const normalizedFilters = filterValues?.map(normalize)
 
     return tRows.filter((row) => {
       const label = row?.values?.[columnId]
+      if (!label) return false
+      let normalizedLabels = []
 
-      if (!label || typeof label !== 'object') return false
-
-      const userLabels = [].concat(label?.user ?? [])
-      const groupLabels = Object.values(label?.group ?? {}).flat()
-      const allLabels = [...userLabels, ...groupLabels]
-      const normalize = (s) => s?.replace(/\$/g, '')
-
-      const normalizedLabels = allLabels?.map(normalize)
-      const normalizedFilters = filterValues?.map(normalize)
+      if (label?.user || label?.group) {
+        const userLabels = [].concat(label?.user ?? [])
+        const groupLabels = Object.values(label?.group ?? {}).flat()
+        const allLabels = [...userLabels, ...groupLabels]
+        normalizedLabels = allLabels?.map(normalize)
+      } else {
+        normalizedLabels = label?.map(normalize)
+      }
 
       return normalizedFilters.some((fv) => normalizedLabels.includes(fv))
     })
