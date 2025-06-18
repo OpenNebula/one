@@ -1796,3 +1796,5 @@ export const ATTR_CONF_CAN_BE_UPDATED = {
   CONTEXT: '*',
   BACKUP_CONFIG: '*',
 }
+
+export const VM_POOL_PAGINATION_SIZE = 200

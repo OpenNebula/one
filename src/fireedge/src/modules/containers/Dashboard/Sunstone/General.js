@@ -40,7 +40,7 @@ import {
   TranslateProvider,
   WavesCard,
 } from '@ComponentsModule'
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T, VM_POOL_PAGINATION_SIZE } from '@ConstantsModule'
 import { stringToBoolean } from '@ModelsModule'
 
 const { VM, VM_TEMPLATE, IMAGE, VNET } = RESOURCE_NAMES
@@ -135,7 +135,10 @@ const ResourceWidget = memo(
         skip: type !== 'images',
       }),
       vnets: VnAPI.useGetVNetworksQuery(undefined, { skip: type !== 'vnets' }),
-      vms: VmAPI.useGetVmsQuery({ extended: false }, { skip: type !== 'vms' }),
+      vms: VmAPI.useGetVmsPaginatedQuery(
+        { extended: 0, pageSize: VM_POOL_PAGINATION_SIZE },
+        { skip: type !== 'vms' }
+      ),
     }
 
     const { data = [], isFetching } = options[type] || {}

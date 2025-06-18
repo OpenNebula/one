@@ -15,9 +15,17 @@
  * ------------------------------------------------------------------------- */
 
 const { Actions, Commands } = require('server/routes/api/vmpool/routes')
-const { accounting, showback } = require('server/routes/api/vmpool/functions')
+const {
+  accounting,
+  showback,
+  fetchPaginatedPool,
+} = require('server/routes/api/vmpool/functions')
 
-const { VM_POOL_ACCOUNTING_FILTER, VM_POOL_SHOWBACK_FILTER } = Actions
+const {
+  VM_POOL_ACCOUNTING_FILTER,
+  VM_POOL_SHOWBACK_FILTER,
+  VM_POOL_PAGINATED,
+} = Actions
 
 module.exports = [
   {
@@ -27,5 +35,9 @@ module.exports = [
   {
     ...Commands[VM_POOL_SHOWBACK_FILTER],
     action: showback,
+  },
+  {
+    ...Commands[VM_POOL_PAGINATED],
+    action: fetchPaginatedPool,
   },
 ]

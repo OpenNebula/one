@@ -25,10 +25,12 @@ const { query } = fromData
 
 const VM_POOL_ACCOUNTING_FILTER = 'vmpool.accounting.filter'
 const VM_POOL_SHOWBACK_FILTER = 'vmpool.showback.filter'
+const VM_POOL_PAGINATED = 'vmpool.info.paginated'
 
 const Actions = {
   VM_POOL_ACCOUNTING_FILTER,
   VM_POOL_SHOWBACK_FILTER,
+  VM_POOL_PAGINATED,
 }
 
 module.exports = {
@@ -77,6 +79,38 @@ module.exports = {
         },
         endYear: {
           from: query,
+        },
+      },
+    },
+    [VM_POOL_PAGINATED]: {
+      // inspected
+      path: `${basepath}/info/paginated`,
+      auth: true,
+      httpMethod: GET,
+      params: {
+        extended: {
+          from: query,
+          default: 0,
+        },
+        filter: {
+          from: query,
+          default: -2,
+        },
+        offset: {
+          from: query,
+          default: 0,
+        },
+        pageSize: {
+          from: query,
+          default: 200,
+        },
+        state: {
+          from: query,
+          default: -1,
+        },
+        filterByKey: {
+          from: query,
+          default: '',
         },
       },
     },

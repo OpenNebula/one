@@ -17,7 +17,12 @@ const { defaults, httpCodes } = require('server/utils/constants')
 const { httpResponse } = require('server/utils/server')
 const { Actions: vmActions } = require('server/utils/constants/commands/vm')
 
-const { VM_POOL_ACCOUNTING, VM_POOL_SHOWBACK } = vmActions
+const {
+  VM_POOL_ACCOUNTING,
+  VM_POOL_SHOWBACK,
+  VM_POOL_INFO,
+  VM_POOL_INFO_EXTENDED,
+} = vmActions
 
 const { ok, internalServerError } = httpCodes
 const { defaultEmptyFunction } = defaults
@@ -210,9 +215,115 @@ const showback = (
   })
 }
 
+/**
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - Parameters of the request
+ * @param {object} userData - Data about the user
+ * @param {Function} oneConnection - Function to connect to the XML API
+ */
+const fetchPaginatedPool = async (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
+  const {
+    extended = 0,
+    filter = -2,
+    offset: initialOffset = 0,
+    pageSize: rawPageSize = -200,
+    state = -1,
+    filterByKey = '',
+  } = params
+
+  const { user, password } = userData
+  const oneConnect = oneConnection(user, password)
+
+  const absPageSize = Math.abs(parseInt(rawPageSize, 10))
+  const baseParams = [parseInt(filter, 10), parseInt(state, 10), filterByKey]
+  const actionType = extended === '1' ? VM_POOL_INFO_EXTENDED : VM_POOL_INFO
+  const maxConcurrency = 5
+
+  const oneConnectAsync = (args) =>
+    new Promise((resolve, reject) => {
+      oneConnect({
+        ...args,
+        callback: (err, value) => {
+          err ? reject(err) : resolve(value)
+        },
+      })
+    })
+
+  const fetchPage = async (offset) => {
+    const fParams = [
+      baseParams[0],
+      offset,
+      -absPageSize,
+      baseParams[1],
+      baseParams[2],
+    ]
+    const { VM_POOL: { VM: data = [] } = {} } = await oneConnectAsync({
+      action: actionType,
+      parameters: fParams,
+    })
+
+    return data || []
+  }
+
+  const runBatches = async () => {
+    const results = []
+    let offset = parseInt(initialOffset, 10)
+
+    for (;;) {
+      const jobs = Array.from({ length: maxConcurrency }, (_, i) =>
+        fetchPage(offset + i * absPageSize)
+      )
+
+      const pages = await Promise.all(jobs)
+
+      let hitEnd = false
+
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i]
+        if (page.length < absPageSize) hitEnd = true
+        for (let j = 0; j < page.length; j++) {
+          results.push(page[j])
+        }
+      }
+
+      if (hitEnd) break
+
+      offset += absPageSize * maxConcurrency
+    }
+
+    return results
+  }
+
+  const responseHttp = (
+    httpRes = {},
+    next = defaultEmptyFunction,
+    httpCode
+  ) => {
+    if (httpRes?.locals?.httpCode && httpCode) {
+      httpRes.locals.httpCode = httpCode
+      next()
+    }
+  }
+
+  try {
+    const results = await runBatches()
+    responseHttp(res, next, httpResponse(ok, results))
+  } catch (error) {
+    responseHttp(res, next, httpResponse(internalServerError, error))
+  }
+}
+
 const functionRoutes = {
   accounting,
   showback,
+  fetchPaginatedPool,
 }
 
 module.exports = functionRoutes

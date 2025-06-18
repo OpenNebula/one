@@ -43,7 +43,14 @@ import {
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useCallback, useEffect, useRef, useState } from 'react'
+import {
+  memo,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { useDispatch } from 'react-redux'
 
 /**
@@ -59,17 +66,15 @@ export function VirtualMachines() {
   const { zone } = useGeneral()
   const refetchRef = useRef(null)
 
-
   const handleRefetch = useCallback((refresh) => {
     refetchRef.current = refresh
   }, [])
-  
+
   const handleUseRefetch = useCallback(() => {
     if (typeof refetchRef.current === 'function') {
       refetchRef.current()
     }
   }, [])
-
 
   useEffect(() => {
     const selectedIds = selectedRows.map((row) => row.original.ID)
@@ -145,7 +150,15 @@ export function VirtualMachines() {
  * @returns {ReactElement} VM details
  */
 const InfoTabs = memo(
-  ({ vm, gotoPage, unselect, handleDismissError, tags, selectedRows, handleUseRefetch }) => {
+  ({
+    vm,
+    gotoPage,
+    unselect,
+    handleDismissError,
+    tags,
+    selectedRows,
+    handleUseRefetch,
+  }) => {
     const [getVm, { data: lazyData, isFetching }] = VmAPI.useLazyGetVmQuery()
     const id = vm?.ID ?? lazyData?.ID
     const RowActions = VmsTable.RowActions
@@ -217,7 +230,7 @@ const InfoTabs = memo(
               isSubmitting={isFetching}
               onClick={async () => {
                 await getVm({ id })
-                handleUseRefetch && await handleUseRefetch()
+                handleUseRefetch && (await handleUseRefetch())
               }}
             />
             {typeof unselect === 'function' && (

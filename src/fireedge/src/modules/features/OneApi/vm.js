@@ -92,7 +92,53 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
+
       transformResponse: (data) => [data?.VM_POOL?.VM ?? []].flat(),
+      providesTags: (vms) =>
+        vms
+          ? [...vms.map(({ ID }) => ({ type: VM_POOL, id: `${ID}` })), VM_POOL]
+          : [VM_POOL],
+    }),
+
+    getVmsPaginated: builder.query({
+      /**
+       * Fetches information for all or part of
+       * the VMs in the pool by running concurrent jobs
+       * and collecting the results in the backend. (FASTER)
+       *
+       * @param {object} params - Request parameters
+       * @param {0|1} params.extended
+       * - Fetch extended:
+       * ``0``: Normal fetch.
+       * ``1``: Fetch extended info.
+       * @param {FilterFlag} [params.filter] - Filter flag
+       * @param {number} [params.start] - Range start ID
+       * @param {number} [params.end] - Range end ID
+       * @param {number} [params.state] - VM state to filter by
+       * - `-2`: Any state, including DONE
+       * - `-1`: Any state, except DONE
+       * - `0`:  INIT
+       * - `1`:  PENDING
+       * - `2`:  HOLD
+       * - `3`:  ACTIVE
+       * - `4`:  STOPPED
+       * - `5`:  SUSPENDED
+       * - `6`:  DONE
+       * - `8`:  POWEROFF
+       * - `9`:  UNDEPLOYED
+       * - `10`: CLONING
+       * - `11`: CLONING_FAILURE
+       * @param {string} [params.filterByKey] - Filter in KEY=VALUE format
+       * @returns {VmType[]} List of VMs
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = ExtraActionsPool.VM_POOL_PAGINATED
+
+        const command = { name, ...ExtraCommandsPool[name] }
+
+        return { params, command }
+      },
       providesTags: (vms) =>
         vms
           ? [...vms.map(({ ID }) => ({ type: VM_POOL, id: `${ID}` })), VM_POOL]
@@ -1314,6 +1360,8 @@ const vmQueries = (({
   useLazyGetShowbackPoolFilteredQuery,
   useCalculateShowbackQuery,
   useLazyCalculateShowbackQuery,
+  useGetVmsPaginatedQuery,
+  useLazyGetVmsPaginatedQuery,
 
   // Mutations
   useAllocateVmMutation,
@@ -1377,6 +1425,8 @@ const vmQueries = (({
   useLazyGetShowbackPoolFilteredQuery,
   useCalculateShowbackQuery,
   useLazyCalculateShowbackQuery,
+  useGetVmsPaginatedQuery,
+  useLazyGetVmsPaginatedQuery,
 
   // Mutations
   useAllocateVmMutation,

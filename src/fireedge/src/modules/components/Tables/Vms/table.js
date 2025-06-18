@@ -23,6 +23,7 @@ import {
   T,
   VM_EXTENDED_POOL,
   VM_STATES,
+  VM_POOL_PAGINATION_SIZE,
 } from '@ConstantsModule'
 import {
   getColorFromString,
@@ -72,8 +73,8 @@ const VmsTable = (props) => {
 
   const { view, getResourceView } = useViews()
 
-  const { data, refetch, isFetching } = VmAPI.useGetVmsQuery(
-    { extended: VM_EXTENDED_POOL },
+  const { data, refetch, isFetching } = VmAPI.useGetVmsPaginatedQuery(
+    { extended: VM_EXTENDED_POOL ? 1 : 0, pageSize: VM_POOL_PAGINATION_SIZE },
     {
       selectFromResult: (result) => ({
         ...result,
