@@ -210,7 +210,7 @@ class GenericCommand
             raise terminator_e if terminator_e
 
             # return values
-            [out_reader.value, err_reader.value, t.value]
+            [out_reader.value || '', err_reader.value || '', t.value]
         end
     end
 

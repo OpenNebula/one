@@ -75,21 +75,25 @@ class TransferManagerDriver < OpenNebulaDriver
     # Driver Action: TRANSFER id script_file
     # Executes a transfer script
     def action_transfer(id, script_file)
-        script = parse_script(script_file)
-        if script.nil?
-            return send_message('TRANSFER', RESULT[:failure], id,
-                                "Transfer file '#{script_file}' does not exist")
-        end
-
-        script.each do |command|
-            result, info = do_transfer_action(id, command)
-
-            if result == RESULT[:failure]
-                return send_message('TRANSFER', result, id, info)
+        begin
+            script = parse_script(script_file)
+            if script.nil?
+                return send_message('TRANSFER', RESULT[:failure], id,
+                                    "Transfer file '#{script_file}' does not exist")
             end
-        end
 
-        send_message('TRANSFER', RESULT[:success], id)
+            script.each do |command|
+                result, info = do_transfer_action(id, command)
+
+                if result == RESULT[:failure]
+                    return send_message('TRANSFER', result, id, info)
+                end
+            end
+
+            send_message('TRANSFER', RESULT[:success], id)
+        rescue StandardError => e
+            send_message('TRANSFER', RESULT[:failure], id, e.message)
+        end
     end
 
     # Executes a single transfer action (command), as returned by the parse
