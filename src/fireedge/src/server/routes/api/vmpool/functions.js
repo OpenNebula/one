@@ -269,7 +269,9 @@ const fetchPaginatedPool = async (
       parameters: fParams,
     })
 
-    return data || []
+    const ensureData = data && !Array.isArray(data) ? [data] : data
+
+    return ensureData || []
   }
 
   const runBatches = async () => {
