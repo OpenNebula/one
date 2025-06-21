@@ -20,7 +20,7 @@ import { DatastoresTable } from '@modules/components/Tables'
 import { SCHEMA } from '@modules/components/Forms/Vm/BackupForm/Steps/DatastoresTable/schema'
 
 import { Step } from '@UtilsModule'
-import { T, VM_EXTENDED_POOL } from '@ConstantsModule'
+import { T, VM_EXTENDED_POOL, VM_POOL_PAGINATION_SIZE } from '@ConstantsModule'
 
 export const STEP_ID = 'datastore'
 
@@ -66,7 +66,9 @@ const DatastoreStep = (app) => ({
   resolver: SCHEMA,
   defaultDisabled: {
     statePaths: [
-      `oneApi.queries.getVms({"extended":${VM_EXTENDED_POOL}}).data`,
+      `oneApi.queries.getVmsPaginated({"extended":${
+        VM_EXTENDED_POOL ? 1 : 0
+      },"pageSize":${VM_POOL_PAGINATION_SIZE}}).data`,
       'general.selectedIds',
     ],
     condition: (vmsData, selectedIds) =>
