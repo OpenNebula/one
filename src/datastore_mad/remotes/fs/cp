@@ -64,6 +64,10 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CONVERT \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/DRIVER \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TYPE \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NFS_AUTO_ENABLE \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NFS_AUTO_HOST \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NFS_AUTO_PATH \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NFS_AUTO_OPTS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SPARSE)
 
 unset i
@@ -82,6 +86,10 @@ LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
 CONVERT="${XPATH_ELEMENTS[i++]:-yes}"
 DRIVER="${XPATH_ELEMENTS[i++]}"
 IMAGE_TYPE="${XPATH_ELEMENTS[i++]}"
+ANFS_ENABLE="${XPATH_ELEMENTS[i++]}"
+ANFS_HOST="${XPATH_ELEMENTS[i++]}"
+ANFS_PATH="${XPATH_ELEMENTS[i++]}"
+ANFS_OPTS="${XPATH_ELEMENTS[i++]}"
 SPARSE="${XPATH_ELEMENTS[i++]}"
 
 DST=`generate_image_path`
@@ -100,9 +108,17 @@ if [ "$IMAGE_TYPE" = "1" ] || [ "$TYPE" = "2" ]; then
     CONVERT=no
 fi
 
+NFS_MOUNT_CMD=$(cat <<EOF
+mkdir -p "$BASE_PATH"
+`autonfs_tmpsetup_command "$BASE_PATH" "$ANFS_ENABLE" "$ANFS_HOST" "$ANFS_PATH" "$ANFS_OPTS"`
+EOF
+)
+
 if [ -n "$BRIDGE_LIST" ]; then
+    ssh_exec_and_log "$DST_HOST" "$NFS_MOUNT_CMD" "Error setting up NFS mount"
     DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$LIMIT_TRANSFER_BW" "$SRC" -`
 else
+    multiline_exec_and_log "$NFS_MOUNT_CMD" "Error setting up NFS mount"
     DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$LIMIT_TRANSFER_BW" "$SRC" "$DST"`
 fi
 
