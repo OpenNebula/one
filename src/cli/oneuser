@@ -754,7 +754,7 @@ CommandParser::CmdParser.new(ARGV) do
                 1,
                 "More than one token starting with '#{token_hint}' found."
             )
-        elsif token.count.zero?
+        elsif token.none?
             exit_with_code 1, 'No tokens found.'
         end
 
