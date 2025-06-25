@@ -57,7 +57,7 @@ SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 # Get Image information
 #-------------------------------------------------------------------------------
 
-DISK_ID="$(basename "${DST_PATH}" | cut -d. -f2)"
+DISK_ID=$(basename ${DST_PATH} | cut -d. -f2)
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
@@ -91,20 +91,8 @@ ANFS_HOST="${XPATH_ELEMENTS[j++]}"
 ANFS_PATH="${XPATH_ELEMENTS[j++]}"
 ANFS_OPTS="${XPATH_ELEMENTS[j++]}"
 
-DS_SYS_ID="$(basename "$DST_DIR")"
-
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <(onedatastore show -x $DS_SYS_ID| $XPATH \
-                    /DATASTORE/TEMPLATE/NFS_AUTO_ENABLE \
-                    /DATASTORE/TEMPLATE/NFS_AUTO_HOST \
-                    /DATASTORE/TEMPLATE/NFS_AUTO_PATH \
-                    /DATASTORE/TEMPLATE/NFS_AUTO_OPTS)
-
-SYS_ANFS_ENABLE="${XPATH_ELEMENTS[j++]}"
-SYS_ANFS_HOST="${XPATH_ELEMENTS[j++]}"
-SYS_ANFS_PATH="${XPATH_ELEMENTS[j++]}"
-SYS_ANFS_OPTS="${XPATH_ELEMENTS[j++]}"
+ssh_make_path $DST_HOST $DST_DIR
+disable_local_monitoring $DST_HOST $DST_DIR
 
 #-------------------------------------------------------------------------------
 # Clone (cp) SRC into DST
@@ -127,17 +115,8 @@ else
     CLONE_CMD="cp $SRC_PATH $DST_PATH"
 fi
 
-NFS_MOUNT_CMD=$(cat <<EOF
-    `autonfs_mount_command "$DSID" "$ANFS_ENABLE" "$ANFS_HOST" "$ANFS_PATH" "$ANFS_OPTS"`
-    `autonfs_mount_command "$DS_SYS_ID" "$SYS_ANFS_ENABLE" "$SYS_ANFS_HOST" "$SYS_ANFS_PATH" "$SYS_ANFS_OPTS"`
-EOF
-)
-
-ssh_exec_and_log "$DST_HOST" "$NFS_MOUNT_CMD" "Error setting up NFS mounts"
-ssh_make_path $DST_HOST $DST_DIR
-disable_local_monitoring $DST_HOST $DST_DIR
-
 CLONE_RESIZE_CMD=$(cat <<EOF
+    `autonfs_mount_command "$DSID" "$ANFS_ENABLE" "$ANFS_HOST" "$ANFS_PATH" "$ANFS_OPTS"`
     $CLONE_CMD
     $RESIZE_CMD
 EOF
