@@ -232,10 +232,6 @@ main_env.Append(enterprise=ARGUMENTS.get('enterprise', 'no'))
 # FireEdge minified files generation
 main_env.Append(fireedge=ARGUMENTS.get('fireedge', 'no'))
 
-# TODO this should be aligned with one-ee-tools workflows
-# Onedb Marshal files generation
-main_env.Append(marshal=ARGUMENTS.get('marshal', 'no'))
-
 # Context packages download
 main_env.Append(context=ARGUMENTS.get('context', 'no'))
 
@@ -337,7 +333,6 @@ build_scripts = [
     'share/rubygems/SConstruct',
     'src/client/SConstruct',
     'src/monitor/SConstruct',
-    'src/onedb/SConstruct',
     'src/protocol/SConstruct',
     'src/sam/SConstruct',
     'src/schedm/SConstruct',

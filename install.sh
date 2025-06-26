@@ -242,6 +242,7 @@ SHARE_DIRS="$SHARE_LOCATION/schemas \
             $SHARE_LOCATION/context \
             $SHARE_LOCATION/onecfg \
             $SHARE_LOCATION/onecfg/etc \
+            $SHARE_LOCATION/onecfg/migrators \
             $SHARE_LOCATION/grafana \
             $SHARE_LOCATION/prometheus"
 
@@ -286,6 +287,10 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/onecfg/lib/config/type/augeas \
           $LIB_LOCATION/onecfg/lib/config/type/yaml \
           $LIB_LOCATION/onecfg/lib/patch \
+          $LIB_LOCATION/onecfg/lib/ee \
+          $LIB_LOCATION/onecfg/lib/ee/migrators \
+          $LIB_LOCATION/onecfg/lib/ee/config \
+          $LIB_LOCATION/onecfg/lib/ee/patch \
           $LIB_LOCATION/alertmanager \
           $LIB_LOCATION/libvirt_exporter \
           $LIB_LOCATION/node_exporter \
@@ -466,18 +471,26 @@ INSTALL_FILES=(
     SBIN_FILES:$SBIN_LOCATION
     INCLUDE_FILES:$INCLUDE_LOCATION
     LIB_FILES:$LIB_LOCATION
+    MAN_FILES:$MAN_LOCATION
+    DOCS_FILES:$DOCS_LOCATION
+
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     RUBY_OPENNEBULA_LIB_FLOW_FILES:$LIB_LOCATION/ruby/opennebula/flow
+
     MAD_RUBY_LIB_FILES:$LIB_LOCATION/ruby
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
     MAD_SH_LIB_FILES:$VAR_LOCATION/remotes
+    MADS_LIB_FILES:$LIB_LOCATION/mads
     REMOTE_FILES:$VAR_LOCATION/remotes
+
     ONEDB_FILES:$LIB_LOCATION/ruby/onedb
     ONEDB_PATCH_FILES:$LIB_LOCATION/ruby/onedb/patches
-    MADS_LIB_FILES:$LIB_LOCATION/mads
+    ONEDB_SHARED_MIGRATOR_FILES:$LIB_LOCATION/ruby/onedb/shared
+    ONEDB_LOCAL_MIGRATOR_FILES:$LIB_LOCATION/ruby/onedb/local
+
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_LIB_FILES:$VAR_LOCATION/remotes/im/lib
     IM_PROBES_LIB_PYTHON_FILES:$VAR_LOCATION/remotes/im/lib/python
@@ -513,6 +526,7 @@ INSTALL_FILES=(
     IM_PROBES_LXC_PROBES_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d
     IM_PROBES_ETC_LXC_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxc-probes.d
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
+
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
     AUTH_LDAP_FILES:$VAR_LOCATION/remotes/auth/ldap
@@ -520,6 +534,7 @@ INSTALL_FILES=(
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
+
     VMM_EXEC_LIB:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_KVM_LIB:$VAR_LOCATION/remotes/vmm/kvm
@@ -528,6 +543,7 @@ INSTALL_FILES=(
     VMM_EXEC_ETC_KVM_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/kvm
     VMM_EXEC_ETC_LXC_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/lxc
     VMM_EXEC_ETC_LXC_PROFILES:$VAR_LOCATION/remotes/etc/vmm/lxc/profiles
+
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_LIB_FILES:$VAR_LOCATION/remotes/tm/lib
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
@@ -542,6 +558,7 @@ INSTALL_FILES=(
     TM_DEV_FILES:$VAR_LOCATION/remotes/tm/dev
     TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi_libvirt
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
+
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
@@ -553,16 +570,19 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_RSYNC_SCRIPTS:$VAR_LOCATION/remotes/datastore/rsync
     DATASTORE_DRIVER_RESTIC_SCRIPTS:$VAR_LOCATION/remotes/datastore/restic
     DATASTORE_DRIVER_ETC_SCRIPTS:$VAR_LOCATION/remotes/etc/datastore
+
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     MARKETPLACE_DRIVER_ETC_HTTP_SCRIPTS:$VAR_LOCATION/remotes/etc/market/http
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
     MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
+
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     IPAM_DRIVER_EQUINIX_SCRIPTS:$VAR_LOCATION/remotes/ipam/equinix
     IPAM_DRIVER_SCALEWAY_SCRIPTS:$VAR_LOCATION/remotes/ipam/scaleway
     IPAM_DRIVER_VULTR_SCRIPTS:$VAR_LOCATION/remotes/ipam/vultr
     IPAM_DRIVER_EC2_SCRIPTS:$VAR_LOCATION/remotes/ipam/aws
+
     SCHEDULER_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/scheduler/dummy
     SCHEDULER_DRIVER_RANK_SCRIPTS:$VAR_LOCATION/remotes/scheduler/rank
     SCHEDULER_DRIVER_ONEDRS_SCRIPTS:$VAR_LOCATION/remotes/scheduler/one_drs
@@ -570,6 +590,7 @@ INSTALL_FILES=(
     SCHEDULER_DRIVER_ONEDRS_MAPPER:$VAR_LOCATION/remotes/scheduler/one_drs/lib/mapper
     SCHEDULER_DRIVER_ONEDRS_MODELS:$VAR_LOCATION/remotes/scheduler/one_drs/lib/models
     SCHEDULER_DRIVER_ONEDRS_VENDOR:$LIB_LOCATION/python
+
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_HOOKS_PRE_FILES:$VAR_LOCATION/remotes/vnm/hooks/pre
     NETWORK_HOOKS_CLEAN_FILES:$VAR_LOCATION/remotes/vnm/hooks/clean
@@ -583,27 +604,34 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan
     NETWORK_ELASTIC_FILES:$VAR_LOCATION/remotes/vnm/elastic
     NETWORK_NODEPORT_FILES:$VAR_LOCATION/remotes/vnm/nodeport
+
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
+    VENDOR_DIRS:$LIB_LOCATION/ruby/vendors
+
+    CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
+    ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
+
+    COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
+    CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
+
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
+    CONTEXT_SHARE:$SHARE_LOCATION/context
+
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
     PRE_CLEANUP_SHARE_FILE:$SHARE_LOCATION
+
+    START_SCRIPT_SHARE_FILES:$SHARE_LOCATION/start-scripts
+
     HOOK_AUTOSTART_FILES:$VAR_LOCATION/remotes/hooks/autostart
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
-    COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
-    CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
-    MAN_FILES:$MAN_LOCATION
-    DOCS_FILES:$DOCS_LOCATION
-    CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
-    ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
-    VENDOR_DIRS:$LIB_LOCATION/ruby/vendors
-    START_SCRIPT_SHARE_FILES:$SHARE_LOCATION/start-scripts
+
     LIBVIRT_RNG_SHARE_MODULE_FILES:$SHARE_LOCATION/schemas/libvirt
     XSD_FILES:$SHARE_LOCATION/schemas/xsd
+
     SSH_SH_LIB_FILES:$LIB_LOCATION/sh
     SSH_SH_OVERRIDE_LIB_FILES:$LIB_LOCATION/sh/override
     SSH_SHARE_FILES:$SHARE_LOCATION/ssh
-    CONTEXT_SHARE:$SHARE_LOCATION/context
 
     ONEPROMETHEUS_ALERTMANAGER_BIN_FILES:$BIN_LOCATION
     ONEPROMETHEUS_ALERTMANAGER_CONFIG_FILES:$ETC_LOCATION/alertmanager
@@ -654,6 +682,11 @@ INSTALL_ONECFG_FILES=(
     ONECFG_LIB_CONFIG_TYPE_YAML_FILES:$LIB_LOCATION/onecfg/lib/config/type/yaml
     ONECFG_LIB_PATCH_FILES:$LIB_LOCATION/onecfg/lib/patch
     ONECFG_SHARE_ETC_FILES:$SHARE_LOCATION/onecfg/etc
+    ONECFG_LIB_EE_FILES:$LIB_LOCATION/onecfg/lib/ee
+    ONECFG_LIB_EE_MIGRATORS_FILES:$LIB_LOCATION/onecfg/lib/ee/migrators
+    ONECFG_LIB_EE_CONFIG_FILES:$LIB_LOCATION/onecfg/lib/ee/config
+    ONECFG_LIB_EE_PATCH_FILES:$LIB_LOCATION/onecfg/lib/ee/patch
+    ONECFG_SHARE_MIGRATORS_FILES:$SHARE_LOCATION/onecfg/migrators
 )
 
 INSTALL_FIREEDGE_FILES=(
@@ -1706,8 +1739,83 @@ ONEDB_FILES="src/onedb/fsck.rb \
             src/onedb/fsck \
             src/onedb/onedb_live.rb"
 
-ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
-                   src/onedb/patches/history_times.rb"
+ONEDB_PATCH_FILES="src/onedb/patches/history_times.rb"
+
+ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
+                             src/onedb/shared/2.9.80_to_2.9.85.rb \
+                             src/onedb/shared/2.9.85_to_2.9.90.rb \
+                             src/onedb/shared/2.9.90_to_3.0.0.rb \
+                             src/onedb/shared/3.0.0_to_3.1.0.rb \
+                             src/onedb/shared/3.1.0_to_3.1.80.rb \
+                             src/onedb/shared/3.1.80_to_3.2.0.rb \
+                             src/onedb/shared/3.2.0_to_3.2.1.rb \
+                             src/onedb/shared/3.2.1_to_3.3.0.rb \
+                             src/onedb/shared/3.3.0_to_3.3.80.rb \
+                             src/onedb/shared/3.3.80_to_3.4.0.rb \
+                             src/onedb/shared/3.4.0_to_3.4.1.rb \
+                             src/onedb/shared/3.4.1_to_3.5.80.rb \
+                             src/onedb/shared/3.5.80_to_3.6.0.rb \
+                             src/onedb/shared/3.6.0_to_3.7.80.rb \
+                             src/onedb/shared/3.7.80_to_3.8.0.rb \
+                             src/onedb/shared/3.8.0_to_3.8.1.rb \
+                             src/onedb/shared/3.8.1_to_3.8.2.rb \
+                             src/onedb/shared/3.8.2_to_3.8.3.rb \
+                             src/onedb/shared/3.8.3_to_3.8.4.rb \
+                             src/onedb/shared/3.8.4_to_3.8.5.rb \
+                             src/onedb/shared/3.8.5_to_3.9.80.rb \
+                             src/onedb/shared/3.9.80_to_3.9.90.rb \
+                             src/onedb/shared/3.9.90_to_4.0.0.rb \
+                             src/onedb/shared/4.0.0_to_4.0.1.rb \
+                             src/onedb/shared/4.0.1_to_4.1.80.rb \
+                             src/onedb/shared/4.1.80_to_4.2.0.rb \
+                             src/onedb/shared/4.2.0_to_4.3.80.rb \
+                             src/onedb/shared/4.3.80_to_4.3.85.rb \
+                             src/onedb/shared/4.3.85_to_4.3.90.rb \
+                             src/onedb/shared/4.3.90_to_4.4.0.rb \
+                             src/onedb/shared/4.4.0_to_4.4.1.rb \
+                             src/onedb/shared/4.4.1_to_4.5.80.rb\
+                             src/onedb/shared/4.5.80_to_4.6.0.rb \
+                             src/onedb/shared/4.6.0_to_4.11.80.rb \
+                             src/onedb/shared/4.11.80_to_4.90.0.rb \
+                             src/onedb/shared/4.90.0_to_5.2.0.rb \
+                             src/onedb/shared/5.2.0_to_5.3.80.rb \
+                             src/onedb/shared/5.3.80_to_5.4.0.rb \
+                             src/onedb/shared/5.4.0_to_5.4.1.rb \
+                             src/onedb/shared/5.4.1_to_5.5.80.rb \
+                             src/onedb/shared/5.5.80_to_5.6.0.rb \
+                             src/onedb/shared/5.6.0_to_5.10.0.rb \
+                             src/onedb/shared/5.10.0_to_5.12.0.rb \
+                             src/onedb/shared/5.12.0_to_6.0.0.rb \
+                             src/onedb/shared/6.0.0_to_6.2.0.rb \
+                             src/onedb/shared/6.2.0_to_6.4.0.rb \
+                             src/onedb/shared/6.4.0_to_6.6.0.rb \
+                             src/onedb/shared/6.6.0_to_6.8.0.rb \
+                             src/onedb/shared/6.8.0_to_6.10.0.rb \
+                             src/onedb/shared/6.10.0_to_7.0.0.rb"
+
+ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
+                            src/onedb/local/4.7.80_to_4.9.80.rb \
+                            src/onedb/local/4.9.80_to_4.10.3.rb \
+                            src/onedb/local/4.10.3_to_4.11.80.rb \
+                            src/onedb/local/4.11.80_to_4.13.80.rb \
+                            src/onedb/local/4.13.80_to_4.13.85.rb \
+                            src/onedb/local/4.13.85_to_4.90.0.rb \
+                            src/onedb/local/4.90.0_to_5.3.80.rb \
+                            src/onedb/local/5.3.80_to_5.4.0.rb \
+                            src/onedb/local/5.4.0_to_5.4.1.rb \
+                            src/onedb/local/5.4.1_to_5.5.80.rb \
+                            src/onedb/local/5.5.80_to_5.6.0.rb \
+                            src/onedb/local/5.6.0_to_5.7.80.rb \
+                            src/onedb/local/5.7.80_to_5.8.0.rb \
+                            src/onedb/local/5.8.0_to_5.10.0.rb \
+                            src/onedb/local/5.10.0_to_5.12.0.rb \
+                            src/onedb/local/5.12.0_to_6.0.0.rb \
+                            src/onedb/local/6.0.0_to_6.2.0.rb \
+                            src/onedb/local/6.2.0_to_6.4.0.rb \
+                            src/onedb/local/6.4.0_to_6.6.0.rb \
+                            src/onedb/local/6.6.0_to_6.8.0.rb \
+                            src/onedb/local/6.8.0_to_6.10.0.rb \
+                            src/onedb/local/6.10.0_to_7.0.0.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
@@ -2088,33 +2196,81 @@ ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
 ONECFG_BIN_FILES="src/onecfg/bin/onecfg"
 
 ONECFG_LIB_FILES="src/onecfg/lib/onecfg.rb
-                    src/onecfg/lib/common.rb \
-                    src/onecfg/lib/config.rb \
-                    src/onecfg/lib/exception.rb \
-                    src/onecfg/lib/settings.rb \
-                    src/onecfg/lib/transaction.rb \
-                    src/onecfg/lib/patch.rb \
-                    src/onecfg/lib/version.rb"
+                  src/onecfg/lib/common.rb \
+                  src/onecfg/lib/config.rb \
+                  src/onecfg/lib/exception.rb \
+                  src/onecfg/lib/settings.rb \
+                  src/onecfg/lib/transaction.rb \
+                  src/onecfg/lib/patch.rb \
+                  src/onecfg/lib/version.rb \
+                  src/onecfg/lib/ee.rb"
+
 ONECFG_LIB_COMMON_FILES="src/onecfg/lib/common/backup.rb \
                          src/onecfg/lib/common/parser.rb"
+
 ONECFG_LIB_COMMON_HELPERS_FILES="src/onecfg/lib/common/helpers/onecfg_helper.rb"
 ONECFG_LIB_COMMON_LOGGER_FILES="src/onecfg/lib/common/logger/cli_logger.rb"
+
 ONECFG_LIB_CONFIG_FILES="src/onecfg/lib/config/exception.rb \
                                     src/onecfg/lib/config/files.rb \
                                     src/onecfg/lib/config/fsops.rb \
                                     src/onecfg/lib/config/type.rb \
                                     src/onecfg/lib/config/utils.rb"
+
 ONECFG_LIB_CONFIG_TYPE_FILES="src/onecfg/lib/config/type/augeas.rb \
                                         src/onecfg/lib/config/type/base.rb \
                                         src/onecfg/lib/config/type/simple.rb \
                                         src/onecfg/lib/config/type/yaml.rb"
+
 ONECFG_LIB_CONFIG_TYPE_AUGEAS_FILES="src/onecfg/lib/config/type/augeas/one.rb \
                                      src/onecfg/lib/config/type/augeas/shell.rb"
+
 ONECFG_LIB_CONFIG_TYPE_YAML_FILES="src/onecfg/lib/config/type/yaml/strict.rb"
 ONECFG_LIB_PATCH_FILES="src/onecfg/lib/patch/apply.rb"
 
 ONECFG_SHARE_ETC_FILES="src/onecfg/share/etc/files.yaml"
 
+ONECFG_LIB_EE_FILES="src/onecfg/lib/ee/commands.rb \
+                     src/onecfg/lib/ee/config.rb \
+                     src/onecfg/lib/ee/migrators.rb \
+                     src/onecfg/lib/ee/patch.rb"
+
+ONECFG_LIB_EE_MIGRATORS_FILES="src/onecfg/lib/ee/migrators/apply.rb \
+                               src/onecfg/lib/ee/migrators/generate.rb \
+                               src/onecfg/lib/ee/migrators/migrator.rb"
+
+ONECFG_LIB_EE_CONFIG_FILES="src/onecfg/lib/ee/config/settings.rb \
+                            src/onecfg/lib/ee/config/versions.rb"
+
+ONECFG_LIB_EE_PATCH_FILES="src/onecfg/lib/ee/patch/generate.rb"
+
+ONECFG_SHARE_MIGRATORS_FILES="src/onecfg/share/migrators/5.4.0_to_5.4.1.yaml \
+                              src/onecfg/share/migrators/5.4.1_to_5.4.2.yaml \
+                              src/onecfg/share/migrators/5.4.2_to_5.4.6.yaml \
+                              src/onecfg/share/migrators/5.4.6_to_5.6.0.rb \
+                              src/onecfg/share/migrators/5.4.6_to_5.6.0.yaml \
+                              src/onecfg/share/migrators/5.6.0_to_5.8.0.rb \
+                              src/onecfg/share/migrators/5.6.0_to_5.8.0.yaml \
+                              src/onecfg/share/migrators/5.8.0_to_5.10.0.rb \
+                              src/onecfg/share/migrators/5.8.0_to_5.10.0.yaml \
+                              src/onecfg/share/migrators/5.10.0_to_5.12.0.rb \
+                              src/onecfg/share/migrators/5.10.0_to_5.12.0.yaml \
+                              src/onecfg/share/migrators/5.12.0_to_6.0.0.rb \
+                              src/onecfg/share/migrators/5.12.0_to_6.0.0.yaml \
+                              src/onecfg/share/migrators/6.0.0_to_6.2.0.rb \
+                              src/onecfg/share/migrators/6.0.0_to_6.2.0.yaml \
+                              src/onecfg/share/migrators/6.2.0_to_6.4.0.rb \
+                              src/onecfg/share/migrators/6.2.0_to_6.4.0.yaml \
+                              src/onecfg/share/migrators/6.4.0_to_6.6.0.rb \
+                              src/onecfg/share/migrators/6.4.0_to_6.6.0.yaml \
+                              src/onecfg/share/migrators/6.6.0_to_6.8.0.rb \
+                              src/onecfg/share/migrators/6.6.0_to_6.8.0.yaml \
+                              src/onecfg/share/migrators/6.8.0_to_6.10.0.rb \
+                              src/onecfg/share/migrators/6.8.0_to_6.10.0.yaml \
+                              src/onecfg/share/migrators/6.10.0_to_6.10.2.rb \
+                              src/onecfg/share/migrators/6.10.0_to_6.10.2.yaml \
+                              src/onecfg/share/migrators/6.10.2_to_7.0.0.rb \
+                              src/onecfg/share/migrators/6.10.2_to_7.0.0.yaml"
 
 #-----------------------------------------------------------------------------
 # OneHem files
