@@ -67,7 +67,7 @@ module TransferManager
                 echo "#{Base64.encode64(@xml)}" > #{backup_dir}/vm.xml
 
                 # --------------------------------
-                # Create LVM snapshots for disks
+                # Create snapshots for disks
                 # --------------------------------
                 #{freeze}
 

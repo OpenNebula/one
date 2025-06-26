@@ -1324,15 +1324,21 @@ function autonfs_cleanup_command {
     ANFS_DATASTORES="$(onedatastore list --json | jq -r '.DATASTORE_POOL.DATASTORE[] | select(.TEMPLATE.NFS_AUTO_ENABLE // "no" | ascii_downcase == "yes").ID')"
 
     cat <<EOF
+autonfs_remove_fstab() {
+    DS_BASE_PATH="\$1"
+
+    FSTAB_LINE_REGEX="\\S\\+ \$DS_BASE_PATH nfs .*"
+    # sed cmd must use custom regex delimiters (e.g., |) because FSTAB_LINE_REGEX contains slashes (/).
+    echo "\|^\${FSTAB_LINE_REGEX}$|d" | $SUDO_SED_FSTAB
+}
+
 # Clean no-longer-existing datastores
-NFS_MOUNTED_DSS="\$({ findmnt -nt nfs4; findmnt -nt nfs; } | grep '^$DS_DIR/[0-9]\\+\\s' | cut -f1 -d' ' | awk -F/ '{print \$NF}')"
+NFS_MOUNTED_DSS="\$({ findmnt -nt nfs4; findmnt -nt nfs; } | grep '^$DS_DIR/[0-9]\\+\\s' | cut -f1 -d' ' | awk -F/ '{print \$NF}')" || true
 for ds in \$NFS_MOUNTED_DSS; do
     DS_BASE_PATH="$DS_DIR/\$ds"
     if test -f "\$DS_BASE_PATH/.automounted" && ! echo "$ANFS_DATASTORES" | grep -q "^\$ds$"; then
         timeout -s KILL 30s sudo umount "\$DS_BASE_PATH" || continue
-        FSTAB_LINE="\\S\\+ \$DS_BASE_PATH nfs .*"
-        # sed cmd must use custom regex delimiters (e.g., |) because FSTAB_LINE contains slashes (/).
-        echo "\|^\${FSTAB_LINE}$|d" | $SUDO_SED_FSTAB
+        autonfs_remove_fstab \$DS_BASE_PATH
         rmdir "\$DS_BASE_PATH"
     fi
 done
@@ -1358,10 +1364,14 @@ function autonfs_mount_command {
     FSTAB_LINE="$ANFS_HOST:$ANFS_PATH $DS_BASE_PATH nfs ${ANFS_OPTS:-defaults} 0 0"
 
     cat <<EOF
-set -e
+`autonfs_cleanup_command`
 
+set -e
 # Mount the required datastore
 if [ "${ANFS_ENABLE,,}" = 'yes' ]; then
+    # Remove old entries of DS_BASE_PATH from /etc/fstab before adding the new one
+    autonfs_remove_fstab $DS_BASE_PATH
+
     # Add FSTAB_LINE to /etc/fstab using sed's "a" command.
     grep -qe "^$FSTAB_LINE$" /etc/fstab || echo "\\\$a\\
     $FSTAB_LINE" | $SUDO_SED_FSTAB
@@ -1369,10 +1379,7 @@ if [ "${ANFS_ENABLE,,}" = 'yes' ]; then
     timeout -s KILL 30s sudo mount "$DS_BASE_PATH"
     touch "$DS_BASE_PATH/.automounted"
 fi
-
 set +e
-
-`autonfs_cleanup_command`
 EOF
 }
 
@@ -1394,12 +1401,13 @@ function autonfs_tmpsetup_command {
     fi
     if [ "${ANFS_ENABLE,,}" = 'yes' ]; then
         cat <<EOF
+`autonfs_cleanup_command`
+
+# If not already mounted, do it
 if ! findmnt --source "$ANFS_HOST:$ANFS_PATH" --mountpoint "$DS_BASE_PATH" > /dev/null; then
     timeout -s KILL 30s sudo mount $ANFS_OPTS "$ANFS_HOST:$ANFS_PATH" "$DS_BASE_PATH"
     touch "$DS_BASE_PATH/.automounted"
 fi
-
-`autonfs_cleanup_command`
 EOF
     fi
 }

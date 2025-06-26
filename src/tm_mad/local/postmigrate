@@ -53,7 +53,7 @@ end
 
 postmg.migrate_other(template64)
 
-rc = postmg.ssh(:host => src.host,
+rc = postmg.ssh(:host => arg_srchost,
                 :cmds => "rm -rf '#{dst.path}'",
                 :nostdout => false,
                 :nostderr => false)
