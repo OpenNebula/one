@@ -25,27 +25,12 @@ LOG              = LOG_LOCATION + "/onedb-fsck.log"
 require 'nokogiri'
 
 module OneDBPatch
-    VERSION = "4.11.80"
-    LOCAL_VERSION = "4.13.85"
 
     def is_hot_patch(ops)
         return false
     end
 
     def check_db_version(ops)
-        db_version = read_db_version()
-
-        if ( db_version[:version] != VERSION ||
-             db_version[:local_version] != LOCAL_VERSION )
-
-            raise <<-EOT
-Version mismatch: patch file is for version
-Shared: #{VERSION}, Local: #{LOCAL_VERSION}
-
-Current database is version
-Shared: #{db_version[:version]}, Local: #{db_version[:local_version]}
-EOT
-        end
     end
 
     ATTRIBUTES = [
