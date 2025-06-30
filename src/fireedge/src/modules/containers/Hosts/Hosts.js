@@ -37,7 +37,14 @@ import {
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useEffect, useState } from 'react'
+import {
+  memo,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 /**
  * Displays a list of Hosts with a split pane between the list and selected row(s).
@@ -48,6 +55,17 @@ export function Hosts() {
   const [selectedRows, setSelectedRows] = useState(() => [])
   const actions = HostsTable.Actions({ selectedRows, setSelectedRows })
   const { zone } = useGeneral()
+
+  const refetchRef = useRef(null)
+  const handleRefetch = useCallback((refresh) => {
+    refetchRef.current = refresh
+  }, [])
+
+  const handleUseRefetch = useCallback(() => {
+    if (typeof refetchRef.current === 'function') {
+      refetchRef.current()
+    }
+  }, [])
 
   return (
     <MuiProvider theme={SunstoneTheme}>
@@ -68,6 +86,7 @@ export function Hosts() {
               initialState={{
                 selectedRowIds: props.selectedRowsTable,
               }}
+              handleRefetch={handleRefetch}
             />
           )}
           simpleGroupsTags={(props) => (
@@ -84,6 +103,7 @@ export function Hosts() {
             }
             props?.gotoPage && (propsInfo.gotoPage = props.gotoPage)
             props?.unselect && (propsInfo.unselect = props.unselect)
+            propsInfo.handleUseRefetch = handleUseRefetch
 
             return <InfoTabs {...propsInfo} />
           }}
@@ -102,83 +122,91 @@ export function Hosts() {
  * @param {object[]} [selectedRows] - Selected rows (for Labels)
  * @returns {ReactElement} Host details
  */
-const InfoTabs = memo(({ host, gotoPage, unselect, selectedRows }) => {
-  const [getVm, { data: lazyData, isFetching }] = HostAPI.useLazyGetHostQuery()
-  const id = host?.ID ?? lazyData?.ID
+const InfoTabs = memo(
+  ({ host, gotoPage, unselect, selectedRows, handleUseRefetch }) => {
+    const [getHost, { data: lazyData, isFetching }] =
+      HostAPI.useLazyGetHostQuery()
+    const id = host?.ID ?? lazyData?.ID
 
-  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
-  const { FULL_SCREEN_INFO } = fireedge
-  const { fullViewMode } = SERVER_CONFIG
-  const fullModeDefault =
-    FULL_SCREEN_INFO !== undefined ? FULL_SCREEN_INFO === 'true' : fullViewMode
-  const { isFullMode } = useGeneral()
-  const { setFullMode } = useGeneralApi()
+    const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+    const { FULL_SCREEN_INFO } = fireedge
+    const { fullViewMode } = SERVER_CONFIG
+    const fullModeDefault =
+      FULL_SCREEN_INFO !== undefined
+        ? FULL_SCREEN_INFO === 'true'
+        : fullViewMode
+    const { isFullMode } = useGeneral()
+    const { setFullMode } = useGeneralApi()
 
-  useEffect(() => {
-    !isFullMode && gotoPage()
-  }, [])
+    useEffect(() => {
+      !isFullMode && gotoPage()
+    }, [])
 
-  return (
-    <Stack overflow="auto">
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        gap={1}
-        mx={1}
-        mb={1}
-      >
-        <Stack direction="row">
-          {fullModeDefault && (
+    return (
+      <Stack overflow="auto">
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          gap={1}
+          mx={1}
+          mb={1}
+        >
+          <Stack direction="row">
+            {fullModeDefault && (
+              <SubmitButton
+                data-cy="detail-back"
+                icon={<NavArrowLeft />}
+                tooltip={Tr(T.Back)}
+                isSubmitting={isFetching}
+                onClick={() => unselect()}
+              />
+            )}
+          </Stack>
+
+          <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+            {fullModeDefault && (
+              <GlobalLabel
+                selectedRows={selectedRows}
+                type={RESOURCE_NAMES?.HOST}
+              />
+            )}
+            {!fullModeDefault && (
+              <SubmitButton
+                data-cy="detail-full-mode"
+                icon={isFullMode ? <Collapse /> : <Expand />}
+                tooltip={Tr(T.FullScreen)}
+                isSubmitting={isFetching}
+                onClick={() => {
+                  setFullMode(!isFullMode)
+                }}
+              />
+            )}
             <SubmitButton
-              data-cy="detail-back"
-              icon={<NavArrowLeft />}
-              tooltip={Tr(T.Back)}
+              data-cy="detail-refresh"
+              icon={<RefreshDouble />}
+              tooltip={Tr(T.Refresh)}
               isSubmitting={isFetching}
-              onClick={() => unselect()}
-            />
-          )}
-        </Stack>
-
-        <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-          {fullModeDefault && (
-            <GlobalLabel
-              selectedRows={selectedRows}
-              type={RESOURCE_NAMES?.HOST}
-            />
-          )}
-          {!fullModeDefault && (
-            <SubmitButton
-              data-cy="detail-full-mode"
-              icon={isFullMode ? <Collapse /> : <Expand />}
-              tooltip={Tr(T.FullScreen)}
-              isSubmitting={isFetching}
-              onClick={() => {
-                setFullMode(!isFullMode)
+              onClick={async () => {
+                await getHost({ id })
+                handleUseRefetch && (await handleUseRefetch())
               }}
             />
-          )}
-          <SubmitButton
-            data-cy="detail-refresh"
-            icon={<RefreshDouble />}
-            tooltip={Tr(T.Refresh)}
-            isSubmitting={isFetching}
-            onClick={() => getVm({ id })}
-          />
-          {typeof unselect === 'function' && (
-            <SubmitButton
-              data-cy="unselect"
-              icon={<Cancel />}
-              tooltip={Tr(T.Close)}
-              onClick={() => unselect()}
-            />
-          )}
+            {typeof unselect === 'function' && (
+              <SubmitButton
+                data-cy="unselect"
+                icon={<Cancel />}
+                tooltip={Tr(T.Close)}
+                onClick={() => unselect()}
+              />
+            )}
+          </Stack>
         </Stack>
+        <HostTabs id={id} />
       </Stack>
-      <HostTabs id={id} />
-    </Stack>
-  )
-})
+    )
+  }
+)
 
 InfoTabs.propTypes = {
   host: PropTypes.object,

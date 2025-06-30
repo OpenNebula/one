@@ -13,29 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema } from 'yup'
 import {
+  DATASTORE_OPTIONS,
+  DATASTORE_TYPES,
+  DS_STORAGE_BACKENDS,
+  INPUT_TYPES,
+  T,
+  TRANSFER_OPTIONS,
+} from '@ConstantsModule'
+import {
+  arrayToOptions,
   Field,
   getValidationFromFields,
-  arrayToOptions,
   OPTION_SORTERS,
 } from '@UtilsModule'
-import {
-  T,
-  INPUT_TYPES,
-  DATASTORE_TYPES,
-  DATASTORE_OPTIONS,
-  TRANSFER_OPTIONS,
-  DS_STORAGE_BACKENDS,
-} from '@ConstantsModule'
+import { object, ObjectSchema, string } from 'yup'
 
-function getStorageBackendsFromDStype(type) {
-  const ds = Object.values(DATASTORE_TYPES).filter(
-    ({ value }) => value === type
-  )
-
-  return ds[0]?.storageBackends
-}
+const getStorageBackendsFromDStype = (type) =>
+  Object.values(DATASTORE_TYPES)?.find(({ value }) => value === type)
 
 /** @type {Field} Toggle select type image */
 const TYPE = {
@@ -70,9 +65,10 @@ const STORAGE_BACKEND = {
   label: T.StorageBackend,
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
+  clearInvalid: true,
   dependOf: TYPE.name,
   values: (type) =>
-    arrayToOptions(getStorageBackendsFromDStype(type), {
+    arrayToOptions(getStorageBackendsFromDStype(type)?.storageBackends, {
       addEmpty: true,
       getText: ({ name }) => name,
       getValue: ({ value }) => value,
@@ -80,7 +76,7 @@ const STORAGE_BACKEND = {
     }),
   validation: string()
     .trim()
-    .default(() => undefined)
+    .default(() => '')
     .required(),
   grid: { md: 6 },
 }

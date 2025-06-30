@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 import {
-  GlobalLabel,
   MultipleTags,
   ResourcesBackButton,
   SubmitButton,
@@ -24,7 +23,7 @@ import {
   UserTabs,
   UsersTable,
 } from '@ComponentsModule'
-import { RESOURCE_NAMES, SERVER_CONFIG, T, User } from '@ConstantsModule'
+import { SERVER_CONFIG, T, User } from '@ConstantsModule'
 import { UserAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
@@ -126,12 +125,6 @@ const InfoTabs = memo(({ user, gotoPage, unselect, selectedRows }) => {
         mb={1}
       >
         <Stack direction="row">
-          {fullModeDefault && (
-            <GlobalLabel
-              selectedRows={selectedRows}
-              type={RESOURCE_NAMES?.USER}
-            />
-          )}
           {fullModeDefault && (
             <SubmitButton
               data-cy="detail-back"

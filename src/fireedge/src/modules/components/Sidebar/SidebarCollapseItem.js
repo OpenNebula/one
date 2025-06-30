@@ -27,7 +27,10 @@ import PropTypes from 'prop-types'
 import { useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 
-import { Minus as CollapseIcon, Plus as ExpandMoreIcon } from 'iconoir-react'
+import {
+  NavArrowDown as CollapseIcon,
+  NavArrowRight as ExpandMoreIcon,
+} from 'iconoir-react'
 
 import { useGeneral } from '@FeaturesModule'
 import SidebarLink from '@modules/components/Sidebar/SidebarLink'
@@ -66,7 +69,7 @@ const SidebarCollapseItem = ({ title = '', routes = [], icon: Icon }) => {
   return (
     <>
       <ListItemButton
-        className={clsx(classes.itemCollapse, classes.item)}
+        className={clsx(classes.itemCollapse, classes.item, classes.parentItem)}
         onClick={handleExpand}
         selected={hasRouteSelected}
       >
@@ -83,10 +86,14 @@ const SidebarCollapseItem = ({ title = '', routes = [], icon: Icon }) => {
         />
         {expanded ? (
           hasRouteSelected ? null : (
-            <CollapseIcon className="itemCollapseLogo" />
+            <CollapseIcon
+              className={clsx('itemCollapseLogo', classes.itemArrow)}
+            />
           )
         ) : (
-          <ExpandMoreIcon className="itemExpandLogo" />
+          <ExpandMoreIcon
+            className={clsx('itemExpandLogo', classes.itemArrow)}
+          />
         )}
       </ListItemButton>
       <Collapse

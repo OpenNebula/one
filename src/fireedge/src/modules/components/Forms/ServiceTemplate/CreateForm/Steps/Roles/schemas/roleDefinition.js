@@ -82,7 +82,7 @@ const PARENTS = {
 /* eslint-disable jsdoc/require-jsdoc */
 export const TEMPLATE_ID_FIELD = {
   name: 'template_id',
-  label: 'Template ID',
+  label: T.SelectTemplate,
   type: INPUT_TYPES.TABLE,
   Table: () => VmTemplatesTable.Table,
   validation: number()

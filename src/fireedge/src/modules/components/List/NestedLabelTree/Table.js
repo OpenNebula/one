@@ -163,6 +163,7 @@ const LabelTable = () => {
               size: STYLE_BUTTONS.SIZE.MEDIUM,
               type: STYLE_BUTTONS.TYPE.NOBORDER,
               icon: <Trash />,
+              'data-cy': `remove-label-${params.row.displayPath}`,
               tooltip: T.Remove,
             }}
             options={[

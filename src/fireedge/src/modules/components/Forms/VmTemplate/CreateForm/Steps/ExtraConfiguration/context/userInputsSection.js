@@ -196,21 +196,6 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
           component="form"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="start"
-            gap="0.5rem"
-          >
-            <SubmitButton
-              startIcon={<Plus />}
-              data-cy={`${EXTRA_ID}-add-context-user-input`}
-              label={T.Add}
-              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
-              size={STYLE_BUTTONS.SIZE.MEDIUM}
-              type={STYLE_BUTTONS.TYPE.FILLED}
-            />
-          </Stack>
           <FormWithSchema
             cy={`${EXTRA_ID}-context-user-input`}
             saveState={true}
@@ -223,6 +208,22 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
             rootProps={{ sx: { m: 0 } }}
             fieldPath={`${EXTRA_ID}.Context`}
           />
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="start"
+            gap="0.5rem"
+            marginBottom="0.5rem"
+          >
+            <SubmitButton
+              startIcon={<Plus />}
+              data-cy={`${EXTRA_ID}-add-context-user-input`}
+              label={T.Add}
+              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+            />
+          </Stack>
         </Stack>
       </FormProvider>
       <Divider />

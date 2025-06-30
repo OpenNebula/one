@@ -25,7 +25,6 @@ actions:
 # Filters - List of criteria to filter the resources
 
 filters:
-  label: true
   owner: true
   group: true
 

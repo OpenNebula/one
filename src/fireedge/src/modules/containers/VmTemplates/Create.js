@@ -18,33 +18,33 @@ import { useStore } from 'react-redux'
 import { useHistory, useLocation } from 'react-router'
 
 import {
-  VmTemplateAPI,
-  VmGroupAPI,
+  DatastoreAPI,
   HostAPI,
   ImageAPI,
-  UserAPI,
-  DatastoreAPI,
   SystemAPI,
   useGeneralApi,
+  UserAPI,
   useSystemData,
+  VmGroupAPI,
+  VmTemplateAPI,
 } from '@FeaturesModule'
 
 import {
   DefaultFormStepper,
-  SkeletonStepsForm,
   Form,
-  TranslateProvider,
   PATH,
+  SkeletonStepsForm,
+  TranslateProvider,
 } from '@ComponentsModule'
 
+import { STEP_MAP, T, TAB_FORM_MAP } from '@ConstantsModule'
 import { jsonToXml } from '@ModelsModule'
 import {
-  filterTemplateData,
-  transformActionsCreate,
   deepmerge,
+  filterTemplateData,
   isDevelopment,
+  transformActionsCreate,
 } from '@UtilsModule'
-import { TAB_FORM_MAP, T, STEP_MAP } from '@ConstantsModule'
 
 const { VmTemplate } = Form
 const _ = require('lodash')
@@ -146,6 +146,10 @@ export function CreateVmTemplate() {
           update: !!templateId,
         }
       )
+
+      if (rawTemplate?.general?.MEMORYUNIT) {
+        filteredTemplate.MEMORYUNIT = rawTemplate.general.MEMORYUNIT
+      }
 
       // Every action that is not an human action
       transformActionsCreate(filteredTemplate)

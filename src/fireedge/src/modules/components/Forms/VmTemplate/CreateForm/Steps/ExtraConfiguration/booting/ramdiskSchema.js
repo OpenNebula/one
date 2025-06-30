@@ -17,7 +17,6 @@ import { boolean, string } from 'yup'
 
 import { HYPERVISORS, IMAGE_TYPES_STR, INPUT_TYPES, T } from '@ConstantsModule'
 import { ImageAPI } from '@FeaturesModule'
-import { getImageType } from '@ModelsModule'
 import { Field, clearNames } from '@UtilsModule'
 import {
   KERNEL_DS_NAME,
@@ -87,10 +86,11 @@ export const RAMDISK_DS = {
     return options
   },
   values: () => {
-    const { data: images = [] } = ImageAPI.useGetAllImagesQuery()
+    const { data: images = [] } = ImageAPI.useGetImagesQuery({
+      imageTypes: [IMAGE_TYPES_STR.RAMDISK],
+    })
 
     return images
-      ?.filter((image) => getImageType(image) === IMAGE_TYPES_STR.RAMDISK)
       ?.map(({ ID, NAME }) => ({
         text: `#${ID} ${NAME}`,
         value: `$FILE[IMAGE_ID=${ID}]`,

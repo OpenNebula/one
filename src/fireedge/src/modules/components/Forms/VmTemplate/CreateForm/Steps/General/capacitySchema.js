@@ -13,8 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { number, string } from 'yup'
+import { lazy, number, string } from 'yup'
 
+import {
+  HYPERVISORS,
+  INPUT_TYPES,
+  MEMORY_RESIZE_OPTIONS,
+  T,
+  UNITS,
+  VmTemplateFeatures,
+} from '@ConstantsModule'
+import { formatNumberByCurrency } from '@ModelsModule'
 import {
   generateCapacityInput,
   generateCostCapacityInput,
@@ -22,22 +31,33 @@ import {
   generateModificationInputs,
 } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/General/capacityUtils'
 import { Translate } from '@modules/components/HOC'
-import {
-  HYPERVISORS,
-  INPUT_TYPES,
-  MEMORY_RESIZE_OPTIONS,
-  T,
-  VmTemplateFeatures,
-  UNITS,
-} from '@ConstantsModule'
-import { formatNumberByCurrency } from '@ModelsModule'
 import { Field, arrayToOptions } from '@UtilsModule'
+import { useFormContext, useWatch } from 'react-hook-form'
 
 const commonValidation = number()
   .positive()
   .default(() => undefined)
 
 const { lxc } = HYPERVISORS
+
+const HelperDiskCost = () => {
+  const { control } = useFormContext()
+  const cost = useWatch({ control, name: 'general.DISK_COST' })
+  const disks = useWatch({ control, name: 'extra.DISK' }) || []
+
+  const getSize = (disk) => disk?.IMAGE?.SIZE ?? disk?.SIZE ?? 0
+  const sizesInGB = disks.reduce((acc, d) => acc + getSize(d), 0)
+  const sizesInMB = sizesInGB / 1024
+
+  if (cost === undefined || cost === null || isNaN(cost)) return null
+
+  return (
+    <Translate
+      word={T.CostEachMonth}
+      values={[formatNumberByCurrency(sizesInMB * cost * 24 * 30)]}
+    />
+  )
+}
 
 // --------------------------------------------------------
 // MEMORY fields
@@ -191,30 +211,25 @@ export const DISK_COST = generateCostCapacityInput({
   name: 'DISK_COST',
   label: T.Disk,
   tooltip: T.CostDiskConcept,
-  dependOf: ['$extra.DISK', 'DISK_COST'],
-  validation: (context) =>
+  validation: lazy((_, { context }) =>
     commonValidation
-      .transform((value) =>
-        // transform the initial value from MB to GB
-        +context?.DISK_COST === +value ? context?.DISK_COST * 1024 : value
+      .nullable()
+      .transform((value, originalValue) =>
+        originalValue === ''
+          ? undefined
+          : +context?.general?.DISK_COST === +value
+          ? context?.general?.DISK_COST * 1024
+          : value
       )
-      .afterSubmit((cost) => (cost ? cost / 1024 : undefined)),
-  fieldProps: ([disks, cost] = []) => {
-    const fieldProps = { step: 0.1 }
-
-    if (disks?.length && cost) {
-      const getSize = (disk) => disk?.IMAGE?.SIZE ?? disk?.SIZE ?? 0
-      const sizesInGB = disks.reduce((res, disk) => res + getSize(disk), 0)
-      const sizesInMB = sizesInGB / 1024
-      const monthCost = formatNumberByCurrency(sizesInMB * cost * 24 * 30)
-
-      fieldProps.helperText = (
-        <Translate word={T.CostEachMonth} values={[monthCost]} />
-      )
-    }
-
-    return fieldProps
-  },
+      .afterSubmit((cost) => (cost ? cost / 1024 : undefined))
+  ),
+  fieldProps: () => ({
+    step: 0.1,
+    inputProps: {
+      setValueAs: (v) => (v === '' ? undefined : Number(v)),
+    },
+    helperText: <HelperDiskCost />,
+  }),
 })
 
 /**

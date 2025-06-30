@@ -13,30 +13,38 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema, array } from 'yup'
+import { array, lazy, string, object, ObjectSchema } from 'yup'
 
 import { ClustersTable } from '@modules/components/Tables'
 import { T, INPUT_TYPES } from '@ConstantsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
 
 /** @type {Field} Cluster field */
-const CLUSTER = {
+const CLUSTER = ({ singleSelect = true }) => ({
   name: 'cluster',
   label: T.SelectNewCluster,
   type: INPUT_TYPES.TABLE,
   Table: () => ClustersTable.Table,
-  singleSelect: false,
-  validation: array(string().trim())
-    .required()
-    .default(() => undefined),
+  singleSelect: singleSelect,
   fieldProps: {
     preserveState: true,
   },
   grid: { md: 12 },
-}
+  validation: lazy(() =>
+    singleSelect
+      ? string()
+          .trim()
+          .required()
+          .default(() => undefined)
+      : array(string().trim())
+          .required()
+          .default(() => undefined)
+  ),
+})
 
 /** @type {Field[]} List of fields */
-export const FIELDS = [CLUSTER]
+export const FIELDS = (params) => [CLUSTER(params)]
 
 /** @type {ObjectSchema} Schema */
-export const SCHEMA = object(getValidationFromFields(FIELDS))
+export const SCHEMA = (params) =>
+  object(getValidationFromFields(FIELDS(params)))

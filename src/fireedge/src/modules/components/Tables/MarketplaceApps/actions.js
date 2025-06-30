@@ -253,6 +253,7 @@ const Actions = (props = {}) => {
                   title: T.ChangeOwner,
                   subheader: SubHeader,
                   dataCy: `modal-${MARKETPLACE_APP_ACTIONS.CHANGE_OWNER}`,
+                  validateOn: 'onSubmit',
                 },
                 form: ChangeUserForm,
                 onSubmit: (rows) => async (newOwnership) => {
@@ -269,6 +270,7 @@ const Actions = (props = {}) => {
                   title: T.ChangeGroup,
                   subheader: SubHeader,
                   dataCy: `modal-${MARKETPLACE_APP_ACTIONS.CHANGE_GROUP}`,
+                  validateOn: 'onSubmit',
                 },
                 form: ChangeGroupForm,
                 onSubmit: (rows) => async (newOwnership) => {

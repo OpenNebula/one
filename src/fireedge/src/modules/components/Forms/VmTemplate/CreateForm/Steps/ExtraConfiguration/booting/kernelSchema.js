@@ -17,7 +17,6 @@ import { boolean, string } from 'yup'
 
 import { HYPERVISORS, IMAGE_TYPES_STR, INPUT_TYPES, T } from '@ConstantsModule'
 import { ImageAPI } from '@FeaturesModule'
-import { getImageType } from '@ModelsModule'
 import { Field, clearNames } from '@UtilsModule'
 
 const { lxc } = HYPERVISORS
@@ -60,10 +59,11 @@ export const KERNEL_DS = {
   htmlType: (enabled) => enabled && INPUT_TYPES.HIDDEN,
   fieldProps: (enabled) => (enabled ? { value: null } : {}),
   values: () => {
-    const { data: images = [] } = ImageAPI.useGetAllImagesQuery()
+    const { data: images = [] } = ImageAPI.useGetImagesQuery({
+      imageTypes: [IMAGE_TYPES_STR.KERNEL],
+    })
 
     return images
-      ?.filter((image) => getImageType(image) === IMAGE_TYPES_STR.KERNEL)
       ?.map(({ ID, NAME }) => ({
         text: `#${ID} ${NAME}`,
         value: `$FILE[IMAGE_ID=${ID}]`,

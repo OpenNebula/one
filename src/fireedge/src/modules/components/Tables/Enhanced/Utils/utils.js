@@ -21,6 +21,8 @@ import {
   TimeFilter,
 } from '@modules/components/Tables/Enhanced/Utils'
 
+import { GlobalDisabledFilters } from '@ConstantsModule'
+
 /**
  * Add filters defined in view yaml to columns.
  *
@@ -30,14 +32,20 @@ import {
  * @returns {Column[]} Column with filters
  */
 export const createColumns = ({ filters = {}, columns = [] }) => {
-  if (Object.keys(filters).length === 0) return columns
+  if (Object.keys(filters ?? {}).length === 0) return columns
 
   return columns.map((column) => {
     const { id = '', accessor } = column
 
     // noFilterIds is a list of column ids that should not have a filter
     // it's defined in the resource columns definition
-    if (columns.noFilterIds?.includes(id)) return column
+    if (
+      [
+        ...(GlobalDisabledFilters ?? []),
+        ...(columns?.noFilterIds ?? []),
+      ]?.includes(id)
+    )
+      return column
 
     const filterById = !!filters[String(id.toLowerCase())]
 

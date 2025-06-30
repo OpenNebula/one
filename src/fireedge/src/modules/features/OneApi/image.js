@@ -42,40 +42,6 @@ const { IMAGE_POOL } = ONE_RESOURCES_POOL
 
 const imageApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllImages: builder.query({
-      /**
-       * Retrieves information for all or part of the images in the pool.
-       *
-       * @param {object} params - Request params
-       * @param {FilterFlag} [params.filter] - Filter flag
-       * @param {number} [params.start] - Range start ID
-       * @param {number} [params.end] - Range end ID
-       * @returns {Image[]} List of images
-       * @throws Fails when response isn't code 200
-       */
-      query: (params) => {
-        const name = Actions.IMAGE_POOL_INFO
-        const command = { name, ...Commands[name] }
-
-        return { params, command }
-      },
-      transformResponse: (data) => {
-        const imagesPool = data?.IMAGE_POOL?.IMAGE
-          ? Array.isArray(data.IMAGE_POOL.IMAGE)
-            ? data.IMAGE_POOL.IMAGE
-            : [data.IMAGE_POOL.IMAGE]
-          : []
-
-        return imagesPool
-      },
-      providesTags: (images) =>
-        images
-          ? [
-              ...images.map(({ ID }) => ({ type: IMAGE_POOL, id: `${ID}` })),
-              IMAGE_POOL,
-            ]
-          : [IMAGE_POOL],
-    }),
     getImages: builder.query({
       /**
        * Retrieves information for all or part of the images in the pool.
@@ -84,6 +50,7 @@ const imageApi = oneApi.injectEndpoints({
        * @param {FilterFlag} [params.filter] - Filter flag
        * @param {number} [params.start] - Range start ID
        * @param {number} [params.end] - Range end ID
+       * @param {string} [params.imageTypes] - Image types to filter results by
        * @returns {Image[]} List of images
        * @throws Fails when response isn't code 200
        */
@@ -93,7 +60,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      transformResponse: (data) => {
+      transformResponse: (data, _, { imageTypes } = {}) => {
         const imagesPool = data?.IMAGE_POOL?.IMAGE
           ? Array.isArray(data.IMAGE_POOL.IMAGE)
             ? data.IMAGE_POOL.IMAGE
@@ -101,9 +68,9 @@ const imageApi = oneApi.injectEndpoints({
           : []
 
         const images = imagesPool.filter((image) =>
-          IMAGE_TYPES_FOR_IMAGES.some(
-            (imageType) => imageType === getImageType(image)
-          )
+          []
+            .concat(imageTypes ?? IMAGE_TYPES_FOR_IMAGES)
+            .some((imageType) => imageType === getImageType(image))
         )
 
         return images
@@ -621,8 +588,6 @@ const imageApi = oneApi.injectEndpoints({
 
 const imageQueries = (({
   // Queries
-  useGetAllImagesQuery,
-  useLazyGetAllImagesQuery,
   useGetImageQuery,
   useLazyGetImageQuery,
   useGetImagesQuery,
@@ -653,8 +618,6 @@ const imageQueries = (({
   useRestoreBackupMutation,
 }) => ({
   // Queries
-  useGetAllImagesQuery,
-  useLazyGetAllImagesQuery,
   useGetImageQuery,
   useLazyGetImageQuery,
   useGetImagesQuery,

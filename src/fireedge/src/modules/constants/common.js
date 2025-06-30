@@ -56,3 +56,5 @@
 
 export const YES_VALUE = 'YES'
 export const NO_VALUE = 'NO'
+
+export const GlobalDisabledFilters = ['label']

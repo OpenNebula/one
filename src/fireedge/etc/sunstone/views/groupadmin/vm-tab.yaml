@@ -43,7 +43,6 @@ actions:
 # Filters - List of criteria to filter the resources
 
 filters:
-  label: true
   state: true
   owner: true
   group: true

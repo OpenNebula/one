@@ -444,6 +444,7 @@ module.exports = {
   Location: 'Location',
   ConfigureInputs: 'Configure inputs',
   UserInputs: 'User inputs',
+  UserInputAlphanumeric: 'Must only contain alphanumeric characters and "_"',
   Log: 'Log',
   AddIP: 'Add IP',
   AddHost: 'Add Host',
@@ -470,7 +471,7 @@ module.exports = {
   Light: 'Light',
   System: 'System',
   Language: 'Language',
-  StuckSidebar: 'Stuck Sidebar',
+  StuckSidebar: 'Pin Sidebar',
   View: 'View',
   DefaultZoneEndpoint: 'Default Endpoint',
   Endpoint: 'Endpoint',
@@ -1136,6 +1137,8 @@ module.exports = {
   VmSnapshotHint: `
     Snapshots in this tab refer to System Snapshots, which includes all disks and
     the memory state of the VM. For disk snapshots, see the Storage tab`,
+  VmSnapshotInProgress:
+    'Snapshot in progress. Please, press refresh to update the status of the snapshot.',
   VmSnapshotNotAvailable: 'Taking snapshots is not available.',
   VmSnapshotReferLogs:
     'If none of the above worked, please refer to the VM monitoring logs.',
@@ -1875,6 +1878,7 @@ module.exports = {
   /* Host schema */
   IM_MAD: 'IM MAD',
   VM_MAD: 'VM MAD',
+  HypervisorIsRequired: 'Hypervisor type is a required field',
   Wilds: 'Wilds',
   Wild: 'Wild',
   Zombies: 'Zombies',
@@ -2030,7 +2034,7 @@ module.exports = {
   DownloadConecctionFile: 'Download connection file.',
   DownloadConnectionRDP: 'This file is for the Microsoft remote desktop app',
   DownloadConnectionVNC: 'This file is for the TigerVNC Viewer app',
-  DownloadDefaultImage: 'Download Default Image',
+  DownloadDefaultImage: 'Download Default Virtual Router Image',
   ExportAppNameConcept:
     'Name that the resource will get for description purposes',
   ExportTemplateNameConcept: `

@@ -35,12 +35,27 @@ const DEFAULT_DATA_CY = 'images'
  */
 const ImagesTable = (props) => {
   const { labels = {} } = useAuth()
-  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  const { rootProps = {}, searchProps = {}, datastoreId, ...rest } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = ImageAPI.useGetImagesQuery()
+  const {
+    data = [],
+    isFetching,
+    refetch,
+  } = ImageAPI.useGetImagesQuery(undefined, {
+    selectFromResult: (result) => ({
+      ...result,
+      data: result?.data?.filter((image) => {
+        if (datastoreId) {
+          return image?.DATASTORE_ID === datastoreId
+        }
+
+        return true
+      }),
+    }),
+  })
 
   const columns = useMemo(
     () =>

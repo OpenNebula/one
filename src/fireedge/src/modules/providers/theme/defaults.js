@@ -71,7 +71,7 @@ export const footer = {
 }
 
 export const sidebar = {
-  minified: 88,
+  minified: 46,
   fixed: 250,
 }
 

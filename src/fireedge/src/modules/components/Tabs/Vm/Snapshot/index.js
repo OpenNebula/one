@@ -24,7 +24,10 @@ import {
   List,
   ListItem,
   ListItemText,
+  Alert,
+  useTheme,
 } from '@mui/material'
+import { css } from '@emotion/css'
 
 import { VmAPI } from '@FeaturesModule'
 import {
@@ -41,7 +44,7 @@ import {
   isVmAvailableAction,
   getActionsAvailable,
 } from '@ModelsModule'
-import { T, VM_ACTIONS } from '@ConstantsModule'
+import { T, VM_ACTIONS, VM_LCM_STATES, STATES } from '@ConstantsModule'
 
 const { SNAPSHOT_CREATE, SNAPSHOT_REVERT, SNAPSHOT_DELETE } = VM_ACTIONS
 
@@ -55,16 +58,34 @@ const { SNAPSHOT_CREATE, SNAPSHOT_REVERT, SNAPSHOT_DELETE } = VM_ACTIONS
  * @returns {ReactElement} Snapshots tab
  */
 const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
+  const theme = useTheme()
+  // Style for info message
+  const useStyles = ({ palette }) => ({
+    warningInfo: css({
+      '&': {
+        gridColumn: 'span 2',
+        marginTop: '1em',
+        marginBottom: '1em',
+        backgroundColor: palette.background.paper,
+      },
+    }),
+  })
+
+  const classes = useMemo(() => useStyles(theme), [theme])
+
   const { data: vm = {} } = VmAPI.useGetVmQuery({ id })
 
-  const [snapshots, actionsAvailable] = useMemo(() => {
+  const [snapshots, actionsAvailable, snapshotInProgress] = useMemo(() => {
     const hypervisor = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
     const actionsByState = actionsByHypervisor.filter((action) =>
       isVmAvailableAction(action, vm)
     )
 
-    return [getSnapshotList(vm), actionsByState]
+    const isSnapshotInProgress =
+      VM_LCM_STATES[vm.LCM_STATE]?.name === STATES.HOTPLUG_SNAPSHOT
+
+    return [getSnapshotList(vm), actionsByState, isSnapshotInProgress]
   }, [vm])
 
   const isSnapshotSupported = actionsAvailable?.includes(SNAPSHOT_CREATE)
@@ -80,6 +101,14 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
           )}
           <CreateAction vmId={id} />
         </Stack>
+      ) : snapshotInProgress ? (
+        <Alert
+          severity="info"
+          variant="outlined"
+          className={classes.warningInfo}
+        >
+          {Tr(T.VmSnapshotInProgress)}
+        </Alert>
       ) : (
         <Box
           position="relative"
@@ -127,26 +156,13 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
         </Box>
       )}
       {snapshots.length <= 0 ? (
-        <Box
-          position="relative"
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          mt={10}
-          sx={{
-            height: '100%',
-            opacity: 0.7,
-          }}
+        <Alert
+          severity="info"
+          variant="outlined"
+          className={classes.warningInfo}
         >
-          <Box
-            sx={{ display: 'inline-block', width: '70%', textAlign: 'center' }}
-          >
-            <Typography variant="h6" sx={{ opacity: 0.8 }}>
-              {Tr(T.VmSnapshotHint)}
-            </Typography>
-          </Box>
-        </Box>
+          {Tr(T.VmSnapshotHint)}
+        </Alert>
       ) : (
         <Box ml={4}>
           <Stack gap="1em" py="0.8em" data-cy="snapshots">

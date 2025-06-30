@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, array, number, boolean } from 'yup'
+import { DATASTORE_TYPES, INPUT_TYPES, T } from '@ConstantsModule'
 import { Field } from '@UtilsModule'
-import { T, INPUT_TYPES, DATASTORE_TYPES } from '@ConstantsModule'
-import { isShared, isSsh, isCeph, isLvm, typeIsOneOf } from '../../functions'
+import { array, boolean, number, string } from 'yup'
+import { isCeph, isLvm, isShared, isSsh, typeIsOneOf } from '../../functions'
 
 /** @type {Field} - Options field */
 const RESTRICTED_DIRS = {
@@ -96,7 +96,7 @@ const LVM_THIN_ENABLE = {
   name: 'LVM_THIN_ENABLE',
   label: T.LvmThin,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().yesOrNo(),
+  validation: boolean().yesOrNo().default(true),
   dependOf: '$general.STORAGE_BACKEND',
   htmlType: (type) => !typeIsOneOf(type, [isLvm]) && INPUT_TYPES.HIDDEN,
   grid: { xs: 12, md: 12 },

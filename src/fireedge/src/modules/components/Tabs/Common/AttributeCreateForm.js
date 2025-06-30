@@ -20,7 +20,8 @@ import { Box, TextField } from '@mui/material'
 import { AddSquare as AddIcon } from 'iconoir-react'
 import { useForm } from 'react-hook-form'
 
-import { SubmitButton } from '@modules/components/FormControl'
+import { T } from '@ConstantsModule'
+import { ErrorHelper, SubmitButton } from '@modules/components/FormControl'
 import { generateKey } from '@UtilsModule'
 
 const AttributeCreateForm = memo(({ handleAdd }) => {
@@ -62,14 +63,24 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
     }
   }
 
+  const nameInputError = formState?.errors?.[nameInputKey]?.message
+
   return (
     <>
       {/* NAME ATTRIBUTE */}
       <TextField
+        error={!!formState.errors?.[nameInputKey]}
         onKeyDown={handleKeyDown}
         disabled={formState.isSubmitting}
         inputProps={{ 'data-cy': `text-${nameInputKey}` }}
-        {...register(nameInputKey, { onBlur: handleBlur })}
+        {...register(nameInputKey, {
+          onBlur: handleBlur,
+          pattern: {
+            value: /^[a-zA-Z0-9_]*$/,
+            message: T.UserInputAlphanumeric,
+          },
+        })}
+        helperText={nameInputError && <ErrorHelper label={nameInputError} />}
       />
 
       {/* VALUE ATTRIBUTE */}

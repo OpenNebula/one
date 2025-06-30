@@ -231,14 +231,16 @@ const Attribute = memo(
               </Typography>
               <ActionWrapper {...(showActionsOnHover && { display: 'none' })}>
                 {value && canCopy && <Actions.Copy name={name} value={value} />}
-                {(value?.length >= 0 || numberOfParents > 0) && canEdit && (
-                  <Actions.Edit
-                    title={title || name}
-                    name={name}
-                    handleClick={handleActiveEditForm}
-                    tooltip={name}
-                  />
-                )}
+                {([].concat(value)?.filter(Boolean)?.length >= 0 ||
+                  numberOfParents > 0) &&
+                  canEdit && (
+                    <Actions.Edit
+                      title={title || name}
+                      name={name}
+                      handleClick={handleActiveEditForm}
+                      tooltip={name}
+                    />
+                  )}
                 {canDelete && (
                   <Actions.Delete
                     name={name}

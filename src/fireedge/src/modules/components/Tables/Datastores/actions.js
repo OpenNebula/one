@@ -99,10 +99,14 @@ const Actions = (props = {}) => {
                 dialogProps: {
                   title: T.SelectCluster,
                   dataCy: 'modal-select-cluster',
+                  validateOn: 'onSubmit',
                 },
                 form: (rows) =>
                   ChangeClusterForm({
                     initialValues: rows?.[0]?.original?.CLUSTERS?.ID,
+                    stepProps: {
+                      singleSelect: false,
+                    },
                   }),
                 onSubmit: (rows) => async (formData) => {
                   const row = rows[0]
@@ -188,6 +192,7 @@ const Actions = (props = {}) => {
                 dialogProps: {
                   title: T.ChangeOwner,
                   dataCy: `modal-${DATASTORE_ACTIONS.CHANGE_OWNER}`,
+                  validateOn: 'onSubmit',
                 },
                 form: ChangeUserForm,
                 onSubmit: (rows) => async (newOwnership) => {
@@ -203,6 +208,7 @@ const Actions = (props = {}) => {
                 dialogProps: {
                   title: T.ChangeGroup,
                   dataCy: `modal-${DATASTORE_ACTIONS.CHANGE_GROUP}`,
+                  validateOn: 'onSubmit',
                 },
                 form: ChangeGroupForm,
                 onSubmit: (rows) => async (newOwnership) => {

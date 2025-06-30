@@ -100,7 +100,6 @@ const UpdateFromSocket =
     { id },
     { cacheEntryRemoved, cacheDataLoaded, updateCachedData, getState, dispatch }
   ) => {
-    console.log('aca -->', id)
     const { zone } = getState().general
     const { jwt: token } = getState().auth
 
@@ -112,7 +111,6 @@ const UpdateFromSocket =
 
       const listener = ({ data } = {}) => {
         const value = getResourceValueFromEventState(data)
-        console.log('-->', value)
 
         if (!value) return
 

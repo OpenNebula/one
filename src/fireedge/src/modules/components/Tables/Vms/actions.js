@@ -596,6 +596,7 @@ const Actions = (props = {}) => {
                   title: T.ChangeOwner,
                   subheader: SubHeader,
                   dataCy: `modal-${VM_ACTIONS.CHANGE_OWNER}`,
+                  validateOn: 'onSubmit',
                 },
                 form: Vm.ChangeUserForm,
                 onSubmit: (rows) => async (newOwnership) => {
@@ -613,6 +614,7 @@ const Actions = (props = {}) => {
                   title: T.ChangeGroup,
                   subheader: SubHeader,
                   dataCy: `modal-${VM_ACTIONS.CHANGE_GROUP}`,
+                  validateOn: 'onSubmit',
                 },
                 form: Vm.ChangeGroupForm,
                 onSubmit: (rows) => async (newOwnership) => {

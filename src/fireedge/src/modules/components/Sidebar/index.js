@@ -23,7 +23,7 @@ import {
   useTheme,
 } from '@mui/material'
 import PropTypes from 'prop-types'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { matchPath, useLocation } from 'react-router'
 
 import clsx from 'clsx'
@@ -56,6 +56,9 @@ const Sidebar = ({ endpoints }) => {
   useEffect(() => {
     fireedge?.SIDEBAR === 'true' && fixMenu(true)
   }, [fireedge])
+
+  // To let the component knows that the mouse is hover or not
+  const [isHovered, setIsHovered] = useState(false)
 
   const classes = useMemo(
     () => sidebarStyles(theme, isFixMenu),
@@ -104,14 +107,21 @@ const Sidebar = ({ endpoints }) => {
       }}
       anchor="left"
       open={isFixMenu}
-      PaperProps={{ 'data-cy': 'sidebar' }}
+      PaperProps={{
+        'data-cy': 'sidebar',
+        onMouseEnter: () => setIsHovered(true),
+        onMouseLeave: () => setIsHovered(false),
+      }}
     >
-      <Box className={classes.header}>
+      <Box
+        className={classes.header}
+        sx={{ paddingLeft: isHovered || isFixMenu ? '0.75rem' : '0' }}
+      >
         <OpenNebulaLogo
-          width="9.6875rem"
-          height={57}
-          withText
-          className={classes.logo}
+          width="100px"
+          height={isHovered || isFixMenu ? '40px' : '30px'}
+          withText={isHovered || isFixMenu}
+          className={clsx(classes.logo, 'logoPadding')}
           disabledBetaText
         />
         {!isUpLg || isFixMenu ? (
@@ -123,7 +133,7 @@ const Sidebar = ({ endpoints }) => {
             )}
           </IconButton>
         ) : (
-          <IconButton onClick={handleSwapMenu}>
+          <IconButton onClick={handleSwapMenu} className={'headerButton'}>
             <MenuIcon className={classes.logoAux} />
           </IconButton>
         )}

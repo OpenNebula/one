@@ -323,6 +323,7 @@ const AttachSecGroupAction = memo(({ vmId, nic, onSubmit, sx }) => {
           dialogProps: {
             title: T.AttachSecurityGroup,
             dataCy: 'modal-attach-secgroup',
+            validateOn: 'onSubmit',
           },
           form: AttachSecGroupForm,
           onSubmit: handleAttachNic,

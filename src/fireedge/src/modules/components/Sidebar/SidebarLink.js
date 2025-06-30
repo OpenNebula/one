@@ -65,7 +65,7 @@ const SidebarLink = memo(
         className={clsx(
           classes.item,
           classes.itemLink,
-          isSubItem && classes.subItem
+          isSubItem ? classes.subItem : classes.parentItem
         )}
         onClick={handleClick}
         selected={pathname === path}

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Typography } from '@mui/material'
 import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -46,6 +47,29 @@ const isDisabled = (action) => (rows) =>
   rows
     .map(({ original }) => original)
     .every(({ STATE }) => HOST_STATES[STATE].name === action)
+
+const ListHostNames = ({ rows = [] }) =>
+  rows?.map?.(({ id, original }) => {
+    const { ID, NAME } = original
+
+    return (
+      <Typography
+        key={`file-${id}`}
+        variant="inherit"
+        component="span"
+        display="block"
+      >
+        {`#${ID} ${NAME}`}
+      </Typography>
+    )
+  })
+
+const MessageToConfirmActionStyled = (rows) => (
+  <>
+    <ListHostNames rows={rows} />
+    <Translate word={T.DoYouWantProceed} />
+  </>
+)
 
 const MessageToConfirmAction = (rows) => {
   const names = rows?.map?.(({ original }) => original?.NAME)
@@ -114,14 +138,14 @@ const Actions = (props = {}) => {
                 dialogProps: {
                   title: T.SelectCluster,
                   dataCy: 'modal-select-cluster',
+                  validateOn: 'onBlur',
                 },
                 form: () => ChangeClusterForm(),
                 onSubmit: (rows) => async (formData) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
+                  const clusterId = formData?.cluster
                   await Promise.all(
-                    ids.map((id) =>
-                      changeCluster({ id: formData.cluster, host: id })
-                    )
+                    ids.map((id) => changeCluster({ id: clusterId, host: id }))
                   )
                 },
               },
@@ -137,10 +161,20 @@ const Actions = (props = {}) => {
             disabled: isDisabled(STATES.MONITORED),
             tooltip: T.Enable,
             selected: true,
-            action: async (rows) => {
-              const ids = rows?.map?.(({ original }) => original?.ID)
-              await Promise.all(ids.map((id) => enable(id)))
-            },
+            options: [
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Enable,
+                  dataCy: `modal_${HOST_ACTIONS.ENABLE}`,
+                  children: MessageToConfirmActionStyled,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(ids.map((id) => enable(id)))
+                },
+              },
+            ],
           },
           {
             accessor: HOST_ACTIONS.DISABLE,
@@ -152,10 +186,20 @@ const Actions = (props = {}) => {
             disabled: isDisabled(STATES.DISABLED),
             tooltip: T.Disable,
             selected: true,
-            action: async (rows) => {
-              const ids = rows?.map?.(({ original }) => original?.ID)
-              await Promise.all(ids.map((id) => disable(id)))
-            },
+            options: [
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Disable,
+                  dataCy: `modal_${HOST_ACTIONS.DISABLE}`,
+                  children: MessageToConfirmActionStyled,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(ids.map((id) => disable(id)))
+                },
+              },
+            ],
           },
           {
             accessor: HOST_ACTIONS.OFFLINE,
@@ -166,10 +210,20 @@ const Actions = (props = {}) => {
             label: T.Offline,
             tooltip: T.Offline,
             selected: true,
-            action: async (rows) => {
-              const ids = rows?.map?.(({ original }) => original?.ID)
-              await Promise.all(ids.map((id) => offline(id)))
-            },
+            options: [
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Offline,
+                  dataCy: `modal_${HOST_ACTIONS.OFFLINE}`,
+                  children: MessageToConfirmActionStyled,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(ids.map((id) => offline(id)))
+                },
+              },
+            ],
           },
           {
             accessor: HOST_ACTIONS.FLUSH,
@@ -180,24 +234,32 @@ const Actions = (props = {}) => {
             label: T.Flush,
             tooltip: T.Flush,
             selected: { max: 1 },
-            action: async (rows) => {
-              const ids = rows?.map?.(({ original }) => original?.ID)
-
-              await Promise.all(
-                ids.map(async (id) => {
-                  const result = await dispatch(
-                    oneApi.endpoints.flush.initiate(id)
+            options: [
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Flush,
+                  dataCy: `modal_${HOST_ACTIONS.FLUSH}`,
+                  children: MessageToConfirmActionStyled,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map(async (id) => {
+                      const result = await dispatch(
+                        oneApi.endpoints.flush.initiate(id)
+                      )
+                      const isError = Object.keys(result?.data).length <= 0
+                      !isError
+                        ? enqueueInfo(T.InfoHostFlush, [
+                            result?.data?.HOST?.ID ?? T.NotFound,
+                          ])
+                        : enqueueError(formatError(result?.error?.data?.data))
+                    })
                   )
-                  const isError = Object.keys(result?.data).length <= 0
-
-                  !isError
-                    ? enqueueInfo(T.InfoHostFlush, [
-                        result?.data?.HOST?.ID ?? T.NotFound,
-                      ])
-                    : enqueueError(formatError(result?.error?.data?.data))
-                })
-              )
-            },
+                },
+              },
+            ],
           },
           {
             accessor: HOST_ACTIONS.DELETE,

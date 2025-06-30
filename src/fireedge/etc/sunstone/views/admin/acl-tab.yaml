@@ -15,7 +15,6 @@ actions:
 # Filters - List of criteria to filter the resources
 
 filters:
-  label: true
   id: true
   idresourcename: true
   idresourcetype: true

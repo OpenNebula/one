@@ -35,6 +35,9 @@ const useStyles = () => ({
     gridColumn: '1 / -1',
   }),
   item: css({
+    '&': {
+      alignItems: 'start',
+    },
     '& > *:first-child': {
       flex: '1 1 20%',
     },

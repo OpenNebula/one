@@ -66,6 +66,7 @@ const NAME = {
   multiple: false,
   values: () => useSelector((state) => state.persistent.userInputSuggestionsVR),
   validation: string()
+    .matches(/^[a-zA-Z0-9_]+$/, T.UserInputAlphanumeric)
     .trim()
     .required()
     .default(() => ''),

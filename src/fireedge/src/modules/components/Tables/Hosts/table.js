@@ -59,6 +59,7 @@ const HostsTable = (props) => {
     reSelectRows,
     value,
     RowComponent,
+    handleRefetch,
     ...rest
   } = props ?? {}
   const { labels = {} } = useAuth()
@@ -113,6 +114,12 @@ const HostsTable = (props) => {
       },
     }
   )
+
+  useEffect(() => {
+    if (handleRefetch && refetch) {
+      handleRefetch(refetch)
+    }
+  }, [handleRefetch, refetch])
 
   const fmtData = useMemo(
     () =>

@@ -119,6 +119,8 @@ const GroupsInfoTab = ({ tabProps: { actions } = {}, id: userId }) => {
   }
 
   const changePrimaryGroup = async (group) => {
+    if (!group) return
+
     await changeGroup({ id: userId, group: group })
 
     refetch()

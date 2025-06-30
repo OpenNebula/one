@@ -47,7 +47,7 @@ const HYPERVISOR_FIELD = {
   },
   validation: string()
     .trim()
-    .required()
+    .required(T.HypervisorIsRequired)
     .default(() => undefined),
   grid: { md: 12 },
 }

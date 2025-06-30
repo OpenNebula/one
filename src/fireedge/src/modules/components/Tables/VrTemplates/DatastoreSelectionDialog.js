@@ -28,6 +28,7 @@ import {
 } from '@mui/material'
 import { DatastoreCard } from '@modules/components/Cards'
 import { rowStyles } from '@modules/components/Tables/styles'
+import { T } from '@ConstantsModule'
 
 /**
  * @param {object} root0 - Props
@@ -91,7 +92,7 @@ export const DatastoreDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth={'md'} fullWidth>
-      <DialogTitle>Select datastore for importing image</DialogTitle>
+      <DialogTitle>{T.SelectDatastoreImage}</DialogTitle>
       <DialogContent>
         <TextField
           label="Search by name"
@@ -111,18 +112,12 @@ export const DatastoreDialog = ({
               key={datastore.ID}
               sx={{
                 width: '100%',
-                mb: 2,
                 cursor: 'pointer',
-                border:
-                  selectedDatastore?.ID === datastore.ID
-                    ? `2px solid ${theme.palette.primary.main}`
-                    : `2px solid ${theme.palette.divider}`,
                 '&:hover': {
                   backgroundColor: theme.palette.action.hover,
                 },
               }}
               onClick={() => handleSelectDatastore(datastore)}
-              className={classes.root}
             >
               <DatastoreCard
                 datastore={datastore}
@@ -130,6 +125,10 @@ export const DatastoreDialog = ({
                   className: classes.root,
                   style: {
                     width: '100%',
+                    border:
+                      selectedDatastore?.ID === datastore?.ID
+                        ? `2px solid ${theme.palette.primary.main}`
+                        : `2px solid ${theme.palette.divider}`,
                   },
                 }}
               />
@@ -139,7 +138,7 @@ export const DatastoreDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={handlePrevPage} disabled={currentPage === 0}>
-          Prev
+          {T.Previous}
         </Button>
         <Button
           onClick={handleNextPage}
@@ -147,14 +146,14 @@ export const DatastoreDialog = ({
             (currentPage + 1) * itemsPerPage >= filteredDatastores.length
           }
         >
-          Next
+          {T.Next}
         </Button>
         <Button onClick={onClose}>Cancel</Button>
         <Button
           onClick={handleConfirmSelection}
           disabled={!selectedDatastore || submitDisabled}
         >
-          OK
+          {T.Submit}
         </Button>
       </DialogActions>
     </Dialog>

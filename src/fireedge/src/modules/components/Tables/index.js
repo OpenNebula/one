@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import ACLsTable from '@modules/components/Tables/ACLs'
-import AllImagesTable from '@modules/components/Tables/AllImages'
 import BackupJobsTable from '@modules/components/Tables/BackupJobs'
 import BackupsTable from '@modules/components/Tables/Backups'
 import ClustersTable from '@modules/components/Tables/Clusters'
@@ -51,7 +50,6 @@ export * from '@modules/components/Tables/Enhanced/styles'
 
 export {
   ACLsTable,
-  AllImagesTable,
   BackupJobsTable,
   BackupsTable,
   ClustersTable,

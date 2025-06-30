@@ -20,13 +20,9 @@ import {
 } from '@modules/components/Forms/Cluster/ChangeClusterForm/schema'
 
 const ChangeClusterForm = createForm(SCHEMA, FIELDS, {
-  transformInitialValue: (clusterIds, schema) => {
-    const cluster = Array.isArray(clusterIds) ? clusterIds : [clusterIds]
-
-    return {
-      ...schema.cast({ cluster }, { stripUnknown: true }),
-    }
-  },
+  transformInitialValue: (clusterId, schema) => ({
+    ...schema.cast({ cluster: clusterId }, { stripUnknown: true }),
+  }),
 })
 
 export default ChangeClusterForm

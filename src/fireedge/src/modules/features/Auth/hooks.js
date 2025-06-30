@@ -90,8 +90,8 @@ export const useAuth = () => {
     Object.fromEntries(
       Object.entries(defaultLabels.group ?? {}).filter(
         ([key]) =>
-          allGroupNames?.includes(key) &&
-          (isOneAdmin || ownGroupNames?.includes(key))
+          allGroupNames?.includes(key?.replace(/\$/g, '')) &&
+          (isOneAdmin || ownGroupNames?.includes(key)?.replace(/\$/g, ''))
       )
     ) ?? {}
 

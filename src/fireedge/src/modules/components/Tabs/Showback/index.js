@@ -18,7 +18,7 @@ import { LoadingDisplay } from '@modules/components/LoadingState'
 import MultiChart from '@modules/components/Charts/MultiChart'
 import { transformApiResponseToDataset } from '@modules/components/Charts/MultiChart/helpers/scripts'
 import { DateRangeFilter } from '@modules/components/Date'
-import { VmAPI } from '@FeaturesModule'
+import { VmAPI, useAuth } from '@FeaturesModule'
 import { Box } from '@mui/material'
 import { Component, useState, useEffect } from 'react'
 import { DateTime } from 'luxon'
@@ -26,6 +26,7 @@ import { SubmitButton } from '@modules/components/FormControl'
 import { Tr } from '@modules/components/HOC'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { mapValues } from 'lodash'
+import { getMonthName } from '@UtilsModule'
 
 const keyMap = {
   VMID: 'OID',
@@ -91,6 +92,9 @@ const generateShowbackInfoTab = ({ groups }) => {
    * @returns {Component} Rendered component.
    */
   const ShowbackInfoTab = ({ id }) => {
+    const { settings: fireedge = {} } = useAuth()
+    const lang = fireedge?.LANG?.substring(0, 2)
+
     // Create hooks for chart data
     const [topChartsData, setTopChartsData] = useState([])
     const [transformedResult, setTransformedResult] = useState()
@@ -161,9 +165,15 @@ const generateShowbackInfoTab = ({ groups }) => {
           record.totalCost !== undefined
         ) {
           if (!acc[record.MONTH]) {
-            acc[record.MONTH] = { ...record, totalCost: 0 }
+            acc[record.MONTH] = {
+              ...record,
+              MONTH: getMonthName(record.MONTH, lang),
+              totalCost: 0,
+            }
           }
+
           acc[record.MONTH].totalCost += parseFloat(record.totalCost)
+          acc[record.MONTH].MONTH = getMonthName(record.MONTH, lang)
         }
 
         return acc

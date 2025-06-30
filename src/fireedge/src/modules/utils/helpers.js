@@ -28,6 +28,7 @@ import DOMPurify from 'dompurify'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 import { BaseSchema, ObjectSchema, object, reach } from 'yup'
+import { DateTime } from 'luxon'
 
 /**
  * Simulate a delay in a function.
@@ -756,3 +757,16 @@ export const interpolationBytes = (value) =>
  */
 export const interpolationValue = (value) =>
   value ? +value?.toFixed(2) : +value
+
+/**
+ * @param {number} month - Number between 1-12
+ * @param {string} locale - ISO 639-1 type language code
+ * @returns {string} - Month name
+ */
+export const getMonthName = (month, locale = 'en') =>
+  DateTime.fromObject({
+    month: ((((month - 1) % 12) + 12) % 12) + 1,
+    day: 1,
+  })
+    .setLocale(locale)
+    .toFormat('LLLL')

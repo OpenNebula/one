@@ -31,6 +31,6 @@ const COLUMNS = [
   { Header: T.TargetDevice, id: 'target', accessor: 'TARGET' },
 ]
 
-COLUMNS.noFilterIds = ['id', 'target', 'size']
+COLUMNS.noFilterIds = ['id', 'target', 'size', 'label']
 
 export default COLUMNS

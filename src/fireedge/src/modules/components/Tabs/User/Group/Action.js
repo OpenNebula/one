@@ -42,6 +42,7 @@ const AddToGroup = memo(({ groups, filterData, submit }) => {
           dialogProps: {
             title: T['users.actions.add.to.group'],
             dataCy: 'modal-add-to-group',
+            validateOn: 'onSubmit',
           },
           form: () =>
             EditGroupForm({
@@ -78,6 +79,7 @@ const RemoveFromGroup = memo(({ groups, filterData, submit }) => {
           dialogProps: {
             title: T['users.actions.remove.from.group'],
             dataCy: 'modal-remove-from-group',
+            validateOn: 'onSubmit',
           },
           form: () =>
             EditGroupForm({
@@ -114,6 +116,7 @@ const ChangePrimaryGroup = memo(({ groups, filterData, submit }) => {
           dialogProps: {
             title: T['users.actions.change.primary.group'],
             dataCy: 'modal-change-primary-group',
+            validateOn: 'onSubmit',
           },
           form: () =>
             EditGroupForm({

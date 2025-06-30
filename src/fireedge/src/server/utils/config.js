@@ -18,18 +18,20 @@ const { global } = require('window-or-global')
 const path = require('path')
 const { parse: yamlToJson } = require('yaml')
 
-const removeNulls = (obj) => {
+const fmtKey = (key) => `$${key.replace(/[\W_]+/g, '')}`
+
+const removeNulls = (obj, depth = 0) => {
   if (obj === null) {
     return {}
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(removeNulls)
+    return obj.map((a) => removeNulls(a, depth + 1))
   }
 
   if (typeof obj === 'object' && obj !== null) {
     return Object.entries(obj).reduce((acc, [key, value]) => {
-      acc[key] = removeNulls(value)
+      acc[depth > 0 ? fmtKey(key) : key] = removeNulls(value, depth + 1)
 
       return acc
     }, {})

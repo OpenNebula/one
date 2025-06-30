@@ -44,9 +44,10 @@ const DialogForm = ({
 }) => {
   dialogProps.fixedWidth ??= true
   dialogProps.fixedHeight ??= true
+  const { validateOn: validationMode = 'onChange' } = dialogProps ?? {}
 
   const methods = useForm({
-    mode: 'onChange',
+    mode: validationMode,
     reValidateMode: 'onSubmit',
     defaultValues: values,
     resolver: yupResolver(resolver()),

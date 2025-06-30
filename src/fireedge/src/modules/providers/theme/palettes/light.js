@@ -311,7 +311,9 @@ export const lightPalette = {
   sidebar: {
     backgroundColorSelectedLink: sunstoneColors.grey[300],
     backgroundColorSelectedCollapse: sunstoneColors.grey[300],
-    backgroundColorHover: sunstoneColors.grey[200],
+    backgroundColorHover: sunstoneColors.grey[100],
+    colorTextParent: sunstoneColors.grey[600],
+    colorTextChildSelected: primaryColor,
   },
 
   // Scrollbar color

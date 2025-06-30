@@ -15,7 +15,6 @@ actions:
 # Filters - List of criteria to filter the resources
 
 filters:
-  label: true
 
 
 # Info Tabs - Which info tabs are used to show extended information

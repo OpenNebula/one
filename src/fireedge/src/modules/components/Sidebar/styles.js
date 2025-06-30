@@ -23,7 +23,6 @@ export default (theme, fixed) => ({
   // -------------------------------
   drawerPaper: css({
     backgroundColor: theme.palette.background.paper,
-    // padding: '0.25rem',
     boxShadow: theme.shadows[1],
     border: 'none',
     width: 0,
@@ -60,11 +59,14 @@ export default (theme, fixed) => ({
         '& .itemText': {
           display: 'none',
         },
-        '& .itemCollapseLogo': {
+        '& .logoAux': {
           display: 'none',
         },
-        '& .itemExpandLogo': {
+        '& .headerButton': {
           display: 'none',
+        },
+        '& .logoPadding': {
+          paddingLeft: '0',
         },
       },
     },
@@ -101,7 +103,6 @@ export default (theme, fixed) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '1.875rem 1rem 1rem 1rem',
     overflow: 'hidden',
     height: toolbar.regular,
     minHeight: toolbar.regular,
@@ -113,12 +114,11 @@ export default (theme, fixed) => ({
     },
   }),
   logo: css({
-    minWidth: '9.6875rem',
     marginTop: '',
   }),
   logoAux: css({
-    height: '1.125rem',
-    width: '1.125rem',
+    height: '1rem',
+    width: '1rem',
   }),
   // -------------------------------
   // LIST MENU
@@ -128,7 +128,6 @@ export default (theme, fixed) => ({
     overflowX: 'hidden',
     textTransform: 'capitalize',
     transition: 'color 0.3s',
-    padding: '0.5rem 0.5rem 0.5rem 0rem',
     marginTop: '0.75rem',
   }),
   item: css({
@@ -136,24 +135,13 @@ export default (theme, fixed) => ({
     '&.MuiListItemText-root': {
       margin: 0,
     },
-    '&.MuiListItemButton-root.Mui-selected': {
-      borderRadius: '0 6.25rem 6.25rem 0',
-    },
-    '&.MuiListItemButton-root.Mui-selected:hover': {
-      backgroundColor: theme.palette.sidebar.backgroundColorHover,
-      borderRadius: '0 6.25rem 6.25rem 0',
-    },
-    '&.MuiListItemButton-root:hover': {
-      backgroundColor: theme.palette.sidebar.backgroundColorHover,
-      borderRadius: '0 6.25rem 6.25rem 0',
-    },
   }),
   itemList: css({
     margin: 0,
   }),
 
   itemLink: css({
-    padding: '1rem 1rem 1rem 2rem',
+    padding: '0.375rem 0.75rem 0.375rem 0.75rem',
     fontSize: '1 rem',
     marginLeft: '0.1rem',
     marginRight: '0.1rem',
@@ -164,21 +152,41 @@ export default (theme, fixed) => ({
     },
   }),
   itemCollapse: css({
-    padding: '1rem 1rem 1rem 2rem',
-    fontSize: '1 rem',
+    padding: '0.375rem 0.75rem 0.375rem 0.75rem',
+    fontSize: '1rem',
     marginLeft: '0.1rem',
     marginRight: '0.1rem',
     minWidth: 0,
-    '&.MuiListItemButton-root.Mui-selected': {
-      backgroundColor: theme.palette.sidebar.backgroundColorSelectedCollapse,
-      borderRadius: '0 6.25rem 6.25rem 0',
-    },
   }),
   itemIcon: css({
     minWidth: 0,
-    marginRight: '0.75rem',
+    minHeight: '2.25rem',
+    '& svg': {
+      width: '1rem',
+      height: '1rem',
+    },
+    marginRight: '0.5rem',
+    alignItems: 'center',
+  }),
+  itemArrow: css({
+    width: '1rem',
+    height: '1rem',
+  }),
+  parentItem: css({
+    color: theme.palette.sidebar.colorTextParent,
+    '&.MuiListItemButton-root.Mui-selected': {
+      backgroundColor: 'transparent',
+      borderRadius: '0',
+      color: theme.palette.sidebar.colorTextChildSelected,
+      '& svg': {
+        color: theme.palette.sidebar.colorTextChildSelected,
+      },
+    },
+    '& span': {
+      fontWeight: '600',
+    },
   }),
   subItem: css({
-    paddingLeft: '2.5rem !important',
+    paddingLeft: '1.5rem',
   }),
 })

@@ -36,6 +36,6 @@ const COLUMNS = [
   },
 ]
 
-COLUMNS.noFilterIds = ['id', 'name', 'description', 'time']
+COLUMNS.noFilterIds = ['id', 'name', 'description', 'time', 'label']
 
 export default COLUMNS

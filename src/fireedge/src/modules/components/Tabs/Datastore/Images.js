@@ -16,7 +16,7 @@
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
-import { AllImagesTable } from '@modules/components/Tables'
+import { ImagesTable } from '@modules/components/Tables'
 
 /**
  * Renders mainly information tab.
@@ -26,7 +26,7 @@ import { AllImagesTable } from '@modules/components/Tables'
  * @returns {ReactElement} Information tab
  */
 const ImagesInfoTab = ({ id }) => (
-  <AllImagesTable disableRowSelect disableGlobalSort datastoreId={id} />
+  <ImagesTable.Table disableRowSelect disableGlobalSort datastoreId={id} />
 )
 
 ImagesInfoTab.propTypes = {

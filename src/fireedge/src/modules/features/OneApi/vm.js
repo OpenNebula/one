@@ -102,7 +102,9 @@ const vmApi = oneApi.injectEndpoints({
 
     getVmsPaginated: builder.query({
       /**
-       * Fetches information for all or part of the VMs in the pool by running concurrent jobs and collecting the results in the backend. (FASTER).
+       * Fetches information for all or part of
+       * the VMs in the pool by running concurrent jobs
+       * and collecting the results in the backend. (FASTER).
        *
        * @param {object} params - Request parameters
        * @param {0|1} params.extended

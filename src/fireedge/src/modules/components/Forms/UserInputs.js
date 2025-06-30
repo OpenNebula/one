@@ -449,12 +449,12 @@ const generateTabs = (userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly) => {
               ),
           })
         )
-        .map(({ Content: TabContent, name, getError, ...section }) =>
+        .map(({ Content: TabContent, name, id, getError, ...section }) =>
           // Create tab
           ({
             ...section,
             name,
-            id: name.replace(/\s+/g, ''), // Id without spaces
+            id: id?.replace(/\s+/g, ''), // Id without spaces
             label: <Translate word={name} />,
             renderContent: () => <TabContent />,
             error: getError?.(errors[STEP_ID]),

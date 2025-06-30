@@ -25,7 +25,6 @@ import {
 } from '@UtilsModule'
 
 import { ImageAPI } from '@FeaturesModule'
-import { getImageType } from '@ModelsModule'
 
 /** @type {Field} Files ds field */
 export const FILES_DS = {
@@ -37,12 +36,9 @@ export const FILES_DS = {
   disableEnter: true,
   values: () => {
     // Get images
-    const { data: images = [] } = ImageAPI.useGetAllImagesQuery()
-
-    // Filter by context images only that are the ones valid to use in this attribute
-    const contextImages = images.filter(
-      (image) => getImageType(image) === IMAGE_TYPES_STR.CONTEXT
-    )
+    const { data: contextImages = [] } = ImageAPI.useGetImagesQuery({
+      imageTypes: [IMAGE_TYPES_STR.CONTEXT],
+    })
 
     // Return text and value objects
     return arrayToOptions(contextImages, {
