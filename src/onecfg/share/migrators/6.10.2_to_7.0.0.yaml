@@ -19785,7 +19785,7 @@ patches:
             # VIDEO = [
             #     TYPE  = "virtio",
             #     IOMMU = "yes",
-            #     ATE   = "yes",
+            #     ATS   = "yes",
             #     VRAM  = "8192",
             #     RESOLUTION = "1920x1080"
             # ]
@@ -20953,7 +20953,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               id: true
               idresourcename: true
               idresourcetype: true
@@ -20988,7 +20987,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
 
             # Info Tabs - Which info tabs are used to show extended information
@@ -21029,8 +21027,8 @@ patches:
         content: "---\n# This file describes the information and actions available in the Backup Jobs tab\n\n# Resource\n\nresource_name:
             \"BACKUPJOBS\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog:
             true\n  update_dialog: true\n  delete: true\n  chown: true\n  chgrp: true\n  lock: true\n  unlock: true\n  start:
-            true\n  cancel: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n  label: true\n\n# Info
-            Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
+            true\n  cancel: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n\n# Info Tabs - Which
+            info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
             \     enabled: true\n      actions:\n        rename: true\n        priority: true\n    permissions_panel:\n      enabled:
             true\n      actions:\n        chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n        chown:
             true\n        chgrp: true\n    attributes_panel:\n      enabled: true\n      actions:\n        copy: true\n        add:
@@ -21062,7 +21060,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -21124,7 +21121,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -21185,7 +21181,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
 
 
@@ -21238,7 +21233,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
 
             # Info Tabs - Which info tabs are used to show extended information
@@ -21307,7 +21301,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
 
 
@@ -21396,7 +21389,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
               locked: true
 
@@ -21466,7 +21458,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
               state: true
@@ -21533,7 +21524,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -21591,7 +21581,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -21653,7 +21642,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
               owner: true
               group: true
@@ -21732,7 +21720,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
 
@@ -21846,7 +21833,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
 
             # Info Tabs - Which info tabs are used to show extended information
@@ -21909,12 +21895,12 @@ patches:
         content: "---\n# This file describes the information and actions available in the VIRTUAL DATA CENTER tab\n\n# Resource\n\nresource_name:
             \"VIRTUAL-DATA-CENTER\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog:
             true\n  update_dialog: true\n  delete: true\n  edit_labels: true\n\n# Filters - List of criteria to filter the
-            resources\n\nfilters:\n  label: true\n\n# Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n
-            \ info:\n    enabled: true\n    information_panel:\n      enabled: true\n      actions:\n        rename: true\n
-            \   attributes_panel:\n      enabled: true\n      actions:\n        copy: true\n        add: true\n        edit:
-            true\n        delete: true\n\n  groups:\n    enabled: true\n  clusters:\n    enabled: true\n  datastores:\n    enabled:
-            true\n  hosts:\n    enabled: true\n  vnets:\n    enabled: true\n  \n\n# Dialogs\ndialogs:\n  create_dialog:\n
-            \   clusters: true\n    datastores: true\n    hosts: true\n    vnets: true"
+            resources\n\nfilters:\n\n# Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n
+            \   enabled: true\n    information_panel:\n      enabled: true\n      actions:\n        rename: true\n    attributes_panel:\n
+            \     enabled: true\n      actions:\n        copy: true\n        add: true\n        edit: true\n        delete:
+            true\n\n  groups:\n    enabled: true\n  clusters:\n    enabled: true\n  datastores:\n    enabled: true\n  hosts:\n
+            \   enabled: true\n  vnets:\n    enabled: true\n  \n\n# Dialogs\ndialogs:\n  create_dialog:\n    clusters: true\n
+            \   datastores: true\n    hosts: true\n    vnets: true"
     "/etc/one/fireedge/sunstone/views/admin/vm-group-tab.yaml":
         class: Yaml
         owner: root
@@ -21924,8 +21910,8 @@ patches:
         content: "---\n# This file describe the information add actions available in the VM GROUP TEMPLATES tab\n\n# Resource\n\nresource_name:
             \"VM-GROUP\"\n\n# Actions - Which buttons are visible to operate over the resource\n\nactions: \n  create_dialog:
             true\n  update_dialog: true\n  enable: true\n  disable: true\n  chgrp: true\n  chown: true\n  delete: true\n\n#
-            Filters -  List of criteria to filter the resource\n\nfilters: \n  label: true\n  state: true\n\n\n\n# Info Tabs
-            - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
+            Filters -  List of criteria to filter the resource\n\nfilters: \n  state: true\n\n\n\n# Info Tabs - Which info
+            tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
             \     enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n      enabled: true\n      actions:\n
             \       chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n        chown: true\n        cgrp:
             true\n    roles_panel:\n      enabled: true\n    roles-affinity_panel:\n      enabled: true\n  vms:\n    enabled:
@@ -21983,7 +21969,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
               owner: true
               group: true
@@ -22097,24 +22082,104 @@ patches:
         group: oneadmin
         mode: '0640'
         action: create
-        content: "---\n# This file describes the information and actions available in the VM Template tab\n\n# Resource\n\nresource_name:
-            \"VM-TEMPLATE\"\n\n# Features -\n\nfeatures:\n  # True to hide the CPU setting in the dialogs\n  hide_cpu: false\n\n
-            \ # False to not scale the CPU.\n  # An integer value would be used as a multiplier as follows:\n  #     CPU =
-            cpu_factor * VCPU\n  # Set it to 1 to tie CPU and vCPU.\n  cpu_factor: false\n\n# Actions - Which buttons are
-            visible to operate over the resources\n\nactions:\n  create_dialog: true\n  import_dialog: true\n  update_dialog:
-            true\n  instantiate_dialog: true\n  create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml\n
-            \ clone: true\n  delete: true\n  chown: true\n  chgrp: true\n  lock: true\n  unlock: true\n  share: true\n  unshare:
-            true\n  edit_labels: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n  label: true\n
-            \ owner: true\n  group: true\n  locked: true\n  vrouter: true\n\n\n# Info Tabs - Which info tabs are used to show
-            extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n      enabled: true\n
-            \     actions:\n        rename: true\n    permissions_panel:\n      enabled: true\n      actions:\n        chmod:
-            true\n    ownership_panel:\n      enabled: true\n      actions:\n        chown: true\n        chgrp: true\n\n
-            \ template:\n    enabled: true\n\n# Dialogs\n\ndialogs:\n  instantiate_dialog:\n    information: true\n    ownership:
-            true\n    capacity: true\n    vm_group: true\n    network: true\n    storage: true\n    pci: true\n    placement:
-            true\n    sched_action: true\n    booting: true\n    backup: true\n  create_dialog:\n    ownership: true\n    capacity:
-            true\n    showback: true\n    vm_group: true\n    network: true\n    storage: true\n    placement: true\n    pci:
-            true\n    input_output: true\n    sched_action: true\n    context: true\n    booting: true\n    numa: true      \n
-            \   backup: true\n"
+        content: |
+            ---
+            # This file describes the information and actions available in the VM Template tab
+
+            # Resource
+
+            resource_name: "VM-TEMPLATE"
+
+            # Features -
+
+            features:
+              # True to hide the CPU setting in the dialogs
+              hide_cpu: false
+
+              # False to not scale the CPU.
+              # An integer value would be used as a multiplier as follows:
+              #     CPU = cpu_factor * VCPU
+              # Set it to 1 to tie CPU and vCPU.
+              cpu_factor: false
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              create_dialog: true
+              import_dialog: true
+              update_dialog: true
+              instantiate_dialog: true
+              create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
+              clone: true
+              delete: true
+              chown: true
+              chgrp: true
+              lock: true
+              unlock: true
+              share: true
+              unshare: true
+              edit_labels: true
+
+            # Filters - List of criteria to filter the resources
+
+            filters:
+              owner: true
+              group: true
+              locked: true
+              vrouter: true
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+                  actions:
+                    rename: true
+                permissions_panel:
+                  enabled: true
+                  actions:
+                    chmod: true
+                ownership_panel:
+                  enabled: true
+                  actions:
+                    chown: true
+                    chgrp: true
+
+              template:
+                enabled: true
+
+            # Dialogs
+
+            dialogs:
+              instantiate_dialog:
+                information: true
+                ownership: true
+                capacity: true
+                vm_group: true
+                network: true
+                storage: true
+                pci: true
+                placement: true
+                sched_action: true
+                booting: true
+                backup: true
+              create_dialog:
+                ownership: true
+                capacity: true
+                showback: true
+                vm_group: true
+                network: true
+                storage: true
+                placement: true
+                pci: true
+                input_output: true
+                sched_action: true
+                context: true
+                booting: true
+                numa: true
+                backup: true
     "/etc/one/fireedge/sunstone/views/admin/vnet-tab.yaml":
         class: Yaml
         owner: root
@@ -22147,7 +22212,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
               owner: true
               group: true
@@ -22235,7 +22299,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -22309,7 +22372,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
 
@@ -22384,7 +22446,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
 
@@ -22443,12 +22504,10 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
             info-tabs:
-
               info:
                 enabled: true
                 information_panel:
@@ -22520,7 +22579,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
               state: true
@@ -22590,7 +22648,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
               owner: true
               group: true
@@ -22726,15 +22783,15 @@ patches:
             \ undeploy-hard: false\n  terminate: true\n  terminate-hard: true\n  resched: false\n  unresched: false\n  save_as_template:
             true\n  chown: false\n  chgrp: false\n  lock: false\n  unlock: false\n  vnc: true\n  ssh: true\n  rdp: true\n
             \ edit_labels: false\n  backup: false  \n\n# Filters - List of criteria to filter the resources\n\nfilters:\n
-            \ label: true\n  state: true\n  owner: true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname:
-            true\n\n\n# Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled:
-            true\n    information_panel:\n      enabled: true\n      actions:\n        rename: false\n    permissions_panel:\n
-            \     enabled: true\n      actions:\n        chmod: false\n    ownership_panel:\n      enabled: true\n      actions:\n
-            \       chown: false\n        chgrp: false\n    capacity_panel:\n      enabled: true\n      actions:\n        resize:
-            true\n    monitoring_panel:\n      enabled: true\n      actions:\n        copy: true\n    attributes_panel:\n
-            \     enabled: false\n      actions:\n        copy: true\n        add: false\n        edit: false\n        delete:
-            false\n\n  storage:\n    enabled: true\n    actions:\n      disk-attach:\n        enabled: true\n      disk-detach:
-            true\n      disk-resize: true\n      disk_saveas:\n        enabled: true\n\n  network:\n    enabled: true\n    actions:\n
+            \ state: true\n  owner: true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n\n\n#
+            Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled: true\n
+            \   information_panel:\n      enabled: true\n      actions:\n        rename: false\n    permissions_panel:\n      enabled:
+            true\n      actions:\n        chmod: false\n    ownership_panel:\n      enabled: true\n      actions:\n        chown:
+            false\n        chgrp: false\n    capacity_panel:\n      enabled: true\n      actions:\n        resize: true\n
+            \   monitoring_panel:\n      enabled: true\n      actions:\n        copy: true\n    attributes_panel:\n      enabled:
+            false\n      actions:\n        copy: true\n        add: false\n        edit: false\n        delete: false\n\n
+            \ storage:\n    enabled: true\n    actions:\n      disk-attach:\n        enabled: true\n      disk-detach: true\n
+            \     disk-resize: true\n      disk_saveas:\n        enabled: true\n\n  network:\n    enabled: true\n    actions:\n
             \     nic-attach: true\n      nic-detach: true\n      nic-update: true\n      sg-attach: true\n      sg-detach:
             true\n\n  snapshot:\n    enabled: true\n    actions:\n      snapshot-create: true\n      snapshot-revert: true\n
             \     snapshot-delete: true\n\n  backup:\n    enabled: false\n\n  history:\n    enabled: false\n\n  sched_actions:\n
@@ -22788,7 +22845,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
               locked: true
@@ -22870,7 +22926,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
 
             # Info Tabs - Which info tabs are used to show extended information
@@ -22942,7 +22997,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
               state: true
@@ -23009,7 +23063,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -23072,7 +23125,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
               owner: true
               group: true
@@ -23151,7 +23203,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
 
@@ -23213,7 +23264,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
 
             # Info Tabs - Which info tabs are used to show extended information
@@ -23273,8 +23323,8 @@ patches:
         content: "---\n# This file describe the information add actions available in the VM GROUP TEMPLATES tab\n\n# Resource\n\nresource_name:
             \"VM-GROUP\"\n\n# Actions - Which buttons are visible to operate over the resource\n\nactions: \n  create_dialog:
             true\n  update_dialog: true\n  enable: true\n  disable: true\n  chgrp: true\n  chown: true\n  delete: true\n\n#
-            Filters -  List of criteria to filter the resource\n\nfilters: \n  label: true\n  state: true\n\n\n\n# Info Tabs
-            - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
+            Filters -  List of criteria to filter the resource\n\nfilters: \n  state: true\n\n\n\n# Info Tabs - Which info
+            tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
             \     enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n      enabled: true\n      actions:\n
             \       chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n        chown: true\n        cgrp:
             true\n    roles_panel:\n      enabled: true\n    roles-affinity_panel:\n      enabled: true\n  vms:\n    enabled:
@@ -23292,9 +23342,9 @@ patches:
             true\n  reboot: true\n  reboot-hard: true\n  poweroff: true\n  poweroff-hard: true\n  undeploy: true\n  undeploy-hard:
             true\n  terminate: true\n  terminate-hard: true\n  resched: true\n  unresched: true\n  save_as_template: false\n
             \ chown: false\n  chgrp: false\n  lock: true\n  unlock: true\n  vnc: true\n  ssh: true\n  rdp: true\n  edit_labels:
-            false\n  backup: true  \n\n# Filters - List of criteria to filter the resources\n\nfilters:\n  label: true\n  state:
-            true\n  owner: true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n\n\n# Info Tabs
-            - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled: true\n    information_panel:\n
+            false\n  backup: true  \n\n# Filters - List of criteria to filter the resources\n\nfilters:\n  state: true\n  owner:
+            true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n\n\n# Info Tabs - Which info
+            tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled: true\n    information_panel:\n
             \     enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n      enabled: true\n      actions:\n
             \       chmod: false\n    ownership_panel:\n      enabled: true\n      actions:\n        chown: false\n        chgrp:
             false\n    capacity_panel:\n      enabled: true\n      actions:\n        resize_capacity: true\n    lxc_panel:\n
@@ -23357,7 +23407,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
               locked: true
@@ -23448,7 +23497,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
               owner: true
               group: true
@@ -23536,7 +23584,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -23610,7 +23657,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
 
@@ -23685,7 +23731,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
 
@@ -23746,7 +23791,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
 
             # Info Tabs - Which info tabs are used to show extended information
@@ -23806,7 +23850,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
 
 
@@ -23868,7 +23911,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
               locked: true
 
@@ -23936,7 +23978,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
               state: true
@@ -24003,7 +24044,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -24049,24 +24089,24 @@ patches:
             true\n  terminate: true\n  terminate-hard: true\n  resched: true\n  unresched: true\n  save_as_template: false\n
             \ chown: false\n  chgrp: false\n  lock: true\n  unlock: true\n  vnc: true\n  ssh: true\n  rdp: true\n  edit_labels:
             false\n  backup: true  \n  restore: false\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n
-            \ label: true\n  state: true\n  owner: true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname:
-            true\n\n\n# Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled:
-            true\n    information_panel:\n      enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n
-            \     enabled: true\n      actions:\n        chmod: false\n    ownership_panel:\n      enabled: true\n      actions:\n
-            \       chown: false\n        chgrp: false\n    capacity_panel:\n      enabled: true\n      actions:\n        resize:
-            true\n    lxc_panel:\n      enabled: true\n      actions:\n        copy: true\n        add: false\n        edit:
-            false\n        delete: false\n    monitoring_panel:\n      enabled: true\n      actions:\n        copy: true\n
-            \   attributes_panel:\n      enabled: true\n      actions:\n        copy: true\n        add: true\n        edit:
-            false\n        delete: false\n\n  storage:\n    enabled: true\n    actions:\n      disk-attach:\n        enabled:
-            true\n      disk-detach: true\n      disk-snapshot-create: true\n      disk-snapshot-delete: true\n      disk-snapshot-rename:
-            true\n      disk-snapshot-revert: true\n      disk-resize: true\n      disk-saveas:\n        enabled: true\n\n
-            \ network:\n    enabled: true\n    actions:\n      nic-attach: true\n      nic-detach: true\n      nic-update:
-            true\n      sg-attach: true\n      sg-detach: true\n      \n  pci:\n    enabled: true\n    actions:\n      pci-attach:
-            true\n      pci-detach: true      \n\n  snapshot:\n    enabled: true\n    actions:\n      snapshot-create: true\n
-            \     snapshot-revert: true\n      snapshot-delete: true\n\n  backup:\n    enabled: true\n\n  history:\n    enabled:
-            true\n\n  sched_actions:\n    enabled: true\n    actions:\n      sched-add: true\n      sched-update: true\n      sched-delete:
-            true\n      charter_create: true\n\n  configuration:\n    enabled: true\n    actions:\n      update_configuration:
-            true\n\n  template:\n    enabled: true\n"
+            \ state: true\n  owner: true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n\n\n#
+            Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled: true\n
+            \   information_panel:\n      enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n      enabled:
+            true\n      actions:\n        chmod: false\n    ownership_panel:\n      enabled: true\n      actions:\n        chown:
+            false\n        chgrp: false\n    capacity_panel:\n      enabled: true\n      actions:\n        resize: true\n
+            \   lxc_panel:\n      enabled: true\n      actions:\n        copy: true\n        add: false\n        edit: false\n
+            \       delete: false\n    monitoring_panel:\n      enabled: true\n      actions:\n        copy: true\n    attributes_panel:\n
+            \     enabled: true\n      actions:\n        copy: true\n        add: true\n        edit: false\n        delete:
+            false\n\n  storage:\n    enabled: true\n    actions:\n      disk-attach:\n        enabled: true\n      disk-detach:
+            true\n      disk-snapshot-create: true\n      disk-snapshot-delete: true\n      disk-snapshot-rename: true\n      disk-snapshot-revert:
+            true\n      disk-resize: true\n      disk-saveas:\n        enabled: true\n\n  network:\n    enabled: true\n    actions:\n
+            \     nic-attach: true\n      nic-detach: true\n      nic-update: true\n      sg-attach: true\n      sg-detach:
+            true\n      \n  pci:\n    enabled: true\n    actions:\n      pci-attach: true\n      pci-detach: true      \n\n
+            \ snapshot:\n    enabled: true\n    actions:\n      snapshot-create: true\n      snapshot-revert: true\n      snapshot-delete:
+            true\n\n  backup:\n    enabled: true\n\n  history:\n    enabled: true\n\n  sched_actions:\n    enabled: true\n
+            \   actions:\n      sched-add: true\n      sched-update: true\n      sched-delete: true\n      charter_create:
+            true\n\n  configuration:\n    enabled: true\n    actions:\n      update_configuration: true\n\n  template:\n    enabled:
+            true\n"
     "/etc/one/fireedge/sunstone/views/user/vm-template-tab.yaml":
         class: Yaml
         owner: root
@@ -24114,7 +24154,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               owner: true
               group: true
               locked: true
@@ -24207,7 +24246,6 @@ patches:
             # Filters - List of criteria to filter the resources
 
             filters:
-              label: true
               state: true
               owner: true
               group: true
