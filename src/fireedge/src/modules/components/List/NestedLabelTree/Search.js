@@ -62,6 +62,7 @@ export const LabelTreeSearch = ({ treeState, onMatch }) => {
       fullWidth
       value={searchTerm}
       onChange={(e) => setSearchTerm(e.target.value)}
+      data-cy={'search-labels'}
       sx={{ mb: 2 }}
     />
   )

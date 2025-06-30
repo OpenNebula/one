@@ -227,6 +227,7 @@ const LabelTable = () => {
       >
         <ToggleButtonGroup
           value={labelType}
+          data-cy={'label-type-selector'}
           exclusive
           onChange={(_, newValue) => {
             if (newValue !== null) {
@@ -241,11 +242,11 @@ const LabelTable = () => {
           }}
           size="small"
         >
-          <ToggleButton value="user">
+          <ToggleButton data-cy="label-type-user" value="user">
             <UserIcon fontSize="small" style={{ marginRight: 3 }} />
             {T.User}
           </ToggleButton>
-          <ToggleButton value="group">
+          <ToggleButton data-cy="label-type-group" value="group">
             <GroupIcon fontSize="small" style={{ marginRight: 3 }} />
             {T.Group}
           </ToggleButton>
