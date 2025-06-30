@@ -1,11 +1,15 @@
+# 
+msgid ""
+msgstr ""
+
 #: ./src/modules/components/Alerts/index.js:25
 msgid "children"
-msgstr ""
+msgstr "children"
 
 #: ./src/modules/components/Buttons/AddressRangeActions.js:110
 #: ./src/modules/components/Buttons/AddressRangeActions.js:111
 msgid "Address Range"
-msgstr ""
+msgstr "Address Range"
 
 #: ./src/modules/components/Buttons/AddressRangeActions.js:156
 #: ./src/modules/components/Tabs/Vm/Network/Actions.js:126
@@ -13,7 +17,7 @@ msgstr ""
 #: ./src/modules/components/Tabs/Vm/Pci/Actions.js:76
 #: ./src/modules/components/Tabs/Vm/Storage/Actions.js:159
 msgid "Detach"
-msgstr ""
+msgstr "Detach"
 
 #: ./src/modules/components/Buttons/AddressRangeActions.js:156
 #: ./src/modules/components/Buttons/ScheduleAction.js:167
@@ -21,13 +25,17 @@ msgstr ""
 #: ./src/modules/components/Tabs/Vm/Network/Actions.js:126
 #: ./src/modules/components/Tabs/Vm/Network/Actions.js:280
 #: ./src/modules/components/Tabs/Vm/Storage/Actions.js:159
-msgid "You cannot delete this resource because it has restricted attributes on this template. Please, contact with your administrator."
+msgid ""
+"You cannot delete this resource because it has restricted attributes on this"
+" template. Please, contact with your administrator."
 msgstr ""
+"You cannot delete this resource because it has restricted attributes on this"
+" template. Please, contact with your administrator."
 
 #: ./src/modules/components/Buttons/AddressRangeActions.js:164
 #: ./src/modules/components/Buttons/AddressRangeActions.js:165
 msgid "Delete Address Range"
-msgstr ""
+msgstr "Delete Address Range"
 
 #: ./src/modules/components/Buttons/AddressRangeActions.js:166
 #: ./src/modules/components/Buttons/ScheduleAction.js:180
@@ -72,21 +80,21 @@ msgstr ""
 #: ./src/modules/components/Tabs/Common/Attribute/Attribute.js:260
 #: ./src/modules/containers/Providers/Providers.js:154
 msgid "Do you want to proceed?"
-msgstr ""
+msgstr "Do you want to proceed?"
 
 #: ./src/modules/components/Buttons/ScheduleAction.js:167
 #: ./src/modules/components/Tabs/Image/Snapshots/Actions.js:106
 #: ./src/modules/components/Tabs/Vm/Snapshot/Actions.js:105
 #: ./src/modules/components/Tabs/Vm/Storage/Actions.js:397
 msgid "Delete"
-msgstr ""
+msgstr "Delete"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:83
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:76
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:84
 #: ./src/modules/components/Tables/Images/row.js:136
 msgid "VMs"
-msgstr ""
+msgstr "VMs"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:93
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:86
@@ -96,7 +104,7 @@ msgstr ""
 #: ./src/modules/components/Tables/Clusters/row.js:53
 #: ./src/modules/components/Tables/Hosts/actions.js:56
 msgid "Hosts"
-msgstr ""
+msgstr "Hosts"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:103
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:96
@@ -104,32 +112,32 @@ msgstr ""
 #: ./src/modules/components/Cards/ApplicationTemplateCard.js:73
 #: ./src/modules/components/Cards/ServiceTemplateCard.js:110
 msgid "Networks"
-msgstr ""
+msgstr "Networks"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:113
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:106
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:108
 msgid "Images"
-msgstr ""
+msgstr "Images"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:123
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:116
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:116
 msgid "Users"
-msgstr ""
+msgstr "Users"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:133
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:126
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:124
 msgid "Templates"
-msgstr ""
+msgstr "Templates"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:143
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:136
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:132
 #: ./src/modules/components/Cards/VirtualDataCenterCard.js:139
 msgid "Groups"
-msgstr ""
+msgstr "Groups"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:153
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:146
@@ -139,7 +147,7 @@ msgstr ""
 #: ./src/modules/components/Tables/Clusters/row.js:67
 #: ./src/modules/components/Tables/Datastores/actions.js:42
 msgid "Datastores"
-msgstr ""
+msgstr "Datastores"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:163
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:156
@@ -148,45 +156,45 @@ msgstr ""
 #: ./src/modules/components/Cards/NetworkCard.js:153
 #: ./src/modules/components/Cards/VirtualDataCenterCard.js:143
 msgid "Clusters"
-msgstr ""
+msgstr "Clusters"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:173
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:166
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:156
 msgid "Services"
-msgstr ""
+msgstr "Services"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:183
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:176
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:164
 #: ./src/modules/components/Header/Zone.js:46
 msgid "Zones"
-msgstr ""
+msgstr "Zones"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:193
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:186
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:172
 #: ./src/modules/components/Cards/NicCard.js:222
 msgid "Security groups"
-msgstr ""
+msgstr "Security groups"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:203
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:196
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:180
 msgid "VDCs"
-msgstr ""
+msgstr "VDCs"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:213
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:206
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:188
 msgid "Virtual Routers"
-msgstr ""
+msgstr "Virtual Routers"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:223
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:226
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:196
 msgid "Marketplaces"
-msgstr ""
+msgstr "Marketplaces"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:233
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:216
@@ -194,32 +202,32 @@ msgstr ""
 #: ./src/modules/components/Cards/MarketplaceCard.js:102
 #: ./src/modules/components/Tables/MarketplaceApps/actions.js:53
 msgid "Apps"
-msgstr ""
+msgstr "Apps"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:243
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:236
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:212
 msgid "VM Groups"
-msgstr ""
+msgstr "VM Groups"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:253
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:246
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:220
 msgid "Network Templates"
-msgstr ""
+msgstr "Network Templates"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:263
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:256
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:228
 msgid "BackupJob"
-msgstr ""
+msgstr "BackupJob"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:286
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:271
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:249
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:276
 msgid "Identifier"
-msgstr ""
+msgstr "Identifier"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:325
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:357
@@ -231,21 +239,21 @@ msgstr ""
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:320
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:340
 msgid "All"
-msgstr ""
+msgstr "All"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:391
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:376
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:354
 #: ./src/modules/components/Tabs/Common/Permissions.js:66
 msgid "Use"
-msgstr ""
+msgstr "Use"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:401
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:386
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:364
 #: ./src/modules/components/Tabs/Common/Permissions.js:67
 msgid "Manage"
-msgstr ""
+msgstr "Manage"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:411
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:396
@@ -253,19 +261,19 @@ msgstr ""
 #: ./src/modules/components/Cards/UserCard.js:101
 #: ./src/modules/components/Tabs/Common/Permissions.js:68
 msgid "Admin"
-msgstr ""
+msgstr "Admin"
 
 #: ./src/modules/components/Cards/ACLCards/ACLCardIcons.js:421
 #: ./src/modules/components/Cards/ACLCards/ACLCardNames.js:406
 #: ./src/modules/components/Cards/ACLCards/ACLCardResources.js:384
 msgid "Create"
-msgstr ""
+msgstr "Create"
 
 #: ./src/modules/components/Cards/AddressRangeCard.js:85
 #: ./src/modules/components/Tables/Images/row.js:140
 #: ./src/modules/components/Tabs/Host/Numa/Hugepage/index.js:44
 msgid "Size"
-msgstr ""
+msgstr "Size"
 
 #: ./src/modules/components/Cards/AddressRangeCard.js:121
 #: ./src/modules/components/Cards/AddressRangeCard.js:127
@@ -273,31 +281,31 @@ msgstr ""
 #: ./src/modules/components/Cards/AddressRangeCard.js:139
 #: ./src/modules/components/Cards/AddressRangeCard.js:147
 msgid "First"
-msgstr ""
+msgstr "First"
 
 #: ./src/modules/components/Cards/AddressRangeCard.js:121
 #: ./src/modules/components/Cards/AddressRangeCard.js:127
 #: ./src/modules/components/Cards/AddressRangeCard.js:133
 msgid "Last"
-msgstr ""
+msgstr "Last"
 
 #: ./src/modules/components/Cards/AddressRangeCard.js:161
 #: ./src/modules/components/Cards/NetworkCard.js:174
 #: ./src/modules/components/Tables/Backups/row.js:157
 #: ./src/modules/components/Tables/Vns/table.js:204
 msgid "Used"
-msgstr ""
+msgstr "Used"
 
 #: ./src/modules/components/Cards/AddressRangeCard.js:161
 #: ./src/modules/components/Cards/NetworkCard.js:174
 #: ./src/modules/components/Tables/Vns/table.js:204
 msgid "Total leases"
-msgstr ""
+msgstr "Total leases"
 
 #: ./src/modules/components/Cards/ApplicationCard.js:72
 #: ./src/modules/components/Cards/ApplicationTemplateCard.js:111
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 #: ./src/modules/components/Cards/ApplicationCard.js:77
 #: ./src/modules/components/Cards/ApplicationNetworkCard.js:67
@@ -305,7 +313,7 @@ msgstr ""
 #: ./src/modules/components/Cards/PolicyCard.js:55
 #: ./src/modules/components/Cards/TierCard.js:60
 msgid "Remove"
-msgstr ""
+msgstr "Remove"
 
 #: ./src/modules/components/Cards/ApplicationNetworkCard.js:52
 #: ./src/modules/components/Cards/ApplicationTemplateCard.js:91
@@ -318,27 +326,27 @@ msgstr ""
 #: ./src/modules/components/Tabs/Vm/Storage/Actions.js:331
 #: ./src/modules/components/Buttons/ScheduleAction.js:111
 msgid "Edit"
-msgstr ""
+msgstr "Edit"
 
 #: ./src/modules/components/Cards/ApplicationNetworkCard.js:62
 msgid "Clone"
-msgstr ""
+msgstr "Clone"
 
 #: ./src/modules/components/Cards/ApplicationTemplateCard.js:63
 msgid "Tiers"
-msgstr ""
+msgstr "Tiers"
 
 #: ./src/modules/components/Cards/ApplicationTemplateCard.js:101
 msgid "Deploy"
-msgstr ""
+msgstr "Deploy"
 
 #: ./src/modules/components/Cards/BackupJobCard.js:151
 msgid "status.tooltip"
-msgstr ""
+msgstr "status.tooltip"
 
 #: ./src/modules/components/Cards/BackupJobCard.js:161
 msgid "Priority"
-msgstr ""
+msgstr "Priority"
 
 #: ./src/modules/components/Cards/BackupJobCard.js:165
 #: ./src/modules/components/Cards/DatastoreCard.js:123
@@ -354,7 +362,7 @@ msgstr ""
 #: ./src/modules/components/Tables/Vrs/row.js:88
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:137
 msgid "Owner"
-msgstr ""
+msgstr "Owner"
 
 #: ./src/modules/components/Cards/BackupJobCard.js:169
 #: ./src/modules/components/Cards/DatastoreCard.js:127
@@ -374,7 +382,7 @@ msgstr ""
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:141
 #: ./src/modules/containers/Settings/LoginToken/LoginToken.js:93
 msgid "Group"
-msgstr ""
+msgstr "Group"
 
 #: ./src/modules/components/Cards/ClusterCard.js:72
 #: ./src/modules/components/Cards/VirtualDataCenterCard.js:155
@@ -382,19 +390,19 @@ msgstr ""
 #: ./src/modules/components/Tables/VnTemplates/actions.js:63
 #: ./src/modules/components/Tables/Vns/actions.js:72
 msgid "Virtual networks"
-msgstr ""
+msgstr "Virtual networks"
 
 #: ./src/modules/components/Cards/DatastoreCard.js:132
 #: ./src/modules/components/Cards/NetworkCard.js:161
 #: ./src/modules/components/Tables/VnTemplates/row.js:65
 msgid "Provision ID"
-msgstr ""
+msgstr "Provision ID"
 
 #: ./src/modules/components/Cards/DatastoreCard.js:155
 #: ./src/modules/components/Cards/MarketplaceCard.js:118
 #: ./src/modules/components/Tables/Marketplaces/table.js:91
 msgid "Used / Total"
-msgstr ""
+msgstr "Used / Total"
 
 #: ./src/modules/components/Cards/DiskCard.js:106
 #: ./src/modules/components/FormControl/CheckboxController.js:83
@@ -415,162 +423,162 @@ msgstr ""
 #: ./src/modules/components/FormStepper/Stepper.js:173
 #: ./src/modules/components/Tabs/EmptyTab/index.js:40
 msgid "label"
-msgstr ""
+msgstr "label"
 
 #: ./src/modules/components/Cards/DiskCard.js:115
 msgid "Target device"
-msgstr ""
+msgstr "Target device"
 
 #: ./src/modules/components/Cards/DiskCard.js:121
 #: ./src/modules/components/Tables/Backups/row.js:134
 #: ./src/modules/components/Tables/Images/row.js:128
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:125
 msgid "Datastore"
-msgstr ""
+msgstr "Datastore"
 
 #: ./src/modules/components/Cards/DiskCard.js:128
 #: ./src/modules/components/Cards/DiskSnapshotCard.js:78
 #: ./src/modules/components/Cards/ImageSnapshotCard.js:78
 #: ./src/modules/components/Tabs/Vm/Info/index.js:187
 msgid "Monitoring"
-msgstr ""
+msgstr "Monitoring"
 
 #: ./src/modules/components/Cards/DiskCard.js:136
 #: ./src/modules/components/Cards/DiskSnapshotCard.js:78
 #: ./src/modules/components/Cards/ImageSnapshotCard.js:78
 msgid "Disk size"
-msgstr ""
+msgstr "Disk size"
 
 #: ./src/modules/components/Cards/HostCard.js:114
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/hostAffinityPanel.js:171
 #: ./src/modules/containers/Provisions/DialogInfo/info.js:82
 msgid "Cluster"
-msgstr ""
+msgstr "Cluster"
 
 #: ./src/modules/components/Cards/HostCard.js:118
 msgid "Running VMs"
-msgstr ""
+msgstr "Running VMs"
 
 #: ./src/modules/components/Cards/HostCard.js:130
 #: ./src/modules/components/Tables/Hosts/table.js:197
 #: ./src/modules/components/Tabs/Host/Numa/Memory/index.js:44
 msgid "Allocated CPU"
-msgstr ""
+msgstr "Allocated CPU"
 
 #: ./src/modules/components/Cards/HostCard.js:138
 #: ./src/modules/components/Tables/Hosts/table.js:216
 msgid "Allocated Memory"
-msgstr ""
+msgstr "Allocated Memory"
 
 #: ./src/modules/components/Cards/MarketplaceAppCard.js:110
 #: ./src/modules/components/Cards/MarketplaceAppCard.js:112
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 #: ./src/modules/components/Cards/MarketplaceAppCard.js:123
 msgid "Marketplace"
-msgstr ""
+msgstr "Marketplace"
 
 #: ./src/modules/components/Cards/MarketplaceAppCard.js:131
 #: ./src/modules/components/Cards/MarketplaceCard.js:106
 msgid "Zone"
-msgstr ""
+msgstr "Zone"
 
 #: ./src/modules/components/Cards/PciCard.js:70
 msgid "Device"
-msgstr ""
+msgstr "Device"
 
 #: ./src/modules/components/Cards/PciCard.js:74
 msgid "Short address"
-msgstr ""
+msgstr "Short address"
 
 #: ./src/modules/components/Cards/PciCard.js:87
 msgid "Vendor"
-msgstr ""
+msgstr "Vendor"
 
 #: ./src/modules/components/Cards/PciCard.js:92
 msgid "Class"
-msgstr ""
+msgstr "Class"
 
 #: ./src/modules/components/Cards/PciCard.js:97
 #: ./src/modules/components/Tabs/Accounting/index.js:288
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:130
 msgid "VM"
-msgstr ""
+msgstr "VM"
 
 #: ./src/modules/components/Cards/ScheduleActionCard.js:93
 #: ./src/modules/components/Forms/Vm/CreateSchedActionForm/AlertText.js:149
 msgid "repeat"
-msgstr ""
+msgstr "repeat"
 
 #: ./src/modules/components/Cards/ScheduleActionCard.js:96
 #: ./src/modules/components/Forms/Vm/CreateSchedActionForm/AlertText.js:153
 msgid "end"
-msgstr ""
+msgstr "end"
 
 #: ./src/modules/components/Cards/SecurityGroupCard.js:128
 msgid "Total updated VMs"
-msgstr ""
+msgstr "Total updated VMs"
 
 #: ./src/modules/components/Cards/SecurityGroupCard.js:132
 msgid "Total outdated VMs"
-msgstr ""
+msgstr "Total outdated VMs"
 
 #: ./src/modules/components/Cards/SecurityGroupCard.js:136
 msgid "Total error VMs"
-msgstr ""
+msgstr "Total error VMs"
 
 #: ./src/modules/components/Cards/ServiceTemplateCard.js:114
 #: ./src/modules/components/Tabs/VmGroup/Info/index.js:104
 msgid "Roles"
-msgstr ""
+msgstr "Roles"
 
 #: ./src/modules/components/Cards/SnapshotCard.js:35
 msgid "Created"
-msgstr ""
+msgstr "Created"
 
 #: ./src/modules/components/Cards/UserCard.js:127
 msgid "Auth Driver"
-msgstr ""
+msgstr "Auth Driver"
 
 #: ./src/modules/components/Cards/VirtualMachineCard.js:183
 msgid "Done"
-msgstr ""
+msgstr "Done"
 
 #: ./src/modules/components/Cards/VirtualMachineCard.js:183
 msgid "Started"
-msgstr ""
+msgstr "Started"
 
 #: ./src/modules/components/Cards/VirtualMachineCard.js:186
 msgid "Virtual CPU"
-msgstr ""
+msgstr "Virtual CPU"
 
 #: ./src/modules/components/Cards/VirtualMachineCard.js:190
 #: ./src/modules/components/Tabs/Host/Graphs/index.js:127
 #: ./src/modules/components/Tabs/Host/Numa/Memory/index.js:38
 msgid "Memory"
-msgstr ""
+msgstr "Memory"
 
 #: ./src/modules/components/Cards/VirtualMachineCard.js:194
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:106
 msgid "Host"
-msgstr ""
+msgstr "Host"
 
 #: ./src/modules/components/Cards/VirtualMachineCard.js:199
 msgid "Hostname"
-msgstr ""
+msgstr "Hostname"
 
 #: ./src/modules/components/Cards/VirtualMachineCard.js:217
 msgid "IP"
-msgstr ""
+msgstr "IP"
 
 #: ./src/modules/components/Cards/VmGroupCard.js:196
 msgid "Affined Roles"
-msgstr ""
+msgstr "Affined Roles"
 
 #: ./src/modules/components/Cards/VmGroupCard.js:225
 msgid "Anti-Affined Roles"
-msgstr ""
+msgstr "Anti-Affined Roles"
 
 #: ./src/modules/components/Cards/WavesCard.js:93
 #: ./src/modules/components/FormControl/RadioController.js:197
@@ -581,31 +589,31 @@ msgstr ""
 #: ./src/modules/containers/Dashboard/Sunstone/Cloud/Buttons.js:47
 #: ./src/modules/containers/Support/Information/Information.js:60
 msgid "text"
-msgstr ""
+msgstr "text"
 
 #: ./src/modules/components/Charts/MultiChart/helpers/subComponents/ChartRenderer.js:129
 msgid "finalWord"
-msgstr ""
+msgstr "finalWord"
 
 #: ./src/modules/components/Charts/MultiChart/helpers/subComponents/ChartRenderer.js:145
 msgid "column.headerName"
-msgstr ""
+msgstr "column.headerName"
 
 #: ./src/modules/components/Charts/MultiChart/helpers/subComponents/Exporter.js:76
 msgid "Export"
-msgstr ""
+msgstr "Export"
 
 #: ./src/modules/components/Charts/MultiChart/helpers/subComponents/Exporter.js:86
 msgid "option.label"
-msgstr ""
+msgstr "option.label"
 
 #: ./src/modules/components/Date/DateRangeFilter.js:72
 msgid "Start Date"
-msgstr ""
+msgstr "Start Date"
 
 #: ./src/modules/components/Date/DateRangeFilter.js:86
 msgid "EndDate"
-msgstr ""
+msgstr "EndDate"
 
 #: ./src/modules/components/Dialogs/DialogConfirmation.js:105
 #: ./src/modules/components/FormControl/Tooltip.js:39
@@ -622,15 +630,15 @@ msgstr ""
 #: ./src/modules/containers/Settings/Wrapper.js:66
 #: ./src/modules/containers/Settings/Wrapper.js:79
 msgid "title"
-msgstr ""
+msgstr "title"
 
 #: ./src/modules/components/Dialogs/DialogConfirmation.js:110
 msgid "subheader"
-msgstr ""
+msgstr "subheader"
 
 #: ./src/modules/components/FormControl/InformationUnitController.js:144
 msgid "Unit memory"
-msgstr ""
+msgstr "Unit memory"
 
 #: ./src/modules/components/FormControl/SubmitButton.js:88
 #: ./src/modules/components/FormControl/SubmitButton.js:99
@@ -640,15 +648,15 @@ msgstr ""
 #: ./src/modules/components/FormControl/AutocompleteController.js:221
 #: ./src/modules/containers/Settings/Authentication/Authentication.js:162
 msgid "tooltip"
-msgstr ""
+msgstr "tooltip"
 
 #: ./src/modules/components/FormControl/SubmitButton.js:95
 msgid "tooltipLink.text"
-msgstr ""
+msgstr "tooltipLink.text"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:137
 msgid "Protocol"
-msgstr ""
+msgstr "Protocol"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:140
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/elasticity/index.js:164
@@ -656,307 +664,356 @@ msgstr ""
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:229
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:233
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:143
 msgid "Range"
-msgstr ""
+msgstr "Range"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:146
 msgid "Network"
-msgstr ""
+msgstr "Network"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:149
 msgid "ICMP Type"
-msgstr ""
+msgstr "ICMP Type"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:152
 msgid "ICMPv6 Type"
-msgstr ""
+msgstr "ICMPv6 Type"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:190
 msgid "PROTOCOL"
-msgstr ""
+msgstr "PROTOCOL"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:191
 msgid "RULE_TYPE"
-msgstr ""
+msgstr "RULE_TYPE"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:192
 msgid "RANGE"
-msgstr ""
+msgstr "RANGE"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:193
 msgid "network"
-msgstr ""
+msgstr "network"
 
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/elasticity/index.js:166
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/scheduled/index.js:157
 msgid "Adjust"
-msgstr ""
+msgstr "Adjust"
 
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/elasticity/index.js:167
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/scheduled/index.js:158
 msgid "Min"
-msgstr ""
+msgstr "Min"
 
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/elasticity/index.js:168
 msgid "Cooldown"
-msgstr ""
+msgstr "Cooldown"
 
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/elasticity/index.js:169
 msgid "Period"
-msgstr ""
+msgstr "Period"
 
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/elasticity/index.js:172
 msgid "Expression"
-msgstr ""
+msgstr "Expression"
 
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/scheduled/index.js:153
 msgid "format"
-msgstr ""
+msgstr "format"
 
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/scheduled/index.js:160
 msgid "Time Format"
-msgstr ""
+msgstr "Time Format"
 
 #: ./src/modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/dropdowns/sections/scheduled/index.js:161
 msgid "Time Expression"
-msgstr ""
+msgstr "Time Expression"
 
 #: ./src/modules/components/Forms/ServiceTemplate/InstantiateForm/Steps/Charters/index.js:80
 msgid "Add Charters Values Configuration"
-msgstr ""
+msgstr "Add Charters Values Configuration"
 
 #: ./src/modules/components/Forms/Vm/CreateCharterForm/index.js:52
 msgid "in"
-msgstr ""
+msgstr "in"
 
 #: ./src/modules/components/Forms/Vm/CreateCharterForm/index.js:56
 msgid "Warning before"
-msgstr ""
+msgstr "Warning before"
 
 #: ./src/modules/components/Forms/Vm/CreateCharterForm/index.js:56
 msgid "WARNING_PERIOD"
-msgstr ""
+msgstr "WARNING_PERIOD"
 
 #: ./src/modules/components/Forms/Vm/CreateSchedActionForm/AlertText.js:93
 msgid "PERIOD"
-msgstr ""
+msgstr "PERIOD"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityGroup.js:50
-msgid "Affined groups improve performance and communication by placing related VM roles together on the same host. Ideal for roles that require high interactivity and shared resources."
+msgid ""
+"Affined groups improve performance and communication by placing related VM "
+"roles together on the same host. Ideal for roles that require high "
+"interactivity and shared resources."
 msgstr ""
+"Affined groups improve performance and communication by placing related VM "
+"roles together on the same host. Ideal for roles that require high "
+"interactivity and shared resources."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityGroup.js:51
-msgid "Anti-Affined groups enhance reliability and fault tolerance by distributing VM roles across different hosts. Suitable for roles that need isolation to prevent resource contention and single points of failure."
+msgid ""
+"Anti-Affined groups enhance reliability and fault tolerance by distributing "
+"VM roles across different hosts. Suitable for roles that need isolation to "
+"prevent resource contention and single points of failure."
 msgstr ""
+"Anti-Affined groups enhance reliability and fault tolerance by distributing "
+"VM roles across different hosts. Suitable for roles that need isolation to "
+"prevent resource contention and single points of failure."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityGroup.js:55
 msgid "Database clusters requiring shared storage."
-msgstr ""
+msgstr "Database clusters requiring shared storage."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityGroup.js:56
 msgid "High-performance computing with intensive data exchange."
-msgstr ""
+msgstr "High-performance computing with intensive data exchange."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityGroup.js:57
 msgid "Real-time processing applications demanding low-latency communication."
 msgstr ""
+"Real-time processing applications demanding low-latency communication."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityGroup.js:60
 msgid "Operational VMs separated from backup VMs."
-msgstr ""
+msgstr "Operational VMs separated from backup VMs."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityGroup.js:61
 msgid "Diverse application servers to prevent simultaneous failures."
-msgstr ""
+msgstr "Diverse application servers to prevent simultaneous failures."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityGroup.js:62
 msgid "Resource-heavy VMs spread out to avoid performance bottlenecks."
-msgstr ""
+msgstr "Resource-heavy VMs spread out to avoid performance bottlenecks."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityGroup.js:90
 msgid "Potential Use Cases"
-msgstr ""
+msgstr "Potential Use Cases"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityPanel.js:168
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/hostAffinityPanel.js:144
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/rolesPanel.js:88
 msgid "Affined"
-msgstr ""
+msgstr "Affined"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityPanel.js:171
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/hostAffinityPanel.js:147
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/rolesPanel.js:94
 msgid "Anti-Affined"
-msgstr ""
+msgstr "Anti-Affined"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityPanel.js:224
 msgid "Add Group"
-msgstr ""
+msgstr "Add Group"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityPanel.js:243
 msgid "Affined Groups"
-msgstr ""
+msgstr "Affined Groups"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/RoleToRole/affinityPanel.js:270
 msgid "Anti-Affined Groups"
-msgstr ""
+msgstr "Anti-Affined Groups"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/hostAffinityPanel.js:133
 msgid "Host Affinity"
-msgstr ""
+msgstr "Host Affinity"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/hostAffinityPanel.js:150
 msgid "Add a role name to assign Host-VM affinity"
-msgstr ""
+msgstr "Add a role name to assign Host-VM affinity"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/hostAffinityPanel.js:169
 #: ./src/modules/components/Tables/Vrs/row.js:96
 #: ./src/modules/components/Tabs/Service/Roles.js:470
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/hostAffinityPanel.js:170
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:82
 #: ./src/modules/containers/Providers/Sections/info.js:70
 #: ./src/modules/containers/Provisions/DialogInfo/info.js:68
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/hostAffinityPanel.js:172
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/hostAffinityPanel.js:213
 #: ./src/modules/components/Tables/DataGrid/index.js:59
 #: ./src/modules/components/Tables/Enhanced/pagination.js:52
 msgid "Rows per page"
-msgstr ""
+msgstr "Rows per page"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:74
 msgid "Role Configuration"
-msgstr ""
+msgstr "Role Configuration"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:82
 msgid "Enter a name for this role"
-msgstr ""
+msgstr "Enter a name for this role"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:94
 msgid "Policy"
-msgstr ""
+msgstr "Policy"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:100
 msgid "Affined Hosts"
-msgstr ""
+msgstr "Affined Hosts"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:123
-msgid "No affined hosts. Assign a set of hosts where the VMs of this rolecan be allocated."
+msgid ""
+"No affined hosts. Assign a set of hosts where the VMs of this rolecan be "
+"allocated."
 msgstr ""
+"No affined hosts. Assign a set of hosts where the VMs of this rolecan be "
+"allocated."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:124
-msgid "Affined hosts are VMs grouped together on a set of hosts to better modularize deployments and increase performance."
+msgid ""
+"Affined hosts are VMs grouped together on a set of hosts to better "
+"modularize deployments and increase performance."
 msgstr ""
+"Affined hosts are VMs grouped together on a set of hosts to better "
+"modularize deployments and increase performance."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:133
 msgid "Anti-Affined Hosts"
-msgstr ""
+msgstr "Anti-Affined Hosts"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:153
-msgid "No anti-affined hosts. Assign a set of hosts where the VMs of this role can&apos;t be allocated."
+msgid ""
+"No anti-affined hosts. Assign a set of hosts where the VMs of this role "
+"can&apos;t be allocated."
 msgstr ""
+"No anti-affined hosts. Assign a set of hosts where the VMs of this role "
+"can&apos;t be allocated."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:154
-msgid "Anti-affined hosts are VMs separated across different hosts to ensure redundancy and fault-tolerance."
+msgid ""
+"Anti-affined hosts are VMs separated across different hosts to ensure "
+"redundancy and fault-tolerance."
 msgstr ""
+"Anti-affined hosts are VMs separated across different hosts to ensure "
+"redundancy and fault-tolerance."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:166
 msgid "VM Group Configuration"
-msgstr ""
+msgstr "VM Group Configuration"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:168
 msgid "Define roles and placement constraints."
-msgstr ""
+msgstr "Define roles and placement constraints."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:169
 msgid "Optimize performance and fault tolerance."
-msgstr ""
+msgstr "Optimize performance and fault tolerance."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/roleSummary.js:170
 msgid "Manage multi-VM applications efficiently."
-msgstr ""
+msgstr "Manage multi-VM applications efficiently."
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/rolesColumn.js:132
 msgid "New Role"
-msgstr ""
+msgstr "New Role"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/rolesPanel.js:57
 msgid "Role Details"
-msgstr ""
+msgstr "Role Details"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/rolesPanel.js:60
 msgid "Role Name"
-msgstr ""
+msgstr "Role Name"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/rolesPanel.js:74
 msgid "VM-VM Affinity"
-msgstr ""
+msgstr "VM-VM Affinity"
 
 #: ./src/modules/components/Forms/VmGroup/CreateForm/Steps/Roles/rolesPanel.js:82
 #: ./src/modules/containers/Settings/LoginToken/LoginToken.js:69
 msgid "None"
-msgstr ""
+msgstr "None"
 
 #: ./src/modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/pci/index.js:151
 #: ./src/modules/components/Tabs/Vm/Pci/index.js:124
-msgid " PCI passthrough of network devices is configured per NIC, in the 'Network' tab. Do not add network devices here."
+msgid ""
+" PCI passthrough of network devices is configured per NIC, in the 'Network' "
+"tab. Do not add network devices here."
 msgstr ""
+" PCI passthrough of network devices is configured per NIC, in the 'Network' "
+"tab. Do not add network devices here."
 
 #: ./src/modules/components/Forms/VmTemplate/CreateForm/Steps/General/index.js:73
 msgid "Loaded"
-msgstr ""
+msgstr "Loaded"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking/NicMenu/NicCard.js:137
 msgid "RDP connection"
-msgstr ""
+msgstr "RDP connection"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking/NicMenu/NicCard.js:143
 msgid "SSH connection"
-msgstr ""
+msgstr "SSH connection"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking/NicMenu/NicCard.js:208
 #: ./src/modules/components/Tabs/SecurityGroup/Info/index.js:133
 msgid "Security group"
-msgstr ""
+msgstr "Security group"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking/NicMenu/NicColumn.js:49
 msgid "Configured NIC's"
-msgstr ""
+msgstr "Configured NIC's"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking/NicMenu/NicColumn.js:79
 msgid "Network name"
-msgstr ""
+msgstr "Network name"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking/NicMenu/NicColumn.js:108
 msgid "Add NIC"
-msgstr ""
+msgstr "Add NIC"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking/index.js:83
 msgid "Add a NIC to Start Configuring"
-msgstr ""
+msgstr "Add a NIC to Start Configuring"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking/index.js:86
-msgid "In a Virtual Router, a Network Interface Card (NIC) is crucial for managing network traffic efficiently. By adding a NIC, you unlock the ability to create virtual networks and route traffic between virtual machines, ensuring secure and efficient communication within your cloud environment."
+msgid ""
+"In a Virtual Router, a Network Interface Card (NIC) is crucial for managing "
+"network traffic efficiently. By adding a NIC, you unlock the ability to "
+"create virtual networks and route traffic between virtual machines, ensuring"
+" secure and efficient communication within your cloud environment."
 msgstr ""
+"In a Virtual Router, a Network Interface Card (NIC) is crucial for managing "
+"network traffic efficiently. By adding a NIC, you unlock the ability to "
+"create virtual networks and route traffic between virtual machines, ensuring"
+" secure and efficient communication within your cloud environment."
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking/index.js:89
-msgid "Just add a NIC to your configuration, and you&apos;ll gain access to configure network settings for your virtual routers. This includes setting up IP addresses, Security Groups, and more, making your cloud environment more manageable and secure."
+msgid ""
+"Just add a NIC to your configuration, and you&apos;ll gain access to "
+"configure network settings for your virtual routers. This includes setting "
+"up IP addresses, Security Groups, and more, making your cloud environment "
+"more manageable and secure."
 msgstr ""
+"Just add a NIC to your configuration, and you&apos;ll gain access to "
+"configure network settings for your virtual routers. This includes setting "
+"up IP addresses, Security Groups, and more, making your cloud environment "
+"more manageable and secure."
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking/index.js:94
 msgid "Network configuration"
-msgstr ""
+msgstr "Network configuration"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs/Node/NodeMenu.js:68
 #: ./src/modules/components/List/ListHeader/index.js:70
@@ -966,150 +1023,150 @@ msgstr ""
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalSearch.js:113
 #: ./src/modules/components/Tabs/Service/Log.js:129
 msgid "Search"
-msgstr ""
+msgstr "Search"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs/Node/NodeMenu.js:93
 msgid "Show mandatory only"
-msgstr ""
+msgstr "Show mandatory only"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs/Node/SubNode.js:38
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs/Node/UserInputDialog.js:98
 msgid "Yes"
-msgstr ""
+msgstr "Yes"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs/Node/SubNode.js:39
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs/Node/UserInputDialog.js:100
 msgid "No"
-msgstr ""
+msgstr "No"
 
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs/Node/SubNode.js:75
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs/Node/UserInputDialog.js:75
 #: ./src/modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs/Node/UserInputDialog.js:109
 #: ./src/modules/components/Tabs/Quota/Components/helpers/subcomponents/HybridInput.js:79
 msgid "Value"
-msgstr ""
+msgstr "Value"
 
 #: ./src/modules/components/Header/Group.js:88
 msgid "Show all"
-msgstr ""
+msgstr "Show all"
 
 #: ./src/modules/components/Header/Group.js:91
 msgid "Show all owned by the user or his groups"
-msgstr ""
+msgstr "Show all owned by the user or his groups"
 
 #: ./src/modules/components/Header/Group.js:95
 msgid "Show all owned by the user"
-msgstr ""
+msgstr "Show all owned by the user"
 
 #: ./src/modules/components/LoadingState/LoadingDisplay.js:56
 #: ./src/modules/components/LoadingState/LoadingDisplay.js:63
 #: ./src/modules/components/Tables/Enhanced/index.js:565
 #: ./src/modules/components/Tables/VrTemplates/table.js:266
 msgid "There is no data available"
-msgstr ""
+msgstr "There is no data available"
 
 #: ./src/modules/components/Status/LinearProgressWithLabel.js:100
 msgid "Low"
-msgstr ""
+msgstr "Low"
 
 #: ./src/modules/components/Status/LinearProgressWithLabel.js:107
 msgid "Medium"
-msgstr ""
+msgstr "Medium"
 
 #: ./src/modules/components/Status/LinearProgressWithLabel.js:114
 msgid "High"
-msgstr ""
+msgstr "High"
 
 #: ./src/modules/components/Status/LinearProgressWithTooltip.js:55
 msgid "tooltipTitle"
-msgstr ""
+msgstr "tooltipTitle"
 
 #: ./src/modules/components/Tables/Backups/row.js:141
 #: ./src/modules/components/Tables/Backups/row.js:148
 #: ./src/modules/components/Tables/Images/row.js:132
 #: ./src/modules/components/Tables/Images/row.js:134
 msgid "Persistent"
-msgstr ""
+msgstr "Persistent"
 
 #: ./src/modules/components/Tables/Backups/row.js:142
 #: ./src/modules/components/Tables/Backups/row.js:149
 #: ./src/modules/components/Tables/Images/row.js:132
 #: ./src/modules/components/Tables/Images/row.js:134
 msgid "Non Persistent"
-msgstr ""
+msgstr "Non Persistent"
 
 #: ./src/modules/components/Tables/Backups/row.js:152
 msgid "Disk type"
-msgstr ""
+msgstr "Disk type"
 
 #: ./src/modules/components/Tables/Backups/row.js:157
 msgid "Running"
-msgstr ""
+msgstr "Running"
 
 #: ./src/modules/components/Tables/Clusters/row.js:53
 #: ./src/modules/components/Tables/Clusters/row.js:60
 #: ./src/modules/components/Tables/Clusters/row.js:67
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:166
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 #: ./src/modules/components/Tables/Clusters/row.js:73
 #: ./src/modules/containers/Providers/Sections/info.js:80
 #: ./src/modules/containers/Provisions/DialogInfo/info.js:78
 msgid "Provider"
-msgstr ""
+msgstr "Provider"
 
 #: ./src/modules/components/Tables/DataGrid/index.js:49
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: ./src/modules/components/Tables/DataGrid/index.js:50
 msgid "Show columns"
-msgstr ""
+msgstr "Show columns"
 
 #: ./src/modules/components/Tables/DataGrid/index.js:51
 msgid "Manage columns"
-msgstr ""
+msgstr "Manage columns"
 
 #: ./src/modules/components/Tables/DataGrid/index.js:52
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalFilter.js:64
 msgid "Filter"
-msgstr ""
+msgstr "Filter"
 
 #: ./src/modules/components/Tables/DataGrid/index.js:53
 msgid "Hide column"
-msgstr ""
+msgstr "Hide column"
 
 #: ./src/modules/components/Tables/DataGrid/index.js:54
 msgid "Unsort"
-msgstr ""
+msgstr "Unsort"
 
 #: ./src/modules/components/Tables/DataGrid/index.js:55
 msgid "Sort by ASC"
-msgstr ""
+msgstr "Sort by ASC"
 
 #: ./src/modules/components/Tables/DataGrid/index.js:56
 msgid "Sort by DESC"
-msgstr ""
+msgstr "Sort by DESC"
 
 #: ./src/modules/components/Tables/DataGrid/index.js:57
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalSort.js:71
 msgid "Sort"
-msgstr ""
+msgstr "Sort"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/CategoryFilter.js:128
 #: ./src/modules/components/Tables/Enhanced/Utils/TimeFilter.js:35
 #: ./src/modules/components/Tables/Enhanced/Utils/TimeFilter.js:45
 msgid "Header"
-msgstr ""
+msgstr "Header"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/ChangeViewTable.js:62
 msgid "value.name"
-msgstr ""
+msgstr "value.name"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalActions/index.js:80
 msgid "Toggle all selected cards in current page"
-msgstr ""
+msgstr "Toggle all selected cards in current page"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalActions/index.js:88
 #: ./src/modules/containers/BackupJobs/BackupJobs.js:160
@@ -1138,89 +1195,89 @@ msgstr ""
 #: ./src/modules/containers/Zones/index.js:147
 #: ./src/modules/components/Tabs/BackupJobs/VMs/index.js:127
 msgid "Refresh"
-msgstr ""
+msgstr "Refresh"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalLabel/Filter.js:71
 msgid "Saved in the User's template"
-msgstr ""
+msgstr "Saved in the User's template"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/SwitchTableView/index.js:53
 msgid "Card View"
-msgstr ""
+msgstr "Card View"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/SwitchTableView/index.js:66
 msgid "List View"
-msgstr ""
+msgstr "List View"
 
 #: ./src/modules/components/Tables/Enhanced/pagination.js:55
 msgid "Number of rows per page"
-msgstr ""
+msgstr "Number of rows per page"
 
 #: ./src/modules/components/Tables/Enhanced/pagination.js:92
 msgid "of"
-msgstr ""
+msgstr "of"
 
 #: ./src/modules/components/Tables/Virtualized/toolbar.js:60
 msgid "Filters"
-msgstr ""
+msgstr "Filters"
 
 #: ./src/modules/components/Tables/VrTemplates/table.js:274
 msgid "Download Default Image"
-msgstr ""
+msgstr "Download Default Image"
 
 #: ./src/modules/components/Tables/Vrs/row.js:96
 #: ./src/modules/components/Tabs/Vm/Template.js:59
 msgid "Template"
-msgstr ""
+msgstr "Template"
 
 #: ./src/modules/components/Tables/Vrs/row.js:100
 msgid "Total VMs"
-msgstr ""
+msgstr "Total VMs"
 
 #: ./src/modules/components/Tables/Zones/row.js:54
 msgid "Endpoint"
-msgstr ""
+msgstr "Endpoint"
 
 #: ./src/modules/components/Tabs/Accounting/components/CustomizedChart.js:95
 #: ./src/modules/components/Tabs/Common/Attribute/Attribute.js:229
 #: ./src/modules/components/Tabs/Showback/index.js:199
 #: ./src/modules/components/Tabs/Showback/index.js:202
 msgid "value"
-msgstr ""
+msgstr "value"
 
 #: ./src/modules/components/Tabs/Accounting/components/MetricSelector.js:45
 msgid "item.label"
-msgstr ""
+msgstr "item.label"
 
 #: ./src/modules/components/Tabs/Accounting/index.js:282
 #: ./src/modules/components/Tabs/Accounting/index.js:286
 msgid "Group By"
-msgstr ""
+msgstr "Group By"
 
 #: ./src/modules/components/Tabs/Accounting/index.js:289
 msgid "User"
-msgstr ""
+msgstr "User"
 
 #: ./src/modules/components/Tabs/Accounting/index.js:298
 #: ./src/modules/components/Tabs/Accounting/index.js:302
 msgid "Chart Type"
-msgstr ""
+msgstr "Chart Type"
 
 #: ./src/modules/components/Tabs/Accounting/index.js:304
 msgid "Line Chart"
-msgstr ""
+msgstr "Line Chart"
 
 #: ./src/modules/components/Tabs/Accounting/index.js:305
 msgid "Bar Chart"
-msgstr ""
+msgstr "Bar Chart"
 
 #: ./src/modules/components/Tabs/Accounting/index.js:306
 msgid "Area Chart"
-msgstr ""
+msgstr "Area Chart"
 
 #: ./src/modules/components/Tabs/Accounting/index.js:307
 msgid "Table Chart"
-msgstr ""
+msgstr "Table Chart"
 
 #: ./src/modules/components/Tabs/Backup/Info/index.js:126
 #: ./src/modules/components/Tabs/BackupJobs/Info/index.js:121
@@ -1242,19 +1299,19 @@ msgstr ""
 #: ./src/modules/components/Tabs/VnTemplate/Info/index.js:153
 #: ./src/modules/components/Tabs/Zone/Info/index.js:87
 msgid "Attributes"
-msgstr ""
+msgstr "Attributes"
 
 #: ./src/modules/components/Tabs/Cluster/Drs/index.js:241
 msgid "Do you want to disable OneDRS?"
-msgstr ""
+msgstr "Do you want to disable OneDRS?"
 
 #: ./src/modules/components/Tabs/Cluster/Drs/timeline.js:209
 msgid "Do you want to apply the optimization plan?"
-msgstr ""
+msgstr "Do you want to apply the optimization plan?"
 
 #: ./src/modules/components/Tabs/Cluster/Drs/timeline.js:260
 msgid "Do you want to delete the optimization plan?"
-msgstr ""
+msgstr "Do you want to delete the optimization plan?"
 
 #: ./src/modules/components/Tabs/Common/Attribute/Attribute.js:163
 #: ./src/modules/components/Tabs/Common/Attribute/Inputs.js:114
@@ -1268,11 +1325,11 @@ msgstr ""
 #: ./src/modules/components/Forms/VnTemplate/InstantiateForm/Steps/ExtraConfiguration/index.js:60
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalSort.js:87
 msgid "name"
-msgstr ""
+msgstr "name"
 
 #: ./src/modules/components/Tabs/Common/Permissions.js:65
 msgid "Permissions"
-msgstr ""
+msgstr "Permissions"
 
 #: ./src/modules/components/Tabs/Host/Info/index.js:106
 #: ./src/modules/components/Tabs/VNetworkTemplate/Info/index.js:167
@@ -1282,291 +1339,299 @@ msgstr ""
 #: ./src/modules/containers/Providers/Sections/info.js:62
 #: ./src/modules/containers/Provisions/DialogInfo/info.js:60
 msgid "Information"
-msgstr ""
+msgstr "Information"
 
 #: ./src/modules/components/Tabs/Host/Numa/UpdateIsolatedCPUS/index.js:94
 #: ./src/modules/components/Tabs/Vm/Network/Actions.js:155
 msgid "Update"
-msgstr ""
+msgstr "Update"
 
 #: ./src/modules/components/Tabs/Image/Snapshots/Actions.js:39
 #: ./src/modules/components/Tabs/Image/Snapshots/Actions.js:40
 msgid "Flatten"
-msgstr ""
+msgstr "Flatten"
 
 #: ./src/modules/components/Tabs/Image/Snapshots/Actions.js:51
 msgid "This will delete all the other image snapshots"
-msgstr ""
+msgstr "This will delete all the other image snapshots"
 
 #: ./src/modules/components/Tabs/Image/Snapshots/Actions.js:75
 #: ./src/modules/components/Tabs/Vm/Snapshot/Actions.js:70
 #: ./src/modules/components/Tabs/Vm/Storage/Actions.js:364
 msgid "Revert"
-msgstr ""
+msgstr "Revert"
 
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:106
 msgid "quota.displayName"
-msgstr ""
+msgstr "quota.displayName"
 
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:359
 msgid "How to use Quota Controls"
-msgstr ""
+msgstr "How to use Quota Controls"
 
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:361
 msgid "Select the quota type from the dropdown."
-msgstr ""
+msgstr "Select the quota type from the dropdown."
 
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:368
 msgid "enter Resource IDs over which this quota will apply"
-msgstr ""
+msgstr "enter Resource IDs over which this quota will apply"
 
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:370
 msgid "(Optional) Individual Resource Quotas."
-msgstr ""
+msgstr "(Optional) Individual Resource Quotas."
 
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:379
 msgid "this further qualifies the quota type to a more specific attribute"
-msgstr ""
+msgstr "this further qualifies the quota type to a more specific attribute"
 
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:381
 msgid "Select identifiers for the quota."
-msgstr ""
+msgstr "Select identifiers for the quota."
 
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:384
 msgid "Enter the value for the selected quota."
-msgstr ""
+msgstr "Enter the value for the selected quota."
 
 #: ./src/modules/components/Tabs/Quota/Components/QuotaControls.js:385
 msgid "Click Apply to set the quotas."
-msgstr ""
+msgstr "Click Apply to set the quotas."
 
 #: ./src/modules/components/Tabs/Quota/Components/helpers/subcomponents/ResourceIDAutocomplete.js:135
 msgid "Invalid format or duplicate ID. Please enter a positive number."
-msgstr ""
+msgstr "Invalid format or duplicate ID. Please enter a positive number."
 
 #: ./src/modules/components/Tabs/Quota/index.js:168
 msgid "VM Quota"
-msgstr ""
+msgstr "VM Quota"
 
 #: ./src/modules/components/Tabs/Quota/index.js:176
 msgid "Datastore Quota"
-msgstr ""
+msgstr "Datastore Quota"
 
 #: ./src/modules/components/Tabs/Quota/index.js:184
 msgid "Network Quota"
-msgstr ""
+msgstr "Network Quota"
 
 #: ./src/modules/components/Tabs/Quota/index.js:192
 msgid "Image Quota"
-msgstr ""
+msgstr "Image Quota"
 
 #: ./src/modules/components/Tabs/Quota/index.js:274
 msgid "Quota Controls"
-msgstr ""
+msgstr "Quota Controls"
 
 #: ./src/modules/components/Tabs/Service/ButtonGenerator.js:114
 msgid "items.name"
-msgstr ""
+msgstr "items.name"
 
 #: ./src/modules/components/Tabs/Service/Log.js:136
 #: ./src/modules/components/Tabs/Service/Log.js:139
 msgid "Severity"
-msgstr ""
+msgstr "Severity"
 
 #: ./src/modules/components/Tabs/Service/Log.js:143
 msgid "All Severities"
-msgstr ""
+msgstr "All Severities"
 
 #: ./src/modules/components/Tabs/Service/Log.js:169
 msgid "Asc"
-msgstr ""
+msgstr "Asc"
 
 #: ./src/modules/components/Tabs/Service/Log.js:169
 msgid "Desc"
-msgstr ""
+msgstr "Desc"
 
 #: ./src/modules/components/Tabs/Service/Roles.js:470
 #: ./src/modules/components/Tabs/MarketplaceApp/Template.js:66
 msgid "VM Template"
-msgstr ""
+msgstr "VM Template"
 
 #: ./src/modules/components/Tabs/Service/Roles.js:473
 msgid "Cardinality"
-msgstr ""
+msgstr "Cardinality"
 
 #: ./src/modules/components/Tabs/Service/ScaleDialog.js:74
 msgid "Number of VMs"
-msgstr ""
+msgstr "Number of VMs"
 
 #: ./src/modules/components/Tabs/Service/ScaleDialog.js:84
 msgid "Force"
-msgstr ""
+msgstr "Force"
 
 #: ./src/modules/components/Tabs/Support/Comments/Chat/index.js:66
 msgid "Attachments"
-msgstr ""
+msgstr "Attachments"
 
 #: ./src/modules/components/Tabs/Support/Info/CloseTicket.js:69
 msgid "Add comment to close the ticket"
-msgstr ""
+msgstr "Add comment to close the ticket"
 
 #: ./src/modules/components/Tabs/User/Authentication.js:185
 msgid "Authentication"
-msgstr ""
+msgstr "Authentication"
 
 #: ./src/modules/components/Tabs/User/Authentication.js:190
 msgid "Authentication driver"
-msgstr ""
+msgstr "Authentication driver"
 
 #: ./src/modules/components/Tabs/User/Authentication.js:226
 msgid "Password"
-msgstr ""
+msgstr "Password"
 
 #: ./src/modules/components/Tabs/User/Authentication.js:243
 #: ./src/modules/components/Tabs/User/Authentication.js:276
 msgid "Edit Public SSH Key"
-msgstr ""
+msgstr "Edit Public SSH Key"
 
 #: ./src/modules/components/Tabs/User/Authentication.js:250
 #: ./src/modules/components/Tabs/User/Authentication.js:309
 msgid "Edit Private SSH Key"
-msgstr ""
+msgstr "Edit Private SSH Key"
 
 #: ./src/modules/components/Tabs/User/Authentication.js:258
 #: ./src/modules/components/Tabs/User/Authentication.js:347
 msgid "Edit SSH Key Passphrase"
-msgstr ""
+msgstr "Edit SSH Key Passphrase"
 
 #: ./src/modules/components/Tabs/User/Authentication.js:284
 msgid "Paste your SSH Key here..."
-msgstr ""
+msgstr "Paste your SSH Key here..."
 
 #: ./src/modules/components/Tabs/User/Authentication.js:319
 msgid "Paste your Private SSH Key here..."
-msgstr ""
+msgstr "Paste your Private SSH Key here..."
 
 #: ./src/modules/components/Tabs/User/Authentication.js:353
 msgid "Enter your passphrase..."
-msgstr ""
+msgstr "Enter your passphrase..."
 
 #: ./src/modules/components/Tabs/User/Group/index.js:189
 msgid "Primary Group"
-msgstr ""
+msgstr "Primary Group"
 
 #: ./src/modules/components/Tabs/User/Group/index.js:222
 msgid "Secondary Groups"
-msgstr ""
+msgstr "Secondary Groups"
 
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:121
 msgid "Action"
-msgstr ""
+msgstr "Action"
 
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:145
 msgid "Request ID"
-msgstr ""
+msgstr "Request ID"
 
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:157
 msgid "Time when the state changed"
-msgstr ""
+msgstr "Time when the state changed"
 
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:165
 msgid "Total time in this state"
-msgstr ""
+msgstr "Total time in this state"
 
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:172
 msgid "Prolog time for this state"
-msgstr ""
+msgstr "Prolog time for this state"
 
 #: ./src/modules/components/Tabs/Vm/Info/Graphs.js:54
 msgid "Real CPU"
-msgstr ""
+msgstr "Real CPU"
 
 #: ./src/modules/components/Tabs/Vm/Info/Graphs.js:93
 msgid "Real Memory"
-msgstr ""
+msgstr "Real Memory"
 
 #: ./src/modules/components/Tabs/Vm/Info/capacity.js:92
 msgid "Cores"
-msgstr ""
+msgstr "Cores"
 
 #: ./src/modules/components/Tabs/Vm/Info/capacity.js:93
 msgid "Sockets"
-msgstr ""
+msgstr "Sockets"
 
 #: ./src/modules/components/Tabs/Vm/Network/Actions.js:184
 #: ./src/modules/components/Tabs/Vm/Network/Actions.js:189
 msgid "Alias"
-msgstr ""
+msgstr "Alias"
 
 #: ./src/modules/components/Tabs/Vm/Network/Actions.js:318
 msgid "Attach Security Group"
-msgstr ""
+msgstr "Attach Security Group"
 
 #: ./src/modules/components/Tabs/Vm/Network/Actions.js:351
 msgid "Detach Security Group"
-msgstr ""
+msgstr "Detach Security Group"
 
 #: ./src/modules/components/Tabs/Vm/Network/Graphs.js:61
 msgid "Net download speed"
-msgstr ""
+msgstr "Net download speed"
 
 #: ./src/modules/components/Tabs/Vm/Network/Graphs.js:100
 msgid "Net upload speed"
-msgstr ""
+msgstr "Net upload speed"
 
 #: ./src/modules/components/Tabs/Vm/Pci/index.js:145
 msgid "PCI only can be attach or detach in POWEROFF state."
-msgstr ""
+msgstr "PCI only can be attach or detach in POWEROFF state."
 
 #: ./src/modules/components/Tabs/Vm/Snapshot/index.js:77
 #: ./src/modules/components/Tabs/Vm/Snapshot/index.js:146
-msgid "Snapshots in this tab refer to System Snapshots, which includes all disks and the memory state of the VM. For disk snapshots, see the Storage tab"
+msgid ""
+"Snapshots in this tab refer to System Snapshots, which includes all disks "
+"and the memory state of the VM. For disk snapshots, see the Storage tab"
 msgstr ""
+"Snapshots in this tab refer to System Snapshots, which includes all disks "
+"and the memory state of the VM. For disk snapshots, see the Storage tab"
 
 #: ./src/modules/components/Tabs/Vm/Snapshot/index.js:99
 msgid "Taking snapshots is not available."
-msgstr ""
+msgstr "Taking snapshots is not available."
 
 #: ./src/modules/components/Tabs/Vm/Snapshot/index.js:123
 msgid "If none of the above worked, please refer to the VM monitoring logs."
-msgstr ""
+msgstr "If none of the above worked, please refer to the VM monitoring logs."
 
 #: ./src/modules/components/Tabs/Vm/Storage/Actions.js:202
 msgid "Save as"
-msgstr ""
+msgstr "Save as"
 
 #: ./src/modules/components/Tabs/Vm/Storage/Actions.js:247
 #: ./src/modules/components/Tabs/Vm/Info/capacity.js:183
 msgid "Resize"
-msgstr ""
+msgstr "Resize"
 
 #: ./src/modules/components/Tabs/Vm/Storage/Actions.js:247
-msgid "You cannot resize the disk because its SIZE attribute is restricted. Please, contact with your administrator."
+msgid ""
+"You cannot resize the disk because its SIZE attribute is restricted. Please,"
+" contact with your administrator."
 msgstr ""
+"You cannot resize the disk because its SIZE attribute is restricted. Please,"
+" contact with your administrator."
 
 #: ./src/modules/components/Tabs/Vm/Storage/Actions.js:291
 msgid "Take snapshot"
-msgstr ""
+msgstr "Take snapshot"
 
 #: ./src/modules/components/Tabs/Vm/Storage/Graphs.js:55
 msgid "Disk read bytes"
-msgstr ""
+msgstr "Disk read bytes"
 
 #: ./src/modules/components/Tabs/Vm/Storage/Graphs.js:99
 msgid "Disk write bytes"
-msgstr ""
+msgstr "Disk write bytes"
 
 #: ./src/modules/components/Tabs/Vm/Storage/Graphs.js:143
 msgid "Disk read IOPS"
-msgstr ""
+msgstr "Disk read IOPS"
 
 #: ./src/modules/components/Tabs/Vm/Storage/Graphs.js:176
 msgid "Disk write IOPS"
-msgstr ""
+msgstr "Disk write IOPS"
 
 #: ./src/modules/components/Tabs/VmGroup/Info/index.js:110
 msgid "Roles Affinity"
-msgstr ""
+msgstr "Roles Affinity"
 
 #: ./src/modules/containers/BackupJobs/BackupJobs.js:138
 #: ./src/modules/containers/Backups/Backups.js:135
@@ -1596,7 +1661,7 @@ msgstr ""
 #: ./src/modules/components/FormStepper/Stepper.js:234
 #: ./src/modules/containers/Login/Opennebula/Form.js:93
 msgid "Back"
-msgstr ""
+msgstr "Back"
 
 #: ./src/modules/containers/BackupJobs/BackupJobs.js:150
 #: ./src/modules/containers/Backups/Backups.js:147
@@ -1624,7 +1689,7 @@ msgstr ""
 #: ./src/modules/containers/Zones/index.js:137
 #: ./src/modules/components/Consoles/Guacamole/buttons.js:369
 msgid "Full screen"
-msgstr ""
+msgstr "Full screen"
 
 #: ./src/modules/containers/BackupJobs/BackupJobs.js:168
 #: ./src/modules/containers/Backups/Backups.js:165
@@ -1651,210 +1716,240 @@ msgstr ""
 #: ./src/modules/containers/VnTemplates/VirtualNetworkTemplates.js:168
 #: ./src/modules/containers/Zones/index.js:155
 msgid "Close"
-msgstr ""
+msgstr "Close"
 
 #: ./src/modules/containers/Dashboard/Sunstone/Cloud/Cards.js:283
 msgid "resourceType.title"
-msgstr ""
+msgstr "resourceType.title"
 
 #: ./src/modules/containers/Guacamole/index.js:169
 msgid "Guacamole State"
-msgstr ""
+msgstr "Guacamole State"
 
 #: ./src/modules/containers/Login/Opennebula/Opennebula.js:67
 msgid "Wrong username or password"
-msgstr ""
+msgstr "Wrong username or password"
 
 #: ./src/modules/containers/Login/Opennebula/Opennebula.js:123
 #: ./src/modules/containers/Login/Remote/Remote.js:83
 msgid "Login in your account:"
-msgstr ""
+msgstr "Login in your account:"
 
 #: ./src/modules/containers/Login/Opennebula/schema.js:93
 msgid "Primary"
-msgstr ""
+msgstr "Primary"
 
 #: ./src/modules/containers/Providers/Sections/info.js:74
 #: ./src/modules/containers/Provisions/DialogInfo/info.js:72
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 #: ./src/modules/containers/Providers/Sections/info.js:84
 msgid "Registration time"
-msgstr ""
+msgstr "Registration time"
 
 #: ./src/modules/containers/Providers/Sections/info.js:93
 msgid "Credentials"
-msgstr ""
+msgstr "Credentials"
 
 #: ./src/modules/containers/Provisions/DialogInfo/info.js:86
 msgid "Start time"
-msgstr ""
+msgstr "Start time"
 
 #: ./src/modules/containers/Provisions/DialogInfo/info.js:90
 msgid "State"
-msgstr ""
+msgstr "State"
 
 #: ./src/modules/containers/Settings/ChangePassword/ChangePassword.js:49
 msgid "Succesfully changed password"
-msgstr ""
+msgstr "Succesfully changed password"
 
 #: ./src/modules/containers/Settings/LoginToken/LoginToken.js:87
 msgid "Valid until"
-msgstr ""
+msgstr "Valid until"
 
 #: ./src/modules/containers/Settings/LoginToken/LoginToken.js:104
 msgid "Token"
-msgstr ""
+msgstr "Token"
 
 #: ./src/modules/containers/Settings/Tfa/Tfa.js:127
 #: ./src/modules/containers/Settings/Tfa/Tfa.js:172
 msgid "Scan this Qr"
-msgstr ""
+msgstr "Scan this Qr"
 
 #: ./src/modules/containers/TestApi/TestApi.js:56
 msgid "Select request"
-msgstr ""
+msgstr "Select request"
 
 #: ./src/modules/containers/VirtualMachines/ButtonClearErrors.js:60
 msgid "Clear error messages and warnings from selects Virtual Machines"
-msgstr ""
+msgstr "Clear error messages and warnings from selects Virtual Machines"
 
 #: ./src/modules/components/Buttons/ScheduleAction.js:215
 msgid "Charter"
-msgstr ""
+msgstr "Charter"
 
 #: ./src/modules/components/Cards/DiskSnapshotCard.js:71
 #: ./src/modules/components/Cards/ImageSnapshotCard.js:71
 msgid "Active"
-msgstr ""
+msgstr "Active"
 
 #: ./src/modules/components/Cards/DiskSnapshotCard.js:72
 #: ./src/modules/components/Cards/ImageSnapshotCard.js:72
 msgid "Snapshot"
-msgstr ""
+msgstr "Snapshot"
 
 #: ./src/modules/components/Consoles/Guacamole/buttons.js:100
 msgid "Ctrl-Alt-Del"
-msgstr ""
+msgstr "Ctrl-Alt-Del"
 
 #: ./src/modules/components/Consoles/Guacamole/buttons.js:128
 msgid "Reconnect"
-msgstr ""
+msgstr "Reconnect"
 
 #: ./src/modules/components/Consoles/Guacamole/buttons.js:337
 msgid "Submit"
-msgstr ""
+msgstr "Submit"
 
 #: ./src/modules/components/Consoles/Guacamole/buttons.js:410
 msgid "Download connection file."
-msgstr ""
+msgstr "Download connection file."
 
 #: ./src/modules/components/Consoles/Guacamole/buttons.js:454
 msgid "Screenshot"
-msgstr ""
+msgstr "Screenshot"
 
 #: ./src/modules/components/Consoles/HeaderVmInfo.js:112
 msgid "Part of"
-msgstr ""
+msgstr "Part of"
 
 #: ./src/modules/components/Footer/index.js:68
 msgid "Made with"
-msgstr ""
+msgstr "Made with"
 
 #: ./src/modules/components/FormControl/TimeController.js:64
 msgid "Cancel"
-msgstr ""
+msgstr "Cancel"
 
 #: ./src/modules/components/FormControl/TimeController.js:65
 msgid "Clear"
-msgstr ""
+msgstr "Clear"
 
 #: ./src/modules/components/FormControl/TimeController.js:66
 msgid "Today"
-msgstr ""
+msgstr "Today"
 
 #: ./src/modules/components/FormStepper/MobileStepper.js:102
 msgid "Finish"
-msgstr ""
+msgstr "Finish"
 
 #: ./src/modules/components/FormStepper/MobileStepper.js:104
 msgid "Next"
-msgstr ""
+msgstr "Next"
 
 #: ./src/modules/components/Forms/SecurityGroups/CreateForm/Steps/Rules/rulesSection.js:128
 msgid "Add"
-msgstr ""
+msgstr "Add"
 
 #: ./src/modules/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration/addresses.js:119
 #: ./src/modules/components/Forms/VnTemplate/CreateForm/Steps/ExtraConfiguration/addresses.js:119
 #: ./src/modules/components/Forms/VnTemplate/InstantiateForm/Steps/ExtraConfiguration/addresses.js:119
-msgid "Address Ranges need to be managed in the individual Virtual Network panel"
+msgid ""
+"Address Ranges need to be managed in the individual Virtual Network panel"
 msgstr ""
+"Address Ranges need to be managed in the individual Virtual Network panel"
 
 #: ./src/modules/components/Forms/VNetwork/RecoverForm/index.js:29
-msgid "Recovers a stuck Virtual Network after an update operation that didn't finish successfully, since updating a Virtual Network implies updating the corresponding Virtual Machine NICs. The recovery may be done by failing, succeeding or retrying the current operation; or deleting the Virtual Network. You need to manually check the affected VMs and the network resources on the infrastructure to decide if the operation was successful or not, or if it can be retried."
+msgid ""
+"Recovers a stuck Virtual Network after an update operation that didn't "
+"finish successfully, since updating a Virtual Network implies updating the "
+"corresponding Virtual Machine NICs. The recovery may be done by failing, "
+"succeeding or retrying the current operation; or deleting the Virtual "
+"Network. You need to manually check the affected VMs and the network "
+"resources on the infrastructure to decide if the operation was successful or"
+" not, or if it can be retried."
 msgstr ""
+"Recovers a stuck Virtual Network after an update operation that didn't "
+"finish successfully, since updating a Virtual Network implies updating the "
+"corresponding Virtual Machine NICs. The recovery may be done by failing, "
+"succeeding or retrying the current operation; or deleting the Virtual "
+"Network. You need to manually check the affected VMs and the network "
+"resources on the infrastructure to decide if the operation was successful or"
+" not, or if it can be retried."
 
 #: ./src/modules/components/Forms/Vm/RecoverForm/index.js:26
-msgid "Recovers a stuck VM that is waiting for a driver operation. The recovery may be done by failing, succeeding or retrying the current operation. YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation was successful or not, or if it can be retried"
+msgid ""
+"Recovers a stuck VM that is waiting for a driver operation. The recovery may"
+" be done by failing, succeeding or retrying the current operation. YOU NEED "
+"TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation was "
+"successful or not, or if it can be retried"
 msgstr ""
+"Recovers a stuck VM that is waiting for a driver operation. The recovery may"
+" be done by failing, succeeding or retrying the current operation. YOU NEED "
+"TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation was "
+"successful or not, or if it can be retried"
 
 #: ./src/modules/components/Forms/Vm/UpdateConfigurationForm/content.js:51
 msgid "OS & CPU"
-msgstr ""
+msgstr "OS & CPU"
 
 #: ./src/modules/components/Forms/Vm/UpdateConfigurationForm/content.js:65
 msgid "Input / Output"
-msgstr ""
+msgstr "Input / Output"
 
 #: ./src/modules/components/Forms/Vm/UpdateConfigurationForm/content.js:78
 msgid "Context"
-msgstr ""
+msgstr "Context"
 
 #: ./src/modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/bootOrder.js:120
 #: ./src/modules/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/diskSchema.js:50
 msgid "Volatile disk"
-msgstr ""
+msgstr "Volatile disk"
 
 #: ./src/modules/components/Forms/VmTemplate/Legend.js:86
 #: ./src/modules/components/Tabs/Vm/Info/capacity.js:176
 msgid "Capacity"
-msgstr ""
+msgstr "Capacity"
 
 #: ./src/modules/components/Forms/VnTemplate/CreateForm/Steps/ExtraConfiguration/qos/index.js:35
-msgid "These values apply to each VM interface individually, they are not global values for the Virtual Network"
+msgid ""
+"These values apply to each VM interface individually, they are not global "
+"values for the Virtual Network"
 msgstr ""
+"These values apply to each VM interface individually, they are not global "
+"values for the Virtual Network"
 
 #: ./src/modules/components/Forms/VnTemplate/InstantiateForm/Steps/ExtraConfiguration/security.js:58
-msgid "The default Security Group 0 is automatically added to new Virtual Networks"
+msgid ""
+"The default Security Group 0 is automatically added to new Virtual Networks"
 msgstr ""
+"The default Security Group 0 is automatically added to new Virtual Networks"
 
 #: ./src/modules/components/Header/Group.js:110
 #: ./src/modules/components/Header/Group.js:114
 msgid "Switch group"
-msgstr ""
+msgstr "Switch group"
 
 #: ./src/modules/components/Header/User.js:55
 msgid "Sign Out"
-msgstr ""
+msgstr "Sign Out"
 
 #: ./src/modules/components/Header/User.js:61
 msgid "Settings"
-msgstr ""
+msgstr "Settings"
 
 #: ./src/modules/components/Header/View.js:84
 #: ./src/modules/components/Header/View.js:86
 msgid "Switch view"
-msgstr ""
+msgstr "Switch view"
 
 #: ./src/modules/components/Header/Zone.js:68
 msgid "Not found"
-msgstr ""
+msgstr "Not found"
 
 #: ./src/modules/components/MultipleTags/index.js:107
 msgid "More"
-msgstr ""
+msgstr "More"
 
 #: ./src/modules/components/Tables/ACLs/actions.js:55
 #: ./src/modules/components/Tables/BackupJobs/actions.js:66
@@ -1870,59 +1965,63 @@ msgstr ""
 #: ./src/modules/components/Tables/VrTemplates/actions.js:60
 #: ./src/modules/components/Tables/Vrs/actions.js:59
 msgid "description"
-msgstr ""
+msgstr "description"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalFilter.js:63
 #: ./src/modules/components/Tabs/BackupJobs/VMs/index.js:176
 msgid "Filter by"
-msgstr ""
+msgstr "Filter by"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalLabel/Allocator.js:128
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalLabel/Filter.js:133
 msgid "No labels"
-msgstr ""
+msgstr "No labels"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalLabel/index.js:53
 msgid "Filter by label"
-msgstr ""
+msgstr "Filter by label"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalLabel/index.js:54
 msgid "Label"
-msgstr ""
+msgstr "Label"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalSelectedRows.js:74
 msgid "Clear selection"
-msgstr ""
+msgstr "Clear selection"
 
 #: ./src/modules/components/Tables/Enhanced/Utils/GlobalSort.js:70
 msgid "Sort by"
-msgstr ""
+msgstr "Sort by"
 
 #: ./src/modules/components/Tables/Enhanced/index.js:526
 msgid "Clear current search query, filters, and sorts"
-msgstr ""
+msgstr "Clear current search query, filters, and sorts"
 
 #: ./src/modules/components/Tables/SecurityGroups/actions.js:61
 msgid "message"
-msgstr ""
+msgstr "message"
 
 #: ./src/modules/components/Tables/ServiceTemplates/table.js:122
 #: ./src/modules/components/Tables/Services/table.js:100
 msgid "Cannot connect to OneFlow server"
-msgstr ""
+msgstr "Cannot connect to OneFlow server"
 
 #: ./src/modules/components/Tabs/BackupJobs/VMs/index.js:133
-msgid "There are machines in outdated, you can refresh to see if the backups are already done"
+msgid ""
+"There are machines in outdated, you can refresh to see if the backups are "
+"already done"
 msgstr ""
+"There are machines in outdated, you can refresh to see if the backups are "
+"already done"
 
 #: ./src/modules/components/Tabs/BackupJobs/index.js:94
 #: ./src/modules/components/Tabs/BackupJobs/index.js:95
 msgid "Retry"
-msgstr ""
+msgstr "Retry"
 
 #: ./src/modules/components/Tabs/Common/Attribute/Actions.js:83
 msgid "Copied to clipboard"
-msgstr ""
+msgstr "Copied to clipboard"
 
 #: ./src/modules/components/Tabs/Common/Roles.js:117
 #: ./src/modules/components/Tabs/Common/RolesAffinity.js:115
@@ -1930,125 +2029,134 @@ msgstr ""
 #: ./src/modules/components/Tabs/ServiceTemplate/Roles.js:50
 #: ./src/modules/components/Tabs/Vn/Leases/index.js:173
 msgid "col"
-msgstr ""
+msgstr "col"
 
 #: ./src/modules/components/Tabs/Host/Numa/Hugepage/index.js:38
 msgid "Hugepage"
-msgstr ""
+msgstr "Hugepage"
 
 #: ./src/modules/components/Tabs/Host/Numa/Hugepage/index.js:47
 msgid "Free"
-msgstr ""
+msgstr "Free"
 
 #: ./src/modules/components/Tabs/Host/Numa/Hugepage/index.js:50
 msgid "Pages"
-msgstr ""
+msgstr "Pages"
 
 #: ./src/modules/components/Tabs/Host/Numa/Hugepage/index.js:53
 msgid "Usage"
-msgstr ""
+msgstr "Usage"
 
 #: ./src/modules/components/Tabs/Host/Numa/information.js:47
 msgid "Cores & CPUS"
-msgstr ""
+msgstr "Cores & CPUS"
 
 #: ./src/modules/components/Tabs/MarketplaceApp/Template.js:52
 msgid "App Template"
-msgstr ""
+msgstr "App Template"
 
 #: ./src/modules/components/Tabs/Vm/History/HistoryRecord.js:173
 msgid "Prolog"
-msgstr ""
+msgstr "Prolog"
 
 #: ./src/modules/components/Tabs/Vm/Network/Graphs.js:55
-msgid "There is currently no network monitoring information associated with this VM"
+msgid ""
+"There is currently no network monitoring information associated with this VM"
 msgstr ""
+"There is currently no network monitoring information associated with this VM"
 
 #: ./src/modules/components/Tabs/Vm/Template.js:44
 msgid "User Template"
-msgstr ""
+msgstr "User Template"
 
 #: ./src/modules/components/Tabs/Vm/index.js:123
 msgid "Dismiss"
-msgstr ""
+msgstr "Dismiss"
 
 #: ./src/modules/containers/Dashboard/Sunstone/Cloud/index.js:102
 msgid "My Dashboard"
-msgstr ""
+msgstr "My Dashboard"
 
 #: ./src/modules/containers/Login/Remote/Remote.js:93
 msgid "Sign In Now"
-msgstr ""
+msgstr "Sign In Now"
 
 #: ./src/modules/containers/Provisions/DialogInfo/hosts.js:72
 msgid "Add Host"
-msgstr ""
+msgstr "Add Host"
 
 #: ./src/modules/containers/Provisions/DialogInfo/networks.js:77
 msgid "Add IP"
-msgstr ""
+msgstr "Add IP"
 
 #: ./src/modules/containers/Settings/Authentication/Authentication.js:119
 msgid "Press Escape to cancel"
-msgstr ""
+msgstr "Press Escape to cancel"
 
 #: ./src/modules/containers/Settings/LoginToken/LoginToken.js:275
-msgid "A login token acts as a password and can be used to authenticate with OpenNebula through  CLI, or the API"
+msgid ""
+"A login token acts as a password and can be used to authenticate with "
+"OpenNebula through  CLI, or the API"
 msgstr ""
+"A login token acts as a password and can be used to authenticate with "
+"OpenNebula through  CLI, or the API"
 
 #: ./src/modules/containers/Settings/Menu/ProfileImage.js:133
 msgid "Hey, "
-msgstr ""
+msgstr "Hey, "
 
 #: ./src/modules/containers/Settings/Tfa/Tfa.js:162
 msgid "Get authenticator app: "
-msgstr ""
+msgstr "Get authenticator app: "
 
 #: ./src/modules/containers/Settings/Tfa/Tfa.js:175
 msgid "Enter Verification Code"
-msgstr ""
+msgstr "Enter Verification Code"
 
 #: ./src/modules/containers/Settings/Tfa/Tfa.js:254
 msgid "Authenticator app (HOTP) [Legacy]"
-msgstr ""
+msgstr "Authenticator app (HOTP) [Legacy]"
 
 #: ./src/modules/containers/Settings/Tfa/Tfa.js:270
 msgid "Authenticator app (HOTP)"
-msgstr ""
+msgstr "Authenticator app (HOTP)"
 
 #: ./src/modules/containers/Support/Authentication/Form.js:109
 msgid "Or"
-msgstr ""
+msgstr "Or"
 
 #: ./src/modules/containers/Support/Authentication/Form.js:117
 msgid "Get an account"
-msgstr ""
+msgstr "Get an account"
 
 #: ./src/modules/containers/Support/Authentication/LoginSupport.js:39
 msgid "Commercial Support"
-msgstr ""
+msgstr "Commercial Support"
 
 #: ./src/modules/containers/Support/Documentation/Documentation.js:52
 msgid "Additional Help Resources"
-msgstr ""
+msgstr "Additional Help Resources"
 
 #: ./src/modules/containers/Support/Documentation/Documentation.js:83
 msgid "Documentation"
-msgstr ""
+msgstr "Documentation"
 
 #: ./src/modules/containers/Support/Documentation/Documentation.js:109
 msgid "Community"
-msgstr ""
+msgstr "Community"
 
 #: ./src/modules/containers/Support/Information/Information.js:87
-msgid "The Support Subscription provides expert integration and production support on supported platforms and include:"
+msgid ""
+"The Support Subscription provides expert integration and production support "
+"on supported platforms and include:"
 msgstr ""
+"The Support Subscription provides expert integration and production support "
+"on supported platforms and include:"
 
 #: ./src/modules/containers/Support/Information/Information.js:96
 msgid "For more info on support subscriptions, "
-msgstr ""
+msgstr "For more info on support subscriptions, "
 
 #: ./src/modules/containers/Support/Support.js:84
 msgid "Commercial Support Requests"
-msgstr ""
-
+msgstr "Commercial Support Requests"
