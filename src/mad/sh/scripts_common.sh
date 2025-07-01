@@ -1065,8 +1065,16 @@ function get_disk_information {
         fi
         ;;
     cdrom)
-        TYPE_SOURCE="file"
-        TYPE_XML="file"
+        case "$DISK_TYPE" in
+        BLOCK)
+            TYPE_SOURCE="dev"
+            TYPE_XML="block"
+            ;;
+        *)
+            TYPE_SOURCE="file"
+            TYPE_XML="file"
+            ;;
+        esac
         DEVICE="cdrom"
         ;;
     rbd*)
