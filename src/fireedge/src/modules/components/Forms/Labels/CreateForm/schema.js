@@ -59,11 +59,13 @@ const PARENT = {
     const [, TYPE] = deps
     const { labels } = useAuth()
 
-    const labelsArray = []
-      .concat(labelsToArray(labels)?.[TYPE])
-      ?.map((label) => label?.replace(/\$/g, ''))
+    const labelsArray = [].concat(labelsToArray(labels)?.[TYPE])
 
-    return arrayToOptions(labelsArray, { addEmpty: false })
+    return arrayToOptions(labelsArray, {
+      addEmpty: false,
+      getText: (label) => label?.replace(/\$/g, ''),
+      getValue: (label) => label,
+    })
   },
 
   validation: lazy((_, { parent = {} } = {}) => {

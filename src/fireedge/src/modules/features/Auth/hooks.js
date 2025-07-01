@@ -72,36 +72,26 @@ export const useAuth = () => {
   }, [groups, user?.GROUPS?.ID])
 
   const groupLabels = groups?.reduce((acc, group) => {
-    acc[group.NAME] = parseLabels(group?.TEMPLATE?.FIREEDGE?.LABELS ?? {})
+    acc[group.NAME] = merge(
+      {},
+      defaultLabels?.group?.[`$${group.NAME}`] ?? {},
+      parseLabels(group?.TEMPLATE?.FIREEDGE?.LABELS ?? {})
+    )
 
     return acc
   }, {})
 
   const userLabels = useMemo(() => {
-    const labels = parseLabels(user?.TEMPLATE?.LABELS ?? {})
+    const labels = merge(
+      {},
+      defaultLabels?.user ?? {},
+      parseLabels(user?.TEMPLATE?.LABELS ?? {})
+    )
 
     return labels
   }, [user?.TEMPLATE?.LABELS])
 
-  const allGroupNames = [].concat(groups)?.map((group) => group?.NAME)
-  const ownGroupNames = [].concat(authGroups?.map((group) => group?.NAME))
-
-  const filteredDefaultLabelGroups =
-    Object.fromEntries(
-      Object.entries(defaultLabels.group ?? {}).filter(
-        ([key]) =>
-          allGroupNames?.includes(key?.replace(/\$/g, '')) &&
-          (isOneAdmin || ownGroupNames?.includes(key)?.replace(/\$/g, ''))
-      )
-    ) ?? {}
-
   const allLabels = { user: userLabels, group: groupLabels } ?? {}
-
-  const mergedLabels = merge(
-    {},
-    { ...defaultLabels, group: filteredDefaultLabelGroups },
-    allLabels
-  )
 
   return useMemo(
     () => ({
@@ -118,7 +108,7 @@ export const useAuth = () => {
         ...(user?.TEMPLATE ?? {}),
         ...(user?.TEMPLATE?.FIREEDGE ?? {}),
       },
-      labels: mergedLabels,
+      labels: allLabels,
       isLogged:
         !!jwt &&
         !!user &&
