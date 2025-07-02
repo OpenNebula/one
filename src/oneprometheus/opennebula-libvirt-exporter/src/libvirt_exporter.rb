@@ -71,7 +71,7 @@ get '/' do
 end
 
 # Default Options
-set :bind, '0.0.0.0'
+set :bind, '::'
 set :port, 9926
 
 # Run the Sinatra application

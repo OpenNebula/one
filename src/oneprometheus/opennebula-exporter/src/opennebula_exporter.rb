@@ -84,7 +84,7 @@ end
 
 # Default Options
 set :port, 9925
-set :bind, '0.0.0.0'
+set :bind, '::'
 
 # Run the Sinatra application
 set :run, false
