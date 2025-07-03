@@ -36,8 +36,8 @@ patches:
                 +++ new
                 @@ -1,5 +1,5 @@
                  # -------------------------------------------------------------------------- #
-                -# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
-                +# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+                -# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+                +# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
                  #                                                                            #
                  # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
                  # not use this file except in compliance with the License. You may obtain    #
@@ -45,7 +45,7 @@ patches:
             extra: {}
         content: |
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -94,8 +94,8 @@ patches:
                 +++ new
                 @@ -1,5 +1,5 @@
                  # -------------------------------------------------------------------------- #
-                -# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
-                +# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+                -# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+                +# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
                  #                                                                            #
                  # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
                  # not use this file except in compliance with the License. You may obtain    #
@@ -103,7 +103,7 @@ patches:
             extra: {}
         content: |+
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -164,7 +164,7 @@ patches:
         mode: '0640'
         content: |
             # ---------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                  #
             #                                                                              #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
             # not use this file except in compliance with the License. You may obtain      #
@@ -1661,7 +1661,7 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        content: "# -------------------------------------------------------------------------- #\n# Copyright 2002-2018, OpenNebula
+        content: "# -------------------------------------------------------------------------- #\n# Copyright 2002-2025, OpenNebula
             Project, OpenNebula Systems                #\n#                                                                            #\n#
             Licensed under the Apache License, Version 2.0 (the \"License\"); you may    #\n# not use this file except in
             compliance with the License. You may obtain    #\n# a copy of the License at                                                   #\n#
@@ -2364,7 +2364,7 @@ patches:
         mode: '0640'
         content: |
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -2478,7 +2478,7 @@ patches:
         mode: '0640'
         content: |
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -3430,7 +3430,7 @@ patches:
         mode: '0640'
         content: |
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -3513,7 +3513,7 @@ patches:
         mode: '0640'
         content: |+
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -3822,7 +3822,7 @@ patches:
             extra: {}
         content: |
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -9710,7 +9710,7 @@ patches:
         mode: '0640'
         content: |+
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project (OpenNebula.org), C12G Labs        #
+            # Copyright 2002-2025, OpenNebula Project (OpenNebula.org), C12G Labs        #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -9745,7 +9745,7 @@ patches:
         mode: '0640'
         content: |+
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -9807,7 +9807,7 @@ patches:
         mode: '0640'
         content: |
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -9832,7 +9832,7 @@ patches:
         mode: '0640'
         content: |+
             # ---------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                  #
             #                                                                              #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
             # not use this file except in compliance with the License. You may obtain      #
@@ -9861,7 +9861,7 @@ patches:
         mode: '0640'
         content: |
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -9897,7 +9897,7 @@ patches:
         mode: '0640'
         content: |
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -9991,7 +9991,7 @@ patches:
             extra: {}
         content: |+
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
@@ -13742,7 +13742,7 @@ patches:
         action: create
         content: |
             # -------------------------------------------------------------------------- #
-            # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+            # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
             #                                                                            #
             # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
             # not use this file except in compliance with the License. You may obtain    #
