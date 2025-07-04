@@ -2272,7 +2272,9 @@ ONECFG_SHARE_MIGRATORS_FILES="src/onecfg/share/migrators/5.4.0_to_5.4.1.yaml \
                               src/onecfg/share/migrators/6.10.0_to_6.10.2.rb \
                               src/onecfg/share/migrators/6.10.0_to_6.10.2.yaml \
                               src/onecfg/share/migrators/6.10.2_to_7.0.0.rb \
-                              src/onecfg/share/migrators/6.10.2_to_7.0.0.yaml"
+                              src/onecfg/share/migrators/6.10.2_to_7.0.0.yaml \
+                              src/onecfg/share/migrators/7.0.0_to_7.1.80.rb \
+                              src/onecfg/share/migrators/7.0.0_to_7.1.80.yaml"
 
 #-----------------------------------------------------------------------------
 # OneHem files
