@@ -108,6 +108,12 @@ const defaults = {
   defaultLogMessageLength: 100,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
+  defaultSensitiveDataForXMLRPC: [
+    {
+      regex: /^user\.allocate/,
+      maskIndex: 1,
+    },
+  ],
   defaultProductionWebpackMode: 'production',
   defaultWebpackDevTool: 'inline-source-map',
   defaultLogPath: '/var/log/one',
