@@ -320,7 +320,7 @@ const SnapshotRenameAction = memo(({ vmId, disk, snapshot, sx }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_RENAME}-${DISK_ID}-${ID}`,
         icon: <Edit />,
-        tooltip: Tr(T.Edit),
+        tooltip: Tr(T.Rename),
         sx,
       }}
       options={[
