@@ -815,6 +815,9 @@ Naming/InclusiveLanguage:
 Naming/FileName:
     Enabled: false
 
+Naming/MethodName:
+    Enabled: false
+
 ###
 # Bundler
 ####
