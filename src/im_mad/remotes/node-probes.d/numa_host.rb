@@ -94,6 +94,8 @@ end
 # ------------------------------------------------------------------------------
 nodes = {}
 
+exit 0 unless Dir.exist? NUMA::NODE_PATH
+
 Dir.foreach(NUMA::NODE_PATH) do |node|
     /node(?<node_id>\d+)/ =~ node
     next unless node_id
