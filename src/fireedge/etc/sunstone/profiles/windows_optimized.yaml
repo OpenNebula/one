@@ -6,10 +6,10 @@
 "Advanced options":
   OsCpu:
     OS:
-      ARCH: x86_64
+      ARCH: X86_64
       SD_DISK_BUS: scsi
-      MACHINE: q35
-      FIRMWARE: UEFI
+      MACHINE: host-passthrough
+      FIRMWARE: BIOS
     FEATURES:
       ACPI: "Yes"
       PAE: "Yes"
