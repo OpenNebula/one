@@ -320,9 +320,9 @@ module Migrator
         short_doc.at_xpath('VM/ETIME').content = now
 
         json = JSON.parse(row[:body_json])
-        json[:VM][:STATE] = 6
-        json[:VM][:LCM_STATE] = 0
-        json[:VM][:ETIME] = now
+        json['VM']['STATE'] = 6
+        json['VM']['LCM_STATE'] = 0
+        json['VM']['ETIME'] = now
 
         @db[:vm_pool].filter(oid: row[:oid]).update(body: doc.root.to_s,
                                                     short_body: short_doc.root.to_s,
