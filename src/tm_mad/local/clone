@@ -27,7 +27,28 @@
 #   - vmid is the id of the VM
 #   - dsid is the target datastore (0 is the system datastore)
 
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    LIB_LOCATION      ||= '/usr/lib/one'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+else
+    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+require 'load_opennebula_paths'
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require_relative '../lib/datastore'
 require_relative '../lib/tm_action'
+require_relative '../lib/tm_cache'
+require 'json'
 
 arg_src   = ARGV[0]
 arg_dst   = ARGV[1]
@@ -39,14 +60,74 @@ clone = TransferManager::Action.new(:vm_id => arg_vmid, :action_name => 'clone')
 src = TransferManager::Action::Location.new(arg_src)
 dst = TransferManager::Action::Location.new(arg_dst)
 
+# --------------------------------------------------------------------------
+# Image & Datastore information
+# --------------------------------------------------------------------------
+
+disk_id = dst.base.to_s.split('.')[-1]
+img_id = clone.disk_attribute(disk_id, 'IMAGE_ID').to_i
+image = OpenNebula::Image.new_with_id(img_id, clone.one)
+
+rc_img = image.info
+
+raise rc_img.message.to_s if OpenNebula.is_error?(rc_img)
+
+ds = TransferManager::Datastore.from_image_ds(:image  => image,
+                                              :client => clone.one)
+
+# --------------------------------------------------------------------------
+# Cache management
+# --------------------------------------------------------------------------
+
+if ds['/DATASTORE/TEMPLATE/ENABLE_CACHE'] == 'YES' && image['/IMAGE/PERSISTENT'] == '0'
+    cache_util = '/var/tmp/one/tm/lib/tm_cache.rb'
+
+    config = {
+        :ds_xml    => ds.xml_to_hash,
+        :hostname  => dst.host,
+        :one_fe    => src.host,
+        :upstreams => (
+            ds['/DATASTORE/TEMPLATE/CACHE_CENTRAL_HOSTS'] || ''
+        ).split(',').reject(&:empty?)
+    }
+
+    image_id = File.basename(src.path)
+    modtime = image['/IMAGE/MODTIME']
+    size = File.size(src.path)
+    fe_default = src.path
+
+    cache_script = "ruby #{cache_util} 'get' " \
+                   "'#{JSON.dump(config)}' " \
+                   "'#{image_id}' " \
+                   "'#{modtime}' " \
+                   "'#{size}' " \
+                   "'#{fe_default}'"
+
+    OpenNebula::DriverLogger.log_debug("Initiating cache lookup for image #{img_id}")
+
+    rc_cache = clone.ssh(:cmds => cache_script,
+                         :host => dst.host,
+                         :forward => true,
+                         :nostdout => false,
+                         :nostderr => false,
+                         :err_msg => 'Cache lookup failed')
+    exit rc_cache.code unless rc_cache.code.zero?
+
+    if (data = rc_cache.stdout.empty? ? nil : JSON.parse(rc_cache.stdout))
+        src.path, src.host = data.values_at('src', 'host')
+        OpenNebula::DriverLogger.log_debug("Cache hit: image found on #{src.host} at #{src.path}")
+    end
+
+end
+
+# --------------------------------------------------------------------------
+# Cloning DISK
+# --------------------------------------------------------------------------
 clone.make_dst_path(dst, false)
 clone.enable_local_monitoring(dst, 'ssh')
 
-# CLONE DISK
-
 OpenNebula::DriverLogger.log_info "Cloning #{src.path} to #{dst.path}"
 
-disk_id     = dst.base.to_s.split('.')[-1]
 disk_format = clone.disk_format(disk_id)
 disk_sparse = clone.sparse?(disk_id)
 
@@ -133,7 +214,9 @@ rc = clone.ssh(:cmds => script,
 
 exit(rc.code) if rc.code != 0
 
-# RESIZE DISK IF NEEDED
+# --------------------------------------------------------------------------
+# Resize disk if needed
+# --------------------------------------------------------------------------
 (size, original_size) = clone.disk_sizes(disk_id).values_at(:current, :original)
 
 if original_size && size > original_size
