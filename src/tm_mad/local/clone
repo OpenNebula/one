@@ -79,7 +79,7 @@ ds = TransferManager::Datastore.from_image_ds(:image  => image,
 # Cache management
 # --------------------------------------------------------------------------
 
-if ds['/DATASTORE/TEMPLATE/ENABLE_CACHE'] == 'YES' && image['/IMAGE/PERSISTENT'] == '0'
+if ds['/DATASTORE/TEMPLATE/CACHE_ENABLE'] == 'YES' && image['/IMAGE/PERSISTENT'] == '0'
     cache_util = '/var/tmp/one/tm/lib/tm_cache.rb'
 
     config = {
