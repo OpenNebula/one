@@ -298,6 +298,9 @@ const DS_TABLE = {
   type: INPUT_TYPES.TABLE,
   Table: () => DatastoresTable.Table,
   singleSelect: false,
+  fieldProps: {
+    preserveState: true,
+  },
   validation: array(string().trim())
     .required()
     .default(() => undefined),
