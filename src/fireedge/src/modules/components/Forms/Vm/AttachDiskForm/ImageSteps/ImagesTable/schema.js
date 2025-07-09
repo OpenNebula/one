@@ -14,9 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { array, object } from 'yup'
+import { T } from '@ConstantsModule'
 
 export const SCHEMA = array(object())
-  .min(1)
+  .min(1, T.SelectAImage)
   .max(1)
   .required()
   .ensure()

@@ -54,6 +54,7 @@ module.exports = {
     'Toggle all selected cards in current page',
   NumberOfResourcesSelected: 'All %s resources are selected',
   SelectAllResources: 'Select all %s resources',
+  SelectAImage: 'Select a image',
   ClearSelection: 'Clear selection',
   ResetFilters: 'Clear current search query, filters, and sorts',
   VmsClearErrors:
