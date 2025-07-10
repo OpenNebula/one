@@ -61,10 +61,14 @@ const DiskSnapshotCard = memo(
     }, [SNAPSHOT_SIZE, SNAPSHOT_MONITOR_SIZE])
 
     return (
-      <Paper variant="outlined" className={classes.root}>
+      <Paper
+        variant="outlined"
+        className={classes.root}
+        data-cy={`disksnapshot-${ID}`}
+      >
         <div className={classes.main}>
           <div className={classes.title}>
-            <Typography noWrap component="span">
+            <Typography noWrap component="span" data-cy="disksnapshot-name">
               {NAME}
             </Typography>
             <span className={classes.labels}>

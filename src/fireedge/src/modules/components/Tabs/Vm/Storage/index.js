@@ -91,7 +91,7 @@ const VmStorageTab = ({
         />
       )}
 
-      <Stack gap="1em" py="0.8em">
+      <Stack gap="1em" py="0.8em" data-cy="disks">
         {disks.map((disk) => {
           const isImage = disk.IMAGE_ID !== undefined
           const imageName = getDiskName(disk)
