@@ -97,7 +97,7 @@ const DiskCard = memo(
       >
         <div className={classes.main}>
           <div className={classes.title}>
-            <Typography noWrap component="span" data-cy="name">
+            <Typography noWrap component="span" data-cy="disk-name">
               {getDiskName(disk)}
             </Typography>
             <span className={classes.labels}>
@@ -151,7 +151,7 @@ const DiskCard = memo(
           <div className={classes.actions}>{actions}</div>
         )}
         {!!SNAPSHOTS?.length && (
-          <Box flexBasis="100%">
+          <Box flexBasis="100%" data-cy="disk-snapshots">
             {SNAPSHOTS?.map((snapshot) => (
               <DiskSnapshotCard
                 key={`${DISK_ID}-${snapshot.ID}`}
