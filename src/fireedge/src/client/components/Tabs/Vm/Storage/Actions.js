@@ -292,6 +292,7 @@ const SnapshotCreateAction = memo(({ vmId, disk, name: imageName, sx }) => {
                 values={`#${DISK_ID} - ${imageName}`}
               />
             ),
+            dataCy: 'modal-create-disk-snapshot',
           },
           form: CreateDiskSnapshotForm,
           onSubmit: handleSnapshotCreate,
@@ -329,6 +330,7 @@ const SnapshotRenameAction = memo(({ vmId, disk, snapshot, sx }) => {
             title: (
               <Translate word={T.RenameSomething} values={`#${ID} - ${NAME}`} />
             ),
+            dataCy: 'modal-rename-disk-snapshot',
             children: <p>{Tr(T.DoYouWantProceed)}</p>,
           },
           form: () => CreateDiskSnapshotForm({ initialValues: snapshot }),
