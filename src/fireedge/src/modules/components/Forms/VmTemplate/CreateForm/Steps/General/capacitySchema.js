@@ -227,6 +227,7 @@ export const DISK_COST = generateCostCapacityInput({
     step: 0.1,
     inputProps: {
       setValueAs: (v) => (v === '' ? undefined : Number(v)),
+      'data-cy': 'general-showback-DISK_COST',
     },
     helperText: <HelperDiskCost />,
   }),
