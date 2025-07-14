@@ -15,19 +15,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
-ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
-
-if !ONE_LOCATION
-    LIB_LOCATION      ||= '/usr/lib/one'
-    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
-    GEMS_LOCATION     ||= '/usr/share/one/gems'
-else
-    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
-    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
-end
-
 # %%RUBYGEMS_SETUP_BEGIN%%
 require 'load_opennebula_paths'
 # %%RUBYGEMS_SETUP_END%%
@@ -53,7 +40,6 @@ _bjid     = ARGV[3]
 vmid      = ARGV[4]
 _dsid     = ARGV[5]
 
-rhost     = dir[0]
 rdir      = dir[1]
 
 base_path = ENV['BACKUP_BASE_PATH']
@@ -69,7 +55,16 @@ action   = TransferManager::Action.new(:action_name => 'prebackup_live',
                                        :vm_id => vmid)
 ds       = TransferManager::Datastore.from_vm_backup_ds(:vm_xml => vm_xml.to_s)
 vm       = TransferManager::Ceph::VM.new(action.vm.to_xml)
-script   = vm.backup_disks_sh(disks, backup_dir, ds, true, deploy_id)
+
+xml_data = REXML::Document.new(vm_xml)
+rhost    = xml_data.elements['VM/BACKUPS/BACKUP_CONFIG/LAST_BRIDGE']&.text || dir[0]
+
+script = vm.backup_disks_sh(:disks       => disks,
+                            :backup_dir  => backup_dir,
+                            :ds          => ds,
+                            :live        => false,
+                            :deploy_id   => deploy_id,
+                            :bridge_host => rhost)
 
 rc = action.ssh(:host => rhost,
                 :cmds => script,

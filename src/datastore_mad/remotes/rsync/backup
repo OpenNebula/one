@@ -15,20 +15,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-ONE_LOCATION = ENV['ONE_LOCATION']
-
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    GEMS_LOCATION     = '/usr/share/one/gems'
-    VMDIR             = '/var/lib/one'
-    CONFIG_FILE       = '/var/lib/one/config'
-else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
-    VMDIR             = ONE_LOCATION + '/var'
-    CONFIG_FILE       = ONE_LOCATION + '/var/config'
-end
-
 # %%RUBYGEMS_SETUP_BEGIN%%
 require 'load_opennebula_paths'
 # %%RUBYGEMS_SETUP_END%%
@@ -55,8 +41,6 @@ _bj_id   = ARGV[3]
 vm_id    = ARGV[4]
 _ds_id   = ARGV[5]
 
-vm_host = dir[0]
-
 dsrdir = ENV['BACKUP_BASE_PATH']
 vm_dir = if dsrdir
              Pathname.new("#{dsrdir}/#{vm_id}/backup").cleanpath.to_s
@@ -65,7 +49,9 @@ vm_dir = if dsrdir
          end
 
 begin
-    ds_xml = REXML::Document.new(xml).root.elements['DATASTORE']
+    doc     = REXML::Document.new(xml)
+    ds_xml  = doc.root.elements['DATASTORE']
+    vm_xml  = doc.root.elements['VM']
 
     rsync_user = ds_xml.elements['TEMPLATE/RSYNC_USER'].text
     rsync_host = ds_xml.elements['TEMPLATE/RSYNC_HOST'].text
@@ -79,6 +65,9 @@ begin
     end
 
     ds = TransferManager::Datastore.from_xml(:ds_xml => ds_xml.to_s)
+
+    bridge_host = vm_xml.elements['BACKUPS/BACKUP_CONFIG/LAST_BRIDGE']&.text
+    vm_host     = bridge_host || dir[0]
 rescue StandardError => e
     STDERR.puts e.message
     exit(-1)

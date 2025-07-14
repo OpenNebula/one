@@ -18,6 +18,7 @@
 
 require 'CommandManager'
 require_relative 'kvm'
+require_relative 'shell'
 
 module TransferManager
 
@@ -31,10 +32,19 @@ module TransferManager
             @disks = disks
         end
 
-        def backup_disks_sh(disks, backup_dir, ds, live, deploy_id = nil)
+        def backup_disks_sh(options = {})
+            disks       = options[:disks]
+            backup_dir  = options[:backup_dir]
+            ds          = options[:ds]
+            live        = options[:live]
+            deploy_id   = options[:deploy_id]
+            bridge_host = options[:bridge_host]
+
             snap_cmd = ''
             expo_cmd = ''
-            clup_cmd = ''
+            snap_clup = ''
+            expo_clup = ''
+
             @disks.compact.each do |d|
                 did = d.id
                 next unless disks.include? did.to_s
@@ -42,9 +52,10 @@ module TransferManager
                 cmds = d.backup_cmds(backup_dir, ds, live)
                 return nil unless cmds
 
-                snap_cmd << cmds[:snapshot]
-                expo_cmd << cmds[:export]
-                clup_cmd << cmds[:cleanup]
+                snap_cmd  << cmds[:snapshot]
+                expo_cmd  << cmds[:export]
+                snap_clup << cmds[:snapshot_clup]
+                expo_clup << cmds[:export_clup]
             end
 
             freeze, thaw =
@@ -54,7 +65,7 @@ module TransferManager
                     ['', '']
                 end
 
-            <<~EOS
+            eos1 = <<~EOS1
                 set -ex -o pipefail
 
                 # ----------------------
@@ -74,14 +85,37 @@ module TransferManager
                 #{snap_cmd}
 
                 #{thaw}
+            EOS1
+
+            eos2 = <<~EOS2
+                set -ex -o pipefail
 
                 # --------------------------
-                # export, convert & cleanup
+                # Export, convert & cleanup
                 # --------------------------
+                [ -d #{backup_dir} ] || mkdir -p #{backup_dir}
+
                 #{expo_cmd}
 
-                #{clup_cmd}
-            EOS
+                cd #{backup_dir}
+
+                #{expo_clup}
+            EOS2
+
+            eos3 = <<~EOS3
+                set -ex -o pipefail
+
+                # --------------------------
+                # Cleanup snapshots
+                # --------------------------
+                #{snap_clup}
+            EOS3
+
+            [
+                [nil, eos1],
+                [bridge_host, eos2],
+                [nil, eos3]
+            ].map {|(host, cmd)| TransferManager::Shell.sshwrap(host, cmd) }.join("\n\n")
         end
 
     end

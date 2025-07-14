@@ -20,6 +20,7 @@ require 'rexml/document'
 
 require_relative 'datastore'
 require_relative 'backup'
+require_relative 'shell'
 
 module TransferManager
 
@@ -127,7 +128,8 @@ module TransferManager
             def backup_cmds(backup_dir, ds, live)
                 snap_cmd = ''
                 expo_cmd = ''
-                clup_cmd = ''
+                snap_clup = ''
+                expo_clup = ''
 
                 if @vm_backup_config[:mode] == :full
                     # Full backup
@@ -142,7 +144,7 @@ module TransferManager
                             "#{@rbd_cmd} export #{snapshot} #{draw}\n",
                             backup_dir
                         )
-                        clup_cmd << "#{@rbd_cmd} snap rm #{snapshot}\n"
+                        snap_clup << "#{@rbd_cmd} snap rm #{snapshot}\n"
                     else
                         expo_cmd << ds.cmd_confinement(
                             "#{@rbd_cmd} export #{@rbd_image} #{draw}\n",
@@ -155,10 +157,10 @@ module TransferManager
                         backup_dir
                     )
 
-                    clup_cmd << "rm -f #{draw}\n"
+                    expo_clup << "rm -f #{draw}\n"
 
                     # Remove old incremental snapshots after starting a full one
-                    clup_cmd << rm_snaps_sh({ :type => :prefix, :text => INC_SNAP_PREFIX })
+                    snap_clup << rm_snaps_sh({ :type => :prefix, :text => INC_SNAP_PREFIX })
 
                 elsif @vm_backup_config[:last_increment] == -1
                     # First incremental backup (similar to full but snapshot must be preserved)
@@ -195,13 +197,15 @@ module TransferManager
                     )
 
                     old_snapshot = "one_backup_#{@vm_backup_config[:last_increment]}"
-                    clup_cmd << rm_snaps_sh({ :type => :eq, :text => old_snapshot })
+                    snap_clup << rm_snaps_sh({ :type => :eq, :text => old_snapshot })
                 end
 
                 {
-                    :snapshot => snap_cmd,
-                    :export => expo_cmd,
-                    :cleanup => clup_cmd
+                    :snapshot      => snap_cmd,
+                    :export        => expo_cmd,
+                    :snapshot_clup => snap_clup,
+                    :export_clup   => expo_clup,
+                    :cleanup       => snap_clup + expo_clup
                 }
             end
 
@@ -221,15 +225,15 @@ module TransferManager
 
                 <<~EOF
                     # Upload base image and snapshot
-                    #{Disk.sshwrap(bridge, "#{rbdec_cmd} import --export-format 2 - #{target}")} < disk.*.rbd2
+                    #{TransferManager::Shell.sshwrap(bridge, "#{rbdec_cmd} import --export-format 2 - #{target}")} < disk.*.rbd2
 
                     # Apply increments
                     for f in $(ls disk.*.*.rbdiff | sort -k3 -t.); do
-                        #{Disk.sshwrap(bridge, "#{@rbd_cmd} import-diff - #{target}")} < $f
+                        #{TransferManager::Shell.sshwrap(bridge, "#{@rbd_cmd} import-diff - #{target}")} < $f
                     done
 
                     # Delete snapshots
-                    #{Disk.sshwrap(bridge, rm_snaps_sh({ :type => :prefix, :text => INC_SNAP_PREFIX }, target))}
+                    #{TransferManager::Shell.sshwrap(bridge, rm_snaps_sh({ :type => :prefix, :text => INC_SNAP_PREFIX }, target))}
                 EOF
             end
 
@@ -277,23 +281,6 @@ module TransferManager
                 end
 
                 indexed_disks
-            end
-
-            # TODO: move to Shell.rb (f-5853)
-            def self.sshwrap(host, cmd)
-                cmd << "\n"
-                if host.nil?
-                    cmd
-                else
-                    <<~EOF.strip
-                        ssh '#{host}' '\
-                            script="$(mktemp)"; \
-                            echo "#{Base64.strict_encode64(cmd)}" | base64 -d > "$script"; \
-                            trap "rm $script" EXIT; \
-                            bash "$script"; \
-                        '
-                    EOF
-                end
             end
 
         end

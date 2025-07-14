@@ -15,20 +15,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-ONE_LOCATION = ENV['ONE_LOCATION']
-
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    GEMS_LOCATION     = '/usr/share/one/gems'
-    VMDIR             = '/var/lib/one'
-    CONFIG_FILE       = '/var/lib/one/config'
-else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
-    VMDIR             = ONE_LOCATION + '/var'
-    CONFIG_FILE       = ONE_LOCATION + '/var/config'
-end
-
 # %%RUBYGEMS_SETUP_BEGIN%%
 require 'load_opennebula_paths'
 # %%RUBYGEMS_SETUP_END%%
@@ -44,10 +30,10 @@ require_relative '../../tm/lib/tm_action'
 
 TransferManager::Datastore.load_env
 
+vm_xml  = STDIN.read
+
 dir     = ARGV[0].split(':')
 vm_uuid = ARGV[1]
-
-vm_host = dir[0]
 
 dsrdir = ENV['BACKUP_BASE_PATH']
 vm_dir = if dsrdir
@@ -57,6 +43,9 @@ vm_dir = if dsrdir
          end
 
 begin
+    xml_data = REXML::Document.new(vm_xml)
+    vm_host  = xml_data.elements['VM/BACKUPS/BACKUP_CONFIG/LAST_BRIDGE']&.text || dir[0]
+
     # Kill the backup script.
     script = <<~EOS
         set -x -e -o pipefail; shopt -qs failglob
