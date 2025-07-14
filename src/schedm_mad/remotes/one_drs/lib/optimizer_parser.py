@@ -509,7 +509,7 @@ class OptimizerParser:
 
         migration_threshold = next(
             (
-                int(child.text)
+                max(-1, int(child.text))
                 for child in one_drs.children
                 if child.qname.upper() == "MIGRATION_THRESHOLD"
             ),
@@ -590,7 +590,9 @@ class OptimizerParser:
         }
 
         return {
-            weight_map[child.qname.upper()]: float(child.text)
+            weight_map[child.qname.upper()]: OptimizerParser._sanity_check(
+                float(child.text)
+            )
             for child in one_drs.children
             if child.qname.upper() in weight_map
         }
@@ -765,8 +767,12 @@ class OptimizerParser:
 
     def _normalize_weights(self, cluster_config):
         keys = ["CPU_USAGE", "CPU", "MEMORY", "DISK", "NET"]
-        provided = {k: cluster_config[k] for k in keys if k in cluster_config}
-        if sum(provided.values()) > 1:
+        provided = {
+            k: OptimizerParser._sanity_check(cluster_config[k])
+            for k in keys
+            if k in cluster_config
+        }
+        if not 0 < sum(provided.values()) <= 1:
             provided = self.DEFAULT_CONFIG[self.mode.upper()]["WEIGHTS"].copy()
         result = {}
         for key, weight in provided.items():
