@@ -40,7 +40,7 @@ require 'open3'
 ENV['LANG'] = 'C'
 ENV['LC_ALL'] = 'C'
 
-GUEST_ARCHS = ['i686', 'x86_64']
+GUEST_ARCHS = ['i686', 'x86_64', 'aarch64']
 
 begin
     machines = []
@@ -105,33 +105,16 @@ begin
             end
         end
 
-        cmd = "virsh -r -c qemu:///system cpu-models #{a}"
-        cpu_models, _e, s = Open3.capture3(cmd)
+        cmd = "virsh -c qemu:///system domcapabilities --arch #{a}"
+        domcapabilities, _e, s = Open3.capture3(cmd)
+        next unless s.success?
 
-        break unless s.success?
-
-        cpu_models.each_line do |l|
-            l.chomp!
-            next if l.empty? || l =~ /all CPU models are accepted/i
-
-            models << l
-        end
-    end
-
-    # Filter out the unsupported CPU models
-    cmd = 'virsh -c qemu:///system domcapabilities kvm'
-    domcapabilities, _e, s = Open3.capture3(cmd)
-
-    if s.success?
         domcap_xml = REXML::Document.new(domcapabilities)
         domcap_xml = domcap_xml.root
 
-        cpu_mode_xpath = "cpu/mode[@name='custom',@supported='yes']"
-        cpu_mode_custom_elem = domcap_xml.elements[cpu_mode_xpath]
-
-        cpu_mode_custom_elem.elements.each("model[@usable='no']") do |m|
-            models.delete(m.text)
-        end if cpu_mode_custom_elem
+        models = domcap_xml.elements.to_a(
+            "cpu/mode[@name='custom' and @supported='yes']/model[@usable!='no']"
+        ).map(&:text)
     end
 
     machines.uniq!
