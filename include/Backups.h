@@ -36,6 +36,7 @@ class ObjectXML;
  *     <FS_FREEZE> FS freeze operation to perform on the VM
  *     <MODE> Backup mode
  *     <LAST_DATASTORE_ID> The dastore ID used to store the active backups(*)
+ *     <LAST_BRIDGE> The bridge used to export the active backups(*)
  *     <LAST_BACKUP_ID> ID of the active backup(*)
  *     <LAST_BACKUP_SIZE> SIZE of the active backup(*)
  *     <ACTIVE_FLATTEN> if true current chain is being flatten
@@ -122,6 +123,7 @@ public:
      *  The following attributes are stored in the configuration and refers
      *  only to the active backup operation
      *     - LAST_DATASTORE_ID
+     *     - LAST_BRIDGE
      *     - LAST_BACKUP_ID
      *     - LAST_BACKUP_SIZE
      *
@@ -164,6 +166,11 @@ public:
     void last_datastore_id(int ds_id)
     {
         config.replace("LAST_DATASTORE_ID", ds_id);
+    }
+
+    void last_bridge(const std::string& bridge)
+    {
+        config.replace("LAST_BRIDGE", bridge);
     }
 
     void last_backup_id(const std::string& id)
@@ -210,6 +217,15 @@ public:
         config.get("LAST_DATASTORE_ID", dst);
 
         return dst;
+    }
+
+    std::string last_bridge() const
+    {
+        std::string bridge;
+
+        config.get("LAST_BRIDGE", bridge);
+
+        return bridge;
     }
 
     std::string last_backup_id() const
@@ -295,6 +311,7 @@ public:
     void last_backup_clear()
     {
         config.erase("LAST_DATASTORE_ID");
+        config.erase("LAST_BRIDGE");
 
         config.erase("LAST_BACKUP_ID");
         config.erase("LAST_BACKUP_SIZE");

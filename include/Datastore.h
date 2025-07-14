@@ -306,8 +306,18 @@ public:
      *
      *    @return driver name or "" if not set or missing DS
      */
-
     std::string get_ds_driver();
+
+    /**
+     *  Selects a single bridge (host) from the BRIDGE_LIST attribute
+     *  by using vm_id modulo the number of entries.
+     *
+     *    @param vm_id id of the VM
+     *
+     *    @return Name of the selected bridge, or empty string if none defined
+     */
+    std::string bridge(int vm_id) const;
+
 
 private:
 
