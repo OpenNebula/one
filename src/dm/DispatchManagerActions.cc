@@ -16,7 +16,9 @@
 
 #include "DispatchManager.h"
 #include "NebulaLog.h"
+#include <fstream>
 
+#include "DatastorePool.h"
 #include "VirtualMachineManager.h"
 #include "TransferManager.h"
 #include "ImageManager.h"
@@ -2642,7 +2644,17 @@ int DispatchManager::backup(int vid, int backup_ds_id, bool reset,
             return -1;
     }
 
-    vm->backups().last_datastore_id(backup_ds_id);
+    if (auto ds = Nebula::instance().get_dspool()->get_ro(backup_ds_id))
+    {
+        auto bridge = ds->bridge(vid);
+
+        if (!bridge.empty())
+        {
+            vm->backups().last_bridge(bridge);
+        }
+    }
+
+    vm->backups().last_datastore_id( backup_ds_id );
 
     if (reset)
     {

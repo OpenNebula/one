@@ -1281,6 +1281,13 @@ class Vm:
                     "type": "Element",
                 },
             )
+            last_bridge: Optional[str] = field(
+                default=None,
+                metadata={
+                    "name": "LAST_BRIDGE",
+                    "type": "Element",
+                },
+            )
             last_datastore_id: Optional[str] = field(
                 default=None,
                 metadata={
