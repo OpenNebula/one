@@ -15,18 +15,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
-
-if !ONE_LOCATION
-    LIB_LOCATION      ||= '/usr/lib/one'
-    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
-    GEMS_LOCATION     ||= '/usr/share/one/gems'
-else
-    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
-    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
-end
-
 # %%RUBYGEMS_SETUP_BEGIN%%
 require 'load_opennebula_paths'
 # %%RUBYGEMS_SETUP_END%%
@@ -43,7 +31,7 @@ require_relative '../lib/datastore'
 #-------------------------------------------------------------------------------
 TransferManager::Datastore.load_env
 
-_vm_xml = STDIN.read
+vm_xml = STDIN.read
 
 dir       = ARGV[0].split ':'
 _disks    = ARGV[1].split ':'
@@ -52,7 +40,6 @@ _bjid     = ARGV[3]
 vmid      = ARGV[4]
 _dsid     = ARGV[5]
 
-rhost     = dir[0]
 rdir      = dir[1]
 
 base_path = ENV['BACKUP_BASE_PATH']
@@ -62,6 +49,9 @@ bck_dir = if base_path
           else
               "#{rdir}/backup"
           end
+
+xml_data = REXML::Document.new(vm_xml)
+rhost    = xml_data.elements['VM/BACKUPS/BACKUP_CONFIG/LAST_BRIDGE']&.text || dir[0]
 
 rm_script = "rm -rf #{bck_dir}"
 rm_script << "; rm -rf #{base_path}/#{vmid}\n" if base_path

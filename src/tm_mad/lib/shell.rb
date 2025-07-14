@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'base64'
+
 # rubocop:disable Layout/HeredocIndentation, Layout/IndentationWidth
 module TransferManager
 
@@ -294,6 +296,22 @@ module TransferManager
           echo "${cmd}"
         }
       SCRIPT
+    end
+
+    def self.sshwrap(host, cmd)
+      cmd << "\n"
+      if host.nil?
+        cmd
+      else
+        <<~EOF.strip
+          ssh '#{host}' '\
+              script="$(mktemp)"; \
+              echo "#{Base64.strict_encode64(cmd)}" | base64 -d > "$script"; \
+              trap "rm $script" EXIT; \
+              bash "$script"; \
+          '
+        EOF
+      end
     end
 
   end

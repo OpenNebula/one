@@ -1388,13 +1388,15 @@ class ExecDriver < VirtualMachineDriver
         tm = tm_command.split
 
         ds_command = ['BACKUP_CANCEL', bck_mad].concat(tm[2..-1])
+        vm_xml = xml_data.elements['/VMM_DRIVER_ACTION_DATA/VM']
 
         # Backup cancel operation steps
         steps = [
             {
                 :driver     => :ds,
                 :action     => :backup_cancel,
-                :parameters => ds_command
+                :parameters => ds_command,
+                :stdin      => vm_xml
             }
         ]
 

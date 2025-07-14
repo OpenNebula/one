@@ -21,20 +21,20 @@
 # ------------------------------------------------------------------------------
 # Entry code for TM Action scripts. Setups gems library path and common helpers
 # ------------------------------------------------------------------------------
-ONE_LOCATION = ENV['ONE_LOCATION']
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    GEMS_LOCATION     = '/usr/share/one/gems'
-    VMDIR             = '/var/lib/one'
-    CONFIG_FILE       = '/var/lib/one/config'
-    DS_DIR            = '/var/lib/one/datastores'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+    VMDIR             ||= '/var/lib/one'
+    CONFIG_FILE       ||= '/var/lib/one/config'
+    DS_DIR            ||= '/var/lib/one/datastores'
 else
-    RUBY_LIB_LOCATION = "#{ONE_LOCATION}/lib/ruby"
-    GEMS_LOCATION     = "#{ONE_LOCATION}/share/gems"
-    VMDIR             = "#{ONE_LOCATION}/var"
-    CONFIG_FILE       = "#{ONE_LOCATION}/var/config"
-    DS_DIR            = "#{ONE_LOCATION}/var/datastores"
+    RUBY_LIB_LOCATION ||= "#{ONE_LOCATION}/lib/ruby"
+    GEMS_LOCATION     ||= "#{ONE_LOCATION}/share/gems"
+    VMDIR             ||= "#{ONE_LOCATION}/var"
+    CONFIG_FILE       ||= "#{ONE_LOCATION}/var/config"
+    DS_DIR            ||= "#{ONE_LOCATION}/var/datastores"
 end
 
 # %%RUBYGEMS_SETUP_BEGIN%%
