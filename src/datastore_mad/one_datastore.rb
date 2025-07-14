@@ -222,7 +222,7 @@ class DatastoreDriver < OpenNebulaDriver
         cmd  = File.join(path, ACTION[action].downcase)
         cmd << " #{id}"
 
-        rc = LocalCommand.run(cmd, log_method(id), stdin)
+        rc = LocalCommand.run(cmd, log_method(id), stdin, @options[:timeout])
 
         result, info = get_info_from_execution(rc)
 
