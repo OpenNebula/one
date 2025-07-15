@@ -159,10 +159,9 @@ script = <<~EOS
     set -ex -o pipefail
 
     BKSIZE=`du -sm #{vm_dir}`
-
+    BKNAME=$(ls #{vm_dir}/disk.* | head -n 1)
     #{ds.cmd_confinement(cmd, vm_dir, ['SSH_AUTH_SOCK'])} > /dev/null
-
-    echo $BKSIZE
+    echo "$BKSIZE $BKNAME"
 EOS
 
 rc = TransferManager::Action.ssh 'backup',
@@ -177,14 +176,11 @@ if rc.code != 0 || rc.stdout.empty?
     exit(-1)
 end
 
-vm            = REXML::Document.new(xml).root.elements['VM']
-backup_format =
-    if vm.elements['TEMPLATE/TM_MAD_SYSTEM'].text == 'ceph' &&
-       vm.elements['BACKUPS/BACKUP_CONFIG/MODE']&.text == 'INCREMENT'
-        'rbd'
-    else
-        'raw'
-    end
+stdout_parts = rc.stdout.split(' ')
+
+disk_filepath = stdout_parts[2]
+extension     = File.extname(disk_filepath).delete_prefix('.')
+backup_format = ['rbd2', 'rbdiff'].include?(extension) ? 'rbd' : 'raw'
 
 STDOUT.puts "#{backup_id} #{rc.stdout.lines.last.split[0]} #{backup_format}"
 exit(0)

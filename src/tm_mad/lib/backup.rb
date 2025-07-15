@@ -17,6 +17,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'CommandManager'
+require 'rexml/document'
+
 require_relative 'kvm'
 require_relative 'shell'
 
@@ -42,14 +44,32 @@ module TransferManager
 
             snap_cmd = ''
             expo_cmd = ''
+
             snap_clup = ''
             expo_clup = ''
+
+            xml_vm = REXML::Document.new(@xml).root
+
+            bk_img_id_elem = xml_vm.elements['BACKUPS/BACKUP_IDS/ID']
+            bk_img_id      = bk_img_id_elem&.text&.strip
+
+            if bk_img_id.nil? || bk_img_id.empty?
+                disk_format = 'qcow2'
+            else
+                client = OpenNebula::Client.new
+                bk_img = OpenNebula::Image.new_with_id(bk_img_id, client)
+
+                bk_img.info
+
+                disk_format = bk_img['FORMAT']&.strip
+            end
 
             @disks.compact.each do |d|
                 did = d.id
                 next unless disks.include? did.to_s
 
-                cmds = d.backup_cmds(backup_dir, ds, live)
+                # Pass the format for this disk (or nil if not set)
+                cmds = d.backup_cmds(backup_dir, ds, live, disk_format)
                 return nil unless cmds
 
                 snap_cmd  << cmds[:snapshot].to_s

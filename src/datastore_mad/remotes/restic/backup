@@ -159,12 +159,13 @@ script = <<~EOS
     set -e -o pipefail; shopt -qs failglob
 
     #{rds.resticenv_sh}
+    BKNAME=$(ls #{vm_dir}/disk.* | head -n 1)
 
     RC=`#{ds.cmd_confinement(rcmd, vm_dir, ['SSH_AUTH_SOCK', 'RESTIC_PASSWORD', 'GOMAXPROCS'])}`
 
     INFO=`echo "$RC" | jq -r '.snapshot_id + " " + (.total_bytes_processed|tostring) | select ( . != " null" )'`
 
-    echo $INFO
+    echo "$INFO $BKNAME"
 EOS
 
 rc = TransferManager::Action.ssh 'backup',
@@ -181,7 +182,7 @@ end
 
 parts = rc.stdout.lines.last.split
 
-if parts.length != 2
+if parts.length != 3
     STDERR.puts "Wrong format for backup action: #{rc.stdout}"
     exit(-1)
 end
@@ -191,14 +192,9 @@ end
 id       = parts[0]
 short_id = id[0..7] # first 8 chars only
 
-vm            = REXML::Document.new(xml).root.elements['VM']
-backup_format =
-    if vm.elements['TEMPLATE/TM_MAD_SYSTEM'].text == 'ceph' &&
-       vm.elements['BACKUPS/BACKUP_CONFIG/MODE']&.text == 'INCREMENT'
-        'rbd'
-    else
-        'raw'
-    end
+disk_filepath = parts[2]
+extension     = File.extname(disk_filepath).delete_prefix('.')
+backup_format = ['rbd2', 'rbdiff'].include?(extension) ? 'rbd' : 'raw'
 
 STDOUT.puts "#{short_id} #{parts[1].to_i / (1024 * 1024)} #{backup_format}"
 exit(0)
