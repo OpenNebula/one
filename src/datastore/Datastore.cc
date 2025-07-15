@@ -1292,22 +1292,27 @@ Image::DiskType Datastore::context_disk_type() const
 string Datastore::bridge(int vm_id) const
 {
     std::string bridges_str;
-    std::vector<std::string> bridges;
 
     if (!get_template_attribute("BRIDGE_LIST", bridges_str))
     {
         return "";
     }
 
-    bridges = one_util::split(bridges_str, ',');
+    bridges_str = one_util::gsub(bridges_str, "'", "");
+    bridges_str = one_util::gsub(bridges_str, "\"", "");
+    bridges_str = one_util::trim(bridges_str);
+
+    if (bridges_str.empty())
+    {
+        return "";
+    }
+
+    auto bridges = one_util::split(bridges_str, ',', true);
 
     if (bridges.empty())
     {
         return "";
     }
 
-    int idx = vm_id % bridges.size();
-    string bridge = one_util::trim(bridges[idx]);
-
-    return bridge;
+    return bridges[vm_id % bridges.size()];
 }
