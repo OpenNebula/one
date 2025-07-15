@@ -505,7 +505,7 @@ module.exports = {
   CommercialSupport: 'Commercial Support',
   CommercialSupportRequests: 'Commercial Support Requests',
   SupportInformation: `
-  The Support Subscription provides expert integration and 
+  The Support Subscription provides expert integration and
   production support on supported platforms and include:
   `,
   DiagnosisResolutionBugFix: 'Problem diagnosis, resolution and bug fixing',
@@ -1165,10 +1165,10 @@ module.exports = {
   No recover action possible, delete the VM from the DB.
   It does not trigger any action on the hypervisor`,
   RecoverDescriptionVNet: `
-    Recovers a stuck Virtual Network after an update operation that didn't 
-    finish successfully, since updating a Virtual Network implies updating 
-    the corresponding Virtual Machine NICs. The recovery may be done by failing, 
-    succeeding or retrying the current operation; or deleting the Virtual Network. 
+    Recovers a stuck Virtual Network after an update operation that didn't
+    finish successfully, since updating a Virtual Network implies updating
+    the corresponding Virtual Machine NICs. The recovery may be done by failing,
+    succeeding or retrying the current operation; or deleting the Virtual Network.
     You need to manually check the affected VMs and the network resources on the
     infrastructure to decide if the operation was successful or not, or if
     it can be retried.`,
@@ -2148,8 +2148,8 @@ module.exports = {
     'There are currently no VMs associated with this Security Group',
   CommitMessageSecGroups: `
     Please note: each time the rules are edited, the commit operation is done automatically.
-    This action will force the propagation of security group changes to VMs. 
-    The operation takes time to iterate over all VMs in the security group, 
+    This action will force the propagation of security group changes to VMs.
+    The operation takes time to iterate over all VMs in the security group,
     the progress can be checked in the "VMs" panel.`,
   RecoverCommitMessageSecGroups:
     'If set the commit operation will only operate on outdated and error VMs',
@@ -2211,6 +2211,7 @@ module.exports = {
   'groups.users.total': 'Total users: %1$s',
   'groups.name': 'Group name',
   'groups.adminUser.title': 'Create an administrator user',
+  'groups.adminUser.validation': 'Username must not contain spaces',
   'groups.views.title': 'Views',
   'groups.general.info':
     'New groups are automatically added to the default VDC',
