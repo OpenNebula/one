@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { T } from '@ConstantsModule'
 import { array, object, ArraySchema } from 'yup'
 
 /** @type {ArraySchema} Datastore table schema */
 export const SCHEMA = array(object())
-  .min(1)
+  .min(1, T.SelectADatastore)
   .max(1)
   .required()
   .ensure()

@@ -55,6 +55,7 @@ module.exports = {
   NumberOfResourcesSelected: 'All %s resources are selected',
   SelectAllResources: 'Select all %s resources',
   SelectAImage: 'Select a image',
+  SelectADatastore: 'Select a datastore',
   ClearSelection: 'Clear selection',
   ResetFilters: 'Clear current search query, filters, and sorts',
   VmsClearErrors:
