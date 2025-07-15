@@ -53,6 +53,11 @@ const ADMIN_USERNAME_FIELD = {
   validation: string()
     .trim()
     .default(() => undefined)
+    .test(
+      'no-internal-whitespace',
+      T['groups.adminUser.validation'],
+      (value) => value == null || !/\s/.test(value)
+    )
     .when(ADMIN_USER.name, {
       is: (adminUser) => adminUser,
       then: (schema) => schema.required(),
