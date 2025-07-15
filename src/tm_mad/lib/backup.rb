@@ -52,10 +52,10 @@ module TransferManager
                 cmds = d.backup_cmds(backup_dir, ds, live)
                 return nil unless cmds
 
-                snap_cmd  << cmds[:snapshot]
-                expo_cmd  << cmds[:export]
-                snap_clup << cmds[:snapshot_clup]
-                expo_clup << cmds[:export_clup]
+                snap_cmd  << cmds[:snapshot].to_s
+                expo_cmd  << cmds[:export].to_s
+                snap_clup << cmds[:snapshot_clup].to_s
+                expo_clup << cmds[:export_clup].to_s
             end
 
             freeze, thaw =
