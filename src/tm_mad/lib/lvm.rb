@@ -89,8 +89,9 @@ module TransferManager
             # @param backup_dir [String]
             # @param ds [TransferManager::Datastore]
             # @param live [Boolean]
+            # @param _format [String, nil] Unused. Included for compatibility with ceph.rb.
             # @return [Disk]
-            def backup_cmds(backup_dir, ds, live)
+            def backup_cmds(backup_dir, ds, live, _format = nil)
                 snap_cmd = ''
                 expo_cmd = ''
                 clup_cmd = ''

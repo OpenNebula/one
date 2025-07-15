@@ -74,10 +74,21 @@ module TransferManager
                         end
                 end
 
+                ceph_user  = disk_xml.elements['CEPH_USER']&.text
+                ceph_key   = disk_xml.elements['CEPH_KEY']&.text
+                ceph_conf  = disk_xml.elements['CEPH_CONF']&.text
+
+                @ceph_env = []
+                @ceph_env << "CEPH_USER=\"#{ceph_user}\"" if ceph_user && !ceph_user.empty?
+                @ceph_env << "CEPH_CONF=\"#{ceph_conf}\"" if ceph_conf && !ceph_conf.empty?
+                @ceph_env << "CEPH_KEY=\"#{ceph_key}\""   if ceph_key && !ceph_key.empty?
+
+                @ceph_env = @ceph_env.join(' ')
+
                 @rbd_cmd = 'rbd'
                 @rbd_cmd += Ceph.xml_opt(disk_xml, 'CEPH_USER', '--id')
-                @rbd_cmd += Ceph.xml_opt(disk_xml, 'CEPH_KEY', '--keyfile')
                 @rbd_cmd += Ceph.xml_opt(disk_xml, 'CEPH_CONF', '--conf')
+                @rbd_cmd += Ceph.xml_opt(disk_xml, 'CEPH_KEY', '--keyfile')
 
                 bc   = @vm.elements['BACKUPS/BACKUP_CONFIG']
                 mode = bc.elements['MODE']&.text if bc
@@ -124,12 +135,16 @@ module TransferManager
             # @param backup_dir [String]
             # @param ds [TransferManager::Datastore]
             # @param live [Boolean]
+            # @param format [String, nil] 'rbd' for rbdiff format, nil for raw
             # @return [Disk]
-            def backup_cmds(backup_dir, ds, live)
+            def backup_cmds(backup_dir, ds, live, format = nil)
                 snap_cmd = ''
                 expo_cmd = ''
+
                 snap_clup = ''
                 expo_clup = ''
+
+                backup_util = '/var/tmp/one/tm/lib/backup_rbd.rb'
 
                 if @vm_backup_config[:mode] == :full
                     # Full backup
@@ -166,7 +181,7 @@ module TransferManager
                     # First incremental backup (similar to full but snapshot must be preserved)
                     incid = 0
 
-                    dexp     = "#{backup_dir}/disk.#{@id}.rbd2"
+                    dexp     = "#{backup_dir}/disk.#{@id}.#{incid}"
                     snapshot = "#{@rbd_image}@#{INC_SNAP_PREFIX}#{incid}"
 
                     snap_cmd << <<~EOF
@@ -176,14 +191,15 @@ module TransferManager
                     EOF
 
                     expo_cmd << ds.cmd_confinement(
-                        "#{@rbd_cmd} export --export-format 2 #{snapshot} #{dexp}\n",
+                        "env #{@ceph_env} " +
+                        "ruby #{backup_util} #{@rbd_image} NONE #{snapshot} #{dexp}\n",
                         backup_dir
                     )
                 else
                     # Incremental backup
                     incid = @vm_backup_config[:last_increment] + 1
 
-                    dinc     = "#{backup_dir}/disk.#{@id}.#{incid}.rbdiff"
+                    dinc     = "#{backup_dir}/disk.#{@id}.#{incid}"
                     snapshot = "#{@rbd_image}@one_backup_#{incid}"
 
                     last_snap = "one_backup_#{@vm_backup_config[:last_increment]}"
@@ -191,10 +207,21 @@ module TransferManager
                     snap_cmd << "#{@rbd_cmd} snap create #{snapshot}\n"
                     snap_cmd << "#{@rbd_cmd} snap protect #{snapshot}\n"
 
-                    expo_cmd << ds.cmd_confinement(
-                        "#{@rbd_cmd} export-diff --from-snap #{last_snap} #{snapshot} #{dinc}\n",
-                        backup_dir
-                    )
+                    if format == 'rbd'
+                        dinc += '.rbdiff'
+
+                        expo_cmd << ds.cmd_confinement(
+                            "#{@rbd_cmd} export-diff " \
+                            "--from-snap #{last_snap} #{snapshot} #{dinc}\n",
+                            backup_dir
+                        )
+                    else
+                        expo_cmd << ds.cmd_confinement(
+                            "env #{@ceph_env} " +
+                            "ruby #{backup_util} #{@rbd_image} #{last_snap} #{snapshot} #{dinc}\n",
+                            backup_dir
+                        )
+                    end
 
                     old_snapshot = "one_backup_#{@vm_backup_config[:last_increment]}"
                     snap_clup << rm_snaps_sh({ :type => :eq, :text => old_snapshot })

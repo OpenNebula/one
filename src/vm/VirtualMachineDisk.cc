@@ -1719,10 +1719,6 @@ bool VirtualMachineDisks::backup_keep_last(bool do_volatile)
 
         one_util::toupper(tm_mad);
 
-        if (tm_mad == "CEPH")
-        {
-            return false;
-        }
     }
 
     return true;
