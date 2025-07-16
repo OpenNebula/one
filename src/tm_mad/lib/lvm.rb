@@ -92,9 +92,9 @@ module TransferManager
             # @param _format [String, nil] Unused. Included for compatibility with ceph.rb.
             # @return [Disk]
             def backup_cmds(backup_dir, ds, live, _format = nil)
-                snap_cmd = ''
-                expo_cmd = ''
-                clup_cmd = ''
+                snap_cmd  = ''
+                expo_cmd  = ''
+                snap_clup = ''
 
                 # Supported configurations
                 # Legend: (T)hin, (F)at
@@ -112,8 +112,8 @@ module TransferManager
                             snapshot = "#{@lv}_one_backup"
                             orig = path(snapshot)
 
-                            snap_cmd << "sudo lvcreate -s -n #{snapshot} #{qual(@lv)}\n"
-                            clup_cmd << "sudo lvremove -y #{qual(snapshot)}\n"
+                            snap_cmd  << "sudo lvcreate -s -n #{snapshot} #{qual(@lv)}\n"
+                            snap_clup << "sudo lvremove -y #{qual(snapshot)}\n"
                         else
                             # Full, live, non-thin: UNSUPPORTED
                             return
@@ -135,9 +135,11 @@ module TransferManager
                 # rubocop:enable Style/GuardClause
 
                 {
-                    :snapshot => snap_cmd,
-                    :export => expo_cmd,
-                    :cleanup => clup_cmd
+                    :snapshot      => snap_cmd,
+                    :export        => expo_cmd,
+                    :snapshot_clup => snap_clup,
+                    :export_clup   => '',
+                    :cleanup       => snap_clup
                 }
             end
 
