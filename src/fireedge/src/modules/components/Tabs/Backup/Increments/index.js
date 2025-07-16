@@ -34,7 +34,7 @@ const IncrementsTab = ({ id }) => {
     : []
 
   return (
-    <IncrementsTable
+    <IncrementsTable.Table
       disableGlobalSort
       disableRowSelect
       increments={increments || []}
