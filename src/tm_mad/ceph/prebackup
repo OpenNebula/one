@@ -67,6 +67,7 @@ script = vm.backup_disks_sh(:disks       => disks,
 
 rc = action.ssh(:host => rhost,
                 :cmds => script,
+                :forward  => true,
                 :nostdout => false,
                 :nostderr => false)
 
