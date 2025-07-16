@@ -138,6 +138,11 @@ EOT
 
         return '' unless user_inputs
 
+        if (inputs_order = template['VMTEMPLATE']['TEMPLATE']['INPUTS_ORDER'])
+            ordered_inputs = inputs_order.split(',').map(&:strip)
+            user_inputs    = user_inputs.slice(*ordered_inputs).merge(user_inputs)
+        end
+
         answers = OpenNebulaHelper.parse_user_inputs(user_inputs, keys)
         answers_s = ''
         answers.each do |key, val|
