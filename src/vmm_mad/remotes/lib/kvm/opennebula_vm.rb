@@ -50,7 +50,7 @@ module VirtualMachineManagerKVM
         File.readlines(path).each do |l|
             next if l.empty? || l[0] == '#'
 
-            m = l.match(/(export)?[[:blank:]]*([^=]+)=([^[[:blank:]]]+)$/)
+            m = l.match(/(export)?[[:blank:]]*([^=]+)=([[:blank:]]*(['"]).*?\4|[^#\n]*)/)
 
             next unless m
 
