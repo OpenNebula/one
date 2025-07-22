@@ -110,7 +110,7 @@ const HelperACL = ({
             target="_blank"
             href={generateDocLink(
               version,
-              'management_and_operations/users_groups_management/chmod.html#manage-acl'
+              'product/cloud_system_administration/multitenancy/chmod/#manage-acl'
             )}
             rel="noreferrer"
           >
