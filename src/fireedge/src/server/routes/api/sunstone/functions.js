@@ -176,8 +176,9 @@ const getViews = (
                   // Fill info of each view reading the files on global.paths.SUNSTONE_PATH/{view name}
                   fillViewsInfo(groupAdminViews, views)
 
-                  // Get default view of the group
+                  // Get default view. If user has a default view, priorize over group default view
                   const defaultView =
+                    dataUser?.USER?.TEMPLATE?.FIREEDGE?.DEFAULT_VIEW ||
                     vmgroupData?.GROUP?.TEMPLATE?.FIREEDGE
                       ?.GROUP_ADMIN_DEFAULT_VIEW
 
@@ -197,8 +198,9 @@ const getViews = (
                   // Fill info of each view reading the files on global.paths.SUNSTONE_PATH/{view name}
                   fillViewsInfo(groupViews, views)
 
-                  // Get default view of the group
+                  // Get default view. If user has a default view, priorize over group default view
                   const defaultView =
+                    dataUser?.USER?.TEMPLATE?.FIREEDGE?.DEFAULT_VIEW ||
                     vmgroupData?.GROUP?.TEMPLATE?.FIREEDGE?.DEFAULT_VIEW
 
                   // Create response
