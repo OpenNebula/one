@@ -47,7 +47,8 @@ class Sudoers
                 '/var/tmp/one/vnm/ip_netns_exec ip route *'
             ],
             :LVM => [
-                'lvcreate', 'lvremove', 'lvs', 'vgdisplay', 'lvchange', 'lvscan', 'lvextend'
+                'lvcreate', 'lvremove', 'lvs', 'vgdisplay', 'lvchange', 'lvscan', 'lvextend',
+                'dmsetup'
             ],
             :OVS => ['ovs-ofctl', 'ovs-vsctl'],
             :CEPH => ['rbd'],

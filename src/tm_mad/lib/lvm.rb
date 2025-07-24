@@ -40,6 +40,9 @@ module TransferManager
         # LVM disks
         class Disk
 
+            # DON'T CHANGE THIS CONSTANT; will break existing incremental backups
+            INC_SNAP_PREFIX  = 'one_backup_'
+
             attr_reader :id, :vmid, :lv
 
             # @param vm_xml [String, REXML::Element]
@@ -92,15 +95,16 @@ module TransferManager
             # @param _format [String, nil] Unused. Included for compatibility with ceph.rb.
             # @return [Disk]
             def backup_cmds(backup_dir, ds, live, _format = nil)
-                snap_cmd  = ''
-                expo_cmd  = ''
-                snap_clup = ''
+                snap_cmd    = ''
+                expo_cmd    = ''
+                snap_clup   = ''
+                backup_util = '/var/tmp/one/tm/lib/backup_lvmthin.rb'
 
                 # Supported configurations
                 # Legend: (T)hin, (F)at
                 # |      | Live | Poweroff |
                 # | Full |    T |       TF |
-                # | Incr |    - |        - |
+                # | Incr |    T |        T |
                 # rubocop:disable Style/GuardClause
                 if @vm_backup_config[:mode] == :full
                     ddst = "#{backup_dir}/disk.#{@id}.0"
@@ -127,10 +131,41 @@ module TransferManager
                         sudo lvchange -K -ay #{orig}
                         qemu-img convert -m 4 -O qcow2 #{orig} #{ddst}
                     EOF
+                elsif @vm_backup_config[:last_increment] == -1
+                    # First incremental backup (initial full backup)
+                    return unless @is_thin
 
+                    incid     = 0
+                    dexp      = "#{backup_dir}/disk.#{@id}.#{incid}"
+                    snap_curr = "#{@lv}_#{INC_SNAP_PREFIX}#{incid}"
+                    snap_path = path(snap_curr)
+
+                    snap_cmd << "sudo lvcreate -s -n #{snap_curr} #{qual(@lv)}\n"
+
+                    expo_cmd << ds.cmd_confinement(<<~EOF, backup_dir)
+                        sudo lvchange -K -ay #{snap_path}
+                        qemu-img convert -m 4 -O qcow2 #{snap_path} #{dexp}
+                    EOF
                 else
-                    # Incremental: not implemented
-                    return
+                    # Incremental backup
+                    return unless @is_thin
+
+                    incid     = @vm_backup_config[:last_increment] + 1
+                    dinc      = "#{backup_dir}/disk.#{@id}.#{incid}"
+                    snap_curr = "#{@lv}_#{INC_SNAP_PREFIX}#{incid}"
+                    snap_prev = "#{@lv}_#{INC_SNAP_PREFIX}#{@vm_backup_config[:last_increment]}"
+
+                    snap_cmd << "sudo lvchange --refresh #{qual(@pool)}\n"
+                    snap_cmd << "sudo lvremove -y #{qual(snap_curr)} || true\n"
+                    snap_cmd << "sudo lvcreate -s -n #{snap_curr} #{qual(@lv)}\n"
+
+                    expo_cmd << ds.cmd_confinement(
+                        "ruby #{backup_util} #{qual(@lv)} " \
+                        "#{qual(snap_prev)} #{qual(snap_curr)} #{dinc}\n",
+                        backup_dir
+                    )
+
+                    snap_clup << "sudo lvremove -y #{qual(snap_prev)}\n"
                 end
                 # rubocop:enable Style/GuardClause
 

@@ -1691,6 +1691,15 @@ bool VirtualMachineDisks::backup_increment(bool do_volatile)
 
         one_util::toupper(format);
 
+        string lvm_thin_enable = disk->vector_value("LVM_THIN_ENABLE");
+
+        one_util::toupper(lvm_thin_enable);
+
+        if (format == "RAW" && lvm_thin_enable == "YES")
+        {
+            continue;
+        }
+
         if (format != "QCOW2" || disk->has_snapshots())
         {
             return false;
