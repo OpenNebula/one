@@ -349,6 +349,9 @@ Layout/LineContinuationSpacing:
 Layout/LineContinuationLeadingSpace:
      Enabled: false
 
+Layout/SpaceAroundKeyword:
+     Enabled: false
+
 #######
 # STYLE
 #######
