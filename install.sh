@@ -1314,6 +1314,7 @@ TM_LIB_FILES="src/tm_mad/lib/kvm.rb \
               src/tm_mad/lib/shell.rb \
               src/tm_mad/lib/tm_action.rb \
               src/tm_mad/lib/backup_qcow2.rb \
+              src/tm_mad/lib/backup_lvmthin.rb \
               src/tm_mad/lib/backup_rbd.rb \
               src/tm_mad/lib/datastore.rb \
               src/tm_mad/lib/tm_cache.rb \
