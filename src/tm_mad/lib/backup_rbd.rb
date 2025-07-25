@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and          #
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
+$LOAD_PATH.unshift('/var/tmp/one')
 
 require 'fileutils'
 require 'tempfile'
@@ -22,17 +23,8 @@ require 'json'
 require 'English'
 require 'tmpdir'
 require 'open3'
-
-def run_cmd(cmd, ignore_err: false)
-    stdout_str  = `#{cmd} 2>&1`
-    exit_status = $CHILD_STATUS.exitstatus
-
-    if exit_status != 0 && !ignore_err
-        raise "Command error: #{cmd}\nExit status: #{exit_status}\nOutput: #{stdout_str}"
-    end
-
-    stdout_str
-end
+require 'CommandManager'
+require 'DriverLogger'
 
 # --- Class to Parse .rdiff ---
 class RbdDiffParser
@@ -247,6 +239,8 @@ ceph_conf  = ENV['CEPH_CONF']
 rbd_image, start_snap_name, end_snap_fullname, filename = ARGV[0..3]
 
 begin
+    OpenNebula::DriverLogger.log_info 'Starting Ceph full backup.'
+
     if start_snap_name.upcase == 'NONE'
         # Full Backup
         output_file = filename.to_s
@@ -259,7 +253,9 @@ begin
         FileUtils.rm(output_file) if File.exist?(output_file)
 
         command = "qemu-img convert -f rbd -O qcow2 \"#{rbd_source_path}\" \"#{output_file}\""
-        run_cmd(command)
+        LocalCommand.run(command)
+
+        OpenNebula::DriverLogger.log_info "Ceph Backup completed successfully: #{output_file}"
     else
         # Incremental Backup
         output_qcow_path = filename.to_s
@@ -284,7 +280,7 @@ begin
             #--- STEP 1: Generating temporary diff
             diff_cmd = "#{rbd_cmd} export-diff --from-snap #{start_snap_name} " \
                        "\"#{rbd_target_path}\" \"#{temp_rdiff_path}\""
-            run_cmd(diff_cmd)
+            LocalCommand.run(diff_cmd)
 
             #--- STEP 2: Creating destination QCOW2 with backing file
             diff_parser = RbdDiffParser.new
@@ -296,7 +292,7 @@ begin
 
             create_cmd = "qemu-img create -f qcow2 -b \"#{rbd_backing_path}\" " \
                          "-F rbd \"#{output_qcow_path}\" #{diff_parser.size}"
-            run_cmd(create_cmd)
+            LocalCommand.run(create_cmd)
 
             #--- STEP 3: Start NBD server and pull changes
             Nbd.start_nbd(output_qcow_path)
@@ -309,7 +305,9 @@ begin
 
             # --- STEP 4: Changing backing file to empty
             rebase_cmd = "qemu-img rebase -u -b \"\" -F qcow2 \"#{output_qcow_path}\""
-            run_cmd(rebase_cmd)
+            LocalCommand.run(rebase_cmd)
+
+            OpenNebula::DriverLogger.log_info "Ceph Backup completed successfully: #{output_file}"
         ensure
             if temp_rdiff_path && File.exist?(temp_rdiff_path)
                 FileUtils.rm(temp_rdiff_path)
@@ -317,6 +315,7 @@ begin
         end
     end
 rescue StandardError => e
-    puts e.message
+    OpenNebula::DriverLogger.report "RBD Backup failed: #{e.message}"
+    OpenNebula::DriverLogger.report e.backtrace.join("\n")
     exit(-1)
 end
