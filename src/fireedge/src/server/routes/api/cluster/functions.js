@@ -62,8 +62,14 @@ const show = (
     parameters: [parseInt(clusterId, 10), true],
     callback: (clusterInfoErr, data = {}) => {
       const { CLUSTER } = data
-      if (clusterInfoErr || !CLUSTER) {
+      if (clusterInfoErr) {
         res.locals.httpCode = httpResponse(unauthorized, clusterInfoErr)
+        next()
+
+        return
+      }
+      if (!CLUSTER) {
+        res.locals.httpCode = httpResponse(badRequest, '', 'Cluster not found')
         next()
 
         return
