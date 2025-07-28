@@ -23,10 +23,9 @@ import { Box, useMediaQuery, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 
-const heightWindowRow = 30
 const heightGutterRow = 40
 
-const defaultPropsResize = `1fr ${heightGutterRow}px 1fr`
+const defaultPropsResize = `1fr ${heightGutterRow}px 0fr`
 
 const Switch = memo(({ valid, invalid, condition }) =>
   condition ? valid : invalid
@@ -111,12 +110,12 @@ const ResourcesBackButton = memo(
     }, [])
 
     useEffect(() => {
-      isFullMode
-        ? setPropsResize(`${heightWindowRow}px 100% ${heightGutterRow}px 1fr`)
+      showInfo && hasSelectedRows
+        ? setPropsResize(`1fr ${heightGutterRow}px 1fr`)
         : setPropsResize(defaultPropsResize)
 
       !isFullMode && setPageIndex(0)
-    }, [isFullMode])
+    }, [showInfo, hasSelectedRows])
 
     useEffect(() => {
       !hasSelectedRows && setShowInfo(false)
@@ -235,10 +234,13 @@ const ResourcesBackButton = memo(
                 id="boxWithProps"
                 height={1}
                 sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
+                  display: 'grid',
+                  gridTemplateRows:
+                    hasSelectedRows && showInfo
+                      ? propsResize
+                      : defaultPropsResize + ' !important',
                   paddingBottom: '0rem',
-                  overflow: 'hidden', // Prevents the entire Box from scrolling
+                  overflow: 'hidden',
                 }}
                 {...(hasSelectedRows && showInfo && getGridProps())}
               >
@@ -280,17 +282,7 @@ const ResourcesBackButton = memo(
                         invalid={
                           <Box
                             sx={{
-                              height: upExtraLarge
-                                ? '700px'
-                                : upLarge
-                                ? '500px'
-                                : upMedium
-                                ? '400px'
-                                : upSmall
-                                ? '250px'
-                                : upTiny
-                                ? '200px'
-                                : '150px',
+                              height: '100%',
                               overflow: 'auto',
                             }}
                           >
