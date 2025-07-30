@@ -18,15 +18,22 @@ import PropTypes from 'prop-types'
 
 import { css } from '@emotion/css'
 import { timeFromSeconds } from '@ModelsModule'
-import { wheelZoomPlugin } from '@modules/components/Charts/Plugins'
+import {
+  wheelZoomPlugin,
+  tooltipPlugin,
+} from '@modules/components/Charts/Plugins'
 import {
   CircularProgress,
   List,
   ListItem,
   Paper,
+  Box,
   Stack,
   Typography,
   useTheme,
+  FormControl,
+  Select,
+  MenuItem,
 } from '@mui/material'
 import { Component, useMemo, useRef, useState } from 'react'
 import UplotReact from 'uplot-react'
@@ -41,27 +48,69 @@ const useStyles = ({ palette, typography }) => ({
     position: 'relative',
     boxSizing: 'border-box',
   }),
+  legend: css({
+    '& .u-legend': {
+      color: palette.graphs.legend,
+      width: '100%',
+      display: 'table',
+      borderSpacing: 0,
+      borderCollapse: 'collapse',
+      tableLayout: 'fixed',
+    },
+    '.u-legend .u-marker': {
+      width: '0.7em',
+      height: '0.5em',
+      marginRight: '4px',
+      backgroundClip: 'padding-box !important',
+    },
+  }),
   title: css({
-    fontWeight: typography.fontWeightBold,
-    borderBottom: `1px solid ${palette.divider}`,
+    lineHeight: '100%',
   }),
   placeholder: css({
     width: '100%',
     aspectRatio: '16/9',
     overflow: 'hidden',
   }),
+  tooltip: css({
+    fontSize: '0.625em',
+    position: 'absolute',
+    background: palette.sunstoneColors.darkBlue[400],
+    padding: '4px 8px',
+    color: '#fff',
+    display: 'none',
+    borderRadius: '4px 4px 4px 4px',
+    pointerEvents: 'none',
+    zIndex: 999,
+    fontFamily: 'Ubuntu',
+    whiteSpace: 'nowrap',
+  }),
+  selectRoot: css({
+    '&:focus': {
+      backgroundColor: 'transparent !important',
+    },
+    color: palette.grey[500],
+    '& .MuiSelect-icon': {
+      color: palette.grey[500],
+    },
+  }),
 })
 
-const minMaxTick = (ticks, formatter) => {
-  const minTick = Math.min(...ticks)
-  const maxTick = Math.max(...ticks)
+const minMaxTick = (ticks, formatter = (x) => x, intervals = 2) => {
+  if (!ticks || ticks.length === 0) return []
 
-  const minLabel = formatter(minTick)
-  const maxLabel = formatter(maxTick)
+  const sortedTicks = [...ticks].sort((a, b) => a - b)
+  const n = sortedTicks.length
 
-  const res = [minLabel]
-    .concat(Array.from({ length: ticks?.length - 2 || 0 }, () => '')) // -2 for min/max label
-    .concat([maxLabel])
+  const intervalIdxs = Array.from({ length: intervals }, (_, i) =>
+    Math.floor((i * (n - 1)) / (intervals - 1))
+  )
+
+  const res = Array(n).fill('')
+
+  intervalIdxs.forEach((idx) => {
+    res[idx] = formatter(sortedTicks[idx])
+  })
 
   return res
 }
@@ -70,14 +119,21 @@ const createFill = (u, color) => {
   const ctx = u.ctx
   const plotHeight = u.bbox?.height || u.over.clientHeight
   const gradient = ctx.createLinearGradient(0, 0, 0, plotHeight)
-  gradient.addColorStop(0, (color || '#40B3D9') + '66')
+  gradient.addColorStop(0.1163, color || '#40B3D9')
   gradient.addColorStop(
-    1,
+    0.8837,
 
     (color || '#40B3D9') + '00'
   )
 
   return gradient
+}
+
+const sortingOptions = {
+  [T.Last30Minutes]: 30 * (60 * 1e3),
+  [T.LastDay]: 24 * 60 * (60 * 1e3),
+  [T.LastWeek]: 7 * 24 * 60 * (60 * 1e3),
+  [T.LastMonth]: 30 * 24 * 60 * (60 * 1e3),
 }
 
 /**
@@ -115,16 +171,19 @@ const Chartist = ({
   setTransform,
   legendNames = [],
   lineColors = [],
-  dateFormat = 'MM-dd HH:mm',
+  dateFormat = 'MM/dd/yyyy\nhh:mm a',
   dateFormatHover = 'MMM dd HH:mm:ss',
 }) => {
   const theme = useTheme()
   const classes = useMemo(() => useStyles(theme), [theme])
+  const [timePeriod, setTimePeriod] = useState(sortingOptions[T.Last30Minutes])
+  const [scaleIsZoomed, setScaleIsZoomed] = useState(false)
 
   const chartRef = useRef(null)
+  const uplotRef = useRef(null)
   const [chartDimensions, setChartDimensions] = useState({
     width: 0,
-    height: 0,
+    height: 0 - 32,
   })
 
   useResizeObserver(
@@ -134,8 +193,8 @@ const Chartist = ({
         requestAnimationFrame(() => {
           const { width, height } = chartRef.current.getBoundingClientRect()
           setChartDimensions({
-            width: width - 50,
-            height: height - 150,
+            width: Math.max(width - 16, 50), // Clamping
+            height: Math.max(height - 32, 50), // Clamping
           })
         })
       }
@@ -260,8 +319,11 @@ const Chartist = ({
     const seriesLength =
       timestamps?.length * (serieScale ?? transformedY?.length)
 
-    const XMin = timestamps?.[0]?.timestamp
     const XMax = timestamps?.slice(0, seriesLength)?.pop()?.timestamp
+    const XCutOff = XMax - timePeriod
+    const XMin = timestamps?.filter((ts) => ts?.timestamp >= XCutOff)?.[0]
+      ?.timestamp
+
     const PRangeX = (XMax - XMin) / 2
     const XPadding = Math.abs(PRangeX * 0.01) ?? 0
 
@@ -276,7 +338,7 @@ const Chartist = ({
       YRange,
       XRange,
     }
-  }, [data])
+  }, [data, timePeriod])
 
   const chartOptions = useMemo(() => {
     const {
@@ -291,15 +353,46 @@ const Chartist = ({
     return {
       ...chartDimensions,
       drag: false,
-      padding: [20, 40, 0, 40], // Pad top / left / right
+      padding: [null, null, null, null], // Pad top / left / right
+      legend: {
+        show: true,
+        live: false,
+        isolate: false,
+        markers: {
+          width: 2,
+          fill: (self, sIdx) => {
+            const s = self.series[sIdx]
+
+            return s.width
+              ? s.stroke(self, sIdx)
+              : s.points.width
+              ? s.points.stroke(self, sIdx)
+              : null
+          },
+        },
+      },
       plugins: [
-        wheelZoomPlugin({ factor: zoomFactor, scaleY: false, scaleX: true }),
+        wheelZoomPlugin({
+          factor: zoomFactor,
+          scaleY: false,
+          scaleX: true,
+          onScaled: setScaleIsZoomed,
+        }),
+        tooltipPlugin({
+          seriesColors: lineColors,
+          tooltipClass: classes.tooltip,
+          dataset: dataset,
+          interpolation: interpolationY,
+        }),
       ],
       cursor: {
         bind: {
           mousedown: () => () => {}, // Clear original 'annotating' handler
           dblclick: () => () => {}, // Clear reset X axis
           click: () => () => {}, // Clear click handler
+        },
+        focus: {
+          prox: 5,
         },
       },
       scales: {
@@ -313,23 +406,28 @@ const Chartist = ({
 
       axes: [
         {
-          grid: { show: true },
-          stroke: theme?.palette?.graphs?.axis?.color,
-          ticks: { show: true },
+          show: true,
+          grid: { show: false },
+          stroke: theme?.palette?.grey[500],
+          ticks: { show: false },
           values: (_, ticks) =>
-            minMaxTick(ticks, (label) =>
-              timeFromSeconds(label).toFormat(dateFormat)
+            minMaxTick(
+              ticks,
+              (label) => timeFromSeconds(label).toFormat(dateFormat),
+              4
             ),
+          gap: 12,
         },
         {
-          grid: { show: true },
-          stroke: theme?.palette?.graphs?.axis?.color,
+          grid: { show: true, dash: [8, 8] },
+          stroke: theme?.palette?.grey[500],
           ticks: { show: true },
           values: (_, ticks) => minMaxTick(ticks, (yV) => interpolationY(yV)),
         },
       ],
       series: [
         {
+          show: true,
           label: 'Time',
           value: (_, timestamp) =>
             timestamp
@@ -340,9 +438,10 @@ const Chartist = ({
           ? YRender?.map((yValue, index) => ({
               label: legendNames?.[yValue] ?? legendNames?.[index] ?? yValue,
               value: (_, yV) => interpolationY(yV) || yV,
-              stroke: lineColors?.[index] || '#40B3D9',
+              stroke:
+                lineColors?.[index] || theme.palette.sunstoneColors.blue[400],
               points: {
-                show: (_u, _seriesIdx, _, seriesLength) => seriesLength < 1000,
+                show: (_u, _seriesIdx, _, seriesLength) => seriesLength <= 1000,
               },
               ...([]?.includes(index)
                 ? {
@@ -356,14 +455,13 @@ const Chartist = ({
                     fill: (u) => createFill(u, lineColors?.[index]),
                   }
                 : {}),
-              focus: true,
             }))
           : [
               {
                 label: name,
-                stroke: lineColors?.[0] || '#40B3D9',
+                stroke:
+                  lineColors?.[0] || theme.palette.sunstoneColors.blue[400],
                 value: (_, yV) => interpolationY(yV),
-                focus: true,
                 ...(shouldFill.includes(YRender)
                   ? {
                       fill: (u) => createFill(u, lineColors?.[0]),
@@ -375,6 +473,7 @@ const Chartist = ({
     }
   }, [
     transformData,
+    timePeriod,
     chartDimensions,
     name,
     y,
@@ -383,26 +482,125 @@ const Chartist = ({
     interpolationY,
   ])
 
+  const chartKey = useMemo(
+    () =>
+      `${timePeriod}-${chartDimensions.width}x${
+        chartDimensions.height
+      }-${transformData?.YRange?.join('-')}`,
+    [timePeriod, chartDimensions, transformData?.YRange]
+  )
+
   return (
     <Paper variant="outlined" className={classes.graphContainer}>
       <List className={classes.box} sx={{ width: '100%', height: '100%' }}>
         <ListItem className={classes.title}>
-          <Typography noWrap>{name}</Typography>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            width="100%"
+          >
+            <Typography
+              sx={{
+                fontFamily: 'Ubuntu',
+                fontSize: '1.313rem',
+                lineHeight: '1.313rem',
+                fontStyle: 'normal',
+                fontWeight: 400,
+                flex: 1,
+              }}
+              noWrap
+            >
+              {name}
+            </Typography>
+            <Box
+              display="flex"
+              justifyContent="end"
+              alignItems="baseline"
+              gap={1}
+              flex={1}
+            >
+              <Typography
+                sx={{
+                  fontFamily: 'Ubuntu',
+                  fontSize: '1rem',
+                  lineHeight: '1.313rem',
+                  fontStyle: 'normal',
+                  color: theme.palette.grey[500],
+                  fontWeight: 'bold',
+                  textAlign: 'right',
+                }}
+                noWrap
+              >
+                {T.Period + ':'}
+              </Typography>
+              <FormControl variant="standard">
+                <Select
+                  className={classes.selectRoot}
+                  id="time-period-sort"
+                  value={scaleIsZoomed ? '-' : timePeriod}
+                  disableUnderline={true}
+                  onChange={(e) => {
+                    const value = e?.target?.value
+                    const isValid =
+                      Object.values(sortingOptions)?.includes(value)
+                    if (isValid) {
+                      setTimePeriod(value)
+                      setScaleIsZoomed(false)
+                      if (uplotRef.current) {
+                        const { setScale } = uplotRef.current
+                        const [min, max] = transformData.XRange
+                        setScale('x', { min: min ?? null, max: max ?? null })
+                      }
+                    }
+                  }}
+                  renderValue={(selected) => {
+                    if (scaleIsZoomed || selected === '-') return '-'
+                    const label = Object.entries(sortingOptions).find(
+                      ([_, val]) => val === selected
+                    )?.[0]
+
+                    return label || selected
+                  }}
+                >
+                  {Object.entries(sortingOptions)?.map(
+                    ([label, value], idx) => (
+                      <MenuItem key={`${label}-${idx}`} value={value}>
+                        {label}
+                      </MenuItem>
+                    )
+                  )}
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
         </ListItem>
         <ListItem ref={chartRef} className={classes.placeholder}>
           {isFetching ? (
             <Stack direction="row" justifyContent="center" alignItems="center">
               <CircularProgress color="secondary" />
             </Stack>
-          ) : transformData == null || !transformData?.dataset?.length > 0 ? (
+          ) : transformData == null ||
+            !transformData?.dataset?.length > 0 ||
+            []
+              .concat(transformData?.YRange)
+              ?.some((v) => typeof v !== 'number' || Number.isNaN(v)) ? (
             <Stack direction="row" justifyContent="center" alignItems="center">
               <Typography>{Tr(T.NoDataAvailable)}</Typography>
             </Stack>
           ) : (
-            <div>
+            <div
+              key={chartKey}
+              style={{
+                width: '100%',
+                height: '100%',
+              }}
+              className={`${classes.legend}`}
+            >
               <UplotReact
                 options={chartOptions}
                 data={transformData.dataset ?? []}
+                onCreate={(chart) => (uplotRef.current = chart)}
               />
             </div>
           )}

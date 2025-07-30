@@ -382,71 +382,72 @@ export const lightPalette = {
 
   // Graphs colors
   graphs: {
+    legend: '#B2B9BE',
     vm: {
       cpu: {
-        real: primaryColor,
-        forecast: sunstoneColors.grey[600],
-        forecastFar: '#DEA700',
+        real: '#0098C3',
+        forecast: '#D65108',
+        forecastFar: '#B2B9BE',
       },
       memory: {
-        real: primaryColor,
-        forecast: sunstoneColors.grey[600],
-        forecastFar: '#DEA700',
+        real: '#0098C3',
+        forecast: '#D65108',
+        forecastFar: '#B2B9BE',
       },
       diskReadBytes: {
-        real: primaryColor,
-        forecast: sunstoneColors.grey[600],
-        forecastFar: '#DEA700',
+        real: '#0098C3',
+        forecast: '#D782BA',
+        forecastFar: '#D65108',
       },
       diskReadIOPS: {
-        real: primaryColor,
-        forecast: sunstoneColors.grey[600],
-        forecastFar: '#DEA700',
+        real: '#0098C3',
+        forecast: '#D782BA',
+        forecastFar: '#D65108',
       },
       diskWriteBytes: {
-        real: primaryColor,
-        forecast: sunstoneColors.grey[600],
-        forecastFar: '#DEA700',
+        real: '#0098C3',
+        forecast: '#D782BA',
+        forecastFar: '#D65108',
       },
       diskWriteIOPS: {
-        real: primaryColor,
-        forecast: sunstoneColors.grey[600],
-        forecastFar: '#DEA700',
+        real: '#0098C3',
+        forecast: '#D782BA',
+        forecastFar: '#D65108',
       },
       netDownloadSpeed: {
-        real: primaryColor,
-        forecast: sunstoneColors.grey[600],
-        forecastFar: '#DEA700',
+        real: '#0098C3',
+        forecast: '#D782BA',
+        forecastFar: '#D65108',
       },
       netUploadSpeed: {
-        real: primaryColor,
-        forecast: sunstoneColors.grey[600],
-        forecastFar: '#DEA700',
+        real: '#0098C3',
+        forecast: '#D782BA',
+        forecastFar: '#D65108',
       },
     },
     host: {
       cpu: {
         free: {
-          real: '#99004D',
-          forecast: '#443355',
-          forecastFar: '#805A00',
+          real: '#67FFA7',
+          forecast: '#23CE6B',
+          forecastFar: '#00461E',
         },
         used: {
-          real: primaryColor,
-          forecast: sunstoneColors.grey[600],
-          forecastFar: '#DEA700',
+          real: '#FF5779',
+          forecast: '#A20021',
+          forecastFar: '#500010',
         },
       },
       memory: {
         free: {
-          real: '#99004D',
-          forecast: '#443355',
-          forecastFar: '#805A00',
+          real: '#67FFA7',
+          forecast: '#23CE6B',
+          forecastFar: '#00461E',
         },
         used: {
-          real: primaryColor,
-          forecast: sunstoneColors.grey[600],
-          forecastFar: '#DEA700',
+          real: '#FF5779',
+          forecast: '#A20021',
+          forecastFar: '#500010',
         },
       },
     },
@@ -483,6 +484,7 @@ export const lightPalette = {
       color: sunstoneColors.black,
     },
   },
+  sunstoneColors: sunstoneColors,
 
   error: {
     100: '#e98e7f',

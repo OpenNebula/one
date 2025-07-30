@@ -124,7 +124,7 @@ const Graphs = ({ id }) => {
         }}
         zoomFactor={0.95}
         trendLineOnly={['CPU_FORECAST_FAR']}
-        shouldFill={['CPU']}
+        shouldFill={cpuY.flat()}
       />
 
       <Chartist
@@ -175,7 +175,7 @@ const Graphs = ({ id }) => {
         legendNames={memoryNames}
         trendLineOnly={['MEMORY_FORECAST_FAR']}
         zoomFactor={0.95}
-        shouldFill={['MEMORY']}
+        shouldFill={memoryY.flat()}
       />
     </>
   )

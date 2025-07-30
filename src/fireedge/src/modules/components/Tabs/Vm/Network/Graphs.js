@@ -116,7 +116,7 @@ const Graphs = ({ id }) => {
           legendNames={netRxNames}
           zoomFactor={0.95}
           trendLineOnly={['NETRX_BW_FORECAST_FAR']}
-          shouldFill={['NETRX_BW']}
+          shouldFill={netRxY.flat()}
         />
       </Grid>
       <Grid item md={6}>
@@ -166,7 +166,7 @@ const Graphs = ({ id }) => {
           legendNames={netTxNames}
           zoomFactor={0.95}
           trendLineOnly={['NETTX_BW_FORECAST_FAR']}
-          shouldFill={['NETTX_BW']}
+          shouldFill={netTxY.flat()}
         />
       </Grid>
     </Grid>
