@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { timeFromSeconds } from '@ModelsModule'
 
 /* eslint-disable  */
 function wheelZoomPlugin(opts) {
@@ -78,6 +79,7 @@ function wheelZoomPlugin(opts) {
           ;[nyMin, nyMax] = clamp(nyRange, nyMin, nyMax, yRange, yMin, yMax)
 
           u.batch(() => {
+            opts?.onScaled(xMax !== nxMax || xMin !== nxMin)
             scaleX && u.setScale('x', {
               min: nxMin,
               max: nxMax,
@@ -94,4 +96,136 @@ function wheelZoomPlugin(opts) {
   }
 }
 
-export { wheelZoomPlugin }
+
+function tooltipPlugin({ dataset, tooltipClass, seriesColors, shiftX = 5, shiftY = 5, interpolation }) {
+  let tooltipLeftOffset = 0;
+  let tooltipTopOffset = 0;
+
+  const tooltip = document.createElement("div");
+  tooltip.className = tooltipClass;
+
+  let seriesIdx = null;  
+  let seriesLabel = "Series";
+  let dataIdx = null;
+  let over;
+  let tooltipVisible = false;
+
+  function showTooltip() {
+    if (!tooltipVisible) {
+      tooltip.style.display = "block";
+      over.style.cursor = "pointer";
+      tooltipVisible = true;
+    }
+  }
+
+  function hideTooltip() {
+    if (tooltipVisible) {
+      tooltip.style.display = "none";
+      over.style.cursor = null;
+      tooltipVisible = false;
+    }
+  }
+
+  function setTooltip(u) {
+    if (seriesIdx == null || dataIdx == null || dataIdx < 0) return;
+
+    const top = u.valToPos(u.data[seriesIdx][dataIdx], "y");
+    const left = u.valToPos(u.data[0][dataIdx], "x");
+
+    const value = u.data[seriesIdx][dataIdx];
+    const time = u.data[0][dataIdx];
+    const formattedTime = timeFromSeconds(time).toFormat("dd/MM/yyyy, hh:mm:ss a");
+
+    const colorBox = `<span style="display:inline-block;width:10px;height:10px;background:${seriesColors[seriesIdx - 1]};border-radius:2px;margin-right:6px;"></span>`;
+
+    tooltip.innerHTML = `
+      <div style="
+        display: flex;
+        flex-direction: column;
+        gap: 5.811px;
+        align-items: flex-start;
+      ">
+        <div style="display: flex; align-items: center;">
+          ${colorBox}
+        <span style="display: inline-flex; align-items: center; gap: 4px;">
+          <span style="font-weight: 400;">${seriesLabel}:</span>
+          <strong style="font-weight: 700; font-size: 14px;">${interpolation(value)}</strong>
+        </span>
+        </div>
+        <div style="font-weight: 400; line-height: 16px;">
+          ${formattedTime}
+        </div>
+      </div>
+    `;
+
+    tooltip.style.display = "block";
+    tooltip.style.visibility = "hidden";
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+
+    const container = u.root.querySelector(".u-wrap");
+    const containerRect = container.getBoundingClientRect();
+
+    const containerLeft = tooltipLeftOffset + left;
+    const defaultLeft = containerLeft + shiftX;
+
+    let finalLeft = defaultLeft;
+
+    if (defaultLeft + tooltipWidth > containerRect.width) {
+      finalLeft = containerLeft - tooltipWidth - shiftX;
+    }
+
+    let finalTop = tooltipTopOffset + top + shiftY;
+
+    if (finalTop + tooltipHeight > containerRect.height) {
+      finalTop = containerRect.height - tooltipHeight - 5;
+    }
+    if (finalTop < 0) finalTop = 0;
+
+    tooltip.style.top = `${finalTop}px`;
+    tooltip.style.left = `${finalLeft}px`;
+
+    tooltip.style.visibility = "visible";
+
+    showTooltip();
+  }
+
+  return {
+    hooks: {
+      ready: [
+        (u) => {
+          over = u.over;
+          tooltipLeftOffset = parseFloat(over.style.left) || 0;
+          tooltipTopOffset = parseFloat(over.style.top) || 0;
+          u.root.querySelector(".u-wrap").appendChild(tooltip);
+        },
+      ],
+    setSeries: [
+        (u, sidx) => {
+            if (seriesIdx != sidx) {
+                seriesIdx = sidx;
+                seriesLabel = u.series[seriesIdx]?.label ?? 'Serie';
+
+                if (sidx == null)
+                    hideTooltip();
+                else if (dataIdx != null)
+                    setTooltip(u);
+            }
+        }
+    ],
+    setCursor: [
+            u => {
+                let c = u.cursor;
+
+                if (dataIdx != c.idx) {
+                    dataIdx = c.idx;
+
+                    if (seriesIdx != null)
+                        setTooltip(u);
+                }
+            }
+        ],
+    },
+  };
+}
+export { wheelZoomPlugin, tooltipPlugin }

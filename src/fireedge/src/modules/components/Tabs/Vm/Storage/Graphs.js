@@ -148,7 +148,7 @@ const Graphs = ({ id }) => {
           interpolationY={interpolationBytes}
           zoomFactor={0.95}
           trendLineOnly={['DISKRDBYTES_BW_FORECAST_FAR']}
-          shouldFill={['DISKRDBYTES_BW']}
+          shouldFill={diskRdBytesY.flat()}
         />
       </Grid>
       <Grid item md={6}>
@@ -198,7 +198,7 @@ const Graphs = ({ id }) => {
           interpolationY={interpolationBytes}
           zoomFactor={0.95}
           trendLineOnly={['DISKWRBYTES_BW_FORECAST_FAR']}
-          shouldFill={['DISKWRBYTES_BW']}
+          shouldFill={diskWrBytesY.flat()}
         />
       </Grid>
       <Grid item md={6}>
@@ -248,7 +248,7 @@ const Graphs = ({ id }) => {
           interpolationY={interpolationBytes}
           zoomFactor={0.95}
           trendLineOnly={['DISKRDIOPS_BW_FORECAST_FAR']}
-          shouldFill={['DISKRDIOPS_BW']}
+          shouldFill={diskRdIopsY.flat()}
         />
       </Grid>
       <Grid item md={6}>
@@ -298,7 +298,7 @@ const Graphs = ({ id }) => {
           interpolationY={interpolationBytes}
           zoomFactor={0.95}
           trendLineOnly={['DISKWRIOPS_BW_FORECAST_FAR']}
-          shouldFill={['DISKWRIOPS']}
+          shouldFill={diskWrIopsY.flat()}
         />
       </Grid>
     </Grid>
