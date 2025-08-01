@@ -263,6 +263,13 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
         return -1;
     }
 
+    /* ------------------------- Next Index -------------------------------- */
+
+    if ( vattr->vector_value("NEXT_INDEX", next) != 0 )
+    {
+        next = 0;
+    }
+
     /* ------------------------- Security Groups ---------------------------- */
 
     value = vattr->vector_value("SECURITY_GROUPS");
@@ -488,6 +495,8 @@ int AddressRange::update_attributes(
 
     vup->replace("SIZE", size);
 
+    vup->replace("NEXT_INDEX", next);
+
     string value = vup->vector_value("SECURITY_GROUPS");
 
     security_groups.clear();
@@ -561,6 +570,11 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
     type  = str_to_type(value);
 
     rc += vattr->vector_value("SIZE", size);
+
+    if ( vattr->vector_value("NEXT_INDEX", next) != 0 )
+    {
+        next = 0;
+    }
 
     rc += mac_to_i(vattr->vector_value("MAC"), mac);
 
@@ -737,6 +751,7 @@ void AddressRange::to_xml(ostringstream &oss) const
     }
 
     oss << "<USED_LEASES>" << get_used_addr() << "</USED_LEASES>";
+    oss << "<NEXT_INDEX>" << next << "</NEXT_INDEX>";
     oss << "</AR>";
 }
 
@@ -907,7 +922,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
         oss << "</LEASES>";
     }
-
+    oss << "<NEXT_INDEX>" << next << "</NEXT_INDEX>";
     oss << "</AR>";
 }
 
@@ -1429,6 +1444,8 @@ void AddressRange::allocated_to_attr()
     }
 
     attr->replace("ALLOCATED", oss.str());
+
+    attr->replace("NEXT_INDEX", next);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1854,6 +1871,7 @@ const char * AddressRange::SG_RULE_ATTRIBUTES[] =
     "AR_ID",
     "TYPE",
     "SIZE",
+    "NEXT_INDEX",
     "MAC",
     "IP",
     "IP6"
@@ -2005,6 +2023,8 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 
     new_ar->replace("SIZE", rsize);
 
+    new_ar->replace("NEXT_INDEX", next);
+
     new_ar->remove("IPAM_MAD");
 
     rar->from_vattr(new_ar, errmsg);
@@ -2063,6 +2083,8 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
     }
 
     new_ar->replace("SIZE", rsize);
+
+    new_ar->replace("NEXT_INDEX", next);
 
     new_ar->remove("IPAM_MAD");
 
