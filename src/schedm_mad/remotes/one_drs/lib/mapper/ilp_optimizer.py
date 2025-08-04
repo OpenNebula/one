@@ -512,8 +512,9 @@ class ILPOptimizer(Mapper):
             #     continue
             if (vm_id, req_id) in used_shared_dstores:
                 dstore_id = used_shared_dstores[vm_id, req_id]
-                x_next_dstore_shared[vm_id, req_id, dstore_id] = 1.0
-                continue
+                if dstore_id in set(dstore_match.shared_dstores):
+                    x_next_dstore_shared[vm_id, req_id, dstore_id] = 1.0
+                    continue
             for host_id, disk_ids in dstore_match.host_dstores.items():
                 for disk_id in disk_ids:
                     x_name_idx = f"{vm_id}_{req_id}_{host_id}_{disk_id}"
