@@ -559,7 +559,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def add_bridge_port(port, dpdk_path = nil)
         return if @bridges[@nic[:bridge]].include? port
 
-        ovs_cmd = "#{command(:ovs_vsctl)} add-port #{@nic[:bridge]} #{port}"
+        ovs_cmd = "#{command(:ovs_vsctl)} --may-exist add-port #{@nic[:bridge]} #{port}"
 
         if dpdk_path && dpdk?
             ovs_cmd << " -- set Interface #{port} type=dpdkvhostuserclient"\
