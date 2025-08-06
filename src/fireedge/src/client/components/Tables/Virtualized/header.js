@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { UseTableInstanceProps } from 'react-table'
+import { UseTableInstanceProps } from 'opennebula-react-table'
 
 const Header = ({ useTableProps }) => {
   /** @type {UseTableInstanceProps} */

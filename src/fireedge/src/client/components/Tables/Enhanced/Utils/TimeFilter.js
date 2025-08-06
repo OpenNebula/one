@@ -17,7 +17,7 @@ import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { Stack, TextField } from '@mui/material'
-import { UseFiltersInstanceProps } from 'react-table'
+import { UseFiltersInstanceProps } from 'opennebula-react-table'
 
 import { Tr } from 'client/components/HOC'
 

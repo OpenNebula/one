@@ -24,7 +24,7 @@ import {
   useGlobalFilter,
   useRowSelect,
   useFlexLayout,
-} from 'react-table'
+} from 'opennebula-react-table'
 
 import { ListVirtualized } from 'client/components/List'
 import Toolbar from 'client/components/Tables/Virtualized/toolbar'

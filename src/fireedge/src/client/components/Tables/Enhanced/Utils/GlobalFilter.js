@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { Stack } from '@mui/material'
 import { Filter } from 'iconoir-react'
-import { UseFiltersInstanceProps, UseFiltersState } from 'react-table'
+import { UseFiltersInstanceProps, UseFiltersState } from 'opennebula-react-table'
 
 import { LABEL_COLUMN_ID } from 'client/components/Tables/Enhanced/Utils/GlobalLabel'
 import HeaderPopover from 'client/components/Header/Popover'

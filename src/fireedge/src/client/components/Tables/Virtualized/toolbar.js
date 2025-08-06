@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { Button } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 import { Filter as FilterIcon } from 'iconoir-react'
-import { UseGlobalFiltersInstanceProps, UseFiltersState } from 'react-table'
+import { UseGlobalFiltersInstanceProps, UseFiltersState } from 'opennebula-react-table'
 
 import { GlobalFilter } from 'client/components/Tables/Enhanced/Utils'
 import { Tr } from 'client/components/HOC'

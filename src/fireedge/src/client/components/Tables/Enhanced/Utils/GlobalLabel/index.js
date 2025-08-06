@@ -18,7 +18,7 @@ import { ReactElement, useCallback, useMemo, useState } from 'react'
 
 import { Stack } from '@mui/material'
 import SettingsIcon from 'iconoir-react/dist/LabelOutline'
-import { UseFiltersInstanceProps } from 'react-table'
+import { UseFiltersInstanceProps } from 'opennebula-react-table'
 
 import { useAuth } from 'client/features/Auth'
 

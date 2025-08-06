@@ -30,7 +30,7 @@ import {
 } from '@mui/material'
 import { BaseSchema, array, boolean, number, object, string } from 'yup'
 // eslint-disable-next-line no-unused-vars
-import { Row } from 'react-table'
+import { Row } from 'opennebula-react-table'
 
 import {
   // eslint-disable-next-line no-unused-vars

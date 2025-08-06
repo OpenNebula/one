@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 import * as DatastoreModel from 'client/models/Datastore'
-import { Column } from 'react-table'
+import { Column } from 'opennebula-react-table'
 import { T } from 'client/constants'
 
 /** @type {Column[]} Datastore columns */

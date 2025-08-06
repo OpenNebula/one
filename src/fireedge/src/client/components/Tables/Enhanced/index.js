@@ -41,7 +41,7 @@ import {
   useRowSelect,
   useSortBy,
   useTable,
-} from 'react-table'
+} from 'opennebula-react-table'
 
 import {
   ChangeViewTable,

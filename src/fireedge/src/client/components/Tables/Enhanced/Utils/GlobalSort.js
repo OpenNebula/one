@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { SortDown, ArrowDown, ArrowUp } from 'iconoir-react'
 import { MenuItem, MenuList, Stack } from '@mui/material'
-import { UseSortByInstanceProps, UseSortByState } from 'react-table'
+import { UseSortByInstanceProps, UseSortByState } from 'opennebula-react-table'
 
 import HeaderPopover from 'client/components/Header/Popover'
 import { Translate } from 'client/components/HOC'

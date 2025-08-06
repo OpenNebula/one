@@ -20,7 +20,7 @@ import clsx from 'clsx'
 import { alpha, debounce, InputBase, FormControl } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 import { Search as SearchIcon } from 'iconoir-react'
-import { UseGlobalFiltersInstanceProps } from 'react-table'
+import { UseGlobalFiltersInstanceProps } from 'opennebula-react-table'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'

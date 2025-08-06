@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { styled, TextField, Popper, Chip } from '@mui/material'
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
-import { UseFiltersInstanceProps } from 'react-table'
+import { UseFiltersInstanceProps } from 'opennebula-react-table'
 
 import { Tr } from 'client/components/HOC'
 

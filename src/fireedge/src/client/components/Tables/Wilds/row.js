@@ -19,7 +19,7 @@ import { memo, ReactElement } from 'react'
 import { Typography } from '@mui/material'
 
 import { rowStyles } from 'client/components/Tables/styles'
-import { Row as RowType } from 'react-table'
+import { Row as RowType } from 'opennebula-react-table'
 
 /**
  * @param {RowType} props - Props

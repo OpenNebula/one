@@ -22,7 +22,7 @@ import ACLActions from 'client/components/Tables/ACLs/actions'
 import { useGeneral } from 'client/features/General'
 import PropTypes from 'prop-types'
 import { ReactElement, useState } from 'react'
-import { Row } from 'react-table'
+import { Row } from 'opennebula-react-table'
 
 /**
  * Displays a list of Groups with a split pane between the list and selected row(s).

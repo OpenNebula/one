@@ -20,7 +20,7 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 import { Box } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
-import { UseTableInstanceProps, UseTableRowProps } from 'react-table'
+import { UseTableInstanceProps, UseTableRowProps } from 'opennebula-react-table'
 import { VirtualItem } from 'react-virtual'
 
 const useStyles = makeStyles(() => ({

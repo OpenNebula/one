@@ -20,7 +20,7 @@ import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
 import PropTypes from 'prop-types'
 import { ReactElement, memo, useState } from 'react'
-import { Row } from 'react-table'
+import { Row } from 'opennebula-react-table'
 
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
