@@ -52,6 +52,9 @@ const style = () => ({
     justifyContent: 'space-between',
     width: '100%',
   }),
+  internalLegend: css({
+    marginTop: '9px',
+  }),
 })
 
 /**
@@ -130,16 +133,28 @@ const Settings = () => {
       {!isLoading && (
         <Box className={classes.content}>
           <FormProvider {...methods}>
-            <InternalWrapper title={T.ThemeMode}>
+            <InternalWrapper
+              title={T.ThemeMode}
+              innerClassName={classes.internalLegend}
+            >
               <FormWithSchema cy={'settings-ui'} fields={FIELDS_THEME} />
             </InternalWrapper>
-            <InternalWrapper title={T.DataTablesStyles}>
+            <InternalWrapper
+              title={T.DataTablesStyles}
+              innerClassName={classes.internalLegend}
+            >
               <FormWithSchema cy={'settings-ui'} fields={FIELDS_DATATABLE} />
             </InternalWrapper>
-            <InternalWrapper title={T.Animations}>
+            <InternalWrapper
+              title={T.Animations}
+              innerClassName={classes.internalLegend}
+            >
               <FormWithSchema cy={'settings-ui'} fields={FIELDS_ANIMATIONS} />
             </InternalWrapper>
-            <InternalWrapper title={T.Others}>
+            <InternalWrapper
+              title={T.Others}
+              innerClassName={classes.internalLegend}
+            >
               <FormWithSchema
                 cy={'settings-ui'}
                 fields={FIELDS_OTHERS({ views, userView, zones })}
