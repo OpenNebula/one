@@ -703,16 +703,16 @@ class OptimizerParser:
         }
 
     def _build_used_dstores(self, vm):
-        _, _, host_ds = self.get_ds_map()
-        vm_hist = vm.history_records.history
-        last_rec = max(vm_hist, key=lambda item: item.seq)
-        ds_id = last_rec.ds_id
-        # Host DS
-        if ds_id in host_ds.keys():
-            self.used_host_dstores[vm.id, 0] = ds_id
-        # Shared system ds or image ds
-        else:
-            self.used_shared_dstores[vm.id, 0] = ds_id
+        if vm_hist := vm.history_records.history:
+            last_rec = max(vm_hist, key=lambda item: item.seq)
+            ds_id = last_rec.ds_id
+            # Host DS
+            _, _, host_ds = self.get_ds_map()
+            if ds_id in host_ds.keys():
+                self.used_host_dstores[vm.id, 0] = ds_id
+            # Shared system ds or image ds
+            else:
+                self.used_shared_dstores[vm.id, 0] = ds_id
 
     def get_ds_map(self) -> tuple[set[int], set[int], dict[int, int]]:
         shared_ds, image_ds = set(), set()
@@ -723,8 +723,7 @@ class OptimizerParser:
             }
             if ds_attrs.get("TYPE") == "IMAGE_DS":
                 image_ds.add(int(ds.id))
-            # elif ds_attrs.get("SHARED") == "YES":
-            else:
+            elif ds_attrs.get("SHARED") == "YES":
                 shared_ds.add(int(ds.id))
         host_ds_dict = {
             int(host_ds.id): int(host.id)
