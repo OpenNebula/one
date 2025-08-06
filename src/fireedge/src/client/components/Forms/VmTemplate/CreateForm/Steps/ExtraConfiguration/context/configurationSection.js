@@ -81,6 +81,8 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup, isUpdate }) => {
     })
   }, [getValues, setValue, SSH_PUBLIC_KEY_PATH])
 
+  const isDisabled = getValues(SSH_PUBLIC_KEY_PATH).includes(SSH_KEY_USER)
+
   return (
     <FormControl component="fieldset" sx={{ width: '100%' }}>
       <Legend title={T.Configuration} />
@@ -118,6 +120,7 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup, isUpdate }) => {
               color="secondary"
               variant="contained"
               data-cy={getCyPath('add-context-ssh-public-key')}
+              disabled={isDisabled}
             >
               {T.AddUserSshPublicKey}
             </Button>
