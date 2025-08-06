@@ -82,6 +82,8 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup, isUpdate }) => {
     })
   }, [getValues, setValue, SSH_PUBLIC_KEY_PATH])
 
+  const isDisabled = getValues(SSH_PUBLIC_KEY_PATH).includes(SSH_KEY_USER)
+
   return (
     <FormControl component="fieldset" sx={{ width: '100%' }}>
       <Legend title={T.Configuration} />
@@ -121,6 +123,7 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup, isUpdate }) => {
               importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
               size={STYLE_BUTTONS.SIZE.MEDIUM}
               type={STYLE_BUTTONS.TYPE.FILLED}
+              disabled={isDisabled}
             />
             <SubmitButton
               onClick={handleClearKey}
