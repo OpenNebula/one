@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2024, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2025, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -87,27 +87,29 @@ const ContextVarsSection = ({ stepId, hypervisor }) => {
 
   return (
     <Box display="grid" gap="1em">
-      <Accordion
-        variant="transparent"
-        TransitionProps={{ unmountOnExit: false }}
-      >
-        <AccordionSummary>
-          <Legend
-            disableGutters
-            data-cy={'context-custom-vars'}
-            title={T.ContextCustomVariables}
-            tooltip={T.ContextCustomVariablesConcept}
+      <Box sx={{ maxWidth: '100%', width: '100%', overflowX: 'auto' }}>
+        <Accordion
+          variant="transparent"
+          TransitionProps={{ unmountOnExit: false }}
+        >
+          <AccordionSummary>
+            <Legend
+              disableGutters
+              data-cy={'context-custom-vars'}
+              title={T.ContextCustomVariables}
+              tooltip={T.ContextCustomVariablesConcept}
+            />
+          </AccordionSummary>
+          <AttributePanel
+            allActionsEnabled
+            handleAdd={handleChangeAttribute}
+            handleEdit={handleChangeAttribute}
+            handleDelete={handleChangeAttribute}
+            attributes={unknownVars}
+            filtersSpecialAttributes={false}
           />
-        </AccordionSummary>
-        <AttributePanel
-          allActionsEnabled
-          handleAdd={handleChangeAttribute}
-          handleEdit={handleChangeAttribute}
-          handleDelete={handleChangeAttribute}
-          attributes={unknownVars}
-          filtersSpecialAttributes={false}
-        />
-      </Accordion>
+        </Accordion>
+      </Box>
     </Box>
   )
 }
