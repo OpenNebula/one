@@ -88,38 +88,40 @@ const ContextVarsSection = ({ stepId, hypervisor }) => {
 
   return (
     <Box display="grid" gap="1em">
-      <Accordion
-        variant="transparent"
-        TransitionProps={{ unmountOnExit: false }}
-      >
-        <AccordionSummary>
-          <Legend
-            disableGutters
-            data-cy={'context-custom-vars'}
-            title={T.ContextCustomVariables}
-            tooltip={T.ContextCustomVariablesConcept}
-          />
-        </AccordionSummary>
-        <AttributePanel
-          allActionsEnabled
-          handleAdd={handleChangeAttribute}
-          handleEdit={handleChangeAttribute}
-          handleDelete={handleChangeAttribute}
-          attributes={unknownVars}
-          filtersSpecialAttributes={false}
-          enableEdit={(name = '') => {
-            const regex = /^eth\d*(?:_[A-Za-z0-9]+)+$/i
-            if (regex.test(name)) {
-              return (
-                (oneConfig?.CONTEXT_ALLOW_ETH_UPDATES.toUpperCase?.() ?? '') ===
-                'YES'
-              )
-            }
+      <Box sx={{ maxWidth: '100%', width: '100%', overflowX: 'auto' }}>
+        <Accordion
+          variant="transparent"
+          TransitionProps={{ unmountOnExit: false }}
+        >
+          <AccordionSummary>
+            <Legend
+              disableGutters
+              data-cy={'context-custom-vars'}
+              title={T.ContextCustomVariables}
+              tooltip={T.ContextCustomVariablesConcept}
+            />
+          </AccordionSummary>
+          <AttributePanel
+            allActionsEnabled
+            handleAdd={handleChangeAttribute}
+            handleEdit={handleChangeAttribute}
+            handleDelete={handleChangeAttribute}
+            attributes={unknownVars}
+            filtersSpecialAttributes={false}
+            enableEdit={(name = '') => {
+              const regex = /^eth\d*(?:_[A-Za-z0-9]+)+$/i
+              if (regex.test(name)) {
+                return (
+                  (oneConfig?.CONTEXT_ALLOW_ETH_UPDATES.toUpperCase?.() ??
+                    '') === 'YES'
+                )
+              }
 
-            return true
-          }}
-        />
-      </Accordion>
+              return true
+            }}
+          />
+        </Accordion>
+      </Box>
     </Box>
   )
 }
