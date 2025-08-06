@@ -35,9 +35,6 @@ const styles = ({ typography }) => ({
     marginBottom: typography.pxToRem(24),
     display: 'inline-table',
   }),
-  internalLegend: css({
-    borderBottom: 0,
-  }),
   internalWrapper: css({
     display: 'grid',
     gridTemplateColumns: '140px 1fr',
@@ -70,12 +67,12 @@ const Wrapper = ({ children }) => {
     title: PropTypes.string,
   }
 
-  const InternalWrapper = ({ children, title = '' }) => (
+  const InternalWrapper = ({ children, title = '', innerClassName }) => (
     <Box
       className={classes.internalWrapper}
       gridTemplateColumns={{ sm: '1fr' }}
     >
-      <Typography className={classes.internalLegend} component="legend">
+      <Typography className={innerClassName} component="legend">
         <Translate word={title} />
       </Typography>
       <Box>{children}</Box>
@@ -84,6 +81,7 @@ const Wrapper = ({ children }) => {
   InternalWrapper.propTypes = {
     children: PropTypes.node,
     title: PropTypes.string,
+    innerClassName: PropTypes.string,
   }
 
   return (
