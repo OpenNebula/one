@@ -416,6 +416,8 @@ module SGIPTables
         nri6s = []
 
         if bridged
+            raise "Interface #{nic[:tap]} not available to apply SG rules" unless wait_for_interface(nic[:tap])
+
             nris << "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
             nri6s << "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
         else
@@ -764,6 +766,18 @@ module SGIPTables
         commands.run!
     end
 
+    def self.wait_for_interface(tap, timeout = 3)
+        path   = "/sys/class/net/#{tap}"
+        waited = 0
+
+        until File.exist?(path) || waited >= timeout
+            sleep 0.1
+            waited += 0.1
+        end
+
+        File.exist?(path)
+    end
+    
 end
 
 end

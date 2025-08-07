@@ -103,34 +103,34 @@ module VNMMAD
 
             # Process the rules for each NIC
             process do |nic|
-                next if attach_nic_id && attach_nic_id != nic[:nic_id]
+                begin
+                    next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
-                # SG not supported for NIC_ALIAS
-                if nic[:security_groups].nil?
-                    nic[:security_groups] = '0'
-                    @security_group_rules = EMPTY_RULES
-                end
+                    # SG not supported for NIC_ALIAS
+                    if nic[:security_groups].nil?
+                        nic[:security_groups] = '0'
+                        @security_group_rules = EMPTY_RULES
+                    end
 
-                SGIPTables.nic_pre(@bridged, @vm, nic)
+                    SGIPTables.nic_pre(@bridged, @vm, nic)
 
-                sg_ids = nic[:security_groups].split(',')
+                    sg_ids = nic[:security_groups].split(',')
 
-                sg_ids.each do |sg_id|
-                    rules = @security_group_rules[sg_id]
+                    sg_ids.each do |sg_id|
+                        rules = @security_group_rules[sg_id]
+                        sg    = SGIPTables::SecurityGroupIPTables.new(@vm, nic, sg_id, rules)
 
-                    sg = SGIPTables::SecurityGroupIPTables.new(@vm, nic, sg_id, rules)
-
-                    begin
                         sg.process_rules
                         sg.run!
-                    rescue StandardError => e
-                        unlock
-                        deactivate(do_all)
-                        raise e
                     end
-                end
 
-                SGIPTables.nic_post(@vm, nic)
+                    SGIPTables.nic_post(@vm, nic)
+
+                rescue StandardError => e
+                    unlock
+                    deactivate(do_all)
+                    raise e
+                end
             end
 
             # Process the rules for each NIC_ALIAS
