@@ -58,7 +58,7 @@ module VNMMAD
                 # This is not considered a limitation since users can define multiple arbitrary
                 # services by picking different service ports. At the same time it significantly
                 # simplifies tproxy implementation on HV machines.
-                if !a.find {|item| item[:service_port] == opts[:service_port] }.nil?
+                if a.find {|item| item[:service_port] == opts[:service_port] }
                     OpenNebula::DriverLogger.log_warning "Ignoring tproxy duplicate: #{opts}"
                     next
                 end
