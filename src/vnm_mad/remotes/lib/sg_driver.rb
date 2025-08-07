@@ -125,7 +125,6 @@ module VNMMAD
                     end
 
                     SGIPTables.nic_post(@vm, nic)
-
                 rescue StandardError => e
                     unlock
                     deactivate(do_all)
