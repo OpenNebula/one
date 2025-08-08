@@ -82,7 +82,8 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup, isUpdate }) => {
     })
   }, [getValues, setValue, SSH_PUBLIC_KEY_PATH])
 
-  const isDisabled = getValues(SSH_PUBLIC_KEY_PATH).includes(SSH_KEY_USER)
+  const sshPublicKeyPath = getValues(SSH_PUBLIC_KEY_PATH)
+  const isDisabled = sshPublicKeyPath?.includes(SSH_KEY_USER) ?? false
 
   return (
     <FormControl component="fieldset" sx={{ width: '100%' }}>
