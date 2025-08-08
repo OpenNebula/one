@@ -438,6 +438,10 @@ module VirtualMachineManagerKVM
             model = env('DEFAULT_ATTACH_NIC_MODEL') if model.empty?
             model.encode!(:xml => :attr) unless model.empty?
 
+            virtio_queues = @xml["#{@xpath_prefix}VIRTIO_QUEUES"]
+            virtio_queues = @xml['TEMPLATE/VCPU'] || '1' if virtio_queues == 'auto'
+            virtio_queues.encode!(:xml => :attr) unless virtio_queues.empty?
+
             filter = @xml["#{@xpath_prefix}FILTER"]
             filter = env('DEFAULT_ATTACH_NIC_FILTER') if filter.empty?
             filter.encode!(:xml => :attr) unless filter.empty?
@@ -461,9 +465,8 @@ module VirtualMachineManagerKVM
             dev << xputs('<boot order=%s/>', 'ORDER')
             dev << "<model type=#{model}/>" unless model.empty?
 
-            if model == 'virtio'
-                dev << xputs('<driver name="vhost" queues=%s/>',
-                             'VIRTIO_QUEUES')
+            if model == '"virtio"' && !virtio_queues.empty?
+                dev << "<driver name='vhost' queues=#{virtio_queues}/>"
             end
 
             if exist?('IP') && !filter.empty?
