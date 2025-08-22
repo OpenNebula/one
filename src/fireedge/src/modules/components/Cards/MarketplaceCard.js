@@ -22,7 +22,7 @@ import {
   Group,
   Server,
   User,
-  WarningCircledOutline as WarningIcon,
+  WarningCircle as WarningIcon,
   MinusPinAlt as ZoneIcon,
 } from 'iconoir-react'
 

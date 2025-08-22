@@ -18,7 +18,7 @@ import { VmsTable } from '@modules/components/Tables'
 import EmptyTab from '@modules/components/Tabs/EmptyTab'
 import { T } from '@ConstantsModule'
 import { SecurityGroupAPI } from '@FeaturesModule'
-import { CloudDesync, WarningTriangleOutline } from 'iconoir-react'
+import { CloudDesync, WarningTriangle } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 import { generatePath, useHistory } from 'react-router-dom'
@@ -48,7 +48,7 @@ const VmsTab = ({ id }) => {
         {
           rows: [secGroup?.ERROR_VMS.ID ?? []].flat(),
           message: T.ErrorUpdatingSecGroups,
-          icon: <WarningTriangleOutline />,
+          icon: <WarningTriangle />,
           type: 'error',
         },
         {

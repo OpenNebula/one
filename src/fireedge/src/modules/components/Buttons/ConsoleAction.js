@@ -20,7 +20,7 @@ import { generatePath, useHistory } from 'react-router-dom'
 import { SubmitButton } from '@modules/components/FormControl'
 import {
   Windows as RdpIcon,
-  TerminalOutline as SshIcon,
+  TerminalTag as SshIcon,
   AppleImac2021 as VncIcon,
 } from 'iconoir-react'
 

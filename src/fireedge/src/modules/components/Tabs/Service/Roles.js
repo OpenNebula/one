@@ -37,7 +37,7 @@ import {
   TransitionRight,
   NavArrowDown,
   Refresh,
-  PlayOutline,
+  Play,
 } from 'iconoir-react'
 
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
@@ -259,7 +259,7 @@ const RolesTab = ({ id }) => {
             options={{
               singleButton: {
                 disabled: !selectedRoles?.length > 0,
-                icon: <PlayOutline />,
+                icon: <Play />,
                 'data-cy': 'ResumeRole',
                 title: null,
                 buttonType: 'icon',

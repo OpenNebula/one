@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 
 import {
   RefreshDouble as RefreshIcon,
-  AddCircledOutline as AddIcon,
+  AddCircle as AddIcon,
   Search as SearchIcon,
 } from 'iconoir-react'
 

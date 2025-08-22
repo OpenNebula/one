@@ -17,12 +17,12 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Box, IconButton, Typography, Tooltip } from '@mui/material'
 import {
-  DeleteCircledOutline as RemoveIcon,
+  DeleteCircle as RemoveIcon,
   Network as ManagementIcon,
   IpAddress,
   HistoricShield as SecurityGroupIcon,
   Computer as RdpIcon,
-  TerminalSimple as SshIcon,
+  Terminal as SshIcon,
 } from 'iconoir-react'
 
 import { Tr } from '@modules/components/HOC'

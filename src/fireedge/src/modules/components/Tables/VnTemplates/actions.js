@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { Group, Lock, PlayOutline, Plus, Trash } from 'iconoir-react'
+import { Group, Lock, Play, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -109,7 +109,7 @@ const Actions = (props = {}) => {
             accessor: VN_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
             dataCy: `vnettemplate-${VN_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG}`,
             tooltip: T.Instantiate,
-            icon: PlayOutline,
+            icon: Play,
             selected: { max: 1 },
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,

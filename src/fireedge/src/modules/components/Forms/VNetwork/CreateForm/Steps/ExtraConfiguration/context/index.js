@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import ContextIcon from 'iconoir-react/dist/Folder'
+import { Folder as ContextIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import {
   TabType,

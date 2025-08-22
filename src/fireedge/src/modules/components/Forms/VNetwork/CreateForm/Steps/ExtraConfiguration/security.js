@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-// import { Stack } from '@mui/material'
-import SecurityIcon from 'iconoir-react/dist/HistoricShield'
+import { HistoricShield as SecurityIcon } from 'iconoir-react'
 import { useFormContext, useWatch } from 'react-hook-form'
 
 import { SecurityGroupsTable } from '@modules/components/Tables'

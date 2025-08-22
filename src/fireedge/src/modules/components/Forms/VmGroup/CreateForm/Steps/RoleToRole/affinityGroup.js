@@ -22,7 +22,7 @@ import {
   Typography,
   CardActions,
 } from '@mui/material'
-import { DeleteCircledOutline } from 'iconoir-react'
+import { DeleteCircle } from 'iconoir-react'
 import { Component } from 'react'
 import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
@@ -117,9 +117,7 @@ export const AffinityGroup = ({
                     onClick={() => onDeleteGroup(groupIndex, groupType)}
                     sx={{ color: 'error.main', padding: '4px', ml: '4px' }}
                   >
-                    <DeleteCircledOutline
-                      style={{ width: '26px', height: '26px' }}
-                    />
+                    <DeleteCircle style={{ width: '26px', height: '26px' }} />
                   </IconButton>
                 </Tooltip>
 

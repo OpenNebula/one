@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Paper, Stack, Typography, styled, useTheme } from '@mui/material'
-import { WarningTriangleOutline as WarningIcon } from 'iconoir-react'
+import { WarningTriangle as WarningIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
 

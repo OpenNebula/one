@@ -16,8 +16,7 @@
 import { ReactElement, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
-import CheckIcon from 'iconoir-react/dist/Check'
-import MinusIcon from 'iconoir-react/dist/Minus'
+import { Check as CheckIcon, Minus as MinusIcon } from 'iconoir-react'
 import { styled, debounce, Box, Typography, Autocomplete } from '@mui/material'
 
 import {

@@ -31,7 +31,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import { DeleteCircledOutline, AddCircledOutline } from 'iconoir-react'
+import { DeleteCircle, AddCircle } from 'iconoir-react'
 import { useFieldArray, useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -121,7 +121,7 @@ const RulesSection = memo(
             <Button
               variant="contained"
               type="submit"
-              startIcon={<AddCircledOutline />}
+              startIcon={<AddCircle />}
               data-cy={getCyPath('add-rules')}
               sx={{ mt: '1em' }}
             >
@@ -197,7 +197,7 @@ const RulesSection = memo(
                       </TableCell>
                       <TableCell align="right">
                         <IconButton onClick={() => remove(index)}>
-                          <DeleteCircledOutline />
+                          <DeleteCircle />
                         </IconButton>
                       </TableCell>
                     </TableRow>

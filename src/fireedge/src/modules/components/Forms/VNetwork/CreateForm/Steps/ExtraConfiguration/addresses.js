@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types'
 import { useFieldArray } from 'react-hook-form'
 import { Stack, Typography } from '@mui/material'
-import AddressesIcon from 'iconoir-react/dist/Menu'
+import { Menu as AddressesIcon } from 'iconoir-react'
 
 import { AddressRangeCard } from '@modules/components/Cards'
 import {

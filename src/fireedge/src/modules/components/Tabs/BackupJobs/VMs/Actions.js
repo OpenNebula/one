@@ -19,7 +19,7 @@ import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
 import { BackupJobAPI } from '@FeaturesModule'
 import { jsonToXml } from '@ModelsModule'
-import Edit from 'iconoir-react/dist/Edit'
+import { Edit } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { memo } from 'react'
 

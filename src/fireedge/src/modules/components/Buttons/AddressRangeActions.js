@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import EditIcon from 'iconoir-react/dist/Edit'
-import AddIcon from 'iconoir-react/dist/Plus'
-import TrashIcon from 'iconoir-react/dist/Trash'
+import {
+  Edit as EditIcon,
+  Plus as AddIcon,
+  Trash as TrashIcon,
+} from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { memo } from 'react'
 

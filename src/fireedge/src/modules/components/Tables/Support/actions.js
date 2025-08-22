@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { AddCircledOutline, LogOut } from 'iconoir-react'
+import { AddCircle, LogOut } from 'iconoir-react'
 import { useMemo } from 'react'
 
 import {
@@ -52,7 +52,7 @@ const Actions = () => {
           {
             accessor: SUPPORT_ACTIONS.CREATE_DIALOG,
             tooltip: T.SubmitRequest,
-            icon: AddCircledOutline,
+            icon: AddCircle,
             dataCy: `support_${SUPPORT_ACTIONS.CREATE_DIALOG}`,
             options: [
               {

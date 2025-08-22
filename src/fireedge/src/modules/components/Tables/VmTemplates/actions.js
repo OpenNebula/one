@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { Cart, Group, Lock, PlayOutline, Plus, Trash } from 'iconoir-react'
+import { Cart, Group, Lock, Play, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -101,7 +101,7 @@ const Actions = (props = {}) => {
           {
             accessor: VM_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
             tooltip: T.Instantiate,
-            icon: PlayOutline,
+            icon: Play,
             selected: { max: 1 },
             action: (rows) => {
               const template = rows?.[0]?.original ?? {}

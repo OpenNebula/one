@@ -19,7 +19,7 @@ import {
   Cart,
   Group,
   Lock,
-  PlayOutline,
+  Play,
   Plus,
   SaveFloppyDisk,
   Settings,
@@ -171,7 +171,7 @@ const Actions = (props = {}) => {
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
             selected: true,
-            icon: PlayOutline,
+            icon: Play,
             action: async (rows) => {
               const ids = rows?.map?.(({ original }) => original?.ID)
               await Promise.all(

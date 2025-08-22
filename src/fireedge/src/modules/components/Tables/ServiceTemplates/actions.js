@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Box, Typography } from '@mui/material'
-import { Group, PlayOutline, Plus, Trash } from 'iconoir-react'
+import { Group, Play, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -98,7 +98,7 @@ const Actions = (props = {}) => {
           {
             accessor: SERVICE_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
             tooltip: T.Instantiate,
-            icon: PlayOutline,
+            icon: Play,
             selected: { max: 1 },
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,

@@ -30,7 +30,7 @@ import { ShowbackSettings } from '@modules/containers/Settings/Showback'
 import { TfaSettings } from '@modules/containers/Settings/Tfa'
 import { Wrapper } from '@modules/containers/Settings/Wrapper'
 import {
-  LabelOutline as LabelsIcon,
+  Label as LabelsIcon,
   Shield as SecurityIcon,
   Settings as SettingsIcon,
   ReloadWindow as ShowbackIcon,

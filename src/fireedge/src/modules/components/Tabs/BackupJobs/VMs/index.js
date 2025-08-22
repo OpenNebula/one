@@ -28,7 +28,7 @@ import {
 } from '@mui/material'
 import { useMemo, ReactElement, useState } from 'react'
 import { css } from '@emotion/css'
-import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import { RefreshDouble } from 'iconoir-react'
 import { generatePath, useHistory } from 'react-router-dom'
 
 import { PATH } from '@modules/components/path'

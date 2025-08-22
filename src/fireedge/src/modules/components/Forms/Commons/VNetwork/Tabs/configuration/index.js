@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import ConfigurationsIcon from 'iconoir-react/dist/Settings'
+import { Settings as ConfigurationsIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 
 import { FIELDS } from '@modules/components/Forms/Commons/VNetwork/Tabs/configuration/schema'

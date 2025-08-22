@@ -26,7 +26,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { WarningCircledOutline } from 'iconoir-react'
+import { WarningCircle } from 'iconoir-react'
 import { Tr } from '@modules/components/HOC'
 import TabStyles from '@modules/components/Tabs/TabStyles'
 
@@ -114,7 +114,7 @@ const Tabs = ({
               iconPosition="start"
               icon={
                 error ? (
-                  <WarningCircledOutline className={classes.warningIcon} />
+                  <WarningCircle className={classes.warningIcon} />
                 ) : (
                   Icon && <Icon />
                 )

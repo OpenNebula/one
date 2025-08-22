@@ -28,7 +28,7 @@ import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
 import { ChangeForm as AddSgForm } from '@modules/components/Forms/SecurityGroups'
 
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
-import { Plus as AddIcon } from 'iconoir-react/dist'
+import { Plus as AddIcon } from 'iconoir-react'
 
 import { SecurityGroupAPI } from '@FeaturesModule'
 
