@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
-
 import { GroupTabs } from '@ComponentsModule'
+import { GroupsTable } from '@modules/components/Tables'
+import { ReactElement } from 'react'
+import { Redirect, useParams } from 'react-router-dom'
 
 /**
  * Displays the detail information about a Group.
@@ -27,7 +27,7 @@ export function GroupDetail() {
   const { id } = useParams()
 
   if (Number.isNaN(+id)) {
-    return <Redirect to="/" />
+    return <Redirect to="/" singleActions={GroupsTable.Actions} />
   }
 
   return <GroupTabs id={id} />

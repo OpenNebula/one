@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { Alert, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
-import { OpenNebulaLogo } from '@modules/components/Icons'
 
 import { RESOURCE_NAMES } from '@ConstantsModule'
-import { useViews, GroupAPI } from '@FeaturesModule'
+import { GroupAPI, useViews } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
-
 import { BaseTab as Tabs } from '@modules/components/Tabs'
+import generateAccountingInfoTab from '@modules/components/Tabs/Accounting'
 import Info from '@modules/components/Tabs/Group/Info'
 import GroupUsersTab from '@modules/components/Tabs/Group/Users'
 import generateQuotasInfoTab from '@modules/components/Tabs/Quota'
-import generateAccountingInfoTab from '@modules/components/Tabs/Accounting'
 import generateShowbackInfoTab from '@modules/components/Tabs/Showback'
+import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
 
 const getTabComponent = (tabName) =>
   ({
@@ -38,7 +38,7 @@ const getTabComponent = (tabName) =>
     showback: generateShowbackInfoTab({ groups: true }),
   }[tabName])
 
-const GroupTabs = memo(({ id }) => {
+const GroupTabs = memo(({ id, singleActions }) => {
   const { view, getResourceView } = useViews()
   const { isError, error, status, data } = GroupAPI.useGetGroupQuery({ id })
 
@@ -58,7 +58,15 @@ const GroupTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
-    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+    return (
+      <>
+        <SingleDetailActions
+          selectedRows={data}
+          singleActions={singleActions}
+        />
+        <Tabs addBorder tabs={tabsAvailable ?? []} />
+      </>
+    )
   }
 
   return (
@@ -71,7 +79,10 @@ const GroupTabs = memo(({ id }) => {
   )
 })
 
-GroupTabs.propTypes = { id: PropTypes.string.isRequired }
+GroupTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  singleActions: PropTypes.func,
+}
 GroupTabs.displayName = 'GroupTabs'
 
 export default GroupTabs

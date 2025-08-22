@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { Alert, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
-import { OpenNebulaLogo } from '@modules/components/Icons'
 
 import { RESOURCE_NAMES } from '@ConstantsModule'
 import { useViews, VdcAPI } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
 
 import { BaseTab as Tabs } from '@modules/components/Tabs'
+import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
+import Clusters from '@modules/components/Tabs/Vdc/Clusters'
 import Datastores from '@modules/components/Tabs/Vdc/Datastores'
 import Groups from '@modules/components/Tabs/Vdc/Groups'
 import Hosts from '@modules/components/Tabs/Vdc/Hosts'
 import Info from '@modules/components/Tabs/Vdc/Info'
 import Vnets from '@modules/components/Tabs/Vdc/Vnets'
-import Clusters from '@modules/components/Tabs/Vdc/Clusters'
 
 const getTabComponent = (tabName) =>
   ({
@@ -40,7 +41,7 @@ const getTabComponent = (tabName) =>
     datastores: Datastores,
   }[tabName])
 
-const VDCTabs = memo(({ id }) => {
+const VDCTabs = memo(({ id, singleActions }) => {
   const { view, getResourceView } = useViews()
   const { isError, error, status, data } = VdcAPI.useGetVDCQuery({ id })
 
@@ -60,7 +61,15 @@ const VDCTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
-    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+    return (
+      <>
+        <SingleDetailActions
+          selectedRows={data}
+          singleActions={singleActions}
+        />
+        <Tabs addBorder tabs={tabsAvailable ?? []} />
+      </>
+    )
   }
 
   return (
@@ -72,7 +81,10 @@ const VDCTabs = memo(({ id }) => {
     </Stack>
   )
 })
-VDCTabs.propTypes = { id: PropTypes.string.isRequired }
+VDCTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  singleActions: PropTypes.func,
+}
 VDCTabs.displayName = 'VDCTabs'
 
 export default VDCTabs

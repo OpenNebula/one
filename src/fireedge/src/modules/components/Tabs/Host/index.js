@@ -18,18 +18,19 @@ import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
 
 import { RESOURCE_NAMES } from '@ConstantsModule'
-import { useViews, HostAPI } from '@FeaturesModule'
+import { HostAPI, useViews } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
 
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { BaseTab as Tabs } from '@modules/components/Tabs'
-import Info from '@modules/components/Tabs/Host/Info'
 import Graph from '@modules/components/Tabs/Host/Graphs'
-import PCI from '@modules/components/Tabs/Host/PCI'
+import Info from '@modules/components/Tabs/Host/Info'
 import Numa from '@modules/components/Tabs/Host/Numa'
+import PCI from '@modules/components/Tabs/Host/PCI'
 import Vms from '@modules/components/Tabs/Host/Vms'
 import Wilds from '@modules/components/Tabs/Host/Wilds'
 import Zombies from '@modules/components/Tabs/Host/Zombies'
-import { OpenNebulaLogo } from '@modules/components/Icons'
+import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
 
 const getTabComponent = (tabName) =>
   ({
@@ -42,7 +43,7 @@ const getTabComponent = (tabName) =>
     zombies: Zombies,
   }[tabName])
 
-const HostTabs = memo(({ id }) => {
+const HostTabs = memo(({ id, singleActions }) => {
   const { view, getResourceView } = useViews()
   const {
     isError,
@@ -69,7 +70,15 @@ const HostTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
-    return <Tabs addBorder tabs={tabsAvailable} />
+    return (
+      <>
+        <SingleDetailActions
+          selectedRows={data}
+          singleActions={singleActions}
+        />
+        <Tabs addBorder tabs={tabsAvailable} />
+      </>
+    )
   }
 
   return (
@@ -82,7 +91,10 @@ const HostTabs = memo(({ id }) => {
   )
 })
 
-HostTabs.propTypes = { id: PropTypes.string.isRequired }
+HostTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  singleActions: PropTypes.func,
+}
 HostTabs.displayName = 'HostTabs'
 
 export default HostTabs

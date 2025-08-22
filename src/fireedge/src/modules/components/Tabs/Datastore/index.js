@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { Alert, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
-import { OpenNebulaLogo } from '@modules/components/Icons'
 
 import { RESOURCE_NAMES } from '@ConstantsModule'
-import { useViews, DatastoreAPI } from '@FeaturesModule'
+import { DatastoreAPI, useViews } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
 
 import { BaseTab as Tabs } from '@modules/components/Tabs'
 import Clusters from '@modules/components/Tabs/Datastore/Clusters'
 import Images from '@modules/components/Tabs/Datastore/Images'
 import Info from '@modules/components/Tabs/Datastore/Info'
+import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
 
 const getTabComponent = (tabName) =>
   ({
@@ -34,7 +35,7 @@ const getTabComponent = (tabName) =>
     clusters: Clusters,
   }[tabName])
 
-const DatastoreTabs = memo(({ id }) => {
+const DatastoreTabs = memo(({ id, singleActions }) => {
   const { view, getResourceView } = useViews()
   const { isError, error, status, data } = DatastoreAPI.useGetDatastoreQuery({
     id,
@@ -56,7 +57,15 @@ const DatastoreTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
-    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+    return (
+      <>
+        <SingleDetailActions
+          selectedRows={data}
+          singleActions={singleActions}
+        />
+        <Tabs addBorder tabs={tabsAvailable ?? []} />
+      </>
+    )
   }
 
   return (
@@ -69,7 +78,10 @@ const DatastoreTabs = memo(({ id }) => {
   )
 })
 
-DatastoreTabs.propTypes = { id: PropTypes.string.isRequired }
+DatastoreTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  singleActions: PropTypes.func,
+}
 DatastoreTabs.displayName = 'DatastoreTabs'
 
 export default DatastoreTabs

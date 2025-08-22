@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { VrsTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
+import { Redirect, useParams } from 'react-router-dom'
 
-import { VrTabs, TranslateProvider } from '@ComponentsModule'
+import { TranslateProvider, VrTabs } from '@ComponentsModule'
 
 /**
  * Displays the detail information about a Service Template.
@@ -32,7 +33,7 @@ export function VirtualRouterDetail() {
 
   return (
     <TranslateProvider>
-      <VrTabs id={id} />
+      <VrTabs id={id} singleActions={VrsTable.Actions} />
     </TranslateProvider>
   )
 }

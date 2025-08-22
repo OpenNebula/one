@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { TranslateProvider, VDCTabs } from '@ComponentsModule'
+import { VDCsTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
-
-import { VDCTabs, TranslateProvider } from '@ComponentsModule'
+import { Redirect, useParams } from 'react-router-dom'
 
 /**
  * Displays the detail information about a VDC.
@@ -32,7 +32,7 @@ export function BackupJobDetail() {
 
   return (
     <TranslateProvider>
-      <VDCTabs id={id} />
+      <VDCTabs id={id} singleActions={VDCsTable.Actions} />
     </TranslateProvider>
   )
 }

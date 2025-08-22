@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { Alert, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
-import { OpenNebulaLogo } from '@modules/components/Icons'
 
 import { RESOURCE_NAMES } from '@ConstantsModule'
-import { useViews, useSystemData, VmTemplateAPI } from '@FeaturesModule'
+import { useSystemData, useViews, VmTemplateAPI } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
 
 import { BaseTab as Tabs } from '@modules/components/Tabs'
+import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
 import Info from '@modules/components/Tabs/VmTemplate/Info'
 import Template from '@modules/components/Tabs/VmTemplate/Template'
 
@@ -32,7 +33,7 @@ const getTabComponent = (tabName) =>
     template: Template,
   }[tabName])
 
-const VmTemplateTabs = memo(({ id }) => {
+const VmTemplateTabs = memo(({ id, singleActions }) => {
   const { view, getResourceView } = useViews()
   const { isError, error, status, data } = VmTemplateAPI.useGetTemplateQuery({
     id,
@@ -62,7 +63,15 @@ const VmTemplateTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
-    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+    return (
+      <>
+        <SingleDetailActions
+          selectedRows={data}
+          singleActions={singleActions}
+        />
+        <Tabs addBorder tabs={tabsAvailable ?? []} />
+      </>
+    )
   }
 
   return (
@@ -74,7 +83,10 @@ const VmTemplateTabs = memo(({ id }) => {
     </Stack>
   )
 })
-VmTemplateTabs.propTypes = { id: PropTypes.string.isRequired }
+VmTemplateTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  singleActions: PropTypes.func,
+}
 VmTemplateTabs.displayName = 'VmTemplateTabs'
 
 export default VmTemplateTabs

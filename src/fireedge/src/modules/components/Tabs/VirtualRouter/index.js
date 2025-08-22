@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { Alert, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
-import { OpenNebulaLogo } from '@modules/components/Icons'
 
 import { RESOURCE_NAMES } from '@ConstantsModule'
 import { useViews, VrAPI } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
 
 import { BaseTab as Tabs } from '@modules/components/Tabs'
+import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
 import Info from '@modules/components/Tabs/VirtualRouter/Info'
 import VmInfo from '@modules/components/Tabs/VirtualRouter/Vms'
 
@@ -32,7 +33,7 @@ const getTabComponent = (tabName) =>
     vms: VmInfo,
   }[tabName])
 
-const VirtualRouterTabs = memo(({ id }) => {
+const VirtualRouterTabs = memo(({ id, singleActions }) => {
   const { view, getResourceView } = useViews()
   const { isError, error, status, data } = VrAPI.useGetVrQuery({
     id,
@@ -54,7 +55,15 @@ const VirtualRouterTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
-    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+    return (
+      <>
+        <SingleDetailActions
+          selectedRows={data}
+          singleActions={singleActions}
+        />
+        <Tabs addBorder tabs={tabsAvailable ?? []} />
+      </>
+    )
   }
 
   return (
@@ -67,7 +76,10 @@ const VirtualRouterTabs = memo(({ id }) => {
   )
 })
 
-VirtualRouterTabs.propTypes = { id: PropTypes.string.isRequired }
+VirtualRouterTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  singleActions: PropTypes.func,
+}
 VirtualRouterTabs.displayName = 'VirtualRouterTabs'
 
 export default VirtualRouterTabs

@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Alert, Fade, Stack, useTheme } from '@mui/material'
-import { OpenNebulaLogo } from '@modules/components/Icons'
 import { css } from '@emotion/css'
+import { OpenNebulaLogo } from '@modules/components/Icons'
+import { Alert, Fade, Stack, useTheme } from '@mui/material'
 import { Cancel as CloseIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
 
-import { Translate } from '@modules/components/HOC'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useViews, useSystemData, VmAPI } from '@FeaturesModule'
+import { useSystemData, useViews, VmAPI } from '@FeaturesModule'
 import { getAvailableInfoTabs, getErrorMessage, jsonToXml } from '@ModelsModule'
+import { Translate } from '@modules/components/HOC'
 
 import { SubmitButton } from '@modules/components/FormControl'
 import { BaseTab as Tabs } from '@modules/components/Tabs'
+import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
 import Backup from '@modules/components/Tabs/Vm/Backup'
 import Configuration from '@modules/components/Tabs/Vm/Configuration'
 import History from '@modules/components/Tabs/Vm/History'
 import Info from '@modules/components/Tabs/Vm/Info'
 import Network from '@modules/components/Tabs/Vm/Network'
+import Pci from '@modules/components/Tabs/Vm/Pci'
 import SchedActions from '@modules/components/Tabs/Vm/SchedActions'
 import Snapshot from '@modules/components/Tabs/Vm/Snapshot'
 import Storage from '@modules/components/Tabs/Vm/Storage'
 import Template from '@modules/components/Tabs/Vm/Template'
-import Pci from '@modules/components/Tabs/Vm/Pci'
 
 const useStyles = ({ palette }) => ({
   vmError: css({
@@ -61,7 +62,7 @@ const getTabComponent = (tabName) =>
     template: Template,
   }[tabName])
 
-const VmTabs = memo(({ id }) => {
+const VmTabs = memo(({ id, singleActions }) => {
   const theme = useTheme()
   const classes = useMemo(() => useStyles(theme), [theme])
   const { view, getResourceView } = useViews()
@@ -127,6 +128,7 @@ const VmTabs = memo(({ id }) => {
             {vmError}
           </Alert>
         </Fade>
+        <SingleDetailActions selectedRows={vm} singleActions={singleActions} />
         <Tabs addBorder tabs={tabsAvailable} />
       </>
     )
@@ -142,7 +144,10 @@ const VmTabs = memo(({ id }) => {
   )
 })
 
-VmTabs.propTypes = { id: PropTypes.string.isRequired }
+VmTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  singleActions: PropTypes.func,
+}
 VmTabs.displayName = 'VmTabs'
 
 export default VmTabs
