@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { HostTabs, TranslateProvider } from '@ComponentsModule'
+import { HostsTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
 import { Redirect, useParams } from 'react-router-dom'
-
-import { HostTabs, TranslateProvider } from '@ComponentsModule'
 
 /**
  * Displays the detail information about a Host.
@@ -33,7 +33,7 @@ export function HostDetail() {
   return (
     <>
       <TranslateProvider>
-        <HostTabs id={id} />
+        <HostTabs id={id} singleActions={HostsTable.Actions} />
       </TranslateProvider>
     </>
   )

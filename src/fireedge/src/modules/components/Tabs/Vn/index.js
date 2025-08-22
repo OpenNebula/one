@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { Alert, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
-import { OpenNebulaLogo } from '@modules/components/Icons'
 
 import { RESOURCE_NAMES } from '@ConstantsModule'
-import { useViews, useSystemData, VnAPI } from '@FeaturesModule'
+import { useSystemData, useViews, VnAPI } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
 
 import { BaseTab as Tabs } from '@modules/components/Tabs'
+import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
 import Address from '@modules/components/Tabs/Vn/Address'
 import Clusters from '@modules/components/Tabs/Vn/Clusters'
 import Info from '@modules/components/Tabs/Vn/Info'
@@ -40,7 +41,7 @@ const getTabComponent = (tabName) =>
     cluster: Clusters,
   }[tabName])
 
-const VnTabs = memo(({ id }) => {
+const VnTabs = memo(({ id, singleActions }) => {
   const { view, getResourceView } = useViews()
   const { isError, error, status, data } = VnAPI.useGetVNetworkQuery({
     id,
@@ -70,7 +71,15 @@ const VnTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
-    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+    return (
+      <>
+        <SingleDetailActions
+          selectedRows={data}
+          singleActions={singleActions}
+        />
+        <Tabs addBorder tabs={tabsAvailable ?? []} />
+      </>
+    )
   }
 
   return (
@@ -82,7 +91,10 @@ const VnTabs = memo(({ id }) => {
     </Stack>
   )
 })
-VnTabs.propTypes = { id: PropTypes.string.isRequired }
+VnTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  singleActions: PropTypes.func,
+}
 VnTabs.displayName = 'VnTabs'
 
 export default VnTabs

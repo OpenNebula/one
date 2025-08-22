@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { TranslateProvider, VmTemplateTabs } from '@ComponentsModule'
+import { VmTemplatesTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
-
-import { VmTemplateTabs, TranslateProvider } from '@ComponentsModule'
+import { Redirect, useParams } from 'react-router-dom'
 
 /**
  * Displays the detail information about a VR Template.
  *
  * @returns {ReactElement} VR Template detail component.
  */
-export function VrTemplateDetails() {
+export function VrTemplateDetail() {
   const { id } = useParams()
 
   if (Number.isNaN(+id)) {
@@ -32,7 +32,7 @@ export function VrTemplateDetails() {
 
   return (
     <TranslateProvider>
-      <VmTemplateTabs id={id} />
+      <VmTemplateTabs id={id} singleActions={VmTemplatesTable.Actions} />
     </TranslateProvider>
   )
 }

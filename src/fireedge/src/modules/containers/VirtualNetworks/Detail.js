@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { TranslateProvider, VnTabs } from '@ComponentsModule'
+import { VnsTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
-
-import { VnTabs, TranslateProvider } from '@ComponentsModule'
+import { Redirect, useParams } from 'react-router-dom'
 
 /**
  * Displays the detail information about a VM Template.
@@ -32,7 +32,7 @@ export function VirtualNetworkDetail() {
 
   return (
     <TranslateProvider>
-      <VnTabs id={id} />
+      <VnTabs id={id} singleActions={VnsTable.Actions} />
     </TranslateProvider>
   )
 }

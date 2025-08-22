@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { ServiceTemplatesTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
+import { Redirect, useParams } from 'react-router-dom'
 
 import { ServiceTemplateTabs, TranslateProvider } from '@ComponentsModule'
 
@@ -32,7 +33,10 @@ export function ServiceTemplateDetail() {
 
   return (
     <TranslateProvider>
-      <ServiceTemplateTabs id={id} />
+      <ServiceTemplateTabs
+        id={id}
+        singleActions={ServiceTemplatesTable.Actions}
+      />
     </TranslateProvider>
   )
 }

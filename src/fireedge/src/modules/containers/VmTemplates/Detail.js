@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { VmTemplatesTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
+import { Redirect, useParams } from 'react-router-dom'
 
-import { VmTemplateTabs, TranslateProvider } from '@ComponentsModule'
+import { TranslateProvider, VmTemplateTabs } from '@ComponentsModule'
 
 /**
  * Displays the detail information about a VM Template.
@@ -32,7 +33,7 @@ export function VmTemplateDetail() {
 
   return (
     <TranslateProvider>
-      <VmTemplateTabs id={id} />
+      <VmTemplateTabs id={id} singleActions={VmTemplatesTable.Actions} />
     </TranslateProvider>
   )
 }

@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { Alert, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
-import { OpenNebulaLogo } from '@modules/components/Icons'
 
 import { RESOURCE_NAMES } from '@ConstantsModule'
-import { useViews, ClusterAPI } from '@FeaturesModule'
+import { ClusterAPI, useViews } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
 
 import { BaseTab as Tabs } from '@modules/components/Tabs'
-import Info from '@modules/components/Tabs/Cluster/Info'
-import Hosts from '@modules/components/Tabs/Cluster/Hosts'
-import Vnets from '@modules/components/Tabs/Cluster/Vnets'
 import Datastores from '@modules/components/Tabs/Cluster/Datastores'
 import PlanOptimization from '@modules/components/Tabs/Cluster/Drs'
+import Hosts from '@modules/components/Tabs/Cluster/Hosts'
+import Info from '@modules/components/Tabs/Cluster/Info'
+import Vnets from '@modules/components/Tabs/Cluster/Vnets'
+import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
 
 const getTabComponent = (tabName) =>
   ({
@@ -38,7 +39,7 @@ const getTabComponent = (tabName) =>
     drs: PlanOptimization,
   }[tabName])
 
-const ClusterTabs = memo(({ id }) => {
+const ClusterTabs = memo(({ id, singleActions }) => {
   const { view, getResourceView } = useViews()
   const { isError, error, status, data } = ClusterAPI.useGetClusterQuery({ id })
 
@@ -58,7 +59,15 @@ const ClusterTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
-    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+    return (
+      <>
+        <SingleDetailActions
+          selectedRows={data}
+          singleActions={singleActions}
+        />
+        <Tabs addBorder tabs={tabsAvailable ?? []} />
+      </>
+    )
   }
 
   return (
@@ -71,7 +80,10 @@ const ClusterTabs = memo(({ id }) => {
   )
 })
 
-ClusterTabs.propTypes = { id: PropTypes.string.isRequired }
+ClusterTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  singleActions: PropTypes.array.isRequired,
+}
 ClusterTabs.displayName = 'ClusterTabs'
 
 export default ClusterTabs

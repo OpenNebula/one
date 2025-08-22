@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { TranslateProvider, VmTabs } from '@ComponentsModule'
+import { VmsTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
 import { Redirect, useParams } from 'react-router-dom'
-
-import { VmTabs, TranslateProvider } from '@ComponentsModule'
 
 /**
  * Displays the detail information about a Virtual Machine.
@@ -32,7 +32,7 @@ export function VirtualMachineDetail() {
 
   return (
     <TranslateProvider>
-      <VmTabs id={id} />
+      <VmTabs id={id} singleActions={VmsTable.Actions} />
     </TranslateProvider>
   )
 }

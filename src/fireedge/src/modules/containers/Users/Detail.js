@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
-
 import { UserTabs } from '@ComponentsModule'
+import { UsersTable } from '@modules/components/Tables'
+import { ReactElement } from 'react'
+import { Redirect, useParams } from 'react-router-dom'
 
 /**
  * Displays the detail information about a User.
@@ -27,7 +27,7 @@ export function UserDetail() {
   const { id } = useParams()
 
   if (Number.isNaN(+id)) {
-    return <Redirect to="/" />
+    return <Redirect to="/" singleActions={UsersTable.Actions} />
   }
 
   return <UserTabs id={id} />
