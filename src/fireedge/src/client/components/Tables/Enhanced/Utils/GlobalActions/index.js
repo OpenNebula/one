@@ -18,7 +18,10 @@ import { ReactElement } from 'react'
 
 import { Checkbox, Stack } from '@mui/material'
 import { RefreshDouble } from 'iconoir-react'
-import { UseRowSelectInstanceProps, UseTableInstanceProps } from 'opennebula-react-table'
+import {
+  UseRowSelectInstanceProps,
+  UseTableInstanceProps,
+} from 'opennebula-react-table'
 
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'

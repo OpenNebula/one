@@ -80,6 +80,7 @@ const AttributePanel = memo(
     collapse = false,
     askToDelete = true,
     fullWidth = false,
+    enableEdit = () => true,
   }) => {
     const classes = useStyles()
 
@@ -97,7 +98,7 @@ const AttributePanel = memo(
         value,
         showActionsOnHover: true,
         canCopy: canUseAction(name, COPY),
-        canEdit: canUseAction(name, EDIT),
+        canEdit: canUseAction(name, EDIT) && enableEdit(name),
         canDelete: canUseAction(name, DELETE),
         handleEdit,
         handleDelete,
@@ -132,6 +133,7 @@ AttributePanel.propTypes = {
   collapse: PropTypes.bool,
   askToDelete: PropTypes.bool,
   fullWidth: PropTypes.bool,
+  enableEdit: PropTypes.func,
 }
 
 AttributePanel.displayName = 'AttributePanel'

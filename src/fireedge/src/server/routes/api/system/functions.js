@@ -30,6 +30,7 @@ const { GET } = httpMethod
 const { writeInLogger } = require('server/utils/logger')
 
 const ALLOWED_KEYS_ONED_CONF = [
+  'CONTEXT_ALLOW_ETH_UPDATES',
   'DEFAULT_COST',
   'DS_MAD_CONF',
   'MARKET_MAD_CONF',

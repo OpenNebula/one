@@ -23,7 +23,7 @@ import { DialogConfirmation } from 'client/components/Dialogs'
 import { Actions, Inputs } from 'client/components/Tabs/Common/Attribute'
 import { useDialog } from 'client/hooks'
 
-import { Translate, Tr } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const Column = (props) => {
@@ -199,7 +199,7 @@ const Attribute = memo(
               </Typography>
               <ActionWrapper {...(showActionsOnHover && { display: 'none' })}>
                 {value && canCopy && <Actions.Copy name={name} value={value} />}
-                {(value || numberOfParents > 0) && canEdit && (
+                {(value?.length >= 0 || numberOfParents > 0) && canEdit && (
                   <Actions.Edit
                     title={title || name}
                     name={name}

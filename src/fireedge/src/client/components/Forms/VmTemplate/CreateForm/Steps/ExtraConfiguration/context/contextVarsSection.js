@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2025, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2024, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback, useMemo } from 'react'
-import PropTypes from 'prop-types'
-import { reach } from 'yup'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { Accordion, AccordionSummary, Box } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, useCallback, useMemo } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
+import { reach } from 'yup'
 
 import { SCHEMA as CONTEXT_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
 import { useGeneralApi } from 'client/features/General'
+import { useGetOneConfigQuery } from 'client/features/OneApi/system'
 
 import { Legend } from 'client/components/Forms'
 import { AttributePanel } from 'client/components/Tabs/Common'
-import { getUnknownAttributes } from 'client/utils'
 import { T } from 'client/constants'
+import { getUnknownAttributes } from 'client/utils'
 
 export const SECTION_ID = 'CONTEXT'
 
@@ -39,6 +40,7 @@ export const SECTION_ID = 'CONTEXT'
  */
 const ContextVarsSection = ({ stepId, hypervisor }) => {
   const { enqueueError, setModifiedFields, setFieldPath } = useGeneralApi()
+  const { data: oneConfig = {} } = useGetOneConfigQuery()
   const { setValue } = useFormContext()
 
   const customVars = useWatch({
@@ -107,6 +109,17 @@ const ContextVarsSection = ({ stepId, hypervisor }) => {
             handleDelete={handleChangeAttribute}
             attributes={unknownVars}
             filtersSpecialAttributes={false}
+            enableEdit={(name = '') => {
+              const regex = /^eth\d*(?:_[A-Za-z0-9]+)+$/i
+              if (regex.test(name)) {
+                return (
+                  (oneConfig?.CONTEXT_ALLOW_ETH_UPDATES.toUpperCase?.() ??
+                    '') === 'YES'
+                )
+              }
+
+              return true
+            }}
           />
         </Accordion>
       </Box>
