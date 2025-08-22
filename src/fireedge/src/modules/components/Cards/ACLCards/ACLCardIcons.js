@@ -32,7 +32,7 @@ import {
   ModernTv as VmsIcons,
   MinusPinAlt as ZoneIcon,
   Globe as AllIcon,
-  ClockOutline as BackupJobsIcon,
+  Clock as BackupJobsIcon,
 } from 'iconoir-react'
 
 import { useMemo, Component } from 'react'

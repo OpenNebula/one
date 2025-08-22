@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, memo, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import ReleaseIcon from 'iconoir-react/dist/PlayOutline'
+import { Play as ReleaseIcon } from 'iconoir-react'
 import { Link as RouterLink, generatePath } from 'react-router-dom'
 import { Stack, Link, Typography } from '@mui/material'
 

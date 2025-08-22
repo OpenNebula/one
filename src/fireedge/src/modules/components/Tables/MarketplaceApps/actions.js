@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import {
   CloudDownload,
-  DownloadCircledOutline,
+  DownloadCircle,
   Group,
   Lock,
   MoreVert,
@@ -149,7 +149,7 @@ const Actions = (props = {}) => {
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
-            icon: DownloadCircledOutline,
+            icon: DownloadCircle,
             action: async (apps) => {
               const urls = await Promise.all(
                 apps.map(({ id }) => downloadApp(id).unwrap())

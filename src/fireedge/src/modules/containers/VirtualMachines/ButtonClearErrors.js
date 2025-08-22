@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { T } from '@ConstantsModule'
 import { getErrorMessage, jsonToXml } from '@ModelsModule'
-import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
+import { WarningCircle as WarningIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { memo, useCallback, useEffect, useState } from 'react'
 import { TranslateProvider, SubmitButton, Tr } from '@ComponentsModule'

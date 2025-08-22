@@ -16,8 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import Trash from 'iconoir-react/dist/Trash'
-import Edit from 'iconoir-react/dist/Edit'
+import { Trash, Edit } from 'iconoir-react'
 
 import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
 import { AttachPciForm } from '@modules/components/Forms/Vm'

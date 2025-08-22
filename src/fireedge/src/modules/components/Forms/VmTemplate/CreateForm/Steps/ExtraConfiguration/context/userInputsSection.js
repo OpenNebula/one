@@ -24,11 +24,7 @@ import {
   Stack,
   styled,
 } from '@mui/material'
-import {
-  Plus,
-  Trash,
-  WarningCircledOutline as WarningIcon,
-} from 'iconoir-react'
+import { Plus, Trash, WarningCircle as WarningIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { forwardRef, JSXElementConstructor, useState } from 'react'
 

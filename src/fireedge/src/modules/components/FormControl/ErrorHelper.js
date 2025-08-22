@@ -17,7 +17,7 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Stack, Typography, styled } from '@mui/material'
-import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
+import { WarningCircle as WarningIcon } from 'iconoir-react'
 
 import { Translate } from '@modules/components/HOC'
 

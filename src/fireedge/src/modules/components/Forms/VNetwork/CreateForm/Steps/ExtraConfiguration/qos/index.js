@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import QoSIcon from 'iconoir-react/dist/DataTransferBoth'
+import { DataTransferBoth as QoSIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 
 import {

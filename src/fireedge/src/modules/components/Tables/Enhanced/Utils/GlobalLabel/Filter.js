@@ -18,8 +18,7 @@ import { MouseEvent, ReactElement, memo } from 'react'
 
 import { MuiProvider, SunstoneTheme } from '@ProvidersModule'
 import { Autocomplete, Box, Tooltip, Typography } from '@mui/material'
-import CheckIcon from 'iconoir-react/dist/Check'
-import LockIcon from 'iconoir-react/dist/Lock'
+import { Check as CheckIcon, Lock as LockIcon } from 'iconoir-react'
 
 import { AuthAPI } from '@FeaturesModule'
 

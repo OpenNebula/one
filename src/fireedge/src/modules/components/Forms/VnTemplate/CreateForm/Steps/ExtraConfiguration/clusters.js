@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-// import { Stack } from '@mui/material'
-import ClusterIcon from 'iconoir-react/dist/Server'
+import { Server as ClusterIcon } from 'iconoir-react'
 import { useFormContext, useWatch } from 'react-hook-form'
 
 import { ClustersTable } from '@modules/components/Tables'

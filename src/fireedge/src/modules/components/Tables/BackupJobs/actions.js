@@ -19,7 +19,7 @@ import { useHistory } from 'react-router-dom'
 
 import { BackupJobAPI, useViews } from '@FeaturesModule'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
-import { Group, Lock, PlayOutline, Plus, Trash } from 'iconoir-react'
+import { Group, Lock, Play, Plus, Trash } from 'iconoir-react'
 
 import { PATH } from '@modules/components/path'
 import {
@@ -109,7 +109,7 @@ const Actions = (props = {}) => {
             dataCy: `backupjob_${BACKUPJOB_ACTIONS.START}`,
             tooltip: T.Start,
             selected: true,
-            icon: PlayOutline,
+            icon: Play,
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,

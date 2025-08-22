@@ -19,7 +19,7 @@ import { Stack, FormControl, Divider } from '@mui/material'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
-import { DeleteCircledOutline, Plus } from 'iconoir-react'
+import { DeleteCircle, Plus } from 'iconoir-react'
 import { useFieldArray, useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { FormWithSchema, Legend } from '@modules/components/Forms'
@@ -139,7 +139,7 @@ const InputsSection = memo(
                 secondaryAction={
                   <SubmitButton
                     onClick={() => onDelete(index)}
-                    icon=<DeleteCircledOutline />
+                    icon=<DeleteCircle />
                     disabled={disabledAction}
                     tooltip={tooltip}
                     data-cy={`input-delete-${index}`}

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ClockOutline, Edit, Trash } from 'iconoir-react'
+import { Clock, Edit, Trash } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { ReactElement, memo, useMemo } from 'react'
 
@@ -211,7 +211,7 @@ const CharterButton = memo(({ relative, onSubmit }) => {
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': VM_ACTIONS.CHARTER_CREATE,
-        icon: <ClockOutline />,
+        icon: <Clock />,
         tooltip: <Translate word={T.Charter} />,
         disabled: leases.length <= 0,
       }}

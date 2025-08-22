@@ -31,9 +31,7 @@ import {
   useTheme,
 } from '@mui/material'
 import clsx from 'clsx'
-import InfoEmpty from 'iconoir-react/dist/InfoEmpty'
-import RemoveIcon from 'iconoir-react/dist/RemoveSquare'
-
+import { InfoEmpty, RemoveSquare as RemoveIcon } from 'iconoir-react'
 import {
   UseRowSelectRowProps,
   useFilters,

@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 import { Stack } from '@mui/material'
-import SettingsIcon from 'iconoir-react/dist/LabelOutline'
+import { Settings } from 'iconoir-react'
 import { UseFiltersInstanceProps } from 'opennebula-react-table'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Translate } from '@modules/components/HOC'
@@ -41,7 +41,7 @@ const GlobalLabel = ({
     <HeaderPopover
       key={'label-popover'}
       id="filter-by-label"
-      icon={<SettingsIcon />}
+      icon={<Settings />}
       headerTitle={<Translate word={T.Labels} />}
       buttonLabel={<Translate word={T.Label} />}
       buttonProps={{

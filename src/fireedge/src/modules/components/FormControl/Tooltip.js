@@ -16,7 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { QuestionMarkCircle } from 'iconoir-react'
+import { HelpCircle } from 'iconoir-react'
 import { InputAdornment, Typography, Tooltip } from '@mui/material'
 import { Tr, labelCanBeTranslated } from '@modules/components/HOC'
 
@@ -41,7 +41,7 @@ const AdornmentWithTooltip = memo(
         }
       >
         <InputAdornment position={position} style={{ cursor: 'help' }}>
-          {children ?? <QuestionMarkCircle />}
+          {children ?? <HelpCircle />}
         </InputAdornment>
       </Tooltip>
     )

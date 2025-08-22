@@ -19,7 +19,7 @@ import {
 } from '@modules/components/Forms/VnTemplate/CreateForm/Steps/ExtraConfiguration'
 import CustomAttributes from '@modules/components/Forms/VnTemplate/CreateForm/Steps/ExtraConfiguration/context/customAttributes'
 import { FIELDS } from '@modules/components/Forms/VnTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
-import ContextIcon from 'iconoir-react/dist/Folder'
+import { Folder as ContextIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 
 import FormWithSchema from '@modules/components/Forms/FormWithSchema'

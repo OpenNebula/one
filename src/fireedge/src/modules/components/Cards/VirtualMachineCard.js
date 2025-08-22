@@ -26,7 +26,7 @@ import {
   Lock,
   Network,
   User,
-  WarningCircledOutline as WarningIcon,
+  WarningCircle as WarningIcon,
 } from 'iconoir-react'
 
 import { RESOURCE_NAMES, T, VM } from '@ConstantsModule'

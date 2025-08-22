@@ -15,10 +15,13 @@
  * ------------------------------------------------------------------------- */
 
 import { Component } from 'react'
-import { NavArrowRight, NavArrowDown } from 'iconoir-react'
+import {
+  NavArrowRight,
+  NavArrowDown,
+  HelpCircle as HintIcon,
+} from 'iconoir-react'
 import { TreeItem } from '@mui/lab'
 import { Tooltip, Box, Checkbox } from '@mui/material'
-import HintIcon from 'iconoir-react/dist/QuestionMarkCircle'
 import { T } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
 

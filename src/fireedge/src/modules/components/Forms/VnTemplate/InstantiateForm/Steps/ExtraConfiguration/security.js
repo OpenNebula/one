@@ -22,7 +22,7 @@ import { Translate } from '@modules/components/HOC'
 import { SecurityGroupsTable } from '@modules/components/Tables'
 import { T } from '@ConstantsModule'
 import { isRestrictedAttributes } from '@UtilsModule'
-import SecurityIcon from 'iconoir-react/dist/HistoricShield'
+import { HistoricShield as SecurityIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { useFormContext, useWatch } from 'react-hook-form'
 

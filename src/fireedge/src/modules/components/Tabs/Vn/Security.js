@@ -22,7 +22,7 @@ import {
 } from '@UtilsModule'
 
 import { Box } from '@mui/material'
-import { Plus, Trash as DeleteIcon } from 'iconoir-react/dist'
+import { Plus, Trash as DeleteIcon } from 'iconoir-react'
 
 import { SecurityGroupAPI, VnAPI, useGeneralApi } from '@FeaturesModule'
 

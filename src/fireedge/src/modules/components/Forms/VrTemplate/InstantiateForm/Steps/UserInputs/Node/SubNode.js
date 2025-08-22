@@ -18,7 +18,7 @@ import { useFormContext } from 'react-hook-form'
 import { Component, useState } from 'react'
 import UserInputDialog from '@modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs/Node/UserInputDialog'
 import { Typography, Box, useTheme, Grid } from '@mui/material'
-import { WarningCircledOutline as MandatoryIcon } from 'iconoir-react'
+import { WarningCircle as MandatoryIcon } from 'iconoir-react'
 import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
 

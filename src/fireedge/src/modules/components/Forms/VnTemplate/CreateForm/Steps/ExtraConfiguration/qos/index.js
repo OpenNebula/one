@@ -23,7 +23,7 @@ import {
   SECTIONS,
 } from '@modules/components/Forms/VnTemplate/CreateForm/Steps/ExtraConfiguration/qos/schema'
 import { Translate } from '@modules/components/HOC'
-import QoSIcon from 'iconoir-react/dist/DataTransferBoth'
+import { DataTransferBoth as QoSIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 
 import FormWithSchema from '@modules/components/Forms/FormWithSchema'

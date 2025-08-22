@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import HintIcon from 'iconoir-react/dist/QuestionMarkCircle'
+import { HelpCircle as HintIcon } from 'iconoir-react'
 import {
   Stack,
   Tooltip,
