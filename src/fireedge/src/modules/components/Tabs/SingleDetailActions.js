@@ -51,6 +51,7 @@ const SingleDetailActions = memo(({ selectedRows = [], singleActions }) => {
 SingleDetailActions.propTypes = {
   selectedRows: PropTypes.array,
   actions: PropTypes.array,
+  singleActions: PropTypes.func,
 }
 SingleDetailActions.displayName = 'SingleDetailActions'
 export default SingleDetailActions

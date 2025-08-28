@@ -15,20 +15,13 @@
  * ------------------------------------------------------------------------- */
 
 const { Actions, Commands } = require('server/routes/api/support/routes')
-const {
-  checkSupport,
-  versionSupport,
-} = require('server/routes/api/support/functions')
+const { checkSupport } = require('server/routes/api/support/functions')
 
-const { SUPPORT_CHECK, SUPPORT_VERSION } = Actions
+const { SUPPORT_CHECK } = Actions
 
 module.exports = [
   {
     ...Commands[SUPPORT_CHECK],
     action: checkSupport,
-  },
-  {
-    ...Commands[SUPPORT_VERSION],
-    action: versionSupport,
   },
 ]
