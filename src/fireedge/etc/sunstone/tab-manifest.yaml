@@ -79,7 +79,7 @@
     - title: Virtual Router Template
       path: /vrouter-template/:id
       Component: VrTemplateDetail
-    - title: Create VM group
+    - title: Create VM group 
       path: /vm-group/create
       Component: CreateVmGroup
     - title: VM Groups
@@ -150,7 +150,7 @@
     - title: BackupJobs
       path: /backupjobs
       sidebar: true
-      icon: Clock
+      icon: ClockOutline
       Component: BackupJobs
     - title: BackupJob
       path: /backupjobs/:id
