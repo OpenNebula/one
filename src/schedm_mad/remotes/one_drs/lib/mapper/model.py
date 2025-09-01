@@ -99,7 +99,7 @@ class DStoreRequirement:
     size: int
     # Whether a local disk of the assigned host can be used.
     allow_host_dstores: bool = True
-    # The IDs of the matching host datastores.
+    # The IDs of the matching host disks.
     # Dict {host ID: list of IDs of the matching disks}. If `None`, all
     # host disks are considered matching.
     host_dstore_ids: Optional[dict[int, list[int]]] = None
@@ -113,7 +113,8 @@ class DStoreMatches:
     vm_id: int
     # The ID or index of the datastore requirement.
     requirement: int
-    # The IDs of the hosts (keys) with suitable storage (values).
+    # The IDs of the hosts (keys), each with the list of IDs of suitable
+    # disks (values).
     host_dstores: dict[int, list[int]]
     # The IDs of the shared datastores with suitable storage.
     shared_dstores: list[int]
