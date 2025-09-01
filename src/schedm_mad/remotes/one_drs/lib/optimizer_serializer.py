@@ -15,6 +15,7 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
+from collections import defaultdict
 from typing import Union
 
 from xsdata.formats.dataclass.context import XmlContext
@@ -70,6 +71,7 @@ class OptimizerSerializer:
             datastore_info = (
                 f"using system datastore {ds_id}"
                 if shared
+                # TODO: Check if this works well when ID is zero.
                 else (f"using host datastore {ds_id}" if ds_id else "without datastore")
             )
             logs.append(
@@ -83,7 +85,11 @@ class OptimizerSerializer:
         return plan, logs
 
     def _get_vm_ds(self, alloc) -> tuple[int, bool]:
-        shared_ds, _, _ = self.parser.get_ds_map()
+        # NOTE: It is probably redundant to call the method
+        # ``OptimizerParser.get_ds_map`` once for each VM. It would
+        # probably be enough calling it once, maybe just from the
+        # parser.
+        shared_ds, _, local = self.parser.get_ds_map()
         if alloc.shared_dstore_ids:
             # NOTE: This can contain both system shared datastores and
             # image datastores. We need the system shared datastore.
@@ -92,7 +98,26 @@ class OptimizerSerializer:
                     return _ds, True
         elif alloc.host_dstore_ids:
             # NOTE: The VM can only have one host datastore.
-            return next(iter(alloc.dstore_ids)), False
+
+            # TODO: Optimize this so that mappings are built only once.
+            # Mapping: host ID -> set of local dstore IDs.
+            host_storage: defaultdict[int, set[int]] = defaultdict(set)
+            for local_dstore_id, host_ids in local.items():
+                for host_id in host_ids:
+                    host_storage[host_id].add(local_dstore_id)
+            # Mapping: VM ID -> set of dstore IDs.
+            vm_storage: dict[int, set[int]] = {}
+            for vm_req in self.parser.scheduler_driver_action.requirements.vm:
+                vm_storage[vm_req.id] = set(vm_req.datastores.id)
+            # Matching datastore IDs:
+            # TODO: Consider optimization in the case of large sets.
+            # Iterate over the smaller and return the first element that
+            # appears in the larger set (e.g.
+            # `match_ = next(id for id in smaller if id in larger)`).
+            matches = host_storage[alloc.host_id] & vm_storage[alloc.vm_id]
+            match_ = matches.pop()  # next(iter(matches))
+            return match_, False
+
         sys_ds = self.parser.get_system_ds(alloc.host_id)
         return sys_ds, False
 

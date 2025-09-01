@@ -15,6 +15,7 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
+from collections import defaultdict
 import io
 import sys
 from dataclasses import replace
@@ -218,58 +219,59 @@ class OptimizerParser:
 
     def _parse_vm_requirements(self) -> dict[int, VMRequirements]:
         vm_requirements = {}
+        vm_pool = {
+            vm.id: vm for vm in self.scheduler_driver_action.vm_pool.vm
+        }
         for vm_req in self.scheduler_driver_action.requirements.vm:
-            for vm in self.scheduler_driver_action.vm_pool.vm:
-                if vm.id == vm_req.id:
-                    storage = self._build_vm_storage(vm, vm_req)
-                    cpu_current = float(vm.monitoring.cpu or 0)
-                    cpu_forecast = float(vm.monitoring.cpu_forecast or 0)
-                    net_current = float(vm.monitoring.nettx_bw or 0) + float(
-                        vm.monitoring.netrx_bw or 0
-                    )
-                    net_forecast = float(vm.monitoring.nettx_bw_forecast or 0) + float(
-                        vm.monitoring.netrx_bw_forecast or 0
-                    )
-                    disk_current = float(vm.monitoring.diskrdbytes_bw or 0) + float(
-                        vm.monitoring.diskwrbytes_bw or 0
-                    )
-                    disk_forecast = float(
-                        vm.monitoring.diskrdbytes_bw_forecast or 0
-                    ) + float(vm.monitoring.diskwrbytes_bw_forecast or 0)
-                    # Predictive factor only for 'optimize'
-                    cpu_usage = (
-                        self._apply_predictive_adjustment(cpu_current, cpu_forecast)
-                        if self.mode.upper() == "OPTIMIZE"
-                        else cpu_current
-                    )
-                    net_usage = (
-                        self._apply_predictive_adjustment(net_current, net_forecast)
-                        if self.mode.upper() == "OPTIMIZE"
-                        else net_current
-                    )
-                    disk_usage = (
-                        self._apply_predictive_adjustment(disk_current, disk_forecast)
-                        if self.mode.upper() == "OPTIMIZE"
-                        else disk_current
-                    )
-                    vm_requirements[int(vm_req.id)] = VMRequirements(
-                        id=int(vm_req.id),
-                        state=self._map_vm_state(vm.state, vm.lcm_state),
-                        memory=int(vm.template.memory),
-                        cpu_ratio=float(vm.template.cpu),
-                        cpu_usage=cpu_usage,
-                        storage=storage,
-                        disk_usage=disk_usage,
-                        pci_devices=self._build_pci_devices_requirements(
-                            vm.template.pci
-                        ),
-                        host_ids=set(vm_req.hosts.id),
-                        share_vnets=not self.config["DIFFERENT_VNETS"],
-                        nic_matches={nic.id: nic.vnets.id for nic in vm_req.nic},
-                        net_usage=net_usage,
-                    )
-                else:
-                    self._build_used_dstores(vm)
+            if vm := vm_pool.get(vm_req.id):
+                storage = self._build_vm_storage(vm, vm_req)
+                cpu_current = float(vm.monitoring.cpu or 0)
+                cpu_forecast = float(vm.monitoring.cpu_forecast or 0)
+                net_current = float(vm.monitoring.nettx_bw or 0) + float(
+                    vm.monitoring.netrx_bw or 0
+                )
+                net_forecast = float(vm.monitoring.nettx_bw_forecast or 0) + float(
+                    vm.monitoring.netrx_bw_forecast or 0
+                )
+                disk_current = float(vm.monitoring.diskrdbytes_bw or 0) + float(
+                    vm.monitoring.diskwrbytes_bw or 0
+                )
+                disk_forecast = float(
+                    vm.monitoring.diskrdbytes_bw_forecast or 0
+                ) + float(vm.monitoring.diskwrbytes_bw_forecast or 0)
+                # Predictive factor only for 'optimize'
+                cpu_usage = (
+                    self._apply_predictive_adjustment(cpu_current, cpu_forecast)
+                    if self.mode.upper() == "OPTIMIZE"
+                    else cpu_current
+                )
+                net_usage = (
+                    self._apply_predictive_adjustment(net_current, net_forecast)
+                    if self.mode.upper() == "OPTIMIZE"
+                    else net_current
+                )
+                disk_usage = (
+                    self._apply_predictive_adjustment(disk_current, disk_forecast)
+                    if self.mode.upper() == "OPTIMIZE"
+                    else disk_current
+                )
+                vm_requirements[int(vm_req.id)] = VMRequirements(
+                    id=int(vm_req.id),
+                    state=self._map_vm_state(vm.state, vm.lcm_state),
+                    memory=int(vm.template.memory),
+                    cpu_ratio=float(vm.template.cpu),
+                    cpu_usage=cpu_usage,
+                    storage=storage,
+                    disk_usage=disk_usage,
+                    pci_devices=self._build_pci_devices_requirements(
+                        vm.template.pci
+                    ),
+                    host_ids=set(vm_req.hosts.id),
+                    share_vnets=not self.config["DIFFERENT_VNETS"],
+                    nic_matches={nic.id: nic.vnets.id for nic in vm_req.nic},
+                    net_usage=net_usage,
+                )
+                self._build_used_dstores(vm)
         return vm_requirements
 
     def _parse_vm_groups(self) -> list[VMGroup]:
@@ -453,6 +455,7 @@ class OptimizerParser:
         ]
 
     def _parse_datastore_capacities(self) -> list[DStoreCapacity]:
+        shared_dstore_ids = self.get_ds_map()[0]
         return [
             DStoreCapacity(
                 id=int(store.id),
@@ -470,6 +473,7 @@ class OptimizerParser:
                 cluster_ids=store.clusters.id,
             )
             for store in self.scheduler_driver_action.datastore_pool.datastore
+            if int(store.id) in shared_dstore_ids
         ]
 
     def _parse_vnet_capacities(self) -> list[VNetCapacity]:
@@ -602,7 +606,7 @@ class OptimizerParser:
         return max(0, min(1, value))
 
     def _build_vm_storage(self, vm, vm_req):
-        _, _, host_ds = self.get_ds_map()
+        storage_map = self.get_ds_map()
         ds_req = {}
         for req_id, disk in enumerate(vm.template.disk):
             disk_attrs = {e.qname.upper(): e.text for e in disk.any_element}
@@ -617,7 +621,9 @@ class OptimizerParser:
             else:
                 clone_attr = disk_attrs.get("CLONE")
                 if clone_attr is None:
-                    host_ds, share_ds, allow = self._build_dstores(vm_req, host_ds)
+                    host_ds, share_ds, allow = self._build_dstores(
+                        vm_req, storage_map
+                    )
                     ds_req[req_id] = DStoreRequirement(
                         id=req_id,
                         vm_id=int(vm.id),
@@ -660,7 +666,9 @@ class OptimizerParser:
                 )
             # system DS req
             else:
-                host_ds, share_ds, allow = self._build_dstores(vm_req, host_ds)
+                host_ds, share_ds, allow = self._build_dstores(
+                    vm_req, storage_map
+                )
                 ds_req[req_id] = DStoreRequirement(
                     id=req_id,
                     vm_id=int(vm.id),
@@ -670,7 +678,7 @@ class OptimizerParser:
                     shared_dstore_ids=share_ds,
                 )
         if not vm.template.disk and vm_req.datastores.id:
-            host_ds, share_ds, allow = self._build_dstores(vm_req, host_ds)
+            host_ds, share_ds, allow = self._build_dstores(vm_req, storage_map)
             ds_req[0] = DStoreRequirement(
                 id=0,
                 vm_id=int(vm.id),
@@ -681,40 +689,52 @@ class OptimizerParser:
             )
         return ds_req
 
-    def _build_dstores(self, vm_req, host_ds):
-        host_ds, share_ds, allow_host_dstores = {}, [], False
+    def _build_dstores(self, vm_req, storage_map):
+        host_disks, share_ds = defaultdict(set), []
+        all_shared, _, host_ds = storage_map
         for _ds_id in vm_req.datastores.id:
-            if _ds_id in host_ds.keys():
-                (
-                    host_ds[host_ds[_ds_id]].append(_ds_id)
-                    if _ds_id in host_ds
-                    else host_ds[host_ds[_ds_id]]
-                )
-                allow_host_dstores = True
-            else:
+            if _ds_id in host_ds:
+                host_ids = host_ds[_ds_id]
+                for host_id in host_ids:
+                    host_disks[host_id].add(0)
+            elif _ds_id in all_shared:
                 share_ds.append(_ds_id)
-        return host_ds, share_ds, allow_host_dstores
+        # TODO: Formulate the logic to decide whether shared or local
+        # datastores are allowed <MS 2025-08-25>.
+        # NOTE: Currently, the original logic is kept, which assumes
+        # allowing local (and forbidding shared) datastores if they are
+        # given in the VM requirements <MS 2025-08-25>.
+        host_disks_ = {
+            host_id: list(disk_ids) for host_id, disk_ids in host_disks.items()
+        }
+        return host_disks_, share_ds, bool(host_disks)
 
     def _build_disk_capacity(self, host):
-        return {
-            disk.id: Capacity(total=disk.total_mb, usage=disk.used_mb)
-            for disk in getattr(host.host_share.datastores, "ds", [])
-            if hasattr(disk, "id")
-        }
+        dstores = host.host_share.datastores
+        used = dstores.used_disk
+        free = dstores.free_disk
+        return {0: Capacity(total=free + used, usage=used)}
 
     def _build_used_dstores(self, vm):
         if vm_hist := vm.history_records.history:
             last_rec = max(vm_hist, key=lambda item: item.seq)
+            # NOTE: We can take this from the current placement.
             ds_id = last_rec.ds_id
             # Host DS
-            _, _, host_ds = self.get_ds_map()
+            all_shared, _, host_ds = self.get_ds_map()
             if ds_id in host_ds.keys():
-                self.used_host_dstores[vm.id, 0] = ds_id
+                # NOTE: These are host disks, not datastores.
+                self.used_host_dstores[vm.id, 0] = 0
             # Shared system ds or image ds
-            else:
+            elif ds_id in all_shared:
                 self.used_shared_dstores[vm.id, 0] = ds_id
 
-    def get_ds_map(self) -> tuple[set[int], set[int], dict[int, int]]:
+    def get_ds_map(self) -> tuple[set[int], set[int], dict[int, list[int]]]:
+        # NOTE: Retuned items:
+        # [0]: `set` of the IDs of shared system datastores
+        # [1]: `set` of the IDs of image datastores
+        # [2]: `dict` of the IDs of shared local datastores (keys) and
+        #      `list` of the IDs of the corresponding hosts (values)
         shared_ds, image_ds = set(), set()
         for ds in self.scheduler_driver_action.datastore_pool.datastore:
             ds_attrs = {
@@ -725,13 +745,12 @@ class OptimizerParser:
                 image_ds.add(int(ds.id))
             elif ds_attrs.get("SHARED") == "YES":
                 shared_ds.add(int(ds.id))
-        host_ds_dict = {
-            int(host_ds.id): int(host.id)
-            for host in self.scheduler_driver_action.host_pool.host
-            for host_ds in getattr(host.host_share.datastores, "ds", [])
-            if hasattr(host_ds, "id")
-        }
-        return shared_ds, image_ds, host_ds_dict
+        host_ds_dict: defaultdict[int, list[int]] = defaultdict(list)
+        for host in self.scheduler_driver_action.host_pool.host:
+            host_id = int(host.id)
+            for host_ds in host.host_share.datastores.ds:
+                host_ds_dict[int(host_ds.id)].append(host_id)
+        return shared_ds, image_ds, dict(host_ds_dict)
 
     def get_system_ds(self, host_id):
         host = next(
