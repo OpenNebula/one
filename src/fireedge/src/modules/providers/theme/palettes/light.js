@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { colors as materialColors, alpha } from '@mui/material'
 import { colors as sunstoneColors } from '@modules/providers/theme/colors'
+import { alpha, colors as materialColors } from '@mui/material'
 
 const primaryColor = sunstoneColors.blue[600]
 const secondaryColor = sunstoneColors.grey[600]
@@ -350,6 +350,12 @@ export const lightPalette = {
   breadCrumb: {
     title: {
       color: sunstoneColors.grey[700],
+    },
+    navigate: {
+      color: primaryColor,
+    },
+    navigateDeactive: {
+      color: sunstoneColors.grey[500],
     },
   },
 

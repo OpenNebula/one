@@ -20,12 +20,26 @@ import { css } from '@emotion/css'
  *
  * @param {object} theme - Theme
  * @param {object} theme.palette - Palette
+ * @param {boolean} hasBreadcrumbs - Indicates if breadcrumbs are present
  * @returns {object} CSS styles with the palette
  */
-const styles = ({ palette }) => ({
+const styles = ({ palette }, hasBreadcrumbs = false) => ({
   item: css({
-    marginTop: '1.875rem',
+    marginTop: hasBreadcrumbs ? '1rem' : '1.875rem',
     marginBottom: '1rem',
+  }),
+  navigate: css({
+    marginTop: '1.875rem',
+    color: palette.breadCrumb.navigateDeactive.color,
+    fontSize: '1rem',
+  }),
+  link: css({
+    '&:hover': {
+      textDecoration: 'none',
+    },
+  }),
+  linkActive: css({
+    color: palette.breadCrumb.navigate.color,
   }),
   title: css({
     color: palette.breadCrumb.title.color,
