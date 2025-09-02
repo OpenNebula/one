@@ -13,13 +13,56 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import Breadcrumbs from '@mui/material/Breadcrumbs'
-import { Typography, Link, useTheme } from '@mui/material'
-import breadcrumbStyles from '@modules/components/Breadcrumb/styles'
-import { useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
 import { useGeneral } from '@FeaturesModule'
+import breadcrumbStyles from '@modules/components/Breadcrumb/styles'
+import { Link, Typography, useTheme } from '@mui/material'
+import Breadcrumbs from '@mui/material/Breadcrumbs'
+import clsx from 'clsx'
+import { Home, NavArrowRight } from 'iconoir-react'
 import PropTypes from 'prop-types'
+import { useMemo } from 'react'
+import { Link as RouterLink, useHistory, useParams } from 'react-router-dom'
+
+function resolvePath(path, params) {
+  return path.replace(/:([a-zA-Z0-9_]+)/g, (_, key) => params[key] || `:${key}`)
+}
+
+const NavigateBreadcrumb = ({ route, breadcrumbClass = {} }) => {
+  const { navigate, link, linkActive } = breadcrumbClass
+  const params = useParams()
+
+  return (
+    <Breadcrumbs
+      aria-label="breadcrumb"
+      separator={<NavArrowRight />}
+      className={navigate}
+    >
+      <Link component={RouterLink} color="inherit" to="/" className={link}>
+        <Home />
+      </Link>
+      {route.breadcrumb.map(({ title, path }, index) => {
+        const isLast = index === route.breadcrumb.length - 1
+
+        return (
+          <Link
+            key={path}
+            component={RouterLink}
+            color="inherit"
+            to={resolvePath(path, params)}
+            className={!isLast ? link : clsx(link, linkActive)}
+          >
+            {title || path}
+          </Link>
+        )
+      })}
+    </Breadcrumbs>
+  )
+}
+NavigateBreadcrumb.propTypes = {
+  route: PropTypes.object,
+  breadcrumbClass: PropTypes.object,
+}
+NavigateBreadcrumb.displayName = 'NavigateBreadcrumb'
 
 /**
  * Displays breadcrumb in Sunstone.
@@ -29,8 +72,13 @@ import PropTypes from 'prop-types'
  * @returns {object} - Breadcrumb
  */
 const SunstoneBreadcrumb = ({ route }) => {
+  const hasBreadcrumbs =
+    Array.isArray(route?.breadcrumb) && route?.breadcrumb?.length > 1
   const theme = useTheme()
-  const classes = useMemo(() => breadcrumbStyles(theme), [theme])
+  const classes = useMemo(
+    () => breadcrumbStyles(theme, hasBreadcrumbs),
+    [theme]
+  )
 
   const history = useHistory()
 
@@ -42,6 +90,9 @@ const SunstoneBreadcrumb = ({ route }) => {
 
   return (
     <div>
+      {hasBreadcrumbs && (
+        <NavigateBreadcrumb route={route} breadcrumbClass={classes} />
+      )}
       <Breadcrumbs
         separator=""
         className={classes.item}
