@@ -444,7 +444,7 @@ void ScheduledActionManager::backup_jobs()
 
             bj->get_backup_config(tmpl);
 
-            if ( backups.parse(&tmpl, inc, disks.backup_keep_last(bck_vol), true, err) != 0 )
+            if ( backups.parse(&tmpl, inc, true, err) != 0 )
             {
                 bj->set_template_error_message(err);
 

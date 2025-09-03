@@ -1159,7 +1159,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // the backups
     // ------------------------------------------------------------------------
     rc = _backups.parse(user_obj_template.get(), disks.backup_increment(true),
-                        disks.backup_keep_last(true), false, error_str);
+                        false, error_str);
 
     if ( rc != 0 )
     {
@@ -3316,7 +3316,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
 
         backup_conf = nullptr;
 
-        if ( _backups.parse(tmpl, increment, disks.backup_keep_last(do_volatile), append, err) != 0 )
+        if ( _backups.parse(tmpl, increment, append, err) != 0 )
         {
             NebulaLog::log("ONE", Log::ERROR, err);
             return -1;
