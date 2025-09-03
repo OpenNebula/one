@@ -1677,48 +1677,6 @@ bool VirtualMachineDisks::backup_increment(bool do_volatile)
 
         one_util::toupper(type);
 
-        if (type == "RBD")
-        {
-            continue;
-        }
-
-        if ((type == "SWAP") || ((type == "FS") && !do_volatile))
-        {
-            continue;
-        }
-
-        string format = disk->vector_value("FORMAT");
-
-        one_util::toupper(format);
-
-        string lvm_thin_enable = disk->vector_value("LVM_THIN_ENABLE");
-
-        one_util::toupper(lvm_thin_enable);
-
-        if (format == "RAW" && lvm_thin_enable == "YES")
-        {
-            continue;
-        }
-
-        if (format != "QCOW2" || disk->has_snapshots())
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-
-bool VirtualMachineDisks::backup_keep_last(bool do_volatile)
-{
-    for (const auto disk : *this)
-    {
-        string type = disk->vector_value("TYPE");
-
-        one_util::toupper(type);
-
         if ((type == "SWAP") || ((type == "FS") && !do_volatile))
         {
             continue;
@@ -1728,6 +1686,25 @@ bool VirtualMachineDisks::backup_keep_last(bool do_volatile)
 
         one_util::toupper(tm_mad);
 
+        string format = disk->vector_value("FORMAT");
+
+        one_util::toupper(format);
+
+        bool lvm_thin_enabled;
+
+        if (disk->vector_value("LVM_THIN_ENABLE", lvm_thin_enabled) == -1)
+        {
+            lvm_thin_enabled = false;
+        }
+
+        std::set<std::string> raw_tms = { "SSH", "LOCAL", "SHARED", "QCOW2" };
+
+        if ((format == "QCOW2" && disk->has_snapshots()) ||
+            (format == "RAW"   && raw_tms.find(tm_mad) != raw_tms.end()) ||
+            (tm_mad == "LVM"   && !lvm_thin_enabled))
+        {
+            return false;
+        }
     }
 
     return true;
