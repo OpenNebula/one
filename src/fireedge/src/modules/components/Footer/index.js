@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
-import { useTheme, Link, Typography, styled } from '@mui/material'
+import { BY, SERVER_CONFIG, SUPPORT_WEBSITE, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
-
-import { PATH } from '@modules/components/path'
-import { Translate } from '@modules/components/HOC'
-import { StatusChip } from '@modules/components/Status'
-import { BY, SUPPORT_WEBSITE, T } from '@ConstantsModule'
 import { SupportAPI, SystemAPI } from '@FeaturesModule'
+import { Translate } from '@modules/components/HOC'
+import { PATH } from '@modules/components/path'
+import { StatusChip } from '@modules/components/Status'
+import { Link, Typography, styled, useTheme } from '@mui/material'
+import { memo, useEffect, useMemo } from 'react'
 import { Link as RouterLink, generatePath } from 'react-router-dom'
 
 const FooterBox = styled('footer')(({ theme }) => ({
@@ -54,8 +53,15 @@ const useStyles = (theme) => ({
 const Footer = memo(() => {
   const theme = useTheme()
   const classes = useMemo(() => useStyles(theme), [theme])
-  const { isError, isSuccess } = SupportAPI.useCheckOfficialSupportQuery()
+  const [getSupport, { isSuccess }] =
+    SupportAPI.useLazyCheckOfficialSupportQuery()
   const { data: version } = SystemAPI.useGetOneVersionQuery()
+
+  useEffect(() => {
+    if (SERVER_CONFIG?.token_remote_support) {
+      getSupport()
+    }
+  }, [getSupport])
 
   return (
     <FooterBox
@@ -71,7 +77,16 @@ const Footer = memo(() => {
           {BY.text}
         </Link>
         {version && <StatusChip text={version} mx={0.5} />}
-        {isError && (
+        {isSuccess ? (
+          <Link component={RouterLink} to={generatePath(PATH.SUPPORT)}>
+            <StatusChip
+              stateColor="success"
+              text={T.OfficiallySupport}
+              dataCy="officialSupport"
+              mx={0.5}
+            />
+          </Link>
+        ) : (
           <a
             href={SUPPORT_WEBSITE}
             target="_blank"
@@ -85,16 +100,6 @@ const Footer = memo(() => {
               mx={0.5}
             />
           </a>
-        )}
-        {isSuccess && (
-          <Link component={RouterLink} to={generatePath(PATH.SUPPORT)}>
-            <StatusChip
-              stateColor="success"
-              text={T.OfficiallySupport}
-              dataCy="officialSupport"
-              mx={0.5}
-            />
-          </Link>
         )}
       </Typography>
     </FooterBox>

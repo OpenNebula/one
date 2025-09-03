@@ -27,7 +27,7 @@ import Router from 'client/router'
 import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 import { ReactElement, useEffect, useMemo } from 'react'
 
-import { _APPS } from '@ConstantsModule'
+import { _APPS, SERVER_CONFIG } from '@ConstantsModule'
 import {
   oneApi,
   SupportAPI,
@@ -74,7 +74,7 @@ const SunstoneApp = () => {
   }, [])
 
   useEffect(() => {
-    if (view) {
+    if (view && SERVER_CONFIG?.token_remote_support) {
       getSupport()
     }
   }, [view, getSupport])

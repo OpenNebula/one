@@ -17,6 +17,7 @@
 const { parse: yamlToJson } = require('yaml')
 const {
   protectedConfigData,
+  boolProtectedConfigData,
   defaultAppName,
   defaultApps,
   defaultEmptyFunction,
@@ -38,6 +39,7 @@ const getViewConfigPathByApp = (app) =>
   }[app])
 
 const getProtectedKeysByApp = (app) => protectedConfigData[app] || []
+const getBoolProtectedKeysByApp = (app) => boolProtectedConfigData[app] || []
 
 /**
  * Get fireedge configurations.
@@ -72,12 +74,22 @@ const readYAMLFile = (filePath = '', onError = defaultEmptyFunction) => {
  *
  * @param {object} config - Config to filter
  * @param {Array} [keys] - List of keys to filter
+ * @param {Array} [boolKeys] - List of keys to transforms in booleans
  * @returns {object} Filtered object
  */
-const filterByProtectedKeys = (config = {}, keys = []) =>
+const filterByProtectedKeys = (config = {}, keys = [], boolKeys = []) =>
   Object.keys(config)
     .filter((key) => !keys.includes(key))
-    .reduce((newConf, key) => ({ ...newConf, [key]: config[key] }), {})
+    .reduce(
+      (newConf, key) => ({
+        ...newConf,
+        [key]:
+          Array.isArray(boolKeys) && boolKeys.includes(key)
+            ? Boolean(config[key])
+            : config[key],
+      }),
+      {}
+    )
 
 /**
  * @typedef GetConfigurationOptions
@@ -99,7 +111,11 @@ const getConfiguration = (
   const config = readYAMLFile(getConfigPathByApp(app), onError)
 
   if (config && !includeProtectedConfig) {
-    return filterByProtectedKeys(config, getProtectedKeysByApp(app))
+    return filterByProtectedKeys(
+      config,
+      getProtectedKeysByApp(app),
+      getBoolProtectedKeysByApp(app)
+    )
   }
 
   return config

@@ -29,11 +29,6 @@ const Actions = {
 module.exports = {
   Actions,
   Commands: {
-    [SUPPORT_VERSION]: {
-      path: `${basepath}/check/version`,
-      httpMethod: GET,
-      auth: true,
-    },
     [SUPPORT_CHECK]: {
       path: `${basepath}/check`,
       httpMethod: GET,

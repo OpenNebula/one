@@ -175,8 +175,10 @@ const defaults = {
       'tmpdir',
       'max_upload_file_size',
       'proxy',
-      'token_remote_support',
     ],
+  },
+  boolProtectedConfigData: {
+    [appNameSunstone]: ['token_remote_support'],
   },
 
   /** HOOK OBJECT NAMES */
