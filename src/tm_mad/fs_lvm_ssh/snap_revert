@@ -89,6 +89,7 @@ SNAP_REVERT_CMD=$(cat <<EOF
         ${SUDO} ${LVSCAN}
         $SUDO $LVREMOVE -y $VG_NAME/$LV_NAME
         $SUDO $LVCREATE -s -n $LV_NAME $VG_NAME/$SNAP_NAME
+        # Next two commands could be merged, but is advised against by LVM
         $SUDO $LVCHANGE -kn $VG_NAME/$LV_NAME
         $SUDO $LVCHANGE -ay $VG_NAME/$LV_NAME
         ${SYNC}

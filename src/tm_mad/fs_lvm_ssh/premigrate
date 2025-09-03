@@ -74,7 +74,7 @@ PRE_CMD=$(cat <<EOF
 
     if [ -n "\$DEVICES" ]; then
         # Activate LVs in the destination hosts
-        $SSH -n "$DST_HOST" "$SUDO $LVCHANGE -ay \$DEVICES"
+        $SSH -n "$DST_HOST" "$SUDO $LVCHANGE -ay -K \$DEVICES"
     fi
 
     $TAR -C $DST_PATH -cSf - . | $SSH "$DST_HOST" "$TAR -xSf - -C $DST_PATH"
