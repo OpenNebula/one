@@ -331,6 +331,17 @@ void InformationManager::_host_system(unique_ptr<im_msg_t> msg)
 
 static void test_and_trigger(const string& state_str, VirtualMachine * vm)
 {
+    time_t the_time = time(0);
+
+    // Prevent Monitor and VMM driver race condition.
+    // Ignore state updates for 30s after state changes
+    if ( the_time - vm->get_running_etime() < 30 ||
+         the_time - vm->get_running_stime() < 30 )
+    {
+        vm->log("VMM", Log::INFO, "Ignoring VM state update");
+        return;
+    }
+
     auto state = vm->get_state();
     auto lcm_state = vm->get_lcm_state();
     auto lcm = Nebula::instance().get_lcm();
