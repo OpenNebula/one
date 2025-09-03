@@ -148,17 +148,20 @@ EOF
                 if [ -n "\$($SUDO $LVS --noheading -S "vg_name = $DST_VG_NAME && lv_name = $POOL_NAME")" ]; then
                     $SUDO $LVEXTEND -L +\${SIZE}M $DST_VG_NAME/$POOL_NAME
                 else
+                    # -ky is to enable activation skip, preventing possible data corruption for
+                    # example in HA situations
                     # -Zy is for auto-zeroing thin volumes. It already defaults to 'y' but just in case...
-                    $SUDO $LVCREATE -Zy -L \${SIZE}M --type thin-pool --thinpool $POOL_NAME $DST_VG_NAME
+                    $SUDO $LVCREATE -ky -Zy -L \${SIZE}M --type thin-pool --thinpool $POOL_NAME $DST_VG_NAME
                     $SUDO $LVCHANGE -an $DST_VG_NAME/$POOL_NAME
                 fi
-                $SUDO $LVCREATE -T $DST_VG_NAME/$POOL_NAME -V \${SIZE}M -n $LV_NAME
+                $SUDO $LVCREATE -ky --thin $DST_VG_NAME/$POOL_NAME -V \${SIZE}M -n $LV_NAME
+                $SUDO $LVCHANGE -ay -K $DST_VG_NAME/$LV_NAME
             else
                 ${SUDO} ${LVCREATE} --wipesignatures n -L"\${SIZE}" -n "${LV_NAME}" "${DST_VG_NAME}"
             fi
 
             # Temporally enable source LV to copy from it
-            ${SUDO} ${LVCHANGE} -ay '${SRC_VG_NAME}/${LV_NAME}'
+            ${SUDO} ${LVCHANGE} -ay -K '${SRC_VG_NAME}/${LV_NAME}'
             ${DD} if=${SRC_DEV} of=${DST_DEV} bs=${DD_BLOCK_SIZE:-64k} conv=sparse,fdatasync
             ${SUDO} ${LVCHANGE} -an '${SRC_VG_NAME}/${LV_NAME}'
 
@@ -197,7 +200,7 @@ EOF
             set -ex -o pipefail
             ${SYNC}
             ${SUDO} ${LVSCAN}
-            ${SUDO} ${LVCHANGE} -ay "${DST_DEV}"
+            ${SUDO} ${LVCHANGE} -ay -K "${DST_DEV}"
             ${SYNC}
 
             mkdir -p "${DST_DIR}"

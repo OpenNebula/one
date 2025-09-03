@@ -66,7 +66,7 @@ if is_undeployed "$VM_ID" "$SRC_HOST"; then
     fi
     # else we assume that FE have access to LVM storage
 
-    ACTIVATE="$SUDO $LVCHANGE -ay $DEV > /dev/null 2>&1"
+    ACTIVATE="$SUDO $LVCHANGE -ay -K $DEV > /dev/null 2>&1"
     DEACTIVATE="$SUDO $LVCHANGE -an $DEV > /dev/null 2>&1"
 fi
 
