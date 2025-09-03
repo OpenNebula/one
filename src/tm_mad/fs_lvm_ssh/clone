@@ -84,9 +84,12 @@ ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 LVM_THIN_ENABLE="${XPATH_ELEMENTS[j++],,}"
 TM_MAD="${XPATH_ELEMENTS[j++]}"
 
-FILE_SIZE=`fs_size "${SRC_PATH}" YES`
-FILE_TYPE=`file --brief ${SRC_PATH}`
+if [ ! -r "${SRC_PATH}" ]; then
+    log_error "Can't access image file '${SRC_PATH}' from frontend, please check datastore configuration"
+    exit 1
+fi
 
+FILE_SIZE=`fs_size "${SRC_PATH}" YES`
 if [ $? -ne 0 ]; then
     FILE_SIZE=0
 fi
@@ -95,6 +98,7 @@ if [ $FILE_SIZE -gt $SIZE ]; then
     SIZE="$FILE_SIZE"
 fi
 
+FILE_TYPE=`file --brief ${SRC_PATH}`
 # Extend the SIZE so the encrypted file fits in the LV
 if [[ "$FILE_TYPE" =~ "LUKS encrypted file" ]]; then
     SIZE=$(( SIZE + 4 ))

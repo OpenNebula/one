@@ -79,10 +79,12 @@ SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 TM_MAD="${XPATH_ELEMENTS[j++]}"
 
-# Remove potential " and ' chars to avoid bash syntax errors on ssh command below.
-FILE_TYPE=`file --brief ${SRC_PATH} | tr -d \"\'`
-FILE_SIZE=`fs_size "${SRC_PATH}" YES`
+if [ ! -r "${SRC_PATH}" ]; then
+    log_error "Can't access image file '${SRC_PATH}' from frontend, please check datastore configuration"
+    exit 1
+fi
 
+FILE_SIZE=`fs_size "${SRC_PATH}" YES`
 if [ $? -ne 0 ]; then
     FILE_SIZE=0
 fi
@@ -91,6 +93,8 @@ if [ $FILE_SIZE -gt $SIZE ]; then
     SIZE="$FILE_SIZE"
 fi
 
+# Remove potential " and ' chars to avoid bash syntax errors on ssh command below.
+FILE_TYPE=`file --brief ${SRC_PATH} | tr -d \"\'`
 # Extend the SIZE so the encrypted file fits in the LV
 if [[ "$FILE_TYPE" =~ "LUKS encrypted file" ]]; then
     SIZE=$(( SIZE + 4 ))
