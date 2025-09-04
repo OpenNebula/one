@@ -42,17 +42,38 @@ module VNMMAD
             :bridge        => 'sudo -n bridge'
         }
 
-        # Adjust :ip[6]tables commands to work with legacy versions
+        # Adjust :ip[6]tables commands to work with legacy versions.
+        #
+        # Background:
+        #
+        # iptables has two flags to control concurrency:
+        # * -w / --wait <n>: how much time to wait to acquire lock
+        # * -W / --wait-interval <n>: combined with `-w`, check the lock in the specified interval
+        #
+        # Iptables versions prior to 1.6.1 only provided the `-w` flag, which, if the DB was
+        # initially locked, just made the process sleep during some period of time and try again to
+        # acquire the lock at the end. This made the process wait for the whole period even if the
+        # lock were to be released earlier.
+        # The wait-interval flag was introduced in version 1.6.1, so starting from that one, it was
+        # recommended to use both flags as it greatly improved latency.
+        # Then, starting from version 1.8.8, a new scheduling mechanism was introduced which made
+        # the wait interval obsolete, as the process will take the lock as soon as it's available
+        # just using the wait flag.
+        #
+        # So, the ideal iptables usage by version range is:
+        # - Up to 1.6.0: iptables -w 3
+        # - From 1.6.1 to 1.8.7: iptables -w 3 -W 20000
+        # - From 1.8.8: iptables -w 3
         begin
             stdout = Open3.capture3('iptables --version')[0]
             regex  = /.*v(?<version>\d+.\d+.\d+)/
 
             iptables_version = Gem::Version.new(stdout.match(regex)[:version])
 
-            if iptables_version <= Gem::Version.new('1.6.1') ||
-                  iptables_version > Gem::Version.new('1.8.7')
-                COMMANDS[:iptables]  = 'sudo -n iptables -w 3'
-                COMMANDS[:ip6tables] = 'sudo -n ip6tables -w 3'
+            if Gem::Version.new('1.6.1') <= iptables_version &&
+                  iptables_version < Gem::Version.new('1.8.8')
+                COMMANDS[:iptables]  = 'sudo -n iptables -w 3 -W 20000'
+                COMMANDS[:ip6tables] = 'sudo -n ip6tables -w 3 -W 20000'
             end
         rescue StandardError
         end
