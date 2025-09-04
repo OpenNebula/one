@@ -17,7 +17,7 @@ const btoa = require('btoa')
 const { defaults, httpCodes } = require('server/utils/constants')
 const { httpResponse, executeRequest } = require('server/utils/server')
 const { getSunstoneConfig } = require('server/utils/yml')
-
+const { writeInLogger } = require('server/utils/logger')
 const { defaultEmptyFunction, httpMethod, defaultEnterpriseRepo } = defaults
 const { ok, badRequest } = httpCodes
 const { GET } = httpMethod
@@ -59,9 +59,17 @@ const checkSupport = (res = {}, next = defaultEmptyFunction) => {
     },
     {
       success: (data) => {
+        writeInLogger(data, {
+          format: 'Subscription validation response: %s',
+          level: 2,
+        })
         data ? responser('', ok) : responser('')
       },
-      error: (error) => responser(error && error.message),
+      error: (error) => {
+        writeInLogger(error.message)
+
+        return responser(error && error.message)
+      },
     }
   )
 }
