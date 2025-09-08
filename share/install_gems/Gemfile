@@ -51,6 +51,10 @@ if ruby_version < Gem::Version.new('2.1.0')
     nokogiri = '< 1.7'
 elsif ruby_version < Gem::Version.new('2.3.0')
     nokogiri = '< 1.10'
+else
+    if ruby_version >= Gem::Version.new('3.0.0') && rubygems_version < Gem::Version.new('3.3.22')
+        nokogiri = '~> 1.17.2'
+    end
 end
 
 ps = '< 3.0.0' if ruby_version < Gem::Version.new('2.1.0')
