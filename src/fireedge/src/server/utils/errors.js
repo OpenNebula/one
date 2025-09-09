@@ -45,6 +45,16 @@ class MissingHeaderError extends OpenNebulaError {
   }
 }
 
+class MissingSamlUserInfoError extends OpenNebulaError {
+  /**
+   * @param {string} user - username.
+   */
+  constructor(user = '') {
+    super(`Missing user Saml information: ${user}`)
+    this.name = 'MissingSamlUserInfoError'
+  }
+}
+
 class MissingFireEdgeKeyError extends OpenNebulaError {
   /**
    *
@@ -70,5 +80,6 @@ module.exports = {
   MissingFireEdgeKeyError,
   OpenNebulaError,
   MissingHeaderError,
+  MissingSamlUserInfoError,
   InternalLoginError,
 }

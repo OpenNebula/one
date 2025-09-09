@@ -38,6 +38,7 @@ import {
 import compression from 'compression'
 import cors from 'cors'
 import express from 'express'
+import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
 import http from 'http'
 import { resolve } from 'path'
@@ -78,6 +79,8 @@ const port = appConfig.port || defaultPort
 app.use(helmet.xssFilter())
 app.use(helmet.hidePoweredBy())
 app.use(compression())
+app.use(cookieParser())
+
 app.use(`${basename}/client`, express.static(resolve(__dirname, frontPath)))
 app.use(`${basename}/client/*`, express.static(resolve(__dirname, frontPath)))
 

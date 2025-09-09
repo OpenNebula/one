@@ -88,6 +88,7 @@ export const AUTH_DRIVER = {
   SSH: 'ssh',
   X509: 'x509',
   LDAP: 'ldap',
+  SAML: 'saml',
   SERVER_CIPHER: 'server_cipher',
   SERVER_X509: 'server_x509',
   CUSTOM: 'custom',

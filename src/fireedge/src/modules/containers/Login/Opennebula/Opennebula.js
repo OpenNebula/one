@@ -14,6 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+import { OpenNebulaLogo, Tr } from '@ComponentsModule'
+import { JWT_NAME, T } from '@ConstantsModule'
+import { AuthAPI, AuthSlice, useAuth, useAuthApi } from '@FeaturesModule'
+import { Form } from '@modules/containers/Login/Opennebula/Form'
+import * as FORM_SCHEMA from '@modules/containers/Login/Opennebula/schema'
 import {
   Box,
   Container,
@@ -22,16 +27,14 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
-import { ReactElement, useState, useMemo } from 'react'
-
-import { useAuth, useAuthApi, AuthAPI } from '@FeaturesModule'
-
-import { Tr, OpenNebulaLogo } from '@ComponentsModule'
-import { T } from '@ConstantsModule'
-import { Form } from '@modules/containers/Login/Opennebula/Form'
-import * as FORM_SCHEMA from '@modules/containers/Login/Opennebula/schema'
+import { storage } from '@UtilsModule'
+import PropTypes from 'prop-types'
+import { ReactElement, useEffect, useMemo, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 import { styles } from '@modules/containers/Login/styles'
+
+const { actions: authActions } = AuthSlice
 
 const STEPS = {
   USER_FORM: 0,
@@ -42,9 +45,21 @@ const STEPS = {
 /**
  * Displays the login form and handles the login process.
  *
+ * @param {object} props - Props
+ * @param {object} props.data - User Auth data
  * @returns {ReactElement} The login form.
  */
-export function OpenNebulaLoginHandler() {
+export function OpenNebulaLoginHandler({ data = {} }) {
+  const dispatch = useDispatch()
+  const { remoteRedirect, jwt: userJWT } = data
+
+  useEffect(() => {
+    if (userJWT) {
+      storage(JWT_NAME, userJWT)
+      dispatch(authActions.changeJwt(userJWT))
+    }
+  }, [])
+
   const isMobile = useMediaQuery((themeMobile) =>
     themeMobile.breakpoints.only('xs')
   )
@@ -137,6 +152,7 @@ export function OpenNebulaLoginHandler() {
               fields={FORM_SCHEMA.FORM_USER_FIELDS}
               error={errorMessage}
               isLoading={isLoading}
+              remoteRedirect={remoteRedirect}
             />
           )}
           {step === STEPS.FA2_FORM && (
@@ -172,5 +188,14 @@ export function OpenNebulaLoginHandler() {
     </Container>
   )
 }
+
+OpenNebulaLoginHandler.propTypes = {
+  data: PropTypes.shape({
+    jwt: PropTypes.string,
+    id: PropTypes.string,
+    remoteRedirect: PropTypes.string,
+  }),
+}
+OpenNebulaLoginHandler.displayName = 'OpenNebula'
 
 export default OpenNebulaLoginHandler

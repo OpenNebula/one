@@ -35,6 +35,7 @@ namespace
             {"ssh", 16 * 1024},             // SSH private key (16 KB)
             {"x509", 64 * 1024},            // X.509 certificate (64 KB)
             {"ldap", 256},                  // LDAP password (256 characters)
+            {"saml", 12 * 1024},            // SAML issuer URL (12 KB)
             {"server_cipher", 4096},        // Encrypted key (4 KB)
             {"server_x509", 64 * 1024},     // Server X.509 certificate (64 KB)
             {"core",  256},                 // Core authentication (256 characters)

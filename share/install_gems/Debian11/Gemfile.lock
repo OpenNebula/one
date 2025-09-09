@@ -120,6 +120,8 @@ GEM
     rchardet (1.8.0)
     rexml (3.4.3)
     ruby2_keywords (0.0.5)
+    ruby-saml (1.18.0)
+      nokogiri (>= 1.13.10)
     sequel (5.96.0)
       bigdecimal
     sinatra (3.2.0)
@@ -178,6 +180,7 @@ DEPENDENCIES
   rack
   rbvmomi2
   rexml
+  ruby-saml
   sequel
   sinatra (< 4.0.0)
   sqlite3 (<= 1.6.9)

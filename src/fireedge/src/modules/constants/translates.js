@@ -243,6 +243,7 @@ module.exports = {
   ShowBelongingUser: 'Show all owned by the user',
   ShowBelongingUserAndGroups: 'Show all owned by the user or his groups',
   SignIn: 'Sign In Now',
+  SignInRemote: 'Sign In with SAML service',
   SignOut: 'Sign Out',
   SnapshotCreate: 'Snapshot create',
   SnapshotRevert: 'Snapshot revert',

@@ -33,11 +33,14 @@ const Steps = createSteps([General, PrimaryGroup, SecondaryGroups], {
       [SECONDARY_GROUPS_ID]: secondaryGroupsData,
     } = formData
 
-    // LDAP driver needs to set password to '-'
+    // LDAP and SAML drivers need to set password to '-'
     return {
       username: generalData.username,
       password:
-        generalData.authType === AUTH_DRIVER.LDAP ? '-' : generalData.password,
+        generalData.authType === AUTH_DRIVER.LDAP ||
+        generalData.authType === AUTH_DRIVER.SAML
+          ? '-'
+          : generalData.password,
       driver: generalData.authType,
       group: [primaryGroupsData, ...secondaryGroupsData],
     }

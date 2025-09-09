@@ -149,6 +149,7 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_auth("ssh", "YES", "NO", "NO", "-1");
     set_conf_auth("x509", "NO", "NO", "NO", "-1");
     set_conf_auth("ldap", "YES", "YES", "YES", "86400");
+    set_conf_auth("saml", "YES", "YES", "YES", "86400");
     set_conf_auth("server_cipher", "NO", "NO", "NO", "-1");
     set_conf_auth("server_x509", "NO", "NO", "NO", "-1");
 

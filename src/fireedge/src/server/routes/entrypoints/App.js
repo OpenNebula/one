@@ -19,7 +19,10 @@ const { Router } = require('express')
 const { ServerStyleSheets } = require('@mui/styles')
 const { request: axios } = require('axios')
 const { writeInLogger } = require('server/utils/logger')
-const { MissingHeaderError } = require('server/utils/errors')
+const {
+  MissingHeaderError,
+  MissingSamlUserInfoError,
+} = require('server/utils/errors')
 
 // server
 const { getSunstoneConfig, getFireedgeConfig } = require('server/utils/yml')
@@ -39,6 +42,7 @@ const {
   defaultPort,
   httpMethod,
 } = require('server/utils/constants/defaults')
+const { global } = require('window-or-global')
 
 const APP_NAMES = Object.keys(defaultApps)
 const APP_URL = '/fireedge'
@@ -63,8 +67,6 @@ const defaultConfig = {
 const { POST } = httpMethod
 
 router.get('*', async (req, res) => {
-  const remoteJWT = {}
-
   const APP_CONFIG = {
     [defaultApps.sunstone.name]:
       {
@@ -81,52 +83,69 @@ router.get('*', async (req, res) => {
   const authType = appConfig?.auth
   const validAuthTypes = ['remote', 'x509']
 
-  if (validAuthTypes.includes(authType)) {
-    remoteJWT.remote = true
-    remoteJWT.remoteRedirect = appConfig?.auth_redirect ?? '.'
+  const remoteJWT = {
+    remoteRedirect: appConfig?.auth_redirect ?? '',
+  }
+  const samlUser = req?.cookies?.saml_user
+  const samlUserData = global?.saml?.[samlUser]
+  const validateAuth = validAuthTypes.includes(authType)
 
-    const finderHeader = () => {
-      const headers = Object.keys(req.headers)
+  if (validateAuth || samlUserData) {
+    let remoteUser = {
+      user: samlUser,
+      token: samlUserData,
+      remember: false,
+    }
+    let findHeader = false
 
-      switch (authType) {
-        case validAuthTypes[1]:
-          return headers.find((header) => defaultHeaderx509.includes(header))
-        default:
-          return headers.find((header) => defaultHeaderRemote.includes(header))
+    if (validateAuth) {
+      remoteJWT.remote = true
+      const finderHeader = () => {
+        const headers = Object.keys(req.headers)
+        switch (authType) {
+          case validAuthTypes[1]:
+            return headers.find((header) => defaultHeaderx509.includes(header))
+          default:
+            return headers.find((header) =>
+              defaultHeaderRemote.includes(header)
+            )
+        }
+      }
+      findHeader = finderHeader()
+      remoteUser = findHeader && {
+        user: req.get(findHeader),
       }
     }
 
-    const findHeader = finderHeader()
     try {
-      if (!findHeader) {
-        throw new MissingHeaderError(JSON.stringify(req.headers))
+      if (samlUser) {
+        delete global.saml[req.cookies.saml_user]
+        res.clearCookie('saml_user', {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+        })
+      } else {
+        if (validateAuth && !findHeader) {
+          throw new MissingHeaderError(JSON.stringify(req.headers))
+        } else {
+          throw new MissingSamlUserInfoError(req?.cookies?.saml_user)
+        }
       }
-
-      const remoteUser = req.get(findHeader)
 
       const paramsAxios = {
         method: POST,
         url: `${defaultProtocol}://${defaultIP}:${
           appConfig.port || defaultPort
         }/${defaultAppName}/api/auth`,
-        data: {
-          user: remoteUser,
-        },
+        data: remoteUser,
         validateStatus: (status) => status >= 200 && status <= 400,
       }
 
       const jwt = await axios(paramsAxios)
 
-      if (!global.remoteUsers) {
-        global.remoteUsers = {}
-      }
-      global.remoteUsers[remoteUser] = {}
-
-      jwt?.data?.data?.token &&
-        (global.remoteUsers[remoteUser].jwt = remoteJWT.jwt =
-          jwt.data.data.token)
-      jwt?.data?.data?.id &&
-        (global.remoteUsers[remoteUser].id = remoteJWT.id = jwt.data.data.id)
+      jwt?.data?.data?.token && (remoteJWT.jwt = jwt.data.data.token)
+      jwt?.data?.data?.id && (remoteJWT.id = jwt.data.data.id)
     } catch (e) {
       writeInLogger(e)
     }

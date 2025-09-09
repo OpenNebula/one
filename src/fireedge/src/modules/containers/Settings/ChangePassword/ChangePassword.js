@@ -98,7 +98,8 @@ const ChangePassword = () => {
               disabled={
                 user.ID === ONEADMIN_ID ||
                 user.ID === SERVERADMIN_ID ||
-                user.AUTH_DRIVER === AUTH_DRIVER.LDAP
+                user.AUTH_DRIVER === AUTH_DRIVER.LDAP ||
+                user.AUTH_DRIVER === AUTH_DRIVER.SAML
               }
             />
           </Box>

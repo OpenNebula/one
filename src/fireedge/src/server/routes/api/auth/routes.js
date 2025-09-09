@@ -24,9 +24,11 @@ const { postBody } = fromData
 
 const basepath = '/auth'
 const AUTHENTICATION = 'authentication'
+const SAML_AUTHENTICATION = 'authentication.saml'
 
 const Actions = {
   AUTHENTICATION,
+  SAML_AUTHENTICATION,
 }
 
 module.exports = {
@@ -50,6 +52,16 @@ module.exports = {
           from: postBody,
         },
         remember: {
+          from: postBody,
+        },
+      },
+    },
+    [SAML_AUTHENTICATION]: {
+      path: `${basepath}/acs`,
+      httpMethod: POST,
+      auth: false,
+      params: {
+        SAMLResponse: {
           from: postBody,
         },
       },

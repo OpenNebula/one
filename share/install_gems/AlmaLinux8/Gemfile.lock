@@ -116,6 +116,8 @@ GEM
       optimist (~> 3.0)
     rchardet (1.8.0)
     rexml (3.4.3)
+    ruby-saml (1.14.0)
+      nokogiri (>= 1.10.5)
     ruby2_keywords (0.0.5)
     sequel (5.96.0)
       bigdecimal
@@ -176,6 +178,7 @@ DEPENDENCIES
   rack
   rbvmomi2
   rexml
+  ruby-saml
   sequel
   sinatra (< 4.0.0)
   sqlite3 (<= 1.6.9)

@@ -128,6 +128,8 @@ GEM
       optimist (~> 3.0)
     rchardet (1.9.0)
     rexml (3.4.3)
+    ruby-saml (1.18.0)
+      nokogiri (>= 1.13.10)
     ruby2_keywords (0.0.5)
     sequel (5.96.0)
       bigdecimal
@@ -186,6 +188,7 @@ DEPENDENCIES
   rackup
   rbvmomi2
   rexml
+  ruby-saml
   sequel
   sinatra
   sqlite3 (<= 1.7.3)

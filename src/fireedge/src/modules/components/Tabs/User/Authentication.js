@@ -204,6 +204,7 @@ const AuthenticationInfo = ({ id }) => {
                 'ssh',
                 'x509',
                 'ldap',
+                'saml',
                 'server_cipher',
                 'server_x509',
                 'custom',

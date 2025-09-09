@@ -104,7 +104,8 @@ routes.forEach((file) => {
                   next,
                   getRequestParameters(params, serverDataSource),
                   oneUser,
-                  oneConnection
+                  oneConnection,
+                  req
                 )
               }
 
@@ -128,7 +129,8 @@ routes.forEach((file) => {
                   next,
                   getRequestParameters(params, serverDataSource),
                   oneUser,
-                  oneConnection
+                  oneConnection,
+                  req
                 )
               })
             }

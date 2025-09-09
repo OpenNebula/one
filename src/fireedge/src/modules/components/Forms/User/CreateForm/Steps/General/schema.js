@@ -55,11 +55,15 @@ const PASSWORD_FIELD = {
   type: INPUT_TYPES.PASSWORD,
   dependOf: AUTH_TYPE_FIELD.name,
   htmlType: (authType) =>
-    authType && authType === AUTH_DRIVER.LDAP && INPUT_TYPES.HIDDEN,
+    authType &&
+    [AUTH_DRIVER.LDAP, AUTH_DRIVER.SAML].includes(authType) &&
+    INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .when(AUTH_TYPE_FIELD.name, (authType, schema) =>
-      authType === AUTH_DRIVER.LDAP ? schema.strip() : schema.required()
+      [AUTH_DRIVER.LDAP, AUTH_DRIVER.SAML].includes(authType)
+        ? schema.strip()
+        : schema.required()
     )
     .default(() => undefined),
   grid: { md: 12 },
@@ -72,11 +76,15 @@ const CONFIRM_PASSWORD_FIELD = {
   type: INPUT_TYPES.PASSWORD,
   dependOf: AUTH_TYPE_FIELD.name,
   htmlType: (authType) =>
-    authType && authType === AUTH_DRIVER.LDAP && INPUT_TYPES.HIDDEN,
+    authType &&
+    [AUTH_DRIVER.LDAP, AUTH_DRIVER.SAML].includes(authType) &&
+    INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .when(AUTH_TYPE_FIELD.name, (authType, schema) =>
-      authType === AUTH_DRIVER.LDAP ? schema.strip() : schema.required()
+      [AUTH_DRIVER.LDAP, AUTH_DRIVER.SAML].includes(authType)
+        ? schema.strip()
+        : schema.required()
     )
     .test('passwords-match', T.PasswordsMustMatch, function (value) {
       return this.parent.password === value

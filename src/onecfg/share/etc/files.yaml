@@ -58,6 +58,13 @@
   mode: '0640'
   src: src/authm_mad/remotes/ldap/ldap_auth.conf
 
+- name: /etc/one/auth/saml_auth.conf
+  class: Yaml::Strict
+  owner: root
+  group: oneadmin
+  mode: '0640'
+  src: src/authm_mad/remotes/saml/saml_auth.conf
+
 - name: /etc/one/auth/server_x509_auth.conf
   class: Yaml
   owner: root
