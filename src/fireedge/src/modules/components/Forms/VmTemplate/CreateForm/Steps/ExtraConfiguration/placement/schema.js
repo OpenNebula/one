@@ -15,13 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, array } from 'yup'
 
-import {
-  Field,
-  Section,
-  arrayToOptions,
-  disableFields,
-  transformXmlString,
-} from '@UtilsModule'
+import { Field, Section, arrayToOptions, disableFields } from '@UtilsModule'
 import {
   ClustersTable,
   HostsTable,
@@ -149,7 +143,7 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
       // After submit case exists because if the user don't enter on Placement section, the watcher function will not be executed
 
       // Instantiate not use default values
-      if (instantiate) return transformXmlString(value)
+      if (instantiate) return value
 
       // Check if SCHED_REQUIREMENTS was changed by the user
       const schedRequirementsHasChanged =
@@ -168,9 +162,9 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
           context.general.HYPERVISOR
         )
 
-        return transformXmlString(result)
+        return result
       } else {
-        return transformXmlString(value)
+        return value
       }
     }),
   grid: { xs: 12, md: 12 },

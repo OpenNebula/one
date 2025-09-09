@@ -21,6 +21,7 @@ import {
 } from 'fast-xml-parser'
 import { isEmpty, isNaN } from 'lodash'
 import { DateTime, Settings } from 'luxon'
+import he from 'he'
 
 import { sentenceCase } from '@UtilsModule'
 
@@ -38,8 +39,17 @@ import {
  * @param {boolean} [options.addRoot] - Add ROOT element as parent
  * @returns {string} Xml in string format
  */
-export const jsonToXml = (json, { addRoot = true, ...options } = {}) => {
-  const parser = new ParserToXml(options)
+export const jsonToXml = (
+  json,
+  { addRoot = true, encode = true, ...options } = {}
+) => {
+  const parser = new ParserToXml({
+    ...(encode && {
+      tagValueProcessor: (a) =>
+        he.encode(String(a), { useNamedReferences: true }),
+    }),
+    ...options,
+  })
 
   return parser.parse(addRoot ? { ROOT: json } : json)
 }

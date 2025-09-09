@@ -81,9 +81,12 @@ export const useLabelMutations = () => {
       promises.push(
         updateUser({
           id: uId,
-          template: jsonToXml({
-            LABELS: encodeLabels(modifiedTree?.[labelType]),
-          }),
+          template: jsonToXml(
+            {
+              LABELS: encodeLabels(modifiedTree?.[labelType]),
+            },
+            { addRoot: true, encode: false }
+          ),
           replace: 1,
         })
       )
@@ -106,9 +109,12 @@ export const useLabelMutations = () => {
       promises.push(
         updateGroup({
           id: groupId,
-          template: jsonToXml({
-            FIREEDGE: { LABELS: encodeLabels(groupTree) },
-          }),
+          template: jsonToXml(
+            {
+              FIREEDGE: { LABELS: encodeLabels(groupTree) },
+            },
+            { addRoot: true, encode: false }
+          ),
           replace: 1,
         })
       )
@@ -135,7 +141,10 @@ export const useLabelMutations = () => {
       promises.push(
         dispatchUpdate(oneApi.endpoints.updateUser, {
           id: uId,
-          template: jsonToXml({ LABELS: encodeLabels(data) }),
+          template: jsonToXml(
+            { LABELS: encodeLabels(data) },
+            { addRoot: true, encode: false }
+          ),
           replace: 1,
         })
       )
@@ -155,7 +164,10 @@ export const useLabelMutations = () => {
       promises.push(
         dispatchUpdate(oneApi.endpoints.updateGroup, {
           id: groupId,
-          template: jsonToXml({ FIREEDGE: { LABELS: encodeLabels(data) } }),
+          template: jsonToXml(
+            { FIREEDGE: { LABELS: encodeLabels(data) } },
+            { addRoot: true, encode: false }
+          ),
           replace: 1,
         })
       )
@@ -199,7 +211,10 @@ export const useLabelMutations = () => {
         promises.push(
           update(updateUser, {
             id: uId,
-            template: jsonToXml({ LABELS: encodeLabels(userTree) }),
+            template: jsonToXml(
+              { LABELS: encodeLabels(userTree) },
+              { addRoot: true, encode: false }
+            ),
             replace: 1,
           })
         )
@@ -224,9 +239,12 @@ export const useLabelMutations = () => {
           promises.push(
             update(updateGroup, {
               id: groupId,
-              template: jsonToXml({
-                FIREEDGE: { LABELS: encodeLabels(groupLabels) },
-              }),
+              template: jsonToXml(
+                {
+                  FIREEDGE: { LABELS: encodeLabels(groupLabels) },
+                },
+                { addRoot: true, encode: false }
+              ),
               replace: 1,
             })
           )
