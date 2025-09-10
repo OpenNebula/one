@@ -2126,6 +2126,7 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // PCI Passthrough
     // ------------------------------------------------------------------------
+    string pci_devices;
 
     num = vm->get_template_attribute("PCI", pci);
 
@@ -2144,6 +2145,26 @@ int LibVirtDriver::deployment_description_kvm(
 
         string uuid = pci[i]->vector_value("UUID");
         string mdev = pci[i]->vector_value("MDEV_MODE");
+
+        string _vendor = pci[i]->vector_value("VENDOR");
+        one_util::tolower(_vendor);
+
+        string _device = pci[i]->vector_value("DEVICE");
+        one_util::tolower(_device);
+
+        string _class = pci[i]->vector_value("CLASS");
+        one_util::tolower(_class);
+
+        string pci_device = _vendor + ":" + _device + ":" + _class;
+
+        if (pci_devices.empty())
+        {
+            pci_devices = pci_device;
+        }
+        else
+        {
+            pci_devices += "," + pci_device;
+        }
 
         one_util::tolower(mdev);
 
@@ -2452,6 +2473,9 @@ int LibVirtDriver::deployment_description_kvm(
          << "\t\t\t<one:deployment_time>"
          << time(0)
          << "</one:deployment_time>\n"
+         << "\t\t\t<one:pci_devices>"
+         << pci_devices
+         << "</one:pci_devices>\n"
          << "\t\t</one:vm>\n"
          // << "\t\t<opennebula>\n" << vm->to_xml(vm_xml) << "\t\t</opennebula>\n"
          << "\t</metadata>\n";

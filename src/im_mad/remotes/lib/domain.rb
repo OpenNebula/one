@@ -36,7 +36,12 @@ class BaseDomain
         'diskrdbytes',
         'diskwrbytes',
         'diskrdiops',
-        'diskwriops'
+        'diskwriops',
+        'gpu_utilization',
+        'gpu_memory_utilization',
+        'gpu_memory_free',
+        'gpu_power_usage',
+        'gpu_count'
     ]
 
     DB_MONITOR_KEYS = MONITOR_KEYS.clone
@@ -104,7 +109,8 @@ class BaseDomain
         DB_MONITOR_KEYS.each do |k|
             next unless @vm[k.to_sym]
 
-            store_metric_db(db, @vm[:id], k, timestamp, @vm[k.to_sym])
+            # NOTE: underscores are removed because they cause errors on pyoneai library
+            store_metric_db(db, @vm[:id], k.delete('_'), timestamp, @vm[k.to_sym])
         end
 
         db.close

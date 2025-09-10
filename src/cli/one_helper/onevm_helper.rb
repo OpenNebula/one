@@ -751,6 +751,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         unit_lambda  = ->(v) { OpenNebulaHelper.unit_to_str(v.to_i, {}) }
         unitM_lambda = ->(v) { OpenNebulaHelper.unit_to_str(v.to_i / 1024, {}) }
+        unitG_lambda = ->(v) { OpenNebulaHelper.unit_to_str(v.to_i / 1024, {}, 'G') }
 
         order_attrs = {
             'CPU'         => nil,
@@ -766,7 +767,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             'DISKWRBYTES' => unit_lambda,
             'DISKWRBYTES_BW' => unit_lambda,
             'DISKWRIOPS_BW'  => nil,
-            'DISKWRIOPS'  => nil
+            'DISKWRIOPS'  => nil,
+            'GPU_COUNT' => nil,
+            'GPU_UTILIZATION' => nil,
+            'GPU_MEMORY_UTILIZATION' => nil,
+            'GPU_MEMORY_FREE' => unitG_lambda,
+            'GPU_POWER_USAGE' => nil
         }
 
         vm_monitoring_sort = []
