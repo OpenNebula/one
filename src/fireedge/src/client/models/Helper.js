@@ -30,6 +30,7 @@ import {
   UserInputObject,
 } from 'client/constants'
 import { sentenceCase } from 'client/utils'
+import he from 'he'
 
 /**
  * @param {object} json - JSON
@@ -37,8 +38,17 @@ import { sentenceCase } from 'client/utils'
  * @param {boolean} [options.addRoot] - Add ROOT element as parent
  * @returns {string} Xml in string format
  */
-export const jsonToXml = (json, { addRoot = true, ...options } = {}) => {
-  const parser = new ParserToXml(options)
+export const jsonToXml = (
+  json,
+  { addRoot = true, encode = true, ...options } = {}
+) => {
+  const parser = new ParserToXml({
+    ...(encode && {
+      tagValueProcessor: (a) =>
+        he.encode(String(a), { useNamedReferences: true }),
+    }),
+    ...options,
+  })
 
   return parser.parse(addRoot ? { ROOT: json } : json)
 }
