@@ -124,6 +124,11 @@ public:
         get_restricted("DISK", rs);
     }
 
+    /*
+     * Add attributes used for VM quotas
+    */
+    void update_quota_attributes();
+
 private:
     /**
      *  Restricted attribute list for VirtualMachineTemplates

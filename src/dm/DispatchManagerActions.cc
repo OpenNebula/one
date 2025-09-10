@@ -3046,6 +3046,13 @@ int DispatchManager::detach_pci(int vid, int pci_id, const RequestAttributes& ra
         hpool->update(host.get());
     }
 
+    int uid = vm->get_uid();
+    int gid = vm->get_gid();
+
+    Template quota_tmpl;
+    quota_tmpl.add("CLUSTER_ID", vm->get_cid());
+    quota_tmpl.add("PCI_DEV", 1);
+
     vm->detach_pci(vpci);
 
     close_cp_history(vmpool, vm.get(), VMActions::PCI_DETACH_ACTION, ra);
@@ -3059,6 +3066,8 @@ int DispatchManager::detach_pci(int vid, int pci_id, const RequestAttributes& ra
     vmpool->update_history(vm.get());
 
     vmpool->update(vm.get());
+
+    Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
 
     return 0;
 }

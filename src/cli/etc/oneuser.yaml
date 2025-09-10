@@ -27,15 +27,19 @@
 
 :VMS:
   :desc: Number of VMS
-  :size: 10
+  :size: 9
 
 :MEMORY:
   :desc: Total memory allocated to user VMs
-  :size: 17
+  :size: 15
 
 :CPU:
   :desc: Total CPU allocated to user VMs
   :size: 10
+
+:PCI:
+  :desc: Total PCIs allocated to user VMs
+  :size: 9
 
 :PASSWORD:
   :desc: Password of the User
@@ -50,3 +54,4 @@
 - :VMS
 - :MEMORY
 - :CPU
+- :PCI

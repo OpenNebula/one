@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "VirtualMachineTemplate.h"
+#include "NebulaLog.h"
 
 using namespace std;
 
@@ -281,5 +282,49 @@ unique_ptr<VirtualMachineTemplate> VirtualMachineTemplate::get_updateconf_templa
     }
 
     return conf_tmpl;
+}
+
+// -----------------------------------------------------------------------------
+
+void VirtualMachineTemplate::update_quota_attributes()
+{
+    string memory, cpu;
+
+    get("MEMORY", memory);
+    get("CPU", cpu);
+
+    add("RUNNING_MEMORY", memory);
+    add("RUNNING_CPU", cpu);
+    add("RUNNING_VMS", 1);
+    add("VMS", 1);
+
+    vector<VectorAttribute *> array_pci;
+    int pci = 0, pci_nic = 0;
+
+    get("PCI", array_pci);
+
+    for (auto pci_dev : array_pci)
+    {
+        if (pci_dev->vector_value("TYPE") == "NIC")
+        {
+            ++pci_nic;
+        }
+        else
+        {
+            ++pci;
+        }
+    }
+
+    if (pci != 0)
+    {
+        add("PCI_DEV", pci);
+        add("RUNNING_PCI_DEV", pci);
+    }
+
+    if (pci_nic != 0)
+    {
+        add("PCI_NIC", pci_nic);
+        add("RUNNING_PCI_NIC", pci_nic);
+    }
 }
 

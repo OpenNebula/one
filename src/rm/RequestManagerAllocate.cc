@@ -78,8 +78,6 @@ bool VirtualMachineAllocate::allocate_authorization(
     string      t64;
     string      aname;
 
-    std::string memory, cpu;
-
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
     // ------------ Check template for restricted attributes -------------------
@@ -121,13 +119,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     VirtualMachineDisks::extended_info(att.uid, &aux_tmpl);
 
-    aux_tmpl.get("MEMORY", memory);
-    aux_tmpl.get("CPU", cpu);
-
-    aux_tmpl.add("RUNNING_MEMORY", memory);
-    aux_tmpl.add("RUNNING_CPU", cpu);
-    aux_tmpl.add("RUNNING_VMS", 1);
-    aux_tmpl.add("VMS", 1);
+    aux_tmpl.update_quota_attributes();
 
     QuotaVirtualMachine::add_running_quota_generic(aux_tmpl);
 
@@ -299,7 +291,7 @@ Request::ErrorCode VirtualMachineAllocate::pool_allocate(
     /* ---------------------------------------------------------------------- */
     /* Allocate VirtualMachine object                                         */
     /* ---------------------------------------------------------------------- */
-    Template tmpl_back(*tmpl);
+    VirtualMachineTemplate tmpl_back(*tmpl);
 
     auto tmpl_ptr = static_cast<VirtualMachineTemplate*>(tmpl.release());
 
@@ -364,15 +356,8 @@ Request::ErrorCode VirtualMachineAllocate::pool_allocate(
 
 error_drop_vm:
     vector<unique_ptr<Template>> ds_quotas;
-    std::string memory, cpu;
 
-    tmpl_back.get("MEMORY", memory);
-    tmpl_back.get("CPU", cpu);
-
-    tmpl_back.add("RUNNING_MEMORY", memory);
-    tmpl_back.add("RUNNING_CPU", cpu);
-    tmpl_back.add("RUNNING_VMS", 1);
-    tmpl_back.add("VMS", 1);
+    tmpl_back.update_quota_attributes();
 
     QuotaVirtualMachine::add_running_quota_generic(tmpl_back);
 

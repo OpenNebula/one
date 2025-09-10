@@ -1089,6 +1089,9 @@ void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
     int uid = vm->get_uid();
     int gid = vm->get_gid();
     int oid = vm->get_oid();
+    int cid = vm->get_cid();
+
+    bool running_quota = vm->is_running_quota();
 
     vm->get_security_groups(post);
 
@@ -1142,12 +1145,20 @@ void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
             host->del_pci(sr);
             hpool->update(host.get());
         }
+
+        tmpl.add("CLUSTER_ID", cid);
+        tmpl.add("PCI_NIC", 1);
+
+        if (running_quota)
+        {
+            tmpl.add("RUNNING_PCI_NIC", 1);
+        }
     }
 
     //Adjust quotas
     tmpl.set(nic->vector_attribute());
 
-    Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
+    Quotas::quota_del(Quotas::VIRTUALMACHINE, uid, gid, &tmpl);
 
     delete nic;
 }

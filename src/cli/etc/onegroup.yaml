@@ -20,11 +20,15 @@
 
 :MEMORY:
   :desc: Total memory allocated to user VMs
-  :size: 17
+  :size: 15
 
 :CPU:
   :desc: Total CPU allocated to user VMs
   :size: 11
+
+:PCI:
+  :desc: Total PCIs allocated to user VMs
+  :size: 9
 
 :default:
 - :ID
@@ -33,3 +37,4 @@
 - :VMS
 - :MEMORY
 - :CPU
+- :PCI

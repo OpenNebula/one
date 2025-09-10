@@ -4201,6 +4201,23 @@ void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
         quota_tmpl.replace("CLUSTER_ID", get_cid());
     }
 
+    vector<VectorAttribute *> array_pci;
+    int pci = 0, pci_nic = 0;
+
+    obj_template->get("PCI", array_pci);
+
+    for (auto pci_dev : array_pci)
+    {
+        if (pci_dev->vector_value("TYPE") == "NIC")
+        {
+            ++pci_nic;
+        }
+        else
+        {
+            ++pci;
+        }
+    }
+
     if (basic_quota)
     {
         quota_tmpl.replace("VMS", 1);
@@ -4217,6 +4234,9 @@ void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
         }
 
         quota_tmpl.merge(obj_template.get());
+
+        quota_tmpl.replace("PCI_DEV", pci);
+        quota_tmpl.replace("PCI_NIC", pci_nic);
     }
 
     if (running_quota)
@@ -4229,6 +4249,8 @@ void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
         quota_tmpl.add("RUNNING_MEMORY", memory);
         quota_tmpl.add("RUNNING_CPU", cpu);
         quota_tmpl.add("RUNNING_VMS", 1);
+        quota_tmpl.add("RUNNING_PCI_DEV", pci);
+        quota_tmpl.add("RUNNING_PCI_NIC", pci_nic);
 
         for (const string& metric : QuotaVirtualMachine::generic_metrics())
         {

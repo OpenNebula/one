@@ -25,6 +25,10 @@ class OneQuotaHelper
                             "VMS_USED"              => "0",
                             "CPU"                   => LIMIT_DEFAULT,
                             "CPU_USED"              => "0",
+                            "PCI_DEV"               => LIMIT_DEFAULT,
+                            "PCI_DEV_USED"          => "0",
+                            "PCI_NIC"               => LIMIT_DEFAULT,
+                            "PCI_NIC_USED"          => "0",
                             "MEMORY"                => LIMIT_DEFAULT,
                             "MEMORY_USED"           => "0",
                             "RUNNING_VMS"           => LIMIT_DEFAULT,
@@ -33,6 +37,10 @@ class OneQuotaHelper
                             "RUNNING_CPU_USED"      => "0",
                             "RUNNING_MEMORY"        => LIMIT_DEFAULT,
                             "RUNNING_MEMORY_USED"   => "0",
+                            "RUNNING_PCI_DEV"       => LIMIT_DEFAULT,
+                            "RUNNING_PCI_DEV_USED"  => "0",
+                            "RUNNING_PCI_NIC"       => LIMIT_DEFAULT,
+                            "RUNNING_PCI_NIC_USED"  => "0",
                             "SYSTEM_DISK_SIZE"      => LIMIT_DEFAULT,
                             "SYSTEM_DISK_SIZE_USED" => "0"
                         }
@@ -56,6 +64,10 @@ class OneQuotaHelper
         #    RUNNING_MEMORY   = <Max. running memory (MB)>
         #    CPU              = <Max. allocated CPU>
         #    RUNNING_CPU      = <Max. running CPU>
+        #    PCI_DEV          = <Max. allocated PCI>
+        #    RUNNING_PCI_DEV  = <Max. running PCI>
+        #    PCI_NIC          = <Max. allocated network PCI>
+        #    RUNNING_PCI_NIC  = <Max. running network PCI>
         #    SYSTEM_DISK_SIZE = <Max. allocated system disk (MB)>
         #  ]
         #
@@ -241,12 +253,20 @@ class OneQuotaHelper
                 "CPU_USED"              => "0",
                 "MEMORY"                => limit,
                 "MEMORY_USED"           => "0",
+                "PCI_DEV"               => limit,
+                "PCI_DEV_USED"          => "0",
+                "PCI_NIC"               => limit,
+                "PCI_NIC_USED"          => "0",
                 "RUNNING_VMS"           => limit,
                 "RUNNING_VMS_USED"      => "0",
                 "RUNNING_CPU"           => limit,
                 "RUNNING_CPU_USED"      => "0",
                 "RUNNING_MEMORY"        => limit,
                 "RUNNING_MEMORY_USED"   => "0",
+                "RUNNING_PCI_DEV"       => limit,
+                "RUNNING_PCI_DEV_USED"  => "0",
+                "RUNNING_PCI_NIC"       => limit,
+                "RUNNING_PCI_NIC_USED"  => "0",
                 "SYSTEM_DISK_SIZE"      => limit,
                 "SYSTEM_DISK_SIZE_USED" => "0"
             }]
@@ -267,7 +287,7 @@ class OneQuotaHelper
                     end
                 end
 
-                column :"VMS", "", :right, :size=>11 do |d|
+                column :"VMS", "", :right, :size=>9 do |d|
                     if !d.nil?
                         elem = 'VMS'
                         limit = d[elem]
@@ -275,14 +295,14 @@ class OneQuotaHelper
                             limit, "VM_QUOTA/VM/#{elem}")
 
                         if limit == LIMIT_UNLIMITED
-                            "%4d /    -" % [d["VMS_USED"]]
+                            "%3d /   -" % [d["VMS_USED"]]
                         else
-                            "%4d / %4d" % [d["VMS_USED"], limit]
+                            "%3d / %3d" % [d["VMS_USED"], limit]
                         end
                     end
                 end
 
-                column :"MEMORY", "", :right, :size=>19 do |d|
+                column :"MEMORY", "", :right, :size=>15 do |d|
                     if !d.nil?
                         elem = 'MEMORY'
                         limit = d[elem]
@@ -290,11 +310,11 @@ class OneQuotaHelper
                             limit, "VM_QUOTA/VM/#{elem}")
 
                         if limit == LIMIT_UNLIMITED
-                            "%8s /        -" % [
+                            "%6s /      -" % [
                                 OpenNebulaHelper.unit_to_str(d["MEMORY_USED"].to_i,{},"M")
                             ]
                         else
-                            "%8s / %8s" % [
+                            "%6s / %6s" % [
                                 OpenNebulaHelper.unit_to_str(d["MEMORY_USED"].to_i,{},"M"),
                                 OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
                             ]
@@ -302,7 +322,7 @@ class OneQuotaHelper
                     end
                 end
 
-                column :"CPU", "", :right, :size=>19 do |d|
+                column :"CPU", "", :right, :size=>15 do |d|
                     if !d.nil?
                         elem = 'CPU'
                         limit = d[elem]
@@ -310,14 +330,44 @@ class OneQuotaHelper
                             limit, "VM_QUOTA/VM/#{elem}")
 
                         if limit == LIMIT_UNLIMITED
-                            "%8.2f /        -" % [d["CPU_USED"]]
+                            "%6.1f /      -" % [d["CPU_USED"]]
                         else
-                            "%8.2f / %8.2f" % [d["CPU_USED"], limit]
+                            "%6.1f / %6.2f" % [d["CPU_USED"], limit]
                         end
                     end
                 end
 
-                column :"SYSTEM_DISK_SIZE", "", :right, :size=>19 do |d|
+                column :"PCI DEV", "", :right, :size=>9 do |d|
+                    if !d.nil?
+                        elem = 'PCI_DEV'
+                        limit = d[elem]
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+
+                        if limit == LIMIT_UNLIMITED
+                            "%3d /   -" % [d["PCI_DEV_USED"]]
+                        else
+                            "%3d / %3d" % [d["PCI_DEV_USED"], limit]
+                        end
+                    end
+                end
+
+                column :"PCI NIC", "", :right, :size=>9 do |d|
+                    if !d.nil?
+                        elem = 'PCI_NIC'
+                        limit = d[elem]
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+
+                        if limit == LIMIT_UNLIMITED
+                            "%3d /   -" % [d["PCI_NIC_USED"]]
+                        else
+                            "%3d / %3d" % [d["PCI_NIC_USED"], limit]
+                        end
+                    end
+                end
+
+                column :"DISK SIZE", "", :right, :size=>15 do |d|
                     if !d.nil?
                         elem = 'SYSTEM_DISK_SIZE'
                         limit = d[elem]
@@ -325,11 +375,11 @@ class OneQuotaHelper
                             limit, "VM_QUOTA/VM/#{elem}")
 
                         if limit == LIMIT_UNLIMITED
-                            "%8s /        -" % [
+                            "%6s /      -" % [
                                 OpenNebulaHelper.unit_to_str(d["SYSTEM_DISK_SIZE_USED"].to_i,{},"M")
                             ]
                         else
-                            "%8s / %8s" % [
+                            "%6s / %6s" % [
                                 OpenNebulaHelper.unit_to_str(d["SYSTEM_DISK_SIZE_USED"].to_i,{},"M"),
                                 OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
                             ]
@@ -352,7 +402,7 @@ class OneQuotaHelper
                         d['CLUSTER_IDS']
                     end
                 end
-                column :"RUNNING VMS", "", :right, :size=>17 do |d|
+                column :"RUN VMS", "", :right, :size=>9 do |d|
                     if !d.nil?
                         elem = 'RUNNING_VMS'
                         limit = d[elem] || LIMIT_UNLIMITED
@@ -364,14 +414,14 @@ class OneQuotaHelper
                         end
 
                         if limit == LIMIT_UNLIMITED
-                            "%7d /       -" % [d["RUNNING_VMS_USED"]]
+                            "%3d /   -" % [d["RUNNING_VMS_USED"]]
                         else
-                            "%7d / %7d" % [d["RUNNING_VMS_USED"], limit]
+                            "%3d / %3d" % [d["RUNNING_VMS_USED"], limit]
                         end
                     end
                 end
 
-                column :"RUNNING MEMORY", "", :right, :size=>20 do |d|
+                column :"RUN MEMORY", "", :right, :size=>15 do |d|
                     if !d.nil?
                         elem = 'RUNNING_MEMORY'
                         limit = d[elem] || LIMIT_UNLIMITED
@@ -383,11 +433,11 @@ class OneQuotaHelper
                         end
 
                         if limit == LIMIT_UNLIMITED
-                            "%8s /        -" % [
+                            "%6s /      -" % [
                                 OpenNebulaHelper.unit_to_str(d["RUNNING_MEMORY_USED"].to_i,{},"M")
                             ]
                         else
-                            "%8s / %8s" % [
+                            "%6s / %6s" % [
                                 OpenNebulaHelper.unit_to_str(d["RUNNING_MEMORY_USED"].to_i,{},"M"),
                                 OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
                             ]
@@ -395,7 +445,7 @@ class OneQuotaHelper
                     end
                 end
 
-                column :"RUNNING CPU", "", :right, :size=>20 do |d|
+                column :"RUN CPU", "", :right, :size=>15 do |d|
                     if !d.nil?
                         elem = 'RUNNING_CPU'
                         limit = d[elem] || LIMIT_UNLIMITED
@@ -407,9 +457,41 @@ class OneQuotaHelper
                         end
 
                         if limit == LIMIT_UNLIMITED
-                            "%8.2f /        -" % [d["RUNNING_CPU_USED"]]
+                            "%6.1f /      -" % [d["RUNNING_CPU_USED"]]
                         else
-                            "%8.2f / %8.2f" % [d["RUNNING_CPU_USED"], limit]
+                            "%6.1f / %6.1f" % [d["RUNNING_CPU_USED"], limit]
+                        end
+                    end
+                end
+
+                column :"RUN PCI", "", :right, :size=>12 do |d|
+                    if !d.nil?
+                        elem = 'RUNNING_PCI_DEV'
+                        limit = d[elem] || LIMIT_UNLIMITED
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+                        value = d['RUNNING_PCI_DEV_USED'] || 0
+
+                        if limit == LIMIT_UNLIMITED
+                            "%3s /   -" % [value]
+                        else
+                            "%3s / %3s" % [value, limit]
+                        end
+                    end
+                end
+
+                column :"RUN PCI NIC", "", :right, :size=>12 do |d|
+                    if !d.nil?
+                        elem = 'RUNNING_PCI_NIC'
+                        limit = d[elem] || LIMIT_UNLIMITED
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+                        value = d['RUNNING_PCI_NIC_USED'] || 0
+
+                        if limit == LIMIT_UNLIMITED
+                            "%3s /   -" % [value]
+                        else
+                            "%3s / %3s" % [value, limit]
                         end
                     end
                 end

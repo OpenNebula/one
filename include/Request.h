@@ -280,7 +280,8 @@ public:
      *    @return true if the user is authorized.
      */
     static bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
-                                    const RequestAttributes& att, std::string& error_str);
+                                    const RequestAttributes& att, std::string& error_str,
+                                    bool resize = false);
 
     /**
      *  Performs rollback on usage counters for a previous  quota check operation
@@ -497,10 +498,10 @@ private:
     /* ---------------------------------------------------------------------- */
     /* Functions to manage user and group quotas                              */
     /* ---------------------------------------------------------------------- */
-    static bool user_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
+    static bool user_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype, bool resize,
                                          const RequestAttributes& att, std::string& error_str);
 
-    static bool group_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
+    static bool group_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype, bool resize,
                                           const RequestAttributes& att, std::string& error_str);
 
     static void user_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,

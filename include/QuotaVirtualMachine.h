@@ -29,6 +29,10 @@
  *        RUNNING_MEMORY        = <Max. number of MB requested by RUNNING VMs>
  *        CPU                   = <Max. number of CPU units requested by VMs>
  *        RUNNING_CPU           = <Max. number of running CPU units requested by VMs>
+ *        PCI_DEV               = <Max. number of PCI devices requested by VMs>
+ *        RUNNING_PCI_DEV       = <Max. number of running PCI devices requested by VMs>
+ *        PCI_NIC               = <Max. number of PCI network devices requested by VMs>
+ *        RUNNING_PCI_NIC       = <Max. number of running PCI network devices requested by VMs>
  *        SYSTEM_DISK_SIZE      = <Max. number of system disk MB>
  *        VMS_USED              = Current number of VMs
  *        RUNNING_VMS_USED      = Current number of running VMs
@@ -36,6 +40,10 @@
  *        RUNNING_MEMORY_USED   = Overall running Memory requested
  *        CPU_USED              = Overall CPU requested
  *        RUNNING_CPU_USED      = Overall running CPU requested
+ *        PCI_DEV_USED          = Overall PCI devices requested
+ *        RUNNING_PCI_DEV_USED  = Overall running PCI devices requested
+ *        PCI_NIC_USED          = Overall PCI network devices requested
+ *        RUNNING_PCI_NIC_USED  = Overall running PCI network devices requested
  *        SYSTEM_DISK_SIZE_USED = Overall system disk requested
  *    ]
  *

@@ -33,6 +33,81 @@ module Migrator
     end
 
     def up
-        return true
+        init_log_time
+
+        feature_951
+
+        log_time
+
+        true
     end
+
+    def update_quota(doc, limit)
+        doc.root.xpath("VM_QUOTA/VM").each do |vm_quota|
+            vm_quota.add_child(doc.create_element('PCI_DEV')).content = limit
+            vm_quota.add_child(doc.create_element('PCI_NIC')).content = limit
+            vm_quota.add_child(doc.create_element('RUNNING_PCI_DEV')).content = limit
+            vm_quota.add_child(doc.create_element('RUNNING_PCI_NIC')).content = limit
+
+            vm_quota.add_child(doc.create_element('PCI_DEV_USED')).content = 0
+            vm_quota.add_child(doc.create_element('PCI_NIC_USED')).content = 0
+            vm_quota.add_child(doc.create_element('RUNNING_PCI_DEV_USED')).content = 0
+            vm_quota.add_child(doc.create_element('RUNNING_PCI_NIC_USED')).content = 0
+        end
+    end
+
+    # Add PCI, PCI_NIC quotas to all users, groups and defaults
+    def feature_951
+        # Update User Quotas
+        @db.run 'DROP TABLE IF EXISTS old_user_quotas;'
+        @db.run 'ALTER TABLE user_quotas RENAME TO old_user_quotas;'
+
+        create_table(:user_quotas)
+
+        @db.transaction do
+            @db[:old_user_quotas].each do |row|
+                doc = nokogiri_doc(row[:body], 'old_user_quotas')
+
+                update_quota(doc, -1)
+
+                row[:body] = doc.root.to_s
+                @db[:user_quotas].insert(row)
+            end
+        end
+
+        @db.run 'DROP TABLE old_user_quotas;'
+
+        # Update Group Quotas
+        @db.run 'DROP TABLE IF EXISTS old_group_quotas;'
+        @db.run 'ALTER TABLE group_quotas RENAME TO old_group_quotas;'
+
+        create_table(:group_quotas)
+
+        @db.transaction do
+            @db[:old_group_quotas].each do |row|
+                doc = nokogiri_doc(row[:body], 'old_group_quotas')
+
+                update_quota(doc, -1)
+
+                row[:body] = doc.root.to_s
+                @db[:group_quotas].insert(row)
+            end
+        end
+
+        @db.run 'DROP TABLE old_group_quotas;'
+
+        # Update Default Quotas
+        @db.transaction do
+            default_quotas = ['DEFAULT_USER_QUOTAS', 'DEFAULT_GROUP_QUOTAS']
+
+            @db[:system_attributes].filter(name: default_quotas).each do |row|
+                doc = nokogiri_doc(row[:body], 'system_attributes')
+
+                update_quota(doc, -2)
+
+                @db[:system_attributes].filter(name: row[:name]).update(body: doc.root.to_s)
+            end
+        end
+    end
+
 end

@@ -125,11 +125,6 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
                                                           bool on_hold, const string &str_uattrs, Template* extra_attrs, int& vid,
                                                           RequestAttributes& att)
 {
-    int rc;
-    std::string memory, cpu;
-
-    ostringstream sid;
-
     PoolObjectAuth perms;
 
     Nebula& nd = Nebula::instance();
@@ -139,7 +134,6 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
 
     unique_ptr<VirtualMachineTemplate> tmpl;
     VirtualMachineTemplate extended_tmpl;
-    VirtualMachineTemplate uattrs;
 
     string tmpl_name;
 
@@ -185,10 +179,8 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
     tmpl->erase("TEMPLATE_NAME");
     tmpl->erase("TEMPLATE_ID");
 
-    sid << id;
-
     tmpl->set(new SingleAttribute("TEMPLATE_NAME", tmpl_name));
-    tmpl->set(new SingleAttribute("TEMPLATE_ID", sid.str()));
+    tmpl->set(new SingleAttribute("TEMPLATE_ID", to_string(id)));
 
     if (!name.empty())
     {
@@ -230,13 +222,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
         return AUTHORIZATION;
     }
 
-    extended_tmpl.get("MEMORY", memory);
-    extended_tmpl.get("CPU", cpu);
-
-    extended_tmpl.add("RUNNING_MEMORY", memory);
-    extended_tmpl.add("RUNNING_CPU", cpu);
-    extended_tmpl.add("RUNNING_VMS", 1);
-    extended_tmpl.add("VMS", 1);
+    extended_tmpl.update_quota_attributes();
 
     QuotaVirtualMachine::add_running_quota_generic(extended_tmpl);
 
@@ -286,7 +272,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
 
     tmpl->remove("SCHED_ACTION", sas);
 
-    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+    int rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
                           move(tmpl), &vid, att.resp_msg, on_hold);
 
     if ( rc < 0 )

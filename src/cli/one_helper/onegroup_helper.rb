@@ -107,23 +107,29 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
             column :VMS , "Number of VMS", :size=>9 do |d|
                 begin
-                    q = quotas[d['ID']]
+                    q = quotas[d['ID']]['VM_QUOTA']['VM']
 
-                    if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
-                        q['VM_QUOTA']['VM'] = OneQuotaHelper::DEFAULT_VM_QUOTA
+                    if q.nil? && d["ID"].to_i != 0
+                        q = OneQuotaHelper::DEFAULT_VM_QUOTA
                     end
 
-                    limit = q['VM_QUOTA']['VM']["VMS"]
+                    # In case of multiple quotas, use the global quota or the first
+                    if q.is_a?(Array)
+                        global_quota = q.find{|hash| hash['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
+                        q = global_quota || q[0]
+                    end
+
+                    limit = q["VMS"]
 
                     if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/VMS")
-                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit == ""
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
                     end
 
                     if limit == OneQuotaHelper::LIMIT_UNLIMITED
-                        "%3d /   -" % [q['VM_QUOTA']['VM']["VMS_USED"]]
+                        "%3d /   -" % [q["VMS_USED"]]
                     else
-                        "%3d / %3d" % [q['VM_QUOTA']['VM']["VMS_USED"], limit]
+                        "%3d / %3d" % [q["VMS_USED"], limit]
                     end
 
                 rescue NoMethodError
@@ -131,27 +137,33 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :MEMORY, "Total memory allocated to user VMs", :size=>17 do |d|
+            column :MEMORY, "Total memory allocated to user VMs", :size=>15 do |d|
                 begin
-                    q = quotas[d['ID']]
+                    q = quotas[d['ID']]['VM_QUOTA']['VM']
 
-                    if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
-                        q['VM_QUOTA']['VM'] = OneQuotaHelper::DEFAULT_VM_QUOTA
+                    if q.nil? && d["ID"].to_i != 0
+                        q = OneQuotaHelper::DEFAULT_VM_QUOTA
                     end
 
-                    limit = q['VM_QUOTA']['VM']["MEMORY"]
+                    # In case of multiple quotas, use the global quota or the first
+                    if q.is_a?(Array)
+                        global_quota = q.find{|hash| hash['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
+                        q = global_quota || q[0]
+                    end
+
+                    limit = q["MEMORY"]
 
                     if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/MEMORY")
-                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit == ""
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
                     end
 
                     if limit == OneQuotaHelper::LIMIT_UNLIMITED
-                        "%7s /       -" % [
-                            OpenNebulaHelper.unit_to_str(q['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M")]
+                        "%6s /       -" % [
+                            OpenNebulaHelper.unit_to_str(q["MEMORY_USED"].to_i,{},"M")]
                     else
-                        "%7s / %7s" % [
-                            OpenNebulaHelper.unit_to_str(q['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M"),
+                        "%6s / %6s" % [
+                            OpenNebulaHelper.unit_to_str(q["MEMORY_USED"].to_i,{},"M"),
                             OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")]
                     end
 
@@ -162,23 +174,29 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
             column :CPU, "Total CPU allocated to user VMs", :size=>11 do |d|
                 begin
-                    q = quotas[d['ID']]
+                    q = quotas[d['ID']]['VM_QUOTA']['VM']
 
-                    if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
-                        q['VM_QUOTA']['VM'] = OneQuotaHelper::DEFAULT_VM_QUOTA
+                    if q.nil? && d["ID"].to_i != 0
+                        q = OneQuotaHelper::DEFAULT_VM_QUOTA
                     end
 
-                    limit = q['VM_QUOTA']['VM']["CPU"]
+                    # In case of multiple quotas, use the global quota or the first
+                    if q.is_a?(Array)
+                        global_quota = q.find{|hash| hash['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
+                        q = global_quota || q[0]
+                    end
+
+                    limit = q["CPU"]
 
                     if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/CPU")
-                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit == ""
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
                     end
 
                     if limit == OneQuotaHelper::LIMIT_UNLIMITED
-                        "%3.1f /    -" % [q['VM_QUOTA']['VM']["CPU_USED"]]
+                        "%3.1f /    -" % [q["CPU_USED"]]
                     else
-                        "%3.1f / %3.1f" % [q['VM_QUOTA']['VM']["CPU_USED"], limit]
+                        "%3.1f / %3.1f" % [q["CPU_USED"], limit]
                     end
 
                 rescue NoMethodError
@@ -186,7 +204,39 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            default :ID, :NAME, :USERS, :VMS, :MEMORY, :CPU
+            column :PCI, "Total PCIs allocated to user VMs", :size=>9 do |d|
+                begin
+                    q = quotas[d['ID']]['VM_QUOTA']['VM']
+
+                    if q.nil? && d["ID"].to_i != 0
+                        q = OneQuotaHelper::DEFAULT_VM_QUOTA
+                    end
+
+                    # In case of multiple quotas, use the global quota or the first
+                    if q.is_a?(Array)
+                        global_quota = q.find{|hash| hash['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
+                        q = global_quota || q[0]
+                    end
+
+                    limit = q["PCI_DEV"]
+
+                    if limit == OneQuotaHelper::LIMIT_DEFAULT
+                        limit = pool_default_quotas("VM_QUOTA/VM/PCI_DEV")
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
+                    end
+
+                    if limit == OneQuotaHelper::LIMIT_UNLIMITED
+                        "%3s /   -" % [q["PCI_DEV_USED"]]
+                    else
+                        "%3s / %3s" % [q["PCI_DEV_USED"], limit]
+                    end
+
+                rescue NoMethodError
+                    "-"
+                end
+            end
+
+            default :ID, :NAME, :USERS, :VMS, :MEMORY, :CPU, :PCI
         end
 
         table

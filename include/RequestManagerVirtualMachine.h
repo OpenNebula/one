@@ -63,12 +63,6 @@ protected:
                                            PoolObjectAuth *        ds_perm,
                                            PoolObjectAuth *        img_perm);
 
-    // Check user and group quotas. Do not set failure_response on failure
-    bool quota_resize_authorization(
-            Template *          deltas,
-            RequestAttributes&  att,
-            PoolObjectAuth&     vm_perms);
-
     ErrorCode get_host_information(
             int                hid,
             std::string&       name,

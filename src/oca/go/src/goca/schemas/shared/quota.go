@@ -29,7 +29,7 @@ type Quotas struct {
 type QuotasList struct {
 	Datastore []DatastoreQuota `xml:"DATASTORE_QUOTA>DATASTORE"`
 	Network   []NetworkQuota   `xml:"NETWORK_QUOTA>NETWORK"`
-	VM        []VMQuota         `xml:"VM_QUOTA>VM"`
+	VM        []VMQuota        `xml:"VM_QUOTA>VM"`
 	Image     []ImageQuota     `xml:"IMAGE_QUOTA>IMAGE"`
 }
 
@@ -56,10 +56,18 @@ type VMQuota struct {
 	CPUUsed            float32 `xml:"CPU_USED,omitempty"`
 	Memory             int     `xml:"MEMORY"`
 	MemoryUsed         int     `xml:"MEMORY_USED,omitempty"`
+	PciDev             int     `xml:"PCI_DEV"`
+	PciDevUsed         int     `xml:"PCI_DEV_USED,omitempty"`
+	PciNic             int     `xml:"PCI_NIC"`
+	PciNicUsed         int     `xml:"PCI_NIC_USED,omitempty"`
 	RunningCPU         float32 `xml:"RUNNING_CPU"`
 	RunningCPUUsed     float32 `xml:"RUNNING_CPU_USED,omitempty"`
 	RunningMemory      int     `xml:"RUNNING_MEMORY"`
 	RunningMemoryUsed  int     `xml:"RUNNING_MEMORY_USED,omitempty"`
+	RunningPciDev      int     `xml:"RUNNING_PCI_DEV"`
+	RunningPciDevUsed  int     `xml:"RUNNING_PCI_DEV_USED,omitempty"`
+	RunningPciNic      int     `xml:"RUNNING_PCI_NIC"`
+	RunningPciNicUsed  int     `xml:"RUNNING_PCI_NIC_USED,omitempty"`
 	RunningVMs         int     `xml:"RUNNING_VMS"`
 	RunningVMsUsed     int     `xml:"RUNNING_VMS_USED,omitempty"`
 	SystemDiskSize     int64   `xml:"SYSTEM_DISK_SIZE"`

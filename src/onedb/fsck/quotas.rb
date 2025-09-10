@@ -47,7 +47,8 @@ module OneDBFsck
         # VM quotas
         query = "SELECT body FROM vm_pool WHERE #{filter} AND state<>6"
 
-        resources = { :CPU => 'CPU', :MEMORY => 'MEMORY', :VMS => 'VMS' }
+        resources = { :CPU => 'CPU', :MEMORY => 'MEMORY', :VMS => 'VMS',
+                      :PCI_DEV => 'PCI_DEV', :PCI_NIC => 'PCI_NIC' }
 
         @generic_quotas.each {|q| resources[q] = q }
 
@@ -90,7 +91,9 @@ module OneDBFsck
 
         resources = { :CPU => 'RUNNING_CPU',
                       :MEMORY => 'RUNNING_MEMORY',
-                      :VMS => 'RUNNING_VMS' }
+                      :VMS => 'RUNNING_VMS',
+                      :PCI_DEV => 'RUNNING_PCI_DEV',
+                      :PCI_NIC => 'RUNNING_PCI_NIC' }
 
         @generic_quotas.each {|q| resources[q] = "RUNNING_#{q}" }
 
@@ -356,6 +359,19 @@ module OneDBFsck
     def calculate_vm_quota(vmdoc, quotas, resources)
         quotas ||= {}
 
+        quota_pci = 0
+        quota_pci_nic = 0
+
+        vmdoc.xpath('VM/TEMPLATE/PCI').each do |pci|
+            type = pci.xpath('TYPE')&.text&.upcase
+
+            if type == 'NIC'
+                quota_pci_nic += 1
+            else
+                quota_pci += 1
+            end
+        end
+
         resources.each do |att_name, quota_name|
             if att_name == :CPU
                 cpu = vmdoc.root.at_xpath('TEMPLATE/CPU')
@@ -365,6 +381,10 @@ module OneDBFsck
                 value = (cpu * 100)
             elsif att_name == :VMS
                 value = 1
+            elsif att_name == :PCI_DEV
+                value = quota_pci
+            elsif att_name == :PCI_NIC
+                value = quota_pci_nic
             else
                 value = vmdoc.root.at_xpath("TEMPLATE/#{att_name}") ||
                     vmdoc.root.at_xpath("USER_TEMPLATE/#{att_name}")
@@ -490,6 +510,13 @@ module OneDBFsck
             vmdoc = nokogiri_doc(vm_row[:body], 'vm_pool')
 
             vmdoc.root.xpath('TEMPLATE/NIC/NETWORK_ID').each do |e|
+                next if e.text.empty?
+
+                vnet_usage[e.text] = 0 if vnet_usage[e.text].nil?
+                vnet_usage[e.text] += 1
+            end
+
+            vmdoc.root.xpath('TEMPLATE/PCI/NETWORK_ID').each do |e|
                 next if e.text.empty?
 
                 vnet_usage[e.text] = 0 if vnet_usage[e.text].nil?

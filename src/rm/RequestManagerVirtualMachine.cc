@@ -122,75 +122,6 @@ bool RequestManagerVirtualMachine::vm_authorization(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool RequestManagerVirtualMachine::quota_resize_authorization(
-        Template *          deltas,
-        RequestAttributes&  att,
-        PoolObjectAuth&     vm_perms)
-{
-    int rc;
-
-    Nebula&    nd    = Nebula::instance();
-    UserPool*  upool = nd.get_upool();
-    GroupPool* gpool = nd.get_gpool();
-
-    DefaultQuotas user_dquotas  = nd.get_default_user_quota();
-    DefaultQuotas group_dquotas = nd.get_default_group_quota();
-
-    if (vm_perms.uid != UserPool::ONEADMIN_ID)
-    {
-        if (auto user = upool->get(vm_perms.uid))
-        {
-            rc = user->quota.quota_update(Quotas::VM, deltas, user_dquotas, att.resp_msg);
-
-            if (rc == false)
-            {
-                ostringstream oss;
-
-                oss << object_name(PoolObjectSQL::USER) << " [" << vm_perms.uid << "] "
-                    << att.resp_msg;
-
-                att.resp_msg = oss.str();
-
-                return false;
-            }
-
-            upool->update_quotas(user.get());
-        }
-    }
-
-    if (vm_perms.gid != GroupPool::ONEADMIN_ID)
-    {
-        if ( auto group  = gpool->get(vm_perms.gid) )
-        {
-            rc = group->quota.quota_update(Quotas::VM, deltas, group_dquotas, att.resp_msg);
-
-            if (rc == false)
-            {
-                ostringstream oss;
-                RequestAttributes att_tmp(vm_perms.uid, -1, att);
-
-                oss << object_name(PoolObjectSQL::GROUP) << " [" << vm_perms.gid << "] "
-                    << att.resp_msg;
-
-                att.resp_msg = oss.str();
-
-                group.reset();
-
-                quota_rollback(deltas, Quotas::VM, att_tmp);
-
-                return false;
-            }
-
-            gpool->update_quotas(group.get());
-        }
-    }
-
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 Request::ErrorCode RequestManagerVirtualMachine::get_default_ds_information(
         int cluster_id,
         int& ds_id,
@@ -1954,7 +1885,7 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
 
     VirtualMachineDisks::extended_info(att.uid, &deltas);
 
-    if (quota_resize_authorization(&deltas, att_quota, vm_perms) == false)
+    if (!quota_authorization(&deltas, Quotas::VM, att_quota, att.resp_msg, true))
     {
         att.resp_msg = std::move(att_quota.resp_msg);
         return AUTHORIZATION;
@@ -2210,7 +2141,9 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         deltas.add("RUNNING_VCPU", dvcpu);
     }
 
-    if (quota_resize_authorization(&deltas, att, vm_perms) == false)
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
+    if (!quota_authorization(&deltas, Quotas::VM, att_quota, att.resp_msg, true))
     {
         failure_response(AUTHORIZATION, att);
         return;
@@ -2296,7 +2229,6 @@ Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttribut
 
     if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota, att.resp_msg) )
     {
-        // todo Double check the return code, should we copy vm_perms.uid and vm_perms.gid to response
         return AUTHORIZATION;
     }
 
@@ -2511,19 +2443,32 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     PoolObjectAuth vm_perms;
 
     int hid = -1;
+    int cid = -1;
+
+    bool running_quota;
 
     // -------------------------------------------------------------------------
     // Authorize the operation, restricted attributes & check quotas
     // -------------------------------------------------------------------------
     VectorAttribute * pci = tmpl.get("PCI");
 
+    if ( pci && pci->vector_value("TYPE") != "NIC" )
+    {
+        att.resp_msg = "PCI device is not of type NIC";
+
+        return ACTION;
+    }
+
     if (auto vm = vmpool->get_ro(id))
     {
         vm->get_permissions(vm_perms);
 
+        running_quota = vm->is_running_quota();
+
         if (vm->hasHistory())
         {
             hid = vm->get_hid();
+            cid = vm->get_cid();
         }
 
         if (pci != nullptr && vm->check_pci_attributes(pci,  att.resp_msg) != 0)
@@ -2563,10 +2508,28 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
         }
     }
 
-    if (quota_authorization(&tmpl, Quotas::NETWORK, att_quota,
-                            att.resp_msg) == false)
+    if (!quota_authorization(&tmpl, Quotas::NETWORK, att_quota, att.resp_msg))
     {
         return AUTHORIZATION;
+    }
+
+    Template quota_tmpl;
+    if (pci)
+    {
+        quota_tmpl.add("CLUSTER_ID", cid);
+        quota_tmpl.add("PCI_NIC", 1);
+
+        if (running_quota)
+        {
+            quota_tmpl.add("RUNNING_PCI_NIC", 1);
+        }
+
+        if (!quota_authorization(&quota_tmpl, Quotas::VM, att_quota, att.resp_msg))
+        {
+            quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+
+            return AUTHORIZATION;
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -2576,14 +2539,6 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
 
     if ( pci != nullptr && hid != -1 )
     {
-        if ( pci->vector_value("TYPE") != "NIC" )
-        {
-            att.resp_msg = "PCI device is not of type NIC";
-
-            quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
-            return ACTION;
-        }
-
         sr.vmid = id;
         sr.pci.push_back(pci);
 
@@ -2595,6 +2550,10 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
             att.resp_obj = PoolObjectSQL::HOST;
 
             quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+            if (!quota_tmpl.empty())
+            {
+                quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
+            }
             return NO_EXISTS;
         }
 
@@ -2604,6 +2563,10 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
                            "and free devices";
 
             quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+            if (!quota_tmpl.empty())
+            {
+                quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
+            }
             return ACTION;
         }
 
@@ -2618,6 +2581,10 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     if ( rc != 0 )
     {
         quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+        if (!quota_tmpl.empty())
+        {
+            quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
+        }
 
         if ( pci != nullptr && hid != -1 )
         {
@@ -3104,7 +3071,7 @@ Request::ErrorCode VirtualMachineDiskSnapshotCreate::request_execute(
 
     if ( !vm_deltas.empty() )
     {
-        if (!quota_resize_authorization(&vm_deltas, vm_att_quota, vm_perms))
+        if (!quota_authorization(&vm_deltas, Quotas::VM, vm_att_quota, att.resp_msg, true))
         {
             if ( img_ds_quota )
             {
@@ -3116,7 +3083,6 @@ Request::ErrorCode VirtualMachineDiskSnapshotCreate::request_execute(
                 quota_rollback(&ds_deltas, Quotas::DATASTORE, vm_att_quota);
             }
 
-            att.resp_msg = vm_att_quota.resp_msg;
             return AUTHORIZATION;
         }
     }
@@ -3662,7 +3628,7 @@ void VirtualMachineDiskResize::request_execute(
 
     if ( !vm_deltas.empty() )
     {
-        if (!quota_resize_authorization(&vm_deltas, vm_att_quota, vm_perms))
+        if (!quota_authorization(&vm_deltas, Quotas::VM, vm_att_quota, vm_att_quota.resp_msg, true))
         {
             if ( img_ds_quota )
             {
@@ -4043,6 +4009,8 @@ void VirtualMachineAttachPCI::request_execute(
     // -------------------------------------------------------------------------
     VirtualMachineTemplate  tmpl;
 
+    int cid = -1;
+
     int rc = tmpl.parse_str_or_xml(stmpl, att.resp_msg);
 
     if ( rc != 0 )
@@ -4093,6 +4061,36 @@ void VirtualMachineAttachPCI::request_execute(
         }
     }
 
+    PoolObjectAuth vm_perms;
+    if (auto vm = pool->get_ro<VirtualMachine>(id))
+    {
+        vm->get_permissions(vm_perms);
+
+        if (vm->hasHistory())
+        {
+            cid = vm->get_cid();
+        }
+    }
+    else
+    {
+        att.resp_id = id;
+
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
+    Template quota_tmpl;
+    quota_tmpl.add("CLUSTER_ID", cid);
+    quota_tmpl.add("PCI_DEV", 1);
+
+    if (!quota_authorization(&quota_tmpl, Quotas::VM, att_quota, att.resp_msg))
+    {
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
     // -------------------------------------------------------------------------
     // Perform the attach
     // -------------------------------------------------------------------------
@@ -4100,6 +4098,8 @@ void VirtualMachineAttachPCI::request_execute(
 
     if ( rc != 0 )
     {
+        quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
+
         failure_response(ACTION, att);
     }
     else

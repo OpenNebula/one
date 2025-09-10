@@ -318,9 +318,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                     if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/VMS")
-                        if limit.nil? || limit == ""
-                            limit = OneQuotaHelper::LIMIT_UNLIMITED
-                        end
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
                     end
 
                     if limit == OneQuotaHelper::LIMIT_UNLIMITED
@@ -334,7 +332,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :MEMORY, "Total memory allocated to user VMs", :size=>17 do |d|
+            column :MEMORY, "Total memory allocated to user VMs", :size=>15 do |d|
                 begin
                     q = quotas[d['ID']]['VM_QUOTA']['VM']
 
@@ -352,16 +350,14 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                     if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/MEMORY")
-                        if limit.nil? || limit == ""
-                            limit = OneQuotaHelper::LIMIT_UNLIMITED
-                        end
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
                     end
 
                     if limit == OneQuotaHelper::LIMIT_UNLIMITED
-                        "%7s /       -" % [
+                        "%6s /      -" % [
                             OpenNebulaHelper.unit_to_str(q["MEMORY_USED"].to_i,{},"M")]
                     else
-                        "%7s / %7s" % [
+                        "%6s / %6s" % [
                             OpenNebulaHelper.unit_to_str(q["MEMORY_USED"].to_i,{},"M"),
                             OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")]
                     end
@@ -389,9 +385,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                     if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/CPU")
-                        if limit.nil? || limit == ""
-                            limit = OneQuotaHelper::LIMIT_UNLIMITED
-                        end
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
                     end
 
                     if limit == OneQuotaHelper::LIMIT_UNLIMITED
@@ -405,11 +399,43 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
+            column :PCI, "Total PCIs allocated to user VMs", :size=>9 do |d|
+                begin
+                    q = quotas[d['ID']]['VM_QUOTA']['VM']
+
+                    if q.nil? && d["ID"].to_i != 0
+                        q = OneQuotaHelper::DEFAULT_VM_QUOTA
+                    end
+
+                    # In case of multiple quotas, use the global quota or the first
+                    if q.is_a?(Array)
+                        global_quota = q.find{|hash| hash['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
+                        q = global_quota || q[0]
+                    end
+
+                    limit = q["PCI_DEV"]
+
+                    if limit == OneQuotaHelper::LIMIT_DEFAULT
+                        limit = pool_default_quotas("VM_QUOTA/VM/PCI_DEV")
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
+                    end
+
+                    if limit == OneQuotaHelper::LIMIT_UNLIMITED
+                        "%3s /   -" % [q["PCI_DEV_USED"]]
+                    else
+                        "%3s / %3s" % [q["PCI_DEV_USED"], limit]
+                    end
+
+                rescue NoMethodError
+                    "-"
+                end
+            end
+
             column :PASSWORD, "Password of the User", :size=>50 do |d|
                 d['PASSWORD']
             end
 
-            default :ID, :NAME, :ENABLED, :GROUP, :AUTH, :VMS, :MEMORY, :CPU
+            default :ID, :NAME, :ENABLED, :GROUP, :AUTH, :VMS, :MEMORY, :CPU, :PCI
         end
 
         table

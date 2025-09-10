@@ -544,6 +544,7 @@ Request::ErrorCode Request::basic_authorization(
 
 bool Request::user_quota_authorization (Template * tmpl,
                                         Quotas::QuotaType  qtype,
+                                        bool resize,
                                         const RequestAttributes& att,
                                         string& error_str)
 {
@@ -562,7 +563,14 @@ bool Request::user_quota_authorization (Template * tmpl,
 
     DefaultQuotas default_user_quotas = nd.get_default_user_quota();
 
-    rc = user->quota.quota_check(qtype, tmpl, default_user_quotas, error_str);
+    if (resize)
+    {
+        rc = user->quota.quota_update(qtype, tmpl, default_user_quotas, error_str);
+    }
+    else
+    {
+        rc = user->quota.quota_check(qtype, tmpl, default_user_quotas, error_str);
+    }
 
     if (rc == true)
     {
@@ -585,6 +593,7 @@ bool Request::user_quota_authorization (Template * tmpl,
 
 bool Request::group_quota_authorization (Template * tmpl,
                                          Quotas::QuotaType  qtype,
+                                         bool resize,
                                          const RequestAttributes& att,
                                          string& error_str)
 {
@@ -603,7 +612,14 @@ bool Request::group_quota_authorization (Template * tmpl,
 
     DefaultQuotas default_group_quotas = nd.get_default_group_quota();
 
-    rc = group->quota.quota_check(qtype, tmpl, default_group_quotas, error_str);
+    if (resize)
+    {
+        rc = group->quota.quota_update(qtype, tmpl, default_group_quotas, error_str);
+    }
+    else
+    {
+        rc = group->quota.quota_check(qtype, tmpl, default_group_quotas, error_str);
+    }
 
     if (rc == true)
     {
@@ -680,7 +696,8 @@ bool Request::quota_authorization(
         Template *          tmpl,
         Quotas::QuotaType   qtype,
         const RequestAttributes&  att,
-        string&             error_str)
+        string&             error_str,
+        bool                resize)
 {
     // uid/gid == -1 means do not update user/group
 
@@ -689,7 +706,7 @@ bool Request::quota_authorization(
 
     if ( do_user_quota )
     {
-        if ( user_quota_authorization(tmpl, qtype, att, error_str) == false )
+        if ( user_quota_authorization(tmpl, qtype, resize, att, error_str) == false )
         {
             return false;
         }
@@ -697,7 +714,7 @@ bool Request::quota_authorization(
 
     if ( do_group_quota )
     {
-        if ( group_quota_authorization(tmpl, qtype, att, error_str) == false )
+        if ( group_quota_authorization(tmpl, qtype, resize, att, error_str) == false )
         {
             if ( do_user_quota )
             {

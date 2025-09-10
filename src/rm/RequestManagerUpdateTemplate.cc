@@ -204,7 +204,7 @@ void VirtualMachineUpdateTemplate::request_execute(int oid,
 
     if ( do_quotas )
     {
-        if (!quota_authorization(new_tmpl.get(), Quotas::VIRTUALMACHINE, att_quota, att.resp_msg))
+        if (!quota_authorization(new_tmpl.get(), Quotas::VM, att_quota, att.resp_msg, true))
         {
             failure_response(ACTION, att);
 
