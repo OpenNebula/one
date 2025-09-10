@@ -141,7 +141,10 @@ const Actions = (props = {}) => {
                     )
 
                     const redirectToInstantiate = (template) =>
-                      history.push(PATH.TEMPLATE.VMS.INSTANTIATE, template)
+                      history.push(PATH.TEMPLATE.VMS.INSTANTIATE, {
+                        ...template,
+                        navigateUrl: 'vm',
+                      })
 
                     return (
                       <VmTemplatesTable

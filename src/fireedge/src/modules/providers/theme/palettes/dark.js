@@ -356,6 +356,9 @@ export const darkPalette = {
     },
     navigateDeactive: {
       color: sunstoneColors.grey[400],
+      hover: {
+        color: sunstoneColors.blue[500],
+      },
     },
   },
 
