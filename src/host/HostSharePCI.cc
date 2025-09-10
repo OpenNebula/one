@@ -200,7 +200,7 @@ void HostSharePCI::pci_attribute(VectorAttribute *device, PCIDevice *pci,
                                  bool set_prev, const std::string& vprofile)
 {
     static vector<string> cp_attr = {"DOMAIN", "BUS", "SLOT", "FUNCTION", "ADDRESS",
-                                     "SHORT_ADDRESS"};
+                                     "SHORT_ADDRESS", "VENDOR", "DEVICE", "CLASS"};
 
     static vector<string> cp_check_attr = {"NUMA_NODE", "UUID", "MDEV_MODE"};
 

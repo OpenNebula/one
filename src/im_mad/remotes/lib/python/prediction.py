@@ -110,6 +110,19 @@ VM_METRICS = {
         dtype=Float(0.0, np.inf),
         operator="rate",
     ),
+    # GPU metrics
+    "gpu_utilization": MetricAttributes(
+        name="gpuutilization", type=MetricType.GAUGE, dtype=Float(0.0, 100.0)
+    ),
+    "gpu_memory_utilization": MetricAttributes(
+        name="gpumemoryutilization", type=MetricType.GAUGE, dtype=Float(0.0, 100.0)
+    ),
+    "gpu_memory_free": MetricAttributes(
+        name="gpumemoryfree", type=MetricType.GAUGE, dtype=Float(0.0, np.inf)
+    ),
+    "gpu_power_usage": MetricAttributes(
+        name="gpupowerusage", type=MetricType.GAUGE, dtype=Float(0.0, np.inf)
+    )
 }
 
 DERIVED_METRICS = [
