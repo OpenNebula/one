@@ -13,45 +13,77 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { T } from '@ConstantsModule'
 import { useGeneral } from '@FeaturesModule'
 import breadcrumbStyles from '@modules/components/Breadcrumb/styles'
+import { Translate } from '@modules/components/HOC'
+import { PATH } from '@modules/components/path'
 import { Link, Typography, useTheme } from '@mui/material'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import clsx from 'clsx'
 import { Home, NavArrowRight } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { useMemo } from 'react'
-import { Link as RouterLink, useHistory, useParams } from 'react-router-dom'
+import {
+  Link as RouterLink,
+  useHistory,
+  useLocation,
+  useParams,
+} from 'react-router-dom'
 
-function resolvePath(path, params) {
-  return path.replace(/:([a-zA-Z0-9_]+)/g, (_, key) => params[key] || `:${key}`)
+const navigations = {
+  vm: {
+    filter: PATH.TEMPLATE.VMS.LIST,
+    title: [T.VMs, T.CreateVM],
+    path: [PATH.INSTANCE.VMS.LIST],
+  },
 }
+
+const resolvePath = (path, params) =>
+  path.replace(/:([a-zA-Z0-9_]+)/g, (_, key) => params[key] || `:${key}`)
 
 const NavigateBreadcrumb = ({ route, breadcrumbClass = {} }) => {
   const { navigate, link, linkActive } = breadcrumbClass
   const params = useParams()
+  const { state: { navigateUrl } = {} } = useLocation()
 
   return (
     <Breadcrumbs
       aria-label="breadcrumb"
       separator={<NavArrowRight />}
       className={navigate}
+      data-cy="breadcrumbs"
     >
-      <Link component={RouterLink} color="inherit" to="/" className={link}>
+      <Link
+        component={RouterLink}
+        color="inherit"
+        to="/"
+        className={link}
+        data-cy="breadcrumb-home"
+      >
         <Home />
       </Link>
       {route.breadcrumb.map(({ title, path }, index) => {
         const isLast = index === route.breadcrumb.length - 1
+        const { title: navTitle, path: navPath } = path.includes(
+          navigations?.[navigateUrl]?.filter
+        )
+          ? {
+              title: navigations[navigateUrl].title?.[index] || title,
+              path: navigations[navigateUrl].path?.[index] || path,
+            }
+          : { title, path }
 
         return (
           <Link
             key={path}
             component={RouterLink}
             color="inherit"
-            to={resolvePath(path, params)}
+            to={resolvePath(navPath, params)}
             className={!isLast ? link : clsx(link, linkActive)}
+            data-cy={`breadcrumb-${index}`}
           >
-            {title || path}
+            <Translate word={navTitle || navPath} />
           </Link>
         )
       })}
@@ -73,12 +105,9 @@ NavigateBreadcrumb.displayName = 'NavigateBreadcrumb'
  */
 const SunstoneBreadcrumb = ({ route }) => {
   const hasBreadcrumbs =
-    Array.isArray(route?.breadcrumb) && route?.breadcrumb?.length > 1
+    Array.isArray(route?.breadcrumb) && route?.breadcrumb?.length >= 1
   const theme = useTheme()
-  const classes = useMemo(
-    () => breadcrumbStyles(theme, hasBreadcrumbs),
-    [theme]
-  )
+  const classes = useMemo(() => breadcrumbStyles(theme), [theme])
 
   const history = useHistory()
 
