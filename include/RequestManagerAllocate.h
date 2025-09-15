@@ -302,17 +302,13 @@ public:
 
     std::unique_ptr<Template> get_object_template() const override
     {
-        return std::make_unique<VirtualMachineTemplate>();
+        return std::make_unique<VirtualNetworkTemplate>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
-
-    bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
-                                Template *obj_template, RequestAttributes&  att,
-                                PoolObjectAuth *cluster_perms) override;
 };
 
 /* ------------------------------------------------------------------------- */
