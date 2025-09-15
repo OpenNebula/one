@@ -1792,9 +1792,9 @@ module.exports = {
   PhysicalDevice: 'Physical device',
   PhysicalDeviceConcept:
     'Device name of the physical network card in the host to route traffic to. Example: eth0',
-  PhysicalDeviceSwitch: 'Use only private host networking',
+  PhysicalDeviceSwitch: 'Use private host networking or a user-defined bridge',
   PhysicalDeviceSwitchConcept:
-    'If enabled, the Virtual Network will not connect to any physical device and hence the Virtual Machines will be able to communicate only with other Virtual Machines in the same virtual network and in the same host.',
+    "If enabled, OpenNebula won't assign any physical interface to the bridge. If the bridge is OpenNebula managed, by default it will only allow local host communication.",
   VLANTagged: 'Specify a range of VLANs that are allowed for the VM traffic',
   VLANTaggedConcept:
     'Type a VLAN ID (e.g. 100) or a VLAN range (e.g. 101-104) and press ENTER',
