@@ -40,7 +40,7 @@ const AR_TYPES_STR = {
   [AR_TYPES.IP6]: 'IPv6',
   [AR_TYPES.IP6_STATIC]: 'IPv6 (no-SLAAC)',
   [AR_TYPES.IP4_6]: 'IPv4/6',
-  [AR_TYPES.ETHER]: 'Ethernet',
+  [AR_TYPES.ETHER]: 'Ethernet / DHCP',
 }
 
 /** @type {Field} Type field */
