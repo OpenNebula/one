@@ -835,9 +835,12 @@ int LibVirtDriver::deployment_description_kvm(
 
     // Check if firmware is set to auto for autoselection
     string firmware;
+    string firmware_format = "raw";
     bool boot_secure = false;
 
     get_attribute(vm, host, cluster, "OS", "FIRMWARE", firmware);
+
+    get_attribute(vm, host, cluster, "OS", "FIRMWARE_FORMAT", firmware_format);
 
     get_attribute(vm, host, cluster, "OS", "FIRMWARE_SECURE", boot_secure);
 
@@ -924,19 +927,26 @@ int LibVirtDriver::deployment_description_kvm(
     else if ( is_uefi )
     {
         string firmware_secure = "no";
+        std::string nvram_format;
 
         if (boot_secure)
         {
             firmware_secure = "yes";
         }
 
+        if (one_util::icasecmp(firmware_format, "qcow2"))
+        {
+            nvram_format = " format=\"qcow2\"";
+        }
+
         file << "\t\t<loader readonly=\"yes\" type=\"pflash\" "
              << "secure=\"" << firmware_secure << "\">"
              << firmware
              << "</loader>\n";
-        file << "\t\t<nvram>"
-             << vm->get_system_dir() << "/" << vm->get_name() << "_VARS.fd"
-             << "</nvram>\n";
+
+        file << "\t\t<nvram" << nvram_format << ">"
+            << vm->get_system_dir() << "/" << vm->get_name() << "_VARS.fd"
+            << "</nvram>\n";
     }
 
     file << "\t</os>" << endl;

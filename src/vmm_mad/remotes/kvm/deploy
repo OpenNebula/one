@@ -63,11 +63,24 @@ if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
 fi
 
 #-------------------------------------------------------------------------------
-# Create non-volatile memory to store firmware variables if needed
+# Create non-volatile memory to store firmware variables and convert if needed
 #-------------------------------------------------------------------------------
 nvram="$(xmllint --xpath '/domain/os/nvram/text()' $DEP_FILE 2>/dev/null)"
+nvram_fmt="$(xmllint --xpath 'string(/domain/os/nvram/@format)' "$DEP_FILE" 2>/dev/null)"
 if [ -n "${nvram}" ]; then
-    cp -n "${OVMF_NVRAM}" "${nvram}"
+    mkdir -p "$(dirname "$nvram")"
+
+    if [ -z "$nvram_fmt" ]; then
+        nvram_fmt="raw"
+    fi
+
+    fmt="$(qemu-img info -U --output=json "$OVMF_NVRAM" | jq -r '.format')"
+
+    if [ "$fmt" != "$nvram_fmt" ]; then
+        qemu-img convert -O "$nvram_fmt" "$OVMF_NVRAM" "$nvram"
+    else
+        cp -n "$OVMF_NVRAM" "$nvram"
+    fi
 fi
 
 #-------------------------------------------------------------------------------
