@@ -64,6 +64,7 @@ const (
 	SDDiskBus      OS = "SD_DISK_BUS"
 	UUID           OS = "UUID"
 	Firmware       OS = "FIRMWARE"
+	FirmwareFormat OS = "FIRMWARE_FORMAT"
 	FirmwareSecure OS = "FIRMWARE_SECURE"
 )
 

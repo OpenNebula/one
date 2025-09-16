@@ -144,7 +144,8 @@ std::map<std::string, std::vector<std::string>> VirtualMachineTemplate::UPDATECO
             "ROOT",
             "SD_DISK_BUS",
             "UUID",
-            "FIRMWARE"
+            "FIRMWARE",
+            "FIRMWARE_FORMAT",
         }
     },
     {
