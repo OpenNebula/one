@@ -261,9 +261,7 @@ module VNMMAD
             pass2 = pass1.lines.each_with_object([]) do |line, a|
                 next if line =~ /^\s*$/ # ignore empty lines
 
-                # rubocop:disable Style/RedundantRegexpCharacterClass
-                line.gsub!(/([^ ])[ ]+/, '\1 ') # remove redundant spaces
-                # rubocop:enable Style/RedundantRegexpCharacterClass
+                line.gsub!(/([^ ]) +/, '\1 ') # remove redundant spaces
 
                 a << line
             end.join

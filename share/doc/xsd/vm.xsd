@@ -172,6 +172,13 @@
               <xs:element name="TEMPLATE_ID" type="xs:string"  minOccurs="0" maxOccurs="1"/>
               <xs:element name="TM_MAD_SYSTEM" type="xs:string"/>
               <xs:element name="TOPOLOGY" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="TPM" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="MODEL" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <xs:element name="VCPU" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VCPU_MAX" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VMGROUP" minOccurs="0" maxOccurs="1"/>

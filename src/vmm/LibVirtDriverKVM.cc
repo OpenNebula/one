@@ -2229,8 +2229,6 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t</hostdev>" << endl;
     }
 
-    file << "\t</devices>" << endl;
-
     std::size_t found = machine.find("q35");
 
     if (found != std::string::npos || arch == "aarch64" )
@@ -2247,7 +2245,6 @@ int LibVirtDriver::deployment_description_kvm(
 
         get_attribute(nullptr, host, cluster, "Q35_NUMA_PCIE", q35_numa_topo);
 
-        file << "\t<devices>" << endl;
         file << "\t\t<controller index='0' type='pci' model='pcie-root'/>" << endl;
 
         if (nodes.empty()) //Flat PCI hierarchy
@@ -2258,7 +2255,6 @@ int LibVirtDriver::deployment_description_kvm(
             }
 
             file << "\t\t<controller type='pci' model='pcie-to-pci-bridge'/>" << endl;
-            file << "\t</devices>" << endl;
         }
         else if (q35_numa_topo) //PCIe expander bus in each NUMA node
         {
@@ -2332,10 +2328,20 @@ int LibVirtDriver::deployment_description_kvm(
                  << "\t\t\t<address type='pci' bus='22' slot='0' function='0'/>" << endl
                  << "\t\t</controller>" << endl;
 
-            file << "\t</devices>" << endl;
         }
     }
 
+    string tpm_model;
+    get_attribute(vm, host, cluster, "TPM", "MODEL", tpm_model);
+
+    if (!tpm_model.empty())
+    {
+        file << "\t\t" << "<tpm model='" << tpm_model << "'>\n"
+            << "\t\t\t<backend type='emulator' version='2.0'/>\n"
+            << "\t\t</tpm>\n";
+    }
+
+    file << "\t</devices>" << endl;
 
     // ------------------------------------------------------------------------
     // Features

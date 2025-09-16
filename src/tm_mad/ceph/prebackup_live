@@ -54,7 +54,7 @@ backup_dir =
 action   = TransferManager::Action.new(:action_name => 'prebackup_live',
                                        :vm_id => vmid)
 ds       = TransferManager::Datastore.from_vm_backup_ds(:vm_xml => vm_xml.to_s)
-vm       = TransferManager::Ceph::VM.new(action.vm.to_xml)
+vm       = TransferManager::Ceph::VM.new(action.vm.to_xml, rdir)
 
 xml_data = REXML::Document.new(vm_xml)
 rhost    = xml_data.elements['VM/BACKUPS/BACKUP_CONFIG/LAST_BRIDGE']&.text || dir[0]

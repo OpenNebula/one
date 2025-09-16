@@ -90,7 +90,7 @@ begin
     ds_id = rds['DATASTORE/ID']
 
     snap = image.selected || image.last
-    burl = "restic#{format == 'rbd' ? '+rbd' : ''}://#{ds_id}/#{image.bj_id}/#{chain}"
+    burl = "restic#{'+rbd' if format == 'rbd'}://#{ds_id}/#{image.bj_id}/#{chain}"
 
     # --------------------------------------------------------------------------
     # Get a list of disk paths stored in the backup
@@ -114,5 +114,10 @@ disk_paths.each do |f|
 
     disks[m[1]] = "#{burl}#{f}"
 end
+
+tpm_path = paths[:other][:by_snap][snap].find do |line|
+    line.end_with?('/disk.tpm.0')
+end
+disks['tpm'] = burl + tpm_path if tpm_path
 
 puts disks.to_json

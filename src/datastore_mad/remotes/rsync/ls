@@ -85,7 +85,7 @@ begin
     format = xml.elements['IMAGE/FORMAT'].text
 
     snap = image.selected || image.last
-    burl = "rsync#{format == 'rbd' ? '+rbd' : ''}://#{ds_id}/#{image.bj_id}/#{chain}"
+    burl = "rsync#{'+rbd' if format == 'rbd'}://#{ds_id}/#{image.bj_id}/#{chain}"
 
     # --------------------------------------------------------------------------
     # Get a list of disk paths stored in the backup
@@ -121,7 +121,7 @@ end
 disks = {}
 
 disk_paths.each do |f|
-    m = f.match(/disk\.([0-9]+)/)
+    m = f.match(/disk\.([0-9]+|tpm)/)
     next unless m
 
     disks[m[1]] = "#{burl}#{f}"

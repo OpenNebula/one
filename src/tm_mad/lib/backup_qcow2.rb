@@ -34,12 +34,13 @@ require 'load_opennebula_paths'
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
+require 'base64'
+require 'fileutils'
+require 'getoptlong'
 require 'json'
 require 'open3'
+require 'pathname'
 require 'rexml/document'
-require 'base64'
-require 'getoptlong'
-require 'fileutils'
 
 require_relative 'kvm'
 
@@ -474,7 +475,7 @@ class KVMDomain
     # @param opts[Hash] Vm attributes:
     #   - :vm_dir VM folder (/var/lib/one/datastores/<DS_ID>/<VM_ID>)
     #---------------------------------------------------------------------------
-    def initialize(vm_xml, opts = {})
+    def initialize(vm_xml, vm_dir, opts = {})
         @vm  = REXML::Document.new(vm_xml).root
 
         @vid = @vm.elements['ID'].text
@@ -507,11 +508,11 @@ class KVMDomain
             end
         end
 
-        @vm_dir  = opts[:vm_dir]
-        @tmp_dir = "#{opts[:vm_dir]}/tmp"
+        @vm_dir  = Pathname.new(vm_dir)
+        @tmp_dir = @vm_dir.join('tmp')
         @bck_dir = opts[:backup_dir]
 
-        @socket  = "#{opts[:vm_dir]}/backup.socket"
+        @socket  = @vm_dir.join('backup.socket')
 
         # State variables for domain operations
         @frozen  = nil
@@ -557,6 +558,31 @@ class KVMDomain
     #   @return [Boolean] true if local storage is used
     def disk_local?(disk)
         ['SSH', 'LOCAL'].include? disk.elements['TM_MAD'].text.upcase
+    end
+
+    # Return command to recover the TPM state from a backup
+    #
+    # VM is assumed to be powered off, so there's no need to `vtpm_setup recover` yet (will be done
+    # by VMM on startup).
+    #
+    #   @return [String] the shell command
+    def restore_tpm_sh(tpm_backup_tar)
+        <<~EOS
+            rm -rf #{@vm_dir.join('tpm')}
+            tar zxvf #{tpm_backup_tar} -C #{@vm_dir}
+            rm #{tpm_backup_tar}
+        EOS
+    end
+
+    # Return command to save TPM state
+    #   @return [String] the shell command
+    def save_tpm_sh
+        return unless @vm.elements['TEMPLATE/TPM/MODEL']
+
+        <<~EOS
+            (sudo -l | grep -q vtpm_setup) && sudo /var/tmp/one/vtpm_setup backup "#{@dom}" "#{@vm_dir}"
+            tar zcvf #{@bck_dir}/disk.tpm.0 -C #{@vm_dir} tpm
+        EOS
     end
 
     #---------------------------------------------------------------------------
@@ -1236,105 +1262,108 @@ class KVMDomain
 
 end
 
-opts = GetoptLong.new(
-    ['--disk', '-d', GetoptLong::REQUIRED_ARGUMENT],
-    ['--vxml', '-x', GetoptLong::REQUIRED_ARGUMENT],
-    ['--path', '-p', GetoptLong::REQUIRED_ARGUMENT],
-    ['--live', '-l', GetoptLong::NO_ARGUMENT],
-    ['--stop', '-s', GetoptLong::NO_ARGUMENT]
-)
+if __FILE__ == $PROGRAM_NAME
+    opts = GetoptLong.new(
+        ['--disk', '-d', GetoptLong::REQUIRED_ARGUMENT],
+        ['--vxml', '-x', GetoptLong::REQUIRED_ARGUMENT],
+        ['--path', '-p', GetoptLong::REQUIRED_ARGUMENT],
+        ['--live', '-l', GetoptLong::NO_ARGUMENT],
+        ['--stop', '-s', GetoptLong::NO_ARGUMENT]
+    )
 
-begin
-    path = disk = vxml = ''
-    live = stop = false
+    begin
+        path = disk = vxml = ''
+        live = stop = false
 
-    opts.each do |opt, arg|
-        case opt
-        when '--disk'
-            disk = arg
-        when '--path'
-            path = arg
-        when '--live'
-            live = true
-        when '--stop'
-            stop = true
-        when '--vxml'
-            vxml = arg
-        end
-    end
-
-    vm = KVMDomain.new(Base64.decode64(File.read(vxml)), :vm_dir => path,
-                       :backup_dir => File.dirname(vxml))
-
-    #---------------------------------------------------------------------------
-    #  Stop operation. Only for full backups in live mode. It blockcommits
-    #  changes and cleans snapshot.
-    #---------------------------------------------------------------------------
-    if stop
-        if vm.parent_id == -1 && live && @inc_mode != :snapshot
-            vm.stop_backup_full_live(disk)
+        opts.each do |opt, arg|
+            case opt
+            when '--disk'
+                disk = arg
+            when '--path'
+                path = arg
+            when '--live'
+                live = true
+            when '--stop'
+                stop = true
+            when '--vxml'
+                vxml = arg
+            end
         end
 
-        exit(0)
-    end
+        vm = KVMDomain.new(Base64.decode64(File.read(vxml)), path,
+                           :backup_dir => File.dirname(vxml))
 
-    #---------------------------------------------------------------------------
-    #  Cancel logic. When SIGTERM is received it kills all subtasks and
-    #  terminates current backup operation
-    #---------------------------------------------------------------------------
-    pipe_r, pipe_w = IO.pipe
+        #---------------------------------------------------------------------------
+        #  Stop operation. Only for full backups in live mode. It blockcommits
+        #  changes and cleans snapshot.
+        #---------------------------------------------------------------------------
+        if stop
+            if vm.parent_id == -1 && live && @inc_mode != :snapshot
+                vm.stop_backup_full_live(disk)
+            end
 
-    Thread.new do
-        loop do
-            rs, _ws, _es = IO.select([pipe_r])
-            break if rs[0] == pipe_r
+            exit(0)
         end
 
-        Cancel.killall(vxml) if Cancel.running?(vxml)
+        #---------------------------------------------------------------------------
+        #  Cancel logic. When SIGTERM is received it kills all subtasks and
+        #  terminates current backup operation
+        #---------------------------------------------------------------------------
+        pipe_r, pipe_w = IO.pipe
 
+        Thread.new do
+            loop do
+                rs, _ws, _es = IO.select([pipe_r])
+                break if rs[0] == pipe_r
+            end
+
+            Cancel.killall(vxml) if Cancel.running?(vxml)
+
+            exit(-1)
+        end
+
+        Signal.trap(:TERM) do
+            pipe_w.write 'W'
+        end
+
+        #---------------------------------------------------------------------------
+        #  Backup operation
+        #   - (live - full) Creates a snapshot to copy the disks via qemu-convert
+        #     all previous defined checkpoints are cleaned.
+        #   - (live - increment) starts a backup operation in libvirt and pull changes
+        #     through NBD server using qemu-io copy-on-read feature
+        #   - (poff - full) copy disks via qemu-convert
+        #   - (poff - incremental) starts qemu-nbd server to pull changes from the
+        #     last checkpoint
+        #---------------------------------------------------------------------------
+        if live
+            if vm.parent_id == -1
+                vm.clean_checkpoints(disk, true)
+
+                vm.backup_full_live(disk)
+            elsif vm.inc_mode == :cbt
+                vm.define_parent(disk)
+
+                vm.backup_nbd_live(disk)
+
+                vm.clean_checkpoints(disk)
+            else # vm.inc_mode == :snapshot
+                vm.backup_snapshot_live(disk)
+            end
+        else
+            if vm.parent_id == -1
+                vm.backup_full(disk)
+            elsif vm.inc_mode == :cbt
+                vm.backup_nbd(disk)
+            else # vm.inc_mode == :snapshot
+                vm.backup_snapshot(disk)
+            end
+        end
+    rescue StandardError => e
+        puts e.message
         exit(-1)
     end
 
-    Signal.trap(:TERM) do
-        pipe_w.write 'W'
-    end
-
-    #---------------------------------------------------------------------------
-    #  Backup operation
-    #   - (live - full) Creates a snapshot to copy the disks via qemu-convert
-    #     all previous defined checkpoints are cleaned.
-    #   - (live - increment) starts a backup operation in libvirt and pull changes
-    #     through NBD server using qemu-io copy-on-read feature
-    #   - (poff - full) copy disks via qemu-convert
-    #   - (poff - incremental) starts qemu-nbd server to pull changes from the
-    #     last checkpoint
-    #---------------------------------------------------------------------------
-    if live
-        if vm.parent_id == -1
-            vm.clean_checkpoints(disk, true)
-
-            vm.backup_full_live(disk)
-        elsif vm.inc_mode == :cbt
-            vm.define_parent(disk)
-
-            vm.backup_nbd_live(disk)
-
-            vm.clean_checkpoints(disk)
-        else # vm.inc_mode == :snapshot
-            vm.backup_snapshot_live(disk)
-        end
-    else
-        if vm.parent_id == -1
-            vm.backup_full(disk)
-        elsif vm.inc_mode == :cbt
-            vm.backup_nbd(disk)
-        else # vm.inc_mode == :snapshot
-            vm.backup_snapshot(disk)
-        end
-    end
-rescue StandardError => e
-    puts e.message
-    exit(-1)
 end
 
 # rubocop:enable Style/ClassVars

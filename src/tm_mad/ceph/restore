@@ -41,19 +41,26 @@ require 'securerandom'
 require_relative '../lib/tm_action'
 require_relative '../lib/ceph'
 require_relative '../lib/datastore'
+require_relative '../lib/backup_qcow2'
 
 #-------------------------------------------------------------------------------
 # RESTORE host:remote_system_ds vm_id img_id inc_id disk_id
 #-------------------------------------------------------------------------------
-_dir      = ARGV[0].split ':'
+dir       = ARGV[0].split ':'
 vm_id     = ARGV[1]
 bk_img_id = ARGV[2].to_i
 inc_id    = ARGV[3]
 disk_id   = ARGV[4].to_i
 
+_rhost = dir[0]
+rdir   = dir[1]
+
 begin
     action = TransferManager::Action.new(:action_name => 'restore',
                                          :vm_id => vm_id)
+
+    vm = KVMDomain.new(action.vm.to_xml, rdir)
+
     # --------------------------------------------------------------------------
     # Image & Datastore information
     # --------------------------------------------------------------------------
@@ -74,13 +81,7 @@ begin
         #{bk_img.to_xml}
     EOS
 
-    rc = bk_ds.action("ls -i #{inc_id}", xml_data)
-
-    raise 'cannot list backup contents' unless rc.code == 0
-
-    # e.g.: {"0"=>"rsync://100//0:a47997,1:6ca565/var/lib/one/datastores/100/3/a47997/disk.0.rbd2"}
-    disk_urls = JSON.parse(rc.stdout)
-    disk_urls = disk_urls.select {|id, _url| id.to_i == disk_id } if disk_id != -1
+    disk_urls = bk_ds.ls_increment(inc_id, xml_data, disk_id)
 
     # --------------------------------------------------------------------------
     # Restore disk_urls in Host VM folder
@@ -89,6 +90,32 @@ begin
     success_disks = []
 
     info = {}
+
+    # Recover TPM state
+    if (tpm_url = disk_urls.delete('tpm'))
+        download = <<~EOS
+            #{__dir__}/../../datastore/downloader.sh --nodecomp #{tpm_url} - | \
+              ssh #{rhost} dd of=#{dst} bs=64k
+        EOS
+
+        rc = action.ssh(:host => nil,
+                        :cmds => download,
+                        :forward  => false,
+                        :nostdout => false,
+                        :nostderr => false)
+
+        raise 'cannot download vTPM backup' unless rc.code == 0
+
+        rc = action.ssh(:host => rhost,
+                        :cmds => vm.restore_tpm_sh("#{rdir}/disk.tpm.backup"),
+                        :forward  => false,
+                        :nostdout => false,
+                        :nostderr => false)
+
+        raise 'cannot recover vTPM' unless rc.code == 0
+
+        next
+    end
 
     disk_urls.each do |id, url|
         ceph_disk  = ceph_disks[id.to_i]

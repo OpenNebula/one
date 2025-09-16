@@ -76,6 +76,25 @@ fi
 #-------------------------------------------------------------------------------
 (sudo -l | grep -q vgpu) && sudo /var/tmp/one/vgpu "CREATE" "$DEP_FILE_LOCATION/vm.xml"
 
+#---------------------------------------------------------------------------
+# Recover vTPM directory
+#---------------------------------------------------------------------------
+
+# If there's no saved TPM, try to get it from template (after backup restores)
+if [ ! -d "$DEP_FILE_LOCATION/tpm" ]; then
+    {
+        xmllint --nocdata --xpath 'VM/USER_TEMPLATE/TPM_STATE/text()' "$DEP_FILE_LOCATION/vm.xml" \
+            | base64 -d | tar zxf - -C "$DEP_FILE_LOCATION";
+    } 2> /dev/null || true
+fi
+
+# If there's a saved TPM, copy it to libvirt's directory
+if [ -d "$DEP_FILE_LOCATION/tpm" ]; then
+    DOM_UUID=$(xmllint --xpath '/domain/uuid/text()' "$DEP_FILE")
+    (sudo -l | grep -q vtpm_setup) && sudo /var/tmp/one/vtpm_setup recover "$DOM_UUID" "$DEP_FILE_LOCATION"
+fi
+
+
 DATA=`virsh --connect $LIBVIRT_URI create $DEP_FILE`
 
 if [ "x$?" != "x0" ]; then
