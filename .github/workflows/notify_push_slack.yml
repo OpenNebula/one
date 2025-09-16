@@ -13,22 +13,35 @@ jobs:
     name: Notify Slack on pushes
     runs-on: ubuntu-latest
     steps:
-    
       - name: String manipulation
         run: echo "COMMIT_ONELINER=${{ github.event.head_commit.message }}${{ github.event.pull_request.title }}"|grep -v '^$'|head -1 >> $GITHUB_ENV
 
       - name: It is a merged pull request
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true  && github.repository == 'OpenNebula/one-ee' }}
-        uses: abinoda/slack-action@master
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: slackapi/slack-github-action@v2.1.1
         with:
-          args: '{\"channel\":\"${{ secrets.SLACK_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\" > --> *New PR merged:* <${{ github.event.pull_request.html_url }}|${{ env.COMMIT_ONELINER }}> (<${{ github.event.pull_request.html_url }}|PR>)\n\"}}]}' 
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            channel: ${{ secrets.SLACK_CHANNEL_ID }}
+            text: "New push to master"
+            blocks: 
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "> --> *New Commit:* <${{ github.event.head_commit.url }}|${{ env.COMMIT_ONELINER }}>"
 
       - name: It is a direct push
         if: ${{ github.event_name == 'push' && github.repository == 'OpenNebula/one-ee' }}
-        uses: abinoda/slack-action@master
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: slackapi/slack-github-action@v2.1.1
         with:
-          args: '{\"channel\":\"${{ secrets.SLACK_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\" > --> *New Commit:* <${{ github.event.head_commit.url }}|${{ env.COMMIT_ONELINER }}>\n\"}}]}' 
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            channel: ${{ secrets.SLACK_CHANNEL_ID }}
+            text: "New push to master"
+            blocks: 
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "> --> *New Commit:* <${{ github.event.head_commit.url }}|${{ env.COMMIT_ONELINER }}>"
