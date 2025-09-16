@@ -60,7 +60,7 @@ is_live = action_name.end_with?('_live')
 
 action   = TransferManager::Action.new(:action_name => action_name, :vm_id => vmid)
 ds       = TransferManager::Datastore.from_vm_backup_ds(:vm_xml => vm_xml.to_s)
-vm       = TransferManager::LVM::VM.new(action.vm.to_xml)
+vm       = TransferManager::LVM::VM.new(action.vm.to_xml, rdir)
 script   = vm.backup_disks_sh(:disks      => disks,
                               :backup_dir => backup_dir,
                               :ds         => ds,

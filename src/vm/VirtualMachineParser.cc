@@ -651,7 +651,7 @@ void VirtualMachine::parse_well_known_attributes()
      */
     std::vector<std::string> names = {"INPUT", "FEATURES", "RAW",
                                       "CLONING_TEMPLATE_ID", "TOPOLOGY", "NUMA_NODE", "HYPERV_OPTIONS",
-                                      "SPICE_OPTIONS"
+                                      "SPICE_OPTIONS", "TPM"
                                      };
 
     for (auto it = names.begin(); it != names.end() ; ++it)

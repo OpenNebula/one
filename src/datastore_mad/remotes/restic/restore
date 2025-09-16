@@ -88,6 +88,10 @@ rescue StandardError => e
     exit(-1)
 end
 
+tpm_path = paths[:other][:by_snap][snap].find do |line|
+    line.end_with?('/disk.tpm.0')
+end
+
 # ------------------------------------------------------------------------------
 # Prepare an OpenNebula client to impersonate the target user
 # ------------------------------------------------------------------------------
@@ -154,6 +158,12 @@ vm_template = restorer.vm_template br_disks
 tmpl_id = -1
 
 unless vm_template.nil?
+    # Add saved TPM state to template, if there's one
+    if tpm_path
+        tpm_tgz, _paths = rds.read_document(snap, 'disk.tpm.0')
+        vm_template << "TPM_STATE = \"#{Base64.strict_encode64(tpm_tgz)}\"\n"
+    end
+
     tmpl = OpenNebula::Template.new OpenNebula::Template.build_xml, one_client
     rc   = tmpl.allocate vm_template
 

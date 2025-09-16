@@ -351,7 +351,7 @@ class Restic
     #
     # @return [Hash] data struct, where all paths are grouped by the VM disk's index
     #                and/or by the Restic's snapshot ID (short).
-    def parse_paths(snaps, rhost, path_filter = /^disk\./)
+    def parse_paths(snaps, rhost, path_filter = /^disk\.[0-9]+/)
         # NOTE: This simple API call works, because we deliberately put
         # specific files into Restic snapshots (instead of whole directories).
 
@@ -480,7 +480,7 @@ class Restic
     #
     # @param path_filter [Regexp] expression to match document's basename
     #
-    # @return [String] document's payload encoded in base64
+    # @return [String] document's payload (raw)
     def read_other(snap, other, rhost, path_filter)
         path = other[:by_snap][snap].find do |p|
             path_filter.match? File.basename(p)

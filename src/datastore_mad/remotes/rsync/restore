@@ -107,6 +107,12 @@ begin
         line.include?('/disk.')
     end
 
+    tpm_path = disk_paths.find do |line|
+        line.end_with?('/disk.tpm.0')
+    end
+
+    disk_paths.delete(tpm_path)
+
     vm_xml_path = stdout_lines.find do |line|
         line.include?("/#{snap}/vm.xml")
     end
@@ -196,6 +202,20 @@ vm_template = restorer.vm_template br_disks
 tmpl_id = -1
 
 unless vm_template.nil?
+    # Add saved TPM state to template, if there's one
+    if tpm_path
+        rc = TransferManager::Action.ssh 'get_tpm',
+                                         :host     => "#{rsync_user}@#{rsync_host}",
+                                         :forward  => true,
+                                         :cmds     => "cat '#{tpm_path}'",
+                                         :nostdout => false,
+                                         :nostderr => false
+
+        raise StandardError, "Unable to obtain TPM state: #{rc.stderr}" if rc.code != 0
+
+        vm_template << "TPM_STATE = \"#{Base64.strict_encode64(rc.stdout)}\"\n"
+    end
+
     # Fix template name (maybe not necessary any longer)
     # vm_template.gsub!(%r{(NAME= "[0-9]+-)[0-9]+/}, '\1')
 

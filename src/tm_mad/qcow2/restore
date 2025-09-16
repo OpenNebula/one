@@ -39,6 +39,7 @@ require 'json'
 
 require_relative '../lib/tm_action'
 require_relative '../lib/datastore'
+require_relative '../lib/backup_qcow2'
 
 # Replace a non-persistent VM disk with a backup image
 #   :rhost host where the VM is running
@@ -113,6 +114,9 @@ rdir  = dir[1]
 begin
     action = TransferManager::Action.new(:action_name => 'restore',
                                          :vm_id => vm_id)
+
+    vm = KVMDomain.new(action.vm.to_xml, rdir)
+
     # --------------------------------------------------------------------------
     # Image & Datastore information
     # --------------------------------------------------------------------------
@@ -122,8 +126,8 @@ begin
 
     raise rc.message.to_s if OpenNebula.is_error?(rc)
 
-    ds = TransferManager::Datastore.from_image_ds(:image  => image,
-                                                  :client => action.one)
+    bk_ds = TransferManager::Datastore.from_image_ds(:image  => image,
+                                                     :client => action.one)
     # --------------------------------------------------------------------------
     # Backup information
     # --------------------------------------------------------------------------
@@ -132,11 +136,7 @@ begin
         #{image.to_xml}
     EOS
 
-    rc = ds.action("ls -i #{inc_id}", xml_data)
-
-    raise 'cannot list backup contents' unless rc.code == 0
-
-    disks = JSON.parse(rc.stdout)
+    disks = bk_ds.ls_increment(inc_id, xml_data, disk_id)
 
     # --------------------------------------------------------------------------
     # Restore disks in Host VM folder
@@ -144,9 +144,7 @@ begin
     dpaths = {}
 
     disks.each do |id, url|
-        next if disk_id != -1 && id.to_i != disk_id
-
-        if action.persistent? id
+        if id != 'tpm' && action.persistent?(id)
             isource = action.vm["/VM/TEMPLATE/DISK [ DISK_ID = #{id} ]/SOURCE"]
             dst     = "#{isource}.backup"
 
@@ -186,28 +184,35 @@ begin
     # Replace VM disks with backup copies (~prolog)
     # --------------------------------------------------------------------------
     dpaths.each do |id, rdisk|
-        opts = {
-            :rhost  => rhost,
-            :rdir   => rdir,
-            :id     => id,
-            :path   => rdisk[:path],
-            :source => rdisk[:source]
-        }
+        restore =
+            if id == 'tpm'
+                vm.restore_tpm_sh(rdisk[:path])
+            else
+                opts = {
+                    :rhost  => rhost,
+                    :rdir   => rdir,
+                    :id     => id,
+                    :path   => rdisk[:path],
+                    :source => rdisk[:source]
+                }
 
-        script = if rdisk[:persistent]
-                     replace_p(opts)
-                 else
-                     replace_np(opts)
-                 end
+                if rdisk[:persistent]
+                    replace_p(opts)
+                else
+                    replace_np(opts)
+                end
+            end
 
         rc = action.ssh(:host => rhost,
-                        :cmds => script,
+                        :cmds => restore,
                         :forward  => false,
                         :nostdout => false,
                         :nostderr => false)
 
         raise 'cannot copy disk backup' unless rc.code == 0
     end
+
+    dpaths.delete('tpm')
 
     # Delete bitmaps from all disks after restore, as the chain will be reset
     # (see https://github.com/OpenNebula/one/issues/6741)

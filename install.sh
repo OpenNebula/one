@@ -831,7 +831,8 @@ RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
 # and remotes directory
 #-----------------------------------------------------------------------------
 
-REMOTE_FILES="src/vmm_mad/remotes/kvm/vgpu"
+REMOTE_FILES="src/vmm_mad/remotes/kvm/vgpu
+              src/vmm_mad/remotes/kvm/vtpm_setup"
 
 MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh \
                   src/mad/sh/create_container_image.sh"

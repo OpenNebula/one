@@ -39,6 +39,7 @@ require 'json'
 
 require_relative '../lib/tm_action'
 require_relative '../lib/datastore'
+require_relative '../lib/backup_qcow2'
 
 #-------------------------------------------------------------------------------
 # RESTORE host:remote_system_ds vm_id img_id inc_id disk_id
@@ -55,6 +56,9 @@ rdir  = dir[1]
 begin
     action = TransferManager::Action.new(:action_name => 'restore',
                                          :vm_id => vm_id)
+
+    vm = KVMDomain.new(action.vm.to_xml, rdir)
+
     # --------------------------------------------------------------------------
     # Image & Datastore information
     # --------------------------------------------------------------------------
@@ -64,8 +68,8 @@ begin
 
     raise rc.message.to_s if OpenNebula.is_error?(rc)
 
-    ds = TransferManager::Datastore.from_image_ds(:image  => image,
-                                                  :client => action.one)
+    bk_ds = TransferManager::Datastore.from_image_ds(:image  => image,
+                                                     :client => action.one)
 
     # --------------------------------------------------------------------------
     # Backup information
@@ -75,19 +79,13 @@ begin
         #{image.to_xml}
     EOS
 
-    rc = ds.action("ls -i #{inc_id}", xml_data)
-
-    raise 'cannot list backup contents' unless rc.code == 0
-
-    disks = JSON.parse(rc.stdout)
+    disks = bk_ds.ls_increment(inc_id, xml_data, disk_id)
 
     # --------------------------------------------------------------------------
     # Restore disks in Host VM folder
     # --------------------------------------------------------------------------
     dpaths = {}
     disks.each do |id, url|
-        next if disk_id != -1 && id.to_i != disk_id
-
         download = <<~EOS
             #{__dir__}/../../datastore/downloader.sh --nodecomp #{url} - | \
               ssh #{rhost} dd of=#{rdir}/disk.#{id}.backup bs=64k conv=sparse
@@ -111,13 +109,18 @@ begin
     # Replace VM disks with backup copies (~prolog)
     # --------------------------------------------------------------------------
     dpaths.each do |id, path|
-        copy = <<~EOS
-            [ -d #{rdir}/disk.#{id}.snap ] && rm -rf #{rdir}/disk.#{id}.snap
-            mv #{path} #{rdir}/disk.#{id}
-        EOS
+        restore =
+            if id == 'tpm'
+                vm.restore_tpm_sh(path)
+            else
+                <<~EOS
+                    [ -d #{rdir}/disk.#{id}.snap ] && rm -rf #{rdir}/disk.#{id}.snap
+                    mv #{path} #{rdir}/disk.#{id}
+                EOS
+            end
 
         rc = action.ssh(:host => rhost,
-                        :cmds => copy,
+                        :cmds => restore,
                         :forward  => false,
                         :nostdout => false,
                         :nostderr => false)

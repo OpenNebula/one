@@ -38,6 +38,7 @@ require 'rexml/document'
 
 require_relative '../lib/tm_action'
 require_relative '../lib/datastore'
+require_relative '../lib/backup_qcow2'
 
 #-------------------------------------------------------------------------------
 # BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid bjid dsid
@@ -46,15 +47,15 @@ TransferManager::Datastore.load_env
 
 vm_xml = STDIN.read
 
-dir        = ARGV[0].split ':'
+loc        = ARGV[0].split ':'
 disks      = ARGV[1]
 _deploy_id = ARGV[2]
 _bjid      = ARGV[3]
 vmid       = ARGV[4]
 _dsid      = ARGV[5]
 
-rhost     = dir[0]
-rdir      = dir[1]
+rhost    = loc[0]
+rdir     = loc[1]
 
 base_path = ENV['BACKUP_BASE_PATH']
 
@@ -107,6 +108,8 @@ end
 ds  = TransferManager::Datastore.from_vm_backup_ds(:vm_xml => vm_xml)
 cmd = ds.cmd_confinement(qcow2_cmd, rdir)
 
+vm = KVMDomain.new(vm_xml, rdir, :backup_dir => bck_dir)
+
 pre_script = <<~EOS
     set -ex -o pipefail
 
@@ -122,6 +125,11 @@ pre_script = <<~EOS
     mkdir -p #{bck_dir}
 
     echo "#{Base64.encode64(vm_xml)}" > #{bck_dir}/vm.xml
+
+    # --------------------------------------
+    # Save TPM state
+    # --------------------------------------
+    #{vm.save_tpm_sh}
 
     # --------------------------------------
     # Create backup live

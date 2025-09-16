@@ -167,6 +167,24 @@ module TransferManager
                        :nostderr => false)
         end
 
+        # Executes the "ls -i" action
+        def ls_increment(inc_id, xml_data, disk_id)
+            rc = action("ls -i #{inc_id}", xml_data)
+            raise 'cannot list backup contents' unless rc.code == 0
+
+            # Format:
+            # {"0"=>"rsync://100//0:a47997,1:6ca565/var/lib/one/datastores/100/3/a47997/disk.0.0"}
+            disks = JSON.parse(rc.stdout)
+
+            # Keep 'tpm' (will be filtered later) and disks matching disk_id
+            disks.select! {|id, _url| id == 'tpm' || id.to_i == disk_id } if disk_id != -1
+
+            # Recover TPM state if at least disk 0 is being recovered too
+            disks.delete('tpm') unless disks.key?('0')
+
+            disks
+        end
+
         # Select a host from the datastore's BRIDGE_LIST.
         # Equivalent to `get_destination_host` from datastore_mad/remotes/libfs.sh
         #

@@ -41,6 +41,7 @@ require 'securerandom'
 require_relative '../lib/tm_action'
 require_relative '../lib/datastore'
 require_relative '../lib/lvm'
+require_relative '../lib/backup_qcow2'
 
 #-------------------------------------------------------------------------------
 # RESTORE host:remote_system_ds vm_id img_id inc_id disk_id
@@ -56,6 +57,8 @@ rdir      = dir[1]
 
 action   = TransferManager::Action.new(:action_name => 'restore', :vm_id => vm_id)
 vm_disks = TransferManager::LVM::Disk.from_vm(action.vm.to_xml)
+
+vm = KVMDomain.new(action.vm.to_xml, rdir)
 
 begin
     # --------------------------------------------------------------------------
@@ -78,13 +81,7 @@ begin
         #{bk_img.to_xml}
     EOS
 
-    rc = bk_ds.action("ls -i #{inc_id}", xml_data)
-
-    raise 'cannot list backup contents' unless rc.code == 0
-
-    # e.g.: {"0"=>"rsync://100//0:a47997,1:6ca565/var/lib/one/datastores/100/3/a47997/disk.0.rbd2"}
-    disks = JSON.parse(rc.stdout)
-    disks = disks.select {|id, _url| id.to_i == disk_id } if disk_id != -1
+    disks = bk_ds.ls_increment(inc_id, xml_data, disk_id)
 
     # --------------------------------------------------------------------------
     # Restore disk_urls in Host VM folder
@@ -105,10 +102,10 @@ begin
                         :nostderr => false)
         next unless rc.code == 0
 
-        dpaths[id.to_i] = backup_file
+        dpaths[id] = backup_file
     end
 
-    # Rollback and raise error if it was unable to restore all disks
+    # Rollback and raise error if it was unable to download all disks
     if dpaths.length != disks.length
         cleanup = []
         dpaths.each do |_id, path|
@@ -130,9 +127,13 @@ begin
     restore = []
     cleanup = []
     dpaths.each do |id, path|
-        (r, c) = vm_disks[id].restore_cmds(path)
-        restore << r
-        cleanup << c
+        if id == 'tpm'
+            restore << vm.restore_tpm_sh(path)
+        else
+            (r, c) = vm_disks[id.to_i].restore_cmds(path)
+            restore << r
+            cleanup << c
+        end
     end
     script = <<~EOS
         trap "#{cleanup.join ';'}" EXIT

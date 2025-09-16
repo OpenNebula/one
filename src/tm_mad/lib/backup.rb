@@ -21,6 +21,7 @@ require 'rexml/document'
 
 require_relative 'kvm'
 require_relative 'shell'
+require_relative 'backup_qcow2'
 
 module TransferManager
 
@@ -29,9 +30,10 @@ module TransferManager
 
         include TransferManager::KVM
 
-        def initialize(vm_xml, disks)
-            @xml   = vm_xml
-            @disks = disks
+        def initialize(vm_xml, vm_dir, disks)
+            @xml    = vm_xml
+            @vm_dir = vm_dir
+            @disks  = disks
         end
 
         def backup_disks_sh(options = {})
@@ -41,6 +43,8 @@ module TransferManager
             live        = options[:live]
             deploy_id   = options[:deploy_id]
             bridge_host = options[:bridge_host]
+
+            kvm = KVMDomain.new(@xml, @vm_dir, :backup_dir => backup_dir)
 
             snap_cmd = ''
             expo_cmd = ''
@@ -109,6 +113,11 @@ module TransferManager
 
             eos2 = <<~EOS2
                 set -ex -o pipefail
+
+                # --------------------------------------
+                # Save TPM state
+                # --------------------------------------
+                #{kvm.save_tpm_sh}
 
                 # --------------------------
                 # Export, convert & cleanup
