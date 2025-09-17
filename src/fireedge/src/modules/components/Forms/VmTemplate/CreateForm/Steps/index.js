@@ -100,12 +100,16 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     const schedRequirements = vmTemplate?.TEMPLATE?.SCHED_REQUIREMENTS
     if (schedRequirements) {
       objectSchema[EXTRA_ID].SCHED_REQUIREMENTS = schedRequirements
-      const parts = schedRequirements?.split(' | ')
+      const parts = schedRequirements
+        ?.split('&')
+        ?.flatMap((part) => part.split('|'))
+        ?.map((part) => part?.trim())
+
       const tableIds = parts?.reduce((ids, part) => {
         if (part?.includes('ID')) {
           const isCluster = part.toUpperCase().includes(T.Cluster.toUpperCase())
           const tableId = isCluster ? T.Cluster : T.Host
-          const partId = part?.split(' = ')?.at(-1)?.trim()
+          const partId = [].concat(part?.match(/\d+/g))?.flat()?.pop()
           if (!partId) return ids
           ;(ids[tableId] ??= []).push(partId)
         }
