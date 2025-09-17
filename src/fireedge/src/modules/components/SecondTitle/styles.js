@@ -38,6 +38,9 @@ const styles = ({ palette }) => ({
       color: palette.breadCrumb.navigateDeactive.hover.color,
     },
   }),
+  parentText: css({
+    color: palette.breadCrumb.navigateDeactive.color,
+  }),
   linkActive: css({
     color: palette.breadCrumb.navigate.color,
     '&:hover': {

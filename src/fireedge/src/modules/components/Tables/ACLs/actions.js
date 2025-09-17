@@ -18,7 +18,7 @@ import { DesignPencil, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { AclAPI, useViews } from '@FeaturesModule'
+import { AclAPI, useGeneralApi, useViews } from '@FeaturesModule'
 
 import {
   createActions,
@@ -71,6 +71,7 @@ const Actions = (props = {}) => {
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [remove] = AclAPI.useRemoveAclMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   return useMemo(
     () =>
@@ -85,7 +86,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.SYSTEM.ACLS.CREATE, false),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.SYSTEM.ACLS.CREATE, false)
+            },
           },
           {
             accessor: ACL_ACTIONS.CREATE_DIALOG_STRING,
@@ -95,7 +99,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.SYSTEM.ACLS.CREATE, true),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.SYSTEM.ACLS.CREATE, true)
+            },
           },
           {
             accessor: ACL_ACTIONS.DELETE,

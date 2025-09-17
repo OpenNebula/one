@@ -18,7 +18,7 @@ import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { ClusterAPI, useViews } from '@FeaturesModule'
+import { ClusterAPI, useGeneralApi, useViews } from '@FeaturesModule'
 
 import {
   createActions,
@@ -72,6 +72,7 @@ const Actions = (props = {}) => {
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [remove] = ClusterAPI.useRemoveClusterMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   return useMemo(
     () =>
@@ -86,7 +87,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.INFRASTRUCTURE.CLUSTERS.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.INFRASTRUCTURE.CLUSTERS.CREATE)
+            },
           },
           {
             accessor: CLUSTER_ACTIONS.UPDATE_DIALOG,

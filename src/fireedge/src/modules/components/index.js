@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/components/Alerts'
-export * from '@modules/components/Breadcrumb'
+export * from '@modules/components/SecondTitle'
 export * from '@modules/components/Buttons'
 export * from '@modules/components/Cards'
 export * from '@modules/components/Charts'

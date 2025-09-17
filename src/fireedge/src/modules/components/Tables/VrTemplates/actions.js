@@ -18,7 +18,12 @@ import { Group, Lock, Play, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useViews, VmTemplateAPI, VrTemplateAPI } from '@FeaturesModule'
+import {
+  useGeneralApi,
+  useViews,
+  VmTemplateAPI,
+  VrTemplateAPI,
+} from '@FeaturesModule'
 
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 import { CloneForm, DeleteForm } from '@modules/components/Forms/VmTemplate'
@@ -84,6 +89,7 @@ const Actions = (props = {}) => {
   const [changeOwnership] = VmTemplateAPI.useChangeTemplateOwnershipMutation()
   const [changePermissions] =
     VmTemplateAPI.useChangeTemplatePermissionsMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   return useMemo(
     () =>
@@ -98,7 +104,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.TEMPLATE.VROUTERS.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.TEMPLATE.VROUTERS.CREATE)
+            },
           },
           {
             accessor: VROUTER_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,

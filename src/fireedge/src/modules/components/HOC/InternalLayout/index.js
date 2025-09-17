@@ -25,7 +25,7 @@ import Header from '@modules/components/Header'
 import internalStyles from '@modules/components/HOC/InternalLayout/styles'
 import { footer, sidebar } from '@ProvidersModule'
 
-import { SunstoneBreadcrumb } from '@modules/components/Breadcrumb'
+import { SunstoneSecondTitle } from '@modules/components/SecondTitle'
 
 const InternalLayout = ({ children, ...route }) => {
   const theme = useTheme()
@@ -82,7 +82,7 @@ const InternalLayout = ({ children, ...route }) => {
             className={classes.scrollable}
             maxWidth="xl"
           >
-            <SunstoneBreadcrumb route={route} />
+            <SunstoneSecondTitle route={route} />
             {children}
           </Container>
         </CSSTransition>

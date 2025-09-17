@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { T } from '@ConstantsModule'
 import { Box, Paper, useTheme } from '@mui/material'
-import { ReactElement, useMemo, useState, useEffect } from 'react'
+import { ReactElement, useEffect, useMemo, useState } from 'react'
 
 import { TranslateProvider } from '@ComponentsModule'
 
@@ -101,9 +101,9 @@ export const Settings = () => {
   const [selectedOption, setSelectedOption] = useState(preferences)
   const setting = optionsSettings[selectedOption]
 
-  // Empty subsection in breadcrumb
-  const { setBreadcrumb } = useGeneralApi()
-  useEffect(() => setBreadcrumb({}), [])
+  // Delete second title
+  const { setSecondTitle } = useGeneralApi()
+  useEffect(() => setSecondTitle({}), [])
 
   return (
     <TranslateProvider>

@@ -18,7 +18,7 @@ import { Cart, Group, Lock, MoreVert, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { ImageAPI, useViews } from '@FeaturesModule'
+import { ImageAPI, useGeneralApi, useViews } from '@FeaturesModule'
 
 import { CloneForm } from '@modules/components/Forms/Image'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
@@ -88,6 +88,7 @@ const Actions = (props = {}) => {
   const [persistent] = ImageAPI.usePersistentImageMutation()
   const [changeOwnership] = ImageAPI.useChangeImageOwnershipMutation()
   const [deleteImage] = ImageAPI.useRemoveImageMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   const resourcesView = getResourceView(RESOURCE_NAMES.IMAGE)?.actions
 
@@ -105,7 +106,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.STORAGE.IMAGES.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.STORAGE.IMAGES.CREATE)
+            },
           },
           {
             accessor: VM_ACTIONS.CREATE_APP_DIALOG,
@@ -120,7 +124,7 @@ const Actions = (props = {}) => {
             action: (rows) => {
               const vm = rows?.[0]?.original ?? {}
               const path = PATH.STORAGE.MARKETPLACE_APPS.CREATE
-
+              setSecondTitle({})
               history.push(path, [RESOURCE_NAMES.VM, vm])
             },
           },

@@ -87,7 +87,7 @@ const Actions = (props = {}) => {
   const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
-  const { enqueueSuccess } = useGeneralApi()
+  const { enqueueSuccess, setSecondTitle } = useGeneralApi()
   const [exportApp] = MarketplaceAppAPI.useExportAppMutation()
   const [downloadApp] = MarketplaceAppAPI.useDownloadAppMutation()
   const [lock] = MarketplaceAppAPI.useLockAppMutation()
@@ -111,6 +111,7 @@ const Actions = (props = {}) => {
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => {
+              setSecondTitle({})
               history.push(PATH.STORAGE.MARKETPLACE_APPS.CREATE)
             },
           },

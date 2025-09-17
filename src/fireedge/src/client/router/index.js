@@ -27,14 +27,15 @@ import {
 
 import { InternalLayout, NoAuthRoute, ProtectedRoute } from '@ComponentsModule'
 
-const flattenRoutes = (routes) =>
+const flattenRoutes = (routes, parent) =>
   routes.flatMap((r) => {
     const current = {
       title: r.title || r.path,
       path: r.path,
+      parent: parent?.title,
     }
 
-    return r.routes ? [current, ...flattenRoutes(r.routes)] : [current]
+    return r.routes ? [current, ...flattenRoutes(r.routes, current)] : [current]
   })
 
 const renderRoute = (endpoints) => {

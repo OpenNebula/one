@@ -99,7 +99,7 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 const Actions = (props = {}) => {
   const { setSelectedRows } = props
   const dispatch = useDispatch()
-  const { enqueueError, enqueueInfo } = useGeneralApi()
+  const { enqueueError, enqueueInfo, setSecondTitle } = useGeneralApi()
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [enable] = HostAPI.useEnableHostMutation()
@@ -122,7 +122,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.INFRASTRUCTURE.HOSTS.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.INFRASTRUCTURE.HOSTS.CREATE)
+            },
           },
           {
             accessor: HOST_ACTIONS.CHANGE_CLUSTER,

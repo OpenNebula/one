@@ -18,7 +18,7 @@ import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { UserAPI, useViews } from '@FeaturesModule'
+import { useGeneralApi, UserAPI, useViews } from '@FeaturesModule'
 
 import {
   createActions,
@@ -76,6 +76,7 @@ const Actions = (props = {}) => {
   const [enable] = useEnableUserMutation()
   const [remove] = useRemoveUserMutation()
   const [disable] = useDisableUserMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   return useMemo(
     () =>
@@ -90,7 +91,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.SYSTEM.USERS.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.SYSTEM.USERS.CREATE)
+            },
           },
           {
             accessor: USER_ACTIONS.ENABLE,
