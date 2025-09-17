@@ -75,11 +75,12 @@ case "${TARGET}" in
     'redhat')
         echo "* Install Build Dependencies for ${TARGET}"
 
-        yum -y install ruby-devel make gcc sqlite-devel mysql-devel \
+        dnf -y install ruby-devel make gcc sqlite-devel \
             openssl-devel curl-devel rubygem-rake libxml2-devel \
             libxslt-devel patch expat-devel gcc-c++ rpm-build augeas-devel \
             rubygems \
             >/dev/null
+        dnf -y install mysql-devel || dnf -y install mariadb-devel  # el10 missing mysql-devel
         ;;
     *)
         echo "Unknown target ${TARGET}. Skipping build dependencies" >&2

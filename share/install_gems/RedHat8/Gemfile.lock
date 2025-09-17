@@ -97,7 +97,6 @@ GEM
     nokogiri (1.12.5)
       mini_portile2 (~> 2.6.1)
       racc (~> 1.4)
-    opennebula-augeas (0.6.6)
     optimist (3.2.1)
     ox (2.14.14)
     parse-cron (0.1.4)
@@ -116,6 +115,7 @@ GEM
       optimist (~> 3.0)
     rchardet (1.8.0)
     rexml (3.4.4)
+    ruby-augeas (0.6.0)
     ruby-saml (1.14.0)
       nokogiri (>= 1.10.5)
       rexml
@@ -171,7 +171,6 @@ DEPENDENCIES
   mysql2
   net-ldap
   nokogiri
-  opennebula-augeas (>= 0.6.6.pre)
   ox
   parse-cron
   prometheus-client
@@ -179,6 +178,7 @@ DEPENDENCIES
   rack
   rbvmomi2
   rexml
+  ruby-augeas
   ruby-saml
   sequel
   sinatra (< 4.0.0)
