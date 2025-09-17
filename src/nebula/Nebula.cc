@@ -256,7 +256,7 @@ void Nebula::start(bool bootstrap_only)
 
         if ( rc != 0 )
         {
-            throw runtime_error("Error getting hostname" +
+            throw runtime_error("Error getting hostname: " +
                                 std::string(strerror(rc)));
         }
 
@@ -264,7 +264,7 @@ void Nebula::start(bool bootstrap_only)
 
         if ( rc != 0 )
         {
-            throw runtime_error("Error getting hostname: " +
+            throw runtime_error("Unable to resolve hostname '" + std::string(hn) + "': " +
                                 std::string(gai_strerror(rc)));
         }
 
