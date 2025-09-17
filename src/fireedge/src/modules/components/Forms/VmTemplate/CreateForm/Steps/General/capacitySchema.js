@@ -21,6 +21,7 @@ import {
   MEMORY_RESIZE_OPTIONS,
   T,
   UNITS,
+  MAXIMUM_CPU_SHARES,
   VmTemplateFeatures,
 } from '@ConstantsModule'
 import { formatNumberByCurrency } from '@ModelsModule'
@@ -122,7 +123,10 @@ export const PHYSICAL_CPU = generateCapacityInput({
   name: 'CPU',
   label: T.PhysicalCpuWithPercent,
   tooltip: T.CpuConcept,
-  validation: commonValidation.required(),
+  validation: number()
+    .positive()
+    .max(MAXIMUM_CPU_SHARES)
+    .default(() => undefined),
 })
 
 /** @type {Field[]} Modification inputs on CPU field */

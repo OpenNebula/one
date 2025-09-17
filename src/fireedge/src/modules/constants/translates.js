@@ -1059,7 +1059,7 @@ module.exports = {
   Capacity: 'Capacity',
   CostPerHour: 'Cost / Hour',
   PhysicalCpu: 'Physical CPU',
-  PhysicalCpuWithPercent: 'Physical CPU (%)',
+  PhysicalCpuWithPercent: 'Physical CPU',
   VirtualCpu: 'Virtual CPU',
   VirtualCpuWithDecimal: 'Virtual CPU',
   VirtualCores: 'Virtual Cores',
@@ -1265,8 +1265,9 @@ module.exports = {
   MemoryConceptUnit: 'Choose unit of memory',
   MemoryConceptUserInput: '(This value is represented in MB)',
   CpuConcept: `
-    Percentage of CPU divided by 100 required for the
-    Virtual Machine. Half a processor is written 0.5`,
+    Defines the relative share of CPU time assigned to this VM.
+    A higher value gives the VM more processing power compared to others on the same host.
+    `,
   MaxVirtualCpu: 'Max Virtual CPU',
   MaxVirtualCpuConcept: `
     This value sets the maximum value of the VCPU allowed to be modified
