@@ -18,7 +18,7 @@ import { Group, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { SecurityGroupAPI, useViews } from '@FeaturesModule'
+import { SecurityGroupAPI, useGeneralApi, useViews } from '@FeaturesModule'
 import { Form, PATH } from '@modules/components'
 
 import {
@@ -81,6 +81,7 @@ const Actions = (props = {}) => {
     SecurityGroupAPI.useChangeSecGroupOwnershipMutation()
   const [deleteSecGroup] = SecurityGroupAPI.useRemoveSecGroupMutation()
   const [commitSecGroup] = SecurityGroupAPI.useCommitSegGroupMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   const resourcesView = getResourceView(RESOURCE_NAMES.SEC_GROUP)?.actions
 
@@ -99,6 +100,7 @@ const Actions = (props = {}) => {
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => {
+              setSecondTitle({})
               history.push(PATH.NETWORK.SEC_GROUPS.CREATE)
             },
           },
@@ -113,7 +115,7 @@ const Actions = (props = {}) => {
             action: (rows) => {
               const secGroups = rows?.[0]?.original ?? {}
               const path = PATH.NETWORK.SEC_GROUPS.CREATE
-
+              setSecondTitle({})
               history.push(path, secGroups)
             },
           },

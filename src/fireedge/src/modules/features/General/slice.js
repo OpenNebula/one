@@ -35,7 +35,7 @@ const initial = {
   isUpdateDialog: false,
   isFullMode: false,
   tableViewMode: TABLE_VIEW_MODE.CARD,
-  breadcrumb: { parent: {}, child: {} },
+  secondTitle: {},
   loadedOsProfile: {},
   upload: 0,
   notifications: [],
@@ -94,8 +94,8 @@ const slice = createSlice({
       .addCase(actions.setFullMode, (state, { payload }) => {
         state.isFullMode = !!payload
       })
-      .addCase(actions.setBreadcrumb, (state, { payload }) => {
-        state.breadcrumb = payload
+      .addCase(actions.setSecondTitle, (state, { payload }) => {
+        state.secondTitle = payload
       })
       .addCase(actions.setTableViewMode, (state, { payload }) => {
         state.tableViewMode = payload

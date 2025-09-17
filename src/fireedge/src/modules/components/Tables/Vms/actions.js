@@ -101,7 +101,7 @@ const Actions = (props = {}) => {
   const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
-  const { enqueueSuccess } = useGeneralApi()
+  const { enqueueSuccess, setSecondTitle } = useGeneralApi()
 
   const [saveAsTemplate] = VmAPI.useSaveAsTemplateMutation()
   const [actionVm] = VmAPI.useActionVmMutation()
@@ -553,7 +553,7 @@ const Actions = (props = {}) => {
             action: (rows) => {
               const vm = rows?.[0]?.original ?? {}
               const path = PATH.STORAGE.MARKETPLACE_APPS.CREATE
-
+              setSecondTitle({})
               history.push(path, [RESOURCE_NAMES.VM, vm])
             },
           },

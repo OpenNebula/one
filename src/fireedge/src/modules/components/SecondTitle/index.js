@@ -15,9 +15,9 @@
  * ------------------------------------------------------------------------- */
 import { T } from '@ConstantsModule'
 import { useGeneral } from '@FeaturesModule'
-import breadcrumbStyles from '@modules/components/Breadcrumb/styles'
 import { Translate } from '@modules/components/HOC'
 import { PATH } from '@modules/components/path'
+import styles from '@modules/components/SecondTitle/styles'
 import { Link, Typography, useTheme } from '@mui/material'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import clsx from 'clsx'
@@ -34,6 +34,7 @@ import {
 const navigations = {
   vm: {
     filter: PATH.TEMPLATE.VMS.LIST,
+    parent: T.Instances,
     title: [T.VMs, T.CreateVM],
     path: [PATH.INSTANCE.VMS.LIST],
   },
@@ -43,9 +44,16 @@ const resolvePath = (path, params) =>
   path.replace(/:([a-zA-Z0-9_]+)/g, (_, key) => params[key] || `:${key}`)
 
 const NavigateBreadcrumb = ({ route, breadcrumbClass = {} }) => {
-  const { navigate, link, linkActive } = breadcrumbClass
+  const { navigate, link, linkActive, parentText } = breadcrumbClass
   const params = useParams()
   const { state: { navigateUrl } = {} } = useLocation()
+  const routes = route?.breadcrumb || []
+
+  const parentBreadcrumb = routes.find((b) => b.parent)
+  const parentData = parentBreadcrumb?.path ? [parentBreadcrumb.path] : []
+  const parentTitle = parentData?.includes(navigations?.[navigateUrl]?.filter)
+    ? navigations[navigateUrl].parent
+    : parentBreadcrumb.parent
 
   return (
     <Breadcrumbs
@@ -63,7 +71,16 @@ const NavigateBreadcrumb = ({ route, breadcrumbClass = {} }) => {
       >
         <Home />
       </Link>
-      {route.breadcrumb.map(({ title, path }, index) => {
+      {parentData.length && (
+        <Typography
+          key={`parent-${parentTitle}`}
+          color="textPrimary"
+          className={clsx(parentText, link)}
+        >
+          <Translate word={parentTitle} />
+        </Typography>
+      )}
+      {routes.map(({ title, path }, index) => {
         const isLast = index === route.breadcrumb.length - 1
         const { title: navTitle, path: navPath } = path.includes(
           navigations?.[navigateUrl]?.filter
@@ -103,15 +120,15 @@ NavigateBreadcrumb.displayName = 'NavigateBreadcrumb'
  * @param {object} params.route - Route of the page
  * @returns {object} - Breadcrumb
  */
-const SunstoneBreadcrumb = ({ route }) => {
+const SunstoneSecondTitle = ({ route }) => {
   const hasBreadcrumbs =
-    Array.isArray(route?.breadcrumb) && route?.breadcrumb?.length >= 1
+    Array.isArray(route?.breadcrumb) && route?.breadcrumb?.length > 1
   const theme = useTheme()
-  const classes = useMemo(() => breadcrumbStyles(theme), [theme])
+  const classes = useMemo(() => styles(theme), [theme])
 
   const history = useHistory()
 
-  const { breadcrumb } = useGeneral()
+  const { secondTitle } = useGeneral()
 
   const handleOnClick = (routeToNavigate) => {
     history.push(routeToNavigate)
@@ -131,20 +148,18 @@ const SunstoneBreadcrumb = ({ route }) => {
           className={classes.title}
           onClick={() => handleOnClick(route?.path)}
         >
-          {route?.title && route?.title}
+          {route?.title}
         </Link>
-        <Typography>
-          {breadcrumb?.subsection && breadcrumb?.subsection}
-        </Typography>
+        <Typography>{secondTitle?.subsection}</Typography>
       </Breadcrumbs>
     </div>
   )
 }
 
-SunstoneBreadcrumb.propTypes = {
+SunstoneSecondTitle.propTypes = {
   route: PropTypes.object,
 }
 
-SunstoneBreadcrumb.displayName = 'SunstoneBreadcrumb'
+SunstoneSecondTitle.displayName = 'SunstoneSecondTitle'
 
-export { SunstoneBreadcrumb }
+export { SunstoneSecondTitle }

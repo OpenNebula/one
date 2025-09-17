@@ -80,14 +80,12 @@ const ResourcesBackButton = memo(
     const { FULL_SCREEN_INFO, ROW_STYLE } = fireedge
     const { fullViewMode, rowStyle } = SERVER_CONFIG
 
-    const { setTableViewMode } = useGeneralApi()
+    const { setTableViewMode, setFullMode, setSecondTitle } = useGeneralApi()
+    const { isFullMode } = useGeneral()
 
     useEffect(() => {
       setTableViewMode(ROW_STYLE || rowStyle)
     }, [ROW_STYLE, rowStyle])
-
-    const { isFullMode } = useGeneral()
-    const { setFullMode, setBreadcrumb } = useGeneralApi()
 
     const [showInfo, setShowInfo] = useState(() => false)
     const [propsResize, setPropsResize] = useState(() => defaultPropsResize)
@@ -135,9 +133,9 @@ const ResourcesBackButton = memo(
         // Construct the subsection string conditionally
         const subsection = name ? `#${id} ${name}` : `#${id}`
 
-        setBreadcrumb({ subsection })
+        setSecondTitle({ subsection })
       } else {
-        setBreadcrumb({})
+        setSecondTitle({})
       }
     }, [selectedRows])
 

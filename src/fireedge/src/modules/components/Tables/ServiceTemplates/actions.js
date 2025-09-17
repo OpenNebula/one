@@ -18,7 +18,7 @@ import { Group, Play, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { ServiceTemplateAPI, useViews } from '@FeaturesModule'
+import { ServiceTemplateAPI, useGeneralApi, useViews } from '@FeaturesModule'
 
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 import {
@@ -74,6 +74,7 @@ const Actions = (props = {}) => {
   const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
+  const { setSecondTitle } = useGeneralApi()
 
   // const [clone] = useCloneTemplateMutation()
   const [remove] = ServiceTemplateAPI.useRemoveServiceTemplateMutation()
@@ -93,7 +94,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.TEMPLATE.SERVICES.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.TEMPLATE.SERVICES.CREATE)
+            },
           },
           {
             accessor: SERVICE_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,

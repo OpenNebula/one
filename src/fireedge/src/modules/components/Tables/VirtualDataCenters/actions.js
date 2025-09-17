@@ -18,7 +18,7 @@ import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useViews, VdcAPI } from '@FeaturesModule'
+import { useGeneralApi, useViews, VdcAPI } from '@FeaturesModule'
 
 import {
   createActions,
@@ -67,6 +67,7 @@ const Actions = (props = {}) => {
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [remove] = VdcAPI.useRemoveVDCMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   return useMemo(
     () =>
@@ -81,7 +82,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.SYSTEM.VDCS.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.SYSTEM.VDCS.CREATE)
+            },
           },
           {
             accessor: VDC_ACTIONS.UPDATE_DIALOG,

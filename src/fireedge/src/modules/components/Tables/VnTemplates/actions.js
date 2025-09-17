@@ -18,7 +18,12 @@ import { Group, Lock, Play, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { ClusterAPI, useViews, VnTemplateAPI } from '@FeaturesModule'
+import {
+  ClusterAPI,
+  useGeneralApi,
+  useViews,
+  VnTemplateAPI,
+} from '@FeaturesModule'
 
 import { ChangeClusterForm } from '@modules/components/Forms/Cluster'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
@@ -88,6 +93,7 @@ const Actions = (props = {}) => {
   const [unlock] = VnTemplateAPI.useUnlockVNTemplateMutation()
   const [changeOwnership] = VnTemplateAPI.useChangeVNTemplateOwnershipMutation()
   const [remove] = VnTemplateAPI.useRemoveVNTemplateMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   const actions = useMemo(
     () =>
@@ -103,7 +109,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.NETWORK.VN_TEMPLATES.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.NETWORK.VN_TEMPLATES.CREATE)
+            },
           },
           {
             accessor: VN_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,

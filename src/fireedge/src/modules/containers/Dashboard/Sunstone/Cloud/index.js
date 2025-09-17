@@ -18,10 +18,10 @@ import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
 import {
   HostAPI,
+  useGeneralApi,
   UserAPI,
   useViews,
   VmAPI,
-  useGeneralApi,
 } from '@FeaturesModule'
 import {
   DashboardButton,
@@ -34,7 +34,7 @@ import {
 import { Box, Grid, useTheme } from '@mui/material'
 import clsx from 'clsx'
 import PropTypes from 'prop-types'
-import { ReactElement, useMemo, useEffect } from 'react'
+import { ReactElement, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
 const { DASHBOARD, VM_TEMPLATE } = RESOURCE_NAMES
@@ -77,9 +77,9 @@ export default function CloudDashboard({ view }) {
   const classes = useMemo(() => styles(theme))
   const { push: goTo } = useHistory()
 
-  // Empty subsection in breadcrumb
-  const { setBreadcrumb } = useGeneralApi()
-  useEffect(() => setBreadcrumb({}), [])
+  // Delete second title
+  const { setSecondTitle } = useGeneralApi()
+  useEffect(() => setSecondTitle({}), [])
 
   const { data: quotaData = {} } = UserAPI.useGetUserQuery({})
   const { data: vmpoolMonitoringData = {}, isFetching: isFetchingVm } =

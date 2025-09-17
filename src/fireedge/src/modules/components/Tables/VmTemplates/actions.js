@@ -18,7 +18,7 @@ import { Cart, Group, Lock, Play, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useViews, VmTemplateAPI } from '@FeaturesModule'
+import { useGeneralApi, useViews, VmTemplateAPI } from '@FeaturesModule'
 
 import {
   createActions,
@@ -74,7 +74,7 @@ const Actions = (props = {}) => {
   const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
-
+  const { setSecondTitle } = useGeneralApi()
   const [lock] = VmTemplateAPI.useLockTemplateMutation()
   const [unlock] = VmTemplateAPI.useUnlockTemplateMutation()
   const [clone] = VmTemplateAPI.useCloneTemplateMutation()
@@ -93,7 +93,10 @@ const Actions = (props = {}) => {
             label: T.Create,
             tooltip: T.Create,
             icon: Plus,
-            action: () => history.push(PATH.TEMPLATE.VMS.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.TEMPLATE.VMS.CREATE)
+            },
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,

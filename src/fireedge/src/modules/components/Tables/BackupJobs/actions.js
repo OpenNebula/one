@@ -17,7 +17,7 @@ import { Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { BackupJobAPI, useViews } from '@FeaturesModule'
+import { BackupJobAPI, useGeneralApi, useViews } from '@FeaturesModule'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 import { Group, Lock, Play, Plus, Trash } from 'iconoir-react'
 
@@ -87,6 +87,7 @@ const Actions = (props = {}) => {
   const [unlock] = BackupJobAPI.useUnlockBackupJobMutation()
   const [start] = BackupJobAPI.useStartBackupJobMutation()
   const [cancel] = BackupJobAPI.useCancelBackupJobMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   return useMemo(
     () =>
@@ -102,7 +103,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.STORAGE.BACKUPJOBS.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.STORAGE.BACKUPJOBS.CREATE)
+            },
           },
           {
             accessor: BACKUPJOB_ACTIONS.START,

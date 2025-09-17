@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ClusterAPI, DatastoreAPI, useViews } from '@FeaturesModule'
+import {
+  ClusterAPI,
+  DatastoreAPI,
+  useGeneralApi,
+  useViews,
+} from '@FeaturesModule'
 import { ChangeClusterForm } from '@modules/components/Forms/Cluster'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 import { Translate } from '@modules/components/HOC'
@@ -68,6 +73,7 @@ const Actions = (props = {}) => {
   const [changeOwnership] = DatastoreAPI.useChangeDatastoreOwnershipMutation()
   const [addCluster] = ClusterAPI.useAddDatastoreToClusterMutation()
   const [removeCluster] = ClusterAPI.useRemoveDatastoreFromClusterMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   const datastoreActions = useMemo(
     () =>
@@ -83,7 +89,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.STORAGE.DATASTORES.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.STORAGE.DATASTORES.CREATE)
+            },
           },
           {
             accessor: DATASTORE_ACTIONS.CHANGE_CLUSTER,

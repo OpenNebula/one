@@ -37,7 +37,8 @@ export const useGeneralApi = () => {
     setUpdateDialog: (updateDialog) =>
       dispatch(actions.setUpdateDialog(updateDialog)),
     setFullMode: (fullMode) => dispatch(actions.setFullMode(fullMode)),
-    setBreadcrumb: (breadcrumb) => dispatch(actions.setBreadcrumb(breadcrumb)),
+    setSecondTitle: (resourceName) =>
+      dispatch(actions.setSecondTitle(resourceName)),
     setTableViewMode: (tableViewMode) =>
       dispatch(actions.setTableViewMode(tableViewMode)),
 

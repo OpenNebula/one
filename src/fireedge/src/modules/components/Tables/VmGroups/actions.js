@@ -18,7 +18,7 @@ import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useViews, VmGroupAPI } from '@FeaturesModule'
+import { useGeneralApi, useViews, VmGroupAPI } from '@FeaturesModule'
 
 import {
   createActions,
@@ -74,6 +74,7 @@ const Actions = (props = {}) => {
   const [enable] = VmGroupAPI.useUnlockVMGroupMutation()
   const [remove] = VmGroupAPI.useRemoveVMGroupMutation()
   const [disable] = VmGroupAPI.useLockVMGroupMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   return useMemo(
     () =>
@@ -88,7 +89,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.TEMPLATE.VMGROUP.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.TEMPLATE.VMGROUP.CREATE)
+            },
           },
           {
             accessor: VMGROUP_ACTIONS.UPDATE_DIALOG,

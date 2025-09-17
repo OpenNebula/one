@@ -18,7 +18,7 @@ import { Group, MoreVert, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { MarketplaceAPI, useViews } from '@FeaturesModule'
+import { MarketplaceAPI, useGeneralApi, useViews } from '@FeaturesModule'
 
 import {
   createActions,
@@ -79,6 +79,7 @@ const Actions = (props = {}) => {
   const [disable] = MarketplaceAPI.useDisableMarketplaceMutation()
   const [changeOwnership] =
     MarketplaceAPI.useChangeMarketplaceOwnershipMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   return useMemo(
     () =>
@@ -93,7 +94,10 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => history.push(PATH.STORAGE.MARKETPLACES.CREATE),
+            action: () => {
+              setSecondTitle({})
+              history.push(PATH.STORAGE.MARKETPLACES.CREATE)
+            },
           },
           {
             accessor: MARKETPLACE_ACTIONS.UPDATE_DIALOG,
@@ -106,7 +110,7 @@ const Actions = (props = {}) => {
             action: (rows) => {
               const group = rows?.[0]?.original ?? {}
               const path = PATH.STORAGE.MARKETPLACES.CREATE
-
+              setSecondTitle({})
               history.push(path, group)
             },
           },

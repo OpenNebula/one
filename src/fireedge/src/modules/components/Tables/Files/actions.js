@@ -18,7 +18,7 @@ import { Group, MoreVert, Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { ImageAPI, useViews } from '@FeaturesModule'
+import { ImageAPI, useGeneralApi, useViews } from '@FeaturesModule'
 
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 import {
@@ -82,6 +82,7 @@ const Actions = (props = {}) => {
   const [disable] = ImageAPI.useDisableImageMutation()
   const [changeOwnership] = ImageAPI.useChangeImageOwnershipMutation()
   const [deleteImage] = ImageAPI.useRemoveImageMutation()
+  const { setSecondTitle } = useGeneralApi()
 
   const resourcesView = getResourceView(RESOURCE_NAMES.FILE)?.actions
 
@@ -100,7 +101,8 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: (rows) => {
+            action: () => {
+              setSecondTitle({})
               history.push(PATH.STORAGE.FILES.CREATE)
             },
           },
