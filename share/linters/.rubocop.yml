@@ -37,7 +37,6 @@ AllCops:
     - src/onecfg/lib/config/type/yaml.rb
     - src/tm_mad
     - share/onegate/onegate
-    - share/scons/get_xmlrpc_config
     - share/rubygems/generate
     - share/hooks/raft/follower_cleanup
     - share/vendor/ruby/gems/packethost/Rakefile

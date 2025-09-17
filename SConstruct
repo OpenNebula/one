@@ -137,8 +137,6 @@ vars.Add('sqlite_dir', 'Path to sqlite directory', '')
 vars.Add('sqlite', 'Build with SQLite support', 'yes')
 vars.Add('mysql', 'Build with MySQL support', 'no')
 vars.Add('parsers', 'Rebuild flex/bison files', 'no')
-vars.Add('xmlrpc', 'Path to xmlrpc directory', '')
-vars.Add('new_xmlrpc', 'Use xmlrpc-c version >=1.31', 'no')
 vars.Add('fireedge', 'Build FireEdge', 'no')
 vars.Add('systemd', 'Build with systemd support', 'no')
 vars.Add('rubygems', 'Generate Ruby gems', 'no')
@@ -146,6 +144,7 @@ vars.Add('svncterm', 'Build VNC support for LXD drivers', 'yes')
 vars.Add('context', 'Download guest contextualization packages', 'no')
 vars.Add('strict', 'Strict C++ compiler, more warnings, treat warnings as errors', 'no')
 vars.Add('download', 'Download 3rdParty tools', 'no')
+vars.Add('xmlrpc_pkgconf', 'Use pkg-config for xmlrpc-c libs dependency', 'no')
 env = Environment(variables = vars)
 Help(vars.GenerateHelpText(env))
 
@@ -171,20 +170,6 @@ if mysql == 'yes':
     main_env.Append(LIBS=['mysqlclient'])
 else:
     main_env.Append(mysql='no')
-
-# Flag to compile with xmlrpc-c versions prior to 1.31 (September 2012)
-new_xmlrpc = ARGUMENTS.get('new_xmlrpc', 'no')
-if new_xmlrpc == 'yes':
-    main_env.Append(new_xmlrpc='yes')
-else:
-    main_env.Append(new_xmlrpc='no')
-    main_env.Append(CPPFLAGS=["-DOLD_XMLRPC"])
-
-# xmlrpc
-xmlrpc_dir = ARGUMENTS.get('xmlrpc', 'none')
-if xmlrpc_dir != 'none':
-    main_env.Append(LIBPATH=[xmlrpc_dir+"/lib", xmlrpc_dir+"/lib64"])
-    main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
 
 # systemd
 systemd = ARGUMENTS.get('systemd', 'no')
@@ -235,6 +220,9 @@ main_env.Append(fireedge=ARGUMENTS.get('fireedge', 'no'))
 # Context packages download
 main_env.Append(context=ARGUMENTS.get('context', 'no'))
 
+# Use pkg-config to detect xmlrpc-c libs (RHEL+clones)
+main_env.Append(xmlrpc_pkgconf=ARGUMENTS.get('xmlrpc_pkgconf', 'no'))
+
 if not main_env.GetOption('clean'):
     try:
         if mysql == 'yes':
@@ -250,40 +238,37 @@ if not main_env.GetOption('clean'):
         print("")
         exit(-1)
 
-    try:
-        env_xmlrpc_flags = "LDFLAGS='%s' CXXFLAGS='%s' CPPFLAGS='%s'" % (
-                           os.environ.get('LDFLAGS', ''),
-                           os.environ.get('CXXFLAGS', ''),
-                           os.environ.get('CPPFLAGS', ''))
+    xmlrpc_pkgconf = ARGUMENTS.get('xmlrpc_pkgconf', 'no')
+    if xmlrpc_pkgconf == 'el10':
+        try:
+            main_env.ParseConfig('pkg-config xmlrpc xmlrpc++ xmlrpc_util xmlrpc_util++ xmlrpc_client xmlrpc_client++ --libs --cflags')
+            main_env.ParseConfig('pkg-config xmlrpc_abyss xmlrpc_abyss++ xmlrpc_server xmlrpc_server++ xmlrpc_util xmlrpc_util++ xmlrpc_server_pstream++ --libs --cflags')
+        except Exception:
+            print("")
+            print("pkg-config failed")
+            print("")
+            exit(-1)
+    elif xmlrpc_pkgconf in ['el9', 'el8']:
+        try:
+            main_env.ParseConfig('pkg-config xmlrpc xmlrpc++ xmlrpc_util xmlrpc_util++ xmlrpc_client xmlrpc_client++ --libs --cflags')
+            main_env.ParseConfig('pkg-config xmlrpc_abyss xmlrpc_server_abyss++ xmlrpc_server xmlrpc_server++ xmlrpc_util xmlrpc_util++ xmlrpc_server_pstream --libs --cflags')
+        except Exception:
+            print("")
+            print("pkg-config failed")
+            print("")
+            exit(-1)
+    else:
+        try:
+            main_env.ParseConfig('xmlrpc-c-config c++2 client --libs --cflags')
+            main_env.ParseConfig('xmlrpc-c-config c++2 abyss-server --libs --cflags')
 
-        main_env.ParseConfig("%s share/scons/get_xmlrpc_config server" % (
-                             env_xmlrpc_flags,))
-        main_env.ParseConfig("%s share/scons/get_xmlrpc_config client" % (
-                             env_xmlrpc_flags,))
-
-    except Exception:
-        print("")
-        print("Error searching for xmlrpc-c libraries. Please check this "
-              "things:")
-        print("")
-        print(" * You have installed development libraries for xmlrpc-c."
-              "One way to check")
-        print("   this is calling xmlrpc-c-config that is provided with the "
-              "development")
-        print("   package.")
-        print(" * Check that the version of xmlrpc-c is at least 1.06. You "
-              "can do this also")
-        print("   calling:")
-        print("   $ xmlrpc-c-config --version")
-        print(" * If all this requirements are already met please send log") +\
-            (" files located in")
-        print("   .xmlrpc_test to the mailing list.")
-        print("")
-        exit(-1)
+        except Exception:
+            print("")
+            print("xmlrpc-c-config was not found in the path")
+            print("")
+            exit(-1)
 else:
     main_env.Replace(mysql='yes')
-    shutil.rmtree('.xmlrpc_test', True)
-    shutil.rmtree('src/nebula/.xmlrpc_test', True)
 
 # libxml2
 main_env.ParseConfig('xml2-config --libs --cflags')

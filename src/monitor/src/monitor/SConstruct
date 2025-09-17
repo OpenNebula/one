@@ -59,12 +59,9 @@ mon_env.Prepend(LIBS=[
 ])
 
 if not mon_env.GetOption('clean'):
-    env_xmlrpc_flags = "LDFLAGS='%s' CXXFLAGS='%s' CPPFLAGS='%s'" % (
-                       os.environ.get('LDFLAGS', ''),
-                       os.environ.get('CXXFLAGS', ''),
-                       os.environ.get('CPPFLAGS', ''))
-
-    mon_env.ParseConfig("%s ../../../../share/scons/get_xmlrpc_config client" % (
-                        env_xmlrpc_flags,))
+    if mon_env['xmlrpc_pkgconf'] and mon_env['xmlrpc_pkgconf'] in ['el10', 'el9', 'el8']:
+        mon_env.ParseConfig('pkg-config xmlrpc xmlrpc++ xmlrpc_util xmlrpc_util++ xmlrpc_client xmlrpc_client++ --libs --cflags')
+    else:
+        mon_env.ParseConfig('xmlrpc-c-config c++2 client --libs --cflags')
 
 mon_env.Program('onemonitord.cc')
