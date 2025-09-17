@@ -1585,6 +1585,8 @@ export const HYPERVISORS = {
   qemu: 'qemu',
 }
 
+export const MAXIMUM_CPU_SHARES = 262144
+
 /** @enum {string} Virtual machine actions by state */
 export const VM_ACTIONS_BY_STATE = {
   undefined: DEFAULT_VM_ACTIONS_BY_STATE,
