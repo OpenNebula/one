@@ -177,7 +177,7 @@ EOT
         rescue Gem::LoadError
             STDERR.puts(
                 'Augeas gem is not installed, run `gem install ' \
-                'opennebula-augeas` to install it'
+                'ruby-augeas` to install it'
             )
             exit(-1)
         end
