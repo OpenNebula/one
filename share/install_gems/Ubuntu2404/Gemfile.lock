@@ -15,7 +15,7 @@ GEM
     async-io (1.32.1)
       async (~> 1.14)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1155.0)
+    aws-partitions (1.1160.0)
     aws-sdk-core (3.232.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -30,7 +30,7 @@ GEM
     aws-sdk-kms (1.112.0)
       aws-sdk-core (~> 3, >= 3.231.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.198.0)
+    aws-sdk-s3 (1.199.0)
       aws-sdk-core (~> 3, >= 3.231.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -107,24 +107,24 @@ GEM
       base64
       ostruct
     nio4r (2.7.4)
-    nokogiri (1.18.9)
+    nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.9-aarch64-linux-gnu)
+    nokogiri (1.18.10-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.9-aarch64-linux-musl)
+    nokogiri (1.18.10-aarch64-linux-musl)
       racc (~> 1.4)
-    nokogiri (1.18.9-arm-linux-gnu)
+    nokogiri (1.18.10-arm-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.9-arm-linux-musl)
+    nokogiri (1.18.10-arm-linux-musl)
       racc (~> 1.4)
-    nokogiri (1.18.9-arm64-darwin)
+    nokogiri (1.18.10-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.9-x86_64-darwin)
+    nokogiri (1.18.10-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.9-x86_64-linux-gnu)
+    nokogiri (1.18.10-x86_64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.9-x86_64-linux-musl)
+    nokogiri (1.18.10-x86_64-linux-musl)
       racc (~> 1.4)
     opennebula-augeas (0.6.6)
     optimist (3.2.1)
@@ -136,7 +136,7 @@ GEM
     prometheus-client (4.2.5)
       base64
     public_suffix (6.0.2)
-    puma (7.0.1)
+    puma (7.0.3)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.2.1)
@@ -154,10 +154,11 @@ GEM
       json (~> 2.3)
       nokogiri (~> 1.12, >= 1.12.5)
       optimist (~> 3.0)
-    rchardet (1.9.0)
-    rexml (3.4.3)
-    ruby-saml (1.18.0)
+    rchardet (1.10.0)
+    rexml (3.4.4)
+    ruby-saml (1.18.1)
       nokogiri (>= 1.13.10)
+      rexml
     ruby2_keywords (0.0.5)
     sequel (5.96.0)
       bigdecimal
@@ -247,4 +248,4 @@ RUBY VERSION
    ruby 3.2.3p157
 
 BUNDLED WITH
-   2.7.1
+   2.7.2

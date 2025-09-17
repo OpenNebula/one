@@ -133,7 +133,7 @@ end
 
 group :cloud do
     if ruby_version < Gem::Version.new('3.0.0')
-        gem 'thin'
+        gem 'thin', '~> 1.8.2'     # rack/thin 2.2.17 is incompatible with thin 2.0.0+
     end
     gem 'uuidtools'
     gem 'curb'
