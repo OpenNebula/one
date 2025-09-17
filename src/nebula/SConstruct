@@ -78,13 +78,12 @@ env.Prepend(LIBS=[
 ])
 
 if not env.GetOption('clean'):
-    env_xmlrpc_flags = "LDFLAGS='%s' CXXFLAGS='%s' CPPFLAGS='%s'" % (
-                       os.environ.get('LDFLAGS', ''),
-                       os.environ.get('CXXFLAGS', ''),
-                       os.environ.get('CPPFLAGS', ''))
-
-    env.ParseConfig("%s ../../share/scons/get_xmlrpc_config server" % (
-                    env_xmlrpc_flags,))
+    if env['xmlrpc_pkgconf'] and env['xmlrpc_pkgconf'] == 'el10':
+        env.ParseConfig('pkg-config xmlrpc_abyss xmlrpc_abyss++ xmlrpc_server xmlrpc_server++ xmlrpc_util xmlrpc_util++ xmlrpc_server_pstream++ --libs --cflags')
+    elif env['xmlrpc_pkgconf'] and env['xmlrpc_pkgconf'] in ['el9', 'el8']:
+        env.ParseConfig('pkg-config xmlrpc_abyss xmlrpc_server_abyss++ xmlrpc_server xmlrpc_server++ xmlrpc_util xmlrpc_util++ xmlrpc_server_pstream --libs --cflags')
+    else:
+        env.ParseConfig('xmlrpc-c-config c++2 abyss-server --libs --cflags')
 
 if env['enterprise']=='yes':
     env.Append(CPPDEFINES=['ENTERPRISE'])
