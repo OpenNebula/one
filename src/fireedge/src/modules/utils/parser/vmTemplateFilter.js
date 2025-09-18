@@ -24,6 +24,10 @@ import { MEMORY_RESIZE_OPTIONS, T } from '@ConstantsModule'
 
 // Attributes that will be always modify with the value of the form (except Storage, Network and PCI sections)
 const alwaysIncludeAttributes = {
+  general: {
+    AS_UID: true,
+    AS_GID: true,
+  },
   extra: {
     OsCpu: {
       OS: {
