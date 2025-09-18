@@ -95,6 +95,8 @@ set :port, $conf[:port]
 
 set :config, $conf
 
+set :host_authorization, { permitted_hosts: [] }
+
 include CloudLogger
 
 if $conf[:log]
