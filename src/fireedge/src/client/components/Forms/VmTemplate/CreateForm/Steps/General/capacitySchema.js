@@ -29,6 +29,7 @@ import {
   T,
   VmTemplateFeatures,
   UNITS,
+  MAXIMUM_CPU_SHARES,
 } from 'client/constants'
 import { formatNumberByCurrency } from 'client/models/Helper'
 import { Field, arrayToOptions } from 'client/utils'
@@ -102,7 +103,11 @@ export const PHYSICAL_CPU = generateCapacityInput({
   name: 'CPU',
   label: T.PhysicalCpuWithPercent,
   tooltip: T.CpuConcept,
-  validation: commonValidation.required(),
+  validation: number()
+    .positive()
+    .max(MAXIMUM_CPU_SHARES)
+    .required()
+    .default(() => undefined),
 })
 
 /** @type {Field[]} Modification inputs on CPU field */
