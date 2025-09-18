@@ -107,9 +107,10 @@ const VmStorageTab = ({
                   {isImage && actionsAvailable.includes(DISK_SAVEAS) && (
                     <SaveAsAction {...diskActionProps} />
                   )}
-                  {actionsAvailable.includes(SNAPSHOT_DISK_CREATE) && (
-                    <SnapshotCreateAction {...diskActionProps} />
-                  )}
+                  {isImage && // Snapshotting volatile disks is not supported
+                    actionsAvailable.includes(SNAPSHOT_DISK_CREATE) && (
+                      <SnapshotCreateAction {...diskActionProps} />
+                    )}
                   {actionsAvailable.includes(RESIZE_DISK) && (
                     <ResizeAction
                       {...diskActionProps}
