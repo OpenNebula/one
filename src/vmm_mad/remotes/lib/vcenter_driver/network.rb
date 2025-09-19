@@ -284,7 +284,7 @@ module VCenterDriver
                      )
 
             done = []
-            (0..net_config[:refs].size-1).each do |i|
+            (0..(net_config[:refs].size-1)).each do |i|
                 cl_id = net_config[:one_ids][i]
                 next if cl_id == -1 || done.include?(cl_id)
 

@@ -167,7 +167,7 @@ end
             sg_range_port = xml_rule.xpath('RANGE').text
             if sg_range_port
                 if sg_range_port.index(':')
-                    sg_port_from = sg_range_port[0..sg_range_port.index(':')-1]
+                    sg_port_from = sg_range_port[0..(sg_range_port.index(':')-1)]
                     sg_port_to = sg_range_port[sg_range_port.index(':')+1,
                                                sg_range_port.length]
                     sg_ports = "#{sg_port_from}-#{sg_port_to}"

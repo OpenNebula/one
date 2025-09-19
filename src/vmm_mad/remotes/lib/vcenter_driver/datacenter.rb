@@ -916,7 +916,7 @@ module VCenterDriver
                     spec.configSpec.uplinkPortPolicy =
                         RbVmomi::VIM::DVSNameArrayUplinkPortPolicy.new
                     spec.configSpec.uplinkPortPolicy.uplinkPortName = []
-                    (0..pnics.size-1).each do |index|
+                    (0..(pnics.size-1)).each do |index|
                         spec
                             .configSpec
                             .uplinkPortPolicy
@@ -973,7 +973,7 @@ module VCenterDriver
             orig_spec.uplinkPortPolicy =
                 RbVmomi::VIM::DVSNameArrayUplinkPortPolicy.new
             orig_spec.uplinkPortPolicy.uplinkPortName = []
-            (0..dvs['config.uplinkPortgroup'].length-1).each do |index|
+            (0..(dvs['config.uplinkPortgroup'].length-1)).each do |index|
                 orig_spec
                     .uplinkPortPolicy
                     .uplinkPortName[index]="dvUplink#{index+1}"
@@ -989,7 +989,7 @@ module VCenterDriver
                         RbVmomi::VIM::DVSNameArrayUplinkPortPolicy.new
                     spec.uplinkPortPolicy.uplinkPortName = []
                     (dvs['config.uplinkPortgroup']
-                    .length..num_pnics-1)
+                    .length..(num_pnics-1))
                         .each do |index|
                         spec
                             .uplinkPortPolicy

@@ -943,7 +943,8 @@ module VCenterDriver
                 rc = one_host.delete
 
                 unless OpenNebula.is_error?(rc)
-                    raise "Could not update host: #{rc.message}"; end
+                    raise "Could not update host: #{rc.message}"
+                end
 
                 raise "Could not update host: #{update_error} "\
                           "and could not delete host: #{rc.message}"
@@ -956,7 +957,8 @@ module VCenterDriver
                 rc = one_host.delete
 
                 unless OpenNebula.is_error?(rc)
-                    raise "Could not offline host: #{rc.message}"; end
+                    raise "Could not offline host: #{rc.message}"
+                end
 
                 raise "Could not offline host: #{update_error} "\
                           "and could not delete host: #{rc.message}"
@@ -969,7 +971,8 @@ module VCenterDriver
                 rc = one_host.delete
 
                 unless OpenNebula.is_error?(rc)
-                    raise "Could not enable host: #{rc.message}"; end
+                    raise "Could not enable host: #{rc.message}"
+                end
 
                 raise "Could not enable host: #{update_error} "\
                           "and could not delete host: #{rc.message}"
@@ -1388,7 +1391,8 @@ module VCenterDriver
 
         def update_pg(pg, switch_name, vlan_id)
             unless pg.spec.respond_to?(:vlanId) && pg.spec.vlanId != vlan_id
-                return; end
+                return
+            end
 
             # Backup original spec
             orig_spec = pg.spec

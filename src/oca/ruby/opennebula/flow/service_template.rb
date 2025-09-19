@@ -523,7 +523,7 @@ module OpenNebula
             roles = template['roles']
 
             roles.each_with_index do |role, role_index|
-                roles[role_index+1..-1].each do |other_role|
+                roles[(role_index+1)..-1].each do |other_role|
                     if role['name'] == other_role['name']
                         raise Validator::ParseException,
                               "Role name '#{role['name']}' is repeated"

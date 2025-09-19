@@ -791,7 +791,7 @@ post '/service_template/:id/action' do
         if opts && opts['owner_id']
             args = []
             args << opts['owner_id'].to_i
-            args << (opts['group_id'].to_i || -1)
+            args << opts['group_id'].to_i
 
             status 204
             service_template.chown(*args)

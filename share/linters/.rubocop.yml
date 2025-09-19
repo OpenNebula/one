@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,6 +20,7 @@
 #
 
 AllCops:
+  TargetRubyVersion: 2.5.9
   Exclude:
     - /**/*.schema
     - src/onecfg/lib/config/type/yaml.rb
@@ -554,9 +555,15 @@ Layout/LineContinuationSpacing:
 Layout/LineContinuationLeadingSpace:
      Enabled: false
 
+Layout/SpaceAroundKeyword:
+     Enabled: false
+
 #######
 # STYLE
 #######
+
+Style/EmptyStringInsideInterpolation:
+    Enabled: false
 
 Style/RedundantFormat:
     Enabled: false
@@ -992,6 +999,12 @@ Metrics/AbcSize:
 Metrics/MethodLength:
   Enabled: false
 
+Naming/PredicatePrefix:
+    Enabled: false
+
+Naming/PredicateMethod:
+    Enabled: false
+
 Naming/VariableName:
     Enabled: false
 
@@ -1009,6 +1022,9 @@ Naming/InclusiveLanguage:
     Enabled: false
 
 Naming/FileName:
+    Enabled: false
+
+Naming/MethodName:
     Enabled: false
 
 ###

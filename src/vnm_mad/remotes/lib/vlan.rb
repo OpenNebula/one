@@ -133,7 +133,7 @@ module VNMMAD
                 TProxy.setup_tproxy(@nic, :down) if guests.count < 1
 
                 # Skip the bridge removal (on demand or when still in use).
-                next if @nic[:conf][:keep_empty_bridge] || guests.count > 0
+                next if @nic[:conf][:keep_empty_bridge] || guests.any?
 
                 # Delete the vlan device.
                 delete_vlan_dev

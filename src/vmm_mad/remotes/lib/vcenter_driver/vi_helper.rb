@@ -148,7 +148,7 @@ module VCenterDriver
 
             @sha256 ||= Digest::SHA256.new
             chain = opts[:key]
-            hash  = @sha256.hexdigest(chain)[0..nbytes-1]
+            hash  = @sha256.hexdigest(chain)[0..(nbytes-1)]
 
             "#{opts[:name]}-#{hash}"
         end
