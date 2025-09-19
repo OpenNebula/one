@@ -270,7 +270,7 @@ DEPENDENCIES
   sequel
   sinatra (< 4.0.0)
   sqlite3 (<= 1.6.9)
-  thin
+  thin (~> 1.8.2)
   treetop (>= 1.6.3)
   unf (< 0.2.0)
   uuidtools

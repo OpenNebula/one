@@ -16,8 +16,8 @@ GEM
     async-io (1.32.1)
       async (~> 1.14)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1155.0)
-    aws-sdk-cloudwatch (1.120.0)
+    aws-partitions (1.1161.0)
+    aws-sdk-cloudwatch (1.121.0)
       aws-sdk-core (~> 3, >= 3.231.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-core (3.232.0)
@@ -34,7 +34,7 @@ GEM
     aws-sdk-kms (1.112.0)
       aws-sdk-core (~> 3, >= 3.231.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.198.0)
+    aws-sdk-s3 (1.199.0)
       aws-sdk-core (~> 3, >= 3.231.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -64,10 +64,8 @@ GEM
       cbor (~> 0.5.9)
       openssl-signature_algorithm (~> 1.0)
     curb (1.2.0)
-    daemons (1.4.1)
     dalli (2.7.11)
     domain_name (0.6.20240107)
-    eventmachine (1.2.7)
     faraday (1.10.4)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
@@ -158,18 +156,26 @@ GEM
     prometheus-client (4.2.5)
       base64
     public_suffix (6.0.2)
+    puma (7.0.3)
+      nio4r (~> 2.0)
     racc (1.8.1)
-    rack (2.2.17)
-    rack-protection (3.2.0)
+    rack (3.2.1)
+    rack-protection (4.1.1)
       base64 (>= 0.1.0)
-      rack (~> 2.2, >= 2.2.4)
+      logger (>= 1.6.0)
+      rack (>= 3.0.0, < 4)
+    rack-session (2.1.1)
+      base64 (>= 0.1.0)
+      rack (>= 3.0.0)
+    rackup (2.2.1)
+      rack (>= 3)
     rbvmomi2 (3.7.1)
       builder (~> 3.2)
       json (~> 2.3)
       nokogiri (~> 1.12, >= 1.12.5)
       optimist (~> 3.0)
-    rchardet (1.9.0)
-    rexml (3.4.3)
+    rchardet (1.10.0)
+    rexml (3.4.4)
     rotp (6.3.0)
     rqrcode (3.1.0)
       chunky_png (~> 1.0)
@@ -180,18 +186,15 @@ GEM
       jwt (~> 2.0)
     sequel (5.96.0)
       bigdecimal
-    sinatra (3.2.0)
+    sinatra (4.1.1)
+      logger (>= 1.6.0)
       mustermann (~> 3.0)
-      rack (~> 2.2, >= 2.2.4)
-      rack-protection (= 3.2.0)
+      rack (>= 3.0.0, < 4)
+      rack-protection (= 4.1.1)
+      rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
     sqlite3 (1.7.3)
       mini_portile2 (~> 2.8.0)
-    thin (2.0.1)
-      daemons (~> 1.0, >= 1.0.9)
-      eventmachine (~> 1.0, >= 1.0.4)
-      logger
-      rack (>= 1, < 4)
     thread_safe (0.3.6)
     tilt (2.6.1)
     timeliness (0.3.10)
@@ -268,15 +271,16 @@ DEPENDENCIES
   parse-cron
   prometheus-client
   public_suffix
+  puma
   rack
+  rackup
   rbvmomi2 (~> 3.7.0)
   rexml
   rotp
   rqrcode
   sequel
-  sinatra (< 4.0.0)
+  sinatra
   sqlite3 (<= 1.7.3)
-  thin
   treetop (>= 1.6.3)
   uuidtools
   vsphere-automation-cis (~> 0.4.6)
