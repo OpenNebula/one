@@ -1034,7 +1034,7 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
     return 0;
 
 error_too_many_hd_disks:
-    oss << "Non-q35 VM " << vm_id << " has more than 4 hd disks";
+    oss << "Non q35 or virt VM " << vm_id << " has more than 4 hd disks";
     error_str = oss.str();
     goto error_common;
 

@@ -377,12 +377,13 @@ public:
         os->replace("INITRD", initrd);
     };
 
-    bool test_machine_type(const std::string& machine_type) const
+    bool test_machine_type(const std::vector<std::string>& machine_types) const
     {
-        return test_machine_type(obj_template->get("OS"), machine_type);
+        return test_machine_type(obj_template->get("OS"), machine_types);
     }
 
-    static bool test_machine_type(VectorAttribute * os, const std::string& machine_type)
+    static bool test_machine_type(VectorAttribute* os,
+                                  const std::vector<std::string>& machine_types)
     {
         if ( os == nullptr )
         {
@@ -391,7 +392,15 @@ public:
 
         const std::string machine = os->vector_value("MACHINE");
 
-        return machine.find(machine_type) != std::string::npos;
+        for (const auto& type : machine_types)
+        {
+            if (machine.find(type) != std::string::npos)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // ------------------------------------------------------------------------

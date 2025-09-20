@@ -3369,14 +3369,7 @@ int VirtualMachine::get_disk_images(string& error_str)
         obj_template->add("TM_MAD_SYSTEM", tm_mad_sys);
     }
 
-    VectorAttribute* os = obj_template->get("OS");
-    bool is_q35         = false;
-
-    if (os)
-    {
-        string machine = os->vector_value("MACHINE");
-        is_q35         = machine.find("q35") != std::string::npos;
-    }
+    bool is_q35 = test_machine_type({"q35", "virt"});
 
     return disks.get_images(oid, uid, tm_mad_sys, adisks, context, is_q35, error_str);
 }
@@ -3770,7 +3763,7 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
         if (HostSharePCI::set_pci_address(_new_nic.get(),
                                           palloc,
-                                          test_machine_type("q35"),
+                                          test_machine_type({"q35","virt"}),
                                           numa) == -1)
         {
             return -1;
@@ -3938,7 +3931,7 @@ int VirtualMachine::attach_pci(VectorAttribute * vpci, string& err)
 
     if (HostSharePCI::set_pci_address(_new_pci.get(),
                                       palloc,
-                                      test_machine_type("q35"),
+                                      test_machine_type({"q35","virt"}),
                                       numa) == -1)
     {
         return -1;
