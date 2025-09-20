@@ -349,15 +349,16 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
 
 /**
  *  Returns disk bus based on this table:
- *         \ prefix   hd     sd             vd
- *  chipset \
- *  pc-q35-*          sata   [sd_default]   virtio
- *  (other)           ide    [sd_default]   virtio
+ *        prefix   hd     sd             vd
+ *  chipset
+ *  *q35*          sata   [sd_default]   virtio
+ *  *virt* (arm)   sata   [sd_default]   virtio
+ *  (other)        ide    [sd_default]   virtio
  *
  *  sd_default - SD_DISK_BUS value from vmm_exec_kvm.conf/template
  *               'sata' or 'scsi'
  */
-static string get_disk_bus(const std::string &machine,
+static string get_disk_bus(bool is_q35,
                            const std::string &target,
                            const std::string &sd_default)
 {
@@ -369,9 +370,7 @@ static string get_disk_bus(const std::string &machine,
             return "virtio";
         default:
         {
-            std::size_t found = machine.find("q35");
-
-            if (found != std::string::npos)
+            if (is_q35)
             {
                 return "sata";
             }
@@ -1113,10 +1112,13 @@ int LibVirtDriver::deployment_description_kvm(
 
     num = vm->get_template_attribute("DISK", disk);
 
-    int sata_index = 0;
+    int    sata_index = 0;
     string sata_controllers;
 
-    if (machine.find("q35") != std::string::npos)
+    bool is_q35 = machine.find("q35")  != std::string::npos ||
+                  machine.find("virt") != std::string::npos;
+
+    if (is_q35)
     {
         sata_index = 1;
     }
@@ -1421,7 +1423,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
 
-        disk_bus = get_disk_bus(machine, target, sd_bus);
+        disk_bus = get_disk_bus(is_q35, target, sd_bus);
 
         if (!disk_bus.empty())
         {
@@ -1615,7 +1617,7 @@ int LibVirtDriver::deployment_description_kvm(
         // * SATA bus
         //   - requires a controller per disk as it requires bus=0 and target=0
         //   - q35 adds ACHI controller in slot 0x1f function 2 (used for context)
-        //   - A controller will be added for each disk starting from 1 if q35
+        //   - A controller will be added for each disk starting from 1 if q35/virt
         // * SCSI bus
         //   - target is based on dev target to have a predictable order
         if ( target[0] == 's' && target[1] == 'd' )
@@ -1701,7 +1703,7 @@ int LibVirtDriver::deployment_description_kvm(
                  << one_util::escape_xml_attr(fname.str())  << "/>\n"
                  << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
 
-            disk_bus = get_disk_bus(machine, target, sd_bus);
+            disk_bus = get_disk_bus(is_q35, target, sd_bus);
 
             if (!disk_bus.empty())
             {
@@ -2239,9 +2241,8 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t</hostdev>" << endl;
     }
 
-    std::size_t found = machine.find("q35");
 
-    if (found != std::string::npos || arch == "aarch64" )
+    if (is_q35 || arch == "aarch64" )
     {
         int  q35_root_ports = 0;
         bool q35_numa_topo  = true;

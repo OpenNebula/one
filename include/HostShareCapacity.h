@@ -105,7 +105,7 @@ struct HostShareCapacity
 
         topology = tmpl.get("TOPOLOGY");
 
-        is_q35 = VirtualMachine::test_machine_type(tmpl.get("OS"), "q35");
+        is_q35 = VirtualMachine::test_machine_type(tmpl.get("OS"), {"q35","virt"});
 
         return;
     }
