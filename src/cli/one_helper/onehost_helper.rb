@@ -769,12 +769,14 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
     def get_numa_cores(cores)
         return unless cores
+
         ret  = ''
         free = 0
         used = 0
 
         [cores].flatten.each do |info|
-            next unless info['CUPS']
+            next unless info['CPUS']
+
             core = info['CPUS'].split(',')
 
             core.uniq! do |c|
