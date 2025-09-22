@@ -113,8 +113,6 @@ begin
                         :nostderr => false)
 
         raise 'cannot recover vTPM' unless rc.code == 0
-
-        next
     end
 
     disk_urls.each do |id, url|
