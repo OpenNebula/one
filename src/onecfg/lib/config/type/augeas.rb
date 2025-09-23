@@ -78,18 +78,24 @@ module OneCfg::Config::Type
             end
 
             # validate there was no Augeas error
-            if aug.exists("/augeas#{aug.context}/error")
-                raise OneCfg::Exception::FileReadError,
-                      'Failed to parse file'
+            aug_error = "/augeas#{aug.context}/error"
+            if aug.exists(aug_error)
+                msg  = aug.get("#{aug_error}/message")
+                line = aug.get("#{aug_error}/line")
+
+                details = "Failed to parse file"
+                details << " (#{msg})" if msg
+                details << " at line #{line}" if line
+
+                raise OneCfg::Exception::FileReadError, details
             end
 
             # validate we parsed file, even empty
             # file should have a node in a tree
             begin
                 aug.match(aug.context)
-            rescue ::Augeas::NoMatchError
-                raise OneCfg::Exception::FileReadError,
-                      'Failed to parse file'
+            rescue ::Augeas::NoMatchError => e
+                raise OneCfg::Exception::FileReadError "Failed to parse file #{e}"
             end
 
             @content = aug
