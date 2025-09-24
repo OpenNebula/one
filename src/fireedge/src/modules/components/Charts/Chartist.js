@@ -119,12 +119,12 @@ const createFill = (u, color) => {
   const ctx = u.ctx
   const plotHeight = u.bbox?.height || u.over.clientHeight
   const gradient = ctx.createLinearGradient(0, 0, 0, plotHeight)
-  gradient.addColorStop(0.1163, color || '#40B3D9')
-  gradient.addColorStop(
-    0.8837,
 
-    (color || '#40B3D9') + '00'
-  )
+  const baseColor = color || '#40B3D9'
+
+  gradient.addColorStop(0, `${baseColor}A8`)
+  gradient.addColorStop(0.71, `${baseColor}54`)
+  gradient.addColorStop(1, `${baseColor}00`)
 
   return gradient
 }
@@ -503,13 +503,12 @@ const Chartist = ({
             <Typography
               sx={{
                 fontFamily: 'Ubuntu',
-                fontSize: '1.313rem',
+                fontSize: 'clamp(0.75rem, 2vw, 1.313rem)',
                 lineHeight: '1.313rem',
                 fontStyle: 'normal',
                 fontWeight: 400,
                 flex: 1,
               }}
-              noWrap
             >
               {name}
             </Typography>
