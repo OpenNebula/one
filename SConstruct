@@ -220,7 +220,7 @@ main_env.Append(fireedge=ARGUMENTS.get('fireedge', 'no'))
 # Context packages download
 main_env.Append(context=ARGUMENTS.get('context', 'no'))
 
-# Use pkg-config to detect xmlrpc-c libs (RHEL+clones)
+# Use pkg-config to detect xmlrpc-c libs
 main_env.Append(xmlrpc_pkgconf=ARGUMENTS.get('xmlrpc_pkgconf', 'no'))
 
 if not main_env.GetOption('clean'):
@@ -239,16 +239,8 @@ if not main_env.GetOption('clean'):
         exit(-1)
 
     xmlrpc_pkgconf = ARGUMENTS.get('xmlrpc_pkgconf', 'no')
-    if xmlrpc_pkgconf == 'el10':
-        try:
-            main_env.ParseConfig('pkg-config xmlrpc xmlrpc++ xmlrpc_util xmlrpc_util++ xmlrpc_client xmlrpc_client++ --libs --cflags')
-            main_env.ParseConfig('pkg-config xmlrpc_abyss xmlrpc_abyss++ xmlrpc_server xmlrpc_server++ xmlrpc_util xmlrpc_util++ xmlrpc_server_pstream++ --libs --cflags')
-        except Exception:
-            print("")
-            print("pkg-config failed")
-            print("")
-            exit(-1)
-    elif xmlrpc_pkgconf in ['el9', 'el8']:
+    # xmlrpc-c-config doesn't work well in el8/9 use pkg-config directly
+    if xmlrpc_pkgconf == 'yes':
         try:
             main_env.ParseConfig('pkg-config xmlrpc xmlrpc++ xmlrpc_util xmlrpc_util++ xmlrpc_client xmlrpc_client++ --libs --cflags')
             main_env.ParseConfig('pkg-config xmlrpc_abyss xmlrpc_server_abyss++ xmlrpc_server xmlrpc_server++ xmlrpc_util xmlrpc_util++ xmlrpc_server_pstream --libs --cflags')

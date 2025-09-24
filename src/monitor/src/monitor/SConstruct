@@ -59,7 +59,7 @@ mon_env.Prepend(LIBS=[
 ])
 
 if not mon_env.GetOption('clean'):
-    if mon_env['xmlrpc_pkgconf'] and mon_env['xmlrpc_pkgconf'] in ['el10', 'el9', 'el8']:
+    if mon_env['xmlrpc_pkgconf'] and mon_env['xmlrpc_pkgconf'] == 'yes':
         mon_env.ParseConfig('pkg-config xmlrpc xmlrpc++ xmlrpc_util xmlrpc_util++ xmlrpc_client xmlrpc_client++ --libs --cflags')
     else:
         mon_env.ParseConfig('xmlrpc-c-config c++2 client --libs --cflags')
