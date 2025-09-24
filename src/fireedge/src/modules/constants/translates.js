@@ -1134,8 +1134,9 @@ module.exports = {
     'Check if you want to specify a short address of a PCI device',
   ShortAddress: 'Short address',
   NicPciWarning:
-    ' PCI passthrough of network devices is configured per NIC, in the "Network" tab. Do not add network devices here.',
-  PciAttachWarning: 'PCI only can be attach or detach in POWEROFF state.',
+    'PCI passthrough of network devices is configured per NIC, in the "Network" tab. Do not add network devices here.',
+  PciAttachWarning:
+    'PCI devices can only be attached or detached in the POWEROFF state.',
   /* VM schema - Pci */
   Pci: 'PCI',
   /* VM schema - snapshot */
@@ -1898,6 +1899,7 @@ module.exports = {
   RealMemory: 'Real Memory',
   RealCpu: 'Real CPU',
   Cpu: 'CPU',
+  Gpu: 'GPU',
   CpuHost: 'Host CPU',
 
   Overcommitment: 'Overcommitment',
@@ -1908,6 +1910,9 @@ module.exports = {
   CpuUsage: 'CPU Usage',
   FreeMemory: 'Free Memory',
   UsedMemory: 'Used memory',
+  Wattage: 'Wattage',
+  PowerDraw: 'Power draw',
+
   TemplateToIsolateCpus:
     'Comma separated list of CPU IDs that will be isolated from the NUMA scheduler',
 

@@ -123,7 +123,10 @@ const VmConfigurationTab = ({
   ] = sections
 
   return (
-    <Box padding={{ sm: '0.8em' }}>
+    <Box
+      sx={{ maxWidth: '80vw', width: '100%', overflowX: 'auto' }}
+      padding={{ sm: '0.8em' }}
+    >
       {isUpdateConfEnabled && (
         <ButtonToTriggerForm
           buttonProps={{
