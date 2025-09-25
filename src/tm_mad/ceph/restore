@@ -52,8 +52,8 @@ bk_img_id = ARGV[2].to_i
 inc_id    = ARGV[3]
 disk_id   = ARGV[4].to_i
 
-_rhost = dir[0]
-rdir   = dir[1]
+rhost = dir[0]
+rdir  = dir[1]
 
 begin
     action = TransferManager::Action.new(:action_name => 'restore',
@@ -93,6 +93,7 @@ begin
 
     # Recover TPM state
     if (tpm_url = disk_urls.delete('tpm'))
+        dst = "#{rdir}/disk.tpm.backup"
         download = <<~EOS
             #{__dir__}/../../datastore/downloader.sh --nodecomp #{tpm_url} - | \
               ssh #{rhost} dd of=#{dst} bs=64k
@@ -107,7 +108,7 @@ begin
         raise 'cannot download vTPM backup' unless rc.code == 0
 
         rc = action.ssh(:host => rhost,
-                        :cmds => vm.restore_tpm_sh("#{rdir}/disk.tpm.backup"),
+                        :cmds => vm.restore_tpm_sh(dst),
                         :forward  => false,
                         :nostdout => false,
                         :nostderr => false)
@@ -132,8 +133,8 @@ begin
 
         upload_ceph = <<~EOS
             tmpdir="$(mktemp -dt disk#{id}.XXXX)"
-            tmpimg=$tmpdir/image
-            trap "rm -rf $tmpdir" EXIT
+            tmpimg="$tmpdir/image"
+            trap "rm -rf '$tmpdir'" EXIT
             #{__dir__}/../../datastore/downloader.sh --nodecomp #{url} $tmpimg && \
             if file $tmpimg | grep -q gzip; then
                 cd $tmpdir
