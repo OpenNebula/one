@@ -16,14 +16,24 @@ jobs:
       - name: Set commit message for push
         if: github.event_name == 'push'
         run: |
-          echo "COMMIT_ONELINER=${{ github.event.head_commit.message }}" >> $GITHUB_ENV
+
+          HEADLINE=$(echo "${{ github.event.head_commit.message }}" | head -n1)
+          HEADLINE=$(echo "$HEADLINE" | tr -cd '[:alnum:]_. -')
+
+          echo "COMMIT_ONELINER=$HEADLINE" >> $GITHUB_ENV
           echo "COMMIT_URL=${{ github.event.head_commit.url }}" >> $GITHUB_ENV
+          echo "EVENT_TYPE=direct push" >> $GITHUB_ENV
 
       - name: Set commit message for PR
         if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
         run: |
-          echo "COMMIT_ONELINER=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+
+          HEADLINE="${{ github.event.pull_request.merge_commit_title }}"
+          HEADLINE=$(echo "$HEADLINE" | tr -cd '[:alnum:]_. -')
+
+          echo "COMMIT_ONELINER=$HEADLINE" >> $GITHUB_ENV
           echo "COMMIT_URL=${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV
+          echo "EVENT_TYPE=pull request merged" >> $GITHUB_ENV
 
       - name: Send notification to slack
         if: ${{ github.repository == 'OpenNebula/one-ee' && env.COMMIT_ONELINER != '' }}
@@ -33,9 +43,9 @@ jobs:
           webhook-type: incoming-webhook
           payload: |
             channel: ${{ secrets.SLACK_CHANNEL_ID }}
-            text: "New push to master"
+            text: "New ${{env.EVENT_TYPE}}"
             blocks: 
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: "> --> *New Commit:* <${{ env.COMMIT_URL }}|${{ env.COMMIT_ONELINER }}>"
+                  text: "> --> *New commit:* <${{ env.COMMIT_URL }}|${{ env.COMMIT_ONELINER }}>"
