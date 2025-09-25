@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo, useEffect, useCallback } from 'react'
+import { ReactElement, useMemo, useEffect } from 'react'
 import { Alert, useTheme, Stack, Box } from '@mui/material'
-import { prettyBytes } from '@UtilsModule'
 import Chartist from '@modules/components/Charts/Chartist'
 
 import PropTypes from 'prop-types'
@@ -291,14 +290,13 @@ const PciTab = ({ tabProps: { actions } = {}, id, oneConfig, adminGroup }) => {
                 data={monitoring}
                 isFetching={isFetching}
                 y={yAccessorMemory}
+                yRangeOffset={100}
                 setTransform={setTransform('GPU_MEMORY_UTILIZATION')}
                 x={x}
                 serieScale={2}
                 lineColors={lineColorsMemory}
                 legendNames={legendNamesMemory}
-                interpolationY={interpolationY((num) =>
-                  prettyBytes(num, 'GB', 2)
-                )}
+                interpolationY={interpolationY((num) => `${num}%`)}
                 zoomFactor={0.95}
                 trendLineOnly={['GPU_MEMORY_UTILIZATION_FORECAST_FAR']}
                 shouldFill={yAccessorMemory.flat()}
