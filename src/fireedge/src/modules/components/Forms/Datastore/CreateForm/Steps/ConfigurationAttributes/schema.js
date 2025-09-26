@@ -22,6 +22,7 @@ import {
   CEPH_FIELDS,
   RESTIC_FIELDS,
   RSYNC_FIELDS,
+  NETAPP_FIELDS,
 } from './Fields'
 import { isCustom, typeIsOneOf } from '../functions'
 
@@ -56,6 +57,7 @@ export const FIELDS = [
   ...CEPH_FIELDS,
   ...RESTIC_FIELDS,
   ...RSYNC_FIELDS,
+  ...NETAPP_FIELDS,
   COMPATIBLE_SYSTEM_DATASTORES,
 ]
 
