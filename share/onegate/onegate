@@ -443,7 +443,6 @@ module OneGate
         def initialize(opts={})
             @vmid = ENV["VMID"]
             @token = ENV["TOKENTXT"]
-            @content_type = opts[:content_type] || 'application/json'
 
             url = opts[:url] || ENV['ONEGATE_ENDPOINT']
             @uri = URI.parse(url)
@@ -477,7 +476,6 @@ module OneGate
         def post(path, body)
             req = Net::HTTP::Proxy(@host, @port)::Post.new(path)
             req.body = body
-            req.content_type = @content_type
 
             do_request(req)
         end
@@ -485,7 +483,6 @@ module OneGate
         def put(path, body)
             req = Net::HTTP::Proxy(@host, @port)::Put.new(path)
             req.body = body
-            req.content_type = @content_type
 
             do_request(req)
         end
