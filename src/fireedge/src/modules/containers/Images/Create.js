@@ -48,6 +48,8 @@ export function CreateImage() {
   const [upload] = ImageAPI.useUploadImageMutation()
   const { enqueueSuccess, enqueueError, uploadSnackbar } = useGeneralApi()
   const { adminGroup, oneConfig } = useSystemData()
+  const [cleanup] = ImageAPI.useCleanupImageMutation()
+  const uploadedPath = []
   DatastoreAPI.useGetDatastoresQuery(undefined, {
     refetchOnMountOrArgChange: false,
   })
@@ -69,6 +71,7 @@ export function CreateImage() {
         }).unwrap()
 
         template.PATH = fileUploaded[0]
+        uploadedPath.push(fileUploaded[0])
       } catch {}
     }
 
@@ -83,7 +86,13 @@ export function CreateImage() {
         history.push(PATH.STORAGE.IMAGES.LIST)
         enqueueSuccess(T.SuccessImageCreated, newTemplateId)
       }
-    } catch {}
+    } catch {} finally {
+      if (uploadedPath[0]) {
+        try {
+          await cleanup({ path: uploadedPath[0] }).unwrap()
+        } catch {}
+      }
+    }
   }
 
   return (
