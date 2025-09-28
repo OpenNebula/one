@@ -3,6 +3,9 @@ module OneDBFsck
 
     # Check history records
     def check_history
+        @fixes_history = []
+        @showback_delete = Set[]
+
         check_history_etime
 
         log_time
@@ -37,15 +40,43 @@ module OneDBFsck
                   '(SELECT MAX(seq) ' \
                   'FROM history AS subhistory ' \
                   'WHERE history.vid = subhistory.vid))') do |row|
+            query = "SELECT * FROM history WHERE vid=#{row[:vid]} AND seq=#{row[:seq]}"
+
+            etime = eetime = retime = 0
+
+            @db.fetch(query) do |history|
+                doc = nokogiri_doc(history[:body], 'history')
+
+                etime =  doc.root.at_xpath('ETIME').text.to_i
+                eetime = doc.root.at_xpath('EETIME').text.to_i
+                retime = doc.root.at_xpath('RETIME').text.to_i
+
+                etime = eetime if etime == 0 && eetime != 0
+                etime = retime if etime == 0 && retime != 0
+
+                if etime != 0
+                    elem = doc.root.at_xpath('ETIME')
+
+                    elem = doc.root.add_child('ETIME') if elem.nil?
+
+                    elem.content = etime
+
+                    history[:etime] = etime
+                    history[:body]  = doc.root.to_s
+
+                    @fixes_history.push(history)
+                    @showback_delete.add(history[:vid])
+                end
+            end
+
             log_error("History record for VM #{row[:vid]} seq # #{row[:seq]} " \
-                      'is not closed (etime = 0)', false)
+                      'is not closed (etime = 0)', etime != 0)
         end
     end
 
     # Check that etime is not 0 in DONE vms
     def check_history_opened
-        history_fix = @fixes_history = []
-        @showback_delete = Set[]
+        history_fix = @fixes_history
 
         # DATA: go through all bad history records (etime=0) and ask
         # DATA: new time values to fix them
