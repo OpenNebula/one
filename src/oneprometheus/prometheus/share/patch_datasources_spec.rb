@@ -445,4 +445,74 @@ RSpec.describe 'patch_datasources' do
 
         expect(patch_datasources(@provided)).to eq expected
     end
+
+    it 'should patch prometheus datasources for 3 ipv6 peers' do
+        allow(self).to receive(:onehost_list).and_return @onehost_list
+
+        allow(self).to receive(:detect_servers).and_return [
+            ['2001:db8::12', '2001:db8::13'], '2001:db8::11'
+        ]
+
+        expected = YAML.safe_load(<<~DOCUMENT)
+        ---
+        global:
+          scrape_interval: 15s
+          evaluation_interval: 15s
+        alerting:
+          alertmanagers:
+          - static_configs:
+            - targets:
+              - '[2001:db8::12]:9093'
+              - '[2001:db8::13]:9093'
+              - '[2001:db8::11]:9093'
+        rule_files:
+        - rules.yml
+        scrape_configs:
+        - job_name: prometheus
+          static_configs:
+          - targets:
+            - localhost:9090
+        - job_name: opennebula_exporter
+          static_configs:
+          - targets:
+            - '[2001:db8::11]:9925'
+        - job_name: node_exporter
+          static_configs:
+          - targets:
+            - '[2001:db8::12]:9100'
+            - '[2001:db8::13]:9100'
+          - targets:
+            - omicron:9100
+            labels:
+              one_host_id: '1'
+          - targets:
+            - epsilon:9100
+            labels:
+              one_host_id: '0'
+          - targets:
+            - '[2001:db8::11]:9100'
+        - job_name: libvirt_exporter
+          static_configs:
+          - targets:
+            - omicron:9926
+            labels:
+              one_host_id: '1'
+          - targets:
+            - epsilon:9926
+            labels:
+              one_host_id: '0'
+        DOCUMENT
+
+        expect(patch_datasources(@provided)).to eq expected
+    end
+
+    it 'should fail patching prometheus datasources for invalid address' do
+        allow(self).to receive(:onehost_list).and_return @onehost_list
+
+        allow(self).to receive(:detect_servers).and_return [
+            ['not', '172.an'], '00:address'
+        ]
+
+        expect { patch_datasources(@provided) }.to raise_error(ArgumentError)
+    end
 end
