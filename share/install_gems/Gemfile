@@ -81,6 +81,7 @@ gem 'public_suffix', ps
 gem 'rexml'
 gem 'aws-sdk-ec2', '>=1.151'
 gem 'aws-sdk-s3'
+gem 'ruby-saml'
 
 group :cli do
     gem 'gnuplot'

@@ -50,7 +50,12 @@ const defaults = {
   defaultRegexpSplitLine: /\r|\n/,
   defaultSizeRotate: '100k',
   defaultAppName: appName,
-  defaultHeaderRemote: ['http_x_auth_username', 'x_auth_username'],
+  defaultHeaderRemote: [
+    'x-auth-username',
+    'http-x-auth-username',
+    'x_auth_username',
+    'http_x_auth_username',
+  ],
   defaultHeaderx509: ['x-client-dn'],
   defaultConfigErrorMessage: {
     color: 'red',

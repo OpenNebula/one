@@ -32,6 +32,7 @@ const {
 } = require('server/routes/api/auth/utils')
 
 const { defaults, httpCodes } = require('server/utils/constants')
+const { xml2json } = require('server/utils/general')
 const { Actions } = require('server/utils/constants/commands/user')
 const { getFireedgeConfig } = require('server/utils/yml')
 const {
@@ -39,6 +40,8 @@ const {
 } = require('server/utils/opennebula')
 
 const { writeInLogger } = require('server/utils/logger')
+const { global } = require('window-or-global')
+const atob = require('atob')
 
 const { internalServerError, unauthorized } = httpCodes
 
@@ -172,6 +175,84 @@ const remoteAuth = (
   }
 }
 
+const getBasePath = (req = {}) => {
+  const originalUrl = req?.originalUrl || ''
+  const idx = originalUrl.indexOf('/api')
+
+  return idx > 0 ? originalUrl.substring(0, idx) : '/'
+}
+
+const samlErrorAndRedirect = (res, path = '/', err = '') => {
+  const error = new Error(err)
+  writeInLogger(error, { format: 'SAML authentication error: %s' })
+  res.redirect(path)
+}
+
+/**
+ * Saml authentication. for POST endpoint.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ * @param {Function} oneConnection - function of xmlrpc
+ * @param {object} req - http request
+ */
+const samlAuth = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction,
+  req = {}
+) => {
+  const basepath = getBasePath(req)
+  const { SAMLResponse } = params
+
+  updaterResponse(new Map(internalServerError).toObject())
+
+  if (!SAMLResponse) {
+    samlErrorAndRedirect(
+      res,
+      basepath,
+      'The SAMLResponse parameter is not found in the request.'
+    )
+
+    return
+  }
+  const xmlMessage = atob(SAMLResponse)
+
+  xml2json(xmlMessage, (err, data) => {
+    if (err) {
+      samlErrorAndRedirect(
+        res,
+        basepath,
+        'Error transforming SAML output into JSON'
+      )
+
+      return
+    }
+
+    const samlUser = data?.Response?.Assertion?.Subject?.NameID?.['#text']
+    if (samlUser) {
+      if (!global.saml) {
+        global.saml = {}
+      }
+
+      global.saml[samlUser] = SAMLResponse
+
+      res.cookie('saml_user', samlUser, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 5 * 60 * 1000,
+      })
+    }
+
+    res.redirect(basepath)
+  })
+}
+
 /**
  * Fireedge select type auth.
  * (This is because the authentication methods have to be extended after that).
@@ -203,4 +284,5 @@ const selectTypeAuth = (
 
 module.exports = {
   selectTypeAuth,
+  samlAuth,
 }

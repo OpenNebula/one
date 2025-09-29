@@ -14,21 +14,22 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
+import { ArrowTrSquare } from 'iconoir-react'
 import PropTypes from 'prop-types'
+import { useEffect } from 'react'
 
-import { Box, Slide, Stack } from '@mui/material'
+import { Box, Divider, Link, Slide, Stack } from '@mui/material'
 
-import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { FormProvider, useForm } from 'react-hook-form'
 
 import {
-  TranslateProvider,
-  Translate,
-  SubmitButton,
   FormWithSchema,
+  SubmitButton,
+  Translate,
+  TranslateProvider,
 } from '@ComponentsModule'
-import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import { STYLE_BUTTONS, T } from '@ConstantsModule'
 
 export const Form = ({
   onBack,
@@ -38,6 +39,7 @@ export const Form = ({
   error,
   isLoading,
   transitionProps,
+  remoteRedirect,
 }) => {
   const { handleSubmit, setError, ...methods } = useForm({
     reValidateMode: 'onSubmit',
@@ -103,6 +105,28 @@ export const Form = ({
               size={STYLE_BUTTONS.SIZE.LARGE}
             />
           </Stack>
+          {remoteRedirect && (
+            <>
+              <Divider />
+              <Stack direction="row" sx={{ gap: '1rem' }}>
+                <Link
+                  component="button"
+                  variant="body2"
+                  onClick={() => {
+                    window.location.href = remoteRedirect
+                  }}
+                  data-cy="link-saml"
+                  sx={{
+                    display: 'inline-flex',
+                    gap: '0.4rem',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Translate word={T.SignInRemote} /> <ArrowTrSquare />
+                </Link>
+              </Stack>
+            </>
+          )}
         </Box>
       </Slide>
     </TranslateProvider>
@@ -123,6 +147,7 @@ Form.propTypes = {
   transitionProps: PropTypes.shape({
     name: PropTypes.string,
   }),
+  remoteRedirect: PropTypes.string,
 }
 
 Form.defaultProps = {

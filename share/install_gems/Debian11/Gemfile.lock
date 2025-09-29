@@ -123,6 +123,8 @@ GEM
       nokogiri (>= 1.13.10)
       rexml
     ruby2_keywords (0.0.5)
+    ruby-saml (1.18.0)
+      nokogiri (>= 1.13.10)
     sequel (5.96.0)
       bigdecimal
     sinatra (3.2.0)
