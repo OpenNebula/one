@@ -252,7 +252,6 @@ const CustomStepper = ({
           control={
             <Switch
               onChange={handleShowMandatoryOnly}
-              name={'aaaaaa'}
               checked={showMandatoryOnly}
               inputProps={{ 'data-cy': 'switch-mandatory' }}
             />

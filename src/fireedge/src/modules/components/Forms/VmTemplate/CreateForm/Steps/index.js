@@ -167,9 +167,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
 
     return knownTemplate
   },
-  transformBeforeSubmit: (formData) =>
-    // All formatting and parsing is taken care of in the VmTemplate container
-    formData,
+  transformBeforeSubmit: (formData) => formData,
 })
 
 export default Steps

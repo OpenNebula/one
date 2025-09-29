@@ -69,7 +69,11 @@ export function InstantiateServiceTemplate() {
   })
 
   const onSubmit = async (jsonTemplate) => {
-    const { instances = 1, SCHED_ACTION = [] } = jsonTemplate
+    const {
+      instances = 1,
+      SCHED_ACTION = [],
+      userInputsRole = {},
+    } = jsonTemplate
 
     const {
       TEMPLATE: {
@@ -81,19 +85,29 @@ export function InstantiateServiceTemplate() {
     const formatRoles = roles?.map(({ vm_template_id_content, ...role }) => ({
       ...role,
       ...(SCHED_ACTION?.length > 0
-        ? { template_contents: { SCHED_ACTION } }
+        ? {
+            template_contents: {
+              ...role?.template_contents,
+              ...SCHED_ACTION,
+            },
+          }
         : {}),
+      ...(userInputsRole?.[role?.name] && {
+        user_inputs_values: userInputsRole?.[role?.name],
+      }),
     }))
+
+    const formattedTemplate = {
+      ...jsonTemplate,
+      roles: formatRoles,
+    }
 
     try {
       await Promise.all(
         Array.from({ length: instances }, async () =>
           instantiate({
             id: templateId,
-            template: {
-              ...jsonTemplate,
-              roles: formatRoles,
-            },
+            template: formattedTemplate,
           }).unwrap()
         )
       )

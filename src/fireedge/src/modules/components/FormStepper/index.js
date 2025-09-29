@@ -242,7 +242,9 @@ const FormStepper = ({
     const firstErrorPath = inner?.find((error) => error?.path)?.path
 
     if (firstErrorPath) {
-      setFocus(`${stepId}.${firstErrorPath}`)
+      try {
+        setFocus(`${stepId}.${firstErrorPath}`)
+      } catch {}
     }
   }
 
