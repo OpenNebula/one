@@ -20,6 +20,7 @@ import {
   decodeBase64,
   getUnknownAttributes,
   isBase64,
+  transformXmlString
 } from '@UtilsModule'
 import { set } from 'lodash'
 import { reach } from 'yup'
@@ -54,6 +55,25 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
         ...knownTemplate?.CONTEXT,
         START_SCRIPT: decodeBase64(template?.CONTEXT?.START_SCRIPT_BASE64),
         ENCODE_START_SCRIPT: true,
+      }
+    }
+
+    if (template.OS) {
+      // Clone template.OS to ensure its mutable
+      knownTemplate.OS = { ...template.OS }
+    }
+
+    if (template.RAW) {
+      // Clone template.RAW to ensure its mutable
+      knownTemplate.RAW = { ...template.RAW }
+
+      if (template.RAW.DATA) {
+        // DATA exists, so we add TYPE and transform DATA
+        knownTemplate.RAW.TYPE = template.HYPERVISOR
+        knownTemplate.RAW.DATA = transformXmlString(template.RAW.DATA)
+      } else {
+        // DATA doesn't exist, remove RAW from template
+        delete knownTemplate.RAW
       }
     }
 

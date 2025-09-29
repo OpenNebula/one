@@ -132,7 +132,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     delete objectSchema.general.OS_PROFILE
 
     const knownTemplate = schema.cast(objectSchema, {
-      stripUnknown: false,
+      stripUnknown: true,
       context: { ...vmTemplate, [EXTRA_ID]: vmTemplate.TEMPLATE },
     })
 
