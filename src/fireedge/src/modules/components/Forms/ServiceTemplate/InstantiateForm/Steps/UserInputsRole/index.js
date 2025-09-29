@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import {
   FIELDS,
   SCHEMA,
-} from '@modules/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs/schema'
+} from '@modules/components/Forms/ServiceTemplate/InstantiateForm/Steps/UserInputsRole/schema'
 import { T, UserInputObject } from '@ConstantsModule'
 import { generateTabs } from '@modules/components/Forms/UserInputs'
 import { Component } from 'react'
@@ -34,7 +34,7 @@ export const STEP_ID = 'user_inputs_roles'
  * @returns {Component} React component with the content of the step
  */
 const Content = ({ userInputsLayout, showMandatoryOnly }) =>
-  generateTabs(userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly)
+  generateTabs(userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly, true)
 
 Content.propTypes = {
   props: PropTypes.any,
@@ -52,7 +52,7 @@ const UserInputsRoleStep = (userInputs, userInputsLayout) => ({
   id: STEP_ID,
   label: T.UserInputsRole,
   optionsValidate: { abortEarly: false },
-  resolver: SCHEMA(userInputs),
+  resolver: SCHEMA(userInputs, userInputsLayout),
   enableShowMandatoryOnly: true,
   content: (props) => Content({ ...props, userInputsLayout }),
 })

@@ -145,14 +145,14 @@ const Steps = createSteps(
       } = formData
 
       const userInputsValues = Object.fromEntries(
-        Object.entries({
-          ...userInputsRoleData,
-          ...userInputsData,
-        }).map(([key, value]) => [key.toUpperCase(), String(value)])
+        Object.entries(userInputsData).map(([key, value]) => [
+          key.toUpperCase(),
+          String(value),
+        ])
       )
 
       const formatTemplate = {
-        user_inputs_values: userInputsValues, // Applied across all roles
+        user_inputs_values: userInputsValues,
         name: generalData?.NAME,
         instances: generalData?.INSTANCES,
         networks: Object.fromEntries(networkData?.map(toNetworkString)) ?? [],
@@ -161,6 +161,11 @@ const Steps = createSteps(
             toNetworksValueString(network, networksValues[idx])
           )
           ?.filter(Boolean),
+        userInputsRole: Object.fromEntries(
+          Object.entries(userInputsRoleData)?.filter(
+            ([role, value]) => typeof value === 'object' // Removes "role-less" inputs created by the initial loading of the schema...
+          )
+        ),
         ...charterData,
       }
 

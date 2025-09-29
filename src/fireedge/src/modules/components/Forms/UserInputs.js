@@ -401,14 +401,37 @@ const userInputsTabContent = (
  * @param {string} STEP_ID - Step identifier
  * @param {Array} FIELDS - List of fields
  * @param {boolean} showMandatoryOnly - Show only mandatory inputs
+ * @param {boolean} addAppNameToField - Adds step ID to fields
  * @returns {Component} Tabs component
  */
-const generateTabs = (userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly) => {
+const generateTabs = (
+  userInputsLayout,
+  STEP_ID,
+  FIELDS,
+  showMandatoryOnly,
+  addAppNameToField = false
+) => {
   const {
     formState: { errors },
   } = useFormContext()
 
   const totalErrors = Object.keys(errors[STEP_ID] ?? {}).length
+
+  const userInputFields = userInputsLayout
+    ?.flatMap((layout) =>
+      layout?.groups?.flatMap((userInput) => userInput?.userInputs)
+    )
+    ?.reduce(
+      (acc, input) => {
+        if (!acc.seen.has(input?.name)) {
+          acc.seen.add(input.name)
+          acc.list.push(input)
+        }
+
+        return acc
+      },
+      { seen: new Set(), list: [] }
+    ).list
 
   // No render tabs is there is only one tab called "others". That means that this app is not following the user inputs convention.
   if (userInputsLayout.length === 1 && userInputsLayout[0].name === 'others') {
@@ -417,11 +440,7 @@ const generateTabs = (userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly) => {
         key={`user-inputs`}
         cy={`user-inputs`}
         id={STEP_ID}
-        fields={FIELDS(
-          userInputsLayout[0].groups[0].userInputs.filter(
-            (userInput) => !showMandatoryOnly || userInput.mandatory
-          )
-        )}
+        fields={FIELDS(userInputFields)}
       />
     )
   }
@@ -439,7 +458,9 @@ const generateTabs = (userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly) => {
               appName.replace(/\s+/g, ''),
               appDescription,
               groups,
-              STEP_ID,
+              addAppNameToField
+                ? `${STEP_ID}.${appName?.split('-')?.[0]?.trim()}`
+                : STEP_ID,
               FIELDS,
               showMandatoryOnly
             ),
@@ -471,12 +492,23 @@ const generateTabs = (userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly) => {
  * Create a list of fields to use in the schema and in forms from the list of user inputs.
  *
  * @param {Array} userInputs - List of user inputs.
+ * @param {Array} userInputsLayout - List of u.i. layout
+ * @param {boolean} addAppNameToField - Add role name to field
  * @returns {Array} - List of fields.
  */
-const createFieldsFromUserInputs = (userInputs = []) => {
+const createFieldsFromUserInputs = (
+  userInputs = [],
+  userInputsLayout,
+  addAppNameToField = false
+) => {
   const res = userInputs.map(
-    ({ name, description, label, ...restOfUserInput }) => ({
-      name,
+    ({ name, description, label, ...restOfUserInput }, inputIdx) => ({
+      name:
+        addAppNameToField && userInputsLayout?.[inputIdx]?.name
+          ? `${userInputsLayout?.[inputIdx]?.name
+              ?.split('-')?.[0]
+              ?.trim()}.${name}`
+          : name,
       label: label || name,
       ...(description && { tooltip: description }),
       ...schemaUserInput(restOfUserInput),

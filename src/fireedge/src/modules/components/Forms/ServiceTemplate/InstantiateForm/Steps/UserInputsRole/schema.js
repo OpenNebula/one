@@ -21,15 +21,25 @@ import { Field, UserInputObject } from '@ConstantsModule'
 
 /**
  * @param {UserInputObject[]} userInputs - User inputs
+ * @param {object} userInputsLayout - User input layout
  * @returns {Field[]} User inputs in Field format
  */
-const FIELDS = (userInputs = []) => createFieldsFromUserInputs(userInputs)
+const FIELDS = (userInputs = [], userInputsLayout) => {
+  const addAppNameToField = true
+
+  return createFieldsFromUserInputs(
+    userInputs,
+    userInputsLayout,
+    addAppNameToField
+  )
+}
 
 /**
  * @param {UserInputObject[]} userInputs - User inputs
+ * @param {object} userInputsLayout - User input layout
  * @returns {ObjectSchema} User inputs schema
  */
-const SCHEMA = (userInputs = []) =>
-  getObjectSchemaFromFields(FIELDS(userInputs))
+const SCHEMA = (userInputs = [], userInputsLayout) =>
+  getObjectSchemaFromFields(FIELDS(userInputs, userInputsLayout))
 
 export { FIELDS, SCHEMA }
