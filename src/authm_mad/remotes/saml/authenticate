@@ -53,43 +53,38 @@ else
 end
 
 begin
+    # Initialize XML construct
+    error_msg = 'Invalid XML input'
+
     xml = OpenNebula::XMLElement.new
     xml.initialize_xml(STDIN.read, 'AUTHN')
 
     user   = URI_PARSER.unescape(xml['/AUTHN/USERNAME'])
     secret = URI_PARSER.unescape(xml['/AUTHN/SECRET'])
-rescue StandardError
-    STDERR.puts 'Invalid XML input'
-    exit(-1)
-end
 
-# Load SAML assertion and retrieve issuer
-begin
+    # Load SAML assertion and retrieve issuer
+    error_msg = 'Unable to parse SAML assertion'
+
     assertion_text = Base64.decode64(secret)
-    assertion = Nokogiri::XML(assertion_text)
+    assertion      = Nokogiri::XML(assertion_text)
+
     namespaces = {
         'saml' => 'urn:oasis:names:tc:SAML:2.0:assertion'
     }
 
     issuer = assertion.at_xpath('//saml:Issuer', namespaces).text
-rescue StandardError => e
-    STDERR.puts "Unable to parse SAML assertion: #{e.message}"
-    exit(-1)
-end
 
-# Load configuration file
-begin
-    options=YAML.load_file(ETC_LOCATION+'/auth/saml_auth.conf')
-rescue StandardError => e
-    STDERR.puts 'Unable to load SAML configuration file.'
-    STDERR.puts 'Check that /etc/one/auth/saml_auth.conf exists and can be read by oneadmin.'
-    STDERR.puts "Error: #{e}"
-    exit(-1)
-end
+    # Load configuration file
+    error_msg = 'Unable to read /etc/one/auth/saml_auth.conf.' \
+        ' Check that it exists and can be read by oneadmin'
 
-# Check if the assertion is emitted by a trusted (configured) IDP
-begin
+    options = YAML.load_file(ETC_LOCATION+'/auth/saml_auth.conf')
+
+    # Check if the assertion is emitted by a trusted (configured) IDP
+    error_msg = 'Error checking if the assertion issuer is trusted'
+
     provider = nil
+
     options[:identity_providers].each do |_, idp_data|
         if idp_data[:issuer] == issuer
             provider = idp_data
@@ -102,51 +97,37 @@ begin
         STDERR.puts 'Review the list of trusted Identity Providers in /etc/one/auth/saml_auth.conf'
         exit(-1)
     end
-rescue StandardError => e
-    STDERR.puts 'Error checking if the assertion issuer is trusted.'
-    STDERR.puts "Error: #{e}"
-    exit(-1)
-end
 
-puts('Identity Provider found! Loading provider config...') if DEV_DEBUG
+    # Load provider config. Triggers mapping file autogenerate/refresh/load
+    error_msg = 'Error loading Identity Provider configuration or autogenerating mapping file'
 
-# Load provider config. Triggers mapping file autogenerate/refresh/load
-begin
     saml = OpenNebula::SamlAuth.new(provider, options)
-rescue StandardError => e
-    STDERR.puts 'Error loading Identity Provider configuration or autogenerating mapping file.'
-    STDERR.puts "Error: #{e}"
-end
 
-puts('Validating assertion...') if DEV_DEBUG
-# Validate the assertion
-begin
-    result = saml.validate_assertion(assertion_text)
-    if result.equal?(true)
-        puts('The SAML assertion is valid.') if DEV_DEBUG
-    else
+    # Validate the assertion
+    error_msg = 'Error validating SAML assertion'
+
+    errors = saml.validate_assertion(assertion_text)
+
+    if errors
         STDERR.puts('SAML Assertion rejected. Reasons:')
-        result.each do |reason|
+        errors.each do |reason|
             STDERR.puts('- ' + reason)
         end
+        exit(-1)
     end
-rescue StandardError => e
-    STDERR.puts 'Error validating SAML assertion.'
-    STDERR.puts "Error: #{e}"
-    exit(-1)
-end
 
-# Group mapping logic
-begin
+    # Group mapping logic
+    error_msg = 'Error mapping received groups to OpenNebula groups'
+
     xpath_request = "//saml:Attribute[@Name='#{provider[:group_field]}']/saml:AttributeValue"
-    idp_groups = assertion.xpath(xpath_request, namespaces).map(&:text)
-    puts("IDP reported group membership: #{idp_groups}") if DEV_DEBUG
+    idp_groups    = assertion.xpath(xpath_request, namespaces).map(&:text)
+
     saml.validate_required_group(idp_groups)
+
     one_groups = saml.get_groups(idp_groups)
-    puts("Mapped OpenNebula groups: #{one_groups}") if DEV_DEBUG
 rescue StandardError => e
-    STDERR.puts 'Error mapping received groups to OpenNebula groups.'
-    STDERR.puts "Error: #{e}"
+    STDERR.puts "#{error_msg}: #{e.message}"
+    STDERR.puts "error: #{e}" if DEV_DEBUG
     exit(-1)
 end
 

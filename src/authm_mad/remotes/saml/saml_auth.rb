@@ -54,16 +54,18 @@ module OpenNebula
             }.merge(provider)
 
             @options[:mapping_file_path] = VAR_LOCATION + @options[:mapping_filename]
+
             @options[:sp_entity_id] = config[:sp_entity_id]
-            @options[:acs_url] = config[:acs_url]
+            @options[:acs_url]      = config[:acs_url]
 
             if !options_ok?
-                STDERR.puts('Identity Provider configured options are not correct.')
-                STDERR.puts('Please, configure a valid Identity Provider certificate.')
-                exit(-1)
+                raise StandardError,
+                      'Identity Provider configured options are not correct.' \
+                      ' Please, configure a valid Identity Provider certificate.'
             end
 
             generate_mapping if @options[:mapping_generate]
+
             load_mapping
         end
 
@@ -78,78 +80,90 @@ module OpenNebula
         # Validates SAML assertion using the ruby-saml library.
         # Returns true if the assertion is valid.
         # If not valid, returns an array of errors with the failed validations.
+        #
         # The following validations are performed:
-        #     validations = [
-        #       :validate_version, # checks if SAML 2.0 is used
-        #       :validate_id, # checks that the assertion contains an ID
-        #       :validate_success_status, # validates the status of the assertion
-        #       :validate_num_assertion, # validates that only a single assertion is contained
-        #       :validate_signed_elements, # validates that only valid elements are signed
-        #       :validate_structure, # validates the assertion against a specific schema
-        #       :validate_no_duplicated_attributes, # checks for duplicated attributes
-        #       :validate_in_response_to, # check if the provided request_id == inResponseTo
-        #       :validate_one_conditions, # checks that saml:Conditions exist
-        #       :validate_conditions, # validates that the assertion is not expired
-        #       :validate_one_authnstatement, # checks that saml:AuthnStatement exists
-        #       :validate_audience, # validates that Audience == sp_entity_id
-        #       :validate_destination, # validates that destination == acs_url
-        #       :validate_issuer, # validates if the assertion issuer matches the configured one
-        #       :validate_session_expiration, # validates expiration (SessionNotOnOrAfter)
-        #       :validate_subject_confirmation, # checks if subject confirmation is correct
-        #       :validate_name_id, # checks that the NameID element is present
-        #       :validate_signature # validates the assertion signature
-        #     ]
+        #  validations = [
+        #    :validate_version,                  # SAML 2.0 is used
+        #    :validate_id,                       # assertion contains an ID
+        #    :validate_success_status,           # status of the assertion
+        #    :validate_num_assertion,            # only a single assertion is contained
+        #    :validate_signed_elements,          # only valid elements are signed
+        #    :validate_structure,                # assertion against a specific schema
+        #    :validate_no_duplicated_attributes, # duplicated attributes
+        #    :validate_in_response_to,       # provided request_id == inResponseTo
+        #    :validate_one_conditions,       # saml:Conditions exist
+        #    :validate_conditions,           # assertion is not expired
+        #    :validate_one_authnstatement,   # saml:AuthnStatement exists
+        #    :validate_audience,             # Audience == sp_entity_id
+        #    :validate_destination,          # destination == acs_url
+        #    :validate_issuer,               # assertion issuer matches the configured one
+        #    :validate_session_expiration,   # expiration (SessionNotOnOrAfter)
+        #    :validate_subject_confirmation, # subject confirmation is correct
+        #    :validate_name_id,              # NameID element is present
+        #    :validate_signature             # assertion signature
+        #  ]
 
         # Source: https://github.com/SAML-Toolkits/ruby-saml/blob/fbbedc978300deb9355a8e505849666974ef2e67/lib/onelogin/ruby-saml/response.rb#L399
 
         def validate_assertion(assertion_text)
             saml_settings = OneLogin::RubySaml::Settings.new
-            saml_settings.idp_cert = @options[:idp_cert]
-            saml_settings.issuer = @options[:issuer]
-            saml_settings.sp_entity_id = @options[:sp_entity_id]
-            saml_settings.assertion_consumer_service_url = @options[:acs_url]
-            assertion = OneLogin::RubySaml::Response.new(assertion_text, :settings => saml_settings)
-            return true if assertion.is_valid?
 
-            return assertion.errors
+            saml_settings.idp_cert = @options[:idp_cert]
+            saml_settings.issuer   = @options[:issuer]
+
+            saml_settings.sp_entity_id                   = @options[:sp_entity_id]
+            saml_settings.assertion_consumer_service_url = @options[:acs_url]
+
+            assertion = OneLogin::RubySaml::Response.new(assertion_text, :settings => saml_settings)
+
+            return if assertion.is_valid?
+
+            assertion.errors
         end
 
         def generate_mapping
-            file=@options[:mapping_file_path]
-            generate = false
+            file = @options[:mapping_file_path]
 
-            if File.exist?(file)
-                stat = File.stat(file)
-                age = Time.now.to_i - stat.mtime.to_i
-                generate = true if age > @options[:mapping_timeout]
-            else
-                generate = true
-            end
+            File.open(file, File::RDWR | File::CREAT) do |f|
+                # Shared lock for reading the file
+                f.flock(File::LOCK_SH)
 
-            return unless generate
+                stat = f.stat
+                age  = Time.now.to_i - stat.mtime.to_i
 
-            client = OpenNebula::Client.new
-            group_pool = OpenNebula::GroupPool.new(client)
-            rc = group_pool.info
+                break if age <= @options[:mapping_timeout]
 
-            if OpenNebula.is_error?(rc)
-                STDERR.puts 'Unable to retrieve OpenNebula groups. OpenNebula error.'
-                STDERR.puts "Error: #{rc.message}"
-                exit(-1)
-            end
+                # Switch to exclusive lock for writing
+                f.flock(File::LOCK_UN)
+                f.flock(File::LOCK_EX)
 
-            groups=[group_pool.get_hash['GROUP_POOL']['GROUP']].flatten
+                # Check stat again, it might have changed while we were waiting for the lock
+                stat = f.stat
+                age  = Time.now.to_i - stat.mtime.to_i
 
-            yaml={}
+                break if age <= @options[:mapping_timeout]
 
-            groups.each do |group|
-                if group['TEMPLATE'] && group['TEMPLATE'][@options[:mapping_key]]
-                    yaml[group['TEMPLATE'][@options[:mapping_key]]] = group['ID']
+                client     = OpenNebula::Client.new
+                group_pool = OpenNebula::GroupPool.new(client)
+
+                rc = group_pool.info
+
+                raise StandardError, rc.message if OpenNebula.is_error?(rc)
+
+                groups = [group_pool.get_hash['GROUP_POOL']['GROUP']].flatten
+                yaml   = {}
+
+                groups.each do |group|
+                    if group['TEMPLATE'] && group['TEMPLATE'][@options[:mapping_key]]
+                        yaml[group['TEMPLATE'][@options[:mapping_key]]] = group['ID']
+                    end
                 end
-            end
 
-            File.open(file, 'w') do |f|
+                f.truncate(0)
+                f.rewind
                 f.write(yaml.to_yaml)
+            ensure
+                f.flock(File::LOCK_UN)
             end
         end
 
@@ -171,10 +185,10 @@ module OpenNebula
 
             return if idp_groups.include?(required) || idp_groups.include?("/#{required}")
 
-            STDERR.puts('The user does not belong to the required group.')
-            STDERR.puts("Groups reported by the IdP: #{idp_groups}")
-            STDERR.puts("Configured required group: #{required} ( /#{required} if using Keycloak )")
-            exit(-1)
+            raise StandardError,
+                  'The user does not belong to the required group.' \
+                  " Groups reported by the IdP: #{idp_groups}" \
+                  " Configured required group: #{required} ( /#{required} if using Keycloak )"
         end
 
         def get_groups(idp_groups)
@@ -183,14 +197,15 @@ module OpenNebula
             # Direct mapping of SAML group names to ONE group IDs
             when 'strict'
                 valid_mappings = idp_groups.map {|group| @mapping[group] }.compact
-                g_admin = @options[:group_admin_name]
+
+                g_admin  = @options[:group_admin_name]
                 is_admin = g_admin && idp_groups.include?(g_admin)
             # Keycloak-specific group syntax and group nesting support (e.g. /group1/subgroup1)
             when 'keycloak'
                 valid_mappings = []
+
                 idp_groups.each do |idp_group|
                     group_parts = idp_group.split('/')
-                    # Remove empty strings from leading/trailing slashes
                     group_parts.reject!(&:empty?)
 
                     # Build all possible parent group paths
@@ -207,20 +222,22 @@ module OpenNebula
                             # Try without the leading slash for single group parts
                             # E.g. in the mapping file "/group1" should be the same as "group1"
                             group_path_no_slash = group_parts[0]
+
                             is_admin = true if group_path_no_slash == @options[:group_admin_name]
+
                             if @mapping[group_path_no_slash]
                                 valid_mappings << @mapping[group_path_no_slash]
                             end
                         end
                     end
                 end
-                # Remove potential nil and duplicated values
+
                 valid_mappings.compact!
                 valid_mappings.uniq!
             else
-                STDERR.puts("Unsupported group mapping mode: #{@options[:mapping_mode]}")
-                STDERR.puts('Supported modes are "strict" and "keycloak".')
-                exit(-1)
+                raise StandardError,
+                      "Unsupported group mapping mode: #{@options[:mapping_mode]}." \
+                      " Supported modes are 'strict' and 'keycloak'."
             end
 
             # Return the default group if no mapping is found
