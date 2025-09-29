@@ -21,6 +21,7 @@ const {
   genPathResources,
   getRequestParameters,
   getRequestFiles,
+  removeFile,
 } = require('server/utils/server')
 const {
   defaultWebpackMode,
@@ -124,7 +125,31 @@ routes.forEach((file) => {
                 serverDataSource.files = parseFiles(req && req.files)
                 serverDataSource[postBody] = req.body
 
-                return action(
+                const isImageUpload =
+                  req.files &&
+                  req.files.length &&
+                  route?.path === '/image/upload'
+                const uploadedFiles = isImageUpload
+                  ? req.files.map((uploadedFile) => ({
+                      path: uploadedFile?.path,
+                      destination: uploadedFile?.destination,
+                    }))
+                  : []
+
+                if (!isImageUpload && req.files && req.files.length) {
+                  req.files.forEach((requestFile) => {
+                    try {
+                      if (
+                        requestFile?.path &&
+                        requestFile?.destination === optsMulter.dest
+                      ) {
+                        removeFile(requestFile.path)
+                      }
+                    } catch {}
+                  })
+                }
+
+                action(
                   res,
                   next,
                   getRequestParameters(params, serverDataSource),
@@ -132,6 +157,101 @@ routes.forEach((file) => {
                   oneConnection,
                   req
                 )
+
+                if (isImageUpload) {
+                  res.once('finish', () => {
+                    const fileToCleanup = uploadedFiles.find(
+                      (uploadFile) =>
+                        uploadFile?.path &&
+                        uploadFile?.destination === optsMulter.dest
+                    )?.path
+
+                    if (!fileToCleanup) return
+
+                    const oneConnect = oneConnection(
+                      oneUser.user,
+                      oneUser.password
+                    )
+                    let attempts = 0
+                    const maxAttempts = 120
+
+                    const poll = () => {
+                      attempts += 1
+
+                      oneConnect({
+                        action: 'imagepool.info',
+                        parameters: [-2, -1, -1],
+                        callback: (_err, result) => {
+                          if (_err) {
+                            if (attempts >= maxAttempts) {
+                              try {
+                                removeFile(fileToCleanup)
+                              } catch {}
+                            } else {
+                              setTimeout(poll, 1000)
+                            }
+
+                            return
+                          }
+
+                          try {
+                            const xml = typeof result === 'string' ? result : ''
+                            const fileInUse = xml.includes(
+                              `<PATH>${fileToCleanup}</PATH>`
+                            )
+
+                            if (fileInUse) {
+                              const imageMatch = xml.match(
+                                new RegExp(
+                                  `<IMAGE>.*?<PATH>${fileToCleanup.replace(
+                                    /[.*+?^${}()|[\]\\]/g,
+                                    '\\$&'
+                                  )}</PATH>.*?<STATE>(\\d+)</STATE>.*?</IMAGE>`,
+                                  's'
+                                )
+                              )
+                              const state = imageMatch
+                                ? parseInt(imageMatch[1], 10)
+                                : undefined
+
+                              if (state !== 4) {
+                                try {
+                                  removeFile(fileToCleanup)
+                                } catch {}
+
+                                return
+                              }
+                            } else {
+                              try {
+                                removeFile(fileToCleanup)
+                              } catch {}
+
+                              return
+                            }
+                          } catch {
+                            try {
+                              removeFile(fileToCleanup)
+                            } catch {}
+
+                            return
+                          }
+
+                          if (attempts < maxAttempts) {
+                            setTimeout(poll, 1000)
+                          } else {
+                            try {
+                              removeFile(fileToCleanup)
+                            } catch {}
+                          }
+                        },
+                        fillHookResource: false,
+                        parseXML: false,
+                      })
+                    }
+
+                    setTimeout(poll, 2000)
+                  })
+                }
               })
             }
           }
