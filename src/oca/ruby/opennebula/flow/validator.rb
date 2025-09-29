@@ -42,9 +42,10 @@ class Hash
 
             target[key] =
                 if value.is_a?(Hash) && current.is_a?(Hash)
-                    current.deep_merge(value)
-                elsif (value.is_a?(Array) && current.is_a?(Array)) && merge_array
-                    current + value
+                    current.deep_merge(value, merge_array)
+                elsif value.is_a?(Array) && current.is_a?(Array) && merge_array
+                    merged = current + value
+                    merged.all? {|el| el.is_a?(Hash) } ? merged.uniq : merged
                 else
                     value
                 end
