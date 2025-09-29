@@ -138,7 +138,7 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     document['alerting']['alertmanagers'] = [{
         'static_configs' => [{
             'targets' => (servers + [myself]).map do |server|
-                "#{server}:9093"
+                "#{format_address(server)}:9093"
             end
         }]
     }]
@@ -149,7 +149,7 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     scrape_configs << {
         'job_name' => 'opennebula_exporter',
         'static_configs' => [{
-            'targets' => ["#{myself}:9925"]
+            'targets' => ["#{format_address(myself)}:9925"]
         }]
     }
 
@@ -157,7 +157,7 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     node_exporters = []
 
     node_exporters += [{
-        'targets' => servers.map { |server| "#{server}:9100" }
+        'targets' => servers.map { |server| "#{format_address(server)}:9100" }
     }] unless servers.empty?
 
     node_exporters += hosts.map do |host|
@@ -166,7 +166,7 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     end unless hosts.empty?
 
     # if localhost is not included in hosts already
-    node_exporters += [{ 'targets' => ["#{myself}:9100"] }] \
+    node_exporters += [{ 'targets' => ["#{format_address(myself)}:9100"] }] \
         unless hosts.map { |h| h['TEMPLATE']['HOSTNAME'] }.any? { |h| is_local?(h) }
 
     scrape_configs << {
@@ -188,6 +188,16 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     )
 
     document
+end
+
+def format_address(address)
+    begin
+        ip = IPAddr.new(address)
+    rescue ArgumentError
+        raise ArgumentError, "Invalid IP address: #{address}"
+    end
+
+    return ip.ipv6? ? "[#{ip}]" : ip.to_s
 end
 
 if caller.empty?
