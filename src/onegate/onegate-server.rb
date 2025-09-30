@@ -95,6 +95,10 @@ set :port, $conf[:port]
 
 set :config, $conf
 
+set :dump_errors, true
+set :raise_errors, false
+set :show_exceptions, false
+
 include CloudLogger
 
 if $conf[:log]
@@ -122,6 +126,22 @@ set :cloud_auth, $cloud_auth
 
 before do
     content_type 'application/json', :charset => 'utf-8'
+end
+
+error 500 do
+    e = env['sinatra.error']
+    error_msg = e&.message || 'Internal server error'
+
+    logger.error do
+        if settings.config&.dig(:log, :level) == 3 && e
+            [error_msg, e.backtrace&.join("\n")].compact.join("\n")
+        else
+            error_msg
+        end
+    end
+
+    # Strip leading "ERROR:" since the client already adds it
+    halt 500, error_msg.sub(/^ERROR:\s*/, '')
 end
 
 helpers do
