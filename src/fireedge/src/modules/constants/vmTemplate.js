@@ -95,6 +95,7 @@ export const COMMON_RESOLUTIONS = {
 }
 
 export const FIRMWARE_TYPES = ['BIOS', 'UEFI']
+export const FIRMWARE_FORMAT_TYPES = ['qcow2', 'raw']
 
 export const PCI_TYPES = { MANUAL: 'pci_manual', AUTOMATIC: 'pci_automatic' }
 

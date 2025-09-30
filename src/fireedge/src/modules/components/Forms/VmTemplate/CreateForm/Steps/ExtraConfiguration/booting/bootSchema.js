@@ -18,6 +18,7 @@ import { boolean, string } from 'yup'
 import {
   CPU_ARCHITECTURES,
   FIRMWARE_TYPES,
+  FIRMWARE_FORMAT_TYPES,
   HYPERVISORS,
   INPUT_TYPES,
   SD_DISK_BUSES,
@@ -149,6 +150,22 @@ export const FIRMWARE = {
   grid: { md: 8 },
 }
 
+export const FIRMWARE_FORMAT = {
+  name: 'OS.FIRMWARE_FORMAT',
+  label: T.FirmwareFormat,
+  tooltip: T.FirmwareConcept,
+  notOnHypervisors: [lxc],
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined),
+  dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
+  values: arrayToOptions(FIRMWARE_FORMAT_TYPES),
+  grid: { md: 12 },
+}
+
 /** @type {Field} Firmware secure field  */
 export const FIRMWARE_SECURE = {
   name: 'OS.FIRMWARE_SECURE',
@@ -167,6 +184,7 @@ export const BOOT_FIELDS = [
   ROOT_DEVICE,
   FIRMWARE,
   FIRMWARE_SECURE,
+  FIRMWARE_FORMAT,
   KERNEL_CMD,
   BOOTLOADER,
   UUID,

@@ -1376,6 +1376,7 @@ module.exports = {
     It's referenced as machine ID inside the VM.
     Could be used to force ID for licensing purposes`,
   Firmware: 'Firmware',
+  FirmwareFormat: 'Firmware format',
   FirmwareConcept:
     'This attribute allows to define the type of firmware used to boot the VM',
   FirmwareSecure: 'Firmware secure',
