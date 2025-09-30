@@ -925,6 +925,13 @@ class KVMDomain
 
         File.open(cpath, 'w') {|f| f.write(checkpoint_xml) }
 
+        # Remove conflicting bitmaps
+        qdisk.each do |disk|
+            disk.bitmaps.each do |b|
+                disk.bitmap(b['name'], :remove => '')
+            end
+        end if @inc_mode == :cbt
+
         fsfreeze
 
         cmd("#{virsh} snapshot-create-as", @dom, opts)
