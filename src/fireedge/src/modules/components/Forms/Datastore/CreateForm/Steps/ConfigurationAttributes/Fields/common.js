@@ -157,12 +157,11 @@ const QCOW2_STANDALONE = {
   tooltip: T.StandaloneQcow2CloneConcept,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
-  htmlType: (_, context) => {
-    const { general: { STORAGE_BACKEND, TYPE } = {} } =
-      context?.getValues() || {}
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE'],
+  htmlType: ([STORAGE_BACKEND, TYPE] = []) => {
     if (
-      !typeIsOneOf(STORAGE_BACKEND, [isShared]) &&
-      TYPE === DATASTORE_TYPES.IMAGE.value
+      !typeIsOneOf(STORAGE_BACKEND, [isShared]) ||
+      TYPE !== DATASTORE_TYPES?.IMAGE?.value
     ) {
       return INPUT_TYPES.HIDDEN
     }
