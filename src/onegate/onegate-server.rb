@@ -569,7 +569,10 @@ helpers do
             type = type.to_i
         end
 
-        attr = request.body.read if attr.nil?
+        if attr.nil?
+            request.body.rewind
+            attr = request.body.read
+        end
 
         # Escape attr
         # ###########
