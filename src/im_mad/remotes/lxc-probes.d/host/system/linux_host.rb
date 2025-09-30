@@ -16,6 +16,22 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    LIB_LOCATION      ||= '/usr/lib/one'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+else
+    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+require 'load_opennebula_paths'
+# %%RUBYGEMS_SETUP_END%%
+
 require_relative '../../../lib/linux'
 
 LinuxHost.config('lxc')
