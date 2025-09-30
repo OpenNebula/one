@@ -1069,6 +1069,7 @@ IM_PROBES_QEMU_VM_SNAPSHOT_FILES="\
 
 IM_PROBES_ETC_QEMU_PROBES_FILES="\
     src/im_mad/remotes/qemu-probes.d/pci.conf \
+    src/im_mad/remotes/qemu-probes.d/forecast.conf \
     src/im_mad/remotes/lib/probe_db.conf"
 
 # DUMMY PROBES
