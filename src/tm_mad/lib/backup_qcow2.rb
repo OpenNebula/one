@@ -926,7 +926,9 @@ class KVMDomain
         File.open(cpath, 'w') {|f| f.write(checkpoint_xml) }
 
         # Remove conflicting bitmaps
-        qdisk.each do |disk|
+        qdisk.each_value do |disk|
+            next unless disk.bitmaps
+
             disk.bitmaps.each do |b|
                 disk.bitmap(b['name'], :remove => '')
             end
