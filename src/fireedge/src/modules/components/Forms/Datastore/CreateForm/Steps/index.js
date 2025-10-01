@@ -80,6 +80,7 @@ const Steps = createSteps(
         [CLUSTER_ID]: [cluster] = [],
         [CONF_ID]: {
           RESTRICTED_DIRS,
+          CACHE_UPSTREAMS,
           SAFE_DIRS,
           BRIDGE_LIST,
           CEPH_HOST,
@@ -110,6 +111,9 @@ const Steps = createSteps(
       const restrictedDirs =
         RESTRICTED_DIRS?.length > 0 ? RESTRICTED_DIRS.join(' ') : undefined
 
+      const cacheUpstreams =
+        CACHE_UPSTREAMS?.length > 0 ? CACHE_UPSTREAMS.join(',') : undefined
+
       const safeDirs = SAFE_DIRS?.length > 0 ? SAFE_DIRS.join(' ') : undefined
 
       const bridgeList =
@@ -129,6 +133,7 @@ const Steps = createSteps(
           DS_MAD: dsMadValue,
           TM_MAD: tmMad,
           RESTRICTED_DIRS: restrictedDirs,
+          CACHE_UPSTREAMS: cacheUpstreams,
           SAFE_DIRS: safeDirs,
           BRIDGE_LIST: bridgeList,
           COMPATIBLE_SYS_DS: compatibleSysDs,

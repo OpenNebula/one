@@ -2101,6 +2101,13 @@ module.exports = {
     If set, it will overwrite the default device mapping`,
   BusAdapterController: 'Bus adapter controller',
   Cache: 'Cache',
+  EnableDistributedCache: 'Enable the distributed cache',
+  CachePath: 'Absolute directory where cached images will be stored.',
+  CacheMaxSize:
+    'Maximum percentage of disk (cache path), to be allocated for caching.',
+  CacheUpstreams:
+    "List of one or more central cache hostnames or IPs (e.g., 'hostname0,hostname1'). Leave empty to disable central caches.",
+  CacheMinAge: 'Minimum age before a cached image can be evicted.',
   IoPolicy: 'IO Policy',
   Discard: 'Discard',
   IopsSize: 'Size of IOPS per second',
