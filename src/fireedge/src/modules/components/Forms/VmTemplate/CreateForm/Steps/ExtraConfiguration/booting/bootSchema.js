@@ -19,6 +19,7 @@ import {
   CPU_ARCHITECTURES,
   FIRMWARE_TYPES,
   FIRMWARE_FORMAT_TYPES,
+  VTPM_TYPES,
   HYPERVISORS,
   INPUT_TYPES,
   SD_DISK_BUSES,
@@ -153,7 +154,7 @@ export const FIRMWARE = {
 export const FIRMWARE_FORMAT = {
   name: 'OS.FIRMWARE_FORMAT',
   label: T.FirmwareFormat,
-  tooltip: T.FirmwareConcept,
+  tooltip: T.FirmwareFormatConcept,
   notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
@@ -163,7 +164,23 @@ export const FIRMWARE_FORMAT = {
     .default(() => undefined),
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
   values: arrayToOptions(FIRMWARE_FORMAT_TYPES),
-  grid: { md: 12 },
+  grid: { md: 6 },
+}
+
+export const TPM_MODEL = {
+  name: 'TPM.MODEL',
+  label: T.TPM,
+  tooltip: T.TPMConcept,
+  notOnHypervisors: [lxc],
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined),
+  dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
+  values: arrayToOptions(VTPM_TYPES),
+  grid: { md: 6 },
 }
 
 /** @type {Field} Firmware secure field  */
@@ -185,6 +202,7 @@ export const BOOT_FIELDS = [
   FIRMWARE,
   FIRMWARE_SECURE,
   FIRMWARE_FORMAT,
+  TPM_MODEL,
   KERNEL_CMD,
   BOOTLOADER,
   UUID,

@@ -1375,8 +1375,13 @@ module.exports = {
   UniqueIdOfTheVmConcept: `
     It's referenced as machine ID inside the VM.
     Could be used to force ID for licensing purposes`,
+  TPM: 'TPM',
+  TPMConcept:
+    'This attribute can be used to add a vTPM to the KVM machine. When doing so, every VM instance will also spawn a companion TPM emulator process (swtpm) in charge of emulating a physical TPM device for its VM.',
   Firmware: 'Firmware',
   FirmwareFormat: 'Firmware format',
+  FirmwareFormatConcept:
+    'This attribute can be used to define the format of the UEFI NVRAM image. The NVRAM file will be automatically converted to the specified format if the source file differs.',
   FirmwareConcept:
     'This attribute allows to define the type of firmware used to boot the VM',
   FirmwareSecure: 'Firmware secure',
