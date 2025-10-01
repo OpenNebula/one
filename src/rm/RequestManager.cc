@@ -160,6 +160,8 @@ void RequestManager::xml_server_loop()
 
         thread conn_thread([client_fd, this]
         {
+            socket_map.insert(this_thread::get_id(), client_fd);
+
             xmlrpc_c::serverAbyss * as = create_abyss();
 
             as->runConn(client_fd);
@@ -167,6 +169,8 @@ void RequestManager::xml_server_loop()
             delete as;
 
             cm->del();
+
+            socket_map.erase(this_thread::get_id());
 
             close(client_fd);
 
@@ -1312,4 +1316,15 @@ void RequestManager::finalize()
     {
         close(socket_fd);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int RequestManager::get_socket()
+{
+    int socket_id = -1;
+    socket_map.try_get(this_thread::get_id(), socket_id);
+
+    return socket_id;
 }
