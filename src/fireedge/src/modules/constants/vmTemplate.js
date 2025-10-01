@@ -94,6 +94,8 @@ export const COMMON_RESOLUTIONS = {
   custom: 'custom',
 }
 
+export const VTPM_TYPES = ['tpm-crb', 'tpm-tis']
+
 export const FIRMWARE_TYPES = ['BIOS', 'UEFI']
 export const FIRMWARE_FORMAT_TYPES = ['qcow2', 'raw']
 
@@ -149,7 +151,7 @@ export const MEMORY_RESIZE_OPTIONS = {
 export const TAB_FORM_MAP = {
   Storage: ['DISK', 'TM_MAD_SYSTEM'],
   Network: ['NIC', 'NIC_ALIAS', 'PCI', 'NIC_DEFAULT'],
-  OsCpu: ['OS', 'CPU_MODEL', 'FEATURES', 'RAW'],
+  OsCpu: ['OS', 'CPU_MODEL', 'FEATURES', 'RAW', 'TPM'],
   PciDevices: ['PCI'],
   InputOutput: ['INPUT', 'GRAPHICS', 'VIDEO'],
   Context: ['CONTEXT', 'USER_INPUTS', 'INPUTS_ORDER'],
