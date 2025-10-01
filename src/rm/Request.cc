@@ -93,24 +93,30 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void get_client_ip(const xmlrpc_c::callInfo * call_info, char * const
-                          ip, char * const port)
+static void get_client_ip(char * const ip, char * const port)
 {
-    struct abyss_unix_chaninfo * unix_ci;
+    // 1. Get the socket id and prepare the address structure
+    auto client_fd = Nebula::instance().get_rm()->get_socket();
 
-    const xmlrpc_c::callInfo_serverAbyss * abyss_ci =
-            static_cast<const xmlrpc_c::callInfo_serverAbyss *>(call_info);
+    struct sockaddr_storage addr_storage;
+    socklen_t               addr_len = sizeof(addr_storage);
 
-    SessionGetChannelInfo(abyss_ci->abyssSessionP, (void **) &unix_ci);
+    // 2. This fills addr_storage with the remote address information.
+    if ( getpeername(client_fd, (struct sockaddr*)&addr_storage, &addr_len) != 0 )
+    {
+        ip[0] = '-';
+        ip[1] = '\0';
 
-    // -------------------------------------------------------------------------
-    // NOTE: This only works for IPv4 as abyss_unix_chaninfo is not IPv6 ready
-    // it should use sockaddr_storage for peerAddr, and set peerAddrLen properly
-    // This could be bypassed with getpeername if library exposes access to
-    // channel implementation, i.e. socket fd
-    // -------------------------------------------------------------------------
+        port[0] = '-';
+        port[1] = '\0';
 
-    int rc = getnameinfo(&(unix_ci->peerAddr), unix_ci->peerAddrLen, ip,
+        return;
+    }
+
+    // 3. Read the IP and Port from addr_storage
+    int rc = getnameinfo((struct sockaddr*)&addr_storage,
+                         addr_len,
+                         ip,
                          NI_MAXHOST, port, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
 
     if ( rc != 0 )
@@ -223,7 +229,7 @@ void Request::log_method_invoked(const RequestAttributes& att,
                 case 'A':
                     if ( ip[0] == '\0' )
                     {
-                        get_client_ip(call_info, ip, port);
+                        get_client_ip(ip, port);
                     }
 
                     oss << ip;
@@ -232,7 +238,7 @@ void Request::log_method_invoked(const RequestAttributes& att,
                 case 'P':
                     if ( port[0] == '\0' )
                     {
-                        get_client_ip(call_info, ip, port);
+                        get_client_ip(ip, port);
                     }
 
                     oss << port;

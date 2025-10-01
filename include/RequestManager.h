@@ -17,6 +17,8 @@
 #ifndef REQUEST_MANAGER_H_
 #define REQUEST_MANAGER_H_
 
+#include "ThreadSafeMap.h"
+
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
@@ -56,15 +58,17 @@ public:
 
     void finalize();
 
-    /**
-     *  @return an AbyssServer to run xmlrpc connections
-     */
-    xmlrpc_c::serverAbyss * create_abyss();
-
     bool exist_method(const std::string& call)
     {
         return RequestManagerRegistry.exist(call);
     }
+
+    /*
+     * Get client socket ID used to initiate the request.
+     * The client socket are associated with the thread ID
+     * This is a workaround to get IP and Port in newer versions of xmlrpc-c
+     */
+    int get_socket();
 
 private:
 
@@ -84,6 +88,11 @@ private:
             return registered_methods.find(call) != registered_methods.end();
         }
     };
+
+    /**
+     *  @return an AbyssServer to run xmlrpc connections
+     */
+    xmlrpc_c::serverAbyss * create_abyss();
 
     /**
      *  XML Server main thread loop. Waits for client connections and starts
@@ -107,6 +116,8 @@ private:
     std::mutex end_lock;
 
     std::atomic<bool> end;
+
+    one_util::ThreadSafeMap<std::thread::id, int> socket_map;
 
     /**
      *  Port number where the connection will be open
