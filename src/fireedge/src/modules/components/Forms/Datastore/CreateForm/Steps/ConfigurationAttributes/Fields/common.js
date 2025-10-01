@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { DATASTORE_TYPES, INPUT_TYPES, T } from '@ConstantsModule'
+import { InputAdornment } from '@mui/material'
 import { Field } from '@UtilsModule'
 import { array, boolean, number, string } from 'yup'
 import { isCeph, isLvm, isShared, isSsh, typeIsOneOf } from '../../functions'
@@ -111,7 +112,7 @@ const NO_DECOMPRESS = {
   dependOf: '$general.STORAGE_BACKEND',
   htmlType: (type) =>
     !typeIsOneOf(type, [isShared, isSsh, isCeph, isLvm]) && INPUT_TYPES.HIDDEN,
-  grid: { xs: 12, md: 6 },
+  grid: { md: 6 },
 }
 
 /** @type {Field} - Check capacity field */
@@ -271,6 +272,123 @@ const NFS_AUTO_OPTS = {
   grid: { xs: 12, md: 6 },
 }
 
+/* Distributed cache options */
+
+const ENABLE_CACHE = {
+  name: 'ENABLE_CACHE',
+  label: T.EnableDistributedCache,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().yesOrNo().default(false),
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE'],
+  htmlType: ([STORAGE_BACKEND, TYPE] = []) => {
+    if (
+      !typeIsOneOf(STORAGE_BACKEND, [isSsh]) ||
+      TYPE !== DATASTORE_TYPES?.IMAGE?.value
+    ) {
+      return INPUT_TYPES.HIDDEN
+    }
+  },
+  grid: { md: 6 },
+}
+
+const CACHE_PATH = {
+  name: 'CACHE_PATH',
+  label: T.CachePath,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => '/var/lib/one/cache'),
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', ENABLE_CACHE.name],
+  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED] = []) => {
+    if (
+      !typeIsOneOf(STORAGE_BACKEND, [isSsh]) ||
+      TYPE !== DATASTORE_TYPES?.IMAGE?.value ||
+      !CACHE_ENABLED
+    ) {
+      return INPUT_TYPES.HIDDEN
+    }
+  },
+  grid: { md: 6.125 },
+}
+
+const CACHE_MAX_SIZE = {
+  name: 'CACHE_MAX_SIZE',
+  label: T.CacheMaxSize,
+  type: INPUT_TYPES.SLIDER,
+  validation: number()
+    .positive()
+    .min(0)
+    .max(100)
+    .default(() => 10),
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', ENABLE_CACHE.name],
+  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED] = []) => {
+    if (
+      !typeIsOneOf(STORAGE_BACKEND, [isSsh]) ||
+      TYPE !== DATASTORE_TYPES?.IMAGE?.value ||
+      !CACHE_ENABLED
+    ) {
+      return INPUT_TYPES.HIDDEN
+    }
+  },
+  grid: { md: 12 },
+  fieldProps: {
+    min: 0,
+    max: 100,
+    step: 1,
+    endAdornment: <InputAdornment position="end">%</InputAdornment>,
+  },
+}
+
+const CACHE_UPSTREAMS = {
+  name: 'CACHE_UPSTREAMS',
+  label: T.CacheUpstreams,
+  tooltip: [T.PressKeysToAddAValue, ['ENTER']],
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  multiple: true,
+  validation: array(string().trim()).default(() => []),
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', ENABLE_CACHE.name],
+  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED] = []) => {
+    if (
+      !typeIsOneOf(STORAGE_BACKEND, [isSsh]) ||
+      TYPE !== DATASTORE_TYPES?.IMAGE?.value ||
+      !CACHE_ENABLED
+    ) {
+      return INPUT_TYPES.HIDDEN
+    }
+  },
+  fieldProps: {
+    freeSolo: true,
+  },
+  grid: { md: 12 },
+}
+
+const CACHE_MIN_AGE = {
+  name: 'CACHE_MIN_AGE',
+  label: T.CacheMinAge,
+  type: INPUT_TYPES.TEXT,
+  validation: number()
+    .positive()
+    .min(0)
+    .default(() => 0),
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', ENABLE_CACHE.name],
+  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED] = []) => {
+    if (
+      !typeIsOneOf(STORAGE_BACKEND, [isSsh]) ||
+      TYPE !== DATASTORE_TYPES?.IMAGE?.value ||
+      !CACHE_ENABLED
+    ) {
+      return INPUT_TYPES.HIDDEN
+    }
+  },
+  grid: { md: 5.875 },
+  fieldProps: {
+    InputProps: {
+      endAdornment: <InputAdornment position="end">{T.Seconds}</InputAdornment>,
+    },
+  },
+}
+
 /** @type {Field[]} - Common fields */
 export const COMMON_FIELDS = [
   RESTRICTED_DIRS,
@@ -281,6 +399,11 @@ export const COMMON_FIELDS = [
   LIMIT_TRANSFER_BW,
   LVM_THIN_ENABLE,
   NO_DECOMPRESS,
+  ENABLE_CACHE,
+  CACHE_PATH,
+  CACHE_MIN_AGE,
+  CACHE_MAX_SIZE,
+  CACHE_UPSTREAMS,
   DATASTORE_CAPACITY_CHECK,
   QCOW2_STANDALONE,
   NFS_AUTO_ENABLE,
