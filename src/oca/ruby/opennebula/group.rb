@@ -42,6 +42,7 @@ module OpenNebula
         # The default view for group and group admins, must be defined in
         # sunstone_views.yaml
         GROUP_ADMIN_SUNSTONE_VIEWS = "groupadmin"
+        GROUP_SUNSTONE_VIEWS       = "cloud"
 
         # Creates a Group description with just its identifier
         # this method should be used to create plain Group objects.
@@ -144,10 +145,14 @@ module OpenNebula
             # Add Sunstone views for the group
             if group_hash[:views]
                 sunstone_attrs << "VIEWS=\"#{group_hash[:views].join(",")}\""
+            else
+                sunstone_attrs << "VIEWS=\"#{GROUP_SUNSTONE_VIEWS}\""
             end
 
             if group_hash[:default_view]
                 sunstone_attrs << "DEFAULT_VIEW=\"#{group_hash[:default_view]}\""
+            else
+                sunstone_attrs << "DEFAULT_VIEW=\"#{GROUP_SUNSTONE_VIEWS}\""
             end
 
             # And the admin views
@@ -168,7 +173,7 @@ module OpenNebula
             if sunstone_attrs.length > 0
                 do_update = true
 
-                update_str = "SUNSTONE=[#{sunstone_attrs.join(",\n")}]\n"
+                update_str = "FIREEDGE=[#{sunstone_attrs.join(",\n")}]\n"
             end
 
             opennebula_attrs = []
