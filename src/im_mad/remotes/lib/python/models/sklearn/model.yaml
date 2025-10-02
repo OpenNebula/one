@@ -1,0 +1,18 @@
+model_class: pyoneai.ml.SklearnPredictionModel
+sequence_length: 200
+compute_ci: false
+# hyper_params:
+#   alpha: 1.0
+#   solver: cholesky
+# training_params:
+#   estimator_class: pyoneai.ml.sklearn_prediction_model._RidgeRegressor
+  # estimator_class: sklearn.ensemble.GradientBoostingRegressor
+  # min_observations: 5
+  # order: 1
+  # lead_size: 0
+  # lag_size: 40
+  # max_lag_size: 200
+  # lag_sizes: [2, 10, 40, 100]
+  # train_share: 0.8
+  # grid:
+  #   alpha: [1_000.0, 10_000.0, 100_000.0]

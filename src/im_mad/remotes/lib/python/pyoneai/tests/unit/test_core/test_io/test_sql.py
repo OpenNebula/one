@@ -88,14 +88,14 @@ class TestSqlEngine:
         assert tables == [(table_name,)]
 
     def test_valid_time_index_on_inserting_multiple_data(self, sample_ts):
-        engine = SQLEngine(self.db_path, sample_ts)
-        engine.insert_data()
+        engine = SQLEngine(self.db_path)
+        engine.insert_data(sample_ts)
         for m_attr, entity_uid, ts in sample_ts.iter_over_variates():
             with sqlite3.connect(self.db_path) as conn:
                 res = (
                     conn.cursor()
                     .execute(
-                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr, self.suffix)}"
+                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr)}"
                     )
                     .fetchall()
                 )
@@ -105,14 +105,14 @@ class TestSqlEngine:
                 assert np.array_equal(time_index, ts.time_index)
 
     def test_valid_values_on_inserting_multiple_data(self, sample_ts):
-        engine = SQLEngine(self.db_path, sample_ts)
-        engine.insert_data()
+        engine = SQLEngine(self.db_path)
+        engine.insert_data(sample_ts)
         for m_attr, entity_uid, ts in sample_ts.iter_over_variates():
             with sqlite3.connect(self.db_path) as conn:
                 res = (
                     conn.cursor()
                     .execute(
-                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr, self.suffix)}"
+                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr)}"
                     )
                     .fetchall()
                 )
@@ -122,14 +122,14 @@ class TestSqlEngine:
 
     def test_valid_time_index_on_inserting_single_data(self, sample_ts):
         new_ts = sample_ts.isel(time_idx=np.array([0]))
-        engine = SQLEngine(self.db_path, new_ts)
-        engine.insert_data()
+        engine = SQLEngine(self.db_path)
+        engine.insert_data(new_ts)
         for m_attr, entity_uid, ts in new_ts.iter_over_variates():
             with sqlite3.connect(self.db_path) as conn:
                 res = (
                     conn.cursor()
                     .execute(
-                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr, self.suffix)}"
+                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr)}"
                     )
                     .fetchall()
                 )
@@ -140,14 +140,14 @@ class TestSqlEngine:
 
     def test_valid_values_on_inserting_single_data(self, sample_ts):
         new_ts = sample_ts.isel(time_idx=np.array([0]))
-        engine = SQLEngine(self.db_path, new_ts)
-        engine.insert_data()
+        engine = SQLEngine(self.db_path)
+        engine.insert_data(new_ts)
         for m_attr, entity_uid, ts in new_ts.iter_over_variates():
             with sqlite3.connect(self.db_path) as conn:
                 res = (
                     conn.cursor()
                     .execute(
-                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr, self.suffix)}"
+                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr)}"
                     )
                     .fetchall()
                 )
@@ -158,23 +158,25 @@ class TestSqlEngine:
     def test_retention_keep_latest(self, sample_ts):
         engine = SQLEngine(
             self.db_path,
+        )
+        engine.insert_data(
             sample_ts.isel(time_idx=np.array([0])),
             retention=timedelta(milliseconds=1),
         )
-        engine.insert_data()
         time.sleep(0.002)
         engine = SQLEngine(
             self.db_path,
+        )
+        engine.insert_data(
             sample_ts.isel(time_idx=np.array([1])),
             retention=timedelta(milliseconds=1),
         )
-        engine.insert_data()
         for m_attr, entity_uid, ts in sample_ts.iter_over_variates():
             with sqlite3.connect(self.db_path) as conn:
                 res = (
                     conn.cursor()
                     .execute(
-                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr, self.suffix)}"
+                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr)}"
                     )
                     .fetchall()
                 )
@@ -186,22 +188,18 @@ class TestSqlEngine:
     def test_retention_keep_all_for_long_retention(self, sample_ts):
         engine = SQLEngine(
             self.db_path,
+        )
+        engine.insert_data(
             sample_ts.isel(time_idx=np.array([0])),
             retention=timedelta(days=1),
         )
-        engine.insert_data()
-        engine = SQLEngine(
-            self.db_path,
-            sample_ts.isel(time_idx=np.array([1])),
-            retention=timedelta(days=1),
-        )
-        engine.insert_data()
+        engine.insert_data(sample_ts.isel(time_idx=np.array([1])))
         for m_attr, entity_uid, ts in sample_ts.iter_over_variates():
             with sqlite3.connect(self.db_path) as conn:
                 res = (
                     conn.cursor()
                     .execute(
-                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr, self.suffix)}"
+                        f"SELECT * FROM {engine._get_table_name(entity_uid, m_attr)}"
                     )
                     .fetchall()
                 )
@@ -219,12 +217,12 @@ class TestSqlEngine:
         sample_ts._metric_idx.values[2] = MetricAttributes(
             name="network", dtype=UInt()
         )
-        engine = SQLEngine(self.db_path, sample_ts)
-        engine.insert_data()
+        engine = SQLEngine(self.db_path)
+        engine.insert_data(sample_ts)
         for m_attr, entity_uid, ts in sample_ts.iter_over_variates():
             with sqlite3.connect(self.db_path) as conn:
                 res = conn.cursor().execute(
-                    f"SELECT type FROM PRAGMA_TABLE_INFO('{engine._get_table_name(entity_uid, m_attr, self.suffix)}') "
+                    f"SELECT type FROM PRAGMA_TABLE_INFO('{engine._get_table_name(entity_uid, m_attr)}') "
                     "WHERE name = 'VALUE';"
                 )
             assert res.fetchone()[0] == "INTEGER"
@@ -241,12 +239,12 @@ class TestSqlEngine:
         sample_ts._metric_idx.values[2] = MetricAttributes(
             name="network", dtype=Float()
         )
-        engine = SQLEngine(self.db_path, sample_ts)
-        engine.insert_data()
+        engine = SQLEngine(self.db_path)
+        engine.insert_data(sample_ts)
         for m_attr, entity_uid, ts in sample_ts.iter_over_variates():
             with sqlite3.connect(self.db_path) as conn:
                 res = conn.cursor().execute(
-                    f"SELECT type FROM PRAGMA_TABLE_INFO('{engine._get_table_name(entity_uid, m_attr, self.suffix)}') "
+                    f"SELECT type FROM PRAGMA_TABLE_INFO('{engine._get_table_name(entity_uid, m_attr)}') "
                     "WHERE name = 'VALUE';"
                 )
             assert res.fetchone()[0] == "REAL"
