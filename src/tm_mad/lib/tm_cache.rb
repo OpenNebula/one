@@ -40,9 +40,9 @@ module TransferManager
             ds = config.fetch(:ds_xml)
             defaults = {
                 :ds_xml         => ds,
-                :cache_path     => ds['/DATASTORE/TEMPLATE/CACHE_PATH'] || '/var/lib/one/cache',
-                :cache_max_size => (ds['/DATASTORE/TEMPLATE/CACHE_MAX_SIZE'] || 10).to_i,
-                :min_age        => (ds['/DATASTORE/TEMPLATE/CACHE_MIN_AGE'] || 900).to_i,
+                :cache_path     => ds[:"/DATASTORE/TEMPLATE/CACHE_PATH"] || '/var/lib/one/cache',
+                :cache_max_size => (ds[:"/DATASTORE/TEMPLATE/CACHE_MAX_SIZE"] || 10).to_i,
+                :min_age        => (ds[:"/DATASTORE/TEMPLATE/CACHE_MIN_AGE"] || 900).to_i,
                 :upstreams      => config.fetch(:upstreams),
                 :hostname       => config.fetch(:hostname),
                 :one_fe         => config.fetch(:one_fe)
@@ -305,7 +305,6 @@ module TransferManager
                       config[:hostname]  = host
                       config[:upstreams] = args[:upstreams]
 
-                      # TODO: Add Central cache size logic
                       config_json = JSON.dump(config)
 
                       <<~CMD
