@@ -95,7 +95,13 @@ const RulesSection = memo(
     const onSubmit = (newRule) => {
       newRule?.RULES && delete newRule.RULES
       append(newRule)
-      methods.reset()
+      const currentValues = methods.getValues()
+      methods.reset({
+        RULE_TYPE: currentValues.RULE_TYPE,
+        PROTOCOL: currentValues.PROTOCOL,
+        RANGE_TYPE: currentValues.RANGE_TYPE,
+        TARGET: currentValues.TARGET,
+      })
     }
 
     if (fields.length === 0) {
