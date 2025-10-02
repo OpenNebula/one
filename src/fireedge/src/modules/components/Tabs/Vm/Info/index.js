@@ -167,6 +167,7 @@ const VmInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
           collapse
           attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
+          filtersSpecialAttributes={false}
           title={`${Tr(T.Attributes)}`}
         />
       )}
