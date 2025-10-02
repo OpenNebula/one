@@ -43,7 +43,6 @@ class TestSQLiteAccessor:
         self.accessor = SQLiteAccessor(self.monitoring)
 
     def test_init(self):
-        assert self.accessor._connection is self.mock_connection
         assert self.accessor._timestamp_col == "TIMESTAMP"
         assert self.accessor._value_col == "VALUE"
         assert (

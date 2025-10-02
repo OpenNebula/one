@@ -14,6 +14,8 @@
 
 from __future__ import annotations
 
+from typing import Optional, Union
+
 import os
 import warnings
 from abc import ABCMeta, abstractmethod
@@ -80,8 +82,22 @@ class BasePredictionModel(metaclass=ABCMeta):
         return model_class(**self.model_config.hyper_params)
 
     def _forecast_time_index(
-        self, metric: Timeseries, horizon: int
+        self,
+        metric: Timeseries,
+        horizon: Optional[int] = None,
+        forecast_index: Optional[TimeIndex] = None,
     ) -> TimeIndex:
+        if forecast_index is None and horizon is None:
+            raise ValueError(
+                "Either 'horizon' or 'forecast_index' must be provided."
+            )
+        if forecast_index is not None and horizon is not None:
+            raise ValueError(
+                "Only one of 'horizon' or 'forecast_index' should be provided."
+            )
+        if forecast_index is not None:
+            return forecast_index
+                
         last_time = metric.time_index[-1]
         freq = metric._time_idx.frequency
 
@@ -116,7 +132,12 @@ class BasePredictionModel(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def predict(self, metric: Timeseries, horizon: int = 1) -> Timeseries:
+    def predict(
+        self,
+        metric: Timeseries,
+        horizon: Optional[int] = None,
+        forecast_index: Optional[TimeIndex] = None,
+    ) -> Timeseries:
         """
         Predict future values for the given metric.
 
@@ -125,8 +146,12 @@ class BasePredictionModel(metaclass=ABCMeta):
         metric : Timeseries
             The metric data for generating predictions (univariate or
             multivariate).
-        horizon : int
-            The number of steps ahead to predict (default is 1).
+        horizon : int or None
+            The number of time steps to predict. If None, the
+            prediction horizon is determined by the model.
+        forecast_index : TimeIndex or None
+            The time index for the forecast. If None, the time index
+            is generated based on the last time step of the metric.
 
         Returns
         -------
@@ -145,7 +170,7 @@ class BasePredictionModel(metaclass=ABCMeta):
     def load(
         cls,
         model_config: ModelConfig,
-        checkpoint: str | os.PathLike | None = None,
+        checkpoint: Optional[Union[str, os.PathLike]] = None,
     ) -> BasePredictionModel:
         """
         Load a model based on provided configuration and checkpoint.
@@ -176,8 +201,8 @@ class BasePredictionModel(metaclass=ABCMeta):
 
     def save(
         self,
-        model_config_path: os.PathLike | str,
-        checkpoint_path: os.PathLike | str | None = None,
+        model_config_path: Union[os.PathLike, str],
+        checkpoint_path: Optional[Union[os.PathLike, str]] = None,
     ) -> None:
         """
         Save the model configuration and state.

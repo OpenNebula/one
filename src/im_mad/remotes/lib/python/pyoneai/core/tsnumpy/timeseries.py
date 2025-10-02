@@ -19,6 +19,7 @@ This module provides the main Timeseries class for handling time-series data in 
 
 from __future__ import annotations
 
+import importlib
 import json
 import math
 from datetime import datetime, timedelta, timezone
@@ -34,6 +35,7 @@ from typing import (
     Literal,
     Mapping,
     Optional,
+    TypeVar,
     Union,
 )
 
@@ -52,6 +54,9 @@ class Axis(IntEnum):
     TIME = 0
     METRIC = 1
     ENTITY = 2
+
+
+_TimeseriesT = TypeVar("_TimeseriesT", bound="Timeseries")
 
 
 class Timeseries:
@@ -299,7 +304,7 @@ class Timeseries:
 
     @property
     def is_univariate(self) -> bool:
-        return self.ndim == 1
+        return (self.ndim == 1) and (self.entity_uids.size == 1)
 
     @property
     def has_trend(self) -> bool:
@@ -601,98 +606,69 @@ class Timeseries:
             self, 
             path: Union[str, os.PathLike, Path], 
             retention: timedelta | None = None, 
-        ) -> tuple[str]:
+            suffix: str = "monitoring"
+        ) -> None:
+        """Write timeseries data to a SQLite database file.
+
+        Creates/opens the database at `path`. Data for each metric-entity
+        variate is stored in a separate table named:
+        `{entity_uid}_{metric_name}_{suffix}`.
+
+        Parameters
+        ----------
+        path : Union[str, os.PathLike, Path]
+            Path to the SQLite database file (created if it doesn't exist).
+        retention : timedelta, optional
+            If set, automatically deletes rows older than this duration
+            relative to the latest timestamp in each table upon insertion.
+            Defaults to None (no deletion).
+        suffix : str, optional
+            Suffix for table names. Defaults to "monitoring".
+
+        Returns
+        -------
+        None
+        """
         from .io import SQLEngine
 
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        SQLEngine(path, self, retention).insert_data()
+        SQLEngine(path, suffix=suffix).insert_data(self, retention)
 
 
     @classmethod
     def read_from_database(
         cls,
-        connection: Any,
-        table_name: str,
+        path: Union[str, os.PathLike, Path],
         metric_attrs: MetricAttributes,
-        timestamp_col: str,
-        value_col: str,
-        start_epoch: int,
-        end_epoch: int,
+        entity_uid: EntityUID,
+        time: Union[Period, Instant],
     ) -> Timeseries:
-        """Read timeseries data from a database.
+        """
+        Read timeseries data from a database.
 
         Parameters
         ----------
-        connection : Any
-            Database connection object that supports cursor() and execute()
-        table_name : str
-            Name of the table to query
+        path : Union[str, os.PathLike, Path]
+            The path to the database file.
         metric_attrs : MetricAttributes
-            Attributes of the metric
-        timestamp_col : str
-            Name of the timestamp column
-        value_col : str
-            Name of the value column
+            The metric attributes to query.
+        entity_uid : EntityUID
+            The entity UID to query.
         time : Union[Period, Instant]
-            Time range or instant to query
-        tolerance : timedelta
-            Time tolerance to add/subtract from query bounds
-        interpolate : bool, optional
-            Whether to interpolate missing values, by default True
+            The time range to query.
 
         Returns
         -------
         Timeseries
             A new timeseries containing the queried data
         """
+        from .io import SQLEngine
 
-        query = f"""
-        SELECT {timestamp_col}, {value_col}
-        FROM {table_name}
-        WHERE {timestamp_col} BETWEEN '{start_epoch}' AND '{end_epoch}'
-        ORDER BY {timestamp_col} ASC;
-        """
+        engine = SQLEngine(path, suffix="monitoring")
+        return engine.read_data(metric_attrs, entity_uid, time)
 
-        try:
-            cursor = connection.cursor()
-            cursor.execute(query)
-            rows = cursor.fetchall()
-        finally:
-            cursor.close()
-
-        entity_type, entity_id, _, _ = table_name.split("_")
-        entity_uid = EntityUID(type=EntityType(entity_type), id=int(entity_id))
-
-        if not rows:
-            return None
-
-        time_index = TimeIndex(
-            np.array(
-                [datetime.fromtimestamp(row[0], timezone.utc) for row in rows],
-                dtype="object",
-            )
-        )
-
-        data = []
-        for row in rows:
-            value = row[1]
-            if value is None:
-                data.append(np.nan)
-            else:
-                try:
-                    data.append(float(value))
-                except (ValueError, TypeError):
-                    raise TypeError(f"Cannot convert value '{value}' to float")
-        # TODO: modify dtype according to the metric dtype
-        data = np.array(data, dtype=np.float32)
-        return cls(
-            time_idx=time_index,
-            metric_idx=np.array([metric_attrs]),
-            entity_uid_idx=np.array([entity_uid]),
-            data=data.reshape((len(time_index), 1, 1)),
-        )
 
     @classmethod
     def merge(cls, *timeseries: Timeseries) -> Timeseries:
@@ -914,7 +890,7 @@ class Timeseries:
                 ).reshape(-1, 1, 1)
             elif kind == "linear":
                 interp_data = np.interp(
-                    query_vals, current_vals, ts._data.squeeze()
+                    query_vals, current_vals, np.atleast_1d(ts._data.squeeze())
                 ).reshape(-1, 1, 1)
             variates.append(
                 Timeseries(
@@ -1092,6 +1068,64 @@ class Timeseries:
             results.append(np.poly1d(coeffs))
 
         return results
+    
+    def spearman(self, other: Timeseries) -> float:
+        """
+        Calculate Spearman's rank correlation for the timeseries.
+
+        Returns
+        -------
+        float
+            Spearman's rank correlation coefficient.
+        """
+        if self.ndim > 1 or other.ndim > 1:
+            raise ValueError(
+                "Spearman's rank correlation requires univariate timeseries"
+            )
+
+        data = self.values.squeeze()
+        if np.isnan(data).any():
+            raise ValueError(
+                "Spearman's rank correlation cannot handle NaN values in the timeseries"
+            )
+        
+        if len(data) != len(other):
+            raise ValueError(
+                "Timeseries must have the same length for Spearman's rank correlation"
+            )
+        if not np.all(self.time_index == other.time_index):
+            raise ValueError(
+                "Timeseries must have the same time index for Spearman's rank correlation"
+            )
+        
+        # Step 1: Compute ranks of self
+        rank_a = self.values.squeeze().argsort().argsort()
+        unique, inverse = np.unique(rank_a, return_inverse=True)
+
+        unique_rank_sum = np.zeros_like(unique)
+        np.add.at(unique_rank_sum, inverse, rank_a)
+
+        unique_count = np.zeros_like(unique)
+        np.add.at(unique_count, inverse, 1)
+
+        unique_rank_mean = unique_rank_sum.astype(float) / unique_count
+        rank_mean_a = unique_rank_mean[inverse]
+
+        # Step 2: Compute ranks of other
+        rank_b = other.values.squeeze().argsort().argsort()
+        unique, inverse = np.unique(rank_b, return_inverse=True)
+
+        unique_rank_sum = np.zeros_like(unique)
+        np.add.at(unique_rank_sum, inverse, rank_b)
+
+        unique_count = np.zeros_like(unique)
+        np.add.at(unique_count, inverse, 1)
+
+        unique_rank_mean = unique_rank_sum.astype(float) / unique_count
+        rank_mean_b = unique_rank_mean[inverse]        
+
+        spearman_corr = np.corrcoef(rank_mean_a, rank_mean_b)[0, 1]
+        return spearman_corr
 
     def _mann_kendall_test(self, alpha: float = 0.05) -> dict[str, float]:
         """
@@ -1160,9 +1194,13 @@ class Timeseries:
         self, methods: Union[list[str], str] = None
     ) -> Callable[[TimeIndex, datetime], Timeseries]:
         """
-        Find the best trend function for the timeseries by comparing different methods
-        and return a callable that given a time specification (Period, Instant, or TimeIndex)
+        Find the best trend function for the timeseries by comparing 
+        different methods using RANSAC metaalgorithm. Return a callable 
+        that given a time specification (Period, Instant, or TimeIndex)
         returns a Timeseries with the transformed values.
+
+        The best method is selected based on root mean square error
+        value.
 
         Parameters
         ----------
@@ -1173,14 +1211,18 @@ class Timeseries:
         Returns
         -------
         Callable[[TimeIndex, datetime], Timeseries]
-            A function that takes a time index of forecasted values and the origin of the fitted trend model
-            and returns a Timeseries with the transformed values.
+            A function that takes a time index of forecasted values 
+            and the origin of the fitted trend model and returns 
+            a Timeseries with the transformed values.
 
         Raises
         ------
         ValueError
-            If the timeseries is not univariate or too short for trend analysis or in case of invalid method.
+            If the timeseries is not univariate or too short for trend 
+            analysis or in case of invalid method.
         """
+        from pyoneai.ml.ransac_model import RANSACPredictionModel
+        from pyoneai.ml import ModelConfig
 
         if self.ndim > 1:
             raise ValueError(
@@ -1189,7 +1231,8 @@ class Timeseries:
 
         if len(self) < self._MIN_OBS_NEEDED_FOR_TREND_FIT:
             raise ValueError(
-                "Timeseries too short for trend analysis, the minimum number of observations is {_MIN_OBS_NEEDED_FOR_TREND_FIT}"
+                "Timeseries too short for trend analysis, the minimum number "
+                f"of observations is {self._MIN_OBS_NEEDED_FOR_TREND_FIT}"
             )
 
         if not self.has_trend:
@@ -1199,60 +1242,42 @@ class Timeseries:
                 entity_uid_idx=self.entity_uids,
                 data=np.zeros((len(input_time), 1, 1)),
             )
-
-        dict_trend_funcs = {
-            "poly1": self.fit_poly(1),
-            "poly2": self.fit_poly(2),
-            "poly3": self.fit_poly(3),
-            "exp": self.fit_exp(),
-        }
+        trend_regression_models = {
+            "poly1": "pyoneai.ml.ransac_model.LinearModel",
+            "poly2": "pyoneai.ml.ransac_model.QuadraticModel",
+            "exp": "pyoneai.ml.ransac_model.ExponentialModel",
+        }        
 
         if methods is None:
-            methods = dict_trend_funcs.keys()
+            selected_methods = trend_regression_models.values()
         elif isinstance(methods, str):
-            methods = [methods]
-
-        if not all([method in dict_trend_funcs.keys() for method in methods]):
-            raise ValueError(
-                "Invalid method to fit trend, must be one of: "
-                + ", ".join(dict_trend_funcs.keys())
+            selected_methods = [trend_regression_models[methods]]
+        elif isinstance(methods, list):
+            if not all([method in trend_regression_models.keys() for method in methods]):
+                raise ValueError(
+                    "Invalid method to fit trend, must be one of: "
+                    + ", ".join(trend_regression_models.keys())
+                )
+            selected_methods = [trend_regression_models[method] for method in methods]
+        else:
+            raise TypeError(
+                "Invalid type of the 'method' argument."
             )
 
-        input_values = self._time_idx.get_time_deltas_from_origin(
-            self._time_idx.origin, self.time_index
-        )
-
-        min_mape_error = np.inf
-
-        for fit_methods in methods:
-            trend_func = dict_trend_funcs[fit_methods][0]
-            if fit_methods == "exp":
-                # Reverting the log transformation
-                y_pred = np.exp(trend_func(input_values)) - 1
-            else:
-                y_pred = trend_func(input_values)
-
-            # Create a timeseries with the same structure as self but with predicted values
-            pred_ts = Timeseries(
-                time_idx=self.time_index,
-                metric_idx=self.metrics,
-                entity_uid_idx=self.entity_uids,
-                data=y_pred.reshape(-1, 1, 1),
-            )
-
-            error_value = self.mape(pred_ts, self)
-
-            if error_value < min_mape_error:
-                min_mape_error = error_value
-                if fit_methods == "exp":
-                    best_trend_func = lambda x: np.exp(trend_func(x)) - 1
-                else:
-                    best_trend_func = trend_func
+        variate_best_models = RANSACPredictionModel(
+            ModelConfig("", 0, compute_ci=False, hyper_params={
+                "regression_models": selected_methods,
+                "criterion": "mape"
+            })
+        ).fit(self).variates_best_model
+        # TODO: we take just the first one as computing trend is
+        # now supported only for univariate timeseries
+        trend_func = next(iter(variate_best_models.values()))        
 
         return lambda input_time, fitted_origin: self._predict_trend(
-            input_time, fitted_origin, best_trend_func
+            input_time, fitted_origin, trend_func
         )
-
+    
     def _predict_trend(
         self,
         input_time: TimeIndex,
@@ -1394,6 +1419,63 @@ class Timeseries:
             ).real
 
         return _predict_seasonality
+
+    def autocorrelate(self, lag: int = 1) -> tuple[float]:
+        """
+        Perform autocorrelation on the timeseries.
+
+        The autocorrelation is computed as Spearman rank
+        correlation coefficient between the timeseries and its version 
+        lagged by `lag`.
+        
+        Parameters
+        ----------
+        lag : int, optional
+            The number of lags (greater than 0, 
+            smaller than timeseries length) to compute, by default 1
+
+        Returns
+        -------
+        tu ple[float]
+            The autocorrelation value for the specified lag.
+        If the timeseries is multivariate, a tuple of values is returned.
+        For univariate timeseries, a single-element tuple is returned.
+
+        Raises
+        ------
+        ValueError
+            If lag is not greater than 0 or greater than the 
+            length of the timeseries
+        """
+        if lag <= 0:
+            raise ValueError("Lag must be greater than 0")
+        if lag > len(self) - 1:
+            raise ValueError(
+                f"Lag {lag} is greater than the length "
+                f"of the timeseries {len(self)} minus one"
+            )
+        spearman_corr = []
+        for _, _, ts in self.iter_over_variates():
+            trimmed_ts = Timeseries(
+                ts.time_index[:-lag],
+                ts.metrics,
+                ts.entity_uids,
+                data=ts.values[:-lag],
+            )
+            # NOTE: time index is the same as above, but the data is lagged
+            # Spearman correlation requires time indices to be the same
+            lagged_ts = Timeseries(
+                time_idx=ts.time_index[:-lag],
+                metric_idx=ts.metrics,
+                entity_uid_idx=ts.entity_uids,
+                data=ts.values[lag:],
+            )
+            spearman_corr.append(
+                trimmed_ts.spearman(lagged_ts)
+            )
+        if len(spearman_corr) == 1:
+            return (spearman_corr[0],)
+        return tuple(spearman_corr)
 
     #
     # Mathematical Operations (TODO)
@@ -2519,11 +2601,11 @@ class Timeseries:
         data[mask] = median[mask]
 
     def hampel_filter(
-        self,
+        self: _TimeseriesT,
         window_size: int = 5,
-        threshold: int | float = 3.5,
+        threshold: Union[int, float] = 3.5,
         inplace: bool = True
-    ):
+    ) -> _TimeseriesT:
         full_data = self._data if inplace else self._data.copy()
         _, n_metrics, n_entities = full_data.shape
         for metric_idx in range(n_metrics):
@@ -2539,3 +2621,257 @@ class Timeseries:
             entity_uid_idx=self._entity_idx.values,
             data=full_data
         )
+
+    @staticmethod
+    def _forward_fill(
+        array: np.ndarray, start: Optional[float] = None, inplace: bool = True
+    ) -> np.ndarray:
+        # NOTE: This method applies backward fill on the NaN values at
+        # the beginning of the array and forward fill on the other NaN
+        # values.
+        nan_mask = np.isnan(array)
+        if nan_mask.all() or not nan_mask.any():
+            return array if inplace else array.copy()
+        not_nan_mask = ~nan_mask
+
+        # The case when the first element of `array` is NaN.
+        if nan_mask[0]:
+            if start is None:
+                start_idx = not_nan_mask.nonzero()[0][0]
+                start = array[start_idx]
+            if not inplace:
+                array = array.copy()
+            array[0] = start
+            if not_nan_mask[1:].all():
+                return array
+
+        idx = np.where(not_nan_mask, np.arange(array.size), 0)
+        np.maximum.accumulate(idx, out=idx)
+        if not inplace:
+            return array[idx]
+        array[nan_mask] = array[idx[nan_mask]]
+        return array
+
+    def fill_gaps(
+        self: _TimeseriesT,
+        frequency: int,
+        direction: Literal['backward', 'forward'] = 'backward'
+    ) -> _TimeseriesT:
+        freq = timedelta(seconds=frequency)
+        data = self._data
+        time_idx = self._time_idx.values
+        calc_freq = np.unique(np.diff(time_idx))
+
+        # Regular timeseries.
+        if calc_freq.shape == (1,) and calc_freq[0] == freq:
+            nan_mask = np.isnan(data)
+
+            # Regular timeseries without missing values.
+            if not nan_mask.any():
+                return self
+
+            # Regular timeseries with missing values.
+            data = data.copy()
+            n_entities = self._entity_idx.values.size
+            for i, metric_idx in enumerate(self._metric_idx.values.flat):
+                if metric_idx.type is MetricType.COUNTER:
+                    for j in range(n_entities):
+                        # TODO: Make `self._forward_fill` work with 2D
+                        # data.
+                        self._forward_fill(data[:, i, j])
+                elif metric_idx.type is MetricType.GAUGE:
+                    data[:, i, :][nan_mask[:, i, :]] = 0.0
+                else:
+                    raise NotImplementedError()
+            return type(self)(
+                time_idx=self._time_idx.values,
+                metric_idx=self._metric_idx.values,
+                entity_uid_idx=self._entity_idx.values,
+                data=data
+            )
+
+        # Irregular timeseries.
+        if direction == 'backward':
+            idx = np.arange(
+                time_idx[-1], time_idx[0] - freq, -freq, dtype=object
+            )
+            idx = idx[::-1]
+            half_freq = freq / 2
+            if time_idx[0] - idx[0] >= half_freq and time_idx.size < idx.size:
+                idx = idx[1:]
+            idx = idx.reshape(-1, 1)
+            # TODO: Check the case when the values are exactly in the
+            # middle of an interval.
+            mask = (time_idx > idx - half_freq) & (time_idx <= idx + half_freq)
+        elif direction == 'forward':
+            idx = np.arange(
+                time_idx[0], time_idx[-1] + freq, freq, dtype=object
+            )
+            # Preventing the possibility to have past data with a future
+            # timestamp.
+            if idx[-1] > time_idx[-1]:
+                idx = idx[:-1]
+            idx = idx.reshape(-1, 1)
+            mask = (time_idx >= idx) & (time_idx < idx + freq)
+        else:
+            raise ValueError("'direction' must be 'backward' or 'forward'")
+        match_idx = mask.argmax(axis=0)
+        other_idx = np.setdiff1d(np.arange(idx.size), match_idx)
+
+        all_metric_idxs = self._metric_idx.values
+        n_metrics = all_metric_idxs.size
+        n_entities = self._entity_idx.values.size
+        shape = (idx.size, n_metrics, n_entities)
+        result = np.empty(shape=shape, dtype=data.dtype)
+        for i, metric_idx in enumerate(all_metric_idxs.flat):
+            if metric_idx.type is MetricType.COUNTER:
+                result[match_idx, i, :] = data[:, i, :]
+                result[other_idx, i, :] = np.nan
+                for j in range(n_entities):
+                    # TODO: Make `self._forward_fill` work with 2D data.
+                    self._forward_fill(result[:, i, j])
+            elif metric_idx.type is MetricType.GAUGE:
+                result[match_idx, i, :] = data[:, i, :]
+                result[other_idx, i, :] = 0.0
+            else:
+                raise NotImplementedError()
+
+        return type(self)(
+            time_idx=TimeIndex(idx.reshape(-1)),
+            metric_idx=self._metric_idx.values,
+            entity_uid_idx=self._entity_idx.values,
+            data=result
+        )
+
+    def regress(
+        self, other: Timeseries, n_breakpoints: int = 3
+    ) -> Callable[[Timeseries], Timeseries]:
+        """Perform piecewise linear regression.
+
+        This method fits a piecewise linear regression model
+        to the timeseries data.
+
+        Parameters
+        ----------
+        other : Timeseries
+            The timeseries to regress against.
+        n_breakpoints : int, optional
+            The number of breakpoints to use in the regression model.
+            Default is 3.
+
+        Returns
+        -------
+        Callable[[Timeseries], Timeseries]
+            A function that takes a Timeseries and returns the regression result.
+
+        Raises
+        ------
+        TypeError
+            If 'other' is not a Timeseries.
+        ValueError
+            If the time indices of the two timeseries do not match,
+            or if either timeseries has more than one dimension.
+        ImportError
+            If scipy is not installed, as it is required for regression.
+        RuntimeError
+            If the optimization fails during regression fitting.
+        """
+        if not isinstance(other, Timeseries):
+            raise TypeError(
+                f"Expected 'other' to be a Timeseries, got {type(other)}"
+            )
+        if not np.array_equal(self._time_idx.values, other._time_idx.values):
+            raise ValueError(
+                "Timeseries must have the same time index for regression"
+            )
+        if self.ndim > 1 or other.ndim > 1:
+            raise ValueError("Regression is only supported for 1D Timeseries")
+        return Timeseries._piecewise_linear_regression(
+            self, other, n_breakpoints
+        )
+
+    @staticmethod
+    def _piecewise_linear_regression(
+        t1: Timeseries, t2: Timeseries, n_breakpoints: int
+    ) -> Callable[[Timeseries], Timeseries]:
+        if importlib.util.find_spec("scipy") is None:
+            raise ImportError(
+                "For regression, scipy must be installed. "
+                "Run `pip install scipy`."
+            )
+        from scipy.optimize import minimize
+
+        def _plr_eval(x, x_breaks, y_breaks):
+            x = np.asarray(x)
+            y = np.zeros_like(x, dtype=float)
+            for i in range(len(x_breaks) - 1):
+                x0, x1 = x_breaks[i], x_breaks[i + 1]
+                y0, y1 = y_breaks[i], y_breaks[i + 1]
+                mask = (x >= x0) & (x < x1) if i < len(x_breaks) - 2 else (x >= x0) & (x <= x1)
+                slope = (y1 - y0) / (x1 - x0)
+                y[mask] = y0 + slope * (x[mask] - x0)
+            return y
+
+        def _compute_loss(params, x, y, n_knots):
+            x_breaks = params[:n_knots]
+            y_breaks = params[n_knots:]
+            if np.any(np.diff(x_breaks) <= 0):
+                return np.inf
+            y_pred = _plr_eval(x, x_breaks, y_breaks)
+            return np.sum((y - y_pred) ** 2)
+
+        metric_attrs = t1._metric_idx.values
+        entity_uid = t1._entity_idx.values
+        x = t1.values.squeeze()
+        y = t2.values.squeeze()
+        sort_idx = np.argsort(x)
+        x = x[sort_idx]
+        y = y[sort_idx]
+        x_min, x_max = np.min(x), np.max(x)
+        init_x_breaks = np.linspace(
+            x_min + 1e-7, x_max - 1e-7, n_breakpoints + 2
+        )
+        init_y_breaks = np.interp(init_x_breaks, x, y)
+        init_params = np.concatenate([init_x_breaks, init_y_breaks])
+        n_knots = n_breakpoints + 2
+        result = minimize(
+            _compute_loss,
+            init_params,
+            args=(x, y, n_knots),
+            method="Powell",
+        )
+
+        if not result.success:
+            raise RuntimeError("Optimization failed: " + result.message)
+
+        opt_params = result.x
+
+        def _regress(input: Timeseries) -> Timeseries:
+            if not isinstance(input, Timeseries):
+                raise TypeError(
+                    f"Expected input to be a Timeseries, got {type(input)}"
+                )
+            if not np.array_equal(
+                input.metrics, metric_attrs
+            ) or not np.array_equal(input.entity_uids, entity_uid):
+                raise ValueError(
+                    "Regression was computed for different metrics or entities"
+                    " than those in the input timeseries"
+                )
+            if input.ndim > 1:
+                raise ValueError(
+                    "Regression is only supported for 1D Timeseries"
+                )
+            x = input.values.squeeze()
+            y_pred = _plr_eval(
+                x, opt_params[:n_knots], 
+                opt_params[n_knots:]
+            )
+            return Timeseries(
+                time_idx=input._time_idx.values,
+                metric_idx=metric_attrs,
+                entity_uid_idx=entity_uid,
+                data=y_pred.reshape(-1, 1, 1),
+            )
+
+        return _regress

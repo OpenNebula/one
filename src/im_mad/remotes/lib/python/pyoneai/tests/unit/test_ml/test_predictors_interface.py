@@ -73,7 +73,7 @@ class TestPredictionModelInterface:
         ["create_univariate_timeseries"],
     )
     def test_fit_model_returns_self(self, prediction_model, create_timeseries):
-        ts = getattr(self, create_timeseries)(10)
+        ts = getattr(self, create_timeseries)(40)
         fitted_model = prediction_model.fit(ts)
         assert isinstance(
             fitted_model, type(prediction_model)

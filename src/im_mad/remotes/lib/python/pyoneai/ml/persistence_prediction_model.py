@@ -21,6 +21,7 @@ import numpy as np
 
 from ..core.entity_uid import EntityUID, EntityType
 from ..core.tsnumpy.timeseries import Timeseries
+from ..core.tsnumpy.index.time import TimeIndex
 from .base_prediction_model import BasePredictionModel
 from .model_config import ModelConfig
 
@@ -31,10 +32,17 @@ class PersistencePredictionModel(BasePredictionModel):
     def fit(self, metric: Timeseries):
         return self
 
-    def predict(self, metric: Timeseries, horizon: int = 1) -> Timeseries:
-        
+    def predict(
+        self,
+        metric: Timeseries,
+        horizon: int | None = None,
+        forecast_index: TimeIndex | None = None,
+    ) -> Timeseries:
         predictions = []
-        time_index = self._forecast_time_index(metric, horizon)
+        time_index = self._forecast_time_index(
+            metric, horizon, forecast_index
+        )    
+        horizon = len(time_index)
 
         for mattr in metric.metrics:
             last_value = metric[mattr].to_array()[-1]
@@ -50,7 +58,6 @@ class PersistencePredictionModel(BasePredictionModel):
 
         # Combine predictions into a single multivariate timeseries
         # All predictions should have the same time index since they use the same horizon
-        time_idx = predictions[0]._time_idx
         metric_attributes = np.array([p.metrics[0] for p in predictions])
         entity_uid_idx = predictions[0]._entity_idx.values
         
@@ -58,10 +65,10 @@ class PersistencePredictionModel(BasePredictionModel):
         data_arrays = [p._data for p in predictions]
         combined_data = np.concatenate(data_arrays, axis=1)
         return Timeseries(
-            time_idx=time_idx,
+            time_idx=time_index.values,
             metric_idx=metric_attributes,
             entity_uid_idx=entity_uid_idx,
-            data=combined_data
+            data=combined_data,
         )
 
     @classmethod

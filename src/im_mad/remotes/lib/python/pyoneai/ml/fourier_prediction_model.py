@@ -20,6 +20,7 @@ from typing import ClassVar
 import numpy as np
 
 from ..core.tsnumpy import Timeseries
+from ..core.tsnumpy.timeseries import TimeIndex
 from .base_prediction_model import BasePredictionModel
 from .model_config import ModelConfig
 
@@ -29,7 +30,7 @@ class FourierPredictionModel(BasePredictionModel):
 
     def __init__(self, model_config: ModelConfig):
         """Initialize the Fourier prediction model.
-        
+
         Parameters
         ----------
         model_config : ModelConfig
@@ -40,14 +41,16 @@ class FourierPredictionModel(BasePredictionModel):
         self.trend_func = None
         self.seasonality_func = None
 
-
     def _predict_univariate(
-        self, metric: Timeseries, horizon: int
+        self,
+        metric: Timeseries,
+        horizon: int | None = None,
+        forecast_index: TimeIndex | None = None,
     ) -> Timeseries:
         """Predict univariate time series based on FFT features."""
         assert metric.ndim == 1, "Function expects univariate timeseries"
 
-        time_index = self._forecast_time_index(metric, horizon)
+        time_index = self._forecast_time_index(metric, horizon, forecast_index)
 
         trend_forecast = self.trend_func(time_index, self.origin)
         seasonal_forecast = self.seasonality_func(time_index)
@@ -58,17 +61,17 @@ class FourierPredictionModel(BasePredictionModel):
 
     def fit(self, metric: Timeseries) -> FourierPredictionModel:
         """Fit model by extracting trend and seasonality components.
-        
+
         Parameters
         ----------
         metric : Timeseries
             The univariate timeseries to fit the model to.
-            
+
         Returns
         -------
         FourierPredictionModel
             Self with fitted parameters.
-            
+
         Raises
         ------
         AssertionError
@@ -79,30 +82,40 @@ class FourierPredictionModel(BasePredictionModel):
         self.origin = metric._time_idx.origin
         self.trend_func = metric.compute_trend()
         self.seasonality_func = metric.compute_seasonality(self.trend_func)
-        
+
         return self
 
-    def predict(self, metric: Timeseries, horizon: int = 1) -> Timeseries:
+    def predict(
+        self,
+        metric: Timeseries,
+        horizon: int | None = None,
+        forecast_index: TimeIndex | None = None,
+    ) -> Timeseries:
         """
-        Predict future time series values based on FFT features.
+        Predict future values for the given metric.
 
         Parameters
         ----------
         metric : Timeseries
-            The historical metric values to use to predict.
-        horizon : int, optional
-            The number of future time steps to predict, by default 1
+            The metric data for generating predictions (univariate or
+            multivariate).
+        horizon : int or None
+            The number of time steps to predict. If None, the
+            prediction horizon is determined by the model.
+        forecast_index : TimeIndex or None
+            The time index for the forecast. If None, the time index
+            is generated based on the last time step of the metric.
 
         Returns
         -------
         Timeseries
-            The predicted future time series with `horizon` values
+            The prediction results of the model.
         """
 
         if metric.ndim == 1:
             self.fit(metric)
-            return self._predict_univariate(metric, horizon)
-        
+            return self._predict_univariate(metric, horizon, forecast_index)
+
         elif metric.ndim > 1:
             # Get predictions for each metric
             predictions = []
@@ -110,23 +123,27 @@ class FourierPredictionModel(BasePredictionModel):
                 # Extract the single metric using string indexing
                 single_metric = metric[metric_name]
                 self.fit(single_metric)
-                predictions.append(self._predict_univariate(single_metric, horizon))
-            
+                predictions.append(
+                    self._predict_univariate(
+                        single_metric, horizon, forecast_index
+                    )
+                )
+
             # Combine predictions into a single multivariate timeseries
             # All predictions should have the same time index since they use the same horizon
             time_idx = predictions[0]._time_idx
             metric_names = np.array([p.metrics[0] for p in predictions])
             entity_uid_idx = predictions[0]._entity_idx.values
-            
+
             # Combine data arrays along the metric dimension (axis=1)
             data_arrays = [p._data for p in predictions]
             combined_data = np.concatenate(data_arrays, axis=1)
-            
+
             return Timeseries(
                 time_idx=time_idx,
                 metric_idx=metric_names,
                 entity_uid_idx=entity_uid_idx,
-                data=combined_data
+                data=combined_data,
             )
         else:
             raise ValueError("Timeseries does not contain data")

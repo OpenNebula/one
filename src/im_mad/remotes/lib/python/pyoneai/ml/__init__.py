@@ -22,6 +22,7 @@ else:
 from .artifact_manager import ArtifactManager
 from .base_prediction_model import BasePredictionModel
 from .fourier_prediction_model import FourierPredictionModel
+from .sklearn_prediction_model import SklearnPredictionModel
 from .persistence_prediction_model import PersistencePredictionModel
 
 try:
@@ -33,3 +34,4 @@ else:
 
 from .manifest import Manifest
 from .model_config import ModelConfig
+from .ransac_model import RANSACPredictionModel

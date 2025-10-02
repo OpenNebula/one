@@ -46,7 +46,7 @@ class SQLiteAccessor(BaseAccessor):
     """
 
     __slots__ = (
-        "_connection",
+        "_db_file",
         "_timestamp_col",
         "_value_col",
         "_table_name_template",
@@ -57,9 +57,7 @@ class SQLiteAccessor(BaseAccessor):
         self,
         monitoring: dict[str, Union[str, int]],
     ) -> None:
-        self._connection = sqlite3.connect(
-            f'file:{monitoring["db_path"]}?mode=ro', uri=True
-        )
+        self._db_file = monitoring["db_path"]
         self._timestamp_col = monitoring.get("timestamp_col", "TIMESTAMP")
         self._value_col = monitoring.get("value_col", "VALUE")
         self._table_name_template = monitoring.get(
@@ -97,27 +95,30 @@ class SQLiteAccessor(BaseAccessor):
         Timeseries
             Timeseries data for the given time period.
         """
-        table_name = self._table_name_template.format(
-            entityUID=entity_uid, metric_name=metric_attrs.name
-        )
-
-        tolerance = timedelta(seconds=self._monitor_interval)
+        # NOTE: we need to have tolerance < monitor_interval
+        # to avoid collecting N+2 date instead of N
+        tolerance = timedelta(seconds=self._monitor_interval // 2)
 
         if isinstance(time, Period):
-            start = (time.start - tolerance).timestamp()
-            end = (time.end + tolerance).timestamp()
+            query_time = Period(
+                slice(
+                    time.start - tolerance,
+                    time.end + tolerance,
+                    time.resolution,
+                )
+            )
         elif isinstance(time, Instant):
-            start = (time.value - tolerance).timestamp()
-            end = (time.value + tolerance).timestamp()
+            query_time = Period(
+                slice(
+                    time.value - tolerance, time.value + tolerance, tolerance
+                )
+            )
 
         ts = Timeseries.read_from_database(
-            connection=self._connection,
-            table_name=table_name,
+            path=self._db_file,
             metric_attrs=metric_attrs,
-            timestamp_col=self._timestamp_col,
-            value_col=self._value_col,
-            start_epoch=start,
-            end_epoch=end,
+            entity_uid=entity_uid,
+            time=query_time,
         )
         if ts is None:
             return Timeseries(
@@ -130,25 +131,14 @@ class SQLiteAccessor(BaseAccessor):
         if metric_attrs.type == MetricType.COUNTER:
             ts = ts.restore_counter()
 
-        ts_p = Period(
-            slice(
-                ts._time_idx.values[0],
-                ts._time_idx.values[-1],
-                ts._time_idx.frequency,
-            )
-        )
 
-        ts.hampel_filter(self._window_size)
-
-        # Fill gaps
-        # TODO: Add a method for the Timeseries
         if isinstance(time, Period):  # Instant doesn't have a start and end
             if np.any(np.isnan(ts.values)) or np.any(
                 np.diff(ts._time_idx.values)
                 > self._fill_gaps_tol
                 * timedelta(seconds=self._monitor_interval)
             ):
-                ts = ts.interpolate(TimeIndex(ts_p.values))
+                ts = ts.fill_gaps(ts._time_idx.frequency.total_seconds())
 
         if TimeIndex(time.values).frequency > timedelta(
             seconds=self._monitor_interval
@@ -156,7 +146,15 @@ class SQLiteAccessor(BaseAccessor):
             ts = ts.resample(TimeIndex(time.values).frequency)
             ts = ts.interpolate(TimeIndex(time.values))
         else:  # TimeIndex(time.values).frequency == ts._time_idx.frequency
-            ts = ts.interpolate(TimeIndex(ts_p.values), kind="nearest")
+            if len(ts._time_idx) >= 2:
+                ts_p = Period(
+                    slice(
+                        ts._time_idx.values[0],
+                        ts._time_idx.values[-1],
+                        ts._time_idx.frequency,
+                    )
+                )
+                ts = ts.interpolate(TimeIndex(ts_p.values), kind="nearest")
 
         if isinstance(time, Instant):
             return ts[time]
