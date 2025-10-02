@@ -79,7 +79,7 @@ ds = TransferManager::Datastore.from_image_ds(:image  => image,
 # Cache management
 # --------------------------------------------------------------------------
 
-if ds['/DATASTORE/TEMPLATE/CACHE_ENABLE'] == 'YES' && image['/IMAGE/PERSISTENT'] == '0'
+if ds['/DATASTORE/TEMPLATE/CACHE_ENABLE'].to_s.upcase == 'YES' && image['/IMAGE/PERSISTENT'] == '0'
     cache_util = '/var/tmp/one/tm/lib/tm_cache.rb'
 
     config = {
@@ -87,7 +87,7 @@ if ds['/DATASTORE/TEMPLATE/CACHE_ENABLE'] == 'YES' && image['/IMAGE/PERSISTENT']
         :hostname  => dst.host,
         :one_fe    => src.host,
         :upstreams => (
-            ds['/DATASTORE/TEMPLATE/CACHE_CENTRAL_HOSTS'] || ''
+            ds['/DATASTORE/TEMPLATE/CACHE_UPSTREAMS'] || ''
         ).split(',').reject(&:empty?)
     }
 
@@ -111,11 +111,12 @@ if ds['/DATASTORE/TEMPLATE/CACHE_ENABLE'] == 'YES' && image['/IMAGE/PERSISTENT']
                          :nostdout => false,
                          :nostderr => false,
                          :err_msg => 'Cache lookup failed')
+
     exit rc_cache.code unless rc_cache.code.zero?
 
     if (data = rc_cache.stdout.empty? ? nil : JSON.parse(rc_cache.stdout))
         src.path, src.host = data.values_at('src', 'host')
-        OpenNebula::DriverLogger.log_debug("Cache hit: image found on #{src.host} at #{src.path}")
+        OpenNebula::DriverLogger.log_debug("Using cached image found on #{src.host} at #{src.path}")
     end
 
 end
