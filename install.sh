@@ -1860,6 +1860,7 @@ HM_ETC_FILES="src/hm_mad/hmrc"
 
 AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
                 src/authm_mad/remotes/ldap/ldap_auth.conf \
+                src/authm_mad/remotes/saml/saml_auth.conf \
                 src/authm_mad/remotes/x509/x509_auth.conf"
 
 #-------------------------------------------------------------------------------
