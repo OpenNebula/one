@@ -20,4 +20,9 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 
 require_relative '../../../lib/lxc'
 
-puts DomainList.info
+begin
+    puts DomainList.info
+rescue StandardError => e
+    STDERR.puts e.message
+    exit(-1)
+end
