@@ -170,7 +170,21 @@ export const SecurityGroupRule = memo(({ rule = {}, 'data-cy': parentCy }) => {
     ICMP_TYPE = '',
     RANGE = T.All,
     NETWORK_ID = T.Any,
+    IP,
+    SIZE,
   } = rule
+
+  let networkDisplay = T.Any
+  let isNetworkLink = false
+
+  if (IP && SIZE) {
+    networkDisplay = `${Tr(T.Start)}: ${IP}, ${Tr(T.Size)}: ${SIZE}`
+  } else if (NETWORK_ID && NETWORK_ID !== T.Any && !isNaN(NETWORK_ID)) {
+    networkDisplay = NETWORK_ID
+    isNetworkLink = true
+  } else {
+    networkDisplay = NETWORK_ID
+  }
 
   /**
    * @param {object} rule - rule.
@@ -203,9 +217,9 @@ export const SecurityGroupRule = memo(({ rule = {}, 'data-cy': parentCy }) => {
         { text: String(RULE_TYPE).toUpperCase(), dataCy: 'ruletype' },
         { text: String(RANGE).toUpperCase(), dataCy: 'range' },
         {
-          text: String(NETWORK_ID).toUpperCase(),
+          text: String(networkDisplay).toUpperCase(),
           dataCy: 'networkid',
-          link: true,
+          link: isNetworkLink,
         },
         { text: String(ICMP_TYPE).toUpperCase(), dataCy: 'icmp-type' },
       ].map(renderLine)}
