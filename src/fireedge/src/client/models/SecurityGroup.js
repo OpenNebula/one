@@ -38,6 +38,8 @@ export const prettySecurityGroup = ({
   ICMPv6_TYPE: icmpv6Type,
   RANGE: range,
   NETWORK_ID: networkId,
+  IP: ip,
+  SIZE: size,
   ...rest
 }) => ({
   ID,
@@ -48,6 +50,8 @@ export const prettySecurityGroup = ({
   ICMPv6_TYPE: ICMP_V6_STRING[+icmpv6Type] ?? '',
   RANGE: range || T.All,
   NETWORK_ID: networkId ?? T.Any,
+  IP: ip,
+  SIZE: size,
   ...rest,
 })
 
