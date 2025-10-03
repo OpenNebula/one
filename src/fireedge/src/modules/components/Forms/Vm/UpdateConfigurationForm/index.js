@@ -58,6 +58,10 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
       }
     }
 
+    if (template.CPU_MODEL) {
+      knownTemplate.CPU_MODEL = { ...template.CPU_MODEL }
+    }
+
     if (template.OS) {
       // Clone template.OS to ensure its mutable
       knownTemplate.OS = { ...template.OS }
