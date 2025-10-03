@@ -2480,6 +2480,7 @@ module.exports = {
   SuccessClusterCreated: 'Cluster created - #%s',
   SuccessClusterUpdated: 'Cluster updated - #%s',
   SuccessDatastoreCreated: 'Datastore created - #%s',
+  SuccessDatastoreUpdated: 'Datastore updated - #%s',
   SuccessFileCreated: 'File created - #%s',
   SuccessGroupCreated: 'Group created - #%s',
   SuccessGroupUpdated: 'Group updated - #%s',

@@ -15,9 +15,10 @@
  * ------------------------------------------------------------------------- */
 import { DATASTORE_TYPES, INPUT_TYPES, T } from '@ConstantsModule'
 import { InputAdornment } from '@mui/material'
-import { Field } from '@UtilsModule'
+import { Field, arrayToOptions } from '@UtilsModule'
 import { array, boolean, number, string } from 'yup'
 import { isCeph, isLvm, isShared, isSsh, typeIsOneOf } from '../../functions'
+import { HostAPI } from '@FeaturesModule'
 
 /** @type {Field} - Options field */
 const RESTRICTED_DIRS = {
@@ -274,11 +275,11 @@ const NFS_AUTO_OPTS = {
 
 /* Distributed cache options */
 
-const ENABLE_CACHE = {
-  name: 'ENABLE_CACHE',
+const CACHE_ENABLE = {
+  name: 'CACHE_ENABLE',
   label: T.EnableDistributedCache,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().yesOrNo().default(false),
+  validation: boolean().yesOrNo(),
   dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE'],
   htmlType: ([STORAGE_BACKEND, TYPE] = []) => {
     if (
@@ -299,12 +300,13 @@ const CACHE_PATH = {
     .trim()
     .notRequired()
     .default(() => '/var/lib/one/cache'),
-  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', ENABLE_CACHE.name],
-  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED] = []) => {
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', CACHE_ENABLE.name],
+  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED = 'NO'] = []) => {
     if (
       !typeIsOneOf(STORAGE_BACKEND, [isSsh]) ||
       TYPE !== DATASTORE_TYPES?.IMAGE?.value ||
-      !CACHE_ENABLED
+      CACHE_ENABLED !== true ||
+      CACHE_ENABLED === 'NO'
     ) {
       return INPUT_TYPES.HIDDEN
     }
@@ -321,12 +323,13 @@ const CACHE_MAX_SIZE = {
     .min(0)
     .max(100)
     .default(() => 10),
-  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', ENABLE_CACHE.name],
-  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED] = []) => {
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', CACHE_ENABLE.name],
+  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED = 'NO'] = []) => {
     if (
       !typeIsOneOf(STORAGE_BACKEND, [isSsh]) ||
       TYPE !== DATASTORE_TYPES?.IMAGE?.value ||
-      !CACHE_ENABLED
+      CACHE_ENABLED !== true ||
+      CACHE_ENABLED === 'NO'
     ) {
       return INPUT_TYPES.HIDDEN
     }
@@ -347,12 +350,24 @@ const CACHE_UPSTREAMS = {
   type: INPUT_TYPES.AUTOCOMPLETE,
   multiple: true,
   validation: array(string().trim()).default(() => []),
-  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', ENABLE_CACHE.name],
-  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED] = []) => {
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', CACHE_ENABLE.name],
+  values: () => {
+    const { data: hosts = [] } = HostAPI.useGetHostsQuery()
+
+    const hostNames = []
+      .concat(hosts)
+      ?.flat()
+      ?.map((host) => host?.TEMPLATE?.HOSTNAME)
+      ?.filter(Boolean)
+
+    return arrayToOptions(hostNames, { addEmpty: false })
+  },
+  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED = 'NO'] = []) => {
     if (
       !typeIsOneOf(STORAGE_BACKEND, [isSsh]) ||
       TYPE !== DATASTORE_TYPES?.IMAGE?.value ||
-      !CACHE_ENABLED
+      CACHE_ENABLED !== true ||
+      CACHE_ENABLED === 'NO'
     ) {
       return INPUT_TYPES.HIDDEN
     }
@@ -371,12 +386,13 @@ const CACHE_MIN_AGE = {
     .positive()
     .min(0)
     .default(() => 0),
-  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', ENABLE_CACHE.name],
-  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED] = []) => {
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', CACHE_ENABLE.name],
+  htmlType: ([STORAGE_BACKEND, TYPE, CACHE_ENABLED = 'NO'] = []) => {
     if (
       !typeIsOneOf(STORAGE_BACKEND, [isSsh]) ||
       TYPE !== DATASTORE_TYPES?.IMAGE?.value ||
-      !CACHE_ENABLED
+      CACHE_ENABLED !== true ||
+      CACHE_ENABLED === 'NO'
     ) {
       return INPUT_TYPES.HIDDEN
     }
@@ -399,7 +415,7 @@ export const COMMON_FIELDS = [
   LIMIT_TRANSFER_BW,
   LVM_THIN_ENABLE,
   NO_DECOMPRESS,
-  ENABLE_CACHE,
+  CACHE_ENABLE,
   CACHE_PATH,
   CACHE_MIN_AGE,
   CACHE_MAX_SIZE,

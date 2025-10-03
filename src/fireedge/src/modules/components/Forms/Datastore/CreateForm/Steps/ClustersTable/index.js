@@ -14,52 +14,28 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { useFormContext } from 'react-hook-form'
-
-import { ClustersTable } from '@modules/components/Tables'
-import { SCHEMA } from '@modules/components/Forms/Image/CloneForm/Steps/DatastoresTable/schema'
-
 import { Step } from '@UtilsModule'
 import { T } from '@ConstantsModule'
+import FormWithSchema from '@modules/components/Forms/FormWithSchema'
+import { SCHEMA, FIELDS } from './schema'
 
 export const STEP_ID = 'cluster'
 
-const Content = ({ data }) => {
-  const { NAME } = data?.[0] ?? {}
-  const { setValue } = useFormContext()
-
-  const handleSelectedRows = (rows) => {
-    const { original = {} } = rows?.[0] ?? {}
-
-    setValue(STEP_ID, original.ID !== undefined ? [original] : [])
-  }
-
-  return (
-    <ClustersTable.Table
-      singleSelect
-      disableGlobalSort
-      displaySelectedRows
-      pageSize={5}
-      getRowId={(row) => String(row.NAME)}
-      initialState={{
-        selectedRowIds: { [NAME]: true },
-      }}
-      onSelectedRowsChange={handleSelectedRows}
-    />
-  )
-}
+const Content = () => (
+  <FormWithSchema id={STEP_ID} fields={FIELDS} cy={`${STEP_ID}`} />
+)
 
 /**
  * Step to select the Datastore.
  *
- * @param {object} app - Marketplace App resource
  * @returns {Step} Datastore step
  */
-const ClusterStep = (app) => ({
+const ClusterStep = () => ({
   id: STEP_ID,
   label: T.SelectCluster,
   resolver: SCHEMA,
-  content: (props) => Content({ ...props, app }),
+  optionsValidate: { abortEarly: false },
+  content: Content,
 })
 
 Content.propTypes = {

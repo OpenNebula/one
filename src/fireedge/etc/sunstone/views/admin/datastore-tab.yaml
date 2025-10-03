@@ -9,6 +9,7 @@ resource_name: "DATASTORE"
 
 actions:
   create_dialog: true
+  update_dialog: true
   import_dialog: true
   change_cluster: true
   chown: true

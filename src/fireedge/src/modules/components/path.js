@@ -65,6 +65,7 @@ export const PATH = {
       LIST: `/${RESOURCE_NAMES.DATASTORE}`,
       DETAIL: `/${RESOURCE_NAMES.DATASTORE}/:id`,
       CREATE: `/${RESOURCE_NAMES.DATASTORE}/create`,
+      UPDATE: `/${RESOURCE_NAMES.DATASTORE}/update`,
     },
     IMAGES: {
       LIST: `/${RESOURCE_NAMES.IMAGE}`,

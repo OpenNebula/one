@@ -98,6 +98,9 @@
     - title: Create Datastore
       path: /datastore/create
       Component: CreateDatastore
+    - title: Update Datastore
+      path: /datastore/update
+      Component: CreateDatastore
     - title: Datastore
       path: /datastore/:id
       Component: DatastoreDetail
