@@ -756,6 +756,25 @@ const transformActionsInstantiate = (template, original, features) => {
   ) {
     template.SCHED_ACTION = '![CDATA[]]'
   }
+
+  // CONTEXT SECTION: if `original` param has template variables that must
+  // be taken into account to instantiate the `template` param, it's necessary
+  // to include them in the `template`
+  const templateCtx = template.CONTEXT || {}
+  const originalCtx = original.TEMPLATE?.CONTEXT || {}
+
+  const mergedCtx = { ...templateCtx }
+
+  for (const key of Object.keys(templateCtx)) {
+    const value = templateCtx[key]
+    if (value === undefined || value === null || value === '') {
+      if (key in originalCtx) {
+        mergedCtx[key] = originalCtx[key]
+      }
+    }
+  }
+
+  template.CONTEXT = mergedCtx
 }
 
 /**
