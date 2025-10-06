@@ -31,14 +31,15 @@ import {
 } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/SecurityGroup/Info/information'
 
-import { Tr } from 'client/components/HOC'
-import { T } from 'client/constants'
+import { Tr } from '@modules/components/HOC'
+import { T } from '@ConstantsModule'
 import {
   getActionsAvailable,
   jsonToXml,
   filterAttributes,
-} from 'client/models/Helper'
-import { cloneObject, set } from 'client/utils'
+  prettySecurityGroup,
+} from '@ModelsModule'
+import { cloneObject, set } from '@UtilsModule'
 
 const HIDDEN_ATTRIBUTES = /^(RULE)$/
 
@@ -138,9 +139,12 @@ const SecurityGroupInfoTab = ({ tabProps = {}, id }) => {
       {rulesPanel?.enabled && (
         <RulesSecGroupsTable
           title={Tr(T.SecurityGroup)}
-          rules={
-            Array.isArray(TEMPLATE?.RULE) ? TEMPLATE?.RULE : [TEMPLATE?.RULE]
-          }
+          rules={(Array.isArray(TEMPLATE?.RULE)
+            ? TEMPLATE?.RULE
+            : [TEMPLATE?.RULE]
+          )
+            .filter(Boolean)
+            .map(prettySecurityGroup)}
         />
       )}
       {attributesPanel?.enabled && (

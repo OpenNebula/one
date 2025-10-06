@@ -158,7 +158,7 @@ routes.forEach((file) => {
                   oneConnection,
                   req
                 )
-                
+
                 if (isImageUpload) {
                   res.once('finish', () => {
                     const fileToCleanup = uploadedFiles.find(
