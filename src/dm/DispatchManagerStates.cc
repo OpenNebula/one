@@ -20,6 +20,7 @@
 #include "Nebula.h"
 #include "VirtualMachinePool.h"
 #include "SchedulerManager.h"
+#include "PlanManager.h"
 
 using namespace std;
 
@@ -60,10 +61,18 @@ void DispatchManager::trigger_suspend_success(int vid)
 
             int uid = vm->get_uid();
             int gid = vm->get_gid();
+            int plan_id   = vm->plan_id();
+            int action_id = vm->action_id();
 
             vm.reset();
 
             Quotas::vm_del(uid, gid, &quota_tmpl);
+
+            if (plan_id >= -1)
+            {
+                auto planm = Nebula::instance().get_planm();
+                planm->action_success(plan_id, action_id);
+            }
         }
         else
         {
@@ -236,12 +245,20 @@ void DispatchManager::trigger_poweroff_success(int vid)
 
             int uid = vm->get_uid();
             int gid = vm->get_gid();
+            int plan_id   = vm->plan_id();
+            int action_id = vm->action_id();
 
             vm.reset();
 
             if (!quota_tmpl.empty())
             {
                 Quotas::vm_del(uid, gid, &quota_tmpl);
+            }
+
+            if (plan_id >= -1)
+            {
+                auto planm = Nebula::instance().get_planm();
+                planm->action_success(plan_id, action_id);
             }
         }
         else
