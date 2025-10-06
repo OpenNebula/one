@@ -2376,7 +2376,10 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
         default: break;
     }
 
-    close_cp_history(vmpool, vm.get(), VMActions::DISK_RESIZE_ACTION, ra);
+    if (state != VirtualMachine::UNDEPLOYED)
+    {
+        close_cp_history(vmpool, vm.get(), VMActions::DISK_RESIZE_ACTION, ra);
+    }
 
     vmpool->update(vm.get());
 
@@ -2920,6 +2923,7 @@ int DispatchManager::resize(int vid, float cpu, int vcpu, long memory,
     }
 
     int rc;
+    bool update_history = true;
 
     switch (vm->get_state())
     {
@@ -2931,6 +2935,7 @@ int DispatchManager::resize(int vid, float cpu, int vcpu, long memory,
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
             rc = test_set_capacity(vm.get(), cpu, memory, vcpu, error_str);
+            update_history = false;
             break;
 
         case VirtualMachine::ACTIVE:
@@ -2997,7 +3002,7 @@ int DispatchManager::resize(int vid, float cpu, int vcpu, long memory,
 
     if (rc == 0)
     {
-        if (vm->hasHistory())
+        if (vm->hasHistory() && update_history)
         {
             close_cp_history(vmpool, vm.get(), VMActions::RESIZE_ACTION, ra);
         }
@@ -3044,7 +3049,7 @@ int DispatchManager::attach_pci(int vid, VectorAttribute * pci,
 
     unique_ptr<Host> host;
 
-    if (vm->get_state() ==  VirtualMachine::POWEROFF)
+    if (vm->get_state() == VirtualMachine::POWEROFF)
     {
         HostShareCapacity sr;
 
@@ -3076,7 +3081,10 @@ int DispatchManager::attach_pci(int vid, VectorAttribute * pci,
         hpool->update(host.get());
     }
 
-    close_cp_history(vmpool, vm.get(), VMActions::PCI_ATTACH_ACTION, ra);
+    if (vm->get_state() != VirtualMachine::UNDEPLOYED)
+    {
+        close_cp_history(vmpool, vm.get(), VMActions::PCI_ATTACH_ACTION, ra);
+    }
 
     vm->log("DiM", Log::INFO, "PCI device successfully attached.");
 
@@ -3147,7 +3155,10 @@ int DispatchManager::detach_pci(int vid, int pci_id, const RequestAttributes& ra
 
     vm->detach_pci(vpci);
 
-    close_cp_history(vmpool, vm.get(), VMActions::PCI_DETACH_ACTION, ra);
+    if (vm->get_state() != VirtualMachine::UNDEPLOYED)
+    {
+        close_cp_history(vmpool, vm.get(), VMActions::PCI_DETACH_ACTION, ra);
+    }
 
     vm->log("DiM", Log::INFO, "PCI device successfully deatached.");
 
