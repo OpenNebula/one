@@ -103,6 +103,12 @@ export const START_SCRIPT_BASE64 = {
   validation: string().strip(),
 }
 
+/** @type {Field} SET_HOSTNAME field */
+export const SET_HOSTNAME = {
+  name: 'CONTEXT.SET_HOSTNAME',
+  validation: string().strip(),
+}
+
 export const SCRIPT_FIELDS = [START_SCRIPT, ENCODE_START_SCRIPT]
 
 /** @type {Field[]} List of other fields */

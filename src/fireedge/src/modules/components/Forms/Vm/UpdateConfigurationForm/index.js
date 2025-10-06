@@ -20,7 +20,7 @@ import {
   decodeBase64,
   getUnknownAttributes,
   isBase64,
-  transformXmlString
+  transformXmlString,
 } from '@UtilsModule'
 import { set } from 'lodash'
 import { reach } from 'yup'
