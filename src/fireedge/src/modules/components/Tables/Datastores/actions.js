@@ -95,6 +95,22 @@ const Actions = (props = {}) => {
             },
           },
           {
+            accessor: DATASTORE_ACTIONS.UPDATE_DIALOG,
+            dataCy: `datastore_${DATASTORE_ACTIONS.UPDATE_DIALOG}`,
+            tooltip: T.Update,
+            label: T.Update,
+            selected: { max: 1 },
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
+            action: (rows) => {
+              const datastore = rows?.[0]?.original ?? {}
+              const path = PATH.STORAGE.DATASTORES.UPDATE
+
+              history.push(path, datastore)
+            },
+          },
+          {
             accessor: DATASTORE_ACTIONS.CHANGE_CLUSTER,
             importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
             size: STYLE_BUTTONS.SIZE.MEDIUM,

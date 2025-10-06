@@ -58,7 +58,7 @@ const NETAPP_PASS = {
   name: 'NETAPP_PASS',
   label: T.NetappPass,
   dependOf: '$general.STORAGE_BACKEND',
-  type: INPUT_TYPES.PASSWORD,
+  type: INPUT_TYPES.TEXT,
   htmlType: (type) => !typeIsOneOf(type, [isNetapp]) && INPUT_TYPES.HIDDEN,
   validation: string().when('$general.STORAGE_BACKEND', {
     is: (storageBackend) => isNetapp(storageBackend),
@@ -154,16 +154,17 @@ const NETAPP_GROW_THRESHOLD = {
   dependOf: '$general.STORAGE_BACKEND',
   type: INPUT_TYPES.SLIDER,
   htmlType: (type) => !typeIsOneOf(type, [isNetapp]) && INPUT_TYPES.HIDDEN,
-  validation: number()
-    .positive()
-    .min(0)
-    .max(100)
-    .default(() => 0)
-    .when('$general.STORAGE_BACKEND', {
-      is: (storageBackend) => isNetapp(storageBackend),
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.notRequired(),
-    }),
+  validation: number().when('$general.STORAGE_BACKEND', {
+    is: (storageBackend) => isNetapp(storageBackend),
+    then: (schema) =>
+      schema
+        .positive()
+        .min(0)
+        .max(100)
+        .default(() => 0)
+        .notRequired(),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   grid: { xs: 12, md: 6 },
   fieldProps: {
     min: 0,
@@ -181,10 +182,9 @@ const NETAPP_GROW_RATIO = {
   htmlType: (type) => !typeIsOneOf(type, [isNetapp]) && INPUT_TYPES.HIDDEN,
   validation: number()
     .positive()
-    .default(() => 2)
     .when('$general.STORAGE_BACKEND', {
       is: (storageBackend) => isNetapp(storageBackend),
-      then: (schema) => schema.notRequired(),
+      then: (schema) => schema.default(() => 2).notRequired(),
       otherwise: (schema) => schema.notRequired(),
     }),
   grid: { xs: 12, md: 6 },
@@ -196,16 +196,17 @@ const NETAPP_SNAPSHOT_RESERVE = {
   dependOf: '$general.STORAGE_BACKEND',
   type: INPUT_TYPES.SLIDER,
   htmlType: (type) => !typeIsOneOf(type, [isNetapp]) && INPUT_TYPES.HIDDEN,
-  validation: number()
-    .positive()
-    .min(0)
-    .max(100)
-    .default(() => 10)
-    .when('$general.STORAGE_BACKEND', {
-      is: (storageBackend) => isNetapp(storageBackend),
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.notRequired(),
-    }),
+  validation: number().when('$general.STORAGE_BACKEND', {
+    is: (storageBackend) => isNetapp(storageBackend),
+    then: (schema) =>
+      schema
+        .positive()
+        .min(0)
+        .max(100)
+        .default(() => 10)
+        .notRequired(),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   grid: { xs: 12, md: 6 },
   fieldProps: {
     min: 0,

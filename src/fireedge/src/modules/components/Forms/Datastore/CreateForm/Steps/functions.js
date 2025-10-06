@@ -76,7 +76,10 @@ function isRsync(type) {
  * @returns {boolean} - True if type is rsync
  */
 function isNetapp(type) {
-  return type === DS_STORAGE_BACKENDS.NETAPP.value
+  return [
+    DS_STORAGE_BACKENDS.NETAPP_IMG.value,
+    DS_STORAGE_BACKENDS.NETAPP_SYS.value,
+  ]?.includes(type)
 }
 
 /**

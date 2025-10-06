@@ -64,8 +64,54 @@ function getDsAndTMMad({
 }
 
 const Steps = createSteps(
-  [General, Cluster, ConfigurationAttributes, CustomVariables],
+  (stepProps) =>
+    stepProps?.datastoreId
+      ? [General, ConfigurationAttributes, CustomVariables] // Remove 'Select cluster' step from updates
+      : [General, Cluster, ConfigurationAttributes, CustomVariables],
   {
+    transformInitialValue: (dsTemplate, schema) => {
+      const STORAGE_BACKEND =
+        [dsTemplate?.DS_MAD, dsTemplate?.TM_MAD]
+          ?.filter((v) => Boolean(v) && v !== '-')
+          ?.join('-') || undefined
+
+      const generalAttrs = {
+        NAME: dsTemplate?.NAME,
+        TYPE: dsTemplate?.TEMPLATE?.TYPE,
+        DS_MAD: dsTemplate?.DS_MAD,
+        TM_MAD: dsTemplate?.TM_MAD,
+        STORAGE_BACKEND: Object.values(DS_STORAGE_BACKENDS).some(
+          (entry) => entry.value === STORAGE_BACKEND
+        )
+          ? STORAGE_BACKEND
+          : DS_STORAGE_BACKENDS.CUSTOM.value,
+      }
+
+      const confAttrs = Object.fromEntries(
+        Object.entries({
+          ...dsTemplate,
+          ...dsTemplate?.TEMPLATE,
+          RESTRICTED_DIRS:
+            dsTemplate?.TEMPLATE?.RESTRICTED_DIRS?.split(' ') ?? [],
+          SAFE_DIRS: dsTemplate?.TEMPLATE?.SAFE_DIRS?.split(' ') ?? [],
+          BRIDGE_LIST: dsTemplate?.TEMPLATE?.BRIDGE_LIST?.split(' ') ?? [],
+          COMPATIBLE_SYSTEM_DATASTORES:
+            dsTemplate?.TEMPLATE?.COMPATIBLE_SYS_DS?.split(', ') ?? [],
+          CACHE_UPSTREAMS:
+            dsTemplate?.TEMPLATE?.CACHE_UPSTREAMS?.split(',') ?? [],
+        })?.filter(([k, v]) => k && v)
+      )
+
+      const knownTemplate = schema.cast(
+        {
+          [GENERAL_ID]: { ...generalAttrs },
+          [CONF_ID]: { ...confAttrs },
+        },
+        { stripUnknown: true }
+      )
+
+      return knownTemplate
+    },
     transformBeforeSubmit: (formData) => {
       const {
         [GENERAL_ID]: {
@@ -77,7 +123,7 @@ const Steps = createSteps(
           CUSTOM_DS_MAD,
           CUSTOM_TM_MAD,
         } = {},
-        [CLUSTER_ID]: [cluster] = [],
+        [CLUSTER_ID]: { id: clusterId } = {},
         [CONF_ID]: {
           RESTRICTED_DIRS,
           CACHE_UPSTREAMS,
@@ -103,6 +149,9 @@ const Steps = createSteps(
         CUSTOM_TM_MAD,
       })
 
+      const cacheEnabled =
+        restConf?.CACHE_ENABLE === 'YES' || restConf?.CACHE_ENABLE === true
+
       const diskType = DISK_TYPES_BY_STORAGE_BACKEND[STORAGE_BACKEND]
 
       const dsMadValue =
@@ -126,6 +175,12 @@ const Steps = createSteps(
 
       const cephHost = CEPH_HOST?.length > 0 ? CEPH_HOST.join(',') : undefined
 
+      const formatRestConf = Object.fromEntries(
+        Object.entries(restConf).filter(
+          ([k]) => cacheEnabled || !k.startsWith('CACHE_')
+        )
+      )
+
       const dsObject = {
         template: {
           NAME,
@@ -139,10 +194,10 @@ const Steps = createSteps(
           COMPATIBLE_SYS_DS: compatibleSysDs,
           CEPH_HOST: cephHost,
           DISK_TYPE: diskType,
-          ...restConf,
+          ...formatRestConf,
           ...customVariables,
         },
-        cluster: cluster.ID,
+        cluster: clusterId,
       }
 
       return dsObject

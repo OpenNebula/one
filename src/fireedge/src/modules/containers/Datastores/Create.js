@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 
 import { DatastoreAPI, useGeneralApi } from '@FeaturesModule'
 import { jsonToXml } from '@ModelsModule'
@@ -36,29 +36,53 @@ const { Datastore } = Form
  */
 export function CreateDatastore() {
   const history = useHistory()
+  const { state: { ID: datastoreId } = {} } = useLocation()
 
   const [allocate] = DatastoreAPI.useAllocateDatastoreMutation()
+  const [update] = DatastoreAPI.useUpdateDatastoreMutation()
   const { enqueueSuccess } = useGeneralApi()
+
+  const { data } = DatastoreAPI.useGetDatastoreQuery(
+    { id: datastoreId },
+    { skip: datastoreId === undefined }
+  )
 
   const onSubmit = async ({ template, cluster }) => {
     try {
-      const newTemplateId = await allocate({
-        template: jsonToXml(template),
-        cluster,
-      }).unwrap()
-      history.push(PATH.STORAGE.DATASTORES.LIST)
-      enqueueSuccess(T.SuccessDatastoreCreated, newTemplateId)
+      const xmlTemplate = jsonToXml(template)
+      if (!datastoreId) {
+        const newTemplateId = await allocate({
+          template: xmlTemplate,
+          cluster,
+        }).unwrap()
+        history.push(PATH.STORAGE.DATASTORES.LIST)
+        enqueueSuccess(T.SuccessDatastoreCreated, newTemplateId)
+      } else {
+        await update({
+          id: datastoreId,
+          template: xmlTemplate,
+          replace: 0,
+        }).unwrap()
+        history.push(PATH.STORAGE.DATASTORES.LIST)
+        enqueueSuccess(T.SuccessDatastoreUpdated, [datastoreId])
+      }
     } catch {}
   }
 
   return (
     <TranslateProvider>
-      <Datastore.CreateForm
-        onSubmit={onSubmit}
-        fallback={<SkeletonStepsForm />}
-      >
-        {(config) => <DefaultFormStepper {...config} />}
-      </Datastore.CreateForm>
+      {datastoreId && !data ? (
+        <SkeletonStepsForm />
+      ) : (
+        <Datastore.CreateForm
+          onSubmit={onSubmit}
+          initialValues={data}
+          stepProps={{ ...data, datastoreId }}
+          fallback={<SkeletonStepsForm />}
+        >
+          {(config) => <DefaultFormStepper {...config} />}
+        </Datastore.CreateForm>
+      )}
     </TranslateProvider>
   )
 }
