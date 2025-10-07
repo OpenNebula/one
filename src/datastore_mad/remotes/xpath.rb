@@ -41,63 +41,65 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'base64'
 require 'rexml/document'
 require 'getoptlong'
-require 'pp'
 
-opts = opts = GetoptLong.new(
-    [ '--stdin',   '-s', GetoptLong::NO_ARGUMENT ],
-    [ '--subtree', '-t', GetoptLong::NO_ARGUMENT ],
-    [ '--base64',  '-b', GetoptLong::REQUIRED_ARGUMENT ]
+opts = GetoptLong.new(
+    ['--stdin',   '-s', GetoptLong::NO_ARGUMENT],
+    ['--subtree', '-t', GetoptLong::NO_ARGUMENT],
+    ['--base64',  '-b', GetoptLong::REQUIRED_ARGUMENT]
 )
 
 source = :stdin
-tmp64  = ""
+tmp64  = ''
 subtree = false
 
 begin
     opts.each do |opt, arg|
         case opt
-            when '--stdin'
-                source = :stdin
-            when '--subtree'
-                subtree = true
-            when '--base64'
-                source = :b64
-                tmp64  = arg
+        when '--stdin'
+            source = :stdin
+        when '--subtree'
+            subtree = true
+        when '--base64'
+            source = :b64
+            tmp64  = arg
         end
     end
-rescue Exception => e
+rescue StandardError
     exit(-1)
 end
 
-values = ""
+values = []
 
 case source
 when :stdin
     tmp = STDIN.read
 when :b64
-    tmp = Base64::decode64(tmp64)
+    tmp = Base64.decode64(tmp64)
 end
 
 xml = REXML::Document.new(tmp).root
 
+errors = 0
 ARGV.each do |xpath|
+    value = nil
     if xpath.match(/^%m%/)
         xpath = xpath[3..-1]
         ar = xml.elements.to_a(xpath).map {|t| t.text }
-        values << ar.join(' ')
+        value = ar.join(' ')
     else
         element = xml.elements[xpath.dup]
-        if !element.nil?
+        value =
             if subtree
-                values << ( element.to_s || '' )
+                element&.to_s
             else
-                values << ( element.text || '' )
+                element&.text
             end
-        end
     end
-    values << "\0"
+
+    errors += 1 if value.nil?
+    values << "#{value}\0"
 end
 
-puts values
+print values.join
 
-exit 0
+exit errors

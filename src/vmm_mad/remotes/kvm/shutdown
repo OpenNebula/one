@@ -16,8 +16,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/../../etc/vmm/kvm/kvmrc
-source $(dirname $0)/../../scripts_common.sh
+DRIVER_PATH="$(dirname $0)"
+source "${DRIVER_PATH}/../../etc/vmm/kvm/kvmrc"
+source "${DRIVER_PATH}/../../scripts_common.sh"
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb"
 
 count=0
 
@@ -30,8 +33,8 @@ VMDIR="$(/var/tmp/one/vgpu "DATASTORE" "$deploy_id")"
 # Back up vTPM directory from libvirt to /tpm in VM dir
 #---------------------------------------------------------------------------
 domxml="$(virsh --connect $LIBVIRT_URI dumpxml "$deploy_id")"
-if echo "$domxml" | xmllint --xpath '/domain/devices/tpm/backend[@type="emulator"]' - > /dev/null 2>&1; then
-    DOM_UUID=$(echo "$domxml" | xmllint --xpath '/domain/uuid/text()' -)
+if echo "$domxml" | "$XPATH" -t '/domain/devices/tpm/backend[@type="emulator"]' > /dev/null 2>&1; then
+    DOM_UUID=$(echo "$domxml" | "$XPATH" '/domain/uuid')
     (sudo -l | grep -q vtpm_setup) && sudo /var/tmp/one/vtpm_setup backup "$DOM_UUID" "$VMDIR"
 fi
 

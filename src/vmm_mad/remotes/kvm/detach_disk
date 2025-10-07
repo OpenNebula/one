@@ -16,8 +16,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/../../etc/vmm/kvm/kvmrc
-source $(dirname $0)/../../scripts_common.sh
+DRIVER_PATH="$(dirname $0)"
+source "${DRIVER_PATH}/../../etc/vmm/kvm/kvmrc"
+source "${DRIVER_PATH}/../../scripts_common.sh"
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb"
 
 DOMAIN="$1"
 SOURCE="$2"
@@ -30,8 +33,7 @@ exec_and_log "virsh --connect $LIBVIRT_URI detach-disk $DETACH_PARAMS" \
     "Could not detach $TARGET from $DOMAIN"
 
 virsh --connect $LIBVIRT_URI dumpxml $DOMAIN | \
-    xmllint -xpath "//disk/target[@dev='$TARGET']" - >/dev/null 2>&1
-
+    "$XPATH" -t "//disk/target[@dev='$TARGET']" >/dev/null 2>&1
 if [ $? -eq 0 ] ; then
     error_message "Could not detach $TARGET from $DOMAIN"
     exit -1
