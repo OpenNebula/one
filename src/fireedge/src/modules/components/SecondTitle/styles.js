@@ -40,6 +40,9 @@ const styles = ({ palette }) => ({
   }),
   parentText: css({
     color: palette.breadCrumb.navigateDeactive.color,
+    '&:hover': {
+      cursor: 'default',
+    },
   }),
   linkActive: css({
     color: palette.breadCrumb.navigate.color,

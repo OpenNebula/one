@@ -75,7 +75,7 @@ const NavigateBreadcrumb = ({ route, breadcrumbClass = {} }) => {
         <Typography
           key={`parent-${parentTitle}`}
           color="textPrimary"
-          className={clsx(parentText, link)}
+          className={parentText}
         >
           <Translate word={parentTitle} />
         </Typography>
