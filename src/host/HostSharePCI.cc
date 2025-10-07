@@ -560,8 +560,16 @@ void HostSharePCI::set_monitorization(Template& ht, const HostShareConf& hconf)
         if (pci_it != pci_devices.end())
         {
             missing.erase(address);
-            delete pci;
 
+            const auto& stored_profiles    = pci_it->second->attrs->vector_value("PROFILES");
+            const auto& monitored_profiles = pci->vector_value("PROFILES");
+
+            if (monitored_profiles != stored_profiles)
+            {
+                pci_it->second->attrs->replace("PROFILES", monitored_profiles);
+            }
+
+            delete pci;
             continue;
         }
 
