@@ -2795,6 +2795,7 @@ void LifeCycleManager::trigger_disk_restore_success(int vid)
                 }
 
                 vm->set_state(VirtualMachine::POWEROFF);
+                vm->set_state(VirtualMachine::LCM_INIT);
                 vm->log("LCM", Log::INFO, "VM restore operation completed.");
             }
             else
@@ -2833,6 +2834,7 @@ void LifeCycleManager::trigger_disk_restore_failure(int vid)
             if (lcm_state == VirtualMachine::RESTORE)
             {
                 vm->set_state(VirtualMachine::POWEROFF);
+                vm->set_state(VirtualMachine::LCM_INIT);
                 vm->log("LCM", Log::INFO, "VM restore operation fails");
             }
             else
