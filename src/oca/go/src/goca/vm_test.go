@@ -398,4 +398,6 @@ func (s *VMSuite) TestVMBackup(c *C) {
 
 	err = vmC.Restore(vm.Backups.IDs[0], -1, -1)
 	c.Assert(err, IsNil)
+
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "POWEROFF", "")), Equals, true)
 }
