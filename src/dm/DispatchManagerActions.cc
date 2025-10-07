@@ -2828,15 +2828,17 @@ int DispatchManager::resize(int vid, float cpu, int vcpu, long memory, bool enfo
 
     switch (vm->get_state())
     {
-        case VirtualMachine::POWEROFF: //Only check host capacity in POWEROFF
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
         case VirtualMachine::UNDEPLOYED:
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
-            rc = test_set_capacity(vm.get(), cpu, memory, vcpu, enforce, error_str);
             update_history = false;
+            [[fallthrough]];
+
+        case VirtualMachine::POWEROFF: //Only check host capacity in POWEROFF
+            rc = test_set_capacity(vm.get(), cpu, memory, vcpu, enforce, error_str);
             break;
 
         case VirtualMachine::ACTIVE:
