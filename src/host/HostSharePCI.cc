@@ -250,7 +250,12 @@ void HostSharePCI::pci_attribute(VectorAttribute *device, PCIDevice *pci,
         // NVIDIA Corporation && 3D controller
         if ((vendor_id == 0x10de) && (class_id == 0x0302))
         {
-            device->replace("PROFILE", vprofile);
+            const std::string& dev_profile = device->vector_value("PROFILE");
+
+            if (dev_profile.empty())
+            {
+                device->replace("PROFILE", vprofile);
+            }
         }
     }
 }
