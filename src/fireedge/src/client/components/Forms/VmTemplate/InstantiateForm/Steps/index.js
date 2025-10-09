@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2024, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2025, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -20,6 +20,7 @@ import ExtraConfiguration, {
   STEP_ID as EXTRA_ID,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import UserInputs from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
+import { T } from 'client/constants'
 import {
   getUserInputParams,
   parseRangeToArray,
@@ -71,13 +72,58 @@ const Steps = createSteps(
         })
       }
 
-      return schema.cast(
+      const objectSchema = {
+        [BASIC_ID]: { ...vmTemplate },
+        [EXTRA_ID]: {
+          ...vmTemplate?.TEMPLATE,
+        },
+      }
+
+      // Init placement
+      const schedRequirements = vmTemplate?.TEMPLATE?.SCHED_REQUIREMENTS
+      if (schedRequirements) {
+        objectSchema[EXTRA_ID].SCHED_REQUIREMENTS = schedRequirements
+        const parts = schedRequirements
+          ?.split('&')
+          ?.flatMap((part) => part.split('|'))
+          ?.map((part) => part?.trim())
+
+        const tableIds = parts?.reduce((ids, part) => {
+          if (part?.includes('ID')) {
+            const isCluster = part
+              .toUpperCase()
+              .includes(T.Cluster.toUpperCase())
+            const tableId = isCluster ? T.Cluster : T.Host
+            const partId = [].concat(part?.match(/\d+/g))?.flat()?.pop()
+            if (!partId) return ids
+            ;(ids[tableId] ??= []).push(partId)
+          }
+
+          return ids
+        }, {})
+
+        if (tableIds?.[T.Cluster]) {
+          objectSchema[EXTRA_ID].PLACEMENT_CLUSTER_TABLE = tableIds[T.Cluster]
+        }
+
+        if (tableIds?.[T.Host]) {
+          objectSchema[EXTRA_ID].PLACEMENT_HOST_TABLE = tableIds[T.Host]
+        }
+      }
+
+      const defaultType = T.SelectCluster
+      objectSchema[EXTRA_ID].CLUSTER_HOST_TYPE = defaultType
+
+      const knownTemplate = schema.cast(
+        objectSchema,
         {
           [BASIC_ID]: vmTemplate?.TEMPLATE,
           [EXTRA_ID]: vmTemplate?.TEMPLATE,
         },
-        { stripUnknown: true }
+        { stripUnknown: false }
       )
+
+      return knownTemplate
     },
     transformBeforeSubmit: (formData, vmTemplate) => {
       const { [BASIC_ID]: { name, instances, hold, persistent } = {} } =
