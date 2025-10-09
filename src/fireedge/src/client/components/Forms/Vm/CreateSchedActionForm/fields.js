@@ -42,7 +42,7 @@ import {
   isRelative,
 } from 'client/models/Scheduler'
 import { getDisks, getSnapshotList } from 'client/models/VirtualMachine'
-import { Field, arrayToOptions, prettyBytes, sentenceCase } from 'client/utils'
+import { Field, arrayToOptions, prettyBytes, sentenceCase, OPTION_SORTERS } from 'client/utils'
 
 // --------------------------------------------------------
 // Constants
@@ -263,6 +263,7 @@ const REPEAT_FIELD = {
     addEmpty: true,
     getText: (key) => sentenceCase(key),
     getValue: (key) => REPEAT_VALUES[key],
+    sorter: OPTION_SORTERS.unsort,
   }),
   dependOf: PERIODIC_FIELD_NAME,
   htmlType: (typeAction) =>
