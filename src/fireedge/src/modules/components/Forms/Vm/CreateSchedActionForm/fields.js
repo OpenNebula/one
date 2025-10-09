@@ -42,7 +42,13 @@ import {
   timeFromMilliseconds,
 } from '@ModelsModule'
 import AlertText from '@modules/components/Forms/Vm/CreateSchedActionForm/AlertText'
-import { Field, arrayToOptions, prettyBytes, sentenceCase } from '@UtilsModule'
+import {
+  Field,
+  arrayToOptions,
+  prettyBytes,
+  sentenceCase,
+  OPTION_SORTERS,
+} from '@UtilsModule'
 
 // --------------------------------------------------------
 // Constants
@@ -268,6 +274,7 @@ const REPEAT_FIELD = {
     addEmpty: true,
     getText: (key) => sentenceCase(key),
     getValue: (key) => REPEAT_VALUES[key],
+    sorter: OPTION_SORTERS.unsort,
   }),
   dependOf: PERIODIC_FIELD_NAME,
   htmlType: (typeAction) =>
