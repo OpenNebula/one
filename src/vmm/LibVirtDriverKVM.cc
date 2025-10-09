@@ -516,6 +516,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  cpu_model;
     string  cpu_feature;
     string  cpu_mode;
+    string  cpu_evc_mode;
 
     vector<const VectorAttribute *> disk;
     const VectorAttribute * context;
@@ -968,6 +969,12 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     get_attribute(vm, host, cluster, "CPU_MODEL", "MODEL", cpu_model);
     get_attribute(vm, host, cluster, "CPU_MODEL", "FEATURES", cpu_feature);
+    get_attribute(nullptr, nullptr, cluster, "EVC_MODE", cpu_evc_mode);
+
+    if (!cpu_evc_mode.empty())
+    {
+        cpu_model = cpu_evc_mode;
+    }
 
     if (cpu_model == "host-passthrough")
     {
