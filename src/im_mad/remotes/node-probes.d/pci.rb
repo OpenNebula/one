@@ -196,10 +196,10 @@ devices.each do |dev|
 
     # NVIDIA GPU device
     if CONF[:nvidia_vendors].include?(dev[:vendor])
-        # Better name for NVIDIA GPUs
-        values << pval('DEVICE_NAME', "#{dev[:vendor_name]} #{dev[:device_name]}")
-
         if virtfn?(dev)
+            # PCI name for NVIDIA vGPUs
+            values << pval('DEVICE_NAME', 'NVIDIA vGPU device')
+
             # For vGPU, the uuid is based on the address to get always the same
             values << pval(
                 'UUID',
@@ -219,6 +219,9 @@ devices.each do |dev|
                             'nvidia'
                         end
             values << pval('MDEV_MODE', mdev_mode)
+        else
+            # PCI name for NVIDIA GPUs
+            values << pval('DEVICE_NAME', "#{dev[:vendor_name]} #{dev[:device_name]}")
         end
     else
         values << pval('DEVICE_NAME', dev[:device_name])
