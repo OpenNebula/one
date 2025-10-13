@@ -26,11 +26,11 @@ import { T, INPUT_TYPES } from '@ConstantsModule'
 import { uniqWith } from 'lodash'
 import { useFormContext } from 'react-hook-form'
 
-const samePciDevice = (a, b) =>
-  a &&
-  b &&
-  ['DEVICE', 'VENDOR', 'CLASS'].every((k) => a[k] === b[k]) &&
-  a.SHORT_ADDRESS?.split('.')[0] === b.SHORT_ADDRESS?.split('.')[0]
+const samePciDevice = (obj1, obj2) =>
+  obj1.VENDOR === obj2.VENDOR &&
+  obj1.DEVICE === obj2.DEVICE &&
+  obj1.CLASS === obj2.CLASS &&
+  obj1.SHORT_ADDRESS === obj2.SHORT_ADDRESS
 
 /**
  * Transform a PCI device to String.
@@ -81,8 +81,6 @@ const NAME_FIELD = {
 
     return arrayToOptions(uniqWith(pciDevices, samePciDevice), {
       getText: ({ DEVICE_NAME } = {}) => DEVICE_NAME,
-      addDescription: true,
-      getDescription: (opt) => opt?.TYPE,
       getValue: transformPciToString,
     })
   },

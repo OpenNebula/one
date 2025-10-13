@@ -14,8 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Box, Stack, Tooltip, Typography, useTheme } from '@mui/material'
-import { getResourceLabels, prettyBytes } from '@UtilsModule'
 import PropTypes from 'prop-types'
+import { getResourceLabels, prettyBytes } from '@UtilsModule'
 import { ReactElement, memo, useMemo } from 'react'
 
 import {

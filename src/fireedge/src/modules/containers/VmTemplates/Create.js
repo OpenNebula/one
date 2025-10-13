@@ -155,9 +155,7 @@ export function CreateVmTemplate() {
       transformActionsCreate(filteredTemplate)
 
       // Convert template to xml
-      const xmlTemplate = jsonToXml(filteredTemplate, {
-        excluded: ['RAW.DATA'],
-      })
+      const xmlTemplate = jsonToXml(filteredTemplate)
 
       // Update or create the template
       if (!templateId) {

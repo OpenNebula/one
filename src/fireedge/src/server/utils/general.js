@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { XMLParser } = require('fast-xml-parser')
+const { parse: xmlParse } = require('fast-xml-parser')
 const { sprintf } = require('sprintf-js')
 
 const { defaults } = require('server/utils/constants')
@@ -82,17 +82,8 @@ const checkEmptyObject = (obj = {}) =>
 const xml2json = (xml = '', callback = defaultEmptyFunction) => {
   let rtn = []
   try {
-    const parser = new XMLParser(defaultConfigParseXML)
-    const jsonObj = parser.parse(xml)
-
-    const result =
-      jsonObj == null ||
-      typeof jsonObj !== 'object' ||
-      Object.keys(jsonObj)?.length <= 0
-        ? ''
-        : jsonObj
-
-    rtn = [null, result]
+    const jsonObj = xmlParse(xml, defaultConfigParseXML)
+    rtn = [null, jsonObj]
   } catch (error) {
     rtn = [error]
   }
