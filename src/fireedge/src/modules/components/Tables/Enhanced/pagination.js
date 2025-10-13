@@ -124,7 +124,7 @@ Pagination.propTypes = {
   useTableProps: PropTypes.object.isRequired,
   count: PropTypes.number.isRequired,
   showPageCount: PropTypes.bool,
-  styles: PropTypes.object,
+  styles: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
 }
 
 export default Pagination
