@@ -143,6 +143,8 @@ void SchedulerManagerDriver::log_vm(int id, const std::string& msg) const
     {
         vm->set_template_error_message("SCHED_MESSAGE", msg);
 
+        vm->log("SCM", Log::ERROR, msg);
+
         vmpool->update(vm.get());
     }
 }
@@ -549,7 +551,7 @@ int match_hosts(SchedRequest& sr, VirtualMachine * vm, std::string& error)
             {
                 std::ostringstream oss;
 
-                oss << "Error in SCHED_REQUIREMENTS: '" << requirements
+                oss << "Error in SCHED_REQUIREMENTS: '" << *requirements
                     << "', error: " << estr;
 
                 error = oss.str();
