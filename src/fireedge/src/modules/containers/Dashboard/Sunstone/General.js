@@ -122,7 +122,7 @@ export default function SunstoneDashboard({ view }) {
 SunstoneDashboard.displayName = 'SunstoneDashboard'
 
 SunstoneDashboard.propTypes = {
-  view: PropTypes.object,
+  view: PropTypes.string,
 }
 
 const ResourceWidget = memo(
@@ -171,5 +171,5 @@ ResourceWidget.propTypes = {
   text: PropTypes.string,
   bgColor: PropTypes.string,
   icon: PropTypes.any,
-  disableAnimations: PropTypes.bool,
+  disableAnimations: PropTypes.string,
 }

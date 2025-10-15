@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import {
-  J2xOptions,
-  parse as ParserToJson,
-  j2xParser as ParserToXml,
-  X2jOptions,
-} from 'fast-xml-parser'
-import { isEmpty, isNaN } from 'lodash'
+import { XMLBuilder, XMLParser } from 'fast-xml-parser'
+import { set, get, isEmpty, isNaN } from 'lodash'
 import { DateTime, Settings } from 'luxon'
-import he from 'he'
 
 import { sentenceCase } from '@UtilsModule'
 
@@ -35,32 +29,38 @@ import {
 
 /**
  * @param {object} json - JSON
- * @param {J2xOptions} [options] - Options to parser
+ * @param {object} [options] - Options to parser
  * @param {boolean} [options.addRoot] - Add ROOT element as parent
+ * @param {Array} options.excluded - Array of excluded paths
  * @returns {string} Xml in string format
  */
 export const jsonToXml = (
   json,
-  { addRoot = true, encode = true, ...options } = {}
+  { addRoot = true, excluded = [], ...options } = {}
 ) => {
-  const parser = new ParserToXml({
-    ...(encode && {
-      tagValueProcessor: (a) =>
-        he.encode(String(a), { useNamedReferences: true }),
-    }),
-    ...options,
+  excluded.forEach((path) => {
+    const val = get(json, path)
+    if (val !== undefined) set(json, path, { __cdata: val })
   })
 
-  return parser.parse(addRoot ? { ROOT: json } : json)
+  const builder = new XMLBuilder({
+    ...options,
+    cdataPropName: '__cdata',
+    format: false,
+  })
+
+  const result = builder.build(addRoot ? { ROOT: json } : json)
+
+  return result
 }
 
 /**
  * @param {string} xml - XML in string format
- * @param {X2jOptions} [options] - Options to parser
+ * @param {object} [options] - Options to parser
  * @returns {object} JSON
  */
 export const xmlToJson = (xml, options = {}) => {
-  const { ROOT, ...jsonWithoutROOT } = ParserToJson(xml, {
+  const parser = new XMLParser({
     attributeNamePrefix: '',
     attrNodeName: '',
     ignoreAttributes: false,
@@ -71,6 +71,8 @@ export const xmlToJson = (xml, options = {}) => {
     trimValues: true,
     ...options,
   })
+
+  const { ROOT, ...jsonWithoutROOT } = parser.parse(xml)
 
   return ROOT ?? jsonWithoutROOT
 }

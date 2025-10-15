@@ -106,7 +106,10 @@ const SecurityTab = ({
   const { data: vnet } = VnAPI.useGetVNetworkQuery({ id })
 
   const [update] = VnAPI.useUpdateVNetMutation()
-  const splittedSecGroups = vnet?.TEMPLATE.SECURITY_GROUPS?.split(',') ?? []
+
+  const splittedSecGroups = []
+    .concat(vnet?.TEMPLATE?.SECURITY_GROUPS)
+    ?.flatMap((n) => String(n)?.split(','))
   const secGroups = [splittedSecGroups].flat().map((sgId) => +sgId)
 
   const { enqueueSuccess } = useGeneralApi()
