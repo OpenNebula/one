@@ -136,7 +136,7 @@ const StatusChip = memo(
 
 StatusChip.propTypes = {
   stateColor: PropTypes.string,
-  text: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  text: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   clipboard: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
   forceWhiteColor: PropTypes.bool,
   dataCy: PropTypes.string,
