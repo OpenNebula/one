@@ -244,7 +244,7 @@ class OptimizerParser:
                     self._apply_predictive_adjustment(cpu_current, cpu_forecast)
                     if self.mode.upper() == "OPTIMIZE"
                     else cpu_current
-                )
+                ) / 100.0
                 net_usage = (
                     self._apply_predictive_adjustment(net_current, net_forecast)
                     if self.mode.upper() == "OPTIMIZE"
