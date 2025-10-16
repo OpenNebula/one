@@ -136,16 +136,24 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       context: { ...vmTemplate, [EXTRA_ID]: vmTemplate.TEMPLATE },
     })
 
+    // Second knownTemplate but with Attributes that will be Custom Variables
+    const knownTemplateWithUnknown = schema.cast(objectSchema, {
+      stripUnknown: true,
+      context: { ...vmTemplate, [EXTRA_ID]: vmTemplate.TEMPLATE },
+    })
+
     const knownAttributes = {
-      ...knownTemplate[GENERAL_ID],
-      ...knownTemplate[EXTRA_ID],
+      ...knownTemplateWithUnknown[GENERAL_ID],
+      ...knownTemplateWithUnknown[EXTRA_ID],
     }
 
     // Set the unknown attributes to the custom variables section
-    knownTemplate[CUSTOM_ID] = getUnknownAttributes(
+    const unkownAttributes = getUnknownAttributes(
       vmTemplate?.TEMPLATE,
       knownAttributes
     )
+
+    knownTemplate[CUSTOM_ID] = unkownAttributes
 
     // Get the custom vars from the context
     const knownContext = reach(schema, `${EXTRA_ID}.CONTEXT`).cast(
