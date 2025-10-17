@@ -24,10 +24,9 @@ import {
   VmsTable,
   VmTabs,
 } from '@ComponentsModule'
-import { RESOURCE_NAMES, SERVER_CONFIG, T, VM } from '@ConstantsModule'
+import { RESOURCE_NAMES, T, VM } from '@ConstantsModule'
 import {
   setSelectedIds,
-  useAuth,
   useGeneral,
   useGeneralApi,
   VmAPI,
@@ -162,14 +161,6 @@ const InfoTabs = memo(
     const [getVm, { data: lazyData, isFetching }] = VmAPI.useLazyGetVmQuery()
     const id = vm?.ID ?? lazyData?.ID
     const RowActions = VmsTable.RowActions
-
-    const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
-    const { FULL_SCREEN_INFO } = fireedge
-    const { fullViewMode } = SERVER_CONFIG
-    const fullModeDefault =
-      FULL_SCREEN_INFO !== undefined
-        ? FULL_SCREEN_INFO === 'true'
-        : fullViewMode
     const { isFullMode } = useGeneral()
     const { setFullMode } = useGeneralApi()
 
@@ -188,7 +179,7 @@ const InfoTabs = memo(
           mb={1}
         >
           <Stack direction="row">
-            {fullModeDefault && (
+            {isFullMode && (
               <SubmitButton
                 data-cy="detail-back"
                 icon={<NavArrowLeft />}
@@ -205,23 +196,21 @@ const InfoTabs = memo(
           />
 
           <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-            {fullModeDefault && (
+            {isFullMode && (
               <GlobalLabel
                 selectedRows={selectedRows}
                 type={RESOURCE_NAMES?.VM}
               />
             )}
-            {!fullModeDefault && (
-              <SubmitButton
-                data-cy="detail-full-mode"
-                icon={isFullMode ? <Collapse /> : <Expand />}
-                tooltip={Tr(T.FullScreen)}
-                isSubmitting={isFetching}
-                onClick={() => {
-                  setFullMode(!isFullMode)
-                }}
-              />
-            )}
+            <SubmitButton
+              data-cy="detail-full-mode"
+              icon={isFullMode ? <Collapse /> : <Expand />}
+              tooltip={Tr(T.FullScreen)}
+              isSubmitting={isFetching}
+              onClick={() => {
+                setFullMode(!isFullMode)
+              }}
+            />
             {isFullMode && <RowActions vm={vm ?? lazyData} />}
             <SubmitButton
               data-cy="detail-refresh"

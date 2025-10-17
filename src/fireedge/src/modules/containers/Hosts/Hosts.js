@@ -24,8 +24,8 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Host, RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
-import { HostAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
+import { Host, RESOURCE_NAMES, T } from '@ConstantsModule'
+import { HostAPI, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import { MuiProvider, SunstoneTheme } from '@ProvidersModule'
 import {
@@ -128,14 +128,6 @@ const InfoTabs = memo(
       HostAPI.useLazyGetHostQuery()
     const id = host?.ID ?? lazyData?.ID
 
-    const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
-    const { FULL_SCREEN_INFO } = fireedge
-    const { fullViewMode } = SERVER_CONFIG
-    const fullModeDefault =
-      FULL_SCREEN_INFO !== undefined
-        ? FULL_SCREEN_INFO === 'true'
-        : fullViewMode
-
     const { isFullMode } = useGeneral()
     const { setFullMode } = useGeneralApi()
 
@@ -154,7 +146,7 @@ const InfoTabs = memo(
           mb={1}
         >
           <Stack direction="row">
-            {fullModeDefault && (
+            {isFullMode && (
               <SubmitButton
                 data-cy="detail-back"
                 icon={<NavArrowLeft />}
@@ -166,23 +158,21 @@ const InfoTabs = memo(
           </Stack>
 
           <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-            {fullModeDefault && (
+            {isFullMode && (
               <GlobalLabel
                 selectedRows={selectedRows}
                 type={RESOURCE_NAMES?.HOST}
               />
             )}
-            {!fullModeDefault && (
-              <SubmitButton
-                data-cy="detail-full-mode"
-                icon={isFullMode ? <Collapse /> : <Expand />}
-                tooltip={Tr(T.FullScreen)}
-                isSubmitting={isFetching}
-                onClick={() => {
-                  setFullMode(!isFullMode)
-                }}
-              />
-            )}
+            <SubmitButton
+              data-cy="detail-full-mode"
+              icon={isFullMode ? <Collapse /> : <Expand />}
+              tooltip={Tr(T.FullScreen)}
+              isSubmitting={isFetching}
+              onClick={() => {
+                setFullMode(!isFullMode)
+              }}
+            />
             <SubmitButton
               data-cy="detail-refresh"
               icon={<RefreshDouble />}
