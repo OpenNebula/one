@@ -135,6 +135,7 @@ const InfoTabs = memo(
       FULL_SCREEN_INFO !== undefined
         ? FULL_SCREEN_INFO === 'true'
         : fullViewMode
+
     const { isFullMode } = useGeneral()
     const { setFullMode } = useGeneralApi()
 

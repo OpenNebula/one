@@ -118,7 +118,7 @@ const InfoTabs = memo(({ vnTemplate, gotoPage, unselect, selectedRows }) => {
   const { FULL_SCREEN_INFO } = fireedge
   const { fullViewMode } = SERVER_CONFIG
   const fullModeDefault =
-    FULL_SCREEN_INFO !== undefined ? FULL_SCREEN_INFO === 'true' : fullViewMode
+    FULL_SCREEN_INFO === 'true' || fullViewMode === 'true' || false
 
   const { isFullMode } = useGeneral()
   const { setFullMode } = useGeneralApi()

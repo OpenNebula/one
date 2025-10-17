@@ -96,13 +96,8 @@ const ResourcesBackButton = memo(
     const hasSelectedRows = countSelectedRows > 0
 
     useEffect(() => {
-      const fullMode =
-        FULL_SCREEN_INFO === 'true'
-          ? true
-          : FULL_SCREEN_INFO === 'false'
-          ? false
-          : fullViewMode
-      fullMode ? setFullMode(true) : setFullMode(false)
+      ;(FULL_SCREEN_INFO === 'true' || fullViewMode === 'true') &&
+        setFullMode(true)
 
       setTableViewMode(ROW_STYLE || rowStyle)
     }, [])
@@ -157,8 +152,6 @@ const ResourcesBackButton = memo(
     const unselect = useCallback(() => {
       setSelectedRows([])
       setShowInfo(false)
-
-      FULL_SCREEN_INFO === 'false' && setFullMode(isFullMode)
     }, [selectedRows])
 
     const props = {
