@@ -80,7 +80,7 @@ const HostInfoTab = ({ tabProps = {}, id }) => {
     <Stack
       display="grid"
       gap="1em"
-      gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
+      gridTemplateColumns="repeat(auto-fit, minmax(500px, 1fr))"
       padding={{ sm: '0.8em' }}
     >
       {informationPanel?.enabled && (

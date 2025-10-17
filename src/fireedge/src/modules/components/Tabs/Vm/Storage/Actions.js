@@ -303,6 +303,8 @@ const SnapshotCreateAction = memo(({ vmId, disk, name: imageName, sx }) => {
               />
             ),
             dataCy: 'modal-create-disk-snapshot',
+            fixedHeight: '35vh',
+            fixedWidth: '45vw',
           },
           form: CreateDiskSnapshotForm,
           onSubmit: handleSnapshotCreate,

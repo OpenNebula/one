@@ -99,7 +99,14 @@ const Settings = () => {
     debounce(async (formData = {}) => {
       try {
         if (methods?.formState?.isSubmitting) return
-        const template = jsonToXml({ FIREEDGE: { ...fireedge, ...formData } })
+        const formatTemplate = { FIREEDGE: { ...fireedge, ...formData } }
+        if (
+          !formatTemplate?.FIREEDGE?.FULL_SCREEN_INFO ||
+          formatTemplate?.FIREEDGE?.FULL_SCREEN_INFO === 'false'
+        ) {
+          delete formatTemplate?.FIREEDGE?.FULL_SCREEN_INFO
+        }
+        const template = jsonToXml(formatTemplate)
         await updateUser({ id: user.ID, template, replace: 1 })
       } catch {
         enqueueError(T.SomethingWrong)
