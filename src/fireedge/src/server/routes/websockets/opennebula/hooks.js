@@ -14,7 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { Subscriber } = require('zeromq')
+const atob = require('atob')
+const { socket: socketZeroMQ } = require('zeromq')
 const { messageTerminal, xml2json } = require('server/utils/general')
 const {
   middlewareValidateAuthWebsocket,
@@ -45,45 +46,30 @@ const main = (app = {}, type = '') => {
         const { zone: queryZone } = getQueryData(server)
         const zone = queryZone && queryZone !== 'undefined' ? queryZone : '0'
         const dataZone = getDataZone(zone)
-        const zeromqData = dataZone.zeromq?.trim()
 
-        if (zeromqData) {
-          const zeromqSock = new Subscriber()
-          zeromqSock.connect(zeromqData)
-          zeromqSock.subscribe(`EVENT ${resource.toUpperCase()} ${id}`)
+        if (dataZone && dataZone.zeromq) {
+          const zeromqSock = socketZeroMQ('sub')
 
-          server.on('disconnect', () => {
-            try {
-              zeromqSock.close()
-            } catch (error) {
-              messageTerminal({ ...DEFAULT_ERROR_CONFIG, error })
+          zeromqSock.connect(dataZone.zeromq)
+          zeromqSock.subscribe(`EVENT ${resource.toUpperCase()} ${id}/`) // state
+
+          server.on('disconnect', () => zeromqSock.close())
+
+          zeromqSock.on('message', (...args) => {
+            const [command, encodedMessage] = Array.prototype.slice
+              .call(args)
+              .map((arg) => arg.toString())
+
+            if (command && encodedMessage) {
+              const xmlMessage = atob(encodedMessage)
+
+              xml2json(xmlMessage, (error, data) => {
+                error
+                  ? messageTerminal({ ...DEFAULT_ERROR_CONFIG, error })
+                  : server.emit(type, { command, data })
+              })
             }
           })
-          ;(async () => {
-            try {
-              for await (const [commandBuf, encodedMessageBuf] of zeromqSock) {
-                const command = commandBuf.toString()
-                const encodedMessage = encodedMessageBuf.toString()
-
-                if (command && encodedMessage) {
-                  const xmlMessage = Buffer.from(
-                    encodedMessage,
-                    'base64'
-                  ).toString('utf8')
-
-                  xml2json(xmlMessage, (error, data) => {
-                    if (error) {
-                      messageTerminal({ ...DEFAULT_ERROR_CONFIG, error })
-                    } else {
-                      server.emit(type, { command, data })
-                    }
-                  })
-                }
-              }
-            } catch (err) {
-              messageTerminal({ ...DEFAULT_ERROR_CONFIG, error: err })
-            }
-          })()
         }
       })
   } catch (error) {
