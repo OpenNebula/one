@@ -281,6 +281,13 @@ private:
     int check_drop(std::string& error_msg);
 
     /**
+     *  Drops the cluster and all its resources from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int drop(SqlDB *db) override;
+
+    /**
      *  Factory method for cluster templates
      */
     std::unique_ptr<Template> get_new_template() const override

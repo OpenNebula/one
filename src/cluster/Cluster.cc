@@ -496,3 +496,20 @@ Cluster::DrsAutomation Cluster::automation() const
 
     return Cluster::MANUAL;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Cluster::drop(SqlDB *db)
+{
+    int rc;
+
+    rc = vnc_bitmap.drop(db);
+
+    if (rc != 0)
+    {
+        return rc;
+    }
+
+    return PoolObjectSQL::drop(db);
+}
