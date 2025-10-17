@@ -59,7 +59,9 @@ const PARENT = {
     const [, TYPE] = deps
     const { labels } = useAuth()
 
-    const labelsArray = [].concat(labelsToArray(labels)?.[TYPE])
+    const labelsArray = []
+      .concat(labelsToArray(labels)?.[TYPE])
+      ?.filter(Boolean)
 
     return arrayToOptions(labelsArray, {
       addEmpty: false,

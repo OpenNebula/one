@@ -204,6 +204,7 @@ module.exports = {
   Retry: 'Retry',
   Restore: 'Restore',
   Revert: 'Revert',
+  RevertInfo: 'VM must be powered off in order to revert disk snapshots.',
   RevertSomething: 'Revert: %s',
   Save: 'Save',
   SaveAs: 'Save as',

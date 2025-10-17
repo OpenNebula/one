@@ -353,10 +353,11 @@ const SnapshotRenameAction = memo(({ vmId, disk, snapshot, sx }) => {
   )
 })
 
-const SnapshotRevertAction = memo(({ vmId, disk, snapshot, sx }) => {
+const SnapshotRevertAction = memo(({ vmState, vmId, disk, snapshot, sx }) => {
   const [revertDiskSnapshot] = VmAPI.useRevertDiskSnapshotMutation()
   const { DISK_ID } = disk
   const { ID, NAME = T.Snapshot } = snapshot
+  const isDisabled = parseInt(vmState, 10) !== 8 // POWEROFF
 
   const handleRevert = async () => {
     await revertDiskSnapshot({ id: vmId, disk: DISK_ID, snapshot: ID })
@@ -367,8 +368,9 @@ const SnapshotRevertAction = memo(({ vmId, disk, snapshot, sx }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_REVERT}-${DISK_ID}-${ID}`,
         icon: <UndoAction />,
-        tooltip: Tr(T.Revert),
+        tooltip: Tr(T.RevertInfo),
         sx,
+        disabled: isDisabled,
       }}
       options={[
         {
@@ -421,6 +423,7 @@ const SnapshotDeleteAction = memo(({ vmId, disk, snapshot, sx }) => {
 
 const ActionPropTypes = {
   vmId: PropTypes.string,
+  vmState: PropTypes.string,
   hypervisor: PropTypes.string,
   disk: PropTypes.object,
   snapshot: PropTypes.object,

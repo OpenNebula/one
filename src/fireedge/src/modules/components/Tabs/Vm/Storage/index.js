@@ -95,7 +95,12 @@ const VmStorageTab = ({
         {disks.map((disk) => {
           const isImage = disk.IMAGE_ID !== undefined
           const imageName = getDiskName(disk)
-          const diskActionProps = { vmId: id, disk, name: imageName }
+          const diskActionProps = {
+            vmState: vm?.STATE,
+            vmId: id,
+            disk,
+            name: imageName,
+          }
 
           return (
             <DiskCard

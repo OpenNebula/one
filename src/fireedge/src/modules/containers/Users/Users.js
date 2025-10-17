@@ -23,8 +23,8 @@ import {
   UserTabs,
   UsersTable,
 } from '@ComponentsModule'
-import { SERVER_CONFIG, T, User } from '@ConstantsModule'
-import { UserAPI, useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
+import { T, User } from '@ConstantsModule'
+import { UserAPI, useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
@@ -102,11 +102,6 @@ const InfoTabs = memo(({ user, gotoPage, unselect, selectedRows }) => {
   const [get, { data: lazyData, isFetching }] = UserAPI.useLazyGetUserQuery()
   const id = user?.ID ?? lazyData?.ID
 
-  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
-  const { FULL_SCREEN_INFO } = fireedge
-  const { fullViewMode } = SERVER_CONFIG
-  const fullModeDefault =
-    FULL_SCREEN_INFO === 'true' || fullViewMode === 'true' || false
   const { isFullMode } = useGeneral()
   const { setFullMode } = useGeneralApi()
 
@@ -125,7 +120,7 @@ const InfoTabs = memo(({ user, gotoPage, unselect, selectedRows }) => {
         mb={1}
       >
         <Stack direction="row">
-          {fullModeDefault && (
+          {isFullMode && (
             <SubmitButton
               data-cy="detail-back"
               icon={<NavArrowLeft />}
@@ -137,17 +132,15 @@ const InfoTabs = memo(({ user, gotoPage, unselect, selectedRows }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-          {!fullModeDefault && (
-            <SubmitButton
-              data-cy="detail-full-mode"
-              icon={isFullMode ? <Collapse /> : <Expand />}
-              tooltip={Tr(T.FullScreen)}
-              isSubmitting={isFetching}
-              onClick={() => {
-                setFullMode(!isFullMode)
-              }}
-            />
-          )}
+          <SubmitButton
+            data-cy="detail-full-mode"
+            icon={isFullMode ? <Collapse /> : <Expand />}
+            tooltip={Tr(T.FullScreen)}
+            isSubmitting={isFetching}
+            onClick={() => {
+              setFullMode(!isFullMode)
+            }}
+          />
           <SubmitButton
             data-cy="detail-refresh"
             icon={<RefreshDouble />}
