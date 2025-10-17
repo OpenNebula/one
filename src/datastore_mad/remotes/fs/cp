@@ -169,8 +169,8 @@ if [ -n "$DST_HOST" ]; then
 
     FORMAT=$(ssh_monitor_and_log $DST_HOST "set -e -o pipefail; $QEMU_IMG info $DST | grep \"^file format:\" | awk '{print \$3}'")
 
-    # if ssh_monitor_and_log fails RC is returned
-    if [[ $FORMAT =~ '^[0-9]+$' ]]; then
+    if [ $? -ne 0 ] || [ -z "${FORMAT}" ]; then
+        error_message "$FORMAT"
         exit -1
     fi
 
@@ -188,7 +188,7 @@ else
 
     FORMAT=$($QEMU_IMG info $DST | grep "^file format:" | awk '{print $3}' || :)
 
-    if [ -z $FORMAT ]; then
+    if [ -z "$FORMAT" ]; then
         rm -rf $DST
         log_error "Unknown image format src=$SRC"
         exit -1
