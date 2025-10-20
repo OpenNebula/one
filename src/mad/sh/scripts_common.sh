@@ -976,7 +976,8 @@ function get_disk_information {
                         $DISK_XPATH/WRITE_IOPS_SEC_MAX_LENGTH \
                         $DISK_XPATH/SIZE_IOPS_SEC \
                         $DISK_XPATH/VIRTIO_BLK_QUEUES \
-                        $DISK_XPATH/IOTHREAD )
+                        $DISK_XPATH/IOTHREAD \
+                        $DISK_XPATH/SERIAL )
 
     VMID="${XPATH_ELEMENTS[j++]}"
     VCPU="${XPATH_ELEMENTS[j++]:-1}"
@@ -1025,6 +1026,7 @@ function get_disk_information {
     SIZE_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
     VIRTIO_BLK_QUEUES="${XPATH_ELEMENTS[j++]}"
     IOTHREAD="${XPATH_ELEMENTS[j++]}"
+    DISK_SERIAL="${XPATH_ELEMENTS[j++]}"
 
     TYPE=$(echo "$TYPE"|tr A-Z a-z)
     READONLY=$(echo "$READONLY"|tr A-Z a-z)
