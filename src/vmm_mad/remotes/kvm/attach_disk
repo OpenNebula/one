@@ -169,6 +169,10 @@ if [ -z "${DISK_TARGET##sd*}" ]; then
     fi
 fi
 
+if [[ -n "${DISK_SERIAL}" ]]; then
+    XML+="<serial>${DISK_SERIAL//[^0-9a-zA-Z-._]/}</serial>"
+fi
+
 XML+="</disk>"
 
 # device attach
