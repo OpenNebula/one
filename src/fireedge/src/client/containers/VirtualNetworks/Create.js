@@ -54,13 +54,14 @@ function CreateVirtualNetwork() {
     { skip: vnetId === undefined }
   )
 
-  const onSubmit = async (xml) => {
+  const onSubmit = async (formResult) => {
     try {
       if (!vnetId) {
-        const newVnetId = await allocate({ template: xml }).unwrap()
+        const newVnetId = await allocate(formResult).unwrap()
         enqueueSuccess(T.SuccessVnetCreated, newVnetId)
       } else {
-        await update({ id: vnetId, template: xml }).unwrap()
+        const template = typeof formResult === 'string' ? formResult : formResult.template
+        await update({ id: vnetId, template }).unwrap()
         enqueueSuccess(T.SuccessVnetUpdated, [vnetId, NAME])
       }
 

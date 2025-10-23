@@ -95,13 +95,18 @@ const Steps = createSteps([General, ExtraConfiguration], {
     const { [GENERAL_ID]: general = {}, [EXTRA_ID]: extra = {} } =
       formData ?? {}
 
-    // Ensure that switches of physical device and bridge are not sent to the API
+    const cluster = general.CLUSTER || -1
+    delete general.CLUSTER
+
     delete extra.PHYDEV_SWITCH
     delete extra.BRIDGE_SWITCH
     delete extra.VLAN_TAGGED_ID_SWITCH
     delete extra.Q_IN_Q_SWITCH
 
-    return jsonToXml({ ...extra, ...general })
+    return {
+      template: jsonToXml({ ...extra, ...general }),
+      cluster: cluster,
+    }
   },
 })
 
