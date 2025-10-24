@@ -187,9 +187,13 @@ const vmApi = oneApi.injectEndpoints({
         }
       },
       onCacheEntryAdded: UpdateFromSocket({
-        updateQueryData: (updateFn) =>
-          vmApi.util.updateQueryData('getVms', undefined, updateFn),
+        updateQueryData: (
+          updateFn,
+          rtkResource = 'getVms',
+          params = undefined
+        ) => vmApi.util.updateQueryData(rtkResource, params, updateFn),
         resource: 'VM',
+        rtkResources: ['getVms', 'getVmsPaginated'],
       }),
     }),
     getGuacamoleSessionFile: builder.query({
