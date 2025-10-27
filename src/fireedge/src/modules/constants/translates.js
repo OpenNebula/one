@@ -1071,7 +1071,7 @@ module.exports = {
     'VM %1$s is currently running on Host %2$s and Datastore %3$s',
   /* VM schema - capacity */
   Capacity: 'Capacity',
-  CostPerHour: 'Cost / Hour',
+  CostPerHour: '/Hour',
   PhysicalCpu: 'Physical CPU',
   PhysicalCpuWithPercent: 'Physical CPU',
   VirtualCpu: 'Virtual CPU',
@@ -1084,7 +1084,7 @@ module.exports = {
   MemoryWithUnit: 'Memory %s',
   MemoryUnit: 'Unit memory',
   Cost: 'Cost',
-  CostEachMonth: '%s / month',
+  CostEachMonth: '%s GB/month',
   CostCpu: 'Cost / CPU',
   CostCpuConcept: 'Cost of each CPU per hour',
   CostMemory: 'Cost / Memory',
