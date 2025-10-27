@@ -83,6 +83,13 @@ export const FIELDS = (
     const isMemory = name === 'MEMORY'
     const isCPU = name === 'CPU'
     const divisibleBy4 = isMemory
+    const isVCPU = name === 'VCPU'
+
+    // Force VCPU to use integer range instead of float range
+    if (isVCPU && userInput.type === rangeFloat) {
+      userInput.type = range
+    }
+
     const isRange = [range, rangeFloat].includes(userInput.type)
 
     // set default type to number

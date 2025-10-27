@@ -42,7 +42,13 @@ import {
   isRelative,
 } from 'client/models/Scheduler'
 import { getDisks, getSnapshotList } from 'client/models/VirtualMachine'
-import { Field, arrayToOptions, prettyBytes, sentenceCase, OPTION_SORTERS } from 'client/utils'
+import {
+  Field,
+  arrayToOptions,
+  prettyBytes,
+  sentenceCase,
+  OPTION_SORTERS,
+} from 'client/utils'
 
 // --------------------------------------------------------
 // Constants

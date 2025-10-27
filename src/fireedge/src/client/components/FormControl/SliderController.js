@@ -51,12 +51,15 @@ const SliderController = memo(
 
     const handleEnsuredChange = useCallback(
       (newValue) => {
-        if (min && newValue < min) return onChange(min)
-        if (max && newValue > max) return onChange(max)
-        if (min && max && newValue <= max && newValue >= min)
-          return onChange(newValue)
+        // Round to integer if step is 1 (for integer-only fields like VCPU)
+        const ensuredValue = step === 1 ? Math.round(newValue) : newValue
+
+        if (min && ensuredValue < min) return onChange(min)
+        if (max && ensuredValue > max) return onChange(max)
+        if (min && max && ensuredValue <= max && ensuredValue >= min)
+          return onChange(ensuredValue)
       },
-      [onChange, min, max]
+      [onChange, min, max, step]
     )
 
     useEffect(() => {
@@ -73,13 +76,15 @@ const SliderController = memo(
       (_, newValue) => {
         onBlur()
         if (!readOnly) {
-          onChange(newValue)
+          // Round to integer if step is 1 (for integer-only fields like VCPU)
+          const ensuredValue = step === 1 ? Math.round(newValue) : newValue
+          onChange(ensuredValue)
           if (typeof onConditionChange === 'function') {
-            onConditionChange(newValue)
+            onConditionChange(ensuredValue)
           }
         }
       },
-      [onChange, onConditionChange, readOnly]
+      [onChange, onConditionChange, readOnly, step]
     )
 
     return (
@@ -104,10 +109,17 @@ const SliderController = memo(
           <TextField
             {...inputProps}
             fullWidth
-            value={value}
+            value={
+              step === 1 && typeof value === 'number'
+                ? Math.round(value)
+                : value
+            }
             type="number"
             error={Boolean(error)}
             label={labelCanBeTranslated(label) ? Tr(label) : label}
+            InputLabelProps={{
+              shrink: true,
+            }}
             InputProps={{
               readOnly,
               endAdornment: tooltip && <Tooltip title={tooltip} />,

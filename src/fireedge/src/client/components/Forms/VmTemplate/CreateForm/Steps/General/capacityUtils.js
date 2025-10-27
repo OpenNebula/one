@@ -74,8 +74,8 @@ const modificationTypeInput = (fieldName, { type: typeId }) => ({
   values: arrayToOptions([fixed, range, list], {
     addEmpty: 'Any value',
     getValue: (type) =>
-      // allow float numbers on CPU and VCPU
-      ['CPU', 'VCPU'].includes(fieldName) && type === range ? rangeFloat : type,
+      // allow float numbers on CPU only (VCPU should be integers)
+      fieldName === 'CPU' && type === range ? rangeFloat : type,
     getText: (type) => sentenceCase(type),
   }),
   validation: lazy((_, { context }) =>

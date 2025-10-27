@@ -60,7 +60,8 @@ function CreateVirtualNetwork() {
         const newVnetId = await allocate(formResult).unwrap()
         enqueueSuccess(T.SuccessVnetCreated, newVnetId)
       } else {
-        const template = typeof formResult === 'string' ? formResult : formResult.template
+        const template =
+          typeof formResult === 'string' ? formResult : formResult.template
         await update({ id: vnetId, template }).unwrap()
         enqueueSuccess(T.SuccessVnetUpdated, [vnetId, NAME])
       }
