@@ -133,13 +133,7 @@ end
 
 group :cloud, :oneflow, :sunstone do
     gem 'rack', rack
-    if ruby_version >= Gem::Version.new('3.0.0')
-        gem 'sinatra'
-        gem 'puma'
-        gem 'rackup'
-    else
-        gem 'sinatra', '< 4.0.0'
-    end
+    gem 'sinatra', '< 4.0.0'
 end
 
 group :cloud do
