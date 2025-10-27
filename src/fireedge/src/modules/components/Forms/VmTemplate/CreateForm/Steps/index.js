@@ -96,6 +96,12 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       }
     }
 
+    // Transform DISK_COST to GB (core stores this value in MB)
+    if (vmTemplate?.TEMPLATE?.DISK_COST) {
+      objectSchema[GENERAL_ID].DISK_COST =
+        +vmTemplate?.TEMPLATE?.DISK_COST * 1024
+    }
+
     // Init placement
     const schedRequirements = vmTemplate?.TEMPLATE?.SCHED_REQUIREMENTS
     if (schedRequirements) {

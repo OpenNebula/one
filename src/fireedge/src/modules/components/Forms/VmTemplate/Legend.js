@@ -23,6 +23,7 @@ import clsx from 'clsx'
 import PropTypes from 'prop-types'
 import { ReactElement, memo, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { formatNumberByCurrency } from '@ModelsModule'
 
 const ARRAY_UNITS = Object.values(UNITS)
 ARRAY_UNITS.splice(0, 1) // remove KB
@@ -108,18 +109,27 @@ export const CapacityDisksLabel = memo(({ data }) => {
   const formValues = watch('extra')
   const { data: oneConfig = {} } = SystemAPI.useGetOneConfigQuery()
 
-  const diskCost =
+  // Get cost (it's always stored in MB per hour)
+  const cost =
     data?.TEMPLATE?.DISK_COST || oneConfig?.DEFAULT_COST?.DISK_COST || '0'
+
+  // Get total size of disks
   const disks = formValues?.DISK || []
 
-  const cost = disks.reduce((total, { SIZE }) => total + SIZE * diskCost, 0)
+  if (cost === undefined || cost === null || isNaN(cost)) return null
+
+  const getSize = (disk) => disk?.IMAGE?.SIZE ?? disk?.SIZE ?? 0
+  const sizesInMB = disks.reduce((acc, d) => acc + +getSize(d), 0)
+
+  // Get cost of GB per hour. Sunstone template form stores this in MB/hour but core template in GB/hor so is needed a transformation
+  const costinGbPerHour = sizesInMB * cost
 
   return (
     <>
       <Typography
         className={classes.cost}
         data-cy="legend-capacity-disks"
-      >{`${cost.toFixed(6)}`}</Typography>
+      >{`${formatNumberByCurrency(costinGbPerHour)}`}</Typography>
       <Typography className={clsx(classes.cost, classes.costUnit)}>
         {`${T.CostPerHour}`}
       </Typography>

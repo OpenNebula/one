@@ -44,18 +44,16 @@ const { lxc } = HYPERVISORS
 const HelperDiskCost = () => {
   const { control } = useFormContext()
   const cost = useWatch({ control, name: 'general.DISK_COST' })
-  const disks = useWatch({ control, name: 'extra.DISK' }) || []
-
-  const getSize = (disk) => disk?.IMAGE?.SIZE ?? disk?.SIZE ?? 0
-  const sizesInGB = disks.reduce((acc, d) => acc + getSize(d), 0)
-  const sizesInMB = sizesInGB / 1024
 
   if (cost === undefined || cost === null || isNaN(cost)) return null
+
+  // Get cost of GB per hour. Sunstone template form stores this in MB/hour but core template in GB/hor so is needed a transformation
+  const costinGbPerHour = +cost / 1024
 
   return (
     <Translate
       word={T.CostEachMonth}
-      values={[formatNumberByCurrency(sizesInMB * cost * 24 * 30)]}
+      values={[formatNumberByCurrency(costinGbPerHour * 24 * 30)]}
     />
   )
 }
@@ -213,18 +211,11 @@ export const CPU_COST = generateCostCapacityInput({
 /** @type {Field} Disk cost field */
 export const DISK_COST = generateCostCapacityInput({
   name: 'DISK_COST',
-  label: T.Disk,
+  label: T.Disk + ' (GB/hour)',
   tooltip: T.CostDiskConcept,
   validation: lazy((_, { context }) =>
     commonValidation
       .nullable()
-      .transform((value, originalValue) =>
-        originalValue === ''
-          ? undefined
-          : +context?.general?.DISK_COST === +value
-          ? context?.general?.DISK_COST * 1024
-          : value
-      )
       .afterSubmit((cost) => (cost ? cost / 1024 : undefined))
   ),
   fieldProps: () => ({
