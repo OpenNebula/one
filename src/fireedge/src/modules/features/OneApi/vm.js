@@ -1052,17 +1052,18 @@ const vmApi = oneApi.injectEndpoints({
       /**
        * Updates (appends) a set of supported configuration attributes in the VM template.
        *
+       * @param params.replace
        * @param {object} params - Request parameters
        * @param {string} params.id - Virtual machine id
        * @param {string} params.template - The new configuration contents on syntax XML
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
        */
-      query: (params) => {
+      query: ({ replace = 1, ...params }) => {
         const name = Actions.VM_CONF_UPDATE
         const command = { name, ...Commands[name] }
 
-        return { params, command }
+        return { params: { ...params, replace }, command }
       },
       invalidatesTags: (_, __, { id }) => [
         { type: VM, id },

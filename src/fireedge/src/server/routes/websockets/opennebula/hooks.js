@@ -45,7 +45,10 @@ const main = (app = {}, type = '') => {
         const { zone: queryZone } = getQueryData(server)
         const zone = queryZone && queryZone !== 'undefined' ? queryZone : '0'
         const dataZone = getDataZone(zone)
-        const zeromqData = dataZone.zeromq?.trim()
+        const zeromqData =
+          dataZone && typeof dataZone.zeromq === 'string'
+            ? dataZone.zeromq.trim()
+            : undefined
 
         if (zeromqData) {
           const zeromqSock = new Subscriber()
