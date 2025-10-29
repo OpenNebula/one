@@ -53,7 +53,7 @@ const VmBackupTab = ({ id, oneConfig, adminGroup }) => {
 
   const handleUpdateBackupConf = async (newConfiguration) => {
     const xml = jsonToXml(newConfiguration)
-    await updateConf({ id, template: xml })
+    await updateConf({ id, template: xml, replace: 1 })
   }
 
   return (

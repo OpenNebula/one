@@ -592,6 +592,10 @@ module.exports = {
           from: postBody,
           default: '',
         },
+        replace: {
+          from: postBody,
+          default: 0,
+        },
       },
     },
     [VM_RECOVER]: {

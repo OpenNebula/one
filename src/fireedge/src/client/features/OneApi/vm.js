@@ -1053,6 +1053,7 @@ const vmApi = oneApi.injectEndpoints({
        * Restore the VM.
        *
        * @param {object} params - Request parameters
+       * @param {0|1} params.replace - Replace type
        * @param {string} params.id - Virtual machine id
        * @param {number} params.imageId - Image backup id
        * @param {boolean} params.incrementId - Backup increment ID
@@ -1060,11 +1061,11 @@ const vmApi = oneApi.injectEndpoints({
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
        */
-      query: (params) => {
+      query: ({ replace = 1, ...params }) => {
         const name = Actions.VM_RESTORE
         const command = { name, ...Commands[name] }
 
-        return { params, command }
+        return { params: { ...params, replace }, command }
       },
       invalidatesTags: (_, __, { id }) => [
         { type: VM, id },
