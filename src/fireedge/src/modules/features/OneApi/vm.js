@@ -1058,11 +1058,11 @@ const vmApi = oneApi.injectEndpoints({
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
        */
-      query: (params) => {
+      query: ({ replace = 1, ...params }) => {
         const name = Actions.VM_CONF_UPDATE
         const command = { name, ...Commands[name] }
 
-        return { params, command }
+        return { params: { ...params, replace }, command }
       },
       invalidatesTags: (_, __, { id }) => [
         { type: VM, id },
