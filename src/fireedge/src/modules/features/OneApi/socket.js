@@ -89,13 +89,14 @@ const getResourceValueFromEventState = (data) => {
  * @param {object} params - Parameters
  * @param {function(Function):ThunkAction} params.updateQueryData - Api
  * @param {HookObjectName} params.resource - Resource name to subscribe
+ * @param {Array<string>} params.rtkResources - List of RTK resources to update
  * @returns {function(
  * { id: string },
  * { dispatch: ThunkDispatch }
  * ):Promise} Function to update data from socket
  */
 const UpdateFromSocket =
-  ({ updateQueryData, resource }) =>
+  ({ updateQueryData, resource, rtkResources = [] }) =>
   async (
     { id },
     { cacheEntryRemoved, cacheDataLoaded, updateCachedData, getState, dispatch }
@@ -105,17 +106,35 @@ const UpdateFromSocket =
 
     const query = { token, zone, resource, id }
     const socket = createWebsocket(SOCKETS.HOOKS, query)
+    const queries = getState().oneApi.queries
 
     try {
       await cacheDataLoaded
 
       const listener = ({ data } = {}) => {
         const value = getResourceValueFromEventState(data)
-
         if (!value) return
 
         const update = updateResourceOnPool({ id, resourceFromQuery: value })
-        dispatch(updateQueryData(update))
+        Object.keys(queries).forEach((key) => {
+          const matched = rtkResources
+            .map((rsc) => {
+              const regex = new RegExp(`\\b${rsc}\\s*\\(`)
+
+              return key.match(regex)
+                ? { searchText: rsc, foundText: key }
+                : null
+            })
+            .find(Boolean)
+
+          const found = queries[matched?.foundText]
+          if (found) {
+            const args = found?.originalArgs
+            dispatch(updateQueryData(update, matched.searchText, args))
+          }
+        })
+
+        // dispatch(updateQueryData(update))
 
         updateCachedData((draft) => {
           Object.assign(draft, value)

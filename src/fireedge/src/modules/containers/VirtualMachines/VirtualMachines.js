@@ -32,6 +32,7 @@ import {
   VmAPI,
 } from '@FeaturesModule'
 import { ButtonClearErrors } from '@modules/containers/VirtualMachines/ButtonClearErrors'
+import CustomGlobalActions from '@modules/containers/VirtualMachines/CustomGlobalActions'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
@@ -94,6 +95,13 @@ export function VirtualMachines() {
         zone={zone}
         actions={actions}
         handleDismissError={handleDismissError}
+        customGlobalActions={(props) => (
+          <CustomGlobalActions
+            selectedRows={props.selectedRows}
+            onSelectedRowsChange={props.onSelectedRowsChange}
+            actions={props.actions}
+          />
+        )}
         table={(props) => (
           <VmsTable.Table
             onSelectedRowsChange={props.setSelectedRows}
