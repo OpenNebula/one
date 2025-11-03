@@ -25,6 +25,7 @@ import {
   Settings,
   TransitionRight,
   Trash,
+  AppleImac2021 as VncIcon,
 } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -36,6 +37,7 @@ import {
   createActions,
 } from '@modules/components/Tables/Enhanced/Utils'
 import VmTemplatesTable from '@modules/components/Tables/Vms/VmTemplateTable'
+import VmsConsoleTable from '@modules/components/Tables/Vms/consoleTable'
 
 import { RESOURCE_NAMES, STYLE_BUTTONS, T, VM_ACTIONS } from '@ConstantsModule'
 import { getLastHistory, isVmAvailableAction } from '@ModelsModule'
@@ -535,6 +537,48 @@ const Actions = (props = {}) => {
                     incrementId,
                     diskId,
                   })
+                },
+              },
+            ],
+          },
+          {
+            accessor: VM_ACTIONS.VNC,
+            dataCy: 'vm-console-access',
+            tooltip: T.ConsoleAccess,
+            label: T.ConsoleAccess,
+            selected: { min: 1 },
+            icon: VncIcon,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
+            options: [
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.ConsoleAccess,
+                  children: (rows) => {
+                    const filterVms =
+                      rows?.map((row) => row?.original?.ID).filter(Boolean) ??
+                      []
+                    const theme = useTheme()
+                    const classes = useMemo(
+                      () => useTableStyles(theme),
+                      [theme]
+                    )
+
+                    return (
+                      <VmsConsoleTable
+                        disableGlobalSort
+                        disableRowSelect
+                        filterData={filterVms}
+                        classes={classes}
+                      />
+                    )
+                  },
+                  fixedWidth: true,
+                  fixedHeight: true,
+                  handleAccept: undefined,
+                  dataCy: `modal-${VM_ACTIONS.RDP}`,
                 },
               },
             ],

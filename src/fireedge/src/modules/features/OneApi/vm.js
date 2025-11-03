@@ -1052,8 +1052,9 @@ const vmApi = oneApi.injectEndpoints({
       /**
        * Updates (appends) a set of supported configuration attributes in the VM template.
        *
-       * @param params.replace
+       *
        * @param {object} params - Request parameters
+       * @param {number} params.replace - Replace all existing configuration attributes
        * @param {string} params.id - Virtual machine id
        * @param {string} params.template - The new configuration contents on syntax XML
        * @returns {number} Virtual machine id
