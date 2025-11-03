@@ -50,6 +50,7 @@ import TierCard from '@modules/components/Cards/TierCard'
 import UserCard from '@modules/components/Cards/UserCard'
 import VirtualDataCenterCard from '@modules/components/Cards/VirtualDataCenterCard'
 import VirtualMachineCard from '@modules/components/Cards/VirtualMachineCard'
+import VirtualMachineConsoleCard from '@modules/components/Cards/VirtualMachineConsoleCard'
 import VmGroupCard from '@modules/components/Cards/VmGroupCard'
 import VmTemplateCard from '@modules/components/Cards/VmTemplateCard'
 import WavesCard from '@modules/components/Cards/WavesCard'
@@ -92,6 +93,7 @@ export {
   UserCard,
   VirtualDataCenterCard,
   VirtualMachineCard,
+  VirtualMachineConsoleCard,
   VmGroupCard,
   VmTemplateCard,
   WavesCard,

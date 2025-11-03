@@ -45,42 +45,45 @@ const GUACAMOLE_BUTTONS = {
 const openNewBrowserTab = (path) =>
   window?.open(`/fireedge/${_APPS.sunstone}${path}`, '_blank')
 
-const GuacamoleButton = memo(({ vm, connectionType, onClick }) => {
-  const { icon, tooltip } = GUACAMOLE_BUTTONS[connectionType]
-  const history = useHistory()
-  const [getSession, { isLoading }] = VmAPI.useLazyGetGuacamoleSessionQuery()
-  const { zone, defaultZone } = useGeneral()
+const GuacamoleButton = memo(
+  ({ vm, connectionType, onClick, disabled = false }) => {
+    const { icon, tooltip } = GUACAMOLE_BUTTONS[connectionType]
+    const history = useHistory()
+    const [getSession, { isLoading }] = VmAPI.useLazyGetGuacamoleSessionQuery()
+    const { zone, defaultZone } = useGeneral()
 
-  const goToConsole = useCallback(
-    async (evt) => {
-      try {
-        evt.stopPropagation()
-        const params = { id: vm?.ID, type: connectionType }
+    const goToConsole = useCallback(
+      async (evt) => {
+        try {
+          evt.stopPropagation()
+          const params = { id: vm?.ID, type: connectionType }
 
-        zone !== defaultZone && (params.zone = zone)
+          zone !== defaultZone && (params.zone = zone)
 
-        if (typeof onClick === 'function') {
-          const session = await getSession(params).unwrap()
-          onClick(session)
-        } else {
-          const path = `${generatePath(PATH.GUACAMOLE, params)}?zone=${zone}`
-          openNewBrowserTab(path)
-        }
-      } catch {}
-    },
-    [vm?.ID, connectionType, history, onClick, zone]
-  )
+          if (typeof onClick === 'function') {
+            const session = await getSession(params).unwrap()
+            onClick(session)
+          } else {
+            const path = `${generatePath(PATH.GUACAMOLE, params)}?zone=${zone}`
+            openNewBrowserTab(path)
+          }
+        } catch {}
+      },
+      [vm?.ID, connectionType, history, onClick, zone]
+    )
 
-  return (
-    <SubmitButton
-      data-cy={`${vm?.ID}-${connectionType}`}
-      icon={icon}
-      tooltip={<Translate word={tooltip} />}
-      isSubmitting={isLoading}
-      onClick={goToConsole}
-    />
-  )
-})
+    return (
+      <SubmitButton
+        disabled={disabled}
+        data-cy={`${vm?.ID}-${connectionType}`}
+        icon={icon}
+        tooltip={<Translate word={tooltip} />}
+        isSubmitting={isLoading}
+        onClick={goToConsole}
+      />
+    )
+  }
+)
 
 const PreConsoleButton = memo(
   /**
@@ -108,14 +111,15 @@ const PreConsoleButton = memo(
       [connectionType]
     )
 
-    if (
-      isDisabled ||
-      (needNicConfig && !nicsIncludesTheConnectionType(vm, connectionType))
-    ) {
-      return null
-    }
-
-    return <GuacamoleButton {...props} />
+    return (
+      <GuacamoleButton
+        {...props}
+        disabled={
+          isDisabled ||
+          (needNicConfig && !nicsIncludesTheConnectionType(vm, connectionType))
+        }
+      />
+    )
   }
 )
 
@@ -123,6 +127,7 @@ const ButtonPropTypes = {
   vm: PropTypes.object,
   connectionType: PropTypes.string,
   onClick: PropTypes.func,
+  disabled: PropTypes.bool,
 }
 
 GuacamoleButton.propTypes = ButtonPropTypes

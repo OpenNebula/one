@@ -1029,6 +1029,7 @@ module.exports = {
 
   /* VM schema */
   /* VM schema - remote access */
+  ConsoleAccess: 'Console access',
   Vnc: 'VNC',
   Ssh: 'SSH',
   Rdp: 'RDP',

@@ -168,7 +168,6 @@ const InfoTabs = memo(
   }) => {
     const [getVm, { data: lazyData, isFetching }] = VmAPI.useLazyGetVmQuery()
     const id = vm?.ID ?? lazyData?.ID
-    const RowActions = VmsTable.RowActions
     const { isFullMode } = useGeneral()
     const { setFullMode } = useGeneralApi()
 
@@ -219,7 +218,6 @@ const InfoTabs = memo(
                 setFullMode(!isFullMode)
               }}
             />
-            {isFullMode && <RowActions vm={vm ?? lazyData} />}
             <SubmitButton
               data-cy="detail-refresh"
               icon={<RefreshDouble />}

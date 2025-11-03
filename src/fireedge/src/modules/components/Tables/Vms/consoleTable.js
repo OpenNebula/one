@@ -25,20 +25,14 @@ import {
   VM_POOL_PAGINATION_SIZE,
   VM_STATES,
 } from '@ConstantsModule'
-import {
-  getColorFromString,
-  getIps,
-  getLastHistory,
-  getVirtualMachineState,
-} from '@ModelsModule'
-import MultipleTags from '@modules/components/MultipleTags'
+import { getVirtualMachineState } from '@ModelsModule'
 import { StatusCircle } from '@modules/components/Status'
 import EnhancedTable, {
   createColumns,
 } from '@modules/components/Tables/Enhanced'
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import VmColumns from '@modules/components/Tables/Vms/columns'
-import VmRow from '@modules/components/Tables/Vms/row'
+import VmConsoleRow from '@modules/components/Tables/Vms/consoleRow'
 import RowAction from '@modules/components/Tables/Vms/rowActions'
 import { getResourceLabels } from '@UtilsModule'
 
@@ -66,38 +60,9 @@ const listHeader = [
   { header: T.ID, id: 'id', accessor: 'ID' },
   { header: T.Name, id: 'name', accessor: 'NAME' },
   {
-    header: T.Host,
-    id: 'hostname',
-    accessor: (vm) => getLastHistory(vm)?.HOSTNAME,
-  },
-  {
-    header: T.IP,
-    id: 'ips',
-    accessor: (vm) => {
-      const ips = useMemo(() => getIps(vm), [vm])
-
-      return <>{!!ips?.length && <MultipleTags tags={ips} />}</>
-    },
-  },
-  {
     header: T.ConsoleAccess,
     id: 'consoles',
     accessor: (vm) => <RowAction vm={vm} />,
-  },
-  { header: T.Owner, id: 'owner', accessor: 'UNAME' },
-  { header: T.Group, id: 'group', accessor: 'GNAME' },
-  {
-    header: T.Labels,
-    id: 'labels',
-    accessor: ({ TEMPLATE: { LABELS = [] } }) => {
-      const fmtLabels = LABELS?.map((label) => ({
-        text: label,
-        dataCy: `label-${label}`,
-        stateColor: getColorFromString(label),
-      }))
-
-      return <MultipleTags tags={fmtLabels} truncateText={10} />
-    },
   },
 ]
 
@@ -105,7 +70,7 @@ const listHeader = [
  * @param {object} props - Props
  * @returns {ReactElement} Virtual Machines table
  */
-const VmsTable = (props) => {
+const VmsConsoleTable = (props) => {
   const {
     rootProps = {},
     searchProps = {},
@@ -213,7 +178,7 @@ const VmsTable = (props) => {
     [view]
   )
 
-  const { component, header } = WrapperRow(VmRow, enabledFullScreen)
+  const { component, header } = WrapperRow(VmConsoleRow, enabledFullScreen)
 
   return (
     <EnhancedTable
@@ -234,6 +199,6 @@ const VmsTable = (props) => {
   )
 }
 
-VmsTable.displayName = 'VmsTable'
+VmsConsoleTable.displayName = 'VmsConsoleTable'
 
-export default VmsTable
+export default VmsConsoleTable
