@@ -16,7 +16,6 @@
 import _, { cloneDeep, merge, get } from 'lodash'
 import { convertToMB, isBase64 } from 'client/utils'
 import { MEMORY_RESIZE_OPTIONS, T } from 'client/constants'
-import { transformXmlString } from 'client/models/Helper'
 import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
 
 // Attributes that will be always modify with the value of the form (except Storage, Network and PCI sections)
@@ -698,7 +697,6 @@ const transformActionsCreate = (template) => {
     if (template.RAW.DATA) {
       // DATA exists, so we add TYPE and transform DATA
       template.RAW.TYPE = template.HYPERVISOR
-      template.RAW.DATA = transformXmlString(template.RAW.DATA)
     } else {
       // DATA doesn't exist, remove RAW from template
       delete template.RAW
