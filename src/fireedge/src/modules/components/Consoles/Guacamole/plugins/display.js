@@ -69,13 +69,18 @@ const GuacamoleDisplay = (session) => {
     const pixelDensity = window.devicePixelRatio || 1
     const headerHeight = header?.offsetHeight ?? 0
 
+    // Calculate the grid gap (1em) in pixels
+    const computedStyle = window.getComputedStyle(container)
+    const fontSize = parseFloat(computedStyle.fontSize)
+    const gridGap = fontSize
+
     const width = document.fullscreenElement
       ? window.innerWidth * pixelDensity
       : container.offsetWidth * pixelDensity
 
-    const height = document.fullscreenElement
+    const height = (document.fullscreenElement
       ? window.innerHeight * pixelDensity
-      : (container.offsetHeight - headerHeight) * pixelDensity
+      : (container.offsetHeight - headerHeight - gridGap) * pixelDensity) - 2
 
     if (
       clientDisplay.getWidth() !== width ||
@@ -98,13 +103,18 @@ const GuacamoleDisplay = (session) => {
 
     const headerHeight = header?.offsetHeight ?? 0
 
+    // Calculate the grid gap (1em) in pixels
+    const computedStyle = container ? window.getComputedStyle(container) : null
+    const fontSize = computedStyle ? parseFloat(computedStyle.fontSize) : 16
+    const gridGap = fontSize
+
     const containerWidth = document.fullscreenElement
       ? window.innerWidth
       : container.offsetWidth
 
-    const containerHeight = document.fullscreenElement
+    const containerHeight = (document.fullscreenElement
       ? window.innerHeight
-      : container.offsetHeight - headerHeight
+      : container.offsetHeight - headerHeight - gridGap) - 2
 
     const xScale = containerWidth / origWidth
     const yScale = containerHeight / origHeight
