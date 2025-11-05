@@ -253,6 +253,18 @@ CommandParser::CmdParser.new(ARGV) do
 
         number      = options[:multiple] || 1
         user_inputs = options[:user_inputs]
+        persistent  = !options[:persistent].nil?
+        flag        = nil
+
+        if persistent && (number > 1)
+            if options[:name] && !options[:name].include?('%i')
+                flag = '-%i'
+            elsif !options[:name]
+                STDERR.puts 'Persistent template cannot be instantiated multiple times ' <<
+                "without including a name (use '%i' to chose where to insert the index)."
+                next -1
+            end
+        end
 
         number.times.each_with_index do |i, index|
             exit_code = helper.perform_action(
@@ -260,7 +272,7 @@ CommandParser::CmdParser.new(ARGV) do
                 options,
                 'instantiated'
             ) do |t|
-                name   = options[:name]
+                name   = "#{options[:name]}#{flag}" if options[:name]
                 prefix = options[:prefix]
                 c_i    = nil
                 p      = nil
@@ -324,8 +336,6 @@ CommandParser::CmdParser.new(ARGV) do
                 extra_template << "\n#{user_inputs}"
 
                 extra_template.strip!
-
-                persistent = !options[:persistent].nil?
 
                 res = t.instantiate(name, on_hold, extra_template, persistent)
 
