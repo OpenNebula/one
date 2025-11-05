@@ -433,12 +433,14 @@ module OpenNebula::MarketPlaceAppExt
                     img_names = imgp.retrieve_elements('/IMAGE_POOL/IMAGE/NAME')
 
                     opt_name = options[:name]
-                    t_short = "#{opt_name}-#{obj_name}-#{idx}"
+                    app_name = app if xpath == '//DISK'
+                    t_short  = [opt_name, app_name, obj_name, idx].compact.join('-')
 
                     if !img_names.nil? && img_names.include?(t_short)
                         idy = 0
-                        while img_names.include? \
-                            "#{opt_name}_#{idy}-#{obj_name}-#{idx}"
+                        while img_names.include?(
+                            ["#{opt_name}_#{idy}", app_name, obj_name, idx].compact.join('-')
+                        )
                             idy += 1
                         end
                         opt_name = "#{opt_name}_#{idy}"
@@ -446,7 +448,7 @@ module OpenNebula::MarketPlaceAppExt
 
                     rc = obj.export(
                         :dsid       => options[:dsid],
-                        :name       => "#{opt_name}-#{obj_name}-#{idx}",
+                        :name       => [opt_name, app_name, obj_name, idx].compact.join('-'),
                         :notemplate => options[:notemplate]
                     )
 
