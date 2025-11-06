@@ -93,7 +93,7 @@ const Qr = ({
   const { data = '', isSuccess } = TfaAPI.useGetQrQuery()
   const theme = useTheme()
   const classes = useMemo(() => styles(theme), [theme])
-  const { enqueueError } = useGeneralApi()
+  const { enqueueError, enqueueSuccess } = useGeneralApi()
   const [enableTfa] = TfaAPI.useEnableTfaMutation()
 
   const { handleSubmit, ...methods } = useForm({
@@ -103,11 +103,12 @@ const Qr = ({
   const handleEnableTfa = useCallback(
     async ({ TOKEN: token }) => {
       try {
-        await enableTfa({ token })
+        await enableTfa({ token }).unwrap()
         await refreshUserData()
         cancelFn()
-      } catch {
-        enqueueError(T.SomethingWrong)
+        enqueueSuccess(T.SetupTFASuccesful)
+      } catch (error) {
+        enqueueError(T.SetupTFAError)
       }
     },
     [data, enableTfa]
@@ -191,7 +192,7 @@ Qr.propTypes = {
  */
 const Tfa = () => {
   const { Legend, InternalWrapper } = useSettingWrapper()
-  const { enqueueError } = useGeneralApi()
+  const { enqueueError, enqueueSuccess } = useGeneralApi()
   const theme = useTheme()
   const classes = useMemo(() => styles(theme), [theme])
   const [displayQr, setDisplayQr] = useState(false)
@@ -216,11 +217,12 @@ const Tfa = () => {
 
   const handleRemoveTfa = useCallback(async () => {
     try {
-      await removeTfa()
+      await removeTfa().unwrap()
       await refreshUserData()
       setDisplayQr(false)
+      enqueueSuccess(T.SetupTFASuccesfulDeleted)
     } catch {
-      enqueueError(T.SomethingWrong)
+      enqueueError(T.SetupTFASuccesfulDeletedError)
     }
   }, [removeTfa, fireedge])
 
