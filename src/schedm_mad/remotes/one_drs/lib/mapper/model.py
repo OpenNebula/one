@@ -183,6 +183,8 @@ class VMRequirements:
                     # considered.
                     host_caps = {cap.id: cap for cap in host_capacities}
                     for host_id, disk_ids in req.host_dstore_ids.items():
+                        if host_id not in host_caps:
+                            continue
                         disk_caps = host_caps[host_id].disks
                         disk_matches: list[int] = []
                         for disk_id in disk_ids:
