@@ -82,7 +82,8 @@ const ThemeSwitchComponent = () => {
   const [updateUser] = UserAPI.useUpdateUserMutation()
 
   // Get the user template in order to get the theme mode
-  const { user, settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+  const { user } = useAuth()
+  const [getUser] = UserAPI.useLazyGetUserQuery()
 
   // Get theme mode
   const theme = useTheme()
@@ -98,10 +99,14 @@ const ThemeSwitchComponent = () => {
       const newMode = event.target.checked ? SCHEMES.DARK : SCHEMES.LIGHT
       setChecked(event.target.checked)
 
+      const { data: { TEMPLATE: userTemplate = {} } = {} } = await getUser({
+        id: user?.ID,
+      })
+
       // Update user's template
       const template = jsonToXml({
         FIREEDGE: {
-          ...fireedge,
+          ...(userTemplate?.FIREEDGE ?? {}),
           SCHEME: newMode,
         },
       })
@@ -112,7 +117,13 @@ const ThemeSwitchComponent = () => {
     [updateUser]
   )
 
-  return <ThemeSwitch checked={checked} onChange={handleThemeChange} />
+  return (
+    <ThemeSwitch
+      data-cy="theme-switch"
+      checked={checked}
+      onChange={handleThemeChange}
+    />
+  )
 }
 
 ThemeSwitchComponent.displayName = 'ThemeSwitchComponent'

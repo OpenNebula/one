@@ -506,6 +506,10 @@ module.exports = {
   PressToCreateLabel: 'Press enter to create a new label',
   SavesInTheUserTemplate: "Saved in the User's template",
   NoLabelsOnList: 'You have not defined any labels, list is empty',
+  SetupTFASuccesful: 'Authentication App successfully registered',
+  SetupTFAError: 'Error registering Authentication App',
+  SetupTFASuccesfulDeleted: 'Authentication App successfully deleted',
+  SetupTFASuccesfulDeletedError: 'Error deleting Authentication App',
 
   /* sections - support */
   Support: 'Support',
