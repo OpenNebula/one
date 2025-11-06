@@ -24,6 +24,7 @@ import { useGeneralApi } from 'client/features/General'
 import {
   useUpdateUserMutation,
   useChangePasswordMutation,
+  useLazyGetUserQuery,
 } from 'client/features/OneApi/user'
 import { useGetZonesQuery } from 'client/features/OneApi/zone'
 
@@ -42,6 +43,7 @@ import { Link as RouterLink, generatePath } from 'react-router-dom'
 import { ChangePasswordForm } from 'client/components/Forms/Settings'
 import { generateDocLink } from 'client/utils'
 import systemApi from 'client/features/OneApi/system'
+import { v4 as uuidv4 } from 'uuid'
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -64,6 +66,7 @@ const Settings = () => {
   const { changeAuthUser } = useAuthApi()
   const { enqueueError, enqueueSuccess } = useGeneralApi()
   const [updateUser] = useUpdateUserMutation()
+  const [get] = useLazyGetUserQuery()
   const [changePassword, { isSuccess: isSuccessChangePassword }] =
     useChangePasswordMutation()
   const { views, view: userView } = useViews()
@@ -84,7 +87,13 @@ const Settings = () => {
     debounce(async (formData) => {
       try {
         if (methods?.formState?.isSubmitting) return
-        const template = jsonToXml({ FIREEDGE: formData })
+
+        const { data: userData } = await get({ id: user?.ID, __: uuidv4() })
+
+        const formatTemplate = {
+          FIREEDGE: { ...(userData?.TEMPLATE?.FIREEDGE ?? {}), ...formData },
+        }
+        const template = jsonToXml(formatTemplate)
         await updateUser({ id: user.ID, template, replace: 1 })
       } catch {
         enqueueError(T.SomethingWrong)

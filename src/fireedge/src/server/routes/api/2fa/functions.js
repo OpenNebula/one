@@ -36,7 +36,7 @@ const {
   default2FAOpennebulaVar,
   default2FAOpennebulaTmpVar,
 } = defaults
-const { ok, unauthorized, internalServerError } = httpCodes
+const { ok, badRequest, internalServerError } = httpCodes
 const { GET } = httpMethod
 const twoFactorAuthIssuer = appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer
 
@@ -131,7 +131,11 @@ const setup = (
           },
         })
       } else {
-        res.locals.httpCode = httpResponse(unauthorized)
+        res.locals.httpCode = httpResponse(
+          badRequest,
+          'Error registering the app',
+          ''
+        )
         next()
       }
     } else {

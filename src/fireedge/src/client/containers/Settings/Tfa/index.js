@@ -89,7 +89,7 @@ const Qr = ({
   const { data = '', isSuccess } = useGetQrQuery()
   const classes = useStyles()
   const classesTable = EnhancedTableStyles()
-  const { enqueueError } = useGeneralApi()
+  const { enqueueError, enqueueSuccess } = useGeneralApi()
   const [enableTfa] = useEnableTfaMutation()
 
   const { handleSubmit, ...methods } = useForm({
@@ -99,11 +99,12 @@ const Qr = ({
   const handleEnableTfa = useCallback(
     async ({ TOKEN: token }) => {
       try {
-        await enableTfa({ token })
+        await enableTfa({ token }).unwrap()
         await refreshUserData()
         cancelFn()
+        enqueueSuccess(T.SetupTFASuccesful)
       } catch {
-        enqueueError(T.SomethingWrong)
+        enqueueError(T.SetupTFAError)
       }
     },
     [data, enableTfa]
@@ -187,7 +188,7 @@ Qr.propTypes = {
  * @returns {ReactElement} Settings configuration UI
  */
 const Tfa = () => {
-  const { enqueueError } = useGeneralApi()
+  const { enqueueError, enqueueSuccess } = useGeneralApi()
   const classes = useStyles()
   const [displayQr, setDisplayQr] = useState(false)
   const {
@@ -211,11 +212,12 @@ const Tfa = () => {
 
   const handleRemoveTfa = useCallback(async () => {
     try {
-      await removeTfa()
+      await removeTfa().unwrap()
       await refreshUserData()
       setDisplayQr(false)
+      enqueueSuccess(T.SetupTFASuccesfulDeleted)
     } catch {
-      enqueueError(T.SomethingWrong)
+      enqueueError(T.SetupTFASuccesfulDeletedError)
     }
   }, [removeTfa, fireedge])
 
