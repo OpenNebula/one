@@ -208,6 +208,10 @@ export const quotaIdentifiers = {
     { id: 'CPU', displayName: T.CPU },
     { id: 'RUNNING_CPU', displayName: T.RunningCPU },
     { id: 'SYSTEM_DISK_SIZE', displayName: T.SystemDiskSize },
+    { id: 'PCI_DEV', displayName: T.PciDevices },
+    { id: 'PCI_NIC', displayName: T.NicDevices },
+    { id: 'RUNNING_PCI_DEV', displayName: T.RunningPciDev },
+    { id: 'RUNNING_PCI_NIC', displayName: T.RunningNic },
   ],
   DATASTORE: [
     { id: 'SIZE', displayName: T.Size },
