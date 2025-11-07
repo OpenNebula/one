@@ -265,7 +265,7 @@ const EnhancedTable = ({
         return updatedState
       }
       case 'toggleAllRowsSelected': {
-        // If the action is to deselect all the rows, the selectRowIds has to be an empty object
+        // If the action is to deselect all the rows, the selectRowIds has to be an empory objet
         if (singleSelect && !action.value) {
           newState.selectedRowIds = {}
         }

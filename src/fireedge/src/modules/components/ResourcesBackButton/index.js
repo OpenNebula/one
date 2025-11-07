@@ -45,7 +45,6 @@ const ResourcesBackButton = memo(
     info = () => undefined,
     simpleGroupsTags = () => undefined,
     setSelectedRows = () => undefined,
-    customGlobalActions = null,
     actions = [],
     ...restProps
   }) => {
@@ -95,7 +94,6 @@ const ResourcesBackButton = memo(
     const countSelectedRows = selectedRows?.length
     const moreThanOneSelected = countSelectedRows > 1
     const hasSelectedRows = countSelectedRows > 0
-    const hasCustomGlobalActions = typeof customGlobalActions === 'function'
 
     useEffect(() => {
       const viewMode =
@@ -195,21 +193,10 @@ const ResourcesBackButton = memo(
                   condition={showInfo && hasSelectedRows}
                   valid={
                     <>
-                      <Switch
-                        condition={hasCustomGlobalActions}
-                        valid={customGlobalActions?.({
-                          actions,
-                          selectedRows,
-                          setSelectedRows,
-                        })}
-                        invalid={
-                          <GlobalActions
-                            className={styles.actions}
-                            globalActions={actions}
-                            selectedRows={selectedRows}
-                            onSelectedRowsChange={setSelectedRows}
-                          />
-                        }
+                      <GlobalActions
+                        className={styles.actions}
+                        globalActions={actions}
+                        selectedRows={selectedRows}
                       />
                       <Switch
                         condition={moreThanOneSelected}
@@ -320,7 +307,6 @@ ResourcesBackButton.propTypes = {
   simpleGroupsTags: PropTypes.func,
   setSelectedRows: PropTypes.func,
   actions: PropTypes.array,
-  customGlobalActions: PropTypes.func,
 }
 ResourcesBackButton.displayName = 'ResourcesBackButton'
 

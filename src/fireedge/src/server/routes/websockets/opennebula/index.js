@@ -29,12 +29,17 @@ const {
  */
 const websockets = (appServer = {}) => {
   const sockets = []
-  if (appServer?.constructor?.name === 'Server') {
+  if (
+    appServer &&
+    appServer.constructor &&
+    appServer.constructor.name &&
+    appServer.constructor.name === 'Server'
+  ) {
     Object.entries(defaultFilesWebsockets).forEach(
       ([filename = '', info = {}]) => {
         if (filename && info && !checkEmptyObject(info)) {
-          const path = info?.path
-          const methods = info?.methods
+          const path = info && info.path
+          const methods = info && info.methods
           if (path && methods) {
             const io = socketIO({
               path,
