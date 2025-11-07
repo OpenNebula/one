@@ -108,6 +108,11 @@ Request::ErrorCode ImagePersistent::request_execute(
     if ( auto image = ipool->get_ro(id) )
     {
         ds_id = image->get_ds_id();
+
+        if (persistent_flag == image->is_persistent())
+        {
+            return SUCCESS;
+        }
     }
     else
     {
@@ -119,6 +124,15 @@ Request::ErrorCode ImagePersistent::request_execute(
     if (auto ds = dspool->get_ro(ds_id))
     {
         ds_persistent_only = ds->is_persistent_only();
+
+        const string& ds_mad = ds->get_ds_mad();
+
+        if ( one_util::icasecmp(ds_mad, "lvm") )
+        {
+            att.resp_msg = "lvm datastores doesn't support change of image persistency.";
+
+            return INTERNAL;
+        }
     }
     else
     {
