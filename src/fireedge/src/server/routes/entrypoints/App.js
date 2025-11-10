@@ -125,14 +125,17 @@ router.get('*', async (req, res) => {
           httpOnly: true,
           sameSite: 'lax',
         })
-      } else {
-        if (validateAuth && !findHeader) {
+      } else if (validateAuth) {
+        // Remote/x509 auth is configured. If header missing, raise MissingHeaderError.
+        if (!findHeader) {
           throw new MissingHeaderError(JSON.stringify(req.headers))
-        } else {
-          throw new MissingSamlUserInfoError(req?.cookies?.saml_user)
         }
+        // If header is present, continue — remoteUser was already built above.
+      } else {
+        // No remote auth and no saml user info: this is the expected missing SAML info case.
+        throw new MissingSamlUserInfoError(req?.cookies?.saml_user)
       }
-
+      
       const paramsAxios = {
         method: POST,
         url: `${defaultProtocol}://${defaultIP}:${
