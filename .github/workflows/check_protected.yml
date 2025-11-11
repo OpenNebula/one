@@ -1,0 +1,147 @@
+name: Check Protected Files
+on:
+  workflow_dispatch: {}
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          npm install js-yaml minimatch
+
+      - name: Load protected config
+        uses: actions/github-script@v8
+        id: config
+        with:
+          result-encoding: json
+          script: |
+            const fs = require('fs')
+            const yaml = require('js-yaml')
+
+            const configPath = '.github/config/protected_files.yml'
+
+            if(!fs.existsSync(configPath)) {
+              core.setFailed(`Protected config file missing at: ${configPath}. This file is required.`)
+
+              return
+            }
+
+            try {
+              const raw = fs.readFileSync(configPath, 'utf8')
+              const config = yaml.load(raw)
+
+              if (!config || !config.approval_team || !config.protected_files){
+                core.setFailed(`Protected config file missing or malformed at: ${configPath}. This file is required.`)
+
+                return
+              }
+
+
+              return config
+
+            } catch (err) {
+                core.setFailed(`Failed to load protected config: ${err}`)
+            }
+
+      - name: Get changed files
+        uses: actions/github-script@v8
+        id: changed
+        with:
+          result-encoding: json
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            })
+
+            const changed = [].concat(files ?? [])?.flatMap(f => f?.filename)?.filter(Boolean)
+
+            return changed
+
+      - name: Check protected files and approvals
+        id: reviewers
+        uses: actions/github-script@v8
+        with:
+          result-encoding: json
+          script: |
+            const { minimatch } = require('minimatch')
+            const changed = ${{ steps.changed.outputs.result }}
+            const config = ${{ steps.config.outputs.result }}
+
+            const protectedFiles = config.protected_files
+            const approvalTeam = config.approval_team
+
+
+            const affected = changed
+            ?.filter(f =>
+              protectedFiles.some(pattern => minimatch(f, pattern))
+            )
+
+
+            if (affected?.length <= 0) {
+              core.info("No protected files modified!")
+
+              return
+            }
+
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const pull_number = context.issue.number
+            const pr_author = context.payload.pull_request.user.login
+
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner,
+              repo,
+              pull_number,
+            })
+
+            const requestedReviews = await github.paginate(github.rest.pulls.listRequestedReviewers, { 
+              owner, 
+              repo, 
+              pull_number
+            })
+
+            const usersApproved = reviews
+              .filter(r => r.state === 'APPROVED')
+              .map(r => r?.user?.login)
+              .filter(Boolean)
+
+            const usersRequested = requestedReviews.flatMap(r => r.users.map(u => u.login)).filter(Boolean)
+
+
+            const missingApprovals = approvalTeam.filter(u => !usersApproved.includes(u) && u !== pr_author)
+            const teamApprovals = approvalTeam.filter(u => usersApproved.includes(u) && u !== pr_author)
+
+            const reviewersToRequest = missingApprovals.filter(u => !usersRequested.includes(u))
+
+            if (reviewersToRequest?.length > 0) {
+              await github.rest.pulls.requestReviewers({
+                owner,
+                repo,
+                pull_number,
+                reviewers: reviewersToRequest
+              })
+            }
+
+            const isApproved = approvalTeam.some(u => usersApproved.includes(u))
+
+            if (isApproved) {
+              core.info(`Required approvals are present!\nApproved by: ${teamApprovals?.join(', ')}`)
+
+              return
+            } else {
+              core.setFailed(`Some protected files have been changed but not all required approvals are present. Missing approvals from one of: ${missingApprovals
+              ?.filter(u => !usersApproved?.includes(u))
+              ?.join(', ')}`)
+            }

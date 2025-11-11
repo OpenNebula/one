@@ -1,0 +1,9 @@
+approval_team:
+  - rsmontero # Ruben
+  - xorel # Jan
+
+# Add any files you want to explicitly protect here
+protected_files:
+  - install.sh
+  - "**/package*.json"
+  - ".github/**"
