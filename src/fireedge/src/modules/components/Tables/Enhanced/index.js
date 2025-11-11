@@ -147,7 +147,7 @@ const DataListPerPage = memo(
             {!singleSelect && <TableCell className={styles.cellHeaders} />}
             {headerList.map(({ header = '', id = '' }) => (
               <TableCell key={id} className={styles.cellHeaders}>
-                {header}
+                <Translate word={header} />
               </TableCell>
             ))}
           </TableRow>
