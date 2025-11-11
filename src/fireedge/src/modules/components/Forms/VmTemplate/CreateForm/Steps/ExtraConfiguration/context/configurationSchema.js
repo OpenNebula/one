@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean, lazy, ObjectSchema } from 'yup'
+import { boolean, lazy, ObjectSchema, string } from 'yup'
 
-import { T, INPUT_TYPES } from '@ConstantsModule'
-import { Field, getObjectSchemaFromFields, encodeBase64 } from '@UtilsModule'
+import { INPUT_TYPES, T } from '@ConstantsModule'
+import { encodeBase64, Field, getObjectSchemaFromFields } from '@UtilsModule'
 
 const switchField = {
   type: INPUT_TYPES.SWITCH,
@@ -73,11 +73,7 @@ export const ENCODE_START_SCRIPT = {
   label: T.EncodeScriptInBase64,
   ...switchField,
   htmlType: INPUT_TYPES.HIDDEN,
-  validation: lazy((_, { context }) =>
-    boolean()
-      .default(() => true)
-      .afterSubmit(() => undefined)
-  ),
+  validation: lazy(() => boolean().default(() => true)),
 }
 
 /** @type {Field} Start script field */
@@ -92,7 +88,9 @@ export const START_SCRIPT = {
     .trim()
     .ensure()
     .notRequired()
-    .afterSubmit((value, { context }) => encodeBase64(value)),
+    .afterSubmit((value, { context }) =>
+      context?.extra?.CONTEXT?.ENCODE_START_SCRIPT ? encodeBase64(value) : value
+    ),
   grid: { md: 12 },
   fieldProps: { rows: 4 },
 }

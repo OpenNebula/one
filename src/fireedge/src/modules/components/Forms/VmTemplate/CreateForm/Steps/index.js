@@ -27,7 +27,7 @@ import General, {
 
 import { T } from '@ConstantsModule'
 import { userInputsToArray } from '@ModelsModule'
-import { createSteps, getUnknownAttributes, decodeBase64 } from '@UtilsModule'
+import { createSteps, decodeBase64, getUnknownAttributes } from '@UtilsModule'
 
 const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
   saveState: true,
@@ -60,14 +60,20 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       }
     }
 
-    // Decode script base 64
+    // Transform START_SCRIPT on CONTEXT
     if (vmTemplate?.TEMPLATE?.CONTEXT?.START_SCRIPT_BASE64) {
       objectSchema[EXTRA_ID].CONTEXT = {
-        ...vmTemplate.TEMPLATE.CONTEXT,
+        ...objectSchema[EXTRA_ID].CONTEXT,
         START_SCRIPT: decodeBase64(
           vmTemplate?.TEMPLATE?.CONTEXT?.START_SCRIPT_BASE64
         ),
         ENCODE_START_SCRIPT: true,
+      }
+    } else if (vmTemplate?.TEMPLATE?.CONTEXT?.START_SCRIPT) {
+      objectSchema[EXTRA_ID].CONTEXT = {
+        ...objectSchema[EXTRA_ID].CONTEXT,
+        START_SCRIPT: vmTemplate?.TEMPLATE?.CONTEXT?.START_SCRIPT,
+        ENCODE_START_SCRIPT: false,
       }
     }
 
@@ -87,7 +93,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       }
     }
 
-    // Init GRPAHICS.TYPE
+    // Init GRAPHICS.TYPE
     const type = vmTemplate?.TEMPLATE?.GRAPHICS?.TYPE === 'VNC'
     if (type) {
       objectSchema[EXTRA_ID].GRAPHICS = {
@@ -181,7 +187,20 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
 
     return knownTemplate
   },
-  transformBeforeSubmit: (formData) => formData,
+  transformBeforeSubmit: (formData, initialValues) => {
+    if (formData?.extra?.CONTEXT?.ENCODE_START_SCRIPT) {
+      formData.extra.CONTEXT.START_SCRIPT_BASE64 =
+        formData.extra.CONTEXT.START_SCRIPT
+      delete formData.extra.CONTEXT.START_SCRIPT
+      if (initialValues?.TEMPLATE?.CONTEXT?.START_SCRIPT) {
+        formData.extra.CONTEXT.START_SCRIPT =
+          initialValues.TEMPLATE.CONTEXT.START_SCRIPT
+      }
+    }
+    delete formData.extra.CONTEXT.ENCODE_START_SCRIPT
+
+    return formData
+  },
 })
 
 export default Steps

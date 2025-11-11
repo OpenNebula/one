@@ -78,9 +78,10 @@ const GuacamoleDisplay = (session) => {
       ? window.innerWidth * pixelDensity
       : container.offsetWidth * pixelDensity
 
-    const height = (document.fullscreenElement
-      ? window.innerHeight * pixelDensity
-      : (container.offsetHeight - headerHeight - gridGap) * pixelDensity) - 2
+    const height =
+      (document.fullscreenElement
+        ? window.innerHeight * pixelDensity
+        : (container.offsetHeight - headerHeight - gridGap) * pixelDensity) - 2
 
     if (
       clientDisplay.getWidth() !== width ||
@@ -112,9 +113,10 @@ const GuacamoleDisplay = (session) => {
       ? window.innerWidth
       : container.offsetWidth
 
-    const containerHeight = (document.fullscreenElement
-      ? window.innerHeight
-      : container.offsetHeight - headerHeight - gridGap) - 2
+    const containerHeight =
+      (document.fullscreenElement
+        ? window.innerHeight
+        : container.offsetHeight - headerHeight - gridGap) - 2
 
     const xScale = containerWidth / origWidth
     const yScale = containerHeight / origHeight
