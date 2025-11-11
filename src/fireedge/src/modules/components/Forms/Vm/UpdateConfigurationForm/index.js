@@ -15,12 +15,7 @@
  * ------------------------------------------------------------------------- */
 import ContentForm from '@modules/components/Forms/Vm/UpdateConfigurationForm/content'
 import { SCHEMA } from '@modules/components/Forms/Vm/UpdateConfigurationForm/schema'
-import {
-  createForm,
-  decodeBase64,
-  getUnknownAttributes,
-  isBase64,
-} from '@UtilsModule'
+import { createForm, decodeBase64, getUnknownAttributes } from '@UtilsModule'
 import { set } from 'lodash'
 import { reach } from 'yup'
 
@@ -54,6 +49,12 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
         ...knownTemplate?.CONTEXT,
         START_SCRIPT: decodeBase64(template?.CONTEXT?.START_SCRIPT_BASE64),
         ENCODE_START_SCRIPT: true,
+      }
+    } else if (template?.CONTEXT?.START_SCRIPT) {
+      knownTemplate.CONTEXT = {
+        ...knownTemplate?.CONTEXT,
+        START_SCRIPT: vmTemplate?.TEMPLATE?.CONTEXT?.START_SCRIPT,
+        ENCODE_START_SCRIPT: false,
       }
     }
 
@@ -108,13 +109,18 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
         BOOT: extra?.OS?.BOOT || restFormData.OS?.BOOT,
       },
     }
-    if (isBase64(updatedFormData?.CONTEXT?.START_SCRIPT)) {
-      updatedFormData.CONTEXT.START_SCRIPT_BASE64 =
+
+    if (updatedFormData?.CONTEXT?.ENCODE_START_SCRIPT) {
+      updatedFormData.CONTEXT.START_SCRIPT_BASE64 = btoa(
         updatedFormData?.CONTEXT?.START_SCRIPT
+      )
       delete updatedFormData?.CONTEXT?.START_SCRIPT
-    } else {
-      delete updatedFormData?.CONTEXT?.START_SCRIPT_BASE64
+      if (initialValues?.TEMPLATE?.CONTEXT?.START_SCRIPT) {
+        updatedFormData.CONTEXT.START_SCRIPT =
+          initialValues.TEMPLATE.CONTEXT.START_SCRIPT
+      }
     }
+    delete updatedFormData.CONTEXT.ENCODE_START_SCRIPT
 
     // If initial CONTEXT is empty, no context data should be sent (it will cause a core error). The Configuration tab is disabled in that case, but we need to ensure that when update another tab, no context data is sent.
     if (!initialValues?.TEMPLATE?.CONTEXT) {
