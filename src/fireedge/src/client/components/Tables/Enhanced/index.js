@@ -139,7 +139,7 @@ const DataListPerPage = memo(
           <TableRow>
             {headerList.map(({ header = '', id = '' }) => (
               <TableCell key={id} className={styles.cellHeaders}>
-                {header}
+                <Translate word={header} />
               </TableCell>
             ))}
           </TableRow>
