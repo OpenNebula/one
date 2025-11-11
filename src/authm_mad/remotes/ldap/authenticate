@@ -53,7 +53,7 @@ begin
     xml.initialize_xml(STDIN.read, 'AUTHN')
 
     user   = URI_PARSER.unescape(xml['/AUTHN/USERNAME'])
-    secret = URI_PARSER.unescape(xml['/AUTHN/SECRET'])
+    secret = xml['/AUTHN/SECRET']
 rescue StandardError
     STDERR.puts 'Invalid XML input'
     exit(-1)
