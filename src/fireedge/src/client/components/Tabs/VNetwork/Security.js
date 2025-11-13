@@ -109,7 +109,9 @@ const SecurityTab = ({
 }) => {
   const { data: vnet } = useGetVNetworkQuery({ id })
 
-  const splittedSecGroups = vnet?.TEMPLATE.SECURITY_GROUPS?.split(',') ?? []
+  const splittedSecGroups = []
+    .concat(vnet?.TEMPLATE?.SECURITY_GROUPS)
+    ?.flatMap((n) => String(n)?.split(','))
   const secGroups = [splittedSecGroups].flat().map((sgId) => +sgId)
 
   const [updateVNet] = useUpdateVNetMutation()
@@ -140,7 +142,7 @@ const SecurityTab = ({
             icon: AddIcon,
             options: [
               {
-                dialogProps: { title: T.SecurityGroup },
+                dialogProps: { title: T.SecurityGroup, dataCy: 'add-secgroup' },
                 form: () => ChangeForm({ initialValues: vnet }),
                 onSubmit: () => async (xml) => {
                   const response = await updateVNet({

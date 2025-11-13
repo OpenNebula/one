@@ -74,7 +74,8 @@ const ResourcesBackButton = memo(
     }, [divided])
 
     useEffect(() => {
-      FULL_SCREEN_INFO === 'true' && setDivided(true)
+      ;(FULL_SCREEN_INFO === 'true' || FULL_SCREEN_INFO === true) &&
+        setDivided(true)
     }, [])
 
     const countSelectedRows = selectedRows?.length
