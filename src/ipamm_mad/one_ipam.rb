@@ -22,10 +22,12 @@ if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
     GEMS_LOCATION     = '/usr/share/one/gems'
     ETC_LOCATION      = '/etc/one/'
+    DRIVERS_PATH      = '/usr/share/one/oneform/drivers'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     ETC_LOCATION      = ONE_LOCATION + '/etc/'
+    DRIVERS_PATH      = ONE_LOCATION + '/share/oneform/drivers'
 end
 
 # %%RUBYGEMS_SETUP_BEGIN%%
@@ -42,19 +44,20 @@ require 'shellwords'
 
 # IPAM Manager driver
 class IPAMDriver < OpenNebulaDriver
+
     # IPAM Driver Protocol constants
     ACTION = {
-        :register_address_range   => "REGISTER_ADDRESS_RANGE",
-        :unregister_address_range => "UNREGISTER_ADDRESS_RANGE",
-        :allocate_address         => "ALLOCATE_ADDRESS",
-        :get_address              => "GET_ADDRESS",
-        :free_address             => "FREE_ADDRESS",
-        :vnet_create              => "VNET_CREATE",
-        :vnet_delete              => "VNET_DELETE"
+        :register_address_range   => 'REGISTER_ADDRESS_RANGE',
+        :unregister_address_range => 'UNREGISTER_ADDRESS_RANGE',
+        :allocate_address         => 'ALLOCATE_ADDRESS',
+        :get_address              => 'GET_ADDRESS',
+        :free_address             => 'FREE_ADDRESS',
+        :vnet_create              => 'VNET_CREATE',
+        :vnet_delete              => 'VNET_DELETE'
     }
 
     # Init the driver
-    def initialize(ipam_type, options={})
+    def initialize(ipam_type, options = {})
         @options={
             :concurrency   => 1,
             :threaded      => false,
@@ -70,34 +73,37 @@ class IPAMDriver < OpenNebulaDriver
             }
         }.merge!(options)
 
-        super("ipam/", @options)
+        super('ipam/', @options)
 
-        if ipam_type == nil
-            @types = Dir["#{@local_scripts_path}/*/"].map do |d|
-                d.split('/')[-1]
-            end
+        if ipam_type.nil?
+            @types = Dir["#{DRIVERS_PATH}/*/ipam"].map {|d| File.basename(File.dirname(d)) }
         elsif ipam_type.class == String
             @types = [ipam_type]
         else
             @types = ipam_type
         end
 
-        register_action(ACTION[:register_address_range].to_sym,
-            method("register_address_range"))
-
-        register_action(ACTION[:unregister_address_range].to_sym,
-            method("unregister_address_range"))
-
-        register_action(ACTION[:allocate_address].to_sym,
-            method("allocate_address"))
-
-        register_action(ACTION[:get_address].to_sym, method("get_address"))
-
-        register_action(ACTION[:free_address].to_sym, method("free_address"))
-
-        register_action(ACTION[:vnet_create].to_sym, method("vnet_create"))
-
-        register_action(ACTION[:vnet_delete].to_sym, method("vnet_delete"))
+        register_action(
+            ACTION[:allocate_address].to_sym, method('allocate_address')
+        )
+        register_action(
+            ACTION[:get_address].to_sym, method('get_address')
+        )
+        register_action(
+            ACTION[:free_address].to_sym, method('free_address')
+        )
+        register_action(
+            ACTION[:vnet_create].to_sym, method('vnet_create')
+        )
+        register_action(
+            ACTION[:vnet_delete].to_sym, method('vnet_delete')
+        )
+        register_action(
+            ACTION[:register_address_range].to_sym, method('register_address_range')
+        )
+        register_action(
+            ACTION[:unregister_address_range].to_sym, method('unregister_address_range')
+        )
     end
 
     def register_address_range(id, drv_message)
@@ -137,35 +143,32 @@ class IPAMDriver < OpenNebulaDriver
 
             ipam = xml_doc.elements['IPAM_DRIVER_ACTION_DATA/AR/IPAM_MAD'].text.strip
             raise if ipam.empty?
-        rescue
-            send_message(ACTION[action], RESULT[:failure], id,
-                "Cannot perform #{action}, cannot find ipman driver")
+        rescue StandardError => e
+            msg = "Cannot perform #{action}, cannot find ipam driver: #{e.message}"
+            send_message(ACTION[action], RESULT[:failure], id, msg)
             return
         end
 
-        return if not is_available?(ipam, id, action)
+        return unless available?(ipam, id, action)
 
-        path = File.join(@local_scripts_path, ipam)
+        path = File.join(DRIVERS_PATH, ipam, 'ipam')
         cmd  = File.join(path, ACTION[action].downcase)
-        cmd << " " << id
+        cmd << ' ' << id
 
         rc = LocalCommand.run(cmd, log_method(id), arguments)
-
         result, info = get_info_from_execution(rc)
-
-        info = Base64::encode64(info).strip.delete("\n")
+        info = Base64.encode64(info).strip.delete("\n")
 
         send_message(ACTION[action], result, id, info)
     end
 
-    def is_available?(ipam, id, action)
-        if @types.include?(ipam)
-            return true
-        else
-            send_message(ACTION[action], RESULT[:failure], id,
-                "IPAM driver '#{ipam}' not available")
-            return false
-        end
+    def available?(ipam, id, action)
+        return true if @types.include?(ipam)
+
+        msg = "IPAM driver '#{ipam}' not available."
+        send_message(ACTION[action], RESULT[:failure], id, msg)
+
+        return false
     end
 
     def do_vnet_action(id, action, arguments)
@@ -176,24 +179,22 @@ class IPAMDriver < OpenNebulaDriver
             xml_doc.root
             vn_mad = xml_doc.elements['VNET/VN_MAD'].text.strip
             raise if vn_mad.empty?
-        rescue
-            send_message(ACTION[action], RESULT[:failure], id,
-                "Cannot perform #{action}, cannot find VN driver")
+        rescue StandardError => e
+            msg = "Cannot perform #{action}, cannot find vn driver: #{e.message}"
+            send_message(ACTION[action], RESULT[:failure], id, msg)
             return
         end
 
-        #return if not is_available?(vn_mad, id, action)
+        # return unless available?(vn_mad, id, action)
 
         path = File.join(@local_scripts_path, '../vnm/')
         path = File.join(path, vn_mad)
         cmd  = File.join(path, ACTION[action].downcase)
-        cmd << " " << id
+        cmd << ' ' << id
 
         rc = LocalCommand.run(cmd, log_method(id), arguments)
-
         result, info = get_info_from_execution(rc)
-
-        info = Base64::encode64(info).strip.delete("\n")
+        info = Base64.encode64(info).strip.delete("\n")
 
         send_message(ACTION[action], result, id, info)
     end
@@ -204,9 +205,9 @@ end
 # IPAM Driver Main program
 ################################################################################
 opts = GetoptLong.new(
-    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--ipam-types', '-i', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--timeout',    '-w', GetoptLong::OPTIONAL_ARGUMENT ]
+    ['--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--ipam-types', '-i', GetoptLong::REQUIRED_ARGUMENT],
+    ['--timeout',    '-w', GetoptLong::OPTIONAL_ARGUMENT]
 )
 
 i_types = nil
@@ -216,15 +217,16 @@ timeout = nil
 begin
     opts.each do |opt, arg|
         case opt
-            when '--ipam-types'
-                i_types = arg.split(',').map {|a| a.strip }
-            when '--threads'
-                threads = arg.to_i
-            when '--timeout'
-                timeout = arg.to_i
+        when '--ipam-types'
+            i_types = arg.split(',').map {|a| a.strip }
+        when '--threads'
+            threads = arg.to_i
+        when '--timeout'
+            timeout = arg.to_i
         end
     end
-rescue Exception => e
+rescue StandardError => e
+    STDERR.puts "Error parsing options: #{e.message}"
     exit(-1)
 end
 
@@ -232,4 +234,3 @@ ipam_driver = IPAMDriver.new(i_types,
                              :concurrency   => threads,
                              :timeout       => timeout)
 ipam_driver.start_driver
-

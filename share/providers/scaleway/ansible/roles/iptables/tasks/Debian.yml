@@ -1,0 +1,14 @@
+---
+
+- name: Install iptables persistent
+  package:
+    name: iptables-persistent
+    state: present
+
+- name: Create persistent rules configurations
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: 'rules.v4.j2', dest: '/etc/iptables/rules.v4' }
+    - { src: 'rules.v6.j2', dest: '/etc/iptables/rules.v6' }

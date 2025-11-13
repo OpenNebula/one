@@ -1,0 +1,35 @@
+---
+# ------------------------------------------------------------------------------
+# One-deploy playbooks
+# ------------------------------------------------------------------------------
+- ansible.builtin.import_playbook: opennebula.deploy.main
+
+# ------------------------------------------------------------------------------
+# Test inventory form vars
+# ------------------------------------------------------------------------------
+
+- name: Validate required form_vars
+  hosts: localhost
+  gather_facts: false
+  vars:
+    required_form_vars:
+      - id
+      - name
+      - description
+      - one
+      - user_inputs
+
+  tasks:
+    - name: "Ensure '{{ item }}' is defined and not null"
+      assert:
+        that:
+          - "form_vars[item] is defined"
+          - "form_vars[item] is not none"
+        fail_msg: |
+          {{ item }}' is missing or null in form_vars.
+          Got: {{ form_vars[item] | default('undefined') }}
+        success_msg: |
+          {{ item }}' is present and valid.
+          Value: {{ form_vars[item] }}
+      loop: "{{ required_form_vars }}"
+  tags: always

@@ -28,6 +28,7 @@ import ClusterCard from '@modules/components/Cards/ClusterCard'
 import DatastoreCard from '@modules/components/Cards/DatastoreCard'
 import DiskCard from '@modules/components/Cards/DiskCard'
 import DiskSnapshotCard from '@modules/components/Cards/DiskSnapshotCard'
+import DriverCard from '@modules/components/Cards/DriverCard'
 import EmptyCard from '@modules/components/Cards/EmptyCard'
 import GroupCard from '@modules/components/Cards/GroupCard'
 import HostCard from '@modules/components/Cards/HostCard'
@@ -71,6 +72,7 @@ export {
   DatastoreCard,
   DiskCard,
   DiskSnapshotCard,
+  DriverCard,
   EmptyCard,
   GroupCard,
   HostCard,

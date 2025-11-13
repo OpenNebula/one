@@ -1,7 +1,18 @@
 ---
 :ID:
-  :desc: Provider identifier
+  :desc: ONE identifier for Provider
   :size: 4
+  :adjust: true
+
+:USER:
+  :desc: Username of the Provider owner
+  :size: 8
+  :left: true
+
+:GROUP:
+  :desc: Group of the Provider
+  :size: 8
+  :left: true
 
 :NAME:
   :desc: Name of the Provider
@@ -15,5 +26,7 @@
 
 :default:
 - :ID
+- :USER
+- :GROUP
 - :NAME
 - :REGTIME

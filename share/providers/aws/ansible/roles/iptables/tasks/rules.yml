@@ -1,0 +1,124 @@
+---
+- name: Manage live iptables rule - masquerade
+  iptables:
+    state: "{% if iptables_masquerade_enabled %}present{% else %}absent{% endif %}"
+    table: nat
+    chain: POSTROUTING
+    out_interface: "{{ iptables_masquerade_interface }}"
+    jump: MASQUERADE
+
+- block:
+  # default IPv4 rules
+  - name: Accept related/established
+    iptables:
+      action: insert
+      table: filter
+      chain: INPUT
+      match: state
+      ctstate: RELATED,ESTABLISHED
+      jump: ACCEPT
+      rule_num: 1
+  - name: Accept icmp
+    iptables:
+      action: insert
+      table: filter
+      chain: INPUT
+      protocol: icmp
+      jump: ACCEPT
+      rule_num: 2
+  - name: Accept all on lo
+    iptables:
+      action: insert
+      table: filter
+      chain: INPUT
+      in_interface: lo
+      jump: ACCEPT
+      rule_num: 3
+  - name: Add allowed ports from the Hosted Template
+    iptables:
+      action: insert
+      table: filter
+      chain: INPUT
+      protocol: "{{ item[0].protocol }}"
+      match: state
+      ctstate: NEW
+      destination_port: "{{ item[1] }}"
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: ACCEPT
+    with_subelements:
+      - "{{ allowed_ports }}"
+      - ports
+  - name: Accept VNC ports
+    iptables:
+      action: insert
+      table: filter
+      chain: INPUT
+      protocol: tcp
+      match: multiport
+      destination_port: 5900:5999
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: ACCEPT
+
+  # default IPv6 rules
+  - name: Accept related/established
+    iptables:
+      action: insert
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      match: state
+      ctstate: RELATED,ESTABLISHED
+      jump: ACCEPT
+      rule_num: 1
+  - name: Accept ipv6-icmp
+    iptables:
+      action: insert
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      protocol: ipv6-icmp
+      jump: ACCEPT
+      rule_num: 2
+  - name: Accept all on lo
+    iptables:
+      action: insert
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      in_interface: lo
+      jump: ACCEPT
+      rule_num: 3
+  - name: Add allowed ports from the Hosted Template [IPv6]
+    iptables:
+      action: insert
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      protocol: "{{ item[0].protocol }}"
+      match: state
+      ctstate: NEW
+      destination_port: "{{ item[1] }}"
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: ACCEPT
+    with_subelements:
+      - "{{ allowed_ports }}"
+      - ports
+  - name: Accept DHCPv6
+    iptables:
+      action: insert
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      protocol: udp
+      match: state
+      ctstate: NEW
+      destination: fe80::/64
+      destination_port: 546
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: ACCEPT
+
+  - name: Save iptables rules
+    shell: |
+      iptables-save > /etc/iptables/rules.v4
+      ip6tables-save > /etc/iptables/rules.v6
+  when: iptables_base_rules_enabled

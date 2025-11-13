@@ -1,0 +1,26 @@
+---
+:NAME:
+  :desc: Name of the driver
+  :size: 15
+  :left: true
+
+:DEPLOYMENTS:
+  :desc: Available deployments for the driver
+  :size: 15
+  :left: true
+  :expand: true
+
+:VERSION:
+  :desc: Version of the driver
+  :size: 8
+  :left: true
+
+:STATE:
+  :desc: Indicates the driver state
+  :size: 10
+  :left: true
+
+:default:
+- :NAME
+- :DEPLOYMENTS
+- :STATE

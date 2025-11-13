@@ -75,3 +75,5 @@ src/oneprometheus/vendor/node_exporter.arm64/
 src/oneprometheus/vendor/node_exporter/
 src/oneprometheus/vendor/prometheus.arm64/
 src/oneprometheus/vendor/prometheus/
+src/form/vendor/terraform
+src/form/vendor/terraform.arm64

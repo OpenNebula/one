@@ -1,0 +1,142 @@
+{#
+name: AWS HCI Ceph Cluster
+description: It deploys a HCI Ceph cluster on AWS
+onedeploy_tags: "stage2,stage3,network,ceph"
+fireedge:
+  logo: "aws_ceph_cluster.png"
+user_inputs:
+  - name: oneform_public_ips
+    description: Number of public IPs to allocate
+    type: number
+    default: 0
+    match:
+      type: number
+      values:
+        min: 0
+        max: 5
+#}
+
+---
+all:
+  vars:
+    one_version: "{{ one.version }}"
+    ensure_keys_for: [ubuntu, root]
+    features:
+      evpn: true
+      ceph: true
+    ds:
+      mode: generic
+      config:
+        SYSTEM_DS:
+          aws_system_ds:
+            id: "{{ one.system_ds_id }}"
+            template:
+              type: SYSTEM_DS
+              tm_mad: ceph
+              disk_type: RBD
+              pool_name: one
+              ceph_host: "host1 host2:port2"
+              ceph_user: libvirt
+              ceph_secret: ""
+              bridge_list: cephfrontend
+        IMAGE_DS:
+          aws_image_ds:
+            id: "{{ one.image_ds_id }}"
+            template:
+              type: IMAGE_DS
+              ds_mad: ceph
+              tm_mad: ceph
+              disk_type: RBD
+              pool_name: one
+              ceph_host: "host1 host2:port2"
+              ceph_user: libvirt
+              ceph_secret: ""
+              bridge_list: cephfrontend
+    vn:
+      private_aws_network:
+        managed: true
+        template:
+          vn_mad: vxlan
+          vxlan_mode: evpn
+          automatic_vlan_id: "yes"
+          phydev: enp125s0
+          ip_link_conf: nolearning=
+          guest_mtu: 1450
+          network_address: 172.17.2.0
+          network_mask: 255.255.255.0
+          gateway: 172.17.2.1
+          dns: 1.1.1.1
+          ar:
+            type: ip4
+            ip: 172.17.2.100
+            size: 100
+      public_aws_network:
+        managed: true
+        template:
+          vn_mad: elastic
+          bridge: br0
+          netrole: public
+          vxlan_mode: evpn
+          vxlan_tep: dev
+          ip_link_conf: nolearning=
+    allowed_ports:
+      - protocol: tcp
+        ports:
+          - 22
+          - 179
+      - protocol: udp
+        ports:
+          - 8472
+
+frontend:
+  hosts:
+    f1: { ansible_user: root, ansible_host: "{{ one.frontend_ip }}" }
+
+node:
+  hosts:
+    {% for node in one.nodes %}
+    n{{ loop.index }}: { ansible_user: ubuntu, ansible_host: "{{ node }}" }
+    {% endfor %}
+
+router:
+  hosts:
+    {% if one.nodes | length > 0 %}
+    n1: { ansible_user: ubuntu, ansible_host: "{{ one.nodes[0] }}" }
+    {% endif %}
+
+{% raw %}
+ceph:
+  children:
+    ? mons
+    ? mgrs
+    ? osds
+  vars:
+    ceph_stable_release: squid
+    osd_memory_target: 4294967296
+    osd_auto_discovery: true
+    ceph_osd_systemd_overrides:
+      Service:
+        CPUWeight: 200 # 100 is the kernel default
+        CPUQuota: 100% # 1 full core
+        MemoryMin: "{{ (0.75 * osd_memory_target) | int }}"
+        MemoryHigh: "{{ osd_memory_target | int }}"
+    ceph_conf_overrides:
+      osd:
+        ? osd memory target
+        : "{{ osd_memory_target | int }}"
+    public_network: 10.1.0.0/16
+{% endraw %}
+
+mons:
+  hosts:
+    f1: { ansible_user: root, ansible_host: "{{ one.frontend_ip }}" }
+
+mgrs:
+  hosts:
+    f1: { ansible_user: root, ansible_host: "{{ one.frontend_ip }}" }
+
+osds:
+  hosts:
+    {% for node in one.nodes %}
+    n{{ loop.index }}: { ansible_user: ubuntu, ansible_host: "{{ node }}" }
+    {% endfor %}

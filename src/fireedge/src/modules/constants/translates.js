@@ -416,6 +416,7 @@ module.exports = {
   WrongUsernamePassword: 'Wrong username or password',
   SomethingWrong: 'Something go wrong',
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
+  CannotConnectOneForm: 'Cannot connect to OneForm server',
   ContactYourAdmin: 'Please contact your system administrator',
   NotFound: 'Not found',
   Timeout: 'Timeout',
@@ -2556,4 +2557,8 @@ module.exports = {
   InfoVMTemplateInstantiated: 'VM Template instantiated x%s - %s',
   InfoVNTemplateInstantiated: 'VN Template instantiated - %s',
   InfoHostFlush: 'Flushing host - %s',
+
+  /* Drivers */
+  Synchronize: 'Synchronize',
+  Source: 'Source',
 }

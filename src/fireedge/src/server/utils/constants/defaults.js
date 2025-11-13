@@ -73,6 +73,7 @@ const defaults = {
     POST: 'POST',
     PUT: 'PUT',
     DELETE: 'DELETE',
+    PATCH: 'PATCH',
   },
   defaultHash: {
     hash: 'sha256',
@@ -108,6 +109,7 @@ const defaults = {
   defaultHideCredentials: true,
   defaultHideCredentialReplacer: '****',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
+  defaultOneFormServer: `${protocol}://${defaultIp}:13013`,
   defaultSunstonePath: internalSunstonePath,
   defaultLogsLevels: ['error', 'warm', 'info', 'http', 'verbose', 'debug'],
   defaultLogMessageLength: 100,

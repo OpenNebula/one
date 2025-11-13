@@ -1,0 +1,75 @@
+---
+- name: Check hosts connectivity
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Wait for hosts to be up
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+    - name: Wait for hosts to be reachable through SSH
+      wait_for:
+        host: "{{ ansible_host }}"
+        port: 22
+        state: started
+        timeout: 60
+  tags: always
+
+# ------------------------------------------------------------------------------
+# One-deploy playbooks
+# ------------------------------------------------------------------------------
+- ansible.builtin.import_playbook: opennebula.deploy.main
+
+# ------------------------------------------------------------------------------
+# Other playbooks (optional)
+# ------------------------------------------------------------------------------
+# - name: 'Example role'
+#   hosts: all
+#   tasks:
+#     - name: 'Example task'
+#       ansible.builtin.debug:
+#         msg: 'Hello, world!'
+#   tags: always
+
+- name: Add OpenNebula paths script
+  hosts: node
+  become: true
+  tasks:
+    - name: Ensure /usr/lib/one/ruby directory exists
+      ansible.builtin.file:
+        path: /usr/lib/one/ruby
+        state: directory
+        mode: '0755'
+
+    - name: Create load_opennebula_paths.rb
+      ansible.builtin.copy:
+        dest: /usr/lib/one/ruby/load_opennebula_paths.rb
+        mode: '0644'
+        content: |
+          #!/usr/bin/env ruby
+
+          ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+          if !ONE_LOCATION
+              RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+              GEMS_LOCATION     ||= '/usr/share/one/gems'
+          else
+              RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+              GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+          end
+
+          require 'rubygems'
+          Gem.use_paths(File.realpath(GEMS_LOCATION))
+
+          $LOAD_PATH << RUBY_LIB_LOCATION
+
+    - name: Ensure /usr/local/lib/site_ruby directory exists
+      ansible.builtin.file:
+        path: /usr/local/lib/site_ruby
+        state: directory
+        mode: '0755'
+
+    - name: Create symbolic link in site_ruby to the Ruby file
+      ansible.builtin.file:
+        src: /usr/lib/one/ruby/load_opennebula_paths.rb
+        dest: /usr/local/lib/site_ruby/load_opennebula_paths.rb
+        state: link
+        force: true

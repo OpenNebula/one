@@ -1,0 +1,21 @@
+[Unit]
+Description=OpenNebula Form Service
+After=syslog.target network.target
+After=opennebula.service
+AssertFileNotEmpty=/var/lib/one/.one/oneform_auth
+
+[Service]
+Type=simple
+Group=oneadmin
+User=oneadmin
+ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula-form -s /var/lib/one/.logrotate.status
+ExecStartPre=-/bin/sh -c 'for file in /var/log/one/oneform*.log; do if [ ! -f "$file.gz" ]; then gzip -9 "$file"; fi; done'
+ExecStart=/usr/bin/ruby /usr/lib/one/oneform/oneform-server.rb
+StartLimitInterval=60
+StartLimitBurst=3
+Restart=on-failure
+RestartSec=5
+SyslogIdentifier=opennebula-form
+
+[Install]
+WantedBy=multi-user.target

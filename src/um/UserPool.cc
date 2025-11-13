@@ -79,7 +79,8 @@ UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
     {
         nd.get_var_location() + "/.one/sunstone_auth",
         nd.get_var_location() + "/.one/onegate_auth",
-        nd.get_var_location() + "/.one/oneflow_auth"
+        nd.get_var_location() + "/.one/oneflow_auth",
+        nd.get_var_location() + "/.one/oneform_auth"
     };
 
     _session_expiration_time = __session_expiration_time;

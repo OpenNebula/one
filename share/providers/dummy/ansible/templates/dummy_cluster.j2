@@ -1,0 +1,85 @@
+{#
+name: Dummy Cluster
+description: It deploys a Dummy cluster
+fireedge:
+  logo: "dummy_cluster.png"
+user_inputs:
+  - name: phydev_name
+    description: Physical device name for the network
+    type: string
+    default: "eth0"
+    match:
+      type: list
+      values:
+        - eth0
+        - eth1
+  - name: oneform_public_ips
+    description: Number of public IPs to allocate
+    type: number
+    default: 0
+    match:
+      type: number
+      values:
+        min: 0
+        max: 5
+#}
+
+---
+all:
+  vars:
+    one_version: {{ one.version }}
+    form_vars:
+        id: {{ id }}
+        name: {{ name }}
+        description: {{ description }}
+        one: {{ one }}
+        user_inputs: {{ user_inputs }}
+    vn:
+      private_dummy_network:
+        managed: true
+        template:
+          phydev: "{{ user_inputs.phydev_name }}"
+          vn_mad: vxlan
+          vxlan_mode: evpn
+          vlan_id: automatic
+          dns: 8.8.8.8
+          gateway: 192.168.0.1
+          ip_link_conf: nolearning=
+          ar:
+            - type: IP4
+              ip: 192.168.0.100
+              size: 100
+      public_dummy_network:
+        managed: true
+        template:
+          vn_mad: elastic
+          bridge: br0
+          netrole: public
+          vxlan_mode: evpn
+          vxlan_tep: dev
+          ip_link_conf: nolearning=
+    ds:
+      mode: generic
+      config:
+        SYSTEM_DS:
+          dummy_system_ds:
+            id: {{ one.system_ds_id}}
+            template:
+              type: SYSTEM_DS
+              tm_mad: ssh
+              safe_dirs: /var/tmp /tmp
+        IMAGE_DS:
+          dummy_image_ds:
+            id: {{ one.image_ds_id }}
+            template:
+              type: IMAGE_DS
+              ds_mad: fs
+              tm_mad: ssh
+              safe_dirs: /var/tmp /tmp
+
+frontend:
+  hosts:
+    f1: { ansible_user: root, ansible_host: {{ one.frontend_ip}} }
+
+node:
+  hosts: {}

@@ -1,0 +1,25 @@
+# {{ ansible_managed }}
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+{% if iptables_base_rules_enabled %}
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p ipv6-icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+{% for host in iptables_6_hosts %}
+-A INPUT -s {{ host }} -j ACCEPT
+{% endfor %}
+{% for service in iptables_base_rules_services %}
+{% if service.chain == 'INPUT' %}
+-A INPUT -i {{ iptables_base_rules_interface }} -p {{ service.protocol }} -m state --state NEW -m {{ service.protocol }} --dport {{ service.port }} -j ACCEPT
+{% elif service.chain == 'OUTPUT' %}
+-A OUTPUT -o {{ iptables_base_rules_interface }} -p {{ service.protocol }} -m state --state NEW -m {{ service.protocol }} --dport {{ service.port }} -j ACCEPT
+{% endif %}
+{% endfor %}
+-A INPUT {% if iptables_base_rules_interface %}-i {{ iptables_base_rules_interface }}{% endif %} -d fe80::/64 -p udp -m udp --dport 546 -m state --state NEW -j ACCEPT
+{% if iptables_base_rules_strict %}
+-A INPUT {% if iptables_base_rules_interface %}-i {{ iptables_base_rules_interface }}{% endif %} -j REJECT --reject-with icmp6-adm-prohibited
+{% endif %}
+{% endif %}
+COMMIT

@@ -19,6 +19,7 @@ import BackupsTable from '@modules/components/Tables/Backups'
 import ClustersTable from '@modules/components/Tables/Clusters'
 import DataGridTable from '@modules/components/Tables/DataGrid'
 import DatastoresTable from '@modules/components/Tables/Datastores'
+import DriversTable from '@modules/components/Tables/Drivers'
 import EnhancedTable from '@modules/components/Tables/Enhanced'
 import FilesTable from '@modules/components/Tables/Files'
 import GroupsTable from '@modules/components/Tables/Groups'
@@ -55,6 +56,7 @@ export {
   ClustersTable,
   DataGridTable,
   DatastoresTable,
+  DriversTable,
   EnhancedTable,
   FilesTable,
   GroupsTable,

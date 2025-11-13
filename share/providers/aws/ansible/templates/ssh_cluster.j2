@@ -1,0 +1,92 @@
+{#
+name: AWS SSH Cluster
+description: It deploys a SSH cluster on AWS
+fireedge:
+  logo: "aws_ssh_cluster.png"
+user_inputs:
+  - name: oneform_public_ips
+    description: Number of public IPs to allocate
+    type: number
+    default: 0
+    match:
+      type: number
+      values:
+        min: 0
+        max: 5
+#}
+
+---
+all:
+  vars:
+    one_version: "{{ one.version }}"
+    features:
+      evpn: true
+    ds:
+      mode: generic
+      config:
+        SYSTEM_DS:
+          aws_system_ds:
+            id: "{{ one.system_ds_id }}"
+            template:
+              type: SYSTEM_DS
+              tm_mad: ssh
+              safe_dirs: "/var/tmp /tmp"
+        IMAGE_DS:
+          aws_image_ds:
+            id: "{{ one.image_ds_id }}"
+            template:
+              type: IMAGE_DS
+              ds_mad: fs
+              tm_mad: ssh
+              safe_dirs: "/var/tmp /tmp"
+    vn:
+      private_aws_network:
+        managed: true
+        template:
+          vn_mad: vxlan
+          vxlan_mode: evpn
+          automatic_vlan_id: "yes"
+          phydev: enp125s0
+          ip_link_conf: nolearning=
+          guest_mtu: 1450
+          network_address: 172.17.2.0
+          network_mask: 255.255.255.0
+          gateway: 172.17.2.1
+          dns: 1.1.1.1
+          ar:
+            type: ip4
+            ip: 172.17.2.100
+            size: 100
+      public_aws_network:
+        managed: true
+        template:
+          vn_mad: elastic
+          bridge: br0
+          netrole: public
+          vxlan_mode: evpn
+          vxlan_tep: dev
+          ip_link_conf: nolearning=
+    allowed_ports:
+      - protocol: tcp
+        ports:
+          - 22
+          - 179
+      - protocol: udp
+        ports:
+          - 8472
+
+frontend:
+  hosts:
+    f1: { ansible_user: root, ansible_host: "{{ one.frontend_ip }}" }
+
+node:
+  hosts:
+    {% for node in one.nodes %}
+    n{{ loop.index }}: { ansible_user: ubuntu, ansible_host: "{{ node }}" }
+    {% endfor %}
+
+router:
+  hosts:
+    {% if one.nodes | length > 0 %}
+    n1: { ansible_user: ubuntu, ansible_host: "{{ one.nodes[0] }}" }
+    {% endif %}

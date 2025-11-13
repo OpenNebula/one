@@ -51,6 +51,17 @@ const DOCUMENT_POOL = Object.entries(DOCUMENT).reduce(
   {}
 )
 
+const FORM = {
+  DRIVER: 'DRIVER',
+  PROVIDER: 'PROVIDER',
+  PROVISION: 'PROVISION',
+}
+
+const FORM_POOL = Object.entries(FORM).reduce(
+  (pools, [key, value]) => ({ ...pools, [`${key}_POOL`]: `${value}_POOL` }),
+  {}
+)
+
 const RESOURCE_NAMES_TO_CACHE_TAG = {
   [RESOURCE_NAMES.APP]: ONE_RESOURCES.APP,
   [RESOURCE_NAMES.ACL]: ONE_RESOURCES.ACL,
@@ -88,4 +99,6 @@ export {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
   RESOURCE_NAMES_TO_CACHE_TAG,
+  FORM,
+  FORM_POOL,
 }

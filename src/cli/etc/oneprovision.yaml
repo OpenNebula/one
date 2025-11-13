@@ -1,0 +1,40 @@
+---
+:ID:
+  :desc: ONE identifier for Provision
+  :size: 4
+  :adjust: true
+
+:USER:
+  :desc: Username of the Provision owner
+  :size: 8
+  :left: true
+
+:GROUP:
+  :desc: Group of the Provision
+  :size: 8
+  :left: true
+
+:NAME:
+  :desc: Name of the Provision
+  :size: 15
+  :left: true
+  :expand: true
+
+:STATE:
+  :desc: State of the Provision
+  :size: 30
+  :left: true
+  :adjust: true
+
+:REGTIME:
+  :desc: Registration time of the Provision
+  :size: 15
+
+:default:
+- :ID
+- :USER
+- :GROUP
+- :NAME
+- :STATE
+- :REGTIME
+

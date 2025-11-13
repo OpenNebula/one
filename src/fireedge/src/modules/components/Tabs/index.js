@@ -17,6 +17,7 @@
 export * from '@modules/components/Tabs/Common'
 export { default as AccountingTabs } from '@modules/components/Tabs/Accounting'
 export { default as DatastoreTabs } from '@modules/components/Tabs/Datastore'
+export { default as DriverTabs } from '@modules/components/Tabs/Driver'
 export { default as EmptyTabs } from '@modules/components/Tabs/EmptyTab'
 export { default as FileTabs } from '@modules/components/Tabs/File'
 export { default as ImageTabs } from '@modules/components/Tabs/Image'

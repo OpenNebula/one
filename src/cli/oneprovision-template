@@ -1,0 +1,142 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    LIB_LOCATION      = '/usr/lib/one'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+else
+    LIB_LOCATION      = ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+end
+
+require 'load_opennebula_paths'
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+$LOAD_PATH << LIB_LOCATION      + '/oneprovision/lib'
+$LOAD_PATH << LIB_LOCATION      + '/oneflow/lib'
+
+USER_AGENT = 'CLI'
+
+require 'tempfile'
+require 'command_parser'
+require 'one_helper'
+require 'opennebula/oneform_client'
+
+require 'one_helper/oneprovisiontemplate_helper'
+
+CommandParser::CmdParser.new(ARGV) do
+    FORMAT = [OpenNebulaHelper::JSON, OpenNebulaHelper::YAML]
+
+    usage '`oneprovision-template` <command> [<args>] [<options>]'
+    version OpenNebulaHelper::ONE_VERSION
+
+    set :option, OneForm::Client::DEFAULT_OPTIONS
+    set :option, CommandParser::VERSION
+    set :option, CommandParser::HELP
+
+    PROVIDER_ID = {
+        :name => 'provider_id',
+        :short => '-p id',
+        :large => '--provider-id id',
+        :description => 'Set the provider by ID to create the provision',
+        :format => String
+    }
+
+    helper = OneProvisionTemplateHelper.new
+
+    ########################################################################
+    # Commands for interacting with provision templates
+    ########################################################################
+
+    list_desc = <<-EOT.unindent
+        List all provision templates.
+    EOT
+
+    command :list,
+            list_desc,
+            :options => FORMAT + CLIHelper::OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+        helper.list_provision_template_pool(helper.client(options), options)
+    end
+
+    show_desc = <<-EOT.unindent
+        Show details of a specific provider template.
+    EOT
+
+    command :show, show_desc, :template_id, :options => FORMAT do
+        template_id = args[0]
+        helper.format_resource(helper.client(options), template_id, options)
+    end
+
+    top_desc = <<-EOT.unindent
+        List the available Service Templates continuously
+    EOT
+
+    command :top, top_desc, :options => FORMAT + [CLIHelper::DELAY] do
+        Signal.trap('INT') { exit(-1) }
+        helper.top_provision_template_pool(helper.client(options), options)
+
+        0
+    end
+
+    instantiate_desc = <<-EOT.unindent
+        Instantiate a provider template.
+    EOT
+
+    command :instantiate,
+            instantiate_desc,
+            :template_id,
+            [:file, nil],
+            :options => [PROVIDER_ID] do
+        if options[:provider_id].nil?
+            STDERR.puts 'A provider ID is mandatory to create a provision:'
+            STDERR.puts 'Usage: oneprovision-template instantiate <template_id> -p <provider_id>'
+            exit(-1)
+        end
+
+        template_id = args[0]
+        file        = args[1]
+        provider_id = options[:provider_id]
+
+        client = helper.client(options)
+        body   = helper.read_json_input(file) || {}
+        doc    = client.get_provision_template(template_id)
+
+        return [doc[:err_code], doc[:message]] if CloudClient.is_error?(doc)
+
+        template = doc[:TEMPLATE][:PROVISION_BODY]
+
+        # If no user_inputs_values are provided, try to get user inputs
+        unless body[:user_inputs_values]
+            body[:user_inputs_values] = helper.get_user_values(template[:user_inputs])
+        end
+
+        response = client.instantiate_provision_template(template_id, provider_id, body)
+
+        return [response[:err_code], response[:message]] \
+            if CloudClient.is_error?(response)
+
+        puts "ID: #{response[:ID]}"
+
+        0
+    end
+end

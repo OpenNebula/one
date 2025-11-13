@@ -196,6 +196,11 @@
 - title: Infrastructure
   icon: CloudSync
   routes:
+    - title: Drivers
+      path: /driver
+      sidebar: true
+      icon: HardDrive
+      Component: Drivers  
     - title: Clusters
       path: /cluster
       sidebar: true

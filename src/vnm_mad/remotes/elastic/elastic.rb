@@ -17,8 +17,37 @@
 
 require 'vnmmad'
 require 'opennebula'
-require 'oneprovision'
+require 'opennebula/oneform_client'
 require 'ssh_stream'
+
+# Generic class for elastic providers
+class GenericProvider
+
+    def initialize(provider, host)
+        @provider = provider
+        @host     = host
+
+        @resource_id = host['TEMPLATE/ONEFORM/RESOURCE_ID']
+        @connection  = provider[:connection]
+    end
+
+    # Assign a private IP to the instance, associate given elastic ip with it
+    #   @param ip               [String]  private_ip of the VM
+    #   @param external         [String]  public_ip given by the provider
+    #   @param opts             [Hash]
+    #   @return 0 on success, 1 on error
+    def assign(ip, external, opts = {})
+        raise NotImplementedError
+    end
+
+    #  Unassign a public_ip from an instance
+    #   @param ip       [String] the VM private ip
+    #   @param external [String] the public ip
+    def unassign(ip, external, opts = {})
+        raise NotImplementedError
+    end
+
+end
 
 # Elastic Driver
 class ElasticDriver < VNMMAD::VNMDriver
@@ -39,7 +68,7 @@ class ElasticDriver < VNMMAD::VNMDriver
         @ssh     = SshStreamCommand.new(hostname, nil)
         @mapping = {}
 
-        client = OpenNebula::Client.new
+        client  = OpenNebula::Client.new
         host_id = @vm['/VM/HISTORY_RECORDS/HISTORY/HID']
         @host   = OpenNebula::Host.new_with_id(host_id, client)
 
@@ -47,19 +76,43 @@ class ElasticDriver < VNMMAD::VNMDriver
 
         raise rc if OpenNebula.is_error?(rc)
 
-        unless @host.has_elements?('TEMPLATE/PROVISION/ID')
-            OpenNebula::DriverLogger.log_error("No ID in PROVISION for host #{host_id}")
+        unless @host.has_elements?('TEMPLATE/ONEFORM/PROVISION_ID')
+            OpenNebula::DriverLogger.log_error("No Provision ID found for host #{host_id}")
             exit 1
         end
 
-        provision_id = @host['TEMPLATE/PROVISION/ID']
-        provision = OneProvision::Provision.new_with_id(provision_id, client)
-        provision.info
+        provision_id = @host['TEMPLATE/ONEFORM/PROVISION_ID']
 
-        @provider = provision.provider
+        client    = OneForm::Client.new
+        document  = client.get_provision(provision_id)
 
-        @assigned = []
-        @unassigned = []
+        if document.key?(:err_code)
+            STDERR.puts "Error retrieving provision #{provision_id}: #{document[:message]}"
+            exit(-1)
+        end
+
+        provision   = document[:TEMPLATE][:PROVISION_BODY]
+        provider_id = provision[:provider_id]
+        document    = client.get_provider(provider_id)
+
+        if document.key?(:err_code)
+            STDERR.puts "Error retrieving provision #{provider_id}: #{document[:message]}"
+            exit(-1)
+        end
+
+        @provider = document[:TEMPLATE][:PROVIDER_BODY]
+        response  = client.get_provider_location(provider_id)
+
+        if response.key?(:err_code)
+            STDERR.puts "Error retrieving provider #{provider_id} " \
+            "location: #{response[:message]}"
+            exit(-1)
+        end
+
+        @provider[:path] = response[:path]
+
+        @assigned      = []
+        @unassigned    = []
     end
 
     def self.from_base64(vm64, hostname, deploy_id = nil)
@@ -83,8 +136,7 @@ class ElasticDriver < VNMMAD::VNMDriver
             next unless @assigned.include?([nic[:ip], nic[:external_ip]])
 
             cmds.add :ip, "route add #{nic[:ip]}/32 dev #{nic[:bridge]} ||:"
-            cmds.add :ip,
-                     "neighbour add proxy #{nic[:gateway]} dev #{nic[:bridge]}"
+            cmds.add :ip, "neighbour add proxy #{nic[:gateway]} dev #{nic[:bridge]}"
 
             provider.activate(cmds, nic) if provider.respond_to? :activate
         end
@@ -136,9 +188,9 @@ class ElasticDriver < VNMMAD::VNMDriver
                     (nic[:attach].nil? || nic[:attach].upcase != 'YES')
 
             # pass aws_allocation_id if present
-            # pass vultr_ip_id if present
-            opts = { :alloc_id => nic[:aws_allocation_id],
-                     :vultr_id => nic[:vultr_ip_id] }
+            opts = {
+                :alloc_id => nic[:aws_allocation_id]
+            }
 
             break false \
                 unless provider.assign(nic[:ip], nic[:external_ip], opts) == 0
@@ -180,30 +232,57 @@ class ElasticDriver < VNMMAD::VNMDriver
     end
 
     # Factory method to create a VNM provider for the host provision
+    #   @param provider [Hash] provider definition, must include :driver
     #   @param host [OpenNebula::Host]
-    #   @return [AWSProvider, EquinixProvider, nil] nil
+    #   @return [GenericProvider, nil]
     def self.provider(provider, host)
-        case provider.body['provider']
-        when 'aws'
-            require 'aws_vnm'
-            AWSProvider.new(provider, host)
-        when 'equinix'
-            require 'equinix_vnm'
-            EquinixProvider.new(provider, host)
-        when 'vultr_virtual', 'vultr_metal'
-            require 'vultr_vnm'
-            VultrProvider.new(provider, host)
-        when 'scaleway'
-            require 'scaleway_vnm'
-            ScalewayProvider.new(provider, host)
-        else
-            nil
+        cloud = provider[:driver]
+        return unless cloud
+
+        provider_path = File.join(provider[:path], 'elastic')
+
+        unless Dir.exist?(provider_path)
+            OpenNebula::DriverLogger.log_error(
+                "No elastic provider directory found for #{cloud} " \
+                "in #{provider_path}"
+            )
+            return
         end
-    rescue StandardError => e
-        OpenNebula::DriverLogger.log_error(
-            "Error creating provider #{provider.body['provider']}:#{e.message}"
-        )
-        nil
+
+        begin
+            # Require all Ruby files in the provider's elastic directory
+            Dir.glob(File.join(provider_path, '*.rb')).sort.each {|file| require file }
+
+            # Get all classes that inherit from GenericProvider
+            provider_classes = ObjectSpace.each_object(Class).select do |cls|
+                cls < GenericProvider && cls.name && cls.name != 'GenericProvider'
+            end
+
+            if provider_classes.empty?
+                OpenNebula::DriverLogger.log_error(
+                    "No valid subclass of GenericProvider found in #{provider_path}"
+                )
+                return
+            elsif provider_classes.size > 1
+                class_names = provider_classes.map(&:name).join(', ')
+                OpenNebula::DriverLogger.log_error(
+                    'Multiple subclasses of GenericProvider found ' \
+                    "(#{class_names}) in #{provider_path}"
+                )
+                return
+            end
+
+            klass = provider_classes.first
+            klass.new(provider, host)
+        rescue LoadError => e
+            OpenNebula::DriverLogger.log_error(
+                "Could not load provider files from #{provider_path}: #{e.message}"
+            )
+        rescue StandardError => e
+            OpenNebula::DriverLogger.log_error(
+                "Error initializing provider for #{cloud}: #{e.message}"
+            )
+        end
     end
 
 end

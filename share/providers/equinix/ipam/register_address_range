@@ -1,0 +1,239 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to register a new IP network in the IPAM. The network may
+# be selected by a pool of free networks or if an specific network is requested
+# its availability maybe checked by the IPAM driver.
+#
+# The IPAM driver must return an OpenNebula AddressRange definition, potentially
+# augmented with network specific variables to be used by VMs (e.g. GATEWAYS,
+# MASK...)
+#
+# STDIN Input:
+#   - Base64 encoded XML with AR request
+#
+# XML format
+#  <IPAM_DRIVER_ACTION_DATA>
+#    <AR>
+#      <TYPE>Type of the Ip (public/global)</TYPE>
+#      <SIZE>Number of IPs to allocate</SIZE>
+#      <PROVISION_ID>ID</PROVISION_ID>
+#    </AR>
+#  </IPAM_DRIVER_ACTION_DATA>
+#
+# The response MUST include IPAM_MAD, TYPE, IP and SIZE attributes, example:
+#   - A basic network definition
+#       AR = [
+#         IPAM_MAD = "equinix",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.1",
+#         SIZE = "255",
+#         DEPLOY_ID = "..",
+#       ]
+#
+#   - A complete network definition. Custom attributes (free form, key-value)
+#     can be added, named cannot be repeated.
+#       AR = [
+#         IPAM_MAD = "equinix",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.2",
+#         SIZE = "200",
+#         DEPLOY_ID = "..",
+#         NETWORK_ADDRESS   = "10.0.0.0",
+#         NETWORK_MASK      = "255.255.255.0",
+#         GATEWAY           = "10.0.0.1",
+#         DNS               = "10.0.0.1",
+#         IPAM_ATTR         = "10.0.0.240",
+#         OTHER_IPAM_ATTR   = ".mydoamin.com"
+#       ]
+################################################################################
+
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    LIB_LOCATION      = '/usr/lib/one'
+    EQUINIX_LOCATION  = '/usr/lib/one/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    DRIVERS_PATH      = '/usr/share/one/oneform/drivers'
+else
+    LIB_LOCATION      = ONE_LOCATION + '/lib'
+    EQUINIX_LOCATION  = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    DRIVERS_PATH      = ONE_LOCATION + '/share/oneform/drivers'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+require 'load_opennebula_paths'
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << EQUINIX_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << DRIVERS_PATH + '/equinix/elastic'
+
+require 'net/http'
+require 'uri'
+require 'json'
+require 'equinix'
+require 'base64'
+require 'nokogiri'
+require 'opennebula'
+require 'opennebula/oneform_client'
+require 'ipaddr'
+require 'digest'
+
+IP_TYPE = ['public_ipv4', 'global_ipv4']
+
+DEFAULT_PRIVATE_CIDR = '172.16.0.0/12'
+
+# IP Address class
+class IPAddr
+
+    # Add ^ operator to the IPAddr class
+    def ^(other)
+        clone.set(@addr ^ other.to_i)
+    end
+
+    # Add prefix method, to work with older ipadddr & ruby
+    def prefix
+        case @family
+        when Socket::AF_INET
+            n = IN4MASK ^ @mask_addr
+            i = 32
+        when Socket::AF_INET6
+            n = IN6MASK ^ @mask_addr
+            i = 128
+        else
+            raise AddressFamilyError, 'unsupported address family'
+        end
+        while n>0
+            n >>= 1
+            i -= 1
+        end
+        i
+    end
+
+end
+
+begin
+    data = Nokogiri::XML(Base64.decode64(STDIN.read))
+
+    # --------------------------------------------------------------------------
+    # Get connection details for the provider
+    # --------------------------------------------------------------------------
+    provision_id = data.xpath('//AR/PROVISION_ID').text
+
+    if provision_id.empty?
+        STDERR.puts 'Missing provision id in address range'
+        exit(-1)
+    end
+
+    client   = OneForm::Client.new
+    document = client.get_provision(provision_id)
+
+    if document.key?(:err_code)
+        STDERR.puts "Error retrieving provision #{provision_id}: #{document[:message]}"
+        exit(-1)
+    end
+
+    provision = document[:TEMPLATE][:PROVISION_BODY]
+    document  = client.get_provider(provision[:provider_id])
+
+    if document.key?(:err_code)
+        STDERR.puts "Error retrieving provider #{provision[:provider_id]}: #{document[:message]}"
+        exit(-1)
+    end
+
+    provider = document[:TEMPLATE][:PROVIDER_BODY]
+    connect  = provider[:connection]
+
+    eq_token   = connect[:auth_token]
+    eq_project = connect[:project_id]
+    eq_metro   = connect[:region]
+
+    # --------------------------------------------------------------------------
+    # Connect to Equinix and allocate a new IP
+    # --------------------------------------------------------------------------
+    private_cidr = data.xpath('//AR/PRIVATE_CIDR').text
+
+    if private_cidr.empty?
+        private_cidr = DEFAULT_PRIVATE_CIDR
+    end
+
+    cidr = IPAddr.new(private_cidr)
+    mask = 0x0FFFFFFFF >> cidr.prefix
+
+    ip_req = {
+        'type'     => data.xpath('//AR/EQUINIX_IP_TYPE').text,
+        'quantity' => data.xpath('//AR/SIZE').text.to_i,
+        'metro'    => eq_metro,
+        'fail_on_approval_required' =>  true
+    }
+
+    if ip_req['quantity'] != 1
+        STDERR.puts 'Only address ranges of size 1 are supported'
+        exit(-1)
+    end
+
+    if ip_req['type'].empty?
+        ip_req['type'] = IP_TYPE[0]
+    elsif !IP_TYPE.include?(ip_req['type'])
+        STDERR.puts "Type #{ip_req['type']} not supported. " \
+                    "Must be: #{IP_TYPE.join(', ')}"
+        exit(-1)
+    end
+
+    eq   = Equinix.new(eq_token)
+    resp = eq.api_call(
+        "/projects/#{eq_project}/ips",
+        Net::HTTP::Post,
+        ip_req
+    )
+
+    unless resp.code == '201'
+        STDERR.puts "Equinix API failure, HTTP #{resp.code}, #{resp.message}, #{resp.body}"
+        exit(-1)
+    end
+
+    addr, id = JSON.parse(resp.body).fetch_values('address', 'id')
+
+    ipmd5 = Digest::MD5.hexdigest(addr).to_i(16) & mask
+    eip   = IPAddr.new(ipmd5, Socket::AF_INET)
+
+    ipvm = (eip & mask) | cidr
+    ipgw = ipvm ^ 1
+
+    puts <<-EOF
+        AR = [
+            TYPE     = "IP4",
+            IP       = "#{ipvm}",
+            SIZE     = "#{ip_req['quantity']}",
+            IPAM_MAD = "equinix",
+            GATEWAY  = "#{ipgw}",
+            EXTERNAL_IP  = "#{addr}",
+            NETWORK_MASK = "255.255.255.254",
+            EQUINIX_IP_ID = "#{id}",
+            PROVISION_ID = "#{provision_id}"
+        ]
+    EOF
+rescue StandardError => e
+    STDERR.puts e.to_s
+    exit(-1)
+end

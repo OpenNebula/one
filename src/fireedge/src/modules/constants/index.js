@@ -72,6 +72,7 @@ export const WEBSOCKET_URL = `${APP_URL}/websockets`
 export const STATIC_FILES_URL = `${APP_URL}/client/assets`
 export const IMAGES_URL = `${STATIC_FILES_URL}/images`
 export const LOGO_IMAGES_URL = `${IMAGES_URL}/logos`
+export const LOGO_DRIVERS_IMAGES_URL = `${IMAGES_URL}/providers`
 export const DEFAULT_IMAGE = `${IMAGES_URL}/default.webp`
 export const IMAGE_FORMATS = ['webp', 'png', 'jpg']
 
@@ -180,6 +181,7 @@ export const RESOURCE_NAMES = {
   BACKUP: 'backup',
   CLUSTER: 'cluster',
   DATASTORE: 'datastore',
+  DRIVER: 'driver',
   GROUP: 'group',
   HOST: 'host',
   IMAGE: 'image',
@@ -213,6 +215,7 @@ export * from '@modules/constants/cluster'
 export * from '@modules/constants/color'
 export * from '@modules/constants/common'
 export * from '@modules/constants/datastore'
+export * from '@modules/constants/driver'
 export * from '@modules/constants/errors'
 export * from '@modules/constants/flow'
 export * from '@modules/constants/group'

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+# -------------------------------------------------------------------------- #
+
+: "${TERRAFORM_VERSION:=1.13.5}"
+
+set -o errexit -o nounset -o pipefail
+
+which curl unzip dirname realpath xargs 1>/dev/null
+
+readonly SELF=$(realpath "$0" | xargs dirname) && cd "$SELF/"
+
+readonly TERRAFORM_URL_AMD64="https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+readonly TERRAFORM_URL_ARM64="https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_arm64.zip"
+readonly TMPFILE=$(mktemp)
+
+curl -fsSL "$TERRAFORM_URL_AMD64" -o "$TMPFILE"
+unzip -p "$TMPFILE" terraform > terraform
+rm -f $TMPFILE
+
+curl -fsSL "$TERRAFORM_URL_ARM64" -o "$TMPFILE"
+unzip -p "$TMPFILE" terraform > terraform.arm64
+rm -f $TMPFILE
+
+chmod ugo+x "$SELF/terraform" "$SELF/terraform.arm64"

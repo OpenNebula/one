@@ -1,0 +1,123 @@
+#! /bin/sh
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+if [ -z "$ONE_LOCATION" ]; then
+    FORM_PID=/var/run/one/oneform.pid
+    FORM_SERVER=/usr/lib/one/oneform/oneform-server.rb
+    FORM_LOCK_FILE=/var/lock/one/.oneform.lock
+    FORM_LOG=/var/log/one/oneform.log
+    FORM_LOG_ERROR=/var/log/one/oneform.error
+    FORM_CONF=/etc/one/oneform-server.conf
+else
+    FORM_PID=$ONE_LOCATION/var/oneform.pid
+    FORM_SERVER=$ONE_LOCATION/lib/oneform/oneform-server.rb
+    FORM_LOCK_FILE=$ONE_LOCATION/var/.oneform.lock
+    FORM_LOG=$ONE_LOCATION/var/oneform.log
+    FORM_LOG_ERROR=$ONE_LOCATION/var/oneform.error
+    FORM_CONF=$ONE_LOCATION/etc/oneform-server.conf
+fi
+
+setup()
+{
+    if [ -f $FORM_LOCK_FILE ]; then
+        if [ -f  $FORM_PID ]; then
+            FORMPID=`cat $FORM_PID`
+            ps $FORMPID > /dev/null 2>&1
+            if [ $? -eq 0 ]; then
+                echo "OneForm Server is still running (PID:$FORMPID)."
+                echo "Please try 'oneform-server stop' first."
+                exit 1
+            fi
+        fi
+        echo "Stale .lock detected. Erasing it."
+        rm $FORM_LOCK_FILE
+    fi
+}
+
+start()
+{
+    if [ ! -f "$FORM_SERVER" ]; then
+        echo "Cannot find $FORM_SERVER."
+        exit 1
+    fi
+
+    touch $FORM_LOCK_FILE
+
+    # Start the oneform-server daemon
+    ruby $FORM_SERVER >>$FORM_LOG 2>>$FORM_LOG_ERROR &
+
+    LASTRC=$?
+    LASTPID=$!
+
+    if [ $LASTRC -ne 0 ]; then
+        echo "Error executing oneform-server."
+        echo "Check $FORM_LOG_ERROR and $FORM_LOG for more information"
+        exit 1
+    else
+        echo $LASTPID > $FORM_PID
+    fi
+
+    sleep 2
+    ps $LASTPID > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        echo "Error executing oneform-server."
+        echo "Check $FORM_LOG_ERROR and $FORM_LOG for more information"
+        exit 1
+    fi
+
+    echo "oneform-server started"
+}
+
+#
+# Function that stops the daemon/service
+#
+stop()
+{
+    if [ ! -f $FORM_PID ]; then
+        echo "Couldn't find oneform-server process pid."
+        exit 1
+    fi
+
+    # Kill the oneform-server daemon
+
+    kill -INT `cat $FORM_PID` > /dev/null 2>&1
+
+    # Remove pid files
+    rm -f $FORM_PID > /dev/null 2>&1
+    rm -f $FORM_LOCK_FILE &> /dev/null
+
+    echo "oneform-server stopped"
+}
+
+
+case "$1" in
+    start)
+        setup
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    *)
+        echo "Usage: oneform-server {start|stop}" >&2
+        exit 3
+    ;;
+esac
+
+
