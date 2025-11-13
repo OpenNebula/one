@@ -15,17 +15,13 @@
  * ------------------------------------------------------------------------- */
 
 const { Actions, Commands } = require('server/routes/api/image/routes')
-const { upload, cleanup } = require('server/routes/api/image/functions')
+const { upload } = require('server/routes/api/image/functions')
 
-const { IMAGE_UPLOAD, IMAGE_CLEANUP } = Actions
+const { IMAGE_UPLOAD } = Actions
 
 module.exports = [
   {
     ...Commands[IMAGE_UPLOAD],
     action: upload,
-  },
-  {
-    ...Commands[IMAGE_CLEANUP],
-    action: cleanup,
   },
 ]

@@ -14,18 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { httpMethod, from } = require('../../../utils/constants/defaults')
+const { httpMethod } = require('../../../utils/constants/defaults')
 
 const { POST } = httpMethod
-const { postBody } = from
 
 const basepath = '/image'
 const IMAGE_UPLOAD = 'image.upload'
-const IMAGE_CLEANUP = 'image.cleanup'
 
 const Actions = {
   IMAGE_UPLOAD,
-  IMAGE_CLEANUP,
 }
 
 module.exports = {
@@ -38,16 +35,6 @@ module.exports = {
       params: {
         files: {
           from: 'files',
-        },
-      },
-    },
-    [IMAGE_CLEANUP]: {
-      path: `${basepath}/cleanup`,
-      httpMethod: POST,
-      auth: true,
-      params: {
-        path: {
-          from: postBody,
         },
       },
     },

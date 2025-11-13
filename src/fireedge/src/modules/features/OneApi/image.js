@@ -257,31 +257,6 @@ const imageApi = oneApi.injectEndpoints({
         }
       },
     }),
-    cleanupImage: builder.mutation({
-      /**
-       * Cleanup image.
-       *
-       * @param {object} params - Request params
-       * @param {string} params.path - The path of the image to be cleaned up
-       * @returns {number} Image id
-       * @throws Fails when response isn't code 200
-       */
-      queryFn: async ({ path }) => {
-        try {
-          const response = await http.request({
-            url: '/api/image/cleanup',
-            method: 'POST',
-            data: { path },
-          })
-
-          return { data: response.data }
-        } catch (axiosError) {
-          const { response } = axiosError
-
-          return { error: { status: response?.status, data: response?.data } }
-        }
-      },
-    }),
     cloneImage: builder.mutation({
       /**
        * Clones an existing image.
@@ -641,7 +616,6 @@ const imageQueries = (({
   useUnlockImageMutation,
   useUploadImageMutation,
   useRestoreBackupMutation,
-  useCleanupImageMutation,
 }) => ({
   // Queries
   useGetImageQuery,
@@ -672,7 +646,6 @@ const imageQueries = (({
   useUnlockImageMutation,
   useUploadImageMutation,
   useRestoreBackupMutation,
-  useCleanupImageMutation,
 }))(imageApi)
 
 export default imageQueries
