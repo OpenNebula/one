@@ -76,7 +76,10 @@ class IPAMDriver < OpenNebulaDriver
         super('ipam/', @options)
 
         if ipam_type.nil?
-            @types = Dir["#{DRIVERS_PATH}/*/ipam"].map {|d| File.basename(File.dirname(d)) }
+            @types = ( Dir["#{@local_scripts_path}/*/"] +
+                       Dir["#{DRIVERS_PATH}/*/ipam"]).map do |d|
+                File.basename(File.dirname(d))
+            end.uniq
         elsif ipam_type.class == String
             @types = [ipam_type]
         else
@@ -151,7 +154,15 @@ class IPAMDriver < OpenNebulaDriver
 
         return unless available?(ipam, id, action)
 
-        path = File.join(DRIVERS_PATH, ipam, 'ipam')
+        local_path  = File.join(@local_scripts_path, ipam)
+        driver_path = File.join(DRIVERS_PATH, ipam, 'ipam')
+
+        path = if File.exist?(driver_path)
+                   driver_path
+               else
+                   local_path
+               end
+
         cmd  = File.join(path, ACTION[action].downcase)
         cmd << ' ' << id
 
