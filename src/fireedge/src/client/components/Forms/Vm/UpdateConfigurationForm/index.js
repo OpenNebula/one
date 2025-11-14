@@ -17,12 +17,7 @@ import { reach } from 'yup'
 
 import ContentForm from 'client/components/Forms/Vm/UpdateConfigurationForm/content'
 import { SCHEMA } from 'client/components/Forms/Vm/UpdateConfigurationForm/schema'
-import {
-  createForm,
-  decodeBase64,
-  getUnknownAttributes,
-  isBase64,
-} from 'client/utils'
+import { createForm, decodeBase64, getUnknownAttributes } from 'client/utils'
 import { set } from 'lodash'
 
 const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
@@ -56,6 +51,12 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
         START_SCRIPT: decodeBase64(template?.CONTEXT?.START_SCRIPT_BASE64),
         ENCODE_START_SCRIPT: true,
       }
+    } else if (template?.CONTEXT?.START_SCRIPT) {
+      knownTemplate.CONTEXT = {
+        ...knownTemplate?.CONTEXT,
+        START_SCRIPT: vmTemplate?.TEMPLATE?.CONTEXT?.START_SCRIPT,
+        ENCODE_START_SCRIPT: false,
+      }
     }
 
     // Easy compatibility with the bootOrder component by specifying the same form paths as in the VM Template
@@ -73,7 +74,7 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
 
     return knownTemplate
   },
-  transformBeforeSubmit: (formData) => {
+  transformBeforeSubmit: (formData, initialValues) => {
     const { extra, ...restFormData } = formData
     // Encode script on base 64, if needed, on context section
     const updatedFormData = {
@@ -83,13 +84,17 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
         BOOT: extra?.OS?.BOOT || restFormData.OS?.BOOT,
       },
     }
-    if (isBase64(updatedFormData?.CONTEXT?.START_SCRIPT)) {
-      updatedFormData.CONTEXT.START_SCRIPT_BASE64 =
+    if (updatedFormData?.CONTEXT?.ENCODE_START_SCRIPT) {
+      updatedFormData.CONTEXT.START_SCRIPT_BASE64 = btoa(
         updatedFormData?.CONTEXT?.START_SCRIPT
+      )
       delete updatedFormData?.CONTEXT?.START_SCRIPT
-    } else {
-      delete updatedFormData?.CONTEXT?.START_SCRIPT_BASE64
+      if (initialValues?.TEMPLATE?.CONTEXT?.START_SCRIPT) {
+        updatedFormData.CONTEXT.START_SCRIPT =
+          initialValues.TEMPLATE.CONTEXT.START_SCRIPT
+      }
     }
+    delete updatedFormData.CONTEXT.ENCODE_START_SCRIPT
 
     return updatedFormData
   },

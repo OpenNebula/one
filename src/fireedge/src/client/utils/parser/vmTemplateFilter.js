@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import _, { cloneDeep, merge, get } from 'lodash'
-import { convertToMB, isBase64 } from 'client/utils'
 import { MEMORY_RESIZE_OPTIONS, T } from 'client/constants'
 import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
+import { convertToMB } from 'client/utils'
+import _, { cloneDeep, get, merge } from 'lodash'
 
 // Attributes that will be always modify with the value of the form (except Storage, Network and PCI sections)
 const alwaysIncludeAttributes = {
@@ -135,11 +135,7 @@ const filterTemplateData = (
     ...formData['custom-variables'],
   }
 
-  const result = {
-    ...newGeneral,
-    ...newExtra,
-    ...newCustomVariables,
-  }
+  const result = merge({}, newGeneral, newExtra, newCustomVariables)
 
   // Instantiate form could have another step called user_inputs
   if (formData.user_inputs) {
@@ -681,14 +677,6 @@ const filterSingleSection = (
  */
 const transformActionsCreate = (template) => {
   transformActionsCommon(template)
-
-  // Encode script on base 64, if needed, on context section
-  if (isBase64(template?.CONTEXT?.START_SCRIPT)) {
-    template.CONTEXT.START_SCRIPT_BASE64 = template?.CONTEXT?.START_SCRIPT
-    delete template?.CONTEXT?.START_SCRIPT
-  } else {
-    delete template?.CONTEXT?.START_SCRIPT_BASE64
-  }
 
   if (template.RAW) {
     // Clone template.RAW to ensure its mutable

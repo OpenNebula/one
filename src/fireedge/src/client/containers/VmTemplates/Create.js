@@ -18,28 +18,28 @@ import { useStore } from 'react-redux'
 import { useHistory, useLocation } from 'react-router'
 
 import { useGeneralApi } from 'client/features/General'
-import {
-  useUpdateTemplateMutation,
-  useAllocateTemplateMutation,
-  useGetTemplateQuery,
-} from 'client/features/OneApi/vmTemplate'
-import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { useGetImagesQuery } from 'client/features/OneApi/image'
 import { useGetUsersQuery } from 'client/features/OneApi/user'
-import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
+import {
+  useAllocateTemplateMutation,
+  useGetTemplateQuery,
+  useUpdateTemplateMutation,
+} from 'client/features/OneApi/vmTemplate'
 
+import { PATH } from 'client/apps/sunstone/routesOne'
 import {
   DefaultFormStepper,
   SkeletonStepsForm,
 } from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/VmTemplate'
-import { PATH } from 'client/apps/sunstone/routesOne'
 
+import { T, TAB_FORM_MAP } from 'client/constants'
 import { jsonToXml } from 'client/models/Helper'
+import { deepmerge, isDevelopment } from 'client/utils'
 import { filterTemplateData, transformActionsCreate } from 'client/utils/parser'
-import { isDevelopment } from 'client/utils'
-import { TAB_FORM_MAP, T } from 'client/constants'
 
 import { useSystemData } from 'client/features/Auth'
 
@@ -91,11 +91,23 @@ function CreateVmTemplate() {
     try {
       // Get current state and modified fields
       const currentState = store.getState()
-      const modifiedFields = currentState.general?.modifiedFields
+      const startScript64 = rawTemplate?.extra?.CONTEXT?.START_SCRIPT_BASE64
+      let modifiedFields = currentState.general?.modifiedFields
 
       // Get the original template
       const existingTemplate = {
         ...apiTemplateData?.TEMPLATE,
+      }
+
+      if (
+        modifiedFields?.extra?.Context?.CONTEXT?.START_SCRIPT &&
+        startScript64
+      ) {
+        modifiedFields = deepmerge(modifiedFields, {
+          extra: { Context: { CONTEXT: { START_SCRIPT_BASE64: true } } },
+        })
+
+        delete modifiedFields.extra.Context.CONTEXT.START_SCRIPT
       }
 
       // Filter template to delete attributes that the user has not interact with them

@@ -129,7 +129,7 @@ routes.forEach((file) => {
                   res,
                   next,
                   getRequestParameters(params, serverDataSource),
-                  oneUser,
+                  oneUser
                 )
               })
             }
