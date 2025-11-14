@@ -101,7 +101,9 @@ export function CreateVmTemplate() {
       // Get current state and modified fields
       const currentState = store.getState()
       const osProfile = rawTemplate?.general?.OS_PROFILE
+      const startScript64 = rawTemplate?.extra?.CONTEXT?.START_SCRIPT_BASE64
       let modifiedFields = currentState.general?.modifiedFields
+
       // This loads the OS profile and marks all fields of it as modified so they wont be filtered out
       if (osProfile && osProfile !== '-') {
         try {
@@ -128,6 +130,17 @@ export function CreateVmTemplate() {
           isDevelopment() &&
             console.error('Failed mapping profile filter: ', error)
         }
+      }
+
+      if (
+        modifiedFields?.extra?.Context?.CONTEXT?.START_SCRIPT &&
+        startScript64
+      ) {
+        modifiedFields = deepmerge(modifiedFields, {
+          extra: { Context: { CONTEXT: { START_SCRIPT_BASE64: true } } },
+        })
+
+        delete modifiedFields.extra.Context.CONTEXT.START_SCRIPT
       }
 
       // Get the original template

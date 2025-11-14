@@ -189,8 +189,9 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
   },
   transformBeforeSubmit: (formData, initialValues) => {
     if (formData?.extra?.CONTEXT?.ENCODE_START_SCRIPT) {
-      formData.extra.CONTEXT.START_SCRIPT_BASE64 =
+      formData.extra.CONTEXT.START_SCRIPT_BASE64 = btoa(
         formData.extra.CONTEXT.START_SCRIPT
+      )
       delete formData.extra.CONTEXT.START_SCRIPT
       if (initialValues?.TEMPLATE?.CONTEXT?.START_SCRIPT) {
         formData.extra.CONTEXT.START_SCRIPT =

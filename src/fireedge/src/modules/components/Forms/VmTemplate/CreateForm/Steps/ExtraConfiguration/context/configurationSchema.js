@@ -16,7 +16,7 @@
 import { boolean, lazy, ObjectSchema, string } from 'yup'
 
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { encodeBase64, Field, getObjectSchemaFromFields } from '@UtilsModule'
+import { Field, getObjectSchemaFromFields } from '@UtilsModule'
 
 const switchField = {
   type: INPUT_TYPES.SWITCH,
@@ -84,13 +84,7 @@ export const START_SCRIPT = {
   type: INPUT_TYPES.TEXT,
   dependOf: ENCODE_START_SCRIPT.name,
   multiline: true,
-  validation: string()
-    .trim()
-    .ensure()
-    .notRequired()
-    .afterSubmit((value, { context }) =>
-      context?.extra?.CONTEXT?.ENCODE_START_SCRIPT ? encodeBase64(value) : value
-    ),
+  validation: string().trim().ensure().notRequired(),
   grid: { md: 12 },
   fieldProps: { rows: 4 },
 }
