@@ -15,6 +15,7 @@ Cmnd_Alias ONE_MEM = /usr/sbin/sysctl vm.drop_caches=3 vm.compact_memory=1
 Cmnd_Alias ONE_VGPU = /var/tmp/one/vgpu
 Cmnd_Alias ONE_VTPM = /var/tmp/one/vtpm_setup
 Cmnd_Alias ONE_OVIRTAPI = /usr/bin/qemu-nbd
+Cmnd_Alias ONE_FABRIC = /usr/sbin/dmidecode
 
 ## Command aliases are enabled individually in dedicated
 ## sudoers files by each OpenNebula component (server, node).

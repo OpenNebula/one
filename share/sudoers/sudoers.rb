@@ -17,7 +17,7 @@
 # Holds configuration about sudoers requirements for OpeNebula
 class Sudoers
 
-    NODECMDS = [:NET, :NETNS, :OVS, :LVM, :LXC, :MEM, :VGPU, :VTPM, :NFS, :NETAPP]
+    NODECMDS = [:NET, :NETNS, :OVS, :LVM, :LXC, :MEM, :VGPU, :VTPM, :NFS, :NETAPP, :FABRIC]
 
     attr_accessor :cmds
 
@@ -81,6 +81,7 @@ class Sudoers
             :VTPM => ['sudo', '/var/tmp/one/vtpm_setup'],
             :NFS => ['mount', 'umount', '/usr/bin/sed -i -f /proc/self/fd/0 /etc/fstab'],
             :NETAPP => ['blockdev', 'multipath', 'multipathd', 'iscsiadm', 'tee', 'find']
+            :FABRIC => ['dmidecode']
         }
     end
 
