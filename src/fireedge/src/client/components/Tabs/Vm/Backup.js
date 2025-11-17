@@ -81,7 +81,9 @@ const VmBackupTab = ({ id, oneConfig, adminGroup }) => {
               form: () =>
                 BackupConfigForm({
                   stepProps: { oneConfig, adminGroup, vm },
-                  initialValues: vm,
+                  initialValues: {
+                    BACKUP_CONFIG: vm?.BACKUPS?.BACKUP_CONFIG || {},
+                  },
                 }),
               onSubmit: handleUpdateBackupConf,
             },
