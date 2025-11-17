@@ -54,15 +54,12 @@ const messageTerminal = ({ color = 'red', error = '', message = '%s' }) => {
  */
 const addPrintf = (string = '', args = '') => {
   let rtn = string
-  if (!string || !args) return rtn
+  if (string && args) {
+    const replacers = Array.isArray(args) ? args : [args]
 
-  if (Array.isArray(args)) {
-    rtn = string.replace(/{(\d+)}/g, (match, number) =>
-      typeof args[number] !== 'undefined' ? args[number] : match
-    )
-  } else {
-    rtn = string.replace(/:(\w+)/g, (match, key) =>
-      typeof args[key] !== 'undefined' ? args[key] : match
+    // Replace {0}, {1}, ...
+    rtn = rtn.replace(/{(\d+)}/g, (match, number) =>
+      typeof replacers[number] !== 'undefined' ? replacers[number] : match
     )
   }
 
