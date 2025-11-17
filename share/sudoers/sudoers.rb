@@ -80,7 +80,7 @@ class Sudoers
             :VGPU => ['sudo', '/var/tmp/one/vgpu'],
             :VTPM => ['sudo', '/var/tmp/one/vtpm_setup'],
             :NFS => ['mount', 'umount', '/usr/bin/sed -i -f /proc/self/fd/0 /etc/fstab'],
-            :NETAPP => ['blockdev', 'multipath', 'multipathd', 'iscsiadm', 'tee', 'find']
+            :NETAPP => ['blockdev', 'multipath', 'multipathd', 'iscsiadm', 'tee', 'find'],
             :FABRIC => ['dmidecode']
         }
     end
