@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useEffect, useState, useCallback } from 'react'
+import { memo, useMemo, useEffect, useState, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types'
 import {
   Autocomplete,
@@ -95,6 +95,8 @@ export const QuotaControls = memo(
     const { data: { QUOTA_VM_ATTRIBUTE: genericQuotas = [] } = {} } =
       SystemAPI.useGetOneConfigQuery()
 
+    const initialized = useRef(false)
+
     const formatGenericQuotas = (
       Array.isArray(genericQuotas) ? genericQuotas : [genericQuotas]
     )?.reduce((acc, quota) => {
@@ -156,7 +158,9 @@ export const QuotaControls = memo(
 
     useEffect(() => {
       actions.setQuotaType(selectedType)
-      actions.setGlobalIds([])
+      actions.setGlobalIds(
+        selectedType === 'VM' && !initialized.current ? ['@Global'] : []
+      )
       actions.setGlobalValue('')
       actions.setMarkForDeletion([])
     }, [selectedType])
