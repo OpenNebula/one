@@ -166,12 +166,47 @@ class ProbeRunner
 
 end
 
+# Generate a Template like string from the associated XML
+def to_monitord(config)
+    monitor_addr = config.elements['NETWORK/MONITOR_ADDRESS']&.text.to_s
+    port         = config.elements['NETWORK/PORT']&.text.to_s
+    pubkey       = config.elements['NETWORK/PUBKEY']&.text.to_s
+
+    beacon_host  = config.elements['PROBES_PERIOD/BEACON_HOST']&.text.to_s
+    system_host  = config.elements['PROBES_PERIOD/SYSTEM_HOST']&.text.to_s
+    monitor_host = config.elements['PROBES_PERIOD/MONITOR_HOST']&.text.to_s
+    state_vm     = config.elements['PROBES_PERIOD/STATE_VM']&.text.to_s
+    monitor_vm   = config.elements['PROBES_PERIOD/MONITOR_VM']&.text.to_s
+
+    <<~CONF
+      NETWORK = [
+          MONITOR_ADDRESS = "#{monitor_addr}",
+          PORT            = #{port},
+          PUBKEY          = "#{pubkey}",
+      ]
+
+      PROBES_PERIOD = [
+          BEACON_HOST    = #{beacon_host},
+          SYSTEM_HOST    = #{system_host},
+          MONITOR_HOST   = #{monitor_host},
+          STATE_VM       = #{state_vm},
+          MONITOR_VM     = #{monitor_vm},
+      ]
+    CONF
+end
+
 #-------------------------------------------------------------------------------
 # Configuration (from monitord)
+#   DB_PATH: Folder to include metrics DB for forecasting. It also includes
+#   local additions in the hypervisor (/var/tmp/one uses rsync --delete)
 #-------------------------------------------------------------------------------
-DB_PATH = '/var/tmp/one_db'
+DB_PATH  = '/var/tmp/one_db'
+ETC_PATH = "#{DB_PATH}/etc"
+
+MONITORD_CONF = "#{ETC_PATH}/monitord.conf"
 
 FileUtils.mkdir_p(DB_PATH)
+FileUtils.mkdir_p(ETC_PATH)
 
 xml_txt = STDIN.read
 
@@ -261,6 +296,8 @@ begin
     else
         pubkey = nil
     end
+
+    File.write(MONITORD_CONF, to_monitord(config))
 rescue StandardError => e
     puts e.inspect
     exit(-1)
