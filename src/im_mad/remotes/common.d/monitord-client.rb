@@ -179,19 +179,19 @@ def to_monitord(config)
     monitor_vm   = config.elements['PROBES_PERIOD/MONITOR_VM']&.text.to_s
 
     <<~CONF
-      NETWORK = [
-          MONITOR_ADDRESS = "#{monitor_addr}",
-          PORT            = #{port},
-          PUBKEY          = "#{pubkey}",
-      ]
+        NETWORK = [
+            MONITOR_ADDRESS = "#{monitor_addr}",
+            PORT            = #{port},
+            PUBKEY          = "#{pubkey}",
+        ]
 
-      PROBES_PERIOD = [
-          BEACON_HOST    = #{beacon_host},
-          SYSTEM_HOST    = #{system_host},
-          MONITOR_HOST   = #{monitor_host},
-          STATE_VM       = #{state_vm},
-          MONITOR_VM     = #{monitor_vm},
-      ]
+        PROBES_PERIOD = [
+            BEACON_HOST    = #{beacon_host},
+            SYSTEM_HOST    = #{system_host},
+            MONITOR_HOST   = #{monitor_host},
+            STATE_VM       = #{state_vm},
+            MONITOR_VM     = #{monitor_vm},
+        ]
     CONF
 end
 
