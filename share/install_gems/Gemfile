@@ -127,13 +127,17 @@ group :packethost do
     if ruby_version >= Gem::Version.new('2.3.0')
 	    gem 'faraday_middleware', '~> 1.2.0'
     end
-    gem 'activesupport', '~> 4.2'
+    gem 'activesupport'
     gem 'i18n', '~> 0.9'
 end
 
 group :cloud, :oneflow, :sunstone do
     gem 'rack', rack
-    gem 'sinatra', '< 4.0.0'
+    if ruby_version < Gem::Version.new('2.6.0')
+        gem 'sinatra', '~> 2.2.4'
+    else
+        gem 'sinatra', '~> 3.2.0'
+    end
 end
 
 group :cloud do

@@ -83,7 +83,7 @@ module OneCfg::Config::Type
                 msg  = aug.get("#{aug_error}/message")
                 line = aug.get("#{aug_error}/line")
 
-                details = "Failed to parse file"
+                details = 'Failed to parse file'
                 details << " (#{msg})" if msg
                 details << " at line #{line}" if line
 

@@ -125,8 +125,11 @@ module TransferManager
                 @logger.error err.chomp
 
                 if rc && rc.stdout && rc.stderr
-                    @logger.error "  [STDOUT] \"#{rc.stdout.gsub("\n", '\n')}\"\n" unless opt[:nostdout]
-                    @logger.error "  [STDERR] \"#{rc.stderr.gsub("\n", '\n')}\"\n" unless opt[:nostderr]
+                    @logger.error "  [STDOUT] \"#{rc.stdout.gsub("\n", '\n')}\"\n" \
+                        unless opt[:nostdout]
+
+                    @logger.error "  [STDERR] \"#{rc.stderr.gsub("\n", '\n')}\"\n" \
+                        unless opt[:nostderr]
                 end
             end
 

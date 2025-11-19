@@ -1,11 +1,12 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.2.11.3)
-      i18n (~> 0.7)
+    activesupport (6.0.6.1)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 0.7, < 2)
       minitest (~> 5.1)
-      thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+      zeitwerk (~> 2.2, >= 2.2.2)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     android_key_attestation (0.3.0)
@@ -80,9 +81,9 @@ GEM
       faraday-rack (~> 1.0)
       faraday-retry (~> 1.0)
       ruby2_keywords (>= 0.0.4)
-    faraday-cookie_jar (0.0.7)
+    faraday-cookie_jar (0.0.8)
       faraday (>= 0.8.0)
-      http-cookie (~> 1.0.0)
+      http-cookie (>= 1.0.0)
     faraday-em_http (1.0.0)
     faraday-em_synchrony (1.0.1)
     faraday-excon (1.1.0)
@@ -108,7 +109,7 @@ GEM
     gnuplot (2.6.2)
     hashie (5.0.0)
     highline (1.7.10)
-    http-cookie (1.0.8)
+    http-cookie (1.1.0)
       domain_name (~> 0.5)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
@@ -156,7 +157,7 @@ GEM
       base64
     public_suffix (4.0.7)
     racc (1.8.1)
-    rack (2.2.20)
+    rack (2.2.21)
     rack-protection (2.2.4)
       rack
     rbvmomi2 (3.7.1)
@@ -173,7 +174,7 @@ GEM
     ruby2_keywords (0.0.5)
     safety_net_attestation (0.5.0)
       jwt (>= 2.0, < 4.0)
-    sequel (5.97.0)
+    sequel (5.98.0)
       bigdecimal
     sinatra (2.2.4)
       mustermann (~> 2.0)
@@ -193,7 +194,7 @@ GEM
       bindata (~> 2.4)
       openssl (> 2.0)
       openssl-signature_algorithm (~> 1.0)
-    treetop (1.6.15)
+    treetop (1.6.18)
       polyglot (~> 0.3)
     tzinfo (1.2.11)
       thread_safe (~> 0.1)
@@ -218,6 +219,7 @@ GEM
     webrick (1.9.1)
     xmlrpc (0.3.3)
       webrick
+    zeitwerk (2.6.18)
     zendesk_api (1.37.0)
       faraday (>= 0.9.0, < 2.0.0)
       hashie (>= 3.5.2, < 6.0.0)
@@ -229,7 +231,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport (~> 4.2)
+  activesupport
   addressable
   async-io (= 1.32.1)
   aws-sdk-cloudwatch
@@ -269,7 +271,7 @@ DEPENDENCIES
   rotp
   rqrcode
   sequel
-  sinatra (< 4.0.0)
+  sinatra (~> 2.2.4)
   sqlite3 (<= 1.6.9)
   thin (~> 1.8.2)
   treetop (>= 1.6.3)
