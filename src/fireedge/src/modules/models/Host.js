@@ -127,9 +127,10 @@ export const getPciDevices = (host) =>
  * Returns list of KVM CPU Models available from the host pool.
  *
  * @param {Host[]} hosts - Hosts
+ * @param {boolean} common - If true, returns only common models
  * @returns {Array} List of KVM CPU Models from the pool
  */
-export const getKvmCpuModels = (hosts = []) => {
+export const getKvmCpuModels = (hosts = [], common = false) => {
   const hostData = hosts
     .filter(
       (host) =>
@@ -137,10 +138,22 @@ export const getKvmCpuModels = (hosts = []) => {
         host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.dummy
     )
     .map((host) => host.TEMPLATE?.KVM_CPU_MODELS.split(' '))
-    .flat()
+
+  if (common) {
+    const hostDataFiltered = hostData.filter(Boolean)
+    if (!hostDataFiltered.length || hosts.length > hostDataFiltered.length) return []
+
+    return hostDataFiltered.reduce((acc, arr) => {
+      const set = new Set(arr)
+
+      return acc.filter((x) => set.has(x))
+    })
+  }
+
+  const hostDataFlatted = hostData.flat()
 
   // Removes the repeated
-  return [...new Set(hostData)]
+  return [...new Set(hostDataFlatted)]
 }
 
 /**

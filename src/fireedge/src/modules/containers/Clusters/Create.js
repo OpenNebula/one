@@ -16,16 +16,17 @@
 import { ReactElement } from 'react'
 import { useHistory, useLocation } from 'react-router'
 
-import { ClusterAPI, useGeneralApi, SystemAPI } from '@FeaturesModule'
+import { ClusterAPI, SystemAPI, useGeneralApi } from '@FeaturesModule'
 
 import {
   DefaultFormStepper,
-  SkeletonStepsForm,
   Form,
   PATH,
+  SkeletonStepsForm,
   TranslateProvider,
 } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
+import { jsonToXml } from '@ModelsModule'
 
 const { Cluster } = Form
 
@@ -47,6 +48,7 @@ export function CreateCluster() {
   const [removeDatastore] = ClusterAPI.useRemoveDatastoreFromClusterMutation()
   const [removeVnet] = ClusterAPI.useRemoveNetworkFromClusterMutation()
   const [rename] = ClusterAPI.useRenameClusterMutation()
+  const [update] = ClusterAPI.useUpdateClusterMutation()
 
   const { data: version } = SystemAPI.useGetOneVersionQuery()
 
@@ -68,41 +70,46 @@ export function CreateCluster() {
     changeName,
   }) => {
     try {
+      let id = clusterId
       // Request to create a cluster but not to update
-      if (!clusterId) {
+      if (!id) {
         // Create cluster
-        const newClusterId = await createCluster({
+        id = await createCluster({
           name: general?.NAME,
         }).unwrap()
 
         // Add hosts
-        if (newClusterId && hosts?.ID) {
+        if (id && hosts?.ID) {
           const hostIds = hosts?.ID?.map?.((host) => host)
           await Promise.all(
-            hostIds.map((hostId) => addHost({ id: newClusterId, host: hostId }))
+            hostIds.map((hostId) => addHost({ id, host: hostId }))
           )
         }
 
         // Add vnets
-        if (newClusterId && vnets?.ID) {
+        if (id && vnets?.ID) {
           const vnetIds = vnets?.ID?.map?.((vnet) => vnet)
           await Promise.all(
-            vnetIds.map((vnetId) => addVnet({ id: newClusterId, vnet: vnetId }))
+            vnetIds.map((vnetId) => addVnet({ id, vnet: vnetId }))
           )
         }
 
         // Add datastores
-        if (newClusterId && datastores?.ID) {
+        if (id && datastores?.ID) {
           const datastoreIds = datastores?.ID?.map?.((ds) => ds)
           await Promise.all(
-            datastoreIds.map((dsId) =>
-              addDatastore({ id: newClusterId, datastore: dsId })
-            )
+            datastoreIds.map((dsId) => addDatastore({ id, datastore: dsId }))
           )
         }
 
+        await update({
+          id,
+          template: jsonToXml({ EVC_MODE: hosts.EVC_MODE }),
+          replace: 1,
+        })
+
         // Only show cluster message
-        enqueueSuccess(T.SuccessClusterCreated, newClusterId)
+        enqueueSuccess(T.SuccessClusterCreated, id)
 
         // Go to clusters list
         history.push(PATH.INFRASTRUCTURE.CLUSTERS.LIST)
@@ -111,7 +118,7 @@ export function CreateCluster() {
         if (addHosts?.length > 0) {
           const hostIds = addHosts?.map?.((host) => host)
           await Promise.all(
-            hostIds.map((hostId) => addHost({ id: clusterId, host: hostId }))
+            hostIds.map((hostId) => addHost({ id, host: hostId }))
           )
         }
 
@@ -119,7 +126,7 @@ export function CreateCluster() {
         if (removeHosts?.length > 0) {
           const hostIds = removeHosts?.map?.((host) => host)
           await Promise.all(
-            hostIds.map((hostId) => removeHost({ id: clusterId, host: hostId }))
+            hostIds.map((hostId) => removeHost({ id, host: hostId }))
           )
         }
 
@@ -127,7 +134,7 @@ export function CreateCluster() {
         if (addVnets?.length > 0) {
           const vnetIds = addVnets?.map?.((vnet) => vnet)
           await Promise.all(
-            vnetIds.map((vnetId) => addVnet({ id: clusterId, vnet: vnetId }))
+            vnetIds.map((vnetId) => addVnet({ id, vnet: vnetId }))
           )
         }
 
@@ -135,7 +142,7 @@ export function CreateCluster() {
         if (removeVnets?.length > 0) {
           const vnetIds = removeVnets?.map?.((vnet) => vnet)
           await Promise.all(
-            vnetIds.map((vnetId) => removeVnet({ id: clusterId, vnet: vnetId }))
+            vnetIds.map((vnetId) => removeVnet({ id, vnet: vnetId }))
           )
         }
 
@@ -143,9 +150,7 @@ export function CreateCluster() {
         if (addDatastores?.length > 0) {
           const datastoreIds = addDatastores?.map?.((ds) => ds)
           await Promise.all(
-            datastoreIds.map((dsId) =>
-              addDatastore({ id: clusterId, datastore: dsId })
-            )
+            datastoreIds.map((dsId) => addDatastore({ id, datastore: dsId }))
           )
         }
 
@@ -153,20 +158,25 @@ export function CreateCluster() {
         if (removeDatastores?.length > 0) {
           const datastoreIds = removeDatastores?.map?.((ds) => ds)
           await Promise.all(
-            datastoreIds.map((dsId) =>
-              removeDatastore({ id: clusterId, datastore: dsId })
-            )
+            datastoreIds.map((dsId) => removeDatastore({ id, datastore: dsId }))
           )
         }
 
         // Rename if the name has been changed
         if (changeName) {
-          await rename({ id: clusterId, name: general?.NAME }).unwrap()
+          await rename({ id, name: general?.NAME }).unwrap()
+        }
+
+        if (hosts.EVC_MODE !== cluster?.TEMPLATE?.EVC_MODE) {
+          await update({
+            id,
+            template: jsonToXml({ EVC_MODE: hosts.EVC_MODE }),
+            replace: 1,
+          })
         }
 
         // Only show cluster message
-        enqueueSuccess(T.SuccessClusterUpdated, clusterId)
-
+        enqueueSuccess(T.SuccessClusterUpdated, id)
         // Go to clusters list
         history.push(PATH.INFRASTRUCTURE.CLUSTERS.LIST)
       }

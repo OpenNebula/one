@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, useCallback } from 'react'
 
 import { ClusterAPI } from '@FeaturesModule'
-import { AttributePanel } from '@modules/components/Tabs/Common'
 import Information from '@modules/components/Tabs/Cluster/Info/information'
+import { AttributePanel } from '@modules/components/Tabs/Common'
 
-import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
-import { jsonToXml, getActionsAvailable, filterAttributes } from '@ModelsModule'
+import { filterAttributes, getActionsAvailable, jsonToXml } from '@ModelsModule'
+import { Tr } from '@modules/components/HOC'
 import { cloneObject, set } from '@UtilsModule'
 
 const HIDDEN_ATTRIBUTES_REG = /^(HOST|RESERVED_CPU|RESERVED_MEM|ONE_DRS)$/
