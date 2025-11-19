@@ -1260,10 +1260,15 @@ function send_to_monitor {
     fi
 
     # Read monitord config
-    if [ -z "${ONE_LOCATION}" ]; then
-        mon_conf=/etc/one/monitord.conf
+    if [ -f "/var/tmp/one_db/etc/monitord.conf" ]; then
+        mon_conf="/var/tmp/one_db/etc/monitord.conf"
+    elif [ -f "/etc/one/monitord.conf" ]; then
+        mon_conf="/etc/one/monitord.conf"
+    elif [ -n "$ONE_LOCATION" ] && [ -f "$ONE_LOCATION/etc/monitord.conf" ]; then
+        mon_conf="$ONE_LOCATION/etc/monitord.conf"
     else
-        mon_conf=$ONE_LOCATION/etc/monitord.conf
+        # No config found, fallback to regular updates (No error)
+        return 0
     fi
 
     mon_address=$(cat $mon_conf | grep MONITOR_ADDRESS | cut -d , -f1 | \
