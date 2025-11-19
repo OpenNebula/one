@@ -14,13 +14,68 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { Field, getObjectSchemaFromFields } from '@UtilsModule'
-import { string, array } from 'yup'
+import { HostAPI } from '@FeaturesModule'
+import { getKvmCpuModels } from '@ModelsModule'
 import { HostsTable } from '@modules/components/Tables'
+import {
+  arrayToOptions,
+  Field,
+  getObjectSchemaFromFields,
+  OPTION_SORTERS,
+} from '@UtilsModule'
+import { array, string } from 'yup'
+
+const HOST_NAME = 'ID'
+let previousValue
+
+/** @type {Field} EVC_MODE field */
+const EVC_MODE = {
+  name: 'EVC_MODE',
+  label: T.EvcMode,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  freeSolo: true,
+  dependOf: HOST_NAME,
+  watcher: (hosts, { formContext }) => {
+    const { initialValues } = formContext
+
+    !previousValue && (previousValue = hosts)
+    if (Array.isArray(previousValue)) {
+      const prevArray = [...previousValue].sort((a, b) => a - b)
+      const currentArra = [...hosts].sort((a, b) => a - b)
+      if (prevArray.every((value, index) => value === currentArra[index])) {
+        return initialValues?.TEMPLATE?.EVC_MODE
+      } else {
+        return ''
+      }
+    }
+  },
+  values: (selectedHosts = []) => {
+    let options = []
+    const { data: hosts = [] } = HostAPI.useGetHostsQuery()
+
+    if (selectedHosts.length) {
+      const selectedHostsSet = new Set(selectedHosts)
+      const dataHosts = hosts.filter((host) => selectedHostsSet.has(host?.ID))
+      options = getKvmCpuModels(dataHosts, true)
+    }
+
+    return arrayToOptions(options, {
+      addEmpty: true,
+      getText: (name) => name,
+      getValue: (value) => value,
+      sorter: OPTION_SORTERS.unsort,
+    })
+  },
+  validation: string()
+    .trim()
+    .default(() => undefined),
+  grid: { md: 12 },
+}
 
 /** @type {Field} HostsTable field */
 const HOSTS = {
-  name: 'ID',
+  name: HOST_NAME,
   label: T.SelectHosts,
   type: INPUT_TYPES.TABLE,
   Table: () => HostsTable.Table,
@@ -32,8 +87,8 @@ const HOSTS = {
   },
 }
 
-const FIELDS = [HOSTS]
+const FIELDS = [EVC_MODE, HOSTS]
 
 const SCHEMA = getObjectSchemaFromFields(FIELDS)
 
-export { SCHEMA, FIELDS }
+export { FIELDS, SCHEMA }

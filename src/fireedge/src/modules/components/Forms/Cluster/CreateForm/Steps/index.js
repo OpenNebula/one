@@ -46,6 +46,7 @@ const Steps = createSteps([General, Hosts, Vnets, Datastores], {
         [GENERAL_ID]: { NAME: cluster.NAME },
         [HOSTS_ID]: !_.isEmpty(cluster?.HOSTS)
           ? {
+              EVC_MODE: cluster?.TEMPLATE?.EVC_MODE,
               ID: Array.isArray(cluster?.HOSTS?.ID)
                 ? cluster?.HOSTS?.ID
                 : [cluster?.HOSTS?.ID],

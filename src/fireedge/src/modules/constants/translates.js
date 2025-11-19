@@ -235,6 +235,7 @@ module.exports = {
   SelectVms: 'Select VMs',
   SelectVmTemplate: 'Select a VM Template',
   SelectYourActiveGroup: 'Select your active group',
+  EvcMode: 'EVC Mode',
   Share: 'Share',
   Show: 'Show',
   ShowAll: 'Show all',
