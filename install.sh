@@ -450,10 +450,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/server_cipher \
           $VAR_LOCATION/remotes/auth/dummy \
           $VAR_LOCATION/remotes/ipam/dummy \
-          $VAR_LOCATION/remotes/ipam/equinix \
-          $VAR_LOCATION/remotes/ipam/scaleway \
-          $VAR_LOCATION/remotes/ipam/vultr \
-          $VAR_LOCATION/remotes/ipam/aws \
           $VAR_LOCATION/remotes/scheduler/dummy \
           $VAR_LOCATION/remotes/scheduler/rank \
           $VAR_LOCATION/remotes/scheduler/one_drs \
@@ -623,10 +619,6 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
 
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
-    IPAM_DRIVER_EQUINIX_SCRIPTS:$VAR_LOCATION/remotes/ipam/equinix
-    IPAM_DRIVER_SCALEWAY_SCRIPTS:$VAR_LOCATION/remotes/ipam/scaleway
-    IPAM_DRIVER_VULTR_SCRIPTS:$VAR_LOCATION/remotes/ipam/vultr
-    IPAM_DRIVER_EC2_SCRIPTS:$VAR_LOCATION/remotes/ipam/aws
 
     SCHEDULER_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/scheduler/dummy
     SCHEDULER_DRIVER_RANK_SCRIPTS:$VAR_LOCATION/remotes/scheduler/rank
@@ -1329,42 +1321,6 @@ IPAM_DRIVER_DUMMY_SCRIPTS="src/ipamm_mad/remotes/dummy/register_address_range \
                            src/ipamm_mad/remotes/dummy/allocate_address \
                            src/ipamm_mad/remotes/dummy/get_address \
                            src/ipamm_mad/remotes/dummy/free_address"
-
-#-------------------------------------------------------------------------------
-# IPAM Equinix drivers to be installed under $REMOTES_LOCATION/ipam
-#-------------------------------------------------------------------------------
-IPAM_DRIVER_EQUINIX_SCRIPTS="src/ipamm_mad/remotes/equinix/register_address_range \
-                            src/ipamm_mad/remotes/equinix/unregister_address_range \
-                            src/ipamm_mad/remotes/equinix/allocate_address \
-                            src/ipamm_mad/remotes/equinix/get_address \
-                            src/ipamm_mad/remotes/equinix/free_address"
-
-#-------------------------------------------------------------------------------
-# IPAM Scaleway drivers to be installed under $REMOTES_LOCATION/ipam
-#-------------------------------------------------------------------------------
-IPAM_DRIVER_SCALEWAY_SCRIPTS="src/ipamm_mad/remotes/scaleway/register_address_range \
-                            src/ipamm_mad/remotes/scaleway/unregister_address_range \
-                            src/ipamm_mad/remotes/scaleway/allocate_address \
-                            src/ipamm_mad/remotes/scaleway/get_address \
-                            src/ipamm_mad/remotes/scaleway/free_address"
-
-#-------------------------------------------------------------------------------
-# IPAM Vultr drivers to be installed under $REMOTES_LOCATION/ipam
-#-------------------------------------------------------------------------------
-IPAM_DRIVER_VULTR_SCRIPTS="src/ipamm_mad/remotes/vultr/register_address_range \
-                           src/ipamm_mad/remotes/vultr/unregister_address_range \
-                           src/ipamm_mad/remotes/vultr/allocate_address \
-                           src/ipamm_mad/remotes/vultr/get_address \
-                           src/ipamm_mad/remotes/vultr/free_address"
-
-#-------------------------------------------------------------------------------
-# IPAM EC2 drivers to be installed under $REMOTES_LOCATION/ipam
-#-------------------------------------------------------------------------------
-IPAM_DRIVER_EC2_SCRIPTS="src/ipamm_mad/remotes/aws/register_address_range \
-                         src/ipamm_mad/remotes/aws/unregister_address_range \
-                         src/ipamm_mad/remotes/aws/allocate_address \
-                         src/ipamm_mad/remotes/aws/get_address \
-                         src/ipamm_mad/remotes/aws/free_address"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
