@@ -155,11 +155,11 @@ module TransferManager
             end
 
             def disk?
-                @path.to_s.match?(/disk\.[0-9]+/)
+                !!disk_id
             end
 
             def disk_id
-                base.to_s.split('.')[-1]
+                base.to_s.match(/disk\.([0-9]+)/)&.captures&.at(0)
             end
 
         end
@@ -298,6 +298,20 @@ module TransferManager
         end
 
         # TODO: Add comments
+        def tm_call(tmmad, operation = nil, opts = {})
+            (driver_path, curr_operation) = File.split($PROGRAM_NAME)
+            operation ||= curr_operation
+
+            current_tmmad = File.basename(driver_path)
+
+            OpenNebula::DriverLogger.log_info \
+                "Calling tm/#{tmmad}/#{operation} (from #{current_tmmad})"
+            cmdargs = ["#{driver_path}/../#{tmmad}/#{operation}", ARGV, current_tmmad].flatten
+
+            Open3.popen2(*cmdargs) {|i, _o, _t| i.puts opts[:stdin] if opts[:stdin] }
+        end
+
+        # TODO: Add comments
         def migrate_other(template64)
             template_xml = REXML::Document.new(Base64.decode64(template64))
 
@@ -312,10 +326,7 @@ module TransferManager
             tmmads.each do |tmmad|
                 next if tmmad == current_tmmad || processed_tms.include?(tmmad)
 
-                OpenNebula::DriverLogger.log_info "Call #{tmmad}/#{operation}"
-
-                cmdargs = ["#{driver_path}/../#{tmmad}/#{operation}", ARGV, current_tmmad].flatten
-                Open3.popen2(cmdargs) {|i, _o, _t| i.puts template64 }
+                tm_call(tmmad, operation, :stdin => template64)
 
                 processed_tms << tmmad
             end
@@ -383,6 +394,10 @@ module TransferManager
         # Virtual Machine helper functions
         #-----------------------------------------------------------------------
 
+        def undeployed?
+            ['SUSPENDED', 'UNDEPLOYED'].include?(@vm.state_str)
+        end
+
         #  @return[String] VM_MAD name for this host
         def vm_mad
             @vm['/VM/HISTORY_RECORDS/HISTORY[last()]/VM_MAD']
@@ -408,6 +423,10 @@ module TransferManager
         # @return [String] attribute value
         def disk_attribute(disk_id, aname)
             @vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/#{aname}"].to_s
+        end
+
+        def dsid(disk_id)
+            disk_attribute(disk_id, 'DATASTORE_ID')
         end
 
         def persistent?(disk_id)

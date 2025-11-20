@@ -52,17 +52,34 @@ module TransferManager
                 vm_xml = REXML::Document.new(vm_xml) if vm_xml.is_a?(String)
                 disk_xml = REXML::Document.new(disk_xml) if disk_xml.is_a?(String)
 
+                @tm_mad = disk_xml.elements['TM_MAD'].text
+
                 @vm   = vm_xml
                 @vmid = @vm.elements['TEMPLATE/VMID'].text
                 @id   = disk_xml.elements['DISK_ID'].text.to_i
 
-                @dsid = @vm.elements['HISTORY_RECORDS/HISTORY[last()]/DS_ID'].text.to_i
-                @vg   = "vg-one-#{@dsid}"
-                @lv   = "lv-one-#{@vmid}-#{@id}"
+                imageid = disk_xml.elements['IMAGE_ID'].text
+                is_persistent = disk_xml.elements['PERSISTENT']&.text&.downcase == 'yes'
+                imgds_id = disk_xml.elements['DATASTORE_ID'].text.to_i
+                sysds_id = @vm.elements['HISTORY_RECORDS/HISTORY[last()]/DS_ID'].text.to_i
 
-                @is_thin = disk_xml.elements['LVM_THIN_ENABLE']&.text&.downcase == 'yes'
-                if @is_thin
-                    @pool = "lv-one-#{@vmid}-pool"
+                if @tm_mad == 'lvm'
+                    @vg = "vg-one-#{imgds_id}"
+                    @is_thin = true
+                    if is_persistent
+                        @lv = "img-one-#{imageid}"
+                        @pool = "img-one-#{imageid}-pool"
+                    else
+                        @lv = "vm-one-#{@vmid}-#{@id}"
+                        @pool = "vm-one-#{@vmid}-pool"
+                    end
+                else
+                    @vg = "vg-one-#{sysds_id}"
+                    @is_thin = disk_xml.elements['LVM_THIN_ENABLE']&.text&.downcase == 'yes'
+                    @lv = "lv-one-#{@vmid}-#{@id}"
+                    if @is_thin
+                        @pool = "lv-one-#{@vmid}-pool"
+                    end
                 end
 
                 bc   = @vm.elements['BACKUPS/BACKUP_CONFIG']
