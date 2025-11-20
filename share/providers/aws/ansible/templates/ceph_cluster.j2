@@ -19,7 +19,7 @@ user_inputs:
 ---
 all:
   vars:
-    one_version: "{{ one.version }}"
+    one_version: {{ one.version }}
     ensure_keys_for: [ubuntu, root]
     features:
       evpn: true

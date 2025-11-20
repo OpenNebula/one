@@ -14,7 +14,7 @@ user_inputs:
 all:
   vars:
     ansible_user: ubuntu
-    one_version: "6.10"
+    one_version: {{ one.version }}
     vn:
       private_onprem_network:
         managed: true
