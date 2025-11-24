@@ -26,14 +26,7 @@
                     <xs:element name="CPU" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="MEMORY" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="VCPU" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="DISK" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                          <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
+                    <xs:element name="DISK" minOccurs="0" maxOccurs="unbounded"/>
                     <xs:element name="NIC" minOccurs="0" maxOccurs="unbounded">
                       <xs:complexType>
                         <xs:sequence>
@@ -52,28 +45,7 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-              <xs:element name="USER_TEMPLATE">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="LABELS" type="xs:string" minOccurs="0"/>
-                    <xs:element name="ERROR" type="xs:string" minOccurs="0"/>
-                    <xs:element name="SCHED_MESSAGE" type="xs:string" minOccurs="0"/>
-                    <xs:element name="SCHED_RANK" type="xs:string" minOccurs="0"/>
-                    <xs:element name="SCHED_DS_RANK" type="xs:string" minOccurs="0"/>
-                    <xs:element name="SCHED_REQUIREMENTS" type="xs:string" minOccurs="0"/>
-                    <xs:element name="SCHED_DS_REQUIREMENTS" type="xs:string" minOccurs="0"/>
-                    <xs:element name="USER_PRIORITY" type="xs:string" minOccurs="0"/>
-                    <xs:element name="SCHED_ACTION" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:any processContents="skip"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+              <xs:element name="USER_TEMPLATE" type="xs:anyType"/>
               <xs:element name="HISTORY_RECORDS">
                 <xs:complexType>
                   <xs:sequence>

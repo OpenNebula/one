@@ -48,7 +48,7 @@
                 </xs:sequence>
               </xs:complexType>
         </xs:element>
-		<xs:element name="TEMPLATE"/>
+        <xs:element name="TEMPLATE" type="xs:anyType"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
