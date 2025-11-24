@@ -24,7 +24,13 @@ import {
   VmsTable,
   VmTabs,
 } from '@ComponentsModule'
-import { RESOURCE_NAMES, T, VM } from '@ConstantsModule'
+import {
+  RESOURCE_NAMES,
+  T,
+  VM,
+  VM_EXTENDED_POOL,
+  VM_POOL_PAGINATION_SIZE,
+} from '@ConstantsModule'
 import {
   setSelectedIds,
   useGeneral,
@@ -158,7 +164,14 @@ const InfoTabs = memo(
     selectedRows,
     handleUseRefetch,
   }) => {
-    const [getVm, { data: lazyData, isFetching }] = VmAPI.useLazyGetVmQuery()
+    const [getVm, { data: lazyData, isFetching: isFetchingVm }] =
+      VmAPI.useLazyGetVmQuery()
+    const [getVms, { isFetching: isFetchingVms }] =
+      VmAPI.useLazyGetVmsPaginatedQuery({
+        extended: VM_EXTENDED_POOL ? 1 : 0,
+        pageSize: VM_POOL_PAGINATION_SIZE,
+      })
+    const isFetching = isFetchingVm || isFetchingVms
     const id = vm?.ID ?? lazyData?.ID
     const { isFullMode } = useGeneral()
     const { setFullMode } = useGeneralApi()
@@ -217,6 +230,7 @@ const InfoTabs = memo(
               isSubmitting={isFetching}
               onClick={async () => {
                 await getVm({ id })
+                await getVms()
                 handleUseRefetch && (await handleUseRefetch())
               }}
             />
