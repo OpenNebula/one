@@ -35,15 +35,7 @@
           </xs:complexType>
         </xs:element>
         <xs:element name="REGTIME" type="xs:integer"/>
-        <xs:element name="TEMPLATE">
-          <xs:complexType>
-             <xs:sequence>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-              <xs:element name="VN_MAD" type="xs:string"/>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="TEMPLATE" type="xs:anyType"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

@@ -70,14 +70,7 @@
         <xs:element name="VMS" type="IDS"/>
         <xs:element name="CLONES" type="IDS"/>
         <xs:element name="APP_CLONES" type="IDS"/>
-        <xs:element name="TEMPLATE">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="TEMPLATE" type="xs:anyType"/>
         <xs:element name="SNAPSHOTS">
           <xs:complexType>
             <xs:sequence>

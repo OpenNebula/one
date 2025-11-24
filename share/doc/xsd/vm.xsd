@@ -70,6 +70,8 @@
               <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="1"/>
               <!-- Consumption in kilobytes -->
               <xs:element name="MEMORY" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="MEMORY_FORECAST" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="MEMORY_FORECAST_FAR" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
               <!-- Received bytes from the network -->
               <xs:element name="NETRX" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
               <!-- Network received bandwidth in bytes per second -->
@@ -84,7 +86,6 @@
               <xs:element name="NETTX_BW_FORECAST_FAR" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
               <!-- Exact time when monitoring info were retieved -->
               <xs:element name="TIMESTAMP" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -99,14 +100,7 @@
               <xs:element name="CONTEXT" minOccurs="0" maxOccurs="1"/>
               <xs:element name="CPU" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="CPU_COST" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="DISK" minOccurs="0" maxOccurs="unbounded">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+              <xs:element name="DISK" minOccurs="0" maxOccurs="unbounded"/>
               <xs:element name="DISK_COST" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="EMULATOR" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="FEATURES" minOccurs="0" maxOccurs="1"/>
@@ -140,10 +134,6 @@
               <xs:element name="NIC_ALIAS" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="ALIAS_ID" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                    <xs:element name="PARENT" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                    <xs:element name="PARENT_ID" type="xs:string" minOccurs="1" maxOccurs="1"/>
                     <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
                   </xs:sequence>
                 </xs:complexType>
@@ -190,14 +180,7 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="USER_TEMPLATE">
-          <xs:complexType>
-             <xs:sequence>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="USER_TEMPLATE" type="xs:anyType"/>
         <xs:element name="HISTORY_RECORDS">
           <xs:complexType>
             <xs:sequence>
