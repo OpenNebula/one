@@ -191,13 +191,24 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
 end
 
 def format_address(address)
+    addr = address.to_s.strip
+    raise ArgumentError, "Invalid address" if addr.empty?
+
     begin
-        ip = IPAddr.new(address)
-    rescue ArgumentError
-        raise ArgumentError, "Invalid IP address: #{address}"
+        ip = IPAddr.new(addr)
+        return ip.ipv6? ? "[#{ip}]" : ip.to_s
+    rescue IPAddr::InvalidAddressError
     end
 
-    return ip.ipv6? ? "[#{ip}]" : ip.to_s
+    ip_str = Addrinfo.getaddrinfo(addr, nil)
+                   .map(&:ip_address)
+                   .find { |ip| IPAddr.new(ip).ipv4? } ||
+             Addrinfo.getaddrinfo(addr, nil).first&.ip_address
+
+    raise ArgumentError, "Cannot resolve '#{addr}' to IP" unless ip_str
+
+    ip = IPAddr.new(ip_str)
+    ip.ipv6? ? "[#{ip}]" : ip.to_s
 end
 
 if caller.empty?
