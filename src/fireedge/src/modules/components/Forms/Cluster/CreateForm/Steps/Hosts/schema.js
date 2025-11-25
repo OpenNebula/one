@@ -42,8 +42,8 @@ const EVC_MODE = {
     !previousValue && (previousValue = hosts)
     if (Array.isArray(previousValue)) {
       const prevArray = [...previousValue].sort((a, b) => a - b)
-      const currentArra = [...hosts].sort((a, b) => a - b)
-      if (prevArray.every((value, index) => value === currentArra[index])) {
+      const currentArray = [...hosts].sort((a, b) => a - b)
+      if (prevArray.every((value, index) => value === currentArray[index])) {
         return initialValues?.TEMPLATE?.EVC_MODE
       } else {
         return ''
@@ -89,6 +89,15 @@ const HOSTS = {
 
 const FIELDS = [EVC_MODE, HOSTS]
 
-const SCHEMA = getObjectSchemaFromFields(FIELDS)
+/**
+ * Schema of the form.
+ *
+ * @returns {object} Schema
+ */
+const SCHEMA = () => {
+  previousValue = null
+
+  return getObjectSchemaFromFields(FIELDS)
+}
 
 export { FIELDS, SCHEMA }

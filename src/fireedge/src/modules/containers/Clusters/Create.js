@@ -84,6 +84,14 @@ export function CreateCluster() {
           await Promise.all(
             hostIds.map((hostId) => addHost({ id, host: hostId }))
           )
+
+          if (hosts.EVC_MODE) {
+            await update({
+              id,
+              template: jsonToXml({ EVC_MODE: hosts.EVC_MODE }),
+              replace: 1,
+            })
+          }
         }
 
         // Add vnets
@@ -101,12 +109,6 @@ export function CreateCluster() {
             datastoreIds.map((dsId) => addDatastore({ id, datastore: dsId }))
           )
         }
-
-        await update({
-          id,
-          template: jsonToXml({ EVC_MODE: hosts.EVC_MODE }),
-          replace: 1,
-        })
 
         // Only show cluster message
         enqueueSuccess(T.SuccessClusterCreated, id)
@@ -167,11 +169,36 @@ export function CreateCluster() {
           await rename({ id, name: general?.NAME }).unwrap()
         }
 
+        // Update EVC_MODE if it has changed
         if (hosts.EVC_MODE !== cluster?.TEMPLATE?.EVC_MODE) {
+          const currentHosts = cluster?.HOSTS?.ID
+            ? (Array.isArray(cluster.HOSTS.ID)
+                ? [...cluster.HOSTS.ID]
+                : [cluster.HOSTS.ID]
+              ).sort((a, b) => a - b)
+            : []
+          const removedHosts = removeHosts
+            ? [...removeHosts].sort((a, b) => a - b)
+            : []
+          const removedAllHosts = currentHosts.every(
+            (value, index) => value === removedHosts[index]
+          )
+          const newTemplate = { ...cluster?.TEMPLATE }
+          const evcModeIsEmpty = hosts.EVC_MODE?.trim() === ''
+          const hasAddedHosts = addHosts.length > 0
+          const shouldSendEvc =
+            (!removedAllHosts || hasAddedHosts) && !evcModeIsEmpty
+
+          if (shouldSendEvc) {
+            newTemplate.EVC_MODE = hosts.EVC_MODE
+          } else {
+            delete newTemplate.EVC_MODE
+          }
+
           await update({
             id,
-            template: jsonToXml({ EVC_MODE: hosts.EVC_MODE }),
-            replace: 1,
+            template: jsonToXml(newTemplate),
+            replace: shouldSendEvc ? 1 : 0,
           })
         }
 
