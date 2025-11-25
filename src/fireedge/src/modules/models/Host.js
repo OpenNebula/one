@@ -141,7 +141,8 @@ export const getKvmCpuModels = (hosts = [], common = false) => {
 
   if (common) {
     const hostDataFiltered = hostData.filter(Boolean)
-    if (!hostDataFiltered.length || hosts.length > hostDataFiltered.length) return []
+    if (!hostDataFiltered.length || hosts.length > hostDataFiltered.length)
+      return []
 
     return hostDataFiltered.reduce((acc, arr) => {
       const set = new Set(arr)

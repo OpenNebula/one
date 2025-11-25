@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import FormWithSchema from '@modules/components/Forms/FormWithSchema'
 import { T } from '@ConstantsModule'
-import { SCHEMA, FIELDS } from './schema'
-import { Grid, Card, CardContent, Typography } from '@mui/material'
+import FormWithSchema from '@modules/components/Forms/FormWithSchema'
 import { Tr } from '@modules/components/HOC'
+import { Card, CardContent, Grid, Typography } from '@mui/material'
 import { generateDocLink } from '@UtilsModule'
+import PropTypes from 'prop-types'
+import { FIELDS, SCHEMA } from './schema'
 
 export const STEP_ID = 'hosts'
 
@@ -91,7 +91,7 @@ const Content = (version) => (
 const Hosts = ({ version }) => ({
   id: STEP_ID,
   label: T.SelectHosts,
-  resolver: SCHEMA,
+  resolver: SCHEMA(),
   optionsValidate: { abortEarly: false },
   content: () => Content(version),
 })
