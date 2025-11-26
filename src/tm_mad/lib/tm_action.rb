@@ -287,9 +287,9 @@ module TransferManager
                 logger.log_error err.chomp
 
                 if rc && rc.stdout && rc.stderr
-                    logger.log_error "  [STDOUT] \"#{rc.stdout.gsub("\n", '\n')}\"\n" \
+                    logger.log_error "  [STDOUT] \"#{rc.stdout.gsub(/[\r\n]+/, '\n')}\"\n" \
                         unless opt[:nostdout]
-                    logger.log_error "  [STDERR] \"#{rc.stderr.gsub("\n", '\n')}\"\n" \
+                    logger.log_error "  [STDERR] \"#{rc.stderr.gsub(/[\r\n]+/, '\n')}\"\n" \
                         unless opt[:nostderr]
                 end
             end
