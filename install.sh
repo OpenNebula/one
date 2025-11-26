@@ -1870,7 +1870,7 @@ SCHED_RANK_ETC_FILES="src/schedm_mad/remotes/rank/etc/rank.conf \
 #-------------------------------------------------------------------------------
 
 VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
-                  src/vmm_mad/exec/vmm_exec_kvm.conf"
+                    src/vmm_mad/exec/${ARCH}/vmm_exec_kvm.conf"
 
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
@@ -2235,8 +2235,8 @@ ONEFLOW_LIB_FILES="src/flow/lib/grammar.treetop \
 ONEFLOW_LIB_STRATEGY_FILES="src/flow/lib/strategy/straight.rb"
 
 ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
-			  src/flow/lib/models/vmrole.rb \
-			  src/flow/lib/models/vrrole.rb \
+                          src/flow/lib/models/vmrole.rb \
+                          src/flow/lib/models/vrrole.rb \
                           src/flow/lib/models/service.rb"
 
 #-----------------------------------------------------------------------------
@@ -2699,11 +2699,11 @@ if [ "$UNINSTALL" = "no" ] ; then
         chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done
 
-	if [ $ARCH = 'x86_64' ]; then
-		rm -rf $DESTDIR$LIB_LOCATION/python/pulp/solverdir/cbc/linux/arm64/cbc
-	else
-		rm -rf $DESTDIR$LIB_LOCATION/python/pulp/solverdir/cbc/linux/64/cbc
-	fi
+    if [ $ARCH = 'x86_64' ]; then
+        rm -rf $DESTDIR$LIB_LOCATION/python/pulp/solverdir/cbc/linux/arm64/cbc
+    else
+        rm -rf $DESTDIR$LIB_LOCATION/python/pulp/solverdir/cbc/linux/64/cbc
+    fi
 else
     for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d
