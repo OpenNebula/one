@@ -178,7 +178,7 @@ script, host =
         [<<~SCRIPT, dst.host]
             set -e -o pipefail
 
-            pushd #{dst.dir}
+            pushd #{dst.dir} > /dev/null
             rm -rf #{dst.path} #{dst.path}.snap
 
             ssh -n #{src.host} "
