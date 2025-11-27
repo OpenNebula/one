@@ -109,21 +109,13 @@ function vgpuctl() {
 }
 
 function update_pci_info() {
-    # Get host ID
-    host_id="$(xmllint --xpath '/VM/HISTORY_RECORDS/HISTORY[last()]/HID/text()' "$VM" 2>/dev/null)"
+    PID_FILE="/var/tmp/one_db/.monitor_client.pid"
 
-    if [ -n "$host_id" ]; then
+    if [[ -s "$PID_FILE" ]]; then
+        PID=$(cat "$PID_FILE")
 
-        PROBE_PATH="/var/tmp/one/im/kvm-probes.d/host/system/pci.rb"
-
-        # Execute probe and collect the output
-        if [ -f "$PROBE_PATH" ] && [ -x "$PROBE_PATH" ]; then
-            payload="$("$PROBE_PATH" "kvm" < "$VM")"
-
-            # Send monitoring data to monitord
-            if [ $? -eq 0 ] && [ -n "$payload" ]; then
-                send_to_monitor "SYSTEM_HOST" "SUCCESS" "$host_id" "$payload"
-            fi
+        if kill -0 "$PID" 2>/dev/null; then
+           kill -SIGUSR1 "$PID"
         fi
     fi
 }

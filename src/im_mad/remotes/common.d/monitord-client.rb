@@ -133,7 +133,7 @@ class ProbeRunner
 
     # Executes the probes in the directory in a loop. The block is called after
     # each execution to optionally send the data to monitord
-    def self.monitor_loop(hyperv, path, period, stdin, &block)
+    def self.monitor_loop(hyperv, path, period, stdin, pipe_r, &block)
         # Failure retries, simple exponential backoff
         sfail  = [1, 1, 1, 2, 4, 8, 8, 16, 32, 64]
         nfail  = 0
@@ -160,7 +160,13 @@ class ProbeRunner
                 nfail += 1 if nfail < sfail.length - 1
             end
 
-            sleep(sleep_time) if sleep_time > 0
+            if pipe_r
+                ready = IO.select([pipe_r], nil, nil, sleep_time)
+
+                pipe_r.read(1) if ready
+            else
+                sleep(sleep_time) if sleep_time > 0
+            end
         end
     end
 
@@ -202,11 +208,14 @@ end
 #-------------------------------------------------------------------------------
 DB_PATH  = '/var/tmp/one_db'
 ETC_PATH = "#{DB_PATH}/etc"
+PID_FILE = "#{DB_PATH}/.monitor_client.pid"
 
 MONITORD_CONF = "#{ETC_PATH}/monitord.conf"
 
 FileUtils.mkdir_p(DB_PATH)
 FileUtils.mkdir_p(ETC_PATH)
+
+File.write(PID_FILE, "#{$$}")
 
 xml_txt = STDIN.read
 
@@ -328,14 +337,24 @@ _rd, wr = IO.pipe
 STDOUT.reopen(wr)
 STDERR.reopen(wr)
 
+signal_r, signal_w = IO.pipe
+
+Signal.trap("SIGUSR1") do
+    signal_w.write_nonblock("s")
+rescue StandardError
+end
+
 threads = []
 
 probes.each do |msg_type, conf|
+    pipe_r = msg_type == :system_host_udp ? signal_r : nil
+
     threads << Thread.new do
         ProbeRunner.monitor_loop(hyperv,
                                  conf[:path],
                                  conf[:period],
-                                 xml_txt) do |result, da|
+                                 xml_txt,
+                                 pipe_r) do |result, da|
             da.strip!
             next if da.empty?
 
