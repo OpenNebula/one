@@ -532,6 +532,30 @@ patches:
         owner: root
         group: root
         mode: '0644'
+        action: apply
+        change:
+        -   path:
+            - :MEMORY
+            key: :size
+            value: 15
+            old: 17
+            state: set
+            extra: {}
+        -   path:
+            - :default
+            key:
+            value: :PCI
+            old:
+            state: ins
+            extra:
+                index: 6
+        -   path: []
+            key: :PCI
+            value:
+                :desc: Total PCIs allocated to user VMs
+                :size: 9
+            state: ins
+            extra: {}
         content: |
             ---
             :ID:
@@ -555,11 +579,15 @@ patches:
 
             :MEMORY:
               :desc: Total memory allocated to user VMs
-              :size: 17
+              :size: 15
 
             :CPU:
               :desc: Total CPU allocated to user VMs
               :size: 11
+
+            :PCI:
+              :desc: Total PCIs allocated to user VMs
+              :size: 9
 
             :default:
             - :ID
@@ -568,6 +596,7 @@ patches:
             - :VMS
             - :MEMORY
             - :CPU
+            - :PCI
     "/etc/one/cli/onehook.yaml":
         class: Yaml::Strict
         owner: root
@@ -1043,6 +1072,37 @@ patches:
         owner: root
         group: root
         mode: '0644'
+        action: apply
+        change:
+        -   path:
+            - :VMS
+            key: :size
+            value: 9
+            old: 10
+            state: set
+            extra: {}
+        -   path:
+            - :MEMORY
+            key: :size
+            value: 15
+            old: 17
+            state: set
+            extra: {}
+        -   path:
+            - :default
+            key:
+            value: :PCI
+            old:
+            state: ins
+            extra:
+                index: 8
+        -   path: []
+            key: :PCI
+            value:
+                :desc: Total PCIs allocated to user VMs
+                :size: 9
+            state: ins
+            extra: {}
         content: |
             ---
             :ID:
@@ -1073,15 +1133,19 @@ patches:
 
             :VMS:
               :desc: Number of VMS
-              :size: 10
+              :size: 9
 
             :MEMORY:
               :desc: Total memory allocated to user VMs
-              :size: 17
+              :size: 15
 
             :CPU:
               :desc: Total CPU allocated to user VMs
               :size: 10
+
+            :PCI:
+              :desc: Total PCIs allocated to user VMs
+              :size: 9
 
             :PASSWORD:
               :desc: Password of the User
@@ -1096,6 +1160,7 @@ patches:
             - :VMS
             - :MEMORY
             - :CPU
+            - :PCI
     "/etc/one/cli/onevdc.yaml":
         class: Yaml::Strict
         owner: root
@@ -1496,6 +1561,13 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: []
+            key: oneform_server
+            value: http://localhost:13013
+            state: ins
+            extra: {}
         content: |+
             ################################################################################
             # Server Configuration
@@ -1518,6 +1590,9 @@ patches:
 
             # Flow Server: use it if you have flow-server and fireedge on different servers
             oneflow_server: 'http://localhost:2474'
+
+            # Form Server: use it if you have form-server and fireedge on different servers
+            oneform_server: 'http://localhost:13013'
 
             # JWT expiration time (minutes)
             session_expiration: 180
@@ -1579,6 +1654,18 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: &1 []
+            key: 'fullViewMode:'
+            old: 'false'
+            state: rm
+            extra: {}
+        -   path: *1
+            key: fullViewMode
+            value: 'false'
+            state: ins
+            extra: {}
         content: "################################################################################\n# Protected Settings\n################################################################################\n\n#
             Zendesk support URL\nsupport_url: 'https://opennebula.zendesk.com/api/v2'\n\n# Optional parameter for Sunstone
             commands\nsunstone_prepend: ''\n\n# Directory to store temporal files when uploading images\ntmpdir: '/var/tmp'\n\n#
@@ -1607,7 +1694,7 @@ patches:
             'Chinese (China)'\n  # zh_TW: 'Chinese (Taiwan)'\n\n# Time Zone\n# You may use it to change the time zone.\n#
             https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n# currentTimeZone: \"Europe/Madrid\"\n\n# Type of
             rows of data tables.\n# Styles can be \"card\" or \"list\", default is card.                                         \nrowStyle:
-            'card'\n\n# Show resources info in full mode\nfullViewMode:: 'false'"
+            'card'\n\n# Show resources info in full mode\nfullViewMode: 'false'"
     "/etc/one/fireedge/sunstone/profiles/base.template":
         class: Yaml
         owner: root
@@ -1679,6 +1766,35 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - Advanced options
+            - OsCpu
+            - OS
+            key: ARCH
+            value: x86_64
+            old: X86_64
+            state: set
+            extra: {}
+        -   path:
+            - Advanced options
+            - OsCpu
+            - OS
+            key: MACHINE
+            value: q35
+            old: host-passthrough
+            state: set
+            extra: {}
+        -   path:
+            - Advanced options
+            - OsCpu
+            - OS
+            key: FIRMWARE
+            value: UEFI
+            old: BIOS
+            state: set
+            extra: {}
         content: |
             ---
             # This profile defines some default windows optimizations
@@ -1688,10 +1804,10 @@ patches:
             "Advanced options":
               OsCpu:
                 OS:
-                  ARCH: X86_64
+                  ARCH: x86_64
                   SD_DISK_BUS: scsi
-                  MACHINE: host-passthrough
-                  FIRMWARE: BIOS
+                  MACHINE: q35
+                  FIRMWARE: UEFI
                 FEATURES:
                   ACPI: "Yes"
                   PAE: "Yes"
@@ -1943,6 +2059,14 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - actions
+            key: update_dialog
+            value: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the DATASTORE tab
@@ -1955,6 +2079,7 @@ patches:
 
             actions:
               create_dialog: true
+              update_dialog: true
               import_dialog: true
               change_cluster: true
               chown: true
@@ -5155,6 +5280,232 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: &2 []
+            key:
+            old:
+                title: Storage
+                icon: Box
+                routes:
+                -   title: Datastores
+                    path: "/datastore"
+                    sidebar: true
+                    icon: Db
+                    Component: Datastores
+                -   title: Create Datastore
+                    path: "/datastore/create"
+                    Component: CreateDatastore
+                -   title: Datastore
+                    path: "/datastore/:id"
+                    Component: DatastoreDetail
+                -   title: Images
+                    path: "/image"
+                    sidebar: true
+                    icon: BoxIso
+                    Component: Images
+                -   title: Create Image
+                    path: "/image/create"
+                    Component: CreateImage
+                -   title: Files
+                    path: "/file"
+                    sidebar: true
+                    icon: Archive
+                    Component: Files
+                -   title: Create File
+                    path: "/file/create"
+                    Component: CreateFile
+                -   title: Backups
+                    path: "/backup"
+                    sidebar: true
+                    icon: RefreshDouble
+                    Component: Backups
+                -   title: Backup
+                    path: "/backup/:id"
+                    Component: BackupDetail
+                -   title: Marketplaces
+                    path: "/marketplace"
+                    sidebar: true
+                    icon: SimpleCart
+                    Component: Marketplaces
+                -   title: Create Marketplace
+                    path: "/marketplace/create"
+                    Component: CreateMarketplace
+                -   title: Apps
+                    path: "/marketplace-app"
+                    sidebar: true
+                    icon: CloudDownload
+                    Component: MarketplaceApps
+                -   title: Create Marketplace App
+                    path: "/marketplace-app/create"
+                    Component: CreateMarketplaceApp
+                -   title: App
+                    path: "/marketplace-app/:id"
+                    Component: MarketplaceAppDetail
+                -   title: Create BackupJob
+                    path: "/backupjobs/create"
+                    Component: CreateBackupJob
+                -   title: BackupJobs
+                    path: "/backupjobs"
+                    sidebar: true
+                    icon: ClockOutline
+                    Component: BackupJobs
+                -   title: BackupJob
+                    path: "/backupjobs/:id"
+                    Component: BackupJobDetail
+            state: rm
+            extra: {}
+        -   path: *2
+            key:
+            old:
+                title: Infrastructure
+                icon: CloudSync
+                routes:
+                -   title: Clusters
+                    path: "/cluster"
+                    sidebar: true
+                    icon: Server
+                    Component: Clusters
+                -   title: Create Cluster
+                    path: "/cluster/create"
+                    Component: CreateCluster
+                -   title: Cluster
+                    path: "/cluster/:id"
+                    Component: ClusterDetail
+                -   title: Hosts
+                    path: "/host"
+                    sidebar: true
+                    icon: HardDrive
+                    Component: Hosts
+                -   title: Create Host
+                    path: "/host/create"
+                    Component: CreateHost
+                -   title: Host
+                    path: "/host/:id"
+                    Component: HostDetail
+                -   title: Zones
+                    path: "/zone"
+                    sidebar: true
+                    icon: MinusPinAlt
+                    Component: Zones
+            state: rm
+            extra: {}
+        -   path: *2
+            key:
+            value:
+                title: Storage
+                icon: Box
+                routes:
+                -   title: Datastores
+                    path: "/datastore"
+                    sidebar: true
+                    icon: Db
+                    Component: Datastores
+                -   title: Create Datastore
+                    path: "/datastore/create"
+                    Component: CreateDatastore
+                -   title: Update Datastore
+                    path: "/datastore/update"
+                    Component: CreateDatastore
+                -   title: Datastore
+                    path: "/datastore/:id"
+                    Component: DatastoreDetail
+                -   title: Images
+                    path: "/image"
+                    sidebar: true
+                    icon: BoxIso
+                    Component: Images
+                -   title: Create Image
+                    path: "/image/create"
+                    Component: CreateImage
+                -   title: Files
+                    path: "/file"
+                    sidebar: true
+                    icon: Archive
+                    Component: Files
+                -   title: Create File
+                    path: "/file/create"
+                    Component: CreateFile
+                -   title: Backups
+                    path: "/backup"
+                    sidebar: true
+                    icon: RefreshDouble
+                    Component: Backups
+                -   title: Backup
+                    path: "/backup/:id"
+                    Component: BackupDetail
+                -   title: Marketplaces
+                    path: "/marketplace"
+                    sidebar: true
+                    icon: SimpleCart
+                    Component: Marketplaces
+                -   title: Create Marketplace
+                    path: "/marketplace/create"
+                    Component: CreateMarketplace
+                -   title: Apps
+                    path: "/marketplace-app"
+                    sidebar: true
+                    icon: CloudDownload
+                    Component: MarketplaceApps
+                -   title: Create Marketplace App
+                    path: "/marketplace-app/create"
+                    Component: CreateMarketplaceApp
+                -   title: App
+                    path: "/marketplace-app/:id"
+                    Component: MarketplaceAppDetail
+                -   title: Create BackupJob
+                    path: "/backupjobs/create"
+                    Component: CreateBackupJob
+                -   title: BackupJobs
+                    path: "/backupjobs"
+                    sidebar: true
+                    icon: Clock
+                    Component: BackupJobs
+                -   title: BackupJob
+                    path: "/backupjobs/:id"
+                    Component: BackupJobDetail
+            state: ins
+            extra: {}
+        -   path: *2
+            key:
+            value:
+                title: Infrastructure
+                icon: CloudSync
+                routes:
+                -   title: Drivers
+                    path: "/driver"
+                    sidebar: true
+                    icon: HardDrive
+                    Component: Drivers
+                -   title: Clusters
+                    path: "/cluster"
+                    sidebar: true
+                    icon: Server
+                    Component: Clusters
+                -   title: Create Cluster
+                    path: "/cluster/create"
+                    Component: CreateCluster
+                -   title: Cluster
+                    path: "/cluster/:id"
+                    Component: ClusterDetail
+                -   title: Hosts
+                    path: "/host"
+                    sidebar: true
+                    icon: HardDrive
+                    Component: Hosts
+                -   title: Create Host
+                    path: "/host/create"
+                    Component: CreateHost
+                -   title: Host
+                    path: "/host/:id"
+                    Component: HostDetail
+                -   title: Zones
+                    path: "/zone"
+                    sidebar: true
+                    icon: MinusPinAlt
+                    Component: Zones
+            state: ins
+            extra: {}
         content: "- title: Instances\n  icon: Cell2X2\n  routes:\n    - title: VMs\n      path: /vm\n      sidebar: true\n
             \     icon: ModernTv\n      Component: VirtualMachines\n    - title: VMs\n      path: /vm/:id\n      Component:
             VirtualMachineDetail\n    - title: Virtual Routers\n      path: /vrouter\n      sidebar: true\n      icon: Shuffle\n
@@ -5176,50 +5527,51 @@ patches:
             \   - title: Virtual Routers\n      path: /vrouter-template\n      sidebar: true\n      icon: Shuffle\n      Component:
             VrTemplates\n    - title: Create Virtual Router Template\n      path: /vrouter-template/create\n      Component:
             CreateVrTemplate\n    - title: Virtual Router Template\n      path: /vrouter-template/:id\n      Component: VrTemplateDetail\n
-            \   - title: Create VM group \n      path: /vm-group/create\n      Component: CreateVmGroup\n    - title: VM Groups\n
+            \   - title: Create VM group\n      path: /vm-group/create\n      Component: CreateVmGroup\n    - title: VM Groups\n
             \     path: /vm-group\n      icon: Folder\n      sidebar: true\n      Component: VmGroups\n- title: Storage\n
             \ icon: Box\n  routes:\n    - title: Datastores\n      path: /datastore\n      sidebar: true\n      icon: Db\n
             \     Component: Datastores\n    - title: Create Datastore\n      path: /datastore/create\n      Component: CreateDatastore\n
-            \   - title: Datastore\n      path: /datastore/:id\n      Component: DatastoreDetail\n    - title: Images\n      path:
-            /image\n      sidebar: true\n      icon: BoxIso\n      Component: Images\n    - title: Create Image\n      path:
-            /image/create\n      Component: CreateImage\n    - title: Files\n      path: /file\n      sidebar: true\n      icon:
-            Archive\n      Component: Files\n    - title: Create File\n      path: /file/create\n      Component: CreateFile\n
-            \   - title: Backups\n      path: /backup\n      sidebar: true\n      icon: RefreshDouble\n      Component: Backups\n
-            \   - title: Backup\n      path: /backup/:id\n      Component: BackupDetail\n    - title: Marketplaces\n      path:
-            /marketplace\n      sidebar: true\n      icon: SimpleCart\n      Component: Marketplaces\n    - title: Create
-            Marketplace\n      path: /marketplace/create\n      Component: CreateMarketplace\n    - title: Apps\n      path:
-            /marketplace-app\n      sidebar: true\n      icon: CloudDownload\n      Component: MarketplaceApps\n    - title:
-            Create Marketplace App\n      path: /marketplace-app/create\n      Component: CreateMarketplaceApp\n    - title:
-            App\n      path: /marketplace-app/:id\n      Component: MarketplaceAppDetail\n    - title: Create BackupJob\n
-            \     path: /backupjobs/create\n      Component: CreateBackupJob\n    - title: BackupJobs\n      path: /backupjobs\n
-            \     sidebar: true\n      icon: ClockOutline\n      Component: BackupJobs\n    - title: BackupJob\n      path:
-            /backupjobs/:id\n      Component: BackupJobDetail\n- title: Networks\n  icon: ServerConnection\n  routes:\n    -
-            title: Virtual networks\n      path: /virtual-network\n      sidebar: true\n      icon: NetworkAlt\n      Component:
-            VirtualNetworks\n    - title: Instantiate Network Template\n      path: /network-template/instantiate\n      Component:
-            InstantiateVnTemplate\n    - title: Create Virtual Network\n      path: /virtual-network/create\n      Component:
-            CreateVirtualNetwork\n    - path: /virtual-network/update\n      Component: CreateVirtualNetwork\n    - title:
-            Virtual networks\n      path: /virtual-network/:id\n      Component: VirtualNetworkDetail\n    - title: Network
-            Templates\n      path: /network-template\n      sidebar: true\n      icon: KeyframesCouple\n      Component: VnTemplates\n
-            \   - title: Create Virtual Network Template\n      path: /network-template/create\n      Component: CreateVnTemplate\n
-            \   - title: Security groups\n      path: /security-group\n      sidebar: true\n      icon: HistoricShield\n      Component:
-            SecurityGroups\n    - title: Create Security Group\n      path: /security-group/create\n      Component: CreateSecurityGroup\n-
-            title: Infrastructure\n  icon: CloudSync\n  routes:\n    - title: Clusters\n      path: /cluster\n      sidebar:
-            true\n      icon: Server\n      Component: Clusters\n    - title: Create Cluster\n      path: /cluster/create\n
-            \     Component: CreateCluster\n    - title: Cluster\n      path: /cluster/:id\n      Component: ClusterDetail\n
-            \   - title: Hosts\n      path: /host\n      sidebar: true\n      icon: HardDrive\n      Component: Hosts\n    -
-            title: Create Host\n      path: /host/create\n      Component: CreateHost\n    - title: Host\n      path: /host/:id\n
-            \     Component: HostDetail\n    - title: Zones\n      path: /zone\n      sidebar: true\n      icon: MinusPinAlt\n
-            \     Component: Zones\n- title: System\n  icon: Home\n  routes:\n    - title: Create User\n      path: /user/create\n
-            \     Component: CreateUser\n    - title: Users\n      path: /user\n      sidebar: true\n      icon: User\n      Component:
-            Users\n    - title: User\n      path: /user/:id\n      Component: UserDetail\n    - title: Create Group\n      path:
-            /group/create\n      Component: CreateGroup\n    - title: Groups\n      path: /group\n      sidebar: true\n      icon:
-            Group\n      Component: Groups\n    - title: Group\n      path: /group/:id\n      Component: GroupDetail\n    -
-            path: /virtual-data-center/create\n      Component: CreateVDC\n    - title: VDCs\n      path: /virtual-data-center\n
-            \     sidebar: true\n      icon: List\n      Component: VDCs\n    - title: VDC\n      path: /virtual-data-center/:id\n
-            \     Component: VDCDetail\n    - title: Create ACL\n      path: /acl/create\n      Component: CreateACL\n    -
-            title: ACLs\n      path: /acl\n      sidebar: true\n      icon: KeyAlt\n      Component: ACLs\n- title: Support\n
-            \ path: /support\n  sidebar: true\n  icon: HeadsetHelp\n  Component: Support\n- title: Guacamole\n  path: /guacamole/:id/:type\n
-            \ sidebar: false\n  Component: Guacamole\n"
+            \   - title: Update Datastore\n      path: /datastore/update\n      Component: CreateDatastore\n    - title: Datastore\n
+            \     path: /datastore/:id\n      Component: DatastoreDetail\n    - title: Images\n      path: /image\n      sidebar:
+            true\n      icon: BoxIso\n      Component: Images\n    - title: Create Image\n      path: /image/create\n      Component:
+            CreateImage\n    - title: Files\n      path: /file\n      sidebar: true\n      icon: Archive\n      Component:
+            Files\n    - title: Create File\n      path: /file/create\n      Component: CreateFile\n    - title: Backups\n
+            \     path: /backup\n      sidebar: true\n      icon: RefreshDouble\n      Component: Backups\n    - title: Backup\n
+            \     path: /backup/:id\n      Component: BackupDetail\n    - title: Marketplaces\n      path: /marketplace\n
+            \     sidebar: true\n      icon: SimpleCart\n      Component: Marketplaces\n    - title: Create Marketplace\n
+            \     path: /marketplace/create\n      Component: CreateMarketplace\n    - title: Apps\n      path: /marketplace-app\n
+            \     sidebar: true\n      icon: CloudDownload\n      Component: MarketplaceApps\n    - title: Create Marketplace
+            App\n      path: /marketplace-app/create\n      Component: CreateMarketplaceApp\n    - title: App\n      path:
+            /marketplace-app/:id\n      Component: MarketplaceAppDetail\n    - title: Create BackupJob\n      path: /backupjobs/create\n
+            \     Component: CreateBackupJob\n    - title: BackupJobs\n      path: /backupjobs\n      sidebar: true\n      icon:
+            Clock\n      Component: BackupJobs\n    - title: BackupJob\n      path: /backupjobs/:id\n      Component: BackupJobDetail\n-
+            title: Networks\n  icon: ServerConnection\n  routes:\n    - title: Virtual networks\n      path: /virtual-network\n
+            \     sidebar: true\n      icon: NetworkAlt\n      Component: VirtualNetworks\n    - title: Instantiate Network
+            Template\n      path: /network-template/instantiate\n      Component: InstantiateVnTemplate\n    - title: Create
+            Virtual Network\n      path: /virtual-network/create\n      Component: CreateVirtualNetwork\n    - path: /virtual-network/update\n
+            \     Component: CreateVirtualNetwork\n    - title: Virtual networks\n      path: /virtual-network/:id\n      Component:
+            VirtualNetworkDetail\n    - title: Network Templates\n      path: /network-template\n      sidebar: true\n      icon:
+            KeyframesCouple\n      Component: VnTemplates\n    - title: Create Virtual Network Template\n      path: /network-template/create\n
+            \     Component: CreateVnTemplate\n    - title: Security groups\n      path: /security-group\n      sidebar: true\n
+            \     icon: HistoricShield\n      Component: SecurityGroups\n    - title: Create Security Group\n      path: /security-group/create\n
+            \     Component: CreateSecurityGroup\n- title: Infrastructure\n  icon: CloudSync\n  routes:\n    - title: Drivers\n
+            \     path: /driver\n      sidebar: true\n      icon: HardDrive\n      Component: Drivers  \n    - title: Clusters\n
+            \     path: /cluster\n      sidebar: true\n      icon: Server\n      Component: Clusters\n    - title: Create
+            Cluster\n      path: /cluster/create\n      Component: CreateCluster\n    - title: Cluster\n      path: /cluster/:id\n
+            \     Component: ClusterDetail\n    - title: Hosts\n      path: /host\n      sidebar: true\n      icon: HardDrive\n
+            \     Component: Hosts\n    - title: Create Host\n      path: /host/create\n      Component: CreateHost\n    -
+            title: Host\n      path: /host/:id\n      Component: HostDetail\n    - title: Zones\n      path: /zone\n      sidebar:
+            true\n      icon: MinusPinAlt\n      Component: Zones\n- title: System\n  icon: Home\n  routes:\n    - title:
+            Create User\n      path: /user/create\n      Component: CreateUser\n    - title: Users\n      path: /user\n      sidebar:
+            true\n      icon: User\n      Component: Users\n    - title: User\n      path: /user/:id\n      Component: UserDetail\n
+            \   - title: Create Group\n      path: /group/create\n      Component: CreateGroup\n    - title: Groups\n      path:
+            /group\n      sidebar: true\n      icon: Group\n      Component: Groups\n    - title: Group\n      path: /group/:id\n
+            \     Component: GroupDetail\n    - path: /virtual-data-center/create\n      Component: CreateVDC\n    - title:
+            VDCs\n      path: /virtual-data-center\n      sidebar: true\n      icon: List\n      Component: VDCs\n    - title:
+            VDC\n      path: /virtual-data-center/:id\n      Component: VDCDetail\n    - title: Create ACL\n      path: /acl/create\n
+            \     Component: CreateACL\n    - title: ACLs\n      path: /acl\n      sidebar: true\n      icon: KeyAlt\n      Component:
+            ACLs\n- title: Support\n  path: /support\n  sidebar: true\n  icon: HeadsetHelp\n  Component: Support\n- title:
+            Guacamole\n  path: /guacamole/:id/:type\n  sidebar: false\n  Component: Guacamole\n"
     "/etc/one/monitord.conf":
         class: Augeas::ONE
         owner: root
@@ -5407,6 +5759,29 @@ patches:
         mode: '0640'
         action: apply
         change:
+        -   path:
+            - TM_MAD
+            key: ARGUMENTS
+            value: '"-t 15 -d dummy,shared,lvm,fs_lvm,fs_lvm_ssh,qcow2,ssh,local,ceph,dev,iscsi_libvirt,netapp"'
+            old: '"-t 15 -d dummy,lvm,shared,fs_lvm,fs_lvm_ssh,qcow2,ssh,local,ceph,dev,iscsi_libvirt,netapp"'
+            state: set
+            extra: {}
+        -   path:
+            - DATASTORE_MAD
+            key: ARGUMENTS
+            value: >-
+                "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp -s dummy,shared,ssh,local,ceph,lvm,fs_lvm,fs_lvm_ssh,qcow2,netapp"
+            old: >-
+                "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp -s dummy,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp"
+            state: set
+            extra: {}
+        -   path:
+            - AUTH_MAD
+            key: AUTHN
+            value: '"ssh,x509,ldap,server_cipher,server_x509,saml"'
+            old: '"ssh,x509,ldap,server_cipher,server_x509"'
+            state: set
+            extra: {}
         -   path: []
             key: DATASTORE_ENCRYPTED_ATTR
             old: '"NETAPP_PASSWORD"'
@@ -5419,6 +5794,94 @@ patches:
             state: ins
             extra:
                 multiple: true
+        -   path:
+            - TM_MAD_CONF
+            - '"lvm"'
+            key: LN_TARGET
+            value: '"SYSTEM"'
+            old: '"NONE"'
+            state: set
+            extra: {}
+        -   path:
+            - TM_MAD_CONF
+            - '"lvm"'
+            key: CLONE_TARGET
+            value: '"SYSTEM"'
+            old: '"SELF"'
+            state: set
+            extra: {}
+        -   path:
+            - TM_MAD_CONF
+            - '"lvm"'
+            key: DISK_TYPE
+            value: '"BLOCK"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"lvm"'
+            key: ALLOW_ORPHANS
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - DS_MAD_CONF
+            - '"lvm"'
+            key: REQUIRED_ATTRS
+            value: '""'
+            old: '"DISK_TYPE,BRIDGE_LIST"'
+            state: set
+            extra: {}
+        -   path:
+            - AUTH_MAD_CONF
+            - '"saml"'
+            key: NAME
+            value: '"saml"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - AUTH_MAD_CONF
+            - '"saml"'
+            key: PASSWORD_CHANGE
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - AUTH_MAD_CONF
+            - '"saml"'
+            key: PASSWORD_REQUIRED
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - AUTH_MAD_CONF
+            - '"saml"'
+            key: DRIVER_MANAGED_GROUPS
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - AUTH_MAD_CONF
+            - '"saml"'
+            key: DRIVER_MANAGED_GROUP_ADMIN
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - AUTH_MAD_CONF
+            - '"saml"'
+            key: MAX_TOKEN_TIME
+            value: '"86400"'
+            state: ins
+            extra:
+                multiple: false
         content: |
             #*******************************************************************************
             #                       OpenNebula Configuration file
@@ -5957,7 +6420,7 @@ patches:
 
             TM_MAD = [
                 EXECUTABLE = "one_tm",
-                ARGUMENTS = "-t 15 -d dummy,lvm,shared,fs_lvm,fs_lvm_ssh,qcow2,ssh,local,ceph,dev,iscsi_libvirt,netapp"
+                ARGUMENTS = "-t 15 -d dummy,shared,lvm,fs_lvm,fs_lvm_ssh,qcow2,ssh,local,ceph,dev,iscsi_libvirt,netapp"
             ]
 
             #*******************************************************************************
@@ -5977,7 +6440,7 @@ patches:
 
             DATASTORE_MAD = [
                 EXECUTABLE = "one_datastore",
-                ARGUMENTS  = "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp -s dummy,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp"
+                ARGUMENTS  = "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp -s dummy,shared,ssh,local,ceph,lvm,fs_lvm,fs_lvm_ssh,qcow2,netapp"
             ]
 
             #*******************************************************************************
@@ -6148,7 +6611,7 @@ patches:
 
             AUTH_MAD = [
                 EXECUTABLE = "one_auth_mad",
-                AUTHN = "ssh,x509,ldap,server_cipher,server_x509"
+                AUTHN = "ssh,x509,ldap,server_cipher,server_x509,saml"
             ]
 
             #DEFAULT_AUTH = "default"
@@ -6542,14 +7005,14 @@ patches:
             ]
 
             TM_MAD_CONF = [
-                NAME = "lvm", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
-                DRIVER = "raw"
-            ]
-
-            TM_MAD_CONF = [
                 NAME = "shared", LN_TARGET = "NONE", CLONE_TARGET = "SYSTEM", SHARED = "YES",
                 DS_MIGRATE = "YES", TM_MAD_SYSTEM = "ssh", LN_TARGET_SSH = "SYSTEM",
                 CLONE_TARGET_SSH = "SYSTEM", DISK_TYPE_SSH = "FILE", ALLOW_ORPHANS="FORMAT"
+            ]
+
+            TM_MAD_CONF = [
+                NAME = "lvm", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED = "YES",
+                DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "YES"
             ]
 
             TM_MAD_CONF = [
@@ -6646,7 +7109,7 @@ patches:
             ]
 
             DS_MAD_CONF = [
-                NAME = "lvm", REQUIRED_ATTRS = "DISK_TYPE,BRIDGE_LIST",
+                NAME = "lvm", REQUIRED_ATTRS = "",
                 PERSISTENT_ONLY = "NO"
             ]
 
@@ -6768,6 +7231,15 @@ patches:
 
             AUTH_MAD_CONF = [
                 NAME = "ldap",
+                PASSWORD_CHANGE = "YES",
+                PASSWORD_REQUIRED = "NO",
+                DRIVER_MANAGED_GROUPS = "YES",
+                DRIVER_MANAGED_GROUP_ADMIN = "YES",
+                MAX_TOKEN_TIME = "86400"
+            ]
+
+            AUTH_MAD_CONF = [
+                NAME = "saml",
                 PASSWORD_CHANGE = "YES",
                 PASSWORD_REQUIRED = "NO",
                 DRIVER_MANAGED_GROUPS = "YES",
@@ -7266,6 +7738,15 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - OS
+            key: MACHINE
+            value: '"q35"'
+            state: ins
+            extra:
+                multiple: false
         content: |+
             # -----------------------------------------------------------------------------
             # Default configuration attributes for the KVM driver
@@ -7282,6 +7763,7 @@ patches:
             #      - MACHINE
             #      - SD_DISK_BUS
             #      - FIRMWARE
+            #      - FIRMWARE_FORMAT
             #      - FIRMWARE_SECURE
             #      - BOOTLOADER
             #  * VCPU
@@ -7362,7 +7844,8 @@ patches:
             MEMORY_SLOTS = 16
 
             OS = [
-                ARCH = "x86_64"
+                ARCH    = "x86_64",
+                MACHINE = "q35"
             ]
 
             FEATURES = [
@@ -7454,10 +7937,22 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: []
+            key: LIVE_DISK_SNAPSHOTS
+            state: set
+            extra: {}
+            value: >-
+                "kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-lvm kvm-netapp qemu-qcow2 qemu-shared qemu-ceph
+                qemu-ssh qemu-local qemu-netapp"
+            old: >-
+                "kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-netapp qemu-qcow2 qemu-shared qemu-ceph
+                qemu-ssh qemu-local qemu-netapp"
         content: |
             # Space separated list of VMM-TM pairs that support live disk snapshots. VMM
             # and TM must be separated by '-'
-            LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-netapp qemu-qcow2 qemu-shared qemu-ceph qemu-ssh qemu-local qemu-netapp"
+            LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-lvm kvm-netapp qemu-qcow2 qemu-shared qemu-ceph qemu-ssh qemu-local qemu-netapp"
 
             # Space separated list VNM_MAD-ACTION pairs that run locally
             VNMAD_LOCAL_ACTIONS="elastic-post elastic-clean"
@@ -8247,3 +8742,305 @@ patches:
             # - :service_port: 5030
             #   :remote_addr: 10.11.12.13 # HA VIP
             #   :remote_port: 5030
+    "/etc/one/auth/saml_auth.conf":
+        class: Yaml::Strict
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |-
+            # -------------------------------------------------------------------------- #
+            # Global Service Provider (SP) Configuration                                 #
+            # -------------------------------------------------------------------------- #
+            # The unique identifier for this OpenNebula instance as a Service Provider.
+            # This exact value must be configured in each Identity Provider (IdP) that
+            # you connect (e.g., as the Client ID in Keycloak or Audience URI in Okta).
+            # It is used to validate the 'Audience' in the SAML assertion.
+            :sp_entity_id: 'your-opennebula-sp-entity-id'
+
+            # -------------------------------------------------------------------------- #
+            # Assertion Consumer Service (ACS) URL                                       #
+            # -------------------------------------------------------------------------- #
+            # The endpoint where OpenNebula receives SAML assertions.
+            # This value must exactly match the 'Recipient' URL that the IdP
+            # includes in the SAML assertion, preventing SAML redirect attacks
+            :acs_url: 'https://your-opennebula-domain.com/fireedge/api/auth/acs'
+
+            # -------------------------------------------------------------------------- #
+            # Identity Provider (IdP) Definitions                                        #
+            # -------------------------------------------------------------------------- #
+            # A map containing the configuration for each trusted Identity Provider,
+            # where the key is the name of the provider.
+            :identity_providers:
+              :keycloak_idp:
+                # The 'issuer' is a unique identifier for the Identity Provider.
+                # This value from the SAML assertion's <saml:Issuer> element is used
+                # to find the correct configuration block.
+                # Example: "https://your-keycloak-domain.com/realms/your-realm"
+                :issuer: 'https://your-keycloak-domain.com/realms/your-realm'
+
+                # The X.509 public key certificate of the Identity Provider.
+                # This is used to verify the signature of the SAML assertion.
+                # The certificate should be in PEM format, without the -----BEGIN...
+                # and -----END... lines, and on a single line.
+                :idp_cert: 'MIID...your...IdP...cert...here...A=='
+
+                # Field in the SAML assertion that contains the username.
+                # By default, the driver will use the content of the <saml:NameID> element.
+                :user_field: 'NameID'
+
+                # Field in the SAML assertion that contains the group membership information.
+                # This should correspond to an <saml:Attribute> with the Name specified here.
+                # Default is 'member'.
+                :group_field: 'member'
+
+                # If set, SAML users must belong to this group in order to be allowed access to
+                # OpenNebula. If not set, any valid SAML user will be granted access. If that's
+                # the case and no group membership is reported, the ONE group ID defined in
+                # :mapping_default will be used.
+                # :group_required: 'one-users'
+
+                # --- Group Mapping Configuration ---
+
+                # If 'true', the driver will automatically generate a group mapping file
+                # from the information in the OpenNebula groups template. This is similar to the
+                # LDAP driver's functionality.
+                :mapping_generate: true
+
+                # Key from the OpenNebula group template to map to a SAML group.
+                # Only relevant if mapping_generate is true
+                :mapping_key: 'SAML_GROUP'
+
+                # Group mapping mode. Triggers IDP-dependant logic.
+                # Used to support specific IDP features (e.g. group nesting in Keycloak)
+                # Possible values:
+                # strict   => strict mapping between the group names reported by the IdP and
+                #             the ones in the mapping file.
+                # keycloak => handles Keycloak full group path syntax, supporting group nesting
+                #             E.g. A user member of /group1/subgroup1 is considered both member
+                #                  of group1 and member of subgroup1.
+                :mapping_mode: 'keycloak'
+
+                # Time in seconds that a mapping file will be considered valid before
+                # it is regenerated. Only relevant if mapping_generate is true
+                :mapping_timeout: 300
+
+                # The name of the group mapping file, which will be stored in
+                # OpenNebula's var directory ( /var/lib/one ).
+                # If mapping_generate is true, this file will be automatically created and
+                # populated.
+                :mapping_filename: 'keycloak_groups.yaml'
+
+                # The default OpenNebula group ID to assign to a user if none of their SAML
+                # groups is found in the mapping file.
+                :mapping_default: 1
+
+                # Name of a group from the Identity Provider. If a user is a member of this group,
+                # they will be granted admin rights for ALL their mapped OpenNebula groups.
+                :group_admin_name: '/opennebula-admins'
+              :okta_idp:
+                :issuer: 'https://your-okta-domain.com/app/your-app-id/sso/saml'
+                :idp_cert: 'MIID...your...IdP...cert...here...A=='
+                :user_field: 'NameID'
+                :group_field: 'member'
+                # :group_required: 'opennebula-users'
+                :mapping_generate: true
+                :mapping_key: 'OKTA_GROUP'
+                :mapping_mode: 'strict'
+                :mapping_timeout: 300
+                :mapping_filename: 'okta_groups.yaml'
+                :mapping_default: 1
+                :group_admin_name: 'okta-opennebula-admins'
+    "/etc/one/cli/oneform.yaml":
+        class: Yaml::Strict
+        owner: root
+        group: root
+        mode: '0644'
+        action: create
+        content: |
+            ---
+            :NAME:
+              :desc: Name of the driver
+              :size: 15
+              :left: true
+
+            :DEPLOYMENTS:
+              :desc: Available deployments for the driver
+              :size: 15
+              :left: true
+              :expand: true
+
+            :VERSION:
+              :desc: Version of the driver
+              :size: 8
+              :left: true
+
+            :STATE:
+              :desc: Indicates the driver state
+              :size: 10
+              :left: true
+
+            :default:
+            - :NAME
+            - :DEPLOYMENTS
+            - :STATE
+    "/etc/one/cli/oneprovider.yaml":
+        class: Yaml::Strict
+        owner: root
+        group: root
+        mode: '0644'
+        action: create
+        content: |
+            ---
+            :ID:
+              :desc: ONE identifier for Provider
+              :size: 4
+              :adjust: true
+
+            :USER:
+              :desc: Username of the Provider owner
+              :size: 8
+              :left: true
+
+            :GROUP:
+              :desc: Group of the Provider
+              :size: 8
+              :left: true
+
+            :NAME:
+              :desc: Name of the Provider
+              :size: 15
+              :left: true
+              :expand: true
+
+            :REGTIME:
+              :desc: Registration time of the Provider
+              :size: 15
+
+            :default:
+            - :ID
+            - :USER
+            - :GROUP
+            - :NAME
+            - :REGTIME
+    "/etc/one/cli/oneprovision.yaml":
+        class: Yaml::Strict
+        owner: root
+        group: root
+        mode: '0644'
+        action: create
+        content: |+
+            ---
+            :ID:
+              :desc: ONE identifier for Provision
+              :size: 4
+              :adjust: true
+
+            :USER:
+              :desc: Username of the Provision owner
+              :size: 8
+              :left: true
+
+            :GROUP:
+              :desc: Group of the Provision
+              :size: 8
+              :left: true
+
+            :NAME:
+              :desc: Name of the Provision
+              :size: 15
+              :left: true
+              :expand: true
+
+            :STATE:
+              :desc: State of the Provision
+              :size: 30
+              :left: true
+              :adjust: true
+
+            :REGTIME:
+              :desc: Registration time of the Provision
+              :size: 15
+
+            :default:
+            - :ID
+            - :USER
+            - :GROUP
+            - :NAME
+            - :STATE
+            - :REGTIME
+
+    "/etc/one/oneform-server.conf":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            ################################################################################
+            # Server Configuration
+            ################################################################################
+
+            # OpenNebula daemon contact information
+            :one_xmlrpc: http://localhost:2633/RPC2
+
+            # Host and port where OneForm server will run
+            :host: 127.0.0.1
+            :port: 13013
+
+            ################################################################################
+            # Defaults
+            ################################################################################
+
+            # Path where OneForm will store the generated files for each provision
+            :work_dir: /tmp/oneform/
+
+            ################################################################################
+            # One-Deploy Configuration
+            ################################################################################
+
+            # OneDeploy tags to be used for the deployment
+            #   - stage1: Solo, FED, HA or FED + HA Front-end deployments
+            #   - stage2: KVM node provisioning
+            #   - stage3: Manage OpenNebula objects (datastores and networks)
+            :onedeploy_tags: stage2,stage3,network
+
+            #############################################################
+            # Auth
+            #############################################################
+
+            # Authentication driver to communicate with OpenNebula core
+            #   - cipher, for symmetric cipher encryption of tokens
+            #   - x509, for x509 certificate encryption of tokens
+            :auth: opennebula
+            :core_auth: cipher
+            :expire_delta: 3600
+
+            ################################################################################
+            # Log
+            ################################################################################
+
+            # Log debug level
+            #   0 = ERROR, 1 = WARNING, 2 = INFO, 3 = DEBUG
+            #
+            # System
+            #   - file: log to log file
+            #   - syslog: log to syslog
+            :log:
+              :level: 2
+              :system: file
+    "/var/lib/one/remotes/etc/im/qemu-probes.d/forecast.conf":
+        class: Yaml
+        owner: oneadmin
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: "# This section is related to the configuration for DB retention and forecast period\n# related to the hosts\nhost:\n
+            \ db_retention: 4 # Number of weeks\n  forecast:\n      enabled: true\n      period: 5 # Number of minutes\n      lookback:
+            60 # The look-back windows in minutes to use for the predictions \n  forecast_far: \n      enabled: true\n      period:
+            43200 # Number of minutes\n      lookback: 86400 # The look-back windows in minutes to use for the predictions\n\n#
+            This section is related to the configuration for DB retention and forecast \n# related to the virtual machines\nvirtualmachine:\n
+            \ db_retention: 2 # Number of weeks\n  forecast:\n      enabled: true \n      period: 5 # Number of minutes\n
+            \     lookback: 60 # The look-back windows in minutes to use for the predictions\n  forecast_far:\n      enabled:
+            false\n      period:  2880 # Number of minutes\n      lookback: 10080 # The look-back windows in minutes to use
+            for the predictions\n"

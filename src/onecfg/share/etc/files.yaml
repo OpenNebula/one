@@ -338,6 +338,13 @@
   mode: '0640'
   src: src/oneprometheus/prometheus/etc/rules.yml
 
+- name: /etc/one/oneform-server.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+  src: src/form/etc/oneform-server.conf
+
 ### Dir: /var/lib/one/remotes/etc/ #########################
 
 - name: /var/lib/one/remotes/etc/datastore/datastore.conf
@@ -395,6 +402,13 @@
   group: oneadmin
   mode: '0640'
   src: src/im_mad/remotes/node-probes.d/pci.conf
+
+- name: /var/lib/one/remotes/etc/im/qemu-probes.d/forecast.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+  src: src/im_mad/remotes/node-probes.d/forecast.conf
 
 - name: /var/lib/one/remotes/etc/im/qemu-probes.d/probe_db.conf
   class: Yaml
