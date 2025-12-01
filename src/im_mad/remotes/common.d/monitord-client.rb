@@ -339,9 +339,10 @@ STDERR.reopen(wr)
 
 signal_r, signal_w = IO.pipe
 
-Signal.trap("SIGUSR1") do
-    signal_w.write_nonblock("s")
+Signal.trap('SIGUSR1') do
+    signal_w.write_nonblock('s')
 rescue StandardError
+    # ignore, handler should not raise
 end
 
 threads = []
