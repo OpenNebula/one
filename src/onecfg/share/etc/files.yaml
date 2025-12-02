@@ -431,6 +431,13 @@
   mode: '0640'
   src: src/im_mad/remotes/lib/forecast.conf
 
+- name: /var/lib/one/remotes/etc/im/lxc-probes.d/pci.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+  src: src/im_mad/remotes/lib/pci.conf
+
 - name: /var/lib/one/remotes/etc/im/lxd-probes.d/pci.conf
   class: Yaml
   owner: oneadmin

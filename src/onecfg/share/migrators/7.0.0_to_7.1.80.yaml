@@ -9044,3 +9044,65 @@ patches:
             \     lookback: 60 # The look-back windows in minutes to use for the predictions\n  forecast_far:\n      enabled:
             false\n      period:  2880 # Number of minutes\n      lookback: 10080 # The look-back windows in minutes to use
             for the predictions\n"
+    "/var/lib/one/remotes/etc/im/lxc-probes.d/pci.conf":
+        class: Yaml
+        owner: oneadmin
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            # This option specifies the main filters for PCI card monitoring. The format
+            # is the same as used by lspci to filter on PCI card by vendor:device(:class)
+            # identification. Several filters can be added as a list, or separated
+            # by commas. The NULL filter will retrieve all PCI cards.
+            #
+            # From lspci help:
+            #     -d [<vendor>]:[<device>][:<class>]
+            #            Show only devices with specified vendor, device and  class  ID.
+            #            The  ID's  are given in hexadecimal and may be omitted or given
+            #            as "*", both meaning "any value"#
+            #
+            # For example:
+            #   :filter:
+            #     - '10de:*'      # all NVIDIA VGA cards
+            #     - '10de:11bf'   # only GK104GL [GRID K2]
+            #     - '*:10d3'      # only 82574L Gigabit Network cards
+            #     - '8086::0c03'  # only Intel USB controllers
+            #
+            # or
+            #
+            #   :filter: '*:*'    # all devices
+            #
+            # or
+            #
+            #   :filter: '0:0'    # no devices
+            #
+            :filter: '0:0'
+
+            # The PCI cards list restricted by the :filter option above can be even more
+            # filtered by the list of exact PCI addresses (bus:device.func).
+            #
+            # For example:
+            #   :short_address:
+            #     - '07:00.0'
+            #     - '06:00.0'
+            #
+            :short_address: []
+
+            # The PCI cards list restricted by the :filter option above can be even more
+            # filtered by matching the device name against the list of regular expression
+            # case-insensitive patterns.
+            #
+            # For example:
+            #   :device_name:
+            #     - 'Virtual Function'
+            #     - 'Gigabit Network'
+            #     - 'USB.*Host Controller'
+            #     - '^MegaRAID'
+            #
+            :device_name: []
+
+            # List of NVIDIA vendor IDs, these are used to recognize PCI devices from
+            # NVIDIA and use vGPU feature
+            :nvidia_vendors:
+              - '10de'
