@@ -20,6 +20,7 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'client'
 require 'opennebula_vm'
+require 'tempfile'
 
 # LXC Container abstraction. Handles container native and added
 # operations. Allows to gather container config and status data
@@ -39,6 +40,9 @@ class Container
         @client = client
 
         @name = @one.vm_name
+
+        @driver_config = @one.lxcrc
+        @driver_config.merge!(:id_map => 0) if @one.privileged?
     end
 
     class << self
@@ -96,11 +100,8 @@ class Container
         error   = false
         mounted = []
 
-        lxcrc = @one.lxcrc
-        lxcrc.merge!(:id_map => 0) if @one.privileged?
-
         @one.disks.each do |disk|
-            if disk.mount(lxcrc)
+            if disk.mount(@driver_config)
                 mounted << disk
             else
                 error = true
@@ -141,7 +142,7 @@ class Container
             return false
         end
 
-        return true if wait_deploy(5)
+        return true if wait_deploy(5) && configure_pci_nics
 
         clean(true)
         return false
@@ -159,29 +160,140 @@ class Container
     def reboot
         rc = @client.stop(@name)
 
-        # Remove nic from ovs-switch if needed
-        @one.get_nics.each do |nic|
-            del_bridge_port(nic) # network driver matching implemented here
-        end
+        # # avoid bind mounts on new container restart
+        # @one.disks.each {|d| return false unless d.clean_live }
+
+        # lxc-stop doesn't remove ovs host side nic
+        @one.nics.each {|n| @one.del_bridge_port(n) }
 
         return false unless rc
 
-        @client.start(@name)
+        # Make sure container starts with an updated configuration file
+        file = Tempfile.new
+        file.write(@one.to_lxc)
+        file.flush
+        file.rewind
+
+        # starting without ovs host side nic removal results in error
+        @client.start(@name, { :rcfile => file.path })
+        wait_deploy(5)
     end
 
+    #---------------------------------------------------------------------------
+    # Storage
+    #---------------------------------------------------------------------------
+
     def clean(ignore_err = false)
+        disks = @one.disks
+
+        # sort disks so rootfs is last during cleanup operations
+        disks.each do |disk|
+            next unless disk.rootfs?
+
+            disks << disks.delete(disk)
+            break
+        end
+
+        # rubocop:disable Style/CombinableLoops
         # Unmap storage
-        @one.disks.each do |disk|
+        disks.each do |disk|
             rc = disk.umount({ :ignore_err => ignore_err })
 
             return false if ignore_err != true && !rc
         end
+        # rubocop:enable Style/CombinableLoops
 
         # Clean bindpoint
         FileUtils.rm_rf(@one.bind_folder) if Dir.exist?(@one.bind_folder)
 
         # Destroy container
         @client.destroy(@name) if @client.list.include?(@name)
+    end
+
+    def attach_disk(id = nil, guest_path = nil)
+        id ||= @one.hotplug_disk_id
+        guest_path ||= "/#{@driver_config[:mountopts][:mountpoint].gsub('$id', id.to_s)}"
+
+        disk = @one.disk(id)
+        container_path = @one.bind_mount_path(guest_path)
+
+        disk.mount(@driver_config)
+        disk.pass_mount(container_path)
+    end
+
+    def detach_disk(id = nil)
+        id ||= @one.hotplug_disk_id
+        disk = @one.disk(id)
+
+        # umount the entry inside the container
+        cmd = "umount #{disk.mountpoint}"
+        return false unless execute(cmd)
+
+        disk.umount
+    end
+
+    def attach_context
+        return true unless @one.has_context?
+
+        id = @one.context_id
+        guest_path = '/context'
+
+        attach_disk(id, guest_path)
+    end
+
+    def detach_context
+        return true unless @one.has_context?
+
+        detach_disk(@one.context_id)
+    end
+
+    #---------------------------------------------------------------------------
+    # Network
+    #---------------------------------------------------------------------------
+
+    def attach_nic(mac)
+        if @one.pci_attach?
+            nic     = @one.hotplug_pci
+            pci_nic = @one.nic_name_by_address(nic['ADDRESS'])
+
+            @client.attach_device(@name, pci_nic)
+        else
+            nic = @one.nic_by_mac(mac)
+
+            veth_peer = @one.create_veth_pair(nic)
+            return false unless veth_peer
+
+            if !@one.add_bridge_port(nic)
+                @one.delete_nic(nic['TARGET'])
+                return false
+            end
+
+            return true if @client.attach_device(@name, LXCVM.veth_peer(nic),
+                                                 LXCVM.nic_guest(nic))
+
+            @one.del_bridge_port(nic)
+            @one.delete_nic(nic['TARGET'])
+            false
+        end
+    end
+
+    def detach_nic(mac)
+        if @one.pci_attach?
+            nic     = @one.hotplug_pci
+            pci_nic = nic_name_by_short_address(nic['SHORT_ADDRESS'])
+
+            @client.detach_device(@name, pci_nic)
+        else
+            nic = @one.nic_by_mac(mac)
+
+            return false unless @client.detach_device(@name, LXCVM.nic_guest(nic),
+                                                      LXCVM.veth_peer(nic))
+
+            return true if !@one.del_bridge_port(nic)
+
+            @one.delete_nic(nic['TARGET'])
+            true
+        end
     end
 
     #---------------------------------------------------------------------------
@@ -192,7 +304,63 @@ class Container
         @one.vnc(signal, @one.lxcrc[:vnc][:command], @one.lxcrc[:vnc])
     end
 
+    #---------------------------------------------------------------------------
+    # Command Injection
+    #---------------------------------------------------------------------------
+
+    def restart_context
+        cmd = 'service one-context-reconfigure restart'
+        execute(cmd, true)
+
+        configure_pci_nics
+    end
+
+    # Trigger context pci configuration script without translated PCI device address
+    # one-context will fail to setup device due to VM_ADDRESS
+    def configure_pci_nics
+        pci_nics = @one.pci_nics
+
+        return true if pci_nics.empty?
+
+        cmd = 'set -a; source /context/context.sh;'
+        pci_nics.each do |nic|
+            # override VM_ADDRESS
+            id = nic['NIC_ID']
+            address = nic['SHORT_ADDRESS']
+
+            cmd << " export PCI#{id}_ADDRESS=#{address};"
+        end
+        # find -lname fails on alpine. -lname not an option
+        cmd << ' /etc/one-context.d/loc-10-network-pci local'
+
+        bash(cmd)
+        true
+    end
+
+    def execute(cmd, detach = false)
+        @client.attach(@name, cmd, {}, detach)
+    end
+
+    def bash(cmd)
+        @client.bash(@name, cmd, {})
+    end
+
     private
+
+    def get_pci_nic_name_by_short_address(address)
+        # find -lname fails on alpine. -lname not an option
+        cmd = "find /sys/class/net/*/device -lname *#{address}" # same as loc-10-network-pci lookup
+
+        rc, o, _e = bash(cmd)
+
+        if rc != 0
+            msg = "#{__method__} PCI Device #{address} not found inside container"
+            OpenNebula::DriverLogger msg
+            return false
+        end
+
+        o.split('/')[4] # /sys/class/net/dev159/device
+    end
 
     # Waits for the container to be RUNNING
     #  @param timeout[Integer] seconds to wait for the conatiner to start
@@ -205,20 +373,6 @@ class Container
         # Ensure it remains running
         sleep(1)
         running?
-    end
-
-    def del_bridge_port(nic)
-        return true unless /ovswitch/ =~ nic['VN_MAD']
-
-        cmd = 'sudo -n ovs-vsctl --if-exists del-port '\
-        "#{nic['BRIDGE']} #{nic['TARGET']}"
-
-        rc, _o, e = Command.execute(cmd, false, 1)
-
-        return true if rc.zero?
-
-        OpenNebula::DriverLogger.log_error "#{__method__}: #{e}"
-        false
     end
 
 end

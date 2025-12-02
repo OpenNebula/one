@@ -408,11 +408,6 @@ module VirtualMachineManagerKVM
             @xpath_prefix = ''
         end
 
-        # @return true if the VM includes a PCI device being attached
-        def pci_attach?
-            @xml.exist? "TEMPLATE/PCI[ATTACH='YES']"
-        end
-
         #-----------------------------------------------------------------------
         #  This function generates a XML document to attach a new interface
         #  to the VM. The interface specification supports the same OpenNebula

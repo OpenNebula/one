@@ -14,13 +14,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'load_opennebula_paths'
+
 # This class parses and wraps the information in the Driver action data
 class OpenNebulaVM
 
     # rubocop:disable Naming/PredicateName
     # rubocop:disable Naming/AccessorMethodName
 
-    attr_reader :vm_id, :vm_name, :sysds_path
+    attr_reader :vm_id, :vm_name, :sysds_path, :rootfs_id
 
     # share values default for cgroup versions
     DEFAULT_SHARES = {
@@ -58,12 +60,19 @@ class OpenNebulaVM
         }
     }
 
+    PCI_FS = '/sys/bus/pci/devices'
+
     #---------------------------------------------------------------------------
     # Class Constructor
     #---------------------------------------------------------------------------
     def initialize(xml, mad_conf)
         @xml = XMLElement.new_s(xml)
-        @xml = @xml.element('//VM')
+
+        if @xml.element('//VMM_DRIVER_ACTION_DATA')
+            @xml = @xml.element('//VMM_DRIVER_ACTION_DATA/VM')
+        else
+            @xml = @xml.element('//VM')
+        end
 
         @vm_id   = Integer(@xml['//TEMPLATE/VMID'])
         @vm_name = @xml['//DEPLOY_ID']
@@ -91,7 +100,65 @@ class OpenNebulaVM
     #---------------------------------------------------------------------------
 
     def has_context?
-        !@xml['//TEMPLATE/CONTEXT/DISK_ID'].empty?
+        !context_id.empty?
+    end
+
+    def context_id
+        @xml['//TEMPLATE/CONTEXT/DISK_ID']
+    end
+
+    # @return true if the VM includes a PCI device being attached
+    def pci_attach?
+        @xml.exist? "TEMPLATE/PCI[ATTACH='YES']"
+    end
+
+    def hotplug_pci
+        @xml.element("//TEMPLATE/PCI[ATTACH='YES']")
+    end
+
+    def pci_devices
+        @xml.elements('//TEMPLATE/PCI')
+    end
+
+    def pci_nics
+        nics = []
+
+        pci_devices.each {|device| nics << device if device['TYPE'] == 'NIC' }
+
+        nics
+    end
+
+    # Return the interface name by its PCI address
+    # Example 00:14.3 -> /sys/devices/pci0000:00/0000:00:14.3/net/wlan0
+    #                 return wlan0/nil
+    def nic_name_by_address(address)
+        fs_address = address.clone
+        fs_address[fs_address.rindex(':')] = '.'
+
+        path = "#{PCI_FS}/#{fs_address}"
+
+        if !File.directory?(path)
+            OpenNebula::DriverLogger.log_error "PCI #{address} does not exist"
+            return
+        end
+
+        path = "#{PCI_FS}/#{fs_address}/net"
+
+        if !File.directory?(path)
+            OpenNebula::DriverLogger.log_error "PCI #{address} is not a net device"
+            return
+        end
+
+        networks = Dir.children(path)
+
+        return networks[0]
+    end
+
+    # Detects disk being hotplugged
+    def hotplug_disk_id
+        disk = disks.select {|d| d['ATTACH'].casecmp('YES').zero? }
+
+        disk.first['DISK_ID']
     end
 
     # Returns cgroup version
@@ -115,15 +182,35 @@ class OpenNebulaVM
         Float(@xml['//TEMPLATE/CPU'])
     end
 
-    def get_nics
+    def nics
         @xml.elements('//TEMPLATE/NIC')
     end
 
-    def get_disks
+    def nic_by_id(id)
+        @xml.element("//TEMPLATE/NIC[NIC_ID=\"#{id}\"]")
+    end
+
+    def nic_by_mac(address)
+        @xml.element("//TEMPLATE/NIC[MAC=\"#{address}\"]")
+    end
+
+    def nic_name(id)
+        nic(id)['TARGET']
+    end
+
+    def disk(id)
+        @xml.element("//TEMPLATE/DISK[DISK_ID=\"#{id}\"]")
+    end
+
+    def disks
         @xml.elements('//TEMPLATE/DISK')
     end
 
-    def get_numa_nodes
+    def context
+        @xml.element('//TEMPLATE/CONTEXT')
+    end
+
+    def numa_nodes
         @xml.elements('//TEMPLATE/NUMA_NODE')
     end
 
@@ -228,7 +315,7 @@ class OpenNebulaVM
 
     def limits_memory_swap(hypervisor_attr)
         memory = get_memory.to_i
-        swap = @xml["/VM/USER_TEMPLATE/#{hypervisor_attr}"].to_i
+        swap = @xml["//USER_TEMPLATE/#{hypervisor_attr}"].to_i
 
         "#{swap + memory}M"
     end

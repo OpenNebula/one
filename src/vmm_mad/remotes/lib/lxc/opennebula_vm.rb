@@ -86,7 +86,7 @@ class LXCVM < OpenNebulaVM
 
     CONTAINER_FS_PATH = '/var/lib/lxc-one'
 
-    attr_reader :lxcrc, :bind_folder
+    attr_reader :lxcrc, :bind_folder, :xml
 
     def initialize(xml)
         # Load Driver configuration
@@ -115,12 +115,21 @@ class LXCVM < OpenNebulaVM
             end
         end
 
-        # Add nics
-        get_nics.each_with_index do |nic, i|
+        # Add veth nics
+        nics.each_with_index do |nic, i|
             lxc["lxc.net.#{i}.type"]      = 'veth'
             lxc["lxc.net.#{i}.link"]      = nic['BRIDGE']
             lxc["lxc.net.#{i}.hwaddr"]    = nic['MAC']
-            lxc["lxc.net.#{i}.veth.pair"] = "one-#{@vm_id}-#{nic['NIC_ID']}"
+            lxc["lxc.net.#{i}.veth.pair"] = nic['TARGET']
+        end
+
+        # Add passthrough nics
+        pci_nics.each do |nic|
+            i = nic['NIC_ID']
+
+            lxc["lxc.net.#{i}.type"]  = 'phys'
+            lxc["lxc.net.#{i}.link"]  = nic_name_by_address(nic['ADDRESS'])
+            lxc["lxc.net.#{i}.flags"] = 'up'
         end
 
         # rubocop:disable Layout/LineLength
@@ -129,25 +138,23 @@ class LXCVM < OpenNebulaVM
         cg_version = get_cgroup_version
 
         if cg_version != 0
-            # rubocop:disable Style/ConditionalAssignment
             cg_set = if cg_version == 2
                          CGROUP_NAMES.keys[1]
                      else
                          CGROUP_NAMES.keys[0]
                      end
-            # rubocop:enable Style/ConditionalAssignment
 
             pre= "lxc.#{cg_set}."
 
             lxc["#{pre}cpu.#{CGROUP_NAMES[cg_set][:cpu]}"] = cpu_shares(cg_version)
 
-            numa_nodes = get_numa_nodes
+            nnodes = numa_nodes
 
-            if !numa_nodes.empty?
+            if !nnodes.empty?
                 nodes = []
                 cores = []
 
-                numa_nodes.each do |node|
+                nnodes.each do |node|
                     nodes << node['MEMORY_NODE_ID']
                     cores << node['CPUS']
                 end
@@ -191,7 +198,7 @@ class LXCVM < OpenNebulaVM
         # 0 = trace, 1 = debug, 2 = info, 3 = notice, 4 = warn,
         # 5 = error, 6 = critical, 7 = alert, 8 = fatal
         lxc['lxc.log.level'] = 5
-        lxc['lxc.log.file'] = "/var/log/lxc/one-#{@vm_id}.log"
+        lxc['lxc.log.file']  = "/var/log/lxc/one-#{@vm_id}.log"
         lxc['lxc.console.logfile'] = "/var/log/lxc/one-#{@vm_id}.console"
 
         # Parse RAW section (lxc values should prevail over raw section values)
@@ -200,45 +207,150 @@ class LXCVM < OpenNebulaVM
         hash_to_lxc(lxc)
     end
 
+    def disk(id)
+        xml = if id == context_id
+                  context
+              else
+                  super(id)
+              end
+
+        return if xml['TYPE'].downcase == 'swap'
+
+        disk_args = [xml] + disk_args_common
+
+        case xml['DISK_ID']
+        when @rootfs_id
+            Disk.new_root(*disk_args)
+        when context_id
+            Disk.new_context(*disk_args)
+        else
+            Disk.new_disk(*disk_args)
+        end
+    end
+
     # Returns an Array of Disk objects, each one represents an OpenNebula DISK
     def disks
-        adisks = []
+        disks = []
 
-        return adisks if @rootfs_id.nil?
-
-        @xml.elements('//TEMPLATE/DISK').each do |xml|
-            next if xml['TYPE'].downcase == 'swap'
-
-            # rubocop:disable Style/ConditionalAssignment
-            if xml['DISK_ID'] == @rootfs_id
-                adisks << Disk.new_root(xml, @sysds_path, @vm_id,
-                                        @lxcrc[:mountopts])
-            else
-                adisks << Disk.new_disk(xml, @sysds_path, @vm_id,
-                                        @lxcrc[:mountopts])
-            end
-            # rubocop:enable Style/ConditionalAssignment
+        super.each do |xml|
+            lxc_disk = disk(xml['DISK_ID'])
+            disks << lxc_disk unless lxc_disk.nil?
         end
 
-        context_xml = @xml.element('//TEMPLATE/CONTEXT')
+        disks << disk(context['DISK_ID']) if has_context?
 
-        if context_xml
-            adisks << Disk.new_context(context_xml, @sysds_path, @vm_id,
-                                       @lxcrc[:mountopts])
-        end
-
-        adisks
+        disks
     end
 
     def privileged?
         ['NO', 'false'].each do |val|
-            return true if @xml['/VM/USER_TEMPLATE/LXC_UNPRIVILEGED'].casecmp(val).zero?
+            return true if @xml['//USER_TEMPLATE/LXC_UNPRIVILEGED'].casecmp(val).zero?
         end
 
         false
     end
 
+    def bind_mount_path(guest_path)
+        "#{CONTAINER_FS_PATH}/#{@vm_id}/disk.#{@rootfs_id}/#{guest_path}"
+    end
+
+    def create_veth_pair(nic)
+        veth_peer = "vpeer#{nic['TARGET']}"
+
+        cmds = []
+        cmds << "ip link add #{nic['TARGET']} type veth peer name #{veth_peer}"
+        cmds << "ip link set #{veth_peer} address #{nic['MAC']}"
+        cmds << "ip link set #{nic['TARGET']} up"
+
+        cmds.each do |cmd|
+            rc, _o, e = Command.execute("sudo -n #{cmd}", false, 1)
+            next unless rc != 0
+
+            error = "Could not create veth pair\n#{e}"
+            OpenNebula::DriverLogger.log_error "#{__method__}: #{error}"
+            delete_nic(nic['TARGET'])
+            return false
+        end
+
+        return veth_peer
+    end
+
+    def delete_nic(nic_name)
+        return true unless nic_exist?(nic_name)
+
+        cmd = "ip link delete #{nic_name}"
+        rc, _o, e = Command.execute("sudo -n #{cmd}", false, 1)
+        return true if rc.zero?
+
+        OpenNebula::DriverLogger.log_error "#{__method__}: #{e}"
+        return false
+    end
+
+    def add_bridge_port(nic)
+        case nic['BRIDGE_TYPE']
+        when 'linux'
+            cmd = "ip link set #{nic['TARGET']} master #{nic['BRIDGE']}"
+        when 'openvswitch'
+            cmd = "ovs-vsctl add-port #{nic['BRIDGE']} #{nic['TARGET']}"
+        when 'openvswitch_dpdk'
+            cmd = "ovs-vsctl add-port #{bridge} #{nic['TARGET']}"
+
+            dpdk_path = "#{@sysds_path}/#{nic['TARGET']}"
+            cmd << " -- set Interface #{nic['TARGET']} type=dpdkvhostuserclient "\
+                   "options:vhost-server-path=#{dpdk_path}"
+        else
+            e = "Unsupported bridge type #{nic['BRIDGE_TYPE']}"
+            OpenNebula::DriverLogger.log_error "#{__method__}: #{e}"
+            return false
+        end
+
+        rc, _o, e = Command.execute("sudo -n #{cmd}", false, 1)
+        return true if rc.zero?
+
+        error = "Could not add interface #{nic['TARGET']} to bridge #{nic['BRIDGE']}\n#{e}"
+        OpenNebula::DriverLogger.log_error "#{__method__}: #{error}"
+        return false
+    end
+
+    def del_bridge_port(nic)
+        if /ovswitch/ =~ nic['VN_MAD']
+            cmd = "ovs-vsctl --if-exists del-port #{nic['BRIDGE']} #{nic['TARGET']}"
+        else
+            return true unless nic_exist?(nic['TARGET'])
+
+            cmd = "ip link set #{nic['TARGET']} nomaster"
+        end
+
+        rc, _o, e = Command.execute("sudo -n #{cmd}", false, 1)
+        return true if rc.zero?
+
+        OpenNebula::DriverLogger.log_error "#{__method__}: #{e}"
+        return false
+    end
+
     private
+
+    def nic_exist?(nic_name)
+        cmd = "ip link show #{nic_name}"
+        rc, _o, _e = Command.execute("sudo -n #{cmd}", false, 0)
+        return rc.zero?
+    end
+
+    def self.veth_peer(nic)
+        "vpeer#{nic_host(nic)}"
+    end
+
+    def self.nic_host(nic)
+        nic['TARGET']
+    end
+
+    def self.nic_guest(nic)
+        "eth#{nic['NIC_ID']}"
+    end
+
+    def disk_args_common
+        [@sysds_path, @vm_id, @lxcrc[:mountopts]]
+    end
 
     # Returns the config in LXC style format
     def hash_to_lxc(hash)
@@ -294,7 +406,7 @@ class LXCVM < OpenNebulaVM
 
     # Parse profiles and return the list of files (profiles) to be included.
     def parse_profiles
-        profiles = @xml['/VM/USER_TEMPLATE/LXC_PROFILES']
+        profiles = @xml['//USER_TEMPLATE/LXC_PROFILES']
 
         return [] if profiles.empty?
 
@@ -321,7 +433,7 @@ end
 # ------------------------------------------------------------------------------
 class Disk
 
-    attr_accessor :id, :vm_id, :sysds_path
+    attr_accessor :id, :vm_id, :sysds_path, :mountpoint
 
     DISK_TYPE = [:context, :rootfs, :entry]
 
@@ -358,6 +470,10 @@ class Disk
         false
     end
 
+    def pass_mount(container_path)
+        Storage.bind_mount(@bindpoint, container_path)
+    end
+
     # Umount mapper block device
     # if options[:ignore_err] errors won't force early return
     def umount(options = {})
@@ -365,12 +481,22 @@ class Disk
 
         return true if device.empty?
 
+        return false unless clean_live
+
         rc = Storage.teardown_disk(@mountpoint, @bindpoint)
 
         return false if !rc && options[:ignore_err] != true
 
         # unmap image
         @mapper.unmap(device)
+    end
+
+    def clean_live
+        live_mount = live_mount?
+
+        return true if live_mount.nil?
+
+        Storage.umount(live_mount) if live_mount
     end
 
     # Generate disk into LXC config format
@@ -417,6 +543,10 @@ class Disk
         @xml['TYPE'] == 'fs'
     end
 
+    def rootfs?
+        @kind == :rootfs
+    end
+
     # Access Disk attributes
     def [](k)
         @xml[k]
@@ -452,7 +582,21 @@ class Disk
         datastore = File.readlink(@sysds_path) if File.symlink?(@sysds_path)
 
         @mountpoint = "#{datastore}/#{@vm_id}/mapper/disk.#{@id}"
-        @bindpoint = "#{LXCVM::CONTAINER_FS_PATH}/#{@vm_id}/disk.#{@id}"
+        @bindroot   = "#{LXCVM::CONTAINER_FS_PATH}/#{@vm_id}"
+        @bindpoint  = "#{@bindroot}/disk.#{@id}"
+    end
+
+    def live_mount?
+        # /var/lib/one/datastores/0/5/mapper/disk.1 /var/lib/lxc-one/5/disk.0/context
+        pattern = %r{^#{@mountpoint} #{@bindroot}/disk\.(\d+)/([^/ ][^ ]*) .*$}
+
+        File.read('/proc/mounts').each_line do |mount|
+            next unless mount.match(pattern)
+
+            return mount.split(' ')[1]
+        end
+
+        nil
     end
 
     # Returns a , separated list of options. Removes empty or nil elements

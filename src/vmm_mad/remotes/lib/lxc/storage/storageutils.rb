@@ -1,20 +1,20 @@
 #!/usr/bin/ruby
 
-# -------------------------------------------------------------------------- #
-# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
-#                                                                            #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
-# not use this file except in compliance with the License. You may obtain    #
-# a copy of the License at                                                   #
-#                                                                            #
-# http://www.apache.org/licenses/LICENSE-2.0                                 #
-#                                                                            #
-# Unless required by applicable law or agreed to in writing, software        #
-# distributed under the License is distributed on an "AS IS" BASIS,          #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
-# See the License for the specific language governing permissions and        #
-# limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+#----------------------------------------------------------------------------- #
 
 $LOAD_PATH.unshift File.dirname(__FILE__)
 $LOAD_PATH.unshift File.dirname('../lib/')
@@ -142,19 +142,35 @@ module Storage
         partitions
     end
 
+    def self.bind_mount(src_dir, tgt_dir, options = '')
+        mount(src_dir, tgt_dir, options, '--bind')
+    end
+
+    # Mount device in directory
+    def self.mount(device, directory, options = '', operations = '')
+        FileUtils.mkdir_p(directory)
+
+        cmd = "#{COMMANDS[:mount]} #{operations} #{device} #{directory}"
+        cmd << " -o #{options}" unless options.empty?
+
+        Command.execute_rc_log(cmd)
+    end
+
+    # Umount mountpoint
+    def self.umount(mountpoint, _options = {})
+        cmd = "#{COMMANDS[:umount]} #{mountpoint}"
+
+        return false unless Command.execute_rc_log(cmd)
+
+        # clean mountpoint
+        FileUtils.rm_rf(mountpoint)
+
+        true
+    end
+
     class << self
 
         private
-
-        # Mount device in directory
-        def mount(device, directory, options = '')
-            FileUtils.mkdir_p(directory)
-
-            cmd = "#{COMMANDS[:mount]} #{device} #{directory}"
-            cmd << " -o #{options}" unless options.empty?
-
-            Command.execute_rc_log(cmd)
-        end
 
         # bind src directory into target
         # options:
@@ -180,18 +196,6 @@ module Storage
             # Bindfs
             cmd = "#{COMMANDS[:bind]} #{cmd_opts} #{src} #{target}"
             Command.execute_rc_log(cmd)
-        end
-
-        # Umount mountpoint
-        def umount(mountpoint, _options = {})
-            cmd = "#{COMMANDS[:umount]} #{mountpoint}"
-
-            return false unless Command.execute_rc_log(cmd)
-
-            # clean mountpoint
-            FileUtils.rm_rf(mountpoint)
-
-            true
         end
 
         #  Adds path to the partition Hash. Required for lsblk version < 2.33

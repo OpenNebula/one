@@ -30,6 +30,7 @@ class LXCClient
         :create     => 'lxc-create',
         :destroy    => 'lxc-destroy',
         :info       => 'lxc-info',
+        :device     => 'lxc-device',
         :ls         => 'lxc-ls',
         :start      => 'lxc-start',
         :stop       => 'lxc-stop'
@@ -105,6 +106,47 @@ class LXCClient
         end
 
         stdout.split
+    end
+
+    #-----------------------------------------------------------------------
+    # Command Injection
+    #-----------------------------------------------------------------------
+
+    def attach(name, cmd, options = {}, detach = false)
+        cmd = append_options("#{COMMANDS[:attach]} -n #{name} -- #{cmd}", options)
+
+        if detach
+            Command.container_cmd(name, cmd)
+        else
+            Command.execute_detach(cmd)
+        end
+    end
+
+    def bash(name, cmd, options = {})
+        cmd = "/bin/bash -c \"#{cmd}\""
+        cmd = append_options("#{COMMANDS[:attach]} -n #{name} -- #{cmd}", options)
+        Command.execute_log(cmd)
+    end
+
+    #-----------------------------------------------------------------------
+    # Device Management
+    #-----------------------------------------------------------------------
+
+    def attach_device(name, device_host, device_guest = nil, options = {})
+        devices = '' + device_host
+        devices << " #{device_guest}" if device_guest
+
+        cmd = append_options("#{COMMANDS[:device]} -n #{name} add #{devices}", options)
+        Command.container_cmd(name, cmd)
+    end
+
+    def detach_device(name, device_guest, device_host = nil, options = {})
+        devices = ''
+        devices << device_guest
+        devices << " #{device_host}" if device_host
+
+        cmd = append_options("#{COMMANDS[:device]} -n #{name} del #{devices}", options)
+        Command.container_cmd(name, cmd)
     end
 
     private

@@ -1171,6 +1171,7 @@ IM_PROBES_LXC_HOST_SYSTEM_FILES="\
      src/im_mad/remotes/lxc-probes.d/host/system/name.sh \
      src/im_mad/remotes/kvm-probes.d/host/system/clean_db.rb \
      src/im_mad/remotes/lxc-probes.d/host/system/numa_host.rb \
+     src/im_mad/remotes/lxc-probes.d/host/system/pci.rb \
      src/im_mad/remotes/lxc-probes.d/host/system/version.sh"
 
 IM_PROBES_LXC_VM_MONITOR_FILES="\
@@ -1182,6 +1183,7 @@ IM_PROBES_LXC_VM_STATUS_FILES="\
 
 IM_PROBES_ETC_LXC_PROBES_FILES="\
     src/im_mad/remotes/lxc-probes.d/forecast.conf \
+    src/im_mad/remotes/lxc-probes.d/pci.conf \
     src/im_mad/remotes/lib/probe_db.conf"
 
 IM_PROBES_VERSION="src/im_mad/remotes/VERSION"
