@@ -88,8 +88,20 @@ SNAP_CREATE_CMD=$(cat <<EOF
 
     ${SYNC}
     ${SUDO} ${LVSCAN}
-    $SUDO $LVEXTEND -L +${SIZE}M $VG_NAME/$POOL_NAME
+
     $SUDO $LVCREATE -s -n $SNAP_NAME $VG_NAME/$LV_NAME
+
+    # Extend the pool as needed
+    pool_size="\$($SUDO $LVS --nosuffix --noheadings --units B -o lv_size $VG_NAME/$POOL_NAME)"
+    lvs_size=0
+    for lv in \$($SUDO $LVS --noheading -o lv_name -S 'vg_name = $VG_NAME && pool_lv = $POOL_NAME'); do
+        lv_size="\$($SUDO $LVS --nosuffix --noheadings --units B -o lv_size $VG_NAME/\$lv)"
+        lvs_size=\$((lvs_size + lv_size))
+    done
+    if [ "\$lvs_size" -gt "\$pool_size" ]; then
+        $SUDO $LVEXTEND -L \${lvs_size}B $VG_NAME/$POOL_NAME
+    fi
+
     ${SYNC}
 EOF
 )
