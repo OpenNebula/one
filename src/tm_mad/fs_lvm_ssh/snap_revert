@@ -89,6 +89,18 @@ SNAP_REVERT_CMD=$(cat <<EOF
         ${SUDO} ${LVSCAN}
         $SUDO $LVREMOVE -y $VG_NAME/$LV_NAME
         $SUDO $LVCREATE -s -n $LV_NAME $VG_NAME/$SNAP_NAME
+
+        # Extend the pool as needed
+        pool_size="\$($SUDO $LVS --nosuffix --noheadings --units B -o lv_size $VG_NAME/$POOL_NAME)"
+        lvs_size=0
+        for lv in \$($SUDO $LVS --noheading -o lv_name -S 'vg_name = $VG_NAME && pool_lv = $POOL_NAME'); do
+            lv_size="\$($SUDO $LVS --nosuffix --noheadings --units B -o lv_size $VG_NAME/\$lv)"
+            lvs_size=\$((lvs_size + lv_size))
+        done
+        if [ "\$lvs_size" -gt "\$pool_size" ]; then
+            $SUDO $LVEXTEND -L \${lvs_size}B $VG_NAME/$POOL_NAME
+        fi
+
         # Next two commands could be merged, but is advised against by LVM
         $SUDO $LVCHANGE -kn $VG_NAME/$LV_NAME
         $SUDO $LVCHANGE -ay $VG_NAME/$LV_NAME
