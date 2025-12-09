@@ -1,6 +1,6 @@
 {#
-name: OnPrem SSH Cluster
-description: It deploys a SSH cluster On-Premise using a bridge network
+name: OnPrem SSH Cluster (VXLAN)
+description: It deploys a SSH cluster On-Premise with an VXLAN network
 fireedge:
   logo: "onprem_ssh_cluster.png"
 user_inputs:
@@ -19,15 +19,16 @@ all:
       private_onprem_network:
         managed: true
         template:
-          vn_mad: bridge
           phydev: "{{ user_inputs.phydev_name }}"
-          network_address: 10.0.0.0
-          network_mask: 255.255.255.0
-          gateway: 10.0.0.1
+          vn_mad: vxlan
+          vxlan_mode: evpn
+          vlan_id: automatic
           dns: 8.8.8.8
+          gateway: 192.168.0.1
+          ip_link_conf: nolearning=
           ar:
             - type: IP4
-              ip: 10.0.0.50
+              ip: 192.168.0.100
               size: 100
     ds:
       mode: generic
@@ -57,3 +58,7 @@ node:
     {% for node in one.nodes %}
     n{{ loop.index }}: { ansible_user: root, ansible_host: {{ node }} }
     {% endfor %}
+
+router:
+  hosts:
+    f1: { ansible_user: root, ansible_host: {{ one.frontend_ip }} }
