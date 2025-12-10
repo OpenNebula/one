@@ -48,7 +48,7 @@ class InventoryConfig:
         try:
             self.form_server  = vars.get('form_server', 'localhost')
             self.one_server   = vars.get('one_server', 'localhost')
-            self.one_version  = vars.get('one_version', None)
+            self.one_version  = vars.get('version', None)
             self.provision_id = int(vars.get('provision_id', -1))
 
             if 'one_auth' in vars:

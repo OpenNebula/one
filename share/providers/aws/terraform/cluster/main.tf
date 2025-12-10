@@ -21,6 +21,10 @@ resource "aws_subnet" "aws_subnet_device" {
             Name = "provision_subnet_${var.provision_id}"
         }
     )
+
+    timeouts {
+        delete = "30m"
+    }
 }
 
 resource "aws_internet_gateway" "aws_internet_gateway_device" {
@@ -32,12 +36,20 @@ resource "aws_internet_gateway" "aws_internet_gateway_device" {
             Name = "provision_internet_gateway_${var.provision_id}"
         }
     )
+
+    timeouts {
+        delete = "30m"
+    }
 }
 
 resource "aws_route" "aws_route_device" {
     route_table_id         = aws_vpc.aws_vpc_device.main_route_table_id
     destination_cidr_block = "0.0.0.0/0"
     gateway_id             = aws_internet_gateway.aws_internet_gateway_device.id
+
+    timeouts {
+        delete = "30m"
+    }
 }
 
 resource "aws_security_group" "aws_security_group_device_all" {

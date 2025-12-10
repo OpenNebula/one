@@ -52,7 +52,7 @@ class Ansible
                 tags  = provision.body['onedeploy_tags'] || ONEDEPLOY_TAGS
                 evars = "provision_id=#{provision.id} "
                 evars += "form_server=#{FORM_SERVER} "
-                evars += "one_version=#{OpenNebula::VERSION} "
+                evars += "version=#{OpenNebula::VERSION} "
                 evars += "one_server=#{ONE_SERVER} "
                 evars += "one_auth=#{provision.user_auth}"
 
