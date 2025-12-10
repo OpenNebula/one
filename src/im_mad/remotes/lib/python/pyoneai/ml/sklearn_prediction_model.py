@@ -578,7 +578,7 @@ class SklearnPredictionModel(BasePredictionModel):
 
             try:
                 x, y, x_pred = self._transform(
-                    metric=metric, horizon=i + 1, lag_size=lag_size
+                    metric=vals, horizon=i + 1, lag_size=lag_size
                 )
                 model.fit(x, y)
                 pred[i] = model.predict(x_pred).reshape(())
