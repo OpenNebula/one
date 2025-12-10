@@ -39,6 +39,7 @@ require 'yaml'
 require 'open3'
 require 'openssl'
 require 'fileutils'
+require 'English'
 
 require 'rexml/document'
 
@@ -217,7 +218,7 @@ MONITORD_CONF = "#{ETC_PATH}/monitord.conf"
 FileUtils.mkdir_p(DB_PATH)
 FileUtils.mkdir_p(ETC_PATH)
 
-File.write(PID_FILE, "#{$$}")
+File.write(PID_FILE, $PID.to_s)
 
 xml_txt = STDIN.read
 

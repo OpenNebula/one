@@ -289,7 +289,7 @@ class Container
             return false unless @client.detach_device(@name, LXCVM.nic_guest(nic),
                                                       LXCVM.veth_peer(nic))
 
-            return true if !@one.del_bridge_port(nic)
+            return true unless @one.del_bridge_port(nic)
 
             @one.delete_nic(nic['TARGET'])
             true
