@@ -46,6 +46,7 @@ require 'one_datastore_exec'
 require 'getoptlong'
 require 'ssh_stream'
 require 'rexml/document'
+require 'shellwords'
 
 # VmmAction
 class VmmAction
@@ -1423,6 +1424,37 @@ class ExecDriver < VirtualMachineDriver
         ]
 
         action.run(steps, vn_id)
+    end
+
+    def exec(id, drv_message)
+        xml_data = decode(drv_message)
+
+        host = xml_data.elements['HOST'].text
+
+        cmd = xml_data.elements['VM/TEMPLATE/QEMU_GA_EXEC/COMMAND'].text
+        cmd_stdin = xml_data.elements['VM/TEMPLATE/QEMU_GA_EXEC/STDIN'].text
+        params = [id, host, Shellwords.escape(cmd), cmd_stdin].join(' ')
+
+        do_action(params,
+                  id,
+                  host,
+                  ACTION[:exec],
+                  :script_name => 'exec',
+                  :stdin => xml_data.to_s,
+                  :no_extra_params => true)
+    end
+
+    def exec_cancel(id, drv_message)
+        xml_data = decode(drv_message)
+
+        host = xml_data.elements['HOST'].text
+
+        do_action('',
+                  id,
+                  host,
+                  ACTION[:exec_cancel],
+                  :script_name => 'exec_cancel',
+                  :stdin => xml_data.to_s)
     end
 
     private

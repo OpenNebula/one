@@ -224,6 +224,18 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:update_nic], result, id, nic_id)
     end
 
+    def exec(id, drv_message)
+        result = retrieve_result("exec")
+
+        send_message(ACTION[:exec], result, id)
+    end
+
+    def exec_cancel(id, drv_message)
+        result = retrieve_result("exec_cancel")
+
+        send_message(ACTION[:exec_cancel], result, id)
+    end
+
     def poll(id, drv_message)
         result = retrieve_result("poll")
 

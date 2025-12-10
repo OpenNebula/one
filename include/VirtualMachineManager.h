@@ -306,6 +306,16 @@ private:
     /**
      *
      */
+    void _exec(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _exec_cancel(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
     void log_error(VirtualMachine* vm_id,
                    const std::string& payload,
                    const std::string& msg);
@@ -536,18 +546,32 @@ public:
     void trigger_resize(int vid);
 
     /**
-       * Create backup for the VM
-       *
-       * @param vid the id of the VM.
-       */
+     * Create backup for the VM
+     *
+     * @param vid the id of the VM.
+     */
     void trigger_backup(int vid);
 
     /**
-       * Cancel ongoing backup operation
-       *
-       * @param vid the id of the VM.
-       */
+     * Cancel ongoing backup operation
+     *
+     * @param vid the id of the VM.
+     */
     void trigger_backup_cancel(int vid);
+
+    /**
+     * Execute a command in the VM
+     *
+     * @param vid the id of the VM.
+     */
+    void trigger_exec(int vid);
+
+    /**
+     * Cancel the command being executed in the VM
+     *
+     * @param vid the id of the VM.
+     */
+    void trigger_exec_cancel(int vid);
 };
 
 #endif /*VIRTUAL_MACHINE_MANAGER_H*/

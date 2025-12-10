@@ -29,6 +29,7 @@ const EString<MonitorDriverMessages> monitor_msg_t::_type_str(
     {"BEACON_HOST", MonitorDriverMessages::BEACON_HOST},
     {"SYSTEM_HOST", MonitorDriverMessages::SYSTEM_HOST},
     {"STATE_VM", MonitorDriverMessages::STATE_VM},
+    {"EXEC_VM", MonitorDriverMessages::EXEC_VM},
     {"START_MONITOR", MonitorDriverMessages::START_MONITOR},
     {"STOP_MONITOR", MonitorDriverMessages::STOP_MONITOR},
     {"LOG", MonitorDriverMessages::LOG}
@@ -47,6 +48,7 @@ const EString<InformationManagerMessages> im_msg_t::_type_str(
     {"STOP_MONITOR", InformationManagerMessages::STOP_MONITOR},
     {"HOST_STATE", InformationManagerMessages::HOST_STATE},
     {"VM_STATE", InformationManagerMessages::VM_STATE},
+    {"VM_EXEC", InformationManagerMessages::VM_EXEC},
     {"HOST_SYSTEM", InformationManagerMessages::HOST_SYSTEM},
     {"RAFT_STATUS", InformationManagerMessages::RAFT_STATUS},
 });
@@ -155,6 +157,8 @@ const EString<VMManagerMessages> vm_msg_t::_type_str(
     {"BACKUP", VMManagerMessages::BACKUP},
     {"UPDATENIC", VMManagerMessages::UPDATENIC},
     {"BACKUPCANCEL", VMManagerMessages::BACKUPCANCEL},
+    {"EXEC", VMManagerMessages::EXEC},
+    {"EXEC_CANCEL", VMManagerMessages::EXEC_CANCEL},
 });
 
 template<>

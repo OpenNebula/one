@@ -39,6 +39,8 @@ public:
 
     static void _state_vm(std::unique_ptr<monitor_msg_t> msg);
 
+    static void _exec_vm(std::unique_ptr<monitor_msg_t> msg);
+
     static void _start_monitor(std::unique_ptr<monitor_msg_t> msg);
 
     static void _log(std::unique_ptr<monitor_msg_t> msg);

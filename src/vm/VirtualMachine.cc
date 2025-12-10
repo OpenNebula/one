@@ -2208,6 +2208,54 @@ void VirtualMachine::reset_resize()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::update_vm_exec(const VectorAttribute& vm_exec_attr)
+{
+    VectorAttribute* exec_info = obj_template->get("QEMU_GA_EXEC");
+
+    if (!exec_info)
+    {
+        exec_info = new VectorAttribute("QEMU_GA_EXEC");
+        obj_template->set(exec_info);
+    }
+
+    exec_info->merge(&vm_exec_attr, true);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string VirtualMachine::get_vm_exec_attribute(const string& key) const
+{
+    VectorAttribute* exec_info = obj_template->get("QEMU_GA_EXEC");
+    if (!exec_info)
+    {
+        return "";
+    }
+
+    return exec_info->vector_value(key);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::set_vm_exec_attribute(const string& key, const string& value)
+{
+    VectorAttribute* exec_info = obj_template->get("QEMU_GA_EXEC");
+
+    if (!exec_info)
+    {
+        exec_info = new VectorAttribute("QEMU_GA_EXEC");
+        obj_template->set(exec_info);
+    }
+
+    exec_info->replace(key, value);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 static int parse_memory_mode(string& mem_mode, string& error)
 {
     one_util::toupper(mem_mode);
@@ -2221,7 +2269,6 @@ static int parse_memory_mode(string& mem_mode, string& error)
 
     return 0;
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -4340,4 +4387,3 @@ void VirtualMachine::rollback_previous_vnc_port()
 
     graphics->remove("PREVIOUS_PORT");
 };
-

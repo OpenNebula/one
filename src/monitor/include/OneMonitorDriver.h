@@ -46,6 +46,11 @@ public:
     void vm_state(int oid, const std::string& state);
 
     /**
+     *  Send a message with the VM command execution result to oned
+     */
+    void vm_exec(int oid, const std::string& qemu_ga_exec);
+
+    /**
      *  Send host system information to oned
      *    @param oid host id
      *    @param status result of the system monitor

@@ -275,6 +275,37 @@ void MonitorDriverProtocol::_state_vm(unique_ptr<monitor_msg_t> msg)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void MonitorDriverProtocol::_exec_vm(unique_ptr<monitor_msg_t> msg)
+{
+    log_message(*msg);
+
+    if (msg->status() != "SUCCESS")
+    {
+        NebulaLog::warn("MDP", "Failed to monitor VM qemu execution for host " +
+                        to_string(msg->oid()) + ": " + msg->payload());
+
+        return;
+    }
+
+    auto data = one_util::trim(msg->payload());
+    if (data.empty())
+    {
+        return;
+    }
+
+    if (!hm->test_set_timestamp(MonitorDriverMessages::EXEC_VM, msg->oid(),
+                                msg->timestamp()))
+    {
+        return;
+    }
+
+    auto oned = hm->get_oned_driver();
+    oned->vm_exec(msg->oid(), msg->payload());
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /* Format of the START_MONITOR response message is:
  * <MONITOR_MESSAGES>
  *   <MONITOR_VM>
@@ -329,7 +360,8 @@ void MonitorDriverProtocol::_start_monitor(unique_ptr<monitor_msg_t> msg)
         MonitorDriverMessages::BEACON_HOST,
         MonitorDriverMessages::MONITOR_HOST,
         MonitorDriverMessages::SYSTEM_HOST,
-        MonitorDriverMessages::STATE_VM
+        MonitorDriverMessages::STATE_VM,
+        MonitorDriverMessages::EXEC_VM
     };
 
     for (const auto& it : stypes)
@@ -374,6 +406,9 @@ void MonitorDriverProtocol::_start_monitor(unique_ptr<monitor_msg_t> msg)
                 break;
             case MonitorDriverMessages::STATE_VM:
                 _state_vm(move(m));
+                break;
+            case MonitorDriverMessages::EXEC_VM:
+                _exec_vm(move(m));
                 break;
             default:
                 break;

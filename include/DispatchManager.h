@@ -559,6 +559,32 @@ public:
     int detach_pci(int vid, int pci_id, const RequestAttributes& ra,
                    std::string&  err);
 
+    /**
+     * Execute a command in the VM
+     *
+     *  @param vid the VM id
+     *  @param cmd the command to execute
+     *  @param cmd_stdin the data to pass to the command
+     *  @param ra information about the API call request
+     *  @param error_str Error reason, if any
+     *
+     *  @return 0 on success, -1 otherwise
+     */
+    int exec(int vid, const std::string& cmd, const std::string& cmd_stdin,
+             const RequestAttributes& ra, std::string& error_str);
+
+    /**
+     * Cancel the command running in the VM
+     *
+     *  @param vid the VM id
+     *  @param ra information about the API call request
+     *  @param error_str Error reason, if any
+     *
+     *  @return 0 on success, -1 otherwise
+     */
+    int exec_cancel(int vid, const RequestAttributes& ra,
+                    std::string& error_str);
+
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition
     //--------------------------------------------------------------------------

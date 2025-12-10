@@ -18,6 +18,9 @@
 #include "HostPool.h"
 #include "VirtualMachinePool.h"
 #include "Nebula.h"
+#include "Request.h"
+#include "HookAPI.h"
+#include "HookManager.h"
 #include "LifeCycleManager.h"
 
 using namespace std;
@@ -44,6 +47,9 @@ int InformationManager::start()
 
     register_action(InformationManagerMessages::VM_STATE,
                     bind(&InformationManager::_vm_state, this, _1));
+
+    register_action(InformationManagerMessages::VM_EXEC,
+                    bind(&InformationManager::_vm_exec, this, _1));
 
     int rc = DriverManager::start(error);
 
@@ -411,6 +417,8 @@ static void test_and_trigger(const string& state_str, VirtualMachine * vm)
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
 {
@@ -565,6 +573,93 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
         else
         {
             lcm->trigger_monitor_poweroff(vm->get_oid());
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void InformationManager::_vm_exec(unique_ptr<im_msg_t> msg)
+{
+    char *error_msg;
+    Template tmpl;
+
+    int rc = tmpl.parse(msg->payload(), &error_msg);
+
+    if (rc != 0)
+    {
+        NebulaLog::error("InM", string("Error parsing QEMU_GA_EXEC message: ") + error_msg);
+        NebulaLog::error("InM", "Received message was: " + msg->payload());
+
+        free(error_msg);
+
+        return;
+    }
+
+    vector<VectorAttribute*> vms;
+    tmpl.get("VM", vms);
+
+    for (const auto& vm_tmpl : vms)
+    {
+        int id = -1;
+        vm_tmpl->vector_value("ID", id);
+
+        if (id == -1)
+        {
+            NebulaLog::warn("InM", "QEMU_GA_EXEC missing or invalid ID");
+            continue;
+        }
+
+        vm_tmpl->remove("ID");
+
+        auto vm = vmpool->get(id);
+
+        if (vm == nullptr)
+        {
+            NebulaLog::warn("InM", "Unable to find VM, id: " + to_string(id));
+            continue;
+        }
+
+        NebulaLog::debug("InM", "Updating QEMU_GA_EXEC for VM id: " + to_string(id));
+
+        rc = vm->update_vm_exec(*vm_tmpl);
+
+        if (rc != 0)
+        {
+            NebulaLog::error("InM", "Error updating QEMU_GA_EXEC for VM id: " + to_string(id));
+            continue;
+        }
+
+        vmpool->update(vm.get());
+
+        /* ------------------------------------------------------------------ */
+        /* Trigger internal hook event                                        */
+        /* ------------------------------------------------------------------ */
+        VectorAttribute* exec_attr = vm->get_vm_exec();
+        if (!exec_attr) continue;
+
+        xmlrpc_c::paramList plist;
+
+        for (const auto& it : exec_attr->value())
+        {
+            plist.add(xmlrpc_c::value_string(it.first + "=" + it.second));
+        }
+
+        std::set<int> hidden;
+        ParamList pl(&plist, hidden);
+
+        RequestAttributes att(AuthRequest::NONE);
+        att.success   = true;
+        att.retval_xml = "";
+        att.extra_xml  = "<VM_ID>" + std::to_string(vm->get_oid()) + "</VM_ID>";
+
+        std::string event = HookAPI::format_message("one.internal.vmmonitor", pl, att);
+
+        if (!event.empty())
+        {
+            auto hm = Nebula::instance().get_hm();
+            if (hm) hm->trigger_send_event(event);
         }
     }
 }

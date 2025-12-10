@@ -3087,3 +3087,85 @@ int DispatchManager::detach_pci(int vid, int pci_id, const RequestAttributes& ra
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int DispatchManager::exec(int vid, const string& cmd, const string& cmd_stdin,
+                          const RequestAttributes& ra, std::string& error_str)
+{
+    auto vm = vmpool->get(vid);
+
+    if ( vm == nullptr )
+    {
+        error_str = "Could not execute command, VM does not exist";
+        return -1;
+    }
+
+    if (vm->get_state() != VirtualMachine::ACTIVE ||
+        vm->get_lcm_state() != VirtualMachine::RUNNING)
+    {
+        error_str = "Could not execute command, VM must be in running";
+        return -1;
+    }
+
+    if (vm->get_vm_exec_status() == "EXECUTING")
+    {
+        error_str = "Could not execute command, a command is already being executed";
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::HOTPLUG);
+
+    vm->clear_vm_exec();
+    vm->set_vm_exec_attribute("COMMAND", cmd);
+    vm->set_vm_exec_attribute("STDIN", cmd_stdin);
+
+    close_cp_history(vmpool, vm.get(), VMActions::EXEC_ACTION, ra);
+
+    // Call driver action to execute command on VM
+    vmm->trigger_exec(vm->get_oid());
+
+    vmpool->update(vm.get());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::exec_cancel(int vid, const RequestAttributes& ra,
+                                 std::string& error_str)
+{
+    auto vm = vmpool->get(vid);
+
+    if ( vm == nullptr )
+    {
+        error_str = "Could not cancel command, VM does not exist";
+        return -1;
+    }
+
+    if (vm->get_state() != VirtualMachine::ACTIVE ||
+        vm->get_lcm_state() != VirtualMachine::RUNNING)
+    {
+        error_str = "Could not cancel command, VM must be in running";
+        return -1;
+    }
+
+    if (vm->get_vm_exec_status() != "EXECUTING")
+    {
+        error_str = "Could not cancel command, there is no command being executed";
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::HOTPLUG);
+
+    close_cp_history(vmpool, vm.get(), VMActions::EXEC_CANCEL_ACTION, ra);
+
+    // Call driver action to cancel command on VM
+    vmm->trigger_exec_cancel(vm->get_oid());
+
+    vmpool->update(vm.get());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

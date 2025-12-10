@@ -134,6 +134,12 @@ int VirtualMachineManager::start()
     register_action(VMManagerMessages::BACKUPCANCEL,
                     bind(&VirtualMachineManager::_driver_cancel, this, _1));
 
+    register_action(VMManagerMessages::EXEC,
+                    bind(&VirtualMachineManager::_exec, this, _1));
+
+    register_action(VMManagerMessages::EXEC_CANCEL,
+                    bind(&VirtualMachineManager::_exec_cancel, this, _1));
+
     string error;
     if ( DriverManager::start(error) != 0 )
     {
@@ -2672,6 +2678,138 @@ error_ds:
         os << "backup cancel, backup datastore " << ds_backup_id
            << " does not exist";
         goto error_common;
+
+error_common:
+        vm->log("VMM", Log::ERROR, os);
+        return;
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::trigger_exec(int vid)
+{
+    trigger([this, vid]
+    {
+        const VirtualMachineManagerDriver * vmd;
+
+        string        vm_tmpl;
+        string        drv_msg;
+        ostringstream os;
+
+        // Get the VM from the pool
+        auto vm = vmpool->get(vid);
+
+        if (vm == nullptr)
+        {
+            return;
+        }
+
+        if (!vm->hasHistory())
+        {
+            goto error_history;
+        }
+
+        // Get the driver for this VM
+        vmd = get(vm->get_vmm_mad());
+
+        if ( vmd == nullptr )
+        {
+            goto error_driver;
+        }
+
+        // Invoke driver method
+        drv_msg = format_message(
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
+
+        vmd->exec(vid, drv_msg);
+
+        return;
+
+error_history:
+        os << "trigger_exec, VM has no history";
+        goto error_common;
+
+error_driver:
+        os << "trigger_exec, error getting driver " << vm->get_vmm_mad();
+
+error_common:
+        vm->log("VMM", Log::ERROR, os);
+        return;
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::trigger_exec_cancel(int vid)
+{
+    trigger([this, vid]
+    {
+        const VirtualMachineManagerDriver * vmd;
+
+        string        vm_tmpl;
+        string        drv_msg;
+        ostringstream os;
+
+        // Get the VM from the pool
+        auto vm = vmpool->get(vid);
+
+        if (vm == nullptr)
+        {
+            return;
+        }
+
+        if (!vm->hasHistory())
+        {
+            goto error_history;
+        }
+
+        // Get the driver for this VM
+        vmd = get(vm->get_vmm_mad());
+
+        if ( vmd == nullptr )
+        {
+            goto error_driver;
+        }
+
+        // Invoke driver method
+        drv_msg = format_message(
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
+
+        vmd->exec_cancel(vid, drv_msg);
+
+        return;
+
+error_history:
+        os << "trigger_exec_cancel, VM has no history";
+        goto error_common;
+
+error_driver:
+        os << "trigger_exec_cancel, error getting driver " << vm->get_vmm_mad();
 
 error_common:
         vm->log("VMM", Log::ERROR, os);

@@ -64,7 +64,10 @@ module OpenNebula
             :backupcancel   => 'vm.backupcancel',
             :attachpci      => 'vm.attachpci',
             :detachpci      => 'vm.detachpci',
-            :restore        => 'vm.restore'
+            :restore        => 'vm.restore',
+            :exec           => 'vm.exec',
+            :retryexec      => 'vm.retryexec',
+            :cancelexec     => 'vm.cancelexec'
         }
 
         VM_STATE=['INIT', 'PENDING', 'HOLD', 'ACTIVE', 'STOPPED', 'SUSPENDED', 'DONE', 'FAILED',
@@ -294,7 +297,10 @@ module OpenNebula
           'sg-detach',
           'pci-attach',
           'pci-detach',
-          'restore'
+          'restore',
+          'exec',
+          'exec-retry',
+          'exec-cancel'
         ]
 
         # VirtualMachineDriver constants
@@ -892,6 +898,32 @@ module OpenNebula
         #  otherwise.
         def restore(img_id, inc_id, disk_id)
             @client.call(VM_METHODS[:restore], @pe_id, img_id, inc_id, disk_id)
+        end
+
+        # Execute a command in the VM
+        #
+        # @param cmd [String] Command to be executed
+        # @param cmd_stdin [String] Stdin data for the command
+        # @return [nil, OpenNebula::Error] nil in case of sucess, Error
+        #  otherwise.
+        def exec(cmd, cmd_stdin)
+            @client.call(VM_METHODS[:exec], @pe_id, cmd, cmd_stdin)
+        end
+
+        # Retry the last command executed in the VM
+        #
+        # @return [nil, OpenNebula::Error] nil in case of sucess, Error
+        #  otherwise.
+        def exec_retry
+            @client.call(VM_METHODS[:retryexec], @pe_id)
+        end
+
+        # Cancel the command being executed in the VM
+        #
+        # @return [nil, OpenNebula::Error] nil in case of sucess, Error
+        #  otherwise.
+        def exec_cancel
+            @client.call(VM_METHODS[:cancelexec], @pe_id)
         end
 
         ########################################################################

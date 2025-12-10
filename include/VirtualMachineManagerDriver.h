@@ -593,6 +593,32 @@ private:
     }
 
     /**
+     * Sends a request to execute a command on the VM:
+     * "EXECUTE ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void exec(
+            const int          oid,
+            const std::string& drv_msg) const
+    {
+        write_drv(VMManagerMessages::EXEC, oid, drv_msg);
+    }
+
+    /**
+     * Sends a request to cancel the command being executed on the VM:
+     * "EXEC_CANCEL ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void exec_cancel(
+            const int          oid,
+            const std::string& drv_msg) const
+    {
+        write_drv(VMManagerMessages::EXEC_CANCEL, oid, drv_msg);
+    }
+
+    /**
      *
      */
     void write_drv(VMManagerMessages type,

@@ -1006,3 +1006,67 @@ void VirtualMachineManager::_updatenic(unique_ptr<vm_msg_t> msg)
 
     return;
 }
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::_exec(unique_ptr<vm_msg_t> msg)
+{
+    log_message(msg.get());
+
+    int id = msg->oid();
+    auto lcm = Nebula::instance().get_lcm();
+
+    if (!check_vm_state(id, msg.get()))
+    {
+        return;
+    }
+
+    if (msg->status() == "SUCCESS" )
+    {
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "VM command execution successful");
+
+            lcm->trigger_exec_success(id);
+        }
+    }
+    else
+    {
+        log_error(id, msg->payload(),
+                  vm_msg_t::type_str(VMManagerMessages::EXEC));
+
+        lcm->trigger_exec_failure(id);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::_exec_cancel(unique_ptr<vm_msg_t> msg)
+{
+    log_message(msg.get());
+
+    int id = msg->oid();
+    auto lcm = Nebula::instance().get_lcm();
+
+    if (!check_vm_state(id, msg.get()))
+    {
+        return;
+    }
+
+    if (msg->status() == "SUCCESS" )
+    {
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "VM command execution cancelled successfully");
+
+            lcm->trigger_exec_cancel_success(id);
+        }
+    }
+    else
+    {
+        log_error(id, msg->payload(),
+                  vm_msg_t::type_str(VMManagerMessages::EXEC_CANCEL));
+
+        lcm->trigger_exec_cancel_failure(id);
+    }
+}

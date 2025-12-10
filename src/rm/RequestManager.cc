@@ -358,6 +358,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_attachpci(new VirtualMachineAttachPCI());
     xmlrpc_c::methodPtr vm_detachpci(new VirtualMachineDetachPCI());
     xmlrpc_c::methodPtr vm_restore(new VirtualMachineRestore());
+    xmlrpc_c::methodPtr vm_exec(new VirtualMachineExec());
+    xmlrpc_c::methodPtr vm_exec_retry(new VirtualMachineRetryExec());
+    xmlrpc_c::methodPtr vm_exec_cancel(new VirtualMachineCancelExec());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
@@ -629,6 +632,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.attachpci", vm_attachpci);
     RequestManagerRegistry.addMethod("one.vm.detachpci", vm_detachpci);
     RequestManagerRegistry.addMethod("one.vm.restore", vm_restore);
+    RequestManagerRegistry.addMethod("one.vm.exec", vm_exec);
+    RequestManagerRegistry.addMethod("one.vm.retryexec", vm_exec_retry);
+    RequestManagerRegistry.addMethod("one.vm.cancelexec", vm_exec_cancel);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.infoextended", vm_pool_info_extended);

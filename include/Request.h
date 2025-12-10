@@ -165,7 +165,7 @@ public:
 
     std::string get_value_as_string(int index) const
     {
-        if ( index == 0 || _hidden.count(index) == 1 )
+        if (_hidden.count(index) == 1 )
         {
             return "****";
         }
@@ -358,6 +358,9 @@ protected:
     {
         _signature = signature;
         _help = help;
+
+        // Always hide parameter 0 (session token) for logs and API hooks
+        hidden_params.insert(0);
     }
 
     virtual ~Request() = default;

@@ -229,6 +229,12 @@ int VMActions::set_auth_ops(const string& ops_str,
         {
             ops_set.set(RESTORE_ACTION);
         }
+        else if ( the_op == "exec" )
+        {
+            ops_set.set(EXEC_ACTION);
+            ops_set.set(EXEC_RETRY_ACTION);
+            ops_set.set(EXEC_CANCEL_ACTION);
+        }
         else
         {
             error = "Unknown vm operation: " + the_op;
@@ -418,6 +424,15 @@ string VMActions::action_to_str(Action action)
             break;
         case RESTORE_ACTION:
             st = "restore";
+            break;
+        case EXEC_ACTION:
+            st = "exec";
+            break;
+        case EXEC_RETRY_ACTION:
+            st = "exec-retry";
+            break;
+        case EXEC_CANCEL_ACTION:
+            st = "exec-cancel";
             break;
         case NONE_ACTION:
             st = "none";
@@ -656,6 +671,18 @@ int VMActions::action_from_str(const string& st, Action& action)
     else if ( st == "restore")
     {
         action = RESTORE_ACTION;
+    }
+    else if ( st == "exec")
+    {
+        action = EXEC_ACTION;
+    }
+    else if ( st == "exec-retry")
+    {
+        action = EXEC_RETRY_ACTION;
+    }
+    else if ( st == "exec-cancel")
+    {
+        action = EXEC_CANCEL_ACTION;
     }
     else
     {

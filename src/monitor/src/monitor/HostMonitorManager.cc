@@ -162,6 +162,7 @@ void HostMonitorManager::update_host(int oid, const std::string &xml)
 
             // Reset last monitoring timestamps
             host->last_state_vm(0);
+            host->last_exec_vm(0);
             host->last_monitor_vm(0);
             host->last_monitor_host(0);
             host->last_system_host(0);
@@ -593,6 +594,10 @@ bool HostMonitorManager::test_set_timestamp(MonitorDriverMessages type, int oid,
             last_ts = host->last_state_vm();
             break;
 
+        case MonitorDriverMessages::EXEC_VM:
+            last_ts = host->last_exec_vm();
+            break;
+
         case MonitorDriverMessages::MONITOR_HOST:
             last_ts = host->last_monitor_host();
             break;
@@ -619,6 +624,10 @@ bool HostMonitorManager::test_set_timestamp(MonitorDriverMessages type, int oid,
 
         case MonitorDriverMessages::STATE_VM:
             host->last_state_vm(ts);
+            break;
+
+        case MonitorDriverMessages::EXEC_VM:
+            host->last_exec_vm(ts);
             break;
 
         case MonitorDriverMessages::MONITOR_HOST:

@@ -81,6 +81,20 @@ void OneMonitorDriver::vm_state(int oid, const std::string& state)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void OneMonitorDriver::vm_exec(int oid, const std::string& qemu_ga_exec)
+{
+    im_msg_t oned_msg;
+
+    oned_msg.type(InformationManagerMessages::VM_EXEC);
+    oned_msg.oid(oid);
+    oned_msg.payload(qemu_ga_exec);
+
+    write2one(oned_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void OneMonitorDriver::host_system_info(int oid, const std::string& status,
                                         const std::string& payload)
 {

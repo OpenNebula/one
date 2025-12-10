@@ -1120,6 +1120,72 @@ public:
     void reset_resize();
 
     /**
+     * Clear QEMU_GA_EXEC block
+     */
+    void clear_vm_exec()
+    {
+        obj_template->erase("QEMU_GA_EXEC");
+    }
+
+    /**
+     * Get QEMU_GA_EXEC block
+     *    @return QEMU_GA_EXEC block
+     */
+    VectorAttribute* get_vm_exec() const
+    {
+        return obj_template->get("QEMU_GA_EXEC");
+    }
+
+    /**
+     * Update the QEMU_GA_EXEC block with the command execution result
+     *    @param qemu_ga_exec QEMU_GA_EXEC command execution result (hash)
+     *
+     *    @return 0 on success
+     */
+    int update_vm_exec(const VectorAttribute& vm_exec_attr);
+
+    /**
+     *  Get the value of a QEMU_GA_EXEC attribute
+     *    @param key name of the attribute
+     *    @return value of the attribute
+     */
+    std::string get_vm_exec_attribute(const std::string& key) const;
+
+    /**
+     *  Set the value of a QEMU_GA_EXEC attribute
+     *    @param key name of the attribute
+     *    @param value value of the attribute
+     */
+    void set_vm_exec_attribute(const std::string& key, const std::string& value);
+
+    /**
+     *  Get the status of the command executed on the VM
+     *    @return command status string
+     */
+    std::string get_vm_exec_status() const
+    {
+        return get_vm_exec_attribute("STATUS");
+    }
+
+    /**
+     *  Get the command executed on the VM
+     *    @return command string
+     */
+    std::string get_vm_exec_command() const
+    {
+        return get_vm_exec_attribute("COMMAND");
+    }
+
+    /**
+     *  Get the stdin data of the command executed on the VM
+     *    @return stdin string
+     */
+    std::string get_vm_exec_stdin() const
+    {
+        return get_vm_exec_attribute("STDIN");
+    }
+
+    /**
      *  Parse TOPOLOGY and NUMA_NODE
      *    @param tmpl template of the virtual machine
      *    @param error if any

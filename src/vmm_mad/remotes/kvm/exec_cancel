@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+require File.expand_path('../../im/lib/kvm_qemu_ga', __dir__)
+
+begin
+    vm_id, _dst_host = ARGV
+
+    VirshWrapper.lock_exec do
+        path = "/var/run/one/one-#{vm_id}"
+        return 0 unless File.exist?(path)
+
+        pid_str = File.read(path).strip
+        return 0 if pid_str.empty?
+
+        VirshWrapper.guest_exec(
+            "one-#{vm_id}",
+            'kill',
+            ['-9', pid_str]
+        )
+
+        File.delete(path)
+    end
+
+    exit 0
+rescue StandardError => e
+    STDERR.puts "Error executing the command: #{e.message}"
+    STDERR.puts e.backtrace.to_s
+    exit(1)
+end

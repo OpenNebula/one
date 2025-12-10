@@ -41,6 +41,8 @@ require 'one_helper/onevm_helper'
 require 'one_helper/onedatastore_helper'
 require 'opennebula/virtual_machine_ext'
 
+require 'base64'
+
 CommandParser::CmdParser.new(ARGV) do
     usage '`onevm` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
@@ -254,6 +256,13 @@ CommandParser::CmdParser.new(ARGV) do
         :large  => '--disk-id disk_id',
         :format => Integer,
         :description => 'Use only selected disk ID'
+    }
+
+    CMD_STDIN = {
+        :name => 'stdin',
+        :large => '--stdin stdin',
+        :format => String,
+        :description => 'Data to pass to the command executed on the VM'
     }
 
     OpenNebulaHelper::TEMPLATE_OPTIONS_VM.delete_if do |v|
@@ -1514,6 +1523,43 @@ CommandParser::CmdParser.new(ARGV) do
     command :unlock, unlock_desc, [:range, :vmid_list] do
         helper.perform_actions(args[0], options, 'VM unlocked') do |vm|
             vm.unlock
+        end
+    end
+
+    exec_desc = <<-EOT.unindent
+        Execute a command inside a Virtual Machine.
+
+        States: RUNNING.
+    EOT
+
+    command :exec, exec_desc, [:range, :vmid_list], :cmd,
+            :options => [CMD_STDIN] do
+        helper.perform_actions(args[0], options, 'Executing a command') do |vm|
+            vm.exec(args[1], Base64.strict_encode64(options[:stdin] || ''))
+        end
+    end
+
+    exec_retry_desc = <<-EOT.unindent
+        Retries to execute the last command executed inside a Virtual Machine.
+
+        States: RUNNING.
+    EOT
+
+    command :"exec-retry", exec_retry_desc, [:range, :vmid_list] do
+        helper.perform_actions(args[0], options, 'Retrying last command') do |vm|
+            vm.exec_retry
+        end
+    end
+
+    exec_cancel_desc = <<-EOT.unindent
+        Cancel the command being executed inside a Virtual Machine.
+
+        States: RUNNING.
+    EOT
+
+    command :"exec-cancel", exec_cancel_desc, [:range, :vmid_list] do
+        helper.perform_actions(args[0], options, 'Canceling last command') do |vm|
+            vm.exec_cancel
         end
     end
 

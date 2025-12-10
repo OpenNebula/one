@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+require File.expand_path('../../im/lib/kvm_qemu_ga', __dir__)
+
+require 'shellwords'
+
+begin
+    vm_id, _dst_host, esc_cmd, cmd_stdin = ARGV
+    cmd_str = Shellwords.shellsplit(esc_cmd).join(' ')
+    cmd, *args = Shellwords.shellsplit(cmd_str)
+
+    VirshWrapper.lock_exec do
+        pid = VirshWrapper.guest_exec(
+            "one-#{vm_id}",
+            cmd,
+            args,
+            :input_data => cmd_stdin
+        )
+
+        File.write("/var/run/one/one-#{vm_id}", pid.to_s)
+    end
+
+    exit 0
+rescue StandardError => e
+    STDERR.puts "Error executing the command: #{e.message}"
+    STDERR.puts e.backtrace.to_s
+    exit(1)
+end

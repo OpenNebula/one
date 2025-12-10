@@ -48,6 +48,9 @@ public:
         register_action(MonitorDriverMessages::STATE_VM,
                         &MonitorDriverProtocol::_state_vm);
 
+        register_action(MonitorDriverMessages::EXEC_VM,
+                        &MonitorDriverProtocol::_exec_vm);
+
         register_action(MonitorDriverMessages::START_MONITOR,
                         &MonitorDriverProtocol::_start_monitor);
 

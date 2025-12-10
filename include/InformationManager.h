@@ -113,6 +113,11 @@ protected:
      */
     void _vm_state(std::unique_ptr<im_msg_t> msg);
 
+    /**
+     *  Message VM_EXEC from monitor
+     */
+    void _vm_exec(std::unique_ptr<im_msg_t> msg);
+
 private:
     /**
      *  Pointer to the Host Pool

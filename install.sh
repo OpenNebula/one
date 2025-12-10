@@ -349,6 +349,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/kvm-probes.d/host/system \
           $VAR_LOCATION/remotes/im/kvm-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/kvm-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/kvm-probes.d/vm/execution \
           $VAR_LOCATION/remotes/im/kvm-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/qemu.d \
           $VAR_LOCATION/remotes/im/qemu-probes.d/host/beacon \
@@ -363,6 +364,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/dummy-probes.d/host/system \
           $VAR_LOCATION/remotes/im/dummy-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/dummy-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/dummy-probes.d/vm/execution \
           $VAR_LOCATION/remotes/im/dummy-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/lxc.d \
           $VAR_LOCATION/remotes/im/lxc-probes.d/host/beacon \
@@ -544,6 +546,7 @@ INSTALL_FILES=(
     IM_PROBES_KVM_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/system
     IM_PROBES_KVM_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/monitor
     IM_PROBES_KVM_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/status
+    IM_PROBES_KVM_VM_EXEC_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/execution
     IM_PROBES_KVM_VM_SNAPSHOT_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/snapshot
     IM_PROBES_ETC_KVM_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
     IM_PROBES_QEMU_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/host/beacon
@@ -558,6 +561,7 @@ INSTALL_FILES=(
     IM_PROBES_DUMMY_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/system
     IM_PROBES_DUMMY_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/vm/monitor
     IM_PROBES_DUMMY_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/vm/status
+    IM_PROBES_DUMMY_VM_EXEC_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/vm/execution
     IM_PROBES_LXC_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/beacon
     IM_PROBES_LXC_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/monitor
     IM_PROBES_LXC_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/system
@@ -958,8 +962,9 @@ VMM_EXEC_LXC_SCRIPTS="src/vmm_mad/remotes/lxc/attach_disk \
                     src/vmm_mad/remotes/lxc/reconfigure \
                     src/vmm_mad/remotes/lxc/resize_disk \
                     src/vmm_mad/remotes/lxc/shutdown \
-                    src/vmm_mad/remotes/lxc/snapshot_revert"
-
+                    src/vmm_mad/remotes/lxc/snapshot_revert \
+                    src/vmm_mad/remotes/lxc/exec \
+                    src/vmm_mad/remotes/lxc/exec_cancel"
 
 VMM_EXEC_LXC_LIB="src/vmm_mad/remotes/lib/lxc/opennebula_vm.rb \
                 src/vmm_mad/remotes/lib/lxc/client.rb \
@@ -1008,7 +1013,9 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/reconfigure \
                     src/vmm_mad/remotes/kvm/prereconfigure \
                     src/vmm_mad/remotes/kvm/resize \
-                    src/vmm_mad/remotes/kvm/resize_disk"
+                    src/vmm_mad/remotes/kvm/resize_disk \
+                    src/vmm_mad/remotes/kvm/exec \
+                    src/vmm_mad/remotes/kvm/exec_cancel"
 
 VMM_EXEC_KVM_LIB="src/vmm_mad/remotes/lib/kvm/opennebula_vm.rb"
 
@@ -1027,6 +1034,7 @@ IM_PROBES_FILES="\
 
 IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/kvm.rb \
+    src/im_mad/remotes/lib/kvm_qemu_ga.rb \
     src/im_mad/remotes/lib/lxc.rb \
     src/im_mad/remotes/lib/linux.rb \
     src/im_mad/remotes/lib/numa_common.rb \
@@ -1079,6 +1087,9 @@ IM_PROBES_KVM_VM_MONITOR_FILES="\
 
 IM_PROBES_KVM_VM_STATUS_FILES="\
      src/im_mad/remotes/kvm-probes.d/vm/status/state.rb"
+
+IM_PROBES_KVM_VM_EXEC_FILES="\
+     src/im_mad/remotes/kvm-probes.d/vm/execution/exec.rb"
 
 IM_PROBES_KVM_VM_SNAPSHOT_FILES="\
      src/im_mad/remotes/kvm-probes.d/vm/snapshot/recovery.rb"
@@ -1146,6 +1157,9 @@ IM_PROBES_DUMMY_HOST_SYSTEM_FILES="\
 
 IM_PROBES_DUMMY_VM_MONITOR_FILES="\
      src/im_mad/remotes/dummy-probes.d/vm/monitor/monitor.rb"
+
+IM_PROBES_DUMMY_VM_EXEC_FILES="\
+     src/im_mad/remotes/dummy-probes.d/vm/execution/exec.rb"
 
 IM_PROBES_DUMMY_VM_STATUS_FILES=""
 

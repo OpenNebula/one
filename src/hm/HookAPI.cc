@@ -121,7 +121,7 @@ int HookAPI::parse_template(Template * tmpl, string& error_str)
     tmpl->get("CALL", call);
     tmpl->erase("CALL");
 
-    if (!call_exist(call))
+    if (call.rfind("one.internal", 0) != 0 && !call_exist(call))
     {
         error_str = "API call does not exist or is not supported: " + call;
         return -1;
@@ -139,7 +139,7 @@ int HookAPI::from_template(const Template * tmpl, string& error_str)
 {
     tmpl->get("CALL", call);
 
-    if (!call_exist(call))
+    if (call.rfind("one.internal", 0) != 0 && !call_exist(call))
     {
         error_str = "API call does not exist or is not supported: " + call;
         return -1;
@@ -157,7 +157,7 @@ int HookAPI::post_update_template(Template * tmpl, string& error)
 
     tmpl->get("CALL", new_call);
 
-    if (call_exist(new_call))
+    if (call.rfind("one.internal", 0) != 0 && !call_exist(call))
     {
         call = new_call;
         tmpl->replace("CALL", call);

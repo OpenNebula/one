@@ -498,6 +498,12 @@ void LifeCycleManager::trigger_shutdown_success(int vid)
 
         auto state = vm->get_lcm_state();
 
+        if (vm->get_vm_exec_status() == "EXECUTING")
+        {
+            vm->set_vm_exec_attribute("STATUS", "CANCELLED");
+            vmpool->update(vm.get());
+        }
+
         if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN )
         {
             //----------------------------------------------------
@@ -3268,6 +3274,112 @@ void LifeCycleManager::trigger_backup_failure(int vid)
 
             // todo Add failure to BJ?
             bjpool->update(bj.get());
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_exec_success(int vid)
+{
+    trigger([this, vid]
+    {
+        if ( auto vm = vmpool->get(vid) )
+        {
+            VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+
+            if (lcm_state != VirtualMachine::HOTPLUG)
+            {
+                vm->log("LCM", Log::ERROR, "VM exec success, VM in a wrong state");
+                return;
+            }
+
+            vm->set_state(VirtualMachine::RUNNING);
+            vm->log("LCM", Log::INFO, "VM exec operation completed.");
+
+            vm->set_vm_exec_attribute("STATUS", "EXECUTING");
+            vmpool->update(vm.get());
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_exec_failure(int vid)
+{
+    trigger([this, vid]
+    {
+        if ( auto vm = vmpool->get(vid) )
+        {
+            VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+
+            if (lcm_state != VirtualMachine::HOTPLUG)
+            {
+                vm->log("LCM", Log::ERROR,
+                        "VM exec fails, VM in a wrong state: " + vm->state_str());
+                return;
+            }
+
+            vm->set_state(VirtualMachine::RUNNING);
+            vm->log("LCM", Log::INFO, "VM exec operation fails");
+
+            vm->set_vm_exec_attribute("STATUS", "ERROR");
+            vmpool->update(vm.get());
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_exec_cancel_success(int vid)
+{
+    trigger([this, vid]
+    {
+        if ( auto vm = vmpool->get(vid) )
+        {
+            VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+
+            if (lcm_state != VirtualMachine::HOTPLUG)
+            {
+                vm->log("LCM", Log::ERROR, "VM cancel exec success, VM in a wrong state");
+                return;
+            }
+
+            vm->set_state(VirtualMachine::RUNNING);
+            vm->log("LCM", Log::INFO, "VM cancel exec operation completed.");
+
+            vm->set_vm_exec_attribute("STATUS", "CANCELLED");
+            vmpool->update(vm.get());
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_exec_cancel_failure(int vid)
+{
+    trigger([this, vid]
+    {
+        if ( auto vm = vmpool->get(vid) )
+        {
+            VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+
+            if (lcm_state != VirtualMachine::HOTPLUG)
+            {
+                vm->log("LCM", Log::ERROR,
+                        "VM cancel exec fails, VM in a wrong state: " + vm->state_str());
+                return;
+            }
+
+            vm->set_state(VirtualMachine::RUNNING);
+            vm->log("LCM", Log::INFO, "VM cancel exec operation fails");
+
+            vm->set_vm_exec_attribute("STATUS", "ERROR");
+            vmpool->update(vm.get());
         }
     });
 }

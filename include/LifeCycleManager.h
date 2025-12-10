@@ -153,6 +153,13 @@ public:
 
     void trigger_backup_success(int vid);
     void trigger_backup_failure(int vid);
+
+    void trigger_exec_success(int vid);
+    void trigger_exec_failure(int vid);
+
+    void trigger_exec_cancel_success(int vid);
+    void trigger_exec_cancel_failure(int vid);
+
     // -------------------------------------------------------------------------
     // External Actions, triggered by user requests
     // -------------------------------------------------------------------------

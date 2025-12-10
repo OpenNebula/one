@@ -182,6 +182,7 @@ def to_monitord(config)
     system_host  = config.elements['PROBES_PERIOD/SYSTEM_HOST']&.text.to_s
     monitor_host = config.elements['PROBES_PERIOD/MONITOR_HOST']&.text.to_s
     state_vm     = config.elements['PROBES_PERIOD/STATE_VM']&.text.to_s
+    exec_vm      = config.elements['PROBES_PERIOD/EXEC_VM']&.text.to_s
     monitor_vm   = config.elements['PROBES_PERIOD/MONITOR_VM']&.text.to_s
 
     <<~CONF
@@ -196,6 +197,7 @@ def to_monitord(config)
             SYSTEM_HOST    = #{system_host},
             MONITOR_HOST   = #{monitor_host},
             STATE_VM       = #{state_vm},
+            EXEC_VM        = #{exec_vm},
             MONITOR_VM     = #{monitor_vm},
         ]
     CONF
@@ -267,6 +269,12 @@ begin
             :period => config.elements['PROBES_PERIOD/STATE_VM'].text.to_s,
             :elem_name => 'STATE_VM',
             :path => 'vm/status'
+        },
+
+        :exec_vm_udp => {
+            :period => config.elements['PROBES_PERIOD/EXEC_VM'].text.to_s,
+            :elem_name => 'EXEC_VM',
+            :path => 'vm/execution'
         },
 
         :monitor_vm_udp => {

@@ -35,6 +35,7 @@ enum class MonitorDriverMessages : unsigned short int
     START_MONITOR= 8,
     STOP_MONITOR = 9,
     LOG          = 10,
+    EXEC_VM      = 11,
     ENUM_MAX
 };
 

@@ -774,4 +774,60 @@ protected:
                          RequestAttributes& ra) override;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineExec : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineExec():
+        RequestManagerVirtualMachine("one.vm.exec",
+                                     "Executes a command in the virtual machine",
+                                     "A:siss")
+    {
+        vm_action = VMActions::EXEC_ACTION;
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+                         RequestAttributes& ra) override;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineRetryExec : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineRetryExec():
+        RequestManagerVirtualMachine("one.vm.retryexec",
+                                     "Retries to execute the last command executed in the virtual machine",
+                                     "A:si")
+    {
+        vm_action = VMActions::EXEC_RETRY_ACTION;
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+                         RequestAttributes& ra) override;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineCancelExec : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineCancelExec():
+        RequestManagerVirtualMachine("one.vm.cancelexec",
+                                     "Cancels the execution of the command being executed in the virtual machine",
+                                     "A:si")
+    {
+        vm_action = VMActions::EXEC_CANCEL_ACTION;
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+                         RequestAttributes& ra) override;
+};
 #endif

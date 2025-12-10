@@ -92,6 +92,9 @@ public:
     time_t last_state_vm() const { return _last_state_vm; }
     void last_state_vm(time_t lsv) { _last_state_vm = lsv; }
 
+    time_t last_exec_vm() const { return _last_exec_vm; }
+    void last_exec_vm(time_t lev) { _last_exec_vm = lev; }
+
     time_t last_monitor_vm() const { return _last_monitor_vm; }
     void last_monitor_vm(time_t lmv) { _last_monitor_vm = lmv; }
 
@@ -123,6 +126,7 @@ private:
     bool   _monitor_in_progress = false;
 
     time_t _last_state_vm     = 0;
+    time_t _last_exec_vm      = 0;
     time_t _last_monitor_vm   = 0;
 
     time_t _last_monitor_host = 0;

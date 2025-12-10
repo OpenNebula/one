@@ -34,6 +34,7 @@ enum class InformationManagerMessages : unsigned short int
     STOP_MONITOR,
     HOST_STATE,
     VM_STATE,
+    VM_EXEC,
     HOST_SYSTEM,
     RAFT_STATUS,
     ENUM_MAX
@@ -178,6 +179,8 @@ enum class VMManagerMessages : unsigned short int
     BACKUP,
     UPDATENIC,
     BACKUPCANCEL,
+    EXEC,
+    EXEC_CANCEL,
     ENUM_MAX
 };
 

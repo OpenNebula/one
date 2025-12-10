@@ -1076,6 +1076,11 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
     vm->release_vnc_port();
 
+    if (vm->get_vm_exec_status() == "EXECUTING")
+    {
+        vm->set_vm_exec_attribute("STATUS", "CANCELLED");
+    }
+
     if (state == VirtualMachine::POWEROFF ||
         state == VirtualMachine::SUSPENDED)
     {

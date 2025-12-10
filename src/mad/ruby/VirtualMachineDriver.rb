@@ -31,32 +31,34 @@ class VirtualMachineDriver < OpenNebulaDriver
 
     # Virtual Machine Driver Protocol constants
     ACTION = {
-        :deploy      => "DEPLOY",
-        :shutdown    => "SHUTDOWN",
-        :reboot      => "REBOOT",
-        :reset       => "RESET",
-        :cancel      => "CANCEL",
-        :save        => "SAVE",
-        :restore     => "RESTORE",
-        :migrate     => "MIGRATE",
-        :poll        => "POLL",
-        :log         => "LOG",
-        :attach_disk => "ATTACHDISK",
-        :detach_disk => "DETACHDISK",
-        :snapshot_create => "SNAPSHOTCREATE",
-        :snapshot_revert => "SNAPSHOTREVERT",
-        :snapshot_delete => "SNAPSHOTDELETE",
-        :cleanup         => "CLEANUP",
-        :attach_nic  => "ATTACHNIC",
-        :detach_nic  => "DETACHNIC",
+        :deploy               => "DEPLOY",
+        :shutdown             => "SHUTDOWN",
+        :reboot               => "REBOOT",
+        :reset                => "RESET",
+        :cancel               => "CANCEL",
+        :save                 => "SAVE",
+        :restore              => "RESTORE",
+        :migrate              => "MIGRATE",
+        :poll                 => "POLL",
+        :log                  => "LOG",
+        :attach_disk          => "ATTACHDISK",
+        :detach_disk          => "DETACHDISK",
+        :snapshot_create      => "SNAPSHOTCREATE",
+        :snapshot_revert      => "SNAPSHOTREVERT",
+        :snapshot_delete      => "SNAPSHOTDELETE",
+        :cleanup              => "CLEANUP",
+        :attach_nic           => "ATTACHNIC",
+        :detach_nic           => "DETACHNIC",
         :disk_snapshot_create => "DISKSNAPSHOTCREATE",
-        :resize_disk => "RESIZEDISK",
-        :update_sg   => "UPDATESG",
-        :update_conf => "UPDATECONF",
-        :resize      => "RESIZE",
-        :backup      => "BACKUP",
-        :update_nic   => "UPDATENIC",
-        :backup_cancel=> "BACKUPCANCEL"
+        :resize_disk          => "RESIZEDISK",
+        :update_sg            => "UPDATESG",
+        :update_conf          => "UPDATECONF",
+        :resize               => "RESIZE",
+        :backup               => "BACKUP",
+        :update_nic           => "UPDATENIC",
+        :backup_cancel        => "BACKUPCANCEL",
+        :exec                 => "EXEC",
+        :exec_cancel          => "EXEC_CANCEL"
     }
 
     POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
@@ -106,6 +108,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:backup].to_sym, method("backup"))
         register_action(ACTION[:update_nic].to_sym, method("update_nic"))
         register_action(ACTION[:backup_cancel].to_sym, method("backup_cancel"))
+        register_action(ACTION[:exec].to_sym, method("exec"))
+        register_action(ACTION[:exec_cancel].to_sym, method("exec_cancel"))
     end
 
     # Decodes the encoded XML driver message received from the core
@@ -253,6 +257,16 @@ class VirtualMachineDriver < OpenNebulaDriver
     def backup_cancel(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:backup_cancel],RESULT[:failure],id,error)
+    end
+
+    def exec(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:exec],RESULT[:failure],id,error)
+    end
+
+    def exec_cancel(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:exec_cancel],RESULT[:failure],id,error)
     end
 
 private

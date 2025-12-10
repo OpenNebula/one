@@ -4228,3 +4228,75 @@ void VirtualMachineRestore::request_execute(
 
     return;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineExec::request_execute(xmlrpc_c::paramList const& paramList,
+                                         RequestAttributes& att)
+{
+    int vm_id        = xmlrpc_c::value_int(paramList.getInt(1));
+    string cmd       = xmlrpc_c::value_string(paramList.getString(2));
+    string cmd_stdin = xmlrpc_c::value_string(paramList.getString(3));
+
+    int rc = dm->exec(vm_id, cmd, cmd_stdin, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(vm_id, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineRetryExec::request_execute(xmlrpc_c::paramList const& paramList,
+                                          RequestAttributes& att)
+{
+    int vm_id = xmlrpc_c::value_int(paramList.getInt(1));
+    string cmd, cmd_stdin;
+
+    auto vm = get_vm_ro(vm_id, att);
+    if (!vm) {
+        // Failure response set in get_vm_ro method
+        return;
+    }
+
+    cmd       = vm->get_vm_exec_command();
+    cmd_stdin = vm->get_vm_exec_stdin();
+
+    int rc = dm->exec(vm_id, cmd, cmd_stdin, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(vm_id, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineCancelExec::request_execute(xmlrpc_c::paramList const& paramList,
+                                          RequestAttributes& att)
+{
+    int vm_id = xmlrpc_c::value_int(paramList.getInt(1));
+
+    int rc = dm->exec_cancel(vm_id, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(vm_id, att);
+    }
+}
