@@ -38,4 +38,10 @@ fi
 HOST_ID=$(echo "${STDIN}"  | xmllint --xpath 'string(//HOST_ID)' -)
 ENTITYH="host,${HOST_ID},0,/var/tmp/one_db"
 
+export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+export OPENBLAS_NUM_THREADS=${OPENBLAS_NUM_THREADS:-1}
+export MKL_NUM_THREADS=${MKL_NUM_THREADS:-1}
+export BLIS_NUM_THREADS=${BLIS_NUM_THREADS:-1}
+export NUMEXPR_NUM_THREADS=${NUMEXPR_NUM_THREADS:-1}
+
 PYTHONPATH=$PYTHON_PATH $PYTHON $PYTHON_PATH/prediction.py --entity $ENTITYH --pythonpath $PYTHON_PATH
