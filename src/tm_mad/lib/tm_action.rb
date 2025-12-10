@@ -159,7 +159,7 @@ module TransferManager
             end
 
             def disk_id
-                base.to_s.match(/disk\.([0-9]+)/)&.captures&.at(0)
+                @path.to_s.match(/disk\.([0-9]+)/)&.captures&.at(0)
             end
 
         end
