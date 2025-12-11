@@ -52,8 +52,8 @@ vmpool.each do |vm|
         result << 'VM = [' \
                   " ID=\"#{vm_id}\"," \
                   " PID=\"#{pid}\"," \
-                  ' STATUS=\"DONE\",' \
-                  ' RETURN_CODE=\"0\",' \
+                  ' STATUS="DONE",' \
+                  ' RETURN_CODE="0",' \
                   " STDOUT=\"#{stdout}\"," \
                   " STDERR=\"#{stderr}\" ]\n"
     rescue StandardError
