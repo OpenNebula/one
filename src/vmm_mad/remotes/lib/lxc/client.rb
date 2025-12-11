@@ -116,9 +116,9 @@ class LXCClient
         cmd = append_options("#{COMMANDS[:attach]} -n #{name} -- #{cmd}", options)
 
         if detach
-            Command.container_cmd(name, cmd)
-        else
             Command.execute_detach(cmd)
+        else
+            Command.container_cmd(name, cmd)
         end
     end
 
