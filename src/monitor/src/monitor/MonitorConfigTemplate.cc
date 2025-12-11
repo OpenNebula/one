@@ -49,7 +49,8 @@ void MonitorConfigTemplate::set_conf_default()
     conf_default.insert(make_pair(va->name(), va));
 
     va = new VectorAttribute("PROBES_PERIOD", {{"SYSTEM_HOST", "600"},
-        {"MONITOR_HOST", "120"}, {"MONITOR_VM", "90"}, {"STATUS_VM", "10"}
+        {"MONITOR_HOST", "120"}, {"MONITOR_VM", "90"}, {"STATE_VM", "10"},
+        {"SYNC_STATE_VM", "180"}, {"BEACON_HOST", "30"}, {"EXEC_VM", "5"}
     });
     conf_default.insert(make_pair(va->name(), va));
 }

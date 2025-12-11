@@ -157,17 +157,14 @@ int HookAPI::post_update_template(Template * tmpl, string& error)
 
     tmpl->get("CALL", new_call);
 
-    if (call.rfind("one.internal", 0) != 0 && !call_exist(call))
-    {
-        call = new_call;
-        tmpl->replace("CALL", call);
-    }
-    else
+    if (new_call.rfind("one.internal", 0) != 0 && !call_exist(new_call))
     {
         error = "The CALL attribute is not defined or it's invalid.";
         return -1;
     }
 
+    call = new_call;
+    tmpl->replace("CALL", call);
 
     return 0;
 }

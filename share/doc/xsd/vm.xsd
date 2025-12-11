@@ -142,6 +142,19 @@
               <xs:element name="NUMA_NODE" minOccurs="0" maxOccurs="1"/>
               <xs:element name="OS" minOccurs="0" maxOccurs="1"/>
               <xs:element name="PCI" minOccurs="0" maxOccurs="unbounded"/>
+              <xs:element name="QEMU_GA_EXEC" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="COMMAND" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="PID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="RETURN_CODE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="STDERR" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="STDIN" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="STDOUT" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <xs:element name="RAW" minOccurs="0" maxOccurs="1"/>
               <xs:element name="SECURITY_GROUP_RULE" minOccurs="0" maxOccurs="unbounded"/>
               <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
