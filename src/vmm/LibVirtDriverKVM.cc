@@ -2326,8 +2326,8 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t<controller type='pci' index='" << sw_i << "'"
                      << " model='pcie-switch-upstream-port'>" << endl
                      << "\t\t\t<address type='pci' bus='" << bus_i + 1 << "'"
-                     << " slot='0' function='0'/>"
-                     << "\t\t</controller>";
+                     << " slot='0' function='0'/>" << endl
+                     << "\t\t</controller>" << endl;
 
                 for (unsigned int j = 0; j < 8; j++)
                 {

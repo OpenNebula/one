@@ -926,8 +926,8 @@ static bool sort_node_mem(VectorAttribute *i, VectorAttribute *j)
 // -----------------------------------------------------------------------------
 
 bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
-                                   bool dedicated, unsigned long hpsz_kb, std::set<unsigned int> &pci,
-                                   bool do_alloc)
+                                   bool dedicated, unsigned long hpsz_kb,
+                                   int pci_idx, bool do_alloc)
 {
     std::vector<std::tuple<float, int> > cpu_fits;
     std::set<unsigned int> mem_fits;
@@ -976,7 +976,7 @@ bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
         {
             float fcpu_after = 1 - ((float) nr.total_cpus / (threads * n_fcpu));
 
-            if ( pci.count(it->second->node_id) != 0 )
+            if ( pci_idx == it->second->node_id )
             {
                 fcpu_after += 1;
             }
@@ -1372,17 +1372,26 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
     //
     // NOTE: We want to pin CPUS in the same core in the VM to CPUS in the same
     // core in the host as well.
+    //
+    // pci_alloc (true) if the PCI devices are pre-allocated to each NUMA node
+    // (i.e. set to the node PICe expander bus). Virtual NUMA node 0 should be
+    // mapped to physical NUMA node 0 in this case.
     //--------------------------------------------------------------------------
     unsigned int na = 0;
     std::set<unsigned int> pci_nodes;
+    bool pci_alloc = sr.nodes.size() > 0;
 
-    for (auto it = sr.pci.begin(); it != sr.pci.end(); ++it)
+    if ( pci_alloc )
     {
-        int pnode = -1;
-
-        if ((*it)->vector_value("NUMA_NODE", pnode) == 0 && pnode != -1)
+        //Store NUMA nodes with pre-assigned PCI devices to force allocation
+        for (auto it = sr.pci.begin(); it != sr.pci.end(); ++it)
         {
-            pci_nodes.insert(pnode);
+            int pnode = -1;
+
+            if ((*it)->vector_value("NUMA_NODE", pnode) == 0 && pnode != -1)
+            {
+                pci_nodes.insert(pnode);
+            }
         }
     }
 
@@ -1402,16 +1411,27 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
             }
         }
 
+        int idx = 0;
+
         // Check allocation of virtual NUMA nodes
-        for (auto vn_it = vm_nodes.begin(); vn_it != vm_nodes.end(); ++vn_it)
+        for (auto& vn_it : vm_nodes)
         {
-            if (!schedule_nodes(*vn_it, *tc_it, dedicated, hpsz_kb, pci_nodes,
+            // If PCI devices are preassigned try to use same idx NUMA node
+            int use_node = -1;
+
+            if ( pci_nodes.count(idx) != 0 )
+            {
+                use_node = idx;
+            }
+
+            if (!schedule_nodes(vn_it, *tc_it, dedicated, hpsz_kb, use_node,
                                 do_alloc))
             {
                 break; //Node cannot be allocated with *tc_it threads/core
             }
 
             na++;
+            idx++;
         }
 
         if (na == vm_nodes.size())

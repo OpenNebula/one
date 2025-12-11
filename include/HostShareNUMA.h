@@ -500,7 +500,7 @@ private:
     };
 
     bool schedule_nodes(NUMANodeRequest &nr, unsigned int thr, bool dedicated,
-                        unsigned long hpsz_kb, std::set<unsigned int> &pci, bool do_alloc);
+                        unsigned long hpsz_kb, int pci_idx, bool do_alloc);
 };
 
 #endif /*HOST_SHARE_NUMA_H_*/
