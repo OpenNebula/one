@@ -57,6 +57,7 @@ const std::vector<ContextVariable> NETWORK_CONTEXT =
     {"VROUTER_IP", "VROUTER_IP", "", false},
     {"VROUTER_MANAGEMENT", "VROUTER_MANAGEMENT", "", false},
     {"EXTERNAL", "EXTERNAL", "", false},
+    {"ROUTES", "ROUTES", "", true},
 };
 
 const std::vector<ContextVariable> NETWORK6_CONTEXT =
