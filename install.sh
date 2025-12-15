@@ -2191,10 +2191,11 @@ FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/views/admin/vm-tab.y
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/views/user/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/views/user/vm-template-tab.yaml \
                                 src/fireedge/etc/sunstone/views/user/marketplace-app-tab.yaml \
-                                src/fireedge/etc/sunstone/views/user/image-tab.yaml\
-                                src/fireedge/etc/sunstone/views/user/file-tab.yaml\
+                                src/fireedge/etc/sunstone/views/user/image-tab.yaml \
+                                src/fireedge/etc/sunstone/views/user/file-tab.yaml \
                                 src/fireedge/etc/sunstone/views/user/backup-tab.yaml \
                                 src/fireedge/etc/sunstone/views/user/sec-group-tab.yaml \
+                                src/fireedge/etc/sunstone/views/user/service-tab.yaml \
                                 src/fireedge/etc/sunstone/views/user/vnet-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/views/groupadmin/vm-tab.yaml \
@@ -2203,6 +2204,9 @@ FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/views/groupadmi
                                 src/fireedge/etc/sunstone/views/groupadmin/sec-group-tab.yaml \
                                 src/fireedge/etc/sunstone/views/groupadmin/vnet-tab.yaml \
                                 src/fireedge/etc/sunstone/views/groupadmin/vnet-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/image-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/file-tab.yaml \                                
+                                src/fireedge/etc/sunstone/views/groupadmin/backup-tab.yaml \                                
                                 src/fireedge/etc/sunstone/views/groupadmin/user-tab.yaml \
                                 src/fireedge/etc/sunstone/views/groupadmin/service-tab.yaml \
                                 src/fireedge/etc/sunstone/views/groupadmin/service-template-tab.yaml \
