@@ -5577,6 +5577,15 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - PROBES_PERIOD
+            key: EXEC_VM
+            value: '5'
+            state: ins
+            extra:
+                multiple: false
         content: |
             #*******************************************************************************
             #                       Monitord Configuration file
@@ -5660,11 +5669,12 @@ patches:
             # Probes Configuration
             #*******************************************************************************
             # PROBES_PERIOD: Time in seconds to execute each probe category
-            #   beacon_host: heartbeat for the host
-            #   system_host:  host static/configuration information
-            #   monitor_host: host variable information
-            #   state_vm:    VM status (ie. running, error, stopped...)
-            #   monitor_vm:   VM resource usage metrics
+            #   beacon_host:   heartbeat for the host
+            #   system_host:   host static/configuration information
+            #   monitor_host:  host variable information
+            #   state_vm:      VM status (ie. running, error, stopped...)
+            #   exec_vm:       Retrieve VM command execution result (using QEMU-GA)
+            #   monitor_vm:    VM resource usage metrics
             #   sync_vm_state: When monitor probes have been stopped more than sync_vm_state
             #                  seconds, send a complete VM report.
             #*******************************************************************************
@@ -5673,6 +5683,7 @@ patches:
                 SYSTEM_HOST    = 600,
                 MONITOR_HOST   = 120,
                 STATE_VM       = 5,
+                EXEC_VM        = 5,
                 MONITOR_VM     = 30,
                 SYNC_STATE_VM  = 180
             ]
@@ -5780,6 +5791,20 @@ patches:
             key: AUTHN
             value: '"ssh,x509,ldap,server_cipher,server_x509,saml"'
             old: '"ssh,x509,ldap,server_cipher,server_x509"'
+            state: set
+            extra: {}
+        -   path: []
+            key: VM_MANAGE_OPERATIONS
+            value: |-
+                "undeploy, hold, release, stop, suspend, resume, reboot,
+                    poweroff, disk-attach, nic-attach, disk-snapshot, terminate, disk-resize,
+                    snapshot, updateconf, rename, resize, update, disk-saveas, sched-action,
+                    sg-attach, pci-attach, exec"
+            old: |-
+                "undeploy, hold, release, stop, suspend, resume, reboot,
+                    poweroff, disk-attach, nic-attach, disk-snapshot, terminate, disk-resize,
+                    snapshot, updateconf, rename, resize, update, disk-saveas, sched-action,
+                    sg-attach, pci-attach"
             state: set
             extra: {}
         -   path: []
@@ -6647,6 +6672,7 @@ patches:
             #   - migrate, includes migrate, live-migrate, poweroff-migrate actions
             #   - sched-action, includes sched action add, delete and update actions
             #   - sg-attach, includes attach and detach actions
+            #   - exec, includes execution, retry and cancel command actions
             #******************************************************************************
 
             VM_ADMIN_OPERATIONS  = "migrate, delete, recover, retry, deploy, resched,
@@ -6655,7 +6681,7 @@ patches:
             VM_MANAGE_OPERATIONS = "undeploy, hold, release, stop, suspend, resume, reboot,
                 poweroff, disk-attach, nic-attach, disk-snapshot, terminate, disk-resize,
                 snapshot, updateconf, rename, resize, update, disk-saveas, sched-action,
-                sg-attach, pci-attach"
+                sg-attach, pci-attach, exec"
 
             VM_USE_OPERATIONS    = ""
 
