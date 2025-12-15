@@ -2879,6 +2879,15 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - info-tabs
+            key: logs
+            value:
+                enabled: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the VM tab
@@ -3032,6 +3041,9 @@ patches:
                   update_configuration: true
 
               template:
+                enabled: true
+
+              logs:
                 enabled: true
     "/etc/one/fireedge/sunstone/views/admin/vm-template-tab.yaml":
         class: Yaml
@@ -8996,6 +9008,263 @@ patches:
             - :STATE
             - :REGTIME
 
+    "/etc/one/fireedge/sunstone/views/groupadmin/backup-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            ---
+            # This file describes the information and actions available in the IMAGE tab
+
+            # Resource
+
+            resource_name: "BACKUP"
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              restore: true
+              chown: true
+              chgrp: false
+              delete: true
+
+            # Filters - List of criteria to filter the resources
+
+            filters:
+              state: true
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+                  actions:
+                    rename: true
+                permissions_panel:
+                  enabled: true
+                  actions:
+                    chmod: true
+                ownership_panel:
+                  enabled: true
+                  actions:
+                    chown: true
+                    chgrp: false
+                attributes_panel:
+                  enabled: true
+                  actions:
+                    copy: true
+                    add: true
+                    edit: true
+                    delete: true
+              vms:
+                enabled: true
+              increments:
+                enabled: true
+    "/etc/one/fireedge/sunstone/views/groupadmin/file-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |-
+            ---
+            # This file describes the information and actions available in the FILE tab
+
+            # Resource
+
+            resource_name: "FILE"
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              create_dialog: true
+              import_dialog: true
+              disable: true
+              enable: true
+              chown: true
+              chgrp: false
+              delete: true
+
+            # Filters - List of criteria to filter the resources
+
+            filters:
+              state: true
+
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+                  actions:
+                    rename: true
+                permissions_panel:
+                  enabled: true
+                  actions:
+                    chmod: true
+                ownership_panel:
+                  enabled: true
+                  actions:
+                    chown: true
+                    chgrp: false
+                attributes_panel:
+                  enabled: true
+                  actions:
+                    copy: true
+                    add: true
+                    edit: true
+                    delete: true
+    "/etc/one/fireedge/sunstone/views/groupadmin/image-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |-
+            ---
+            # This file describes the information and actions available in the IMAGE tab
+
+            # Resource
+
+            resource_name: "IMAGE"
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              create_dialog: true
+              import_dialog: true
+              clone: true
+              lock: true
+              unlock: true
+              disable: true
+              enable: true
+              persistent: true
+              nonpersistent: true
+              chown: true
+              chgrp: false
+              delete: true
+
+            # Filters - List of criteria to filter the resources
+
+            filters:
+              state: true
+              locked: true
+
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+                  actions:
+                    rename: true
+                permissions_panel:
+                  enabled: true
+                  actions:
+                    chmod: true
+                ownership_panel:
+                  enabled: true
+                  actions:
+                    chown: true
+                    chgrp: false
+                attributes_panel:
+                  enabled: true
+                  actions:
+                    copy: true
+                    add: true
+                    edit: true
+                    delete: true
+              vms:
+                enabled: true
+              snapshot:
+                enabled: true
+                actions:
+                  snapshot_flatten: true
+                  snapshot_revert: true
+                  snapshot_delete: true
+    "/etc/one/fireedge/sunstone/views/user/service-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            ---
+            # This file describes the information and actions available in the Service tab
+
+            # Resource
+
+            resource_name: "SERVICE"
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              instantiate_dialog: true # reference to deploy_dialog in service-template-tab.yaml
+              create_dialog: true
+              recover: true
+              recover_delete: true
+              delete: true
+              chown: false
+              chgrp: false
+              share: true
+              unshare: true
+              edit_labels: true
+
+            # Filters - List of criteria to filter the resources
+
+            filters:
+              state: true
+              owner: true
+              group: true
+
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+                  actions:
+                    rename: true
+                permissions_panel:
+                  enabled: true
+                  actions:
+                    chmod: false
+                ownership_panel:
+                  enabled: true
+                  actions:
+                    chown: false
+                    chgrp: false
+
+              roles:
+                enabled: true
+
+              log:
+                enabled: true
+
+              sched_actions:
+                enabled: true
+                actions:
+                  sched-add: true
+                  sched-update: false
+                  sched-delete: false
+                  charter_create: true
+                  perform_action: true
+
+            # Dialogs
+
+            dialogs:
+              # update_dialog:
     "/etc/one/oneform-server.conf":
         class: Yaml
         owner: root
