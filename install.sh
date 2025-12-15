@@ -357,6 +357,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/qemu-probes.d/host/system \
           $VAR_LOCATION/remotes/im/qemu-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/qemu-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/vm/execution \
           $VAR_LOCATION/remotes/im/qemu-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/dummy.d \
           $VAR_LOCATION/remotes/im/dummy-probes.d/host/beacon \
@@ -372,6 +373,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/lxc-probes.d/host/system \
           $VAR_LOCATION/remotes/im/lxc-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/lxc-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/vm/execution \
           $VAR_LOCATION/remotes/im/lxc-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/lib \
