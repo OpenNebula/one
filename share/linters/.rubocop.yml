@@ -320,10 +320,6 @@ Layout/EmptyLinesAroundClassBody:
 Layout/EmptyLinesAroundModuleBody:
     EnforcedStyle: empty_lines
 
-# it's mandatory to left a empty line before guard clause
-Layout/GuardClause:
-    Enabled: false
-
 Layout/EmptyLineAfterGuardClause:
     Enabled: true
 
@@ -357,6 +353,10 @@ Layout/SpaceAroundKeyword:
 #######
 # STYLE
 #######
+
+# it's mandatory to left a empty line before guard clause
+Style/GuardClause:
+    Enabled: false
 
 Style/EmptyStringInsideInterpolation:
     Enabled: false
