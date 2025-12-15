@@ -23,7 +23,8 @@
     "lint": "npm run lint-client && npm run lint-server",
     "lint-client": "eslint ./src/client/",
     "lint-server": "eslint ./src/server/",
-    "lint-fix": "eslint ./src/ --fix"
+    "lint-fix": "eslint ./src/ --fix",
+    "dev-server": "cross-env NODE_ENV=development babel-node ./src/server/index.js"
   },
   "author": "opennebula.io",
   "license": "Apache-2.0",
@@ -139,6 +140,7 @@
     "react-router-dom": "5.3.0",
     "react-transition-group": "4.4.1",
     "react-virtual": "2.7.1",
+    "react-virtualized": "9.22.6",
     "recharts": "2.7.3",
     "redux": "4.1.1",
     "redux-persist": "6.0.0",

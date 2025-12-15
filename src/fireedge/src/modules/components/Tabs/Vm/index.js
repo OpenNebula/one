@@ -38,6 +38,7 @@ import SchedActions from '@modules/components/Tabs/Vm/SchedActions'
 import Snapshot from '@modules/components/Tabs/Vm/Snapshot'
 import Storage from '@modules/components/Tabs/Vm/Storage'
 import Template from '@modules/components/Tabs/Vm/Template'
+import Logs from '@modules/components/Tabs/Vm/Logs'
 
 const useStyles = ({ palette }) => ({
   vmError: css({
@@ -60,6 +61,7 @@ const getTabComponent = (tabName) =>
     storage: Storage,
     configuration: Configuration,
     template: Template,
+    logs: Logs,
   }[tabName])
 
 const VmTabs = memo(({ id, singleActions }) => {

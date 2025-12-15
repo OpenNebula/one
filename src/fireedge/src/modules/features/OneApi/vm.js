@@ -370,6 +370,22 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
     }),
+    getVmLogs: builder.query({
+      // /**
+      //  * Retrieves log for a vm.
+      //  *
+      //  * @returns {number} VM ID
+      //  * @throws Fails when response isn't code 200
+      //  */
+      query: (params) => {
+        const name = ExtraActions.VM_LOGS
+        const command = { name, ...ExtraCommands[name] }
+
+        return { params, command }
+      },
+      keepUnusedDataFor: 0,
+      providesTags: [],
+    }),
     allocateVm: builder.mutation({
       /**
        * Allocates a new virtual machine in OpenNebula.
@@ -1368,6 +1384,7 @@ const vmQueries = (({
   useLazyCalculateShowbackQuery,
   useGetVmsPaginatedQuery,
   useLazyGetVmsPaginatedQuery,
+  useGetVmLogsQuery,
 
   // Mutations
   useAllocateVmMutation,
@@ -1433,6 +1450,7 @@ const vmQueries = (({
   useLazyCalculateShowbackQuery,
   useGetVmsPaginatedQuery,
   useLazyGetVmsPaginatedQuery,
+  useGetVmLogsQuery,
 
   // Mutations
   useAllocateVmMutation,

@@ -13,27 +13,46 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { ReactElement } from 'react'
+import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-const { Actions, Commands } = require('server/routes/api/vm/routes')
-const {
-  saveAsTemplate,
-  generateGuacamoleSession,
-  vmLogs,
-} = require('server/routes/api/vm/functions')
+import { VmAPI } from '@FeaturesModule'
+import LogsViewer from '@modules/components/LogsViewer'
+import { OpenNebulaLogo } from '@modules/components/Icons'
 
-const { VM_SAVEASTEMPLATE, GUACAMOLE, VM_LOGS } = Actions
+/**
+ * Renders logs tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Virtual machine id
+ * @returns {ReactElement} Logs tab
+ */
+const LogsTab = ({ id }) => {
+  // Get vm logs
+  const {
+    data: logsData,
+    refetch,
+    isFetching,
+  } = VmAPI.useGetVmLogsQuery({ id })
 
-module.exports = [
-  {
-    ...Commands[VM_SAVEASTEMPLATE],
-    action: saveAsTemplate,
-  },
-  {
-    ...Commands[GUACAMOLE],
-    action: generateGuacamoleSession,
-  },
-  {
-    ...Commands[VM_LOGS],
-    action: vmLogs,
-  },
-]
+  return logsData ? (
+    <LogsViewer logs={logsData} getLogs={refetch} isFetching={isFetching} />
+  ) : (
+    <Stack
+      direction="row"
+      sx={{ justifyContent: 'center', alignItems: 'center' }}
+    >
+      <OpenNebulaLogo width={150} height={150} spinner />
+    </Stack>
+  )
+}
+
+LogsTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
+}
+
+LogsTab.displayName = 'LogsTab'
+
+export default LogsTab

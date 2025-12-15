@@ -16,6 +16,9 @@
 const btoa = require('btoa')
 const { createHash, createCipheriv } = require('crypto')
 const { defaults, httpCodes } = require('server/utils/constants')
+const { global } = require('window-or-global')
+const fs = require('fs-extra')
+
 const {
   httpResponse,
   executeCommand,
@@ -29,7 +32,8 @@ const { createTokenServerAdmin } = require('server/routes/api/auth/utils')
 const { USER_INFO } = userActions
 const { VM_INFO } = vmActions
 
-const { ok, unauthorized, internalServerError, badRequest } = httpCodes
+const { ok, unauthorized, internalServerError, badRequest, notFound } =
+  httpCodes
 const {
   defaultEmptyFunction,
   defaultCommandVM,
@@ -342,9 +346,80 @@ const encryptConnection = (data) => {
   return { iv: iv.toString('base64'), value }
 }
 
+/**
+ * Get vm logs.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ */
+const vmLogs = async (res = {}, next = defaultEmptyFunction, params = {}) => {
+  // Prepare response
+  let rtn
+
+  // Get vm id
+  const { id } = params
+
+  if (id !== undefined && id !== '' && Number.isInteger(Number(id))) {
+    try {
+      // Path to the vm
+      const logPath = `${global.paths.LOG_LOCATION}/${id}.log`
+
+      // Check if the file exists
+      await fs.access(logPath)
+
+      // Read the file
+      const content = await fs.readFile(logPath, 'utf-8')
+
+      // Split content into lines
+      const linesArray = content
+        .split('\n')
+        .filter((line) => line.trim() !== '')
+
+      // Map each line to the desired format
+      const lines = linesArray?.map((line) => {
+        // Defautl level
+        let level = 'debug'
+
+        // Check log level
+        if (/\[E\]/.test(line)) level = 'error'
+        else if (/\[W\]/.test(line)) level = 'warning'
+        else if (/\[D\]/.test(line)) level = 'debug'
+        else if (/\[I\]/.test(line)) level = 'info'
+
+        return { level, text: line }
+      })
+
+      // Build final JSON
+      const result = {
+        meta: {
+          mode: 'all',
+          total_lines: lines.length,
+        },
+        lines,
+      }
+
+      rtn = httpResponse(ok, result)
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        rtn = httpResponse(notFound, `Log file not found`)
+      } else {
+        rtn = httpResponse(internalServerError)
+      }
+    }
+  } else {
+    // There is no id in the request
+    rtn = httpResponse(badRequest, '', '')
+  }
+
+  res.locals.httpCode = rtn
+  next()
+}
+
 const functionRoutes = {
   saveAsTemplate,
   generateGuacamoleSession,
+  vmLogs,
 }
 
 module.exports = functionRoutes

@@ -607,6 +607,9 @@ const genPathResources = () => {
     if (!global.paths.ETC_CPI) {
       global.paths.ETC_CPI = `${ETC_LOCATION}/${defaultAppName}`
     }
+    if (!global.paths.LOG_LOCATION) {
+      global.paths.LOG_LOCATION = LOG_LOCATION
+    }
   }
 }
 

@@ -493,6 +493,27 @@ export const lightPalette = {
       color: sunstoneColors.black,
     },
   },
+
+  // Log viewer
+  logsViewer: {
+    backgroundColor: '#F5F7F9',
+    colorDate: '#637381',
+    colorLog: '#40435C',
+    highlight: '#ffee58',
+    debug: {
+      color: '#637381',
+    },
+    info: {
+      color: '#1B4079',
+    },
+    warn: {
+      color: '#FF6E1F',
+    },
+    error: {
+      color: '#FF5779',
+    },
+  },
+
   sunstoneColors: sunstoneColors,
 
   error: {

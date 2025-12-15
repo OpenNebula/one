@@ -2561,4 +2561,7 @@ module.exports = {
   /* Drivers */
   Synchronize: 'Synchronize',
   Source: 'Source',
+
+  /* Log viewer */
+  'logs.level': 'Level',
 }

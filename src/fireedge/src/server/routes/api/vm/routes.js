@@ -25,10 +25,12 @@ const { resource, postBody, query } = fromData
 
 const VM_SAVEASTEMPLATE = 'vm.saveastemplate'
 const GUACAMOLE = 'vm.guacamole'
+const VM_LOGS = 'vm.logs'
 
 const Actions = {
   VM_SAVEASTEMPLATE,
   GUACAMOLE,
+  VM_LOGS,
 }
 
 module.exports = {
@@ -66,6 +68,16 @@ module.exports = {
         },
         download: {
           from: query,
+        },
+      },
+    },
+    [VM_LOGS]: {
+      path: `${basepath}/:id/logs`,
+      httpMethod: GET,
+      auth: true,
+      params: {
+        id: {
+          from: resource,
         },
       },
     },

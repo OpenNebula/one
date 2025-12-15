@@ -484,6 +484,27 @@ export const darkPalette = {
       color: sunstoneColors.white,
     },
   },
+
+  // Log viewer
+  logsViewer: {
+    backgroundColor: '#40435C',
+    colorDate: '#C4CDD5',
+    colorLog: '#F5F7F9',
+    highlight: '#ffee58',
+    debug: {
+      color: '#80B2FF',
+    },
+    info: {
+      color: '#1B4079',
+    },
+    warn: {
+      color: '#FF6E1F',
+    },
+    error: {
+      color: '#FF5779',
+    },
+  },
+
   sunstoneColors: sunstoneColors,
 
   error: {
