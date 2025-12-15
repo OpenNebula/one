@@ -143,9 +143,15 @@ const Steps = createSteps(
       const { [BASIC_ID]: { name, instances, hold, persistent } = {} } =
         formData ?? {}
 
+      // To unify logic with core in issue 7235: Use %i instead %idx and add index when it's persistent and instances are greater than 1
+      const vmName =
+        persistent && instances > 1 && name && !name?.includes('%i')
+          ? `${name}-%i`
+          : name
+
       const templates = [...new Array(instances)].map((__, idx) => ({
         id: vmTemplate.ID,
-        name: name?.replace(/%idx/gi, idx),
+        name: vmName?.replace(/%i/gi, idx),
         instances: instances,
         hold: hold,
         persistent: persistent,

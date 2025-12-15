@@ -1234,12 +1234,11 @@ module.exports = {
   CustomInformation: 'Custom information',
   CustomVirtualization: 'Custom virtualization',
   VnTemplateNameHelper: `
-    Defaults to 'template name-<vmid>' when empty.
+    Defaults to 'template name-<vnid>' when empty.
     When creating several Virtual Network, the wildcard %%idx will be replaced with a number starting from 0`,
   VmTemplateNameHelper: `
-    Defaults to 'template name-<vmid>' when empty.
-    When creating several VMs, the wildcard %%idx will be
-    replaced with a number starting from 0`,
+    Defaults to 'template name-<vmid>' when empty except when Instantiate as persistent is selected and Number of instances is greater than 1. In that case, name is mandatory.
+    When creating several VMs, the wildcard %i will be replaced with a number starting from 0`,
   VmVrTemplateNameHelper: `
     Defaults to 'template name-<vmid>' when empty.
     When creating several VMs, the wildcard %%i will be

@@ -20,16 +20,6 @@ import { useViews } from '@FeaturesModule'
 import { getActionsAvailable } from '@ModelsModule'
 import { T, RESOURCE_NAMES, INPUT_TYPES, VM_ACTIONS } from '@ConstantsModule'
 
-const NAME = {
-  name: 'name',
-  label: T.VmName,
-  tooltip: T.VmTemplateNameHelper,
-  type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .default(() => undefined),
-}
-
 const INSTANCES = {
   name: 'instances',
   label: T.NumberOfInstances,
@@ -71,6 +61,22 @@ const PERSISTENT = {
   tooltip: T.InstantiateAsPersistentConcept,
   validation: boolean().default(() => false),
   grid: { md: 12 },
+}
+
+const NAME = {
+  name: 'name',
+  label: T.VmName,
+  tooltip: T.VmTemplateNameHelper,
+  type: INPUT_TYPES.TEXT,
+  dependOf: [INSTANCES.name, PERSISTENT.name],
+  validation: string()
+    .trim()
+    .default(() => undefined)
+    .when([INSTANCES.name, PERSISTENT.name], {
+      is: (instances, persistent) => persistent && instances > 1,
+      then: (schema) => schema.required(),
+      otherwise: (schema) => schema.notRequired(),
+    }),
 }
 
 export const FIELDS = [NAME, INSTANCES, HOLD, PERSISTENT]
