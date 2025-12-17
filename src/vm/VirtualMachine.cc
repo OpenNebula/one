@@ -1064,6 +1064,22 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Parse TPM attribute
+    // ------------------------------------------------------------------------
+    if (parse_tpm(error_str) != 0)
+    {
+        goto error_common;
+    }
+
+    // ------------------------------------------------------------------------
+    // Parse MEMORY_ENCRYPTION attribute
+    // ------------------------------------------------------------------------
+    if (parse_memory_encryption(error_str) != 0)
+    {
+        goto error_common;
+    }
+
+    // ------------------------------------------------------------------------
     // Check the CPU Model attribute
     // ------------------------------------------------------------------------
     parse_cpu_model(user_obj_template.get());
@@ -1762,6 +1778,33 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
         for (const auto& feature: features_v)
         {
             oss << " & (KVM_CPU_FEATURES = \"*" << feature << "*\")";
+        }
+    }
+
+    const VectorAttribute * memory_encryption = obj_template->get("MEMORY_ENCRYPTION");
+
+    if (memory_encryption != nullptr)
+    {
+        std::string type = memory_encryption->vector_value("TYPE");
+
+        if (!type.empty())
+        {
+            std::string requirement;
+
+            if (type == "SEV")
+            {
+                requirement = "SEV*";
+            }
+            else if (type == "SEV-ES")
+            {
+                requirement = "SEV-*";
+            }
+            else // SEV-SNP, TDX
+            {
+                requirement = type;
+            }
+
+            oss << " & (MEMORY_ENCRYPTION = \"" << requirement << "\")";
         }
     }
 

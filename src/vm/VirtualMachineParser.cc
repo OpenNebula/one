@@ -657,8 +657,7 @@ void VirtualMachine::parse_well_known_attributes()
         "TOPOLOGY",
         "NUMA_NODE",
         "HYPERV_OPTIONS",
-        "SPICE_OPTIONS",
-        "TPM"
+        "SPICE_OPTIONS"
     };
 
     for (auto it = names.begin(); it != names.end() ; ++it)
@@ -811,6 +810,67 @@ int VirtualMachine::parse_cpu_model(Template * tmpl)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_vector_attribute(const std::string& name,
+                                           const std::vector<std::string>& required_keys,
+                                           std::string& error)
+{
+    std::vector<VectorAttribute*> v_attr;
+    bool fail = false;
+
+    user_obj_template->remove(name, v_attr);
+
+    for (auto& attr_ptr : v_attr)
+    {
+        for (const auto& key : required_keys)
+        {
+            if (attr_ptr->vector_value(key).empty())
+            {
+                error = name + " attribute is missing required key: " + key;
+                fail  = true;
+                break;
+            }
+        }
+
+        if ( fail ) break;
+    }
+
+    if (fail)
+    {
+        for (VectorAttribute* p : v_attr)
+        {
+            delete p;
+        }
+
+        return -1;
+    }
+
+    for (VectorAttribute* attr_ptr : v_attr)
+    {
+        obj_template->set(attr_ptr);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_tpm(std::string& error)
+{
+    return parse_vector_attribute("TPM", {"MODEL"}, error);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_memory_encryption(std::string& error)
+{
+    return parse_vector_attribute("MEMORY_ENCRYPTION", {"TYPE"}, error);
 }
 
 /* -------------------------------------------------------------------------- */

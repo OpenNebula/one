@@ -107,7 +107,6 @@ if [ -d "$DEP_FILE_LOCATION/tpm" ]; then
     (sudo -l | grep -q vtpm_setup) && sudo /var/tmp/one/vtpm_setup recover "$DOM_UUID" "$DEP_FILE_LOCATION"
 fi
 
-
 DATA=`virsh --connect $LIBVIRT_URI create $DEP_FILE`
 
 if [ "x$?" != "x0" ]; then

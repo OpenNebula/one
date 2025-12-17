@@ -1081,6 +1081,7 @@ IM_PROBES_KVM_HOST_SYSTEM_FILES="\
      src/im_mad/remotes/kvm-probes.d/host/system/clean_db.rb \
      src/im_mad/remotes/kvm-probes.d/host/system/wild_vm.rb \
      src/im_mad/remotes/kvm-probes.d/host/system/pci.rb \
+     src/im_mad/remotes/kvm-probes.d/host/system/memory_encryption.rb \
      src/im_mad/remotes/kvm-probes.d/host/system/version.sh"
 
 IM_PROBES_KVM_VM_MONITOR_FILES="\

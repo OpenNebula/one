@@ -655,6 +655,8 @@ int LibVirtDriver::deployment_description_kvm(
     string virtio_scsi_queues;
     string hyperv_options;
 
+    vector<const VectorAttribute *> memory_encryption;
+
     vector<const VectorAttribute *> raw;
     string default_raw;
     string data;
@@ -2440,6 +2442,52 @@ int LibVirtDriver::deployment_description_kvm(
              << "<target type='virtio' name='org.qemu.guest_agent.0'/>" << endl
              << "\t\t</channel>" << endl
              << "\t</devices>" << endl;
+    }
+
+    // ------------------------------------------------------------------------
+    // Memory encryption
+    // ------------------------------------------------------------------------
+
+    num = vm->get_template_attribute("MEMORY_ENCRYPTION", memory_encryption);
+
+    for (int i = 0; i < num; i++)
+    {
+        type = memory_encryption[i]->vector_value("TYPE");
+
+        // AMD SEV/SEV-ES
+        if (type.find("SEV") != string::npos && !one_util::icasecmp(type, "SEV-SNP"))
+        {
+            // https://libvirt.org/formatdomain.html#launch-security.
+            // Setup policy bitmask, debug disallowed, key_sharing_disallowed
+            uint32_t policy = POLICY_DEBUG_DISALLOWED | POLICY_KEY_SHARING_DISALLOWED;
+
+            if (one_util::icasecmp(type, "SEV-ES"))
+            {
+                policy |= POLICY_SEV_ES_REQUIRED;
+            }
+
+            file << "\t<launchSecurity type='sev'>" << endl
+                 << "\t\t<policy>0x"
+                 << hex << setw(8) << setfill('0') << policy
+                 << "</policy>" << endl
+                 << "\t</launchSecurity>" << endl;
+
+            // Prevent qemu failing to allocate memory
+            int mem_tune_offset = 256;
+
+            get_attribute(vm, nullptr, nullptr, "MEMORY_TUNE_OFFSET", mem_tune_offset);
+
+            file << "\t<memtune>\n"
+                 << "\t\t<hard_limit unit='MiB'>"
+                 << (memory + mem_tune_offset)
+                 << "</hard_limit>\n"
+                 << "\t</memtune>\n";
+        }
+        else  // SEV-SNP, Intel TDX...
+        {
+            vm->log("VMM", Log::WARNING,
+                "Memory encryption " + type + " is not supported or undefined, ignored.");
+        }
     }
 
     // ------------------------------------------------------------------------

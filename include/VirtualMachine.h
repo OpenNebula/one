@@ -2201,6 +2201,31 @@ private:
      */
     void parse_well_known_attributes();
 
+    /**
+     *  Parse a vector attribute with one or more required keys
+     *    @param name Name of the attribute to parse
+     *    @param required_keys List of required keys that must be present and non-empty
+     *    @param error Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_vector_attribute(const std::string& name,
+                               const std::vector<std::string>& required_keys,
+                               std::string& error);
+
+    /**
+     *  Parse the "TPM" attribute of the template
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_tpm(std::string& error_str);
+
+    /**
+     *  Parse the "MEMORY_ENCRYPTION" attribute of the template
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_memory_encryption(std::string& error_str);
+
     // -------------------------------------------------------------------------
     // Context related functions
     // -------------------------------------------------------------------------

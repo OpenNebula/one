@@ -56,6 +56,12 @@ private:
 
     static constexpr auto XML_DOMAIN_RNG_PATH = "/schemas/libvirt/domain.rng";
 
+    static constexpr uint32_t POLICY_DEBUG_DISALLOWED = (1u << 0);
+
+    static constexpr uint32_t POLICY_KEY_SHARING_DISALLOWED = (1u << 1);
+
+    static constexpr uint32_t POLICY_SEV_ES_REQUIRED = (1u << 2);
+
     int deployment_description(const VirtualMachine * vm,
                                const std::string& fn) const override
     {
