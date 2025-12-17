@@ -25,7 +25,6 @@ domcapabilities, _e, s = Open3.capture3(cmd)
 exit 0 unless s.success?
 
 begin
-
     domcap_xml = REXML::Document.new(domcapabilities)
     domcap_xml = domcap_xml.root
 
@@ -46,7 +45,7 @@ begin
         memory_encryption = 'TDX' if tdx['supported'] == 'yes'
     end
 rescue StandardError
-    puts "MEMORY_ENCRYPTION=NONE"
+    puts 'MEMORY_ENCRYPTION=NONE'
     exit 0
 end
 
