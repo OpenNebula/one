@@ -271,6 +271,7 @@ module MAD
             <<~EOF
                 #{@pool.create_sh(size).strip}
                 sudo lvcreate#{flags} --thin -V #{size}M #{@pool.lvfname} -n #{@lvname} -ky
+                #{@pool.adjust_sh.strip}
             EOF
         end
 
@@ -462,6 +463,13 @@ module MAD
             @vgname = "vg-one-#{@id}"
         end
 
+        def monitor
+            run_bridge(lvmsync(<<~EOF), 'Error getting VG size')
+                sudo vgdisplay --separator : --units m -o vg_size,vg_free \
+                   --nosuffix --noheadings -C #{@vgname}
+            EOF
+        end
+
         # Wrap the command in SYNCs to prevent LVM concurrency errors
         def run_bridge(script, errmsg = nil)
             super(lvmsync(script), errmsg)
@@ -474,7 +482,7 @@ module MAD
 
         include XmlWrapper
 
-        attr_reader :id, :path, :source, :format, :size, :fs, :is_persistent
+        attr_reader :id, :path, :source, :format, :size, :fs, :persistent
 
         def self.get_from_id(id)
             oneds = OpenNebula::Image.new_with_id(id, OpenNebula::Client.new)
@@ -503,7 +511,7 @@ module MAD
             @size   = xml_text('SIZE', true).to_i
             @fs     = xml_text('FS')
 
-            @is_persistent = xml_text('PERSISTENT', true) == '1'
+            @persistent = xml_text('PERSISTENT', true) == '1'
         end
 
     end
@@ -538,7 +546,7 @@ module MAD
 
             lvname = self.class.lvname(@id)
 
-            if @is_persistent
+            if @persistent
                 pool = ThinPool.new(@ds.vgname, "#{lvname}-pool")
                 @lv  = ThinLV.new(@ds.vgname, lvname, pool)
             else
@@ -555,12 +563,14 @@ module MAD
             activate(false)
         end
 
+        # TODO: maybe join with same method from LVMDisk?
         # Create thin pool + volume. Tries to be atomic, i.e., on failure the half-created LV is
         # destroyed again.
         def create(activate = false)
             @ds.run_bridge(<<~EOF, 'Error creating LV')
-                #{@lv.create_sh(@size, :activate => activate).strip}
+                #{@lv.create_sh(@size, :activate => true).strip}
                 #{@lv.mkfs_sh(@format, @fs).strip if @fs && @format != 'save_as'}
+                #{@lv.activate_sh(false).strip unless activate}
             EOF
         rescue StandardError => e
             @ds.run_bridge(@lv.delete_sh(:cleanup_pool => true))
@@ -605,17 +615,20 @@ module MAD
         include XmlWrapper
 
         attr_accessor :host
-        attr_reader :id, :vm, :path, :imageid, :idsid, :sdsid, :size, :is_persistent
+        attr_reader :id, :vm, :path, :imageid, :idsid, :sdsid, :size, :persistent
 
         def initialize(xml, vm)
             @xml = xml
             @vm  = vm
 
-            @is_persistent = xml_text('PERSISTENT')&.downcase == 'yes'
+            @persistent =
+                xml_text('PERSISTENT')&.downcase == 'yes' || xml_text('READONLY')&.downcase == 'yes'
 
             @id      = xml_text('DISK_ID', true)
             @imageid = xml_text('IMAGE_ID')
             @size    = xml_text('SIZE').to_i
+            @format  = xml_text('FORMAT')
+            @fs      = xml_text('FS')
             @idsid   = xml_text('DATASTORE_ID')
             @sdsid   = vm.sdsid
 
@@ -650,7 +663,7 @@ module MAD
             super(xml, vm)
 
             (lvname, pool) =
-                if @is_persistent
+                if @persistent
                     lvname = LVMImage.lvname(@imageid)
                     [lvname, ThinPool.new(@vm.pool.vgname, "#{lvname}-pool")]
                 else
@@ -675,6 +688,21 @@ module MAD
                 MAD.run(@host, lvmsync(script),
                         "Error symlinking disk (#{path} -> #{@lv.dev})")
             end
+        end
+
+        # TODO: maybe join with same method from LVMImage?
+        # Create disk without a base image (volatile)
+        # Create thin pool + volume. Tries to be atomic, i.e., on failure the half-created LV is
+        # destroyed again.
+        def create(dst)
+            MAD.run(dst.host, <<~EOF, 'Error creating LV')
+                #{@lv.create_sh(@size, :activate => true).strip}
+                #{@lv.mkfs_sh(@format, @fs).strip if @fs && @format != 'save_as'}
+                ln -sf '#{@lv.dev}' '#{dst.path}'
+            EOF
+        rescue StandardError => e
+            @ds.run_bridge(@lv.delete_sh(:cleanup_pool => true))
+            raise e
         end
 
         # Create thin pool + volume. Atomic.
