@@ -845,9 +845,8 @@ void Nebula::start(bool bootstrap_only)
                              user_restricted, user_encrypted);
 
         /* -------------------- Image/Datastore Pool ------------------------ */
-        string  image_type;
-        string  device_prefix;
-        string  cd_dev_prefix;
+        string image_type;
+        string device_prefix;
 
         vector<const SingleAttribute *> img_restricted_attrs;
 
@@ -859,7 +858,6 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX", device_prefix);
-        nebula_configuration->get("DEFAULT_CDROM_DEVICE_PREFIX", cd_dev_prefix);
 
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
 
@@ -869,7 +867,7 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("DATASTORE_ENCRYPTED_ATTR", ds_encrypted_attrs);
         nebula_configuration->get("IMAGE_ENCRYPTED_ATTR", img_encrypted_attrs);
 
-        ipool = new ImagePool(logdb, image_type, device_prefix, cd_dev_prefix,
+        ipool = new ImagePool(logdb, image_type, device_prefix,
                               img_restricted_attrs, img_encrypted_attrs, img_inherit_attrs);
 
         dspool = new DatastorePool(logdb, ds_inherit_attrs, ds_encrypted_attrs);

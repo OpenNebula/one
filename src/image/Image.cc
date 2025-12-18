@@ -123,29 +123,19 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         case OS:
         case DATABLOCK:
-        case CDROM:
             persistent_img = one_util::icasecmp(persistent_attr, "YES");
 
             get_template_attribute("DEV_PREFIX", dev_prefix);
 
             if (dev_prefix.empty())
             {
-                if (type == CDROM)
-                {
-                    dev_prefix = ImagePool::default_cdrom_dev_prefix();
-                }
-                else
-                {
-                    dev_prefix = ImagePool::default_dev_prefix();
-                }
+                dev_prefix = ImagePool::default_dev_prefix();
 
-                SingleAttribute * dev_att =
-                        new SingleAttribute("DEV_PREFIX", dev_prefix);
-
-                obj_template->set(dev_att);
+                obj_template->set(new SingleAttribute("DEV_PREFIX", dev_prefix));
             }
             break;
 
+        case CDROM: // dev_prefix set based on VM chipset and use custom SAVE,CLONE
         case KERNEL: // Files are always non-persistent with no dev_prefix
         case RAMDISK:
         case CONTEXT:
@@ -579,23 +569,17 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
 
     one_util::toupper(template_ptype);
 
-    //---------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //                       DEV_PREFIX ATTRIBUTE
-    //---------------------------------------------------------------------------
-    if ( dev_prefix.empty() ) //DEV_PEFIX not in DISK, check for it in IMAGE
+    // Note: CD's dev_prefix is set on target assigment based on VM chipset
+    //--------------------------------------------------------------------------
+    if ( dev_prefix.empty() && type != CDROM )
     {
         get_template_attribute("DEV_PREFIX", dev_prefix);
 
-        if (dev_prefix.empty())//Removed from image template, get it again
+        if (dev_prefix.empty())//Removed from image template, get default.
         {
-            if ( type == CDROM )
-            {
-                dev_prefix = ImagePool::default_cdrom_dev_prefix();
-            }
-            else
-            {
-                dev_prefix = ImagePool::default_dev_prefix();
-            }
+            dev_prefix = ImagePool::default_dev_prefix();
         }
 
         disk->replace("DEV_PREFIX", dev_prefix);

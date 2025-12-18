@@ -35,7 +35,6 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 string ImagePool::_default_type;
 string ImagePool::_default_dev_prefix;
-string ImagePool::_default_cdrom_dev_prefix;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -44,7 +43,6 @@ ImagePool::ImagePool(
         SqlDB *                          db,
         const string&                    __default_type,
         const string&                    __default_dev_prefix,
-        const string&                    __default_cdrom_dev_prefix,
         const vector<const SingleAttribute *>& restricted_attrs,
         const vector<const SingleAttribute *>& encrypted_attrs,
         const vector<const SingleAttribute *>& _inherit_attrs)
@@ -53,8 +51,6 @@ ImagePool::ImagePool(
     // Init static defaults
     _default_type       = __default_type;
     _default_dev_prefix = __default_dev_prefix;
-
-    _default_cdrom_dev_prefix = __default_cdrom_dev_prefix;
 
     // Init inherit attributes
     for (auto sattr : _inherit_attrs)

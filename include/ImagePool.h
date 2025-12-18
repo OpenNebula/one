@@ -39,7 +39,6 @@ public:
             SqlDB *                          db,
             const std::string&                    __default_type,
             const std::string&                    __default_dev_prefix,
-            const std::string&                    __default_cdrom_dev_prefix,
             const std::vector<const SingleAttribute *>& restricted_attrs,
             const std::vector<const SingleAttribute *>& encrypted_attrs,
             const std::vector<const SingleAttribute *>& inherit_attrs);
@@ -222,11 +221,6 @@ public:
         return _default_dev_prefix;
     };
 
-    static const std::string& default_cdrom_dev_prefix()
-    {
-        return _default_cdrom_dev_prefix;
-    };
-
 private:
     //--------------------------------------------------------------------------
     // Configuration Attributes for Images
@@ -241,11 +235,6 @@ private:
      * Default device prefix
      **/
     static std::string  _default_dev_prefix;
-
-    /**
-     * Default device prefix for cdrom disks
-     **/
-    static std::string _default_cdrom_dev_prefix;
 
     /**
      * Image attributes to be inherited into the VM disk

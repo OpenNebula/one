@@ -526,7 +526,6 @@ void OpenNebulaTemplate::set_conf_default()
     #  DATASTORE_CAPACITY_CHECK
     #  DEFAULT_IMAGE_TYPE
     #  DEFAULT_DEVICE_PREFIX
-    #  DEFAULT_CDROM_DEVICE_PREFIX
     #  DEFAULT_IMAGE_PERSISTENCY
     #  DEFAULT_IMAGE_PERSISTENCY_ON_NEW
     #*******************************************************************************
@@ -539,7 +538,6 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("DEFAULT_IMAGE_PERSISTENT_NEW", "");
 
     set_conf_single("DEFAULT_DEVICE_PREFIX", "hd");
-    set_conf_single("DEFAULT_CDROM_DEVICE_PREFIX", "hd");
 
     set_conf_single("VM_SNAPSHOT_FACTOR", "0");
     /*

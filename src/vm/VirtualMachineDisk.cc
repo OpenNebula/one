@@ -871,6 +871,17 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
 
     std::ostringstream oss;
 
+    std::string cdrom_dev_prefix;
+
+    if ( is_q35 )
+    {
+        cdrom_dev_prefix = "sd";
+    }
+    else
+    {
+        cdrom_dev_prefix = "hd";
+    }
+
     for(auto it = disks.begin(); it != disks.end(); ++it, ++disk_id)
     {
         Snapshots*       snapshots;
@@ -924,7 +935,7 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
 
         if ( !target.empty() )
         {
-            if (  used_targets.insert(target).second == false )
+            if ( used_targets.insert(target).second == false )
             {
                 goto error_duplicated_target;
             }
@@ -945,6 +956,11 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
                     break;
 
                 case Image::CDROM:
+                    if ( dev_prefix.empty() )
+                    {
+                        dev_prefix = cdrom_dev_prefix;
+                    }
+
                     cdrom_disks.push(make_pair(dev_prefix, disk));
                     break;
 
@@ -982,7 +998,6 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
         goto error_too_many_sd_disks;
     }
 
-
     // -------------------------------------------------------------------------
     // Targets for OS Disks
     // -------------------------------------------------------------------------
@@ -999,7 +1014,7 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
 
         if ( !target.empty() )
         {
-            if (  used_targets.insert(target).second == false )
+            if ( used_targets.insert(target).second == false )
             {
                 goto error_duplicated_target;
             }
@@ -1010,7 +1025,7 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
 
             if (dev_prefix.empty())
             {
-                dev_prefix = ipool->default_cdrom_dev_prefix();
+                dev_prefix = cdrom_dev_prefix;
             }
 
             cdrom_disks.push(make_pair(dev_prefix, &context));
