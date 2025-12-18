@@ -1790,6 +1790,9 @@ module.exports = {
   GuestOptions: 'Guest options',
   GuestMTU: 'MTU of the Guest interfaces',
   GuestMTUConcept: 'Sets the MTU for the NICs in this network',
+  Routes: 'Routes',
+  RoutesConcept:
+    'Comma-separated list of custom routes for the interface. Format: <dst_network> via <gateway>',
   NetMethod: 'Method',
   NetMethod6: 'IPv6 Method',
   UsedLeases: 'Used leases',

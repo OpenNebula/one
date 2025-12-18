@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string } from 'yup'
+import { string, array } from 'yup'
 
 import {
   Field,
   arrayToOptions,
   getObjectSchemaFromFields,
   disableFields,
+  SEMICOLON_CHAR,
 } from '@UtilsModule'
 import {
   T,
@@ -109,6 +110,24 @@ const IP6_METHOD_FIELD = {
   validation: string().trim().notRequired(),
 }
 
+/** @type {Field} Routes field */
+const ROUTES_FIELD = {
+  name: 'ROUTES',
+  label: T.Routes,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  multiple: true,
+  fieldProps: { freeSolo: true, separators: [SEMICOLON_CHAR] },
+  validation: array(string().trim())
+    .notRequired()
+    .default(() => [])
+    .transform((value, originalValue) =>
+      typeof originalValue === 'string'
+        ? originalValue.split(',').map((v) => v.trim()).filter(Boolean)
+        : value
+    )
+    .afterSubmit((value) => value?.join(',')),
+}
+
 /**
  * @param {object} oneConfig - Open Nebula configuration
  * @param {boolean} adminGroup - If the user belongs to oneadmin group
@@ -125,6 +144,7 @@ export const FIELDS = (oneConfig, adminGroup) =>
       GUEST_MTU_FIELD,
       METHOD_FIELD,
       IP6_METHOD_FIELD,
+      ROUTES_FIELD,
     ],
     '',
     oneConfig,
