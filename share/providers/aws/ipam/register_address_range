@@ -183,9 +183,17 @@ begin
     ec2 = Aws::EC2::Resource.new.client
     ip  = ec2.allocate_address({ :domain => 'vpc' })
 
+    # Get current number of ARs for this provision
+    current_nets = provision[:one_objects][:networks] || []
+    public_net   = current_nets.find {|n| n[:name]&.include?('public') }
+    public_ars   = public_net&.dig(:template, :ar) || []
+
     tag_list = provision[:tags].map {|k, v| { :key => k, :value => v } }
     tag_list << { :key => 'PROVISION_ID', :value => provision_id.to_s }
-    tag_list << { :key => 'Name', :value => "elastic_ip_provision_#{provision_id}" }
+    tag_list << {
+        :key   => 'Name',
+        :value => "elastic_ip_provision_#{provision_id}_#{public_ars.size}"
+    }
 
     ec2.create_tags(
         {

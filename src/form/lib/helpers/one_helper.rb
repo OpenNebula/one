@@ -313,6 +313,8 @@ module OneForm
             rc = vn.info
             raise rc.message if OpenNebula.is_error?(rc)
 
+            wait_until_ready(vn)
+
             ar_data     = vn.to_hash.dig('VNET', 'AR_POOL', 'AR') || []
             ar_data     = [ar_data] if ar_data.is_a?(Hash)
             initial_ids = ar_data.map {|a| a['AR_ID'] }
@@ -440,6 +442,22 @@ module OneForm
         # ----------------------------------------------------------------
         # Utils
         # ----------------------------------------------------------------
+
+        # Wait until OpenNebula object is ready or timeout
+        def wait_until_ready(object, timeout = 60, interval = 2, ready_state = 1)
+            Timeout.timeout(timeout) do
+                loop do
+                    sleep interval
+
+                    rc = object.info
+                    # 1 = READY by default for networks, datastores uses 0
+                    break if OpenNebula.is_error?(rc) || object.state == ready_state
+                end
+            end
+        rescue Timeout::Error
+            raise "Timeout: Could not delete OpeNebula object ID=#{object.id} " \
+                  "within #{timeout} seconds"
+        end
 
         # Wait until OpenNebula object is deleted or timeout
         def wait_until_deleted(object, timeout = 60, interval = 2)

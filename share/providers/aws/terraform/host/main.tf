@@ -24,4 +24,7 @@ resource "aws_instance" "host" {
         }
     )
 
+    timeouts {
+        delete = "30m"
+    }
 }
