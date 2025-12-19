@@ -1441,6 +1441,31 @@ module.exports = {
     'Raw data is used to pass VM information directly to the underlying hypervisor. Anything placed in the data attribute gets passed straight to the hypervisor. Do not add escape characters.',
   RawValidateConcept: `
     Enable or disable validation of the RAW data against the libvirt schema`,
+  /* VM Template schema - OS & CPU - confidential computing */
+  ConfidentialComputing: 'Confidential Computing',
+  ConfidentialComputingType: 'Type',
+  ConfidentialComputingSEV: 'SEV',
+  PolicyDebugDisallowed: 'Policy Debug Disallowed',
+  PolicyDebugDisallowedConcept:
+    'Debugging the guest is forbidden. This bit is mandatory in SEV.',
+  PolicyKeySharingDisallowed: 'Policy Key Sharing Disallowed',
+  PolicyKeySharingDisallowedConcept:
+    'The guest may not be transmitted to another platform.',
+  PolicySevEsRequired: 'Policy SEV-ES Required',
+  PolicySevEsRequiredConcept:
+    'The guest requires SEV-ES (Encrypted State). SEV-ES provides additional protection of the guest register state.',
+  PolicyMigrationDisallowed: 'Policy Migration Disallowed',
+  PolicyMigrationDisallowedConcept:
+    'The guest may not be migrated to another machine, neither plain migration nor migration with SEV-ES.',
+  PolicyDomainOnlyMigration: 'Policy Domain Only Migration',
+  PolicyDomainOnlyMigrationConcept:
+    'The guest may be migrated within the same domain only.',
+  PolicySevCapableOnlyMigration: 'Policy SEV Capable Only Migration',
+  PolicySevCapableOnlyMigrationConcept:
+    'The guest may only be migrated to a SEV capable platform.',
+  ConfidentialComputingMemory: 'Memory',
+  ConfidentialComputingMemoryConcept:
+    'SEV requires extra memory for VM allocation. Libvirt recommends setting this memory to about 256M.',
   /* VM Template schema - context */
   Context: 'Context',
   NoContextInVm: 'Virtual Machine does not have context, cannot add a new one.',

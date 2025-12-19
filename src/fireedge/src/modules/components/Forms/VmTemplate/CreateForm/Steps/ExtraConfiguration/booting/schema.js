@@ -17,6 +17,7 @@
 import { BaseSchema, string } from 'yup'
 
 import { BOOT_FIELDS } from './bootSchema'
+import { CONFIDENTIAL_COMPUTING_FIELDS } from './confidentialComputingSchema'
 import { CPU_MODEL_FIELDS } from './cpuModelSchema'
 import { FEATURES_FIELDS } from './featuresSchema'
 import { KERNEL_FIELDS } from './kernelSchema'
@@ -90,6 +91,16 @@ const SECTIONS = (hypervisor, oneConfig, adminGroup) => [
     ),
   },
   {
+    id: 'os-confidential-computing',
+    legend: T.ConfidentialComputing,
+    fields: disableFields(
+      filterFieldsByHypervisor(CONFIDENTIAL_COMPUTING_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
+  },
+  {
     id: 'os-raw',
     legend: T.RawData,
     legendTooltip: T.RawDataConcept,
@@ -129,6 +140,7 @@ const FIELDS = (hypervisor) => [
 const SCHEMA = (hypervisor) => getObjectSchemaFromFields(FIELDS(hypervisor))
 
 export * from './bootSchema'
+export * from './confidentialComputingSchema'
 export * from './cpuModelSchema'
 export * from './featuresSchema'
 export * from './kernelSchema'

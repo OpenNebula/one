@@ -130,11 +130,12 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
     )
 
     // Add the hypervisor condition only if it doesn't exist
+    let finalValue = updatedValue
     if ((!hasHypervisorCondition || !isUpdate) && hypervisor) {
-      return addHypervisorRequirement(updatedValue, hypervisor)
-    } else {
-      return updatedValue
+      finalValue = addHypervisorRequirement(updatedValue, hypervisor)
     }
+
+    return finalValue
   },
   validation: string()
     .trim()
@@ -157,15 +158,10 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
         (!isUpdate && !schedRequirementsHasChanged) ||
         (isUpdate && hypervisorHasChanged && !schedRequirementsHasChanged)
       ) {
-        const result = addHypervisorRequirement(
-          value,
-          context.general.HYPERVISOR
-        )
-
-        return result
-      } else {
-        return value
+        return addHypervisorRequirement(value, context.general.HYPERVISOR)
       }
+
+      return value
     }),
   grid: { xs: 12, md: 12 },
 })

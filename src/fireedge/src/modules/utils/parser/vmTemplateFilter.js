@@ -29,6 +29,9 @@ const alwaysIncludeAttributes = {
         BOOT: true,
         FIRMWARE: true,
       },
+      MEMORY_ENCRYPTION: {
+        TYPE: true,
+      },
     },
     InputOutput: {
       INPUT: true,
@@ -73,6 +76,9 @@ const defaultValuesCreate = {
         TYPE: true,
       },
     },
+    OsCpu: {
+      MEMORY_ENCRYPTION: true,
+    },
     Placement: {
       SCHED_REQUIREMENTS: true,
     },
@@ -82,6 +88,7 @@ const defaultValuesCreate = {
 const defaultValuesUpdate = {
   extra: {
     Context: { CONTEXT: { START_SCRIPT: true, START_SCRIPT_BASE64: true } },
+    OsCpu: { MEMORY_ENCRYPTION: true },
   },
 }
 
@@ -322,8 +329,49 @@ const reduceExtra = (
     }
   )
 
+  const hasMemoryEncryptionField = Object.hasOwn(
+    formData?.extra ?? {},
+    'MEMORY_ENCRYPTION'
+  )
+  const memoryEncryptionTouched =
+    hasMemoryEncryptionField ||
+    Boolean(correctionMap?.extra?.OsCpu?.MEMORY_ENCRYPTION)
+
+  // Check if TYPE is actually set (not empty, undefined, or null)
+  const encryptionTypeValue = formData?.extra?.MEMORY_ENCRYPTION?.TYPE
+  const hasEncryptionType =
+    encryptionTypeValue &&
+    encryptionTypeValue !== '' &&
+    encryptionTypeValue !== 'undefined'
+
+  // If MEMORY_ENCRYPTION was touched but TYPE is cleared/empty, remove the entire block
+  if (memoryEncryptionTouched && !hasEncryptionType) {
+    delete newExtra.MEMORY_ENCRYPTION
+  }
+
   // Omitting values that are empty
-  return _.omitBy(newExtra, _.isEmpty)
+  // But keep MEMORY_ENCRYPTION if TYPE is set
+  const filtered = _.omitBy(newExtra, (value, key) => {
+    if (key === 'MEMORY_ENCRYPTION' && value?.TYPE) {
+      return false // Don't omit MEMORY_ENCRYPTION if TYPE is set
+    }
+    return _.isEmpty(value)
+  })
+
+  // Clean up MEMORY_ENCRYPTION: remove undefined/empty fields but keep the section if TYPE exists
+  if (filtered.MEMORY_ENCRYPTION) {
+    filtered.MEMORY_ENCRYPTION = _.omitBy(
+      filtered.MEMORY_ENCRYPTION,
+      (v) => v === undefined || v === null || v === ''
+    )
+
+    // If after cleanup there's no TYPE, remove the whole section
+    if (!filtered.MEMORY_ENCRYPTION?.TYPE) {
+      delete filtered.MEMORY_ENCRYPTION
+    }
+  }
+
+  return filtered
 }
 
 /**
@@ -591,6 +639,15 @@ const handleOtherSections = (
           originalData,
           alwaysIncludePci
         )
+      } else if (key === 'MEMORY_ENCRYPTION') {
+        // Special handling for MEMORY_ENCRYPTION: replace entirely with form values when present
+        if (formData?.extra?.MEMORY_ENCRYPTION) {
+          newExtra[key] = { ...formData.extra[key] }
+        }
+        // If form doesn't have MEMORY_ENCRYPTION but corrections do, process normally
+        else if (correctionMap.extra[section]?.[key]) {
+          filterSingleSection(formData, correctionMap, section, newExtra, key)
+        }
       } else {
         filterSingleSection(formData, correctionMap, section, newExtra, key)
 
