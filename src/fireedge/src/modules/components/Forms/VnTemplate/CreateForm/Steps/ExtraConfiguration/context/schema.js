@@ -114,6 +114,7 @@ const IP6_METHOD_FIELD = {
 const ROUTES_FIELD = {
   name: 'ROUTES',
   label: T.Routes,
+  tooltip: T.RoutesConcept,
   type: INPUT_TYPES.AUTOCOMPLETE,
   multiple: true,
   fieldProps: { freeSolo: true, separators: [SEMICOLON_CHAR] },
