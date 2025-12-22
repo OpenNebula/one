@@ -14,6 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 #include "VirtualMachine.h"
+#include "VirtualMachineManager.h"
+#include "LibVirtDriver.h"
 #include "VirtualNetworkPool.h"
 #include "DatastorePool.h"
 #include "ImagePool.h"
@@ -229,6 +231,33 @@ int VirtualMachine::parse_os(string& error_str)
     if ( rc != 0 )
     {
         return -1;
+    }
+
+    /**
+     * Get default MACHINE from vmm_exec_kvm.conf
+     */
+    string machine = os->vector_value("MACHINE");
+
+    if (machine.empty())
+    {
+        VirtualMachineManager * vmm = Nebula::instance().get_vmm();
+
+        if ( vmm != nullptr )
+        {
+            const LibVirtDriver * vmmd = dynamic_cast<const LibVirtDriver *>(vmm->get("kvm"));
+
+            if ( vmmd != nullptr )
+            {
+                string machine;
+
+                vmmd->get_default("OS", "MACHINE", machine);
+
+                if (!machine.empty())
+                {
+                    os->replace("MACHINE", machine);
+                }
+            }
+        }
     }
 
     return 0;

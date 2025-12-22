@@ -45,6 +45,8 @@ public:
     int validate_template(const VirtualMachine* vm, int hid, int cluster_id,
                           std::string& error) const override;
 
+    using VirtualMachineManagerDriver::get_default;
+
 private:
     static constexpr int CEPH_DEFAULT_PORT = 6789;
 
