@@ -99,8 +99,6 @@ export const VTPM_TYPES = ['tpm-crb', 'tpm-tis']
 export const CONFIDENTIAL_COMPUTING_TYPES = {
   SEV: 'SEV',
   SEV_ES: 'SEV-ES',
-  SEV_SNP: 'SEV-SNP',
-  TDX: 'TDX',
 }
 
 export const FIRMWARE_TYPES = ['BIOS', 'UEFI']
