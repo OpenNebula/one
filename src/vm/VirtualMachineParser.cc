@@ -248,13 +248,13 @@ int VirtualMachine::parse_os(string& error_str)
 
             if ( vmmd != nullptr )
             {
-                string machine;
+                string drv_machine;
 
-                vmmd->get_default("OS", "MACHINE", machine);
+                vmmd->get_default("OS", "MACHINE", drv_machine);
 
-                if (!machine.empty())
+                if (!drv_machine.empty())
                 {
-                    os->replace("MACHINE", machine);
+                    os->replace("MACHINE", drv_machine);
                 }
             }
         }
