@@ -357,24 +357,32 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
  *
  *  sd_default - SD_DISK_BUS value from vmm_exec_kvm.conf/template
  *               'sata' or 'scsi'
+ *
+ *  NOTE: For CDROM devices only sata and IDE are considered
  */
-static string get_disk_bus(bool is_q35,
+static string get_disk_bus(const std::string& type,
+                           bool is_q35,
                            const std::string &target,
                            const std::string &sd_default)
 {
+    if (type == "CDROM" ||
+        type == "BLOCK_CDROM" ||
+        type == "RBD_CDROM" ||
+        type == "SHEEPDOG_CDROM" ||
+        type == "GLUSTER_CDROM")
+
+    {
+        return is_q35 ? "sata" : "ide";
+    }
+
     switch (target[0])
     {
         case 's': // sd_ disk
             return sd_default;
         case 'v': // vd_ disk
             return "virtio";
-        default:
-        {
-            if (is_q35)
-            {
-                return "sata";
-            }
-        }
+        default: // hd_ disk
+            return is_q35 ? "sata" : "ide";
     }
 
     return "ide";
@@ -1432,7 +1440,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
 
-        disk_bus = get_disk_bus(is_q35, target, sd_bus);
+        disk_bus = get_disk_bus(type, is_q35, target, sd_bus);
 
         if (!disk_bus.empty())
         {
@@ -1712,7 +1720,7 @@ int LibVirtDriver::deployment_description_kvm(
                  << one_util::escape_xml_attr(fname.str())  << "/>\n"
                  << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
 
-            disk_bus = get_disk_bus(is_q35, target, sd_bus);
+            disk_bus = get_disk_bus("CDROM", is_q35, target, sd_bus);
 
             if (!disk_bus.empty())
             {
