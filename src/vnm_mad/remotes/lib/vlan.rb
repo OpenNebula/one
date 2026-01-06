@@ -45,7 +45,7 @@ module VNMMAD
             process do |nic|
                 @nic = nic
 
-                next if @nic[:phydev].nil?
+                next if @nic[:phydev].nil? || @nic[:phydev].empty?
 
                 # generate the name of the vlan device.
                 gen_vlan_dev_name
@@ -111,7 +111,7 @@ module VNMMAD
 
                 @nic = nic
 
-                next if @nic[:phydev].nil?
+                next if @nic[:phydev].nil? || @nic[:phydev].empty?
                 next if @bridges[@nic[:bridge]].nil?
 
                 # Get the name of the vlan device.
@@ -167,7 +167,7 @@ module VNMMAD
             process do |nic|
                 next unless Integer(nic[:network_id]) == vnet_id
 
-                next if nic[:phydev].nil?
+                next if nic[:phydev].nil? || nic[:phydev].empty?
 
                 # the bridge should already exist as we're updating
                 next if @bridges[nic[:bridge]].nil?
