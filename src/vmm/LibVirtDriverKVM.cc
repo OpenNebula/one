@@ -372,7 +372,12 @@ static string get_disk_bus(const std::string& type,
         type == "GLUSTER_CDROM")
 
     {
+// RHEL-family on ARM64: SATA bus may be unsupported by libvirt/qemu stack
+#if defined(RHEL_FAMILY) && (defined(__aarch64__) || defined(_M_ARM64))
+        return is_q35 ? sd_default : "ide";
+#else
         return is_q35 ? "sata" : "ide";
+#endif
     }
 
     switch (target[0])
@@ -382,7 +387,11 @@ static string get_disk_bus(const std::string& type,
         case 'v': // vd_ disk
             return "virtio";
         default: // hd_ disk
+#if defined(RHEL_FAMILY) && (defined(__aarch64__) || defined(_M_ARM64))
+            return is_q35 ? sd_default : "ide";
+#else
             return is_q35 ? "sata" : "ide";
+#endif
     }
 
     return "ide";
