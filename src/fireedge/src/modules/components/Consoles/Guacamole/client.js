@@ -149,6 +149,18 @@ const GuacamoleClient = ({ id, display, zone, externalZone, type }) => {
       }[state]?.())
     }
 
+    const originalOnInstruction = guac.current.tunnel.oninstruction
+
+    guac.current.tunnel.oninstruction = (opcode, args) => {
+      if (opcode === "blob") {
+        guac.current.client.getDisplay().flush()
+      }
+
+      if (originalOnInstruction) {
+        originalOnInstruction(opcode, args);
+      }
+    }
+
     guac.current.client.onstatechange = (state) => {
       const stateString = clientStateToString(state)
       const isDisconnect = [DISCONNECTING, DISCONNECTED].includes(stateString)
@@ -157,7 +169,6 @@ const GuacamoleClient = ({ id, display, zone, externalZone, type }) => {
 
       isConnected && enqueueSuccess(T.SuccessConnectionEstablished)
       isDisconnected && enqueueInfo(T.InfoDisconnected)
-
       !isDisconnect && setConnectionState({ state: stateString })
     }
 

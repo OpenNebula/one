@@ -46,6 +46,7 @@ const GuacamoleKeyboard = (session) => {
 
     return () => {
       if (keyboardRef.current) {
+        keyboardRef.current.reset()
         keyboardRef.current.onkeydown = null
         keyboardRef.current.onkeyup = null
       }
