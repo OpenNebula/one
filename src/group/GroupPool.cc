@@ -108,7 +108,7 @@ int GroupPool::allocate(const string& name, int * oid, string& error_str)
     }
 
     // Check name
-    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
+    if ( !PoolObjectSQL::name_is_valid(name, Group::INVALID_NAME_CHARS, error_str) )
     {
         return *oid;
     }

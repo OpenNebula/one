@@ -33,6 +33,8 @@ public:
 
     virtual ~Group() = default;
 
+    static const std::string INVALID_NAME_CHARS;
+
     /**
      * Function to print the Group object into a string in XML format
      *  @param xml the resulting XML string

@@ -24,6 +24,7 @@
 
 using namespace std;
 
+const string Group::INVALID_NAME_CHARS = " ";
 
 Group::Group(int id, const string& name):
     PoolObjectSQL(id, GROUP, name, -1, -1, "", "", one_db::group_table),
