@@ -65,7 +65,7 @@ for DIR in ${DIRS}; do
         # exist yet, but lvs knows about it -> activate
         if [ -n "${DEVICE}" ] && ! [ -e "${DEVICE}" ]; then
             if sudo -n lvs "${DEVICE}" >/dev/null 2>&1; then
-                sudo -n lvchange -ay "${DEVICE}" >/dev/null 2>&1
+                sudo -n lvchange -K -ay "${DEVICE}" >/dev/null 2>&1
             fi
         fi
     done

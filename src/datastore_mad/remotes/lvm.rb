@@ -581,7 +581,7 @@ module MAD
         def clone_from_path
             script = <<~EOF
                 sudo lvchange -K -ay #{@path}
-                dd if=/dev/#{@path} of=#{@lv.dev} bs=1M
+                dd if=/dev/#{@path} of=#{@lv.dev} bs=1M conv=sparse
                 sudo lvchange -an #{@path}
                 #{@lv.activate_sh(false).strip}
             EOF
@@ -627,8 +627,6 @@ module MAD
             @id      = xml_text('DISK_ID', true)
             @imageid = xml_text('IMAGE_ID')
             @size    = xml_text('SIZE').to_i
-            @format  = xml_text('FORMAT')
-            @fs      = xml_text('FS')
             @idsid   = xml_text('DATASTORE_ID')
             @sdsid   = vm.sdsid
 
@@ -690,14 +688,15 @@ module MAD
             end
         end
 
-        # TODO: maybe join with same method from LVMImage?
+        # TODO: maybe join with same method from LVMImage? -> format is different (e.g, "raw" for
+        # swap disks); needs to be passed from outside
         # Create disk without a base image (volatile)
         # Create thin pool + volume. Tries to be atomic, i.e., on failure the half-created LV is
         # destroyed again.
-        def create(dst)
+        def create(dst, is_swap)
             MAD.run(dst.host, <<~EOF, 'Error creating LV')
                 #{@lv.create_sh(@size, :activate => true).strip}
-                #{@lv.mkfs_sh(@format, @fs).strip if @fs && @format != 'save_as'}
+                #{@lv.mkswap_sh.strip if is_swap}
                 ln -sf '#{@lv.dev}' '#{dst.path}'
             EOF
         rescue StandardError => e

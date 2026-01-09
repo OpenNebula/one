@@ -52,6 +52,7 @@ DISK_ID=$(basename ${SRC_PATH} | cut -d. -f2)
 
 unset i j XPATH_ELEMENTS
 
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID| $XPATH \
