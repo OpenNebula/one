@@ -56,12 +56,14 @@ const tfaApi = oneApi.injectEndpoints({
 const tfaQueries = (({
   // Queries
   useGetQrQuery,
+  useLazyGetQrQuery,
   // Mutations
   useEnableTfaMutation,
   useRemoveTfaMutation,
 }) => ({
   // Queries
   useGetQrQuery,
+  useLazyGetQrQuery,
   // Mutations
   useEnableTfaMutation,
   useRemoveTfaMutation,

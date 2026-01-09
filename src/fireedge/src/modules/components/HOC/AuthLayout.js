@@ -17,10 +17,8 @@ import { useEffect, ReactElement } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
-import { useAuth, useAuthApi, oneApi } from '@FeaturesModule'
+import { useAuthApi, oneApi, useAuth } from '@FeaturesModule'
 import FullscreenProgress from '@modules/components/LoadingScreen'
-import { findStorageData, findExternalToken, storage } from '@UtilsModule'
-import { JWT_NAME } from '@ConstantsModule'
 
 /**
  * Renders loading screen while validate JWT.
@@ -32,24 +30,16 @@ import { JWT_NAME } from '@ConstantsModule'
  */
 const AuthLayout = ({ subscriptions = [], children }) => {
   const dispatch = useDispatch()
-  const { changeJwt, stopFirstRender } = useAuthApi()
-  const { jwt, user, isLogged, isLoginInProgress, firstRender } = useAuth()
+  const { isSessionVerified } = useAuth()
+  const { changeAuthUser } = useAuthApi()
+
+  const { data: user = {} } = oneApi.endpoints.getAuthUser.useQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  })
 
   useEffect(() => {
-    if (!jwt) return
-
-    const authSubscription = dispatch(
-      oneApi.endpoints.getAuthUser.initiate(undefined, { forceRefetch: true })
-    )
-
-    return () => {
-      authSubscription.unsubscribe()
-      dispatch(oneApi.util.resetApiState())
-    }
-  }, [dispatch, jwt])
-
-  useEffect(() => {
-    if (!jwt || !user?.NAME) return
+    if (!user?.ID) return
+    changeAuthUser(user)
 
     const endpoints = [
       oneApi.endpoints.getGroups,
@@ -65,21 +55,11 @@ const AuthLayout = ({ subscriptions = [], children }) => {
         endpoint.abort()
       })
     }
-  }, [dispatch, jwt, user?.NAME])
+  }, [dispatch, user])
 
-  useEffect(() => {
-    if (!jwt) {
-      const token = findExternalToken() || findStorageData(JWT_NAME)
-      token && changeJwt(token) && storage(JWT_NAME, token)
-    }
+  const showLoading = !isSessionVerified
 
-    // first rendering on client
-    stopFirstRender()
-  }, [])
-
-  if ((jwt && !isLoginInProgress && !isLogged) || firstRender) {
-    return <FullscreenProgress />
-  }
+  if (showLoading) return <FullscreenProgress />
 
   return <>{children}</>
 }

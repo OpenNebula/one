@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-const { env } = require('process')
 const { DateTime } = require('luxon')
 const { httpCodes, defaults } = require('server/utils/constants')
+const { ensureSessionStore } = require('server/utils/sessions')
 const { getFireedgeConfig } = require('server/utils/yml')
-const {
-  defaultWebpackMode,
-  defaultEmptyFunction,
-  defaultOpennebulaZones,
-  defaultSessionExpiration,
-} = defaults
+const { defaultEmptyFunction, defaultOpennebulaZones } = defaults
 const { validateAuth } = require('server/utils/jwt')
-const { getDataZone } = require('server/utils/server')
-const { writeInLogger } = require('server/utils/logger')
-
-let idUserOpennebula = ''
-let userOpennebula = ''
-let passOpennebula = ''
+const { httpResponse, getDataZone } = require('server/utils/server')
 
 /**
  * Validate user in global state.
@@ -38,43 +28,21 @@ let passOpennebula = ''
  * @param {string} token - token of user
  * @returns {boolean} user valid data
  */
-const userValidation = (user = '', token = '') => {
-  const nowUnix = DateTime.local().toSeconds()
-  if (
+const validateUser = (user = '', token = '') => {
+  ensureSessionStore()
+  const now = DateTime.local().toSeconds()
+  const tokens = global.sessionStore?.[user]?.tokens
+
+  return (
     user &&
     token &&
-    Array.isArray(global?.users?.[user]?.tokens) &&
-    global?.users?.[user]?.tokens?.some?.(
-      ({ token: internalToken, time }) =>
-        time > nowUnix && internalToken === token
+    Array.isArray(tokens) &&
+    tokens.some(
+      ({ token: internalToken, expires }) =>
+        expires > now && internalToken === token
     )
-  ) {
-    return true
-  }
-
-  return false
+  )
 }
-
-/**
- * Get id opennebula user.
- *
- * @returns {number} id opennebula user
- */
-const getIdUserOpennebula = () => idUserOpennebula
-
-/**
- * Get user opennebula.
- *
- * @returns {string} opennebula username
- */
-const getUserOpennebula = () => userOpennebula
-
-/**
- * Get pass opennebula.
- *
- * @returns {string} opennebula user password
- */
-const getPassOpennebula = () => passOpennebula
 
 /**
  * MIDDLEWARE validate resource and session.
@@ -84,6 +52,7 @@ const getPassOpennebula = () => passOpennebula
  * @param {object} config.res - http response
  * @param {function():any} config.next - express stepper
  * @param {boolean} config.auth - check if the route need authentication
+ * @returns {object} - Response
  */
 const validateSession = ({
   req = {},
@@ -91,60 +60,36 @@ const validateSession = ({
   next = defaultEmptyFunction,
   auth = true,
 }) => {
-  const { badRequest, unauthorized } = httpCodes
-  let status = badRequest
-  if (auth) {
-    const session = validateAuth(req)
-    status = unauthorized
-
-    if (session) {
-      const { iss, aud, jti } = session
-      idUserOpennebula = iss
-      userOpennebula = aud
-      passOpennebula = jti
-      const now = DateTime.local()
-      if (env?.NODE_ENV === defaultWebpackMode) {
-        const appConfig = getFireedgeConfig()
-        const expirationSession =
-          appConfig.session_expiration || defaultSessionExpiration
-
-        /** Create global state for user when the enviroment is development */
-        if (global && !global.users) {
-          global.users = {}
-        }
-        if (!global.users[userOpennebula]) {
-          global.users[userOpennebula] = {
-            tokens: [
-              {
-                token: passOpennebula,
-                time: now.plus({ minutes: expirationSession }).toSeconds(),
-              },
-            ],
-          }
-        }
-      }
-      if (userValidation(userOpennebula, passOpennebula)) {
-        next()
-
-        return
-      } else {
-        const logData = JSON.stringify({
-          header: req?.headers?.authorization,
-          now: now.toSeconds(),
-          users: global.users,
-        })
-        writeInLogger(logData, {
-          format: 'Error Login: %s',
-          level: 2,
-        })
-      }
-    }
-  } else {
+  if (!auth) {
     next()
 
     return
   }
-  res.status(status.id).json(status)
+
+  const session = validateAuth(req)
+  if (!session) {
+    return res
+      .status(httpCodes.unauthorized.id)
+      .json(httpResponse(httpCodes.unauthorized))
+  }
+
+  const { iss, aud, jti } = session
+
+  const id = iss
+  const user = aud
+  const password = jti
+
+  req.auth = {
+    id,
+    user,
+    password,
+  }
+
+  if (!validateUser(user, password)) {
+    return res.status(httpCodes.unauthorized.id).json({ data: 'expired' })
+  }
+
+  next()
 }
 /**
  * Get Zone.
@@ -179,9 +124,6 @@ const getZone = (selectedZone) => {
 }
 
 module.exports = {
-  getIdUserOpennebula,
-  getUserOpennebula,
-  getPassOpennebula,
   getZone,
   validateSession,
 }

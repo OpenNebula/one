@@ -19,7 +19,7 @@ const { parse } = require('url')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 const { getFireedgeConfig } = require('server/utils/yml')
 const { genPathResources } = require('server/utils/server')
-const { getZone } = require('server/routes/entrypoints/Api/middlawares')
+const { getZone } = require('server/routes/entrypoints/Api/middlewares')
 const {
   endpointExternalGuacamole,
   defaultPort,

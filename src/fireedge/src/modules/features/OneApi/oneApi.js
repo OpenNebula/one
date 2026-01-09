@@ -53,7 +53,9 @@ const oneApi = createApi({
 
       const error =
         message ??
-        formatError(errorFromOned?.type, { fallback: errorFromOned }) ??
+        formatError(errorFromOned?.type ?? errorFromOned?.status, {
+          fallback: errorFromOned,
+        }) ??
         messageFromServer ??
         statusText
       if (status === 204) {

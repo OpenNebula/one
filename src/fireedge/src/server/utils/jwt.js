@@ -18,6 +18,8 @@ const jwt = require('jwt-simple')
 const speakeasy = require('speakeasy')
 const { messageTerminal } = require('server/utils/general')
 const { JWTError, MissingFireEdgeKeyError } = require('server/utils/errors')
+const { defaults } = require('server/utils/constants')
+const { defaultJwtCookieName } = defaults
 
 /**
  * Create a JWT.
@@ -78,15 +80,22 @@ const jwtDecode = (token = '') => {
  * @returns {object} return data of JWT
  */
 const validateAuth = (req = {}) => {
-  let rtn = false
-  if (req?.headers?.authorization) {
-    const authorization = req.headers.authorization
-    const removeBearer = /^Bearer /i
-    const token = authorization.replace(removeBearer, '')
+  if (req?.cookies?.[defaultJwtCookieName]) {
     try {
+      const rawCookie = req.cookies[defaultJwtCookieName]
+
+      const parsed =
+        typeof rawCookie === 'string' ? JSON.parse(rawCookie) : rawCookie
+
+      const token = parsed?.token
+      if (!token) return false
+
       const payload = jwtDecode(token)
       const { iss, aud, jti } = payload
-      rtn = {
+
+      if (!iss || !aud || !jti) return false
+
+      return {
         iss,
         aud,
         jti,
@@ -98,8 +107,6 @@ const validateAuth = (req = {}) => {
       })
     }
   }
-
-  return rtn
 }
 
 /**
@@ -109,22 +116,19 @@ const validateAuth = (req = {}) => {
  * @param {string} token - token JWT
  * @returns {string} data decoded
  */
-const check2Fa = (secret = '', token = '') => {
-  let rtn = false
-  if (secret && token) {
-    rtn = speakeasy.totp.verify({
-      secret,
-      encoding: 'base32',
-      token,
-    })
-  }
+const validate2FA = (secret = '', token = '') => {
+  if (!secret || !token) return false
 
-  return rtn
+  return speakeasy.totp.verify({
+    secret,
+    encoding: 'base32',
+    token,
+  })
 }
 
 module.exports = {
   jwtDecode,
   createJWT,
   validateAuth,
-  check2Fa,
+  validate2FA,
 }

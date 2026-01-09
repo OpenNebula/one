@@ -14,12 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const speakeasy = require('speakeasy')
-const qrcode = require('qrcode')
 const { defaults, httpCodes } = require('server/utils/constants')
 const { httpResponse } = require('server/utils/server')
-const { getFireedgeConfig } = require('server/utils/yml')
-const { check2Fa } = require('server/utils/jwt')
 const { Actions } = require('server/utils/constants/commands/user')
 const {
   responseOpennebula,
@@ -27,18 +23,24 @@ const {
   generateNewResourceTemplate,
 } = require('server/utils/opennebula')
 
+const { writeInLogger } = require('server/utils/logger')
+const { validate2FA } = require('server/utils/jwt')
+const {
+  generateQr2FA,
+  setup2FASecret,
+  verifyUserExists,
+  AUTH_TYPES,
+} = require('server/routes/api/auth/utils')
+
 // user config
-const appConfig = getFireedgeConfig()
 const {
   httpMethod,
-  default2FAIssuer,
   defaultEmptyFunction,
   default2FAOpennebulaVar,
   default2FAOpennebulaTmpVar,
 } = defaults
-const { ok, badRequest, internalServerError } = httpCodes
+const { ok, internalServerError } = httpCodes
 const { GET } = httpMethod
-const twoFactorAuthIssuer = appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer
 
 /**
  * Get information for opennebula authenticated user.
@@ -83,65 +85,42 @@ const getUserInfoAuthenticated = (
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - function of xmlrpc
  */
-const setup = (
+const setup = async (
   res = {},
   next = defaultEmptyFunction,
   params = {},
   userData = {},
   oneConnection = defaultEmptyFunction
 ) => {
-  const { user, password } = userData
-  if (!(user && password)) {
-    next()
+  try {
+    const verifiedUser = await verifyUserExists({
+      user: userData.user,
+      token: userData.password,
+      connect: oneConnection,
+      protocol: AUTH_TYPES.CORE,
+    })
+    const ID = verifiedUser?.USER?.ID
 
-    return
-  }
+    if (!ID) throw new Error('User ID not found')
 
-  const { token } = params
-  const oneConnect = oneConnection(user, password)
-  getUserInfoAuthenticated(oneConnect, next, (data) => {
-    const fireedge = data?.USER?.TEMPLATE?.FIREEDGE
-    const secret = fireedge?.[default2FAOpennebulaTmpVar]
-    if (Number.isInteger(parseInt(data?.USER?.ID, 10)) && secret && token) {
-      if (check2Fa(secret, token)) {
-        oneConnect({
-          action: Actions.USER_UPDATE,
-          parameters: [
-            parseInt(data.USER.ID, 10),
-            generateNewResourceTemplate(
-              fireedge || {},
-              { [default2FAOpennebulaVar]: secret },
-              [default2FAOpennebulaTmpVar]
-            ),
-            1,
-          ],
-          callback: (error, value) => {
-            responseOpennebula(
-              () => undefined,
-              error,
-              value,
-              (pass) => {
-                if (pass !== undefined && pass !== null) {
-                  res.locals.httpCode = httpResponse(ok)
-                }
-                next()
-              },
-              next
-            )
-          },
-        })
-      } else {
-        res.locals.httpCode = httpResponse(
-          badRequest,
-          'Error registering the app',
-          ''
-        )
-        next()
-      }
-    } else {
-      next()
+    global.pending2FA ??= new Map()
+    const { secret } = global.pending2FA.get(ID)
+
+    if (!secret) throw new Error('No pending 2FA entry for user')
+
+    if (!validate2FA(secret, params.token)) {
+      throw new Error('Invalid 2FA token')
     }
-  })
+
+    await setup2FASecret(verifiedUser, { connect: oneConnection })
+
+    res.locals.httpCode = httpResponse(ok)
+  } catch (err) {
+    writeInLogger(err)
+    res.locals.httpCode = httpResponse(internalServerError)
+  } finally {
+    next()
+  }
 }
 
 /**
@@ -153,71 +132,27 @@ const setup = (
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - function of xmlrpc
  */
-const qr = (
+const qr = async (
   res = {},
   next = defaultEmptyFunction,
   params = {},
   userData = {},
   oneConnection = defaultEmptyFunction
 ) => {
-  const { user, password } = userData
-  if (!(user && password)) {
-    next()
-
-    return
-  }
-
-  const secret = speakeasy.generateSecret({
-    length: 10,
-    name: twoFactorAuthIssuer,
-  })
-  if (secret && secret.otpauth_url && secret.base32) {
-    const { otpauth_url: otpURL, base32 } = secret
-    qrcode.toDataURL(otpURL, (err, dataURL) => {
-      if (err) {
-        res.locals.httpCode = httpResponse(internalServerError)
-        next()
-      } else {
-        const oneConnect = oneConnection(user, password)
-        getUserInfoAuthenticated(oneConnect, next, (data) => {
-          if (data?.USER?.ID && data?.USER?.TEMPLATE) {
-            oneConnect({
-              action: Actions.USER_UPDATE,
-              parameters: [
-                parseInt(data.USER.ID, 10),
-                generateNewResourceTemplate(
-                  data.USER.TEMPLATE.FIREEDGE || {},
-                  { [default2FAOpennebulaTmpVar]: base32 },
-                  [default2FAOpennebulaVar]
-                ),
-                1,
-              ],
-              callback: (error, value) => {
-                responseOpennebula(
-                  () => undefined,
-                  error,
-                  value,
-                  (pass) => {
-                    if (pass !== undefined && pass !== null) {
-                      res.locals.httpCode = httpResponse(ok, {
-                        img: dataURL,
-                      })
-                      next()
-                    } else {
-                      next()
-                    }
-                  },
-                  next
-                )
-              },
-            })
-          } else {
-            next()
-          }
-        })
-      }
+  try {
+    const verifiedUser = await verifyUserExists({
+      user: userData.user,
+      token: userData.password,
+      connect: oneConnection,
+      protocol: AUTH_TYPES.CORE,
     })
-  } else {
+
+    const qrCode = await generateQr2FA(verifiedUser)
+
+    res.locals.httpCode = httpResponse(ok, { img: qrCode.imgUrl })
+  } catch (err) {
+    res.locals.httpCode = httpResponse(internalServerError)
+  } finally {
     next()
   }
 }
@@ -287,6 +222,7 @@ const del = (
     }
   })
 }
+
 const tfaApi = {
   setup,
   qr,

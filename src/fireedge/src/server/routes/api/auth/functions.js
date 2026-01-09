@@ -13,164 +13,139 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-const { Map } = require('immutable')
+const { jwtDecode } = require('server/utils/jwt')
+const { XMLParser } = require('fast-xml-parser')
+const { httpResponse } = require('server/utils/server')
 const {
-  login,
-  setUser,
-  setPass,
-  setType,
-  setTfaToken,
-  setRemember,
-  setNext,
-  setRes,
-  setNodeConnect,
-  connectOpennebula,
-  updaterResponse,
-  remoteLogin,
-  x509Login,
+  ensureSessionStore,
+  removeUserSession,
+} = require('server/utils/sessions')
+
+const {
+  AUTH_TYPES,
+  verifyUserExists,
+  resolveTFAResponse,
+  check2FA,
+  setZones,
 } = require('server/routes/api/auth/utils')
 
 const { defaults, httpCodes } = require('server/utils/constants')
-const { xml2json } = require('server/utils/general')
-const { Actions } = require('server/utils/constants/commands/user')
 const { getFireedgeConfig } = require('server/utils/yml')
-const {
-  getDefaultParamsOfOpennebulaCommand,
-} = require('server/utils/opennebula')
 
 const { writeInLogger } = require('server/utils/logger')
-const { global } = require('window-or-global')
 const atob = require('atob')
 
-const { internalServerError, unauthorized } = httpCodes
+const { internalServerError, unauthorized, ok } = httpCodes
 
-const { httpMethod, defaultEmptyFunction } = defaults
+const {
+  defaultConfigParseXML,
+  defaultJwtCookieName,
+  defaultSessionExpiration,
+} = defaults
 
-const { GET } = httpMethod
+const login = async ({ protocol, next, params, connect }) => {
+  const verifiedUser = await verifyUserExists({
+    user: params.user,
+    token: params.token,
+    connect,
+    protocol,
+  })
+
+  setZones({ connect, next })
+
+  const TFA_STATUS = await check2FA(verifiedUser, {
+    tfatoken: params.tfatoken,
+    connect,
+    protocol,
+  })
+
+  const response = await resolveTFAResponse(TFA_STATUS, verifiedUser, {
+    connect,
+  })
+
+  if (!response) throw httpResponse(internalServerError)
+
+  return response
+}
 
 /**
- * Login user.
- *
- * @param {error} err - run if no have user data
- * @param {string} value - opennebula information
- * @param {Function} success - success
- * @param {Function} error - error
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} _params - params of http request
+ * @param {object} _userData - user of http request
+ * @param {Function} _connect - function of xmlrpc
+ * @param {object} req - express router request handler
+ * @returns {object} HttpResponse
  */
-const loginUser = (
-  err = '',
-  value = '',
-  success = defaultEmptyFunction,
-  error = defaultEmptyFunction
-) => {
-  if (value && value.USER && !err) {
-    success(value)
-  } else {
-    error(err)
+const logout = async (res, next, _params, _userData, _connect, req) => {
+  ensureSessionStore()
+  const { [defaultJwtCookieName]: sessionCookie } = req.cookies ?? {}
+  if (sessionCookie) {
+    try {
+      const { token: jwt } = JSON.parse(sessionCookie)
+      if (jwt) {
+        const { jti: token } = jwtDecode(jwt)
+        removeUserSession(token)
+      }
+    } catch {}
+
+    res.clearCookie(defaultJwtCookieName, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+    })
   }
+  res.locals.httpCode = httpResponse(ok, 'Logout successful')
+  next()
 }
 
 /**
  * Fireedge user auth.
  *
+ * @param {string} protocol - Auth type
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
- * @param {object} userData - user of http request
- * @param {Function} oneConnection - function of xmlrpc
+ * @param {object} _userData - user of http request
+ * @param {Function} connect - function of xmlrpc
+ * @returns {object} HttpResponse containing user session
  */
-const coreAuth = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {},
-  oneConnection = defaultEmptyFunction
+const auth = async (
+  { protocol = AUTH_TYPES.CORE },
+  res,
+  next,
+  params,
+  _userData,
+  connect
 ) => {
-  const { user, token, type, token2fa, remember } = params
-  setNext(next)
-  setNodeConnect(oneConnection)
-  updaterResponse(new Map(internalServerError).toObject())
-  if (user && token) {
-    const oneConnect = connectOpennebula(user, token)
+  try {
+    const response = await login({ protocol, next, params, connect })
 
-    /**
-     * Run if have user data.
-     *
-     * @param {object} opennebulaUserData - opennebula user data
-     */
-    const success = (opennebulaUserData) => {
-      setRes(res)
-      setUser(user || '')
-      setPass(token || '')
-      setType(type || '')
-      setTfaToken(token2fa || '')
-      setRemember(remember || false)
-      login(opennebulaUserData)
+    if (!response) throw httpResponse(internalServerError)
+    const { httpCode, payload, session } = response
+
+    if (session) {
+      const { token, expiration } = session
+      const maxAge = expiration
+        ? expiration * 1000 - Date.now()
+        : defaultSessionExpiration * 60 * 1000
+
+      res.cookie(defaultJwtCookieName, JSON.stringify({ token }), {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge,
+      })
     }
 
-    /**
-     * Catch error login.
-     *
-     * @param {string} err - error.
-     */
-    const error = (err) => {
-      setRes(res)
-      const httpCodeError = err ? internalServerError : unauthorized
-      updaterResponse(new Map(httpCodeError).toObject())
-
-      const errorLogMessage = err
-        ? [[err], { format: 'Login user: %s' }]
-        : [httpCodeError?.message]
-
-      writeInLogger(...errorLogMessage)
-      next()
+    res.locals.httpCode = httpResponse(httpCode, payload)
+  } catch (error) {
+    if (Object.values(httpCodes).find(({ id }) => id === error?.id)) {
+      res.locals.httpCode = error
+    } else {
+      res.locals.httpCode = httpResponse(internalServerError)
     }
-
-    oneConnect({
-      action: Actions.USER_INFO,
-      parameters: getDefaultParamsOfOpennebulaCommand(Actions.USER_INFO, GET),
-      callback: (err, value) => {
-        loginUser(err, value, success, error)
-      },
-      fillHookResource: false,
-    })
-  } else {
-    next()
-  }
-}
-
-/**
- * Fireedge user remote auth.
- *
- * @param {object} res - http response
- * @param {Function} next - express stepper
- * @param {object} params - params of http request
- * @param {object} _ - user of http request
- * @param {Function} oneConnection - function of xmlrpc
- * @param {string} typeAuth - auth type
- */
-const remoteAuth = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  _,
-  oneConnection = defaultEmptyFunction,
-  typeAuth
-) => {
-  const { user } = params
-  setNext(next)
-  setNodeConnect(oneConnection)
-  updaterResponse(new Map(internalServerError).toObject())
-  if (user) {
-    switch (typeAuth) {
-      case 'x509':
-        x509Login(user, res)
-        break
-      default:
-        remoteLogin(user, res)
-        break
-    }
-  } else {
+  } finally {
     next()
   }
 }
@@ -182,107 +157,98 @@ const getBasePath = (req = {}) => {
   return idx > 0 ? originalUrl.substring(0, idx) : '/'
 }
 
-const samlErrorAndRedirect = (res, path = '/', err = '') => {
-  const error = new Error(err)
-  writeInLogger(error, { format: 'SAML authentication error: %s' })
-  res.redirect(path)
-}
-
 /**
  * Saml authentication. for POST endpoint.
  *
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
- * @param {object} userData - user of http request
- * @param {Function} oneConnection - function of xmlrpc
+ * @param {object} _userData - user of http request
+ * @param {Function} connect - function of xmlrpc
  * @param {object} req - http request
  */
-const samlAuth = (
+const samlAuth = async (
   res = {},
-  next = defaultEmptyFunction,
+  next,
   params = {},
-  userData = {},
-  oneConnection = defaultEmptyFunction,
+  _userData,
+  connect,
   req = {}
 ) => {
   const basepath = getBasePath(req)
   const { SAMLResponse } = params
 
-  updaterResponse(new Map(internalServerError).toObject())
-
-  if (!SAMLResponse) {
-    samlErrorAndRedirect(
-      res,
-      basepath,
-      'The SAMLResponse parameter is not found in the request.'
-    )
-
-    return
-  }
-  const xmlMessage = atob(SAMLResponse)
-
-  xml2json(xmlMessage, (err, data) => {
-    if (err) {
-      samlErrorAndRedirect(
-        res,
-        basepath,
-        'Error transforming SAML output into JSON'
+  try {
+    if (!SAMLResponse)
+      throw httpResponse(
+        unauthorized,
+        '',
+        'The SAMLResponse parameter is missing.'
       )
 
-      return
+    const xmlMessage = atob(SAMLResponse)
+    const parser = new XMLParser(defaultConfigParseXML)
+    const data = parser.parse(xmlMessage)
+
+    const user = data?.Response?.Assertion?.Subject?.NameID?.['#text']
+
+    if (!user) {
+      throw httpResponse(unauthorized, '', 'SAML user not found in response.')
     }
 
-    const samlUser = data?.Response?.Assertion?.Subject?.NameID?.['#text']
-    if (samlUser) {
-      if (!global.saml) {
-        global.saml = {}
-      }
+    const response = await login({
+      protocol: AUTH_TYPES.SAML,
+      next,
+      params: { user, token: SAMLResponse },
+      connect,
+    })
 
-      global.saml[samlUser] = SAMLResponse
+    if (!response) throw httpResponse(internalServerError)
 
-      res.cookie('saml_user', samlUser, {
+    const { httpCode, payload, session } = response
+
+    if (session) {
+      const { token, expiration } = session
+      const maxAge = expiration
+        ? expiration * 1000 - Date.now()
+        : defaultSessionExpiration * 60 * 1000
+
+      res.cookie(defaultJwtCookieName, JSON.stringify({ token }), {
         path: '/',
         httpOnly: true,
         sameSite: 'lax',
-        maxAge: 5 * 60 * 1000,
+        maxAge,
       })
     }
 
+    res.locals.httpCode = httpResponse(httpCode, payload)
+  } catch (err) {
+    writeInLogger(err, { format: 'SAML authentication error: %s' })
+  } finally {
     res.redirect(basepath)
-  })
+  }
 }
-
 /**
  * Fireedge select type auth.
  * (This is because the authentication methods have to be extended after that).
  *
- * @param {object} res - http response
- * @param {Function} next - express stepper
- * @param {object} params - params of http request
- * @param {object} userData - user of http request
- * @param {Function} oneConnection - function of xmlrpc
+ * @param {...any} args - Auth params
  * @returns {Function} - auth function
  */
-const selectTypeAuth = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {},
-  oneConnection = defaultEmptyFunction
-) => {
-  const appConfig = getFireedgeConfig()
-  const typeAuth = {
-    remote: () => remoteAuth(res, next, params, userData, oneConnection),
-    x509: () => remoteAuth(res, next, params, userData, oneConnection, 'x509'),
-    opennebula: () => coreAuth(res, next, params, userData, oneConnection),
+const selectTypeAuth = async (...args) => {
+  const authProtocols = {
+    remote: () => auth({ protocol: AUTH_TYPES.REMOTE }, ...args),
+    x509: () => auth({ protocol: AUTH_TYPES.x509 }, ...args),
+    opennebula: () => auth({ protocol: AUTH_TYPES.CORE }, ...args),
   }
-  const auth = typeAuth[appConfig?.auth] || typeAuth.opennebula
 
-  return auth()
+  const selected = getFireedgeConfig()?.auth ?? 'opennebula'
+
+  return await authProtocols[selected]()
 }
 
 module.exports = {
   selectTypeAuth,
   samlAuth,
+  logout,
 }

@@ -18,7 +18,7 @@ import { ReactElement } from 'react'
 import { Avatar, Link, MenuItem, MenuList } from '@mui/material'
 
 import { APPS, APP_URL, T } from '@ConstantsModule'
-import { useAuth, useAuthApi } from '@FeaturesModule'
+import { useAuth, AuthAPI } from '@FeaturesModule'
 import HeaderPopover from '@modules/components/Header/Popover'
 import { Translate } from '@modules/components/HOC'
 import { DevTypography } from '@modules/components/Typography'
@@ -32,7 +32,7 @@ import { useHistory } from 'react-router-dom'
  */
 const User = () => {
   const { user } = useAuth()
-  const { logout } = useAuthApi()
+  const [logout] = AuthAPI.useLogoutMutation()
   const history = useHistory()
 
   return (
@@ -51,7 +51,7 @@ const User = () => {
     >
       {() => (
         <MenuList disablePadding>
-          <MenuItem onClick={logout} data-cy="header-logout-button">
+          <MenuItem onClick={() => logout()} data-cy="header-logout-button">
             <Translate word={T.SignOut} />
           </MenuItem>
           <MenuItem

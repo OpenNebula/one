@@ -15,8 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { createSlice } from '@reduxjs/toolkit'
 import { Status } from 'guacamole-common-js'
-
-import { logout } from '@modules/features/Auth/slice'
 import { GUACAMOLE_STATES_STR } from '@ConstantsModule'
 
 const {
@@ -117,10 +115,6 @@ const slice = createSlice({
 
       state[id] = { ...session, thumbnail: payload?.thumbnail }
     },
-  },
-  extraReducers: (builder) => {
-    /* LOGOUT ACTION */
-    builder.addCase(logout, () => ({}))
   },
 })
 

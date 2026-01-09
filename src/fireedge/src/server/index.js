@@ -29,6 +29,7 @@ import {
   endpointExternalGuacamole,
 } from './utils/constants/defaults'
 import { getLoggerMiddleware, initLogger } from './utils/logger'
+import { ensureSessionStore } from './utils/sessions'
 import {
   genFireedgeKey,
   genPathResources,
@@ -47,6 +48,8 @@ import guacamoleProxy from './routes/websockets/guacamoleProxy'
 import opennebulaWebsockets from './routes/websockets/opennebula'
 import { messageTerminal } from './utils/general'
 import { getFireedgeConfig } from './utils/yml'
+
+ensureSessionStore()
 
 setDnsResultOrder()
 

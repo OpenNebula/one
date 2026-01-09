@@ -21,10 +21,8 @@ const {
 } = require('server/utils/constants')
 const {
   validateSession,
-  getUserOpennebula,
-  getPassOpennebula,
   getZone,
-} = require('server/routes/entrypoints/Api/middlawares')
+} = require('server/routes/entrypoints/Api/middlewares')
 const { fillResourceforHookConnection } = require('server/utils/opennebula')
 const { httpResponse, validateHttpMethod } = require('server/utils/server')
 const { useWorker, parseReturnWorker } = require('server/utils/worker')
@@ -181,8 +179,7 @@ const xmlrpcRoutes = ({
             const { zone } = req.query
             const zoneData = getZone(zone)
             if (zoneData) {
-              const user = getUserOpennebula()
-              const password = getPassOpennebula()
+              const { user, password } = req.auth ?? {}
               const { rpc } = zoneData
 
               const serverDataSource = {

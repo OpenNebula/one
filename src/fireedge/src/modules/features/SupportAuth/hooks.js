@@ -45,7 +45,6 @@ export const useSupportAuthApi = () => {
   const dispatch = useDispatch()
 
   return {
-    stopFirstRender: () => dispatch(actions.stopFirstRender()),
     login: () => dispatch(actions.login()),
     changeSupportAuthUser: (user) =>
       dispatch(actions.changeSupportAuthUser(user)),

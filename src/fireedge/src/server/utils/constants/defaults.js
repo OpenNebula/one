@@ -39,6 +39,7 @@ const defaults = {
    * @returns {undefined} undefined data
    */
   defaultEmptyFunction: () => undefined,
+  defaultJwtCookieName: 'FireedgeToken',
   defaultTmpPath: '/tmp',
   defaultErrorTemplate: 'ERROR_FIREEDGE="%1$s"',
   defaultSessionExpiration: 180,

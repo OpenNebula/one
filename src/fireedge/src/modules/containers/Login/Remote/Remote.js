@@ -22,14 +22,10 @@ import {
   useTheme,
 } from '@mui/material'
 import { Translate, OpenNebulaLogo, SubmitButton, Tr } from '@ComponentsModule'
-import { JWT_NAME, T, STYLE_BUTTONS } from '@ConstantsModule'
-import { AuthSlice } from '@FeaturesModule'
-import { storage } from '@UtilsModule'
-import { ReactElement, useEffect, useMemo } from 'react'
-import { useDispatch } from 'react-redux'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { styles } from '@modules/containers/Login/styles'
-const { actions: authActions } = AuthSlice
 
 /**
  * Displays the remote login form and handles the login process.
@@ -39,16 +35,7 @@ const { actions: authActions } = AuthSlice
  * @returns {ReactElement} The login form.
  */
 export function Remote({ data = {} }) {
-  const dispatch = useDispatch()
-  const { jwt, remoteRedirect = '.', ...user } = data
-
-  useEffect(() => {
-    if (jwt) {
-      storage(JWT_NAME, jwt)
-      dispatch(authActions.changeJwt(jwt))
-    }
-    user && dispatch(authActions.changeAuthUser(user))
-  }, [])
+  const { remoteRedirect = '.' } = data
 
   const isMobile = useMediaQuery((themeSunstone) =>
     themeSunstone.breakpoints.only('xs')

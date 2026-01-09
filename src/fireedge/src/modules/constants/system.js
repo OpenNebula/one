@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import * as T from '@modules/constants/translates'
+
 /** @enum {string} Base path for Open Nebula documentation */
 export const DOCS_BASE_PATH = 'https://docs.opennebula.io'
 
@@ -26,4 +28,8 @@ export const FEDERATION_TYPE = {
   STANDALONE: 'STANDALONE',
   MASTER: 'MASTER',
   SLAVE: 'SLAVE',
+}
+
+export const AUTH_ERRORS = {
+  invalid_2fa: T.InvalidTfa,
 }

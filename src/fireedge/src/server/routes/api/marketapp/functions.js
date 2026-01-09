@@ -124,26 +124,26 @@ const exportApp = (
  * @param {number} params.id - app id
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - function of xmlrpc
+ * @param {object} req - Request object
  */
 const downloadApp = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
   userData = {},
-  oneConnection = defaultEmptyFunction
+  oneConnection = defaultEmptyFunction,
+  req
 ) => {
-  const { id, token } = params
-  if (!(Number.isInteger(parseInt(id, 10)) && token)) {
+  const { id } = params
+  if (!Number.isInteger(parseInt(id, 10))) {
     responseHttp(res, next, httpNotFoundRequest)
 
     return
   }
 
-  const userDataFromJWT =
-    validateAuth({
-      headers: { authorization: token },
-    }) || {}
-  const { aud, jti } = userDataFromJWT
+  const session = validateAuth(req) || {}
+
+  const { aud, jti } = session
 
   if (!(aud && jti)) {
     responseHttp(res, next, httpResponse(unauthorized, '', ''))

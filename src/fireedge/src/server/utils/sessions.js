@@ -13,52 +13,56 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import root from 'window-or-global'
 
 /**
- * Save an item in the browser storage.
- *
- * @param {string} name - Name of item in the storage
- * @param {string} data - The data will be saved into local storage
+ * Ensures user and token index exists.
  */
-export const storage = (name = '', data = '') => {
-  name && data && root?.localStorage?.setItem(name, data)
+const ensureSessionStore = () => {
+  global.sessionStore ??= {}
+  global.tokenIndex ??= {}
 }
 
 /**
- * Remove group of items from the browser storage.
- *
- * @param {string[]} items - List of item names
+ * @param {string} user - Name of user storing session
+ * @param {object} tokenData - Params
+ * @param {string} tokenData.token - JWT
+ * @param {number} tokenData.expires - Token expiration timestamp
  */
-export const removeStoreData = (items = []) => {
-  const itemsToRemove = !Array.isArray(items) ? [items] : items
+const addUserSession = (user, { token, expires }) => {
+  ensureSessionStore()
+  global.sessionStore[user] ??= { tokens: [] }
 
-  itemsToRemove.forEach((item) => {
-    root?.localStorage?.removeItem(item)
-  })
+  const pos =
+    global.sessionStore[user].tokens.push({
+      token,
+      expires,
+    }) - 1
+
+  global.tokenIndex[token] = { user, pos }
 }
 
 /**
- * Looking for an item in the browser storage.
- *
- * @param {string} name - Name of item
- * @returns {false|string} Returns the item if found it
+ * @param {string} token - Parsed cookie stored JWT
  */
-export const findStorageData = (name = '') => {
-  if (name && root?.localStorage?.getItem(name)) {
-    return root.localStorage.getItem(name)
-  } else return false
+const removeUserSession = (token) => {
+  ensureSessionStore()
+
+  const index = global.tokenIndex[token]
+  if (!index) return
+
+  const { user, pos } = index
+
+  const tokens = global.sessionStore[user]?.tokens
+  if (!tokens) return
+
+  tokens.splice(pos, 1)
+  if (tokens.length === 0) delete global.sessionStore[user]
+
+  delete global.tokenIndex[token]
 }
 
-/**
- * Use external Token.
- *
- * @returns {string} Returns JWT from URL
- */
-export const findExternalToken = () => {
-  try {
-    const searchParams = new URL(root?.location?.href)?.searchParams
-
-    return searchParams.get('externalToken')
-  } catch (error) {}
+module.exports = {
+  ensureSessionStore,
+  addUserSession,
+  removeUserSession,
 }

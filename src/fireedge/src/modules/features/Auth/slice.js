@@ -15,22 +15,19 @@
  * ------------------------------------------------------------------------- */
 import { createAction, createSlice } from '@reduxjs/toolkit'
 
-import { FILTER_POOL, JWT_NAME } from '@ConstantsModule'
-import { removeStoreData } from '@UtilsModule'
-
-export const logout = createAction('logout')
+import { FILTER_POOL } from '@ConstantsModule'
 
 const initial = () => ({
-  jwt: null,
-  user: null,
+  user: undefined,
   filterPool: FILTER_POOL.ALL_RESOURCES,
   isLoginInProgress: false,
   externalRedirect: '',
+  sessionVerified: false,
 })
 
 const slice = createSlice({
   name: 'auth',
-  initialState: { ...initial(), firstRender: true },
+  initialState: { ...initial() },
   reducers: {
     changeAuthUser: (state, { payload: { isLoginInProgress, ...user } }) => {
       state.user = { ...state.user, ...user }
@@ -42,9 +39,6 @@ const slice = createSlice({
     changeExternalRedirect: (state, { payload }) => {
       state.externalRedirect = payload
     },
-    changeJwt: (state, { payload }) => {
-      state.jwt = payload
-    },
     changeFilterPool: (state, { payload: filterPool }) => {
       state.filterPool = filterPool
       state.isLoginInProgress = false
@@ -52,22 +46,21 @@ const slice = createSlice({
     changeView: (state, { payload }) => {
       state.view = payload
     },
-    stopFirstRender: (state) => {
-      state.firstRender = false
-    },
     setErrorMessage: (state, { payload }) => {
       state.error = payload
     },
+    setSessionVerified: (state) => {
+      state.sessionVerified = true
+    },
   },
   extraReducers: (builder) => {
-    builder.addCase(logout, (_, { payload }) => {
-      delete window?.__REMOTE_AUTH__?.jwt
-      delete window?.__REMOTE_AUTH__?.id
-      removeStoreData([JWT_NAME])
-
-      return { ...initial(), error: payload }
-    })
+    builder.addCase(logout, (state, { payload }) => ({
+      ...initial(),
+      sessionVerified: state.sessionVerified,
+      error: payload,
+    }))
   },
 })
 
+export const logout = createAction('logout')
 export { slice as AuthSlice }

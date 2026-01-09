@@ -15,8 +15,6 @@
  * ------------------------------------------------------------------------- */
 import * as Setting from '@modules/constants/setting'
 
-export const JWT_NAME = 'FireedgeToken'
-
 export const BY = { text: 'by OpenNebula', url: 'https://opennebula.io/' }
 export const SUPPORT_WEBSITE = 'https://opennebula.io/support/'
 export const COMMUNITY_WEBSITE = 'https://opennebula.io/usec'

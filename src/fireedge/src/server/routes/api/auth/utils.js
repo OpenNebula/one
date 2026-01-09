@@ -14,6 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const {
+  ensureSessionStore,
+  addUserSession,
+  removeUserSession,
+} = require('server/utils/sessions')
+const speakeasy = require('speakeasy')
+const { Actions } = require('server/utils/constants/commands/user')
+const qrcode = require('qrcode')
 const { DateTime } = require('luxon')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
@@ -21,8 +29,9 @@ const { global, Array } = require('window-or-global')
 const { Actions: ActionUsers } = require('server/utils/constants/commands/user')
 const { Actions: ActionZones } = require('server/utils/constants/commands/zone')
 const { defaults, httpCodes } = require('server/utils/constants')
-const { getFireedgeConfig } = require('server/utils/yml')
-const { createJWT, check2Fa } = require('server/utils/jwt')
+const { getFireedgeConfig, getSunstoneConfig } = require('server/utils/yml')
+const { createJWT, validate2FA } = require('server/utils/jwt')
+const { ok, internalServerError, unauthorized, accepted } = httpCodes
 const {
   httpResponse,
   encrypt,
@@ -30,6 +39,7 @@ const {
 } = require('server/utils/server')
 const {
   responseOpennebula,
+  generateNewResourceTemplate,
   getDefaultParamsOfOpennebulaCommand,
 } = require('server/utils/opennebula')
 
@@ -37,157 +47,47 @@ const {
   httpMethod,
   defaultSessionExpiration,
   default2FAOpennebulaVar,
-  defaultNamespace,
-  defaultEmptyFunction,
+  default2FAOpennebulaTmpVar,
+  default2FAIssuer,
   defaultSessionLimitExpiration,
   defaultRememberSessionExpiration,
 } = defaults
 
-const { ok, unauthorized, accepted, internalServerError } = httpCodes
+if (!global.pending2FA) {
+  global.pending2FA = new Map()
+}
+
+const TFAResult = Object.freeze({
+  OK: 'ok',
+  NOT_SUPPORTED: 'not_supported',
+  NEED_2FA_SETUP: 'need_2fa_setup',
+  COMPLETE_2FA_SETUP: 'complete_2fa_setup',
+  NEED_2FA_TOKEN: 'need_2fa_token',
+  INVALID_2FA: 'invalid_2fa',
+})
+
+const AUTH_TYPES = Object.freeze({
+  CORE: 'core',
+  SAML: 'saml',
+  x509: 'x509',
+  REMOTE: 'remote',
+})
+
+const TFA_SUPPORTED_PROTOCOLS = new Set([AUTH_TYPES.CORE])
 
 const { GET } = httpMethod
 
 const { USER_INFO, USER_POOL_INFO } = ActionUsers
 const { ZONE_POOL_INFO } = ActionZones
 
-let user = ''
-let pass = ''
-let type = ''
-let tfatoken = ''
-let remember = false
-let next = defaultEmptyFunction
-let req = {}
-let res = {}
-let nodeConnect = defaultEmptyFunction
-
 /**
- * Get user opennebula.
+ * Get dates.
  *
- * @returns {string} user opennebula
- */
-const getUser = () => user
-
-/**
- * Get user password opennebula.
- *
- * @returns {string} get password user opennebula
- */
-const getPass = () => pass
-
-/**
- * Username opennebula.
- *
- * @param {string} newUser - new user data
- * @returns {string} get user
- */
-const setUser = (newUser) => {
-  user = newUser
-
-  return user
-}
-
-/**
- * User  password opennebula.
- *
- * @param {string} newPass - set new opennebula password user
- * @returns {string} password user
- */
-const setPass = (newPass) => {
-  pass = newPass
-
-  return pass
-}
-
-/**
- * Type app.
- *
- * @param {string} newtype - new type (application)
- * @returns {string} get type
- */
-const setType = (newtype) => {
-  type = newtype
-
-  return type
-}
-
-/**
- * Set 2FA token.
- *
- * @param {string} newTfaToken - new TFA token
- * @returns {string} get TFA token
- */
-const setTfaToken = (newTfaToken) => {
-  tfatoken = newTfaToken
-
-  return tfatoken
-}
-
-/**
- * Set remember.
- *
- * @param {boolean} newRemember - new remember
- * @returns {boolean} remember
- */
-const setRemember = (newRemember) => {
-  remember = newRemember
-
-  return remember
-}
-
-/**
- * Set express stepper.
- *
- * @param {Function} newNext - new stepper
- * @returns {Function} http response
- */
-const setNext = (newNext = defaultEmptyFunction) => {
-  next = newNext
-
-  return next
-}
-
-/**
- * Set http resquest.
- *
- * @param {object} newReq - new request
- * @returns {object} http resquest
- */
-const setReq = (newReq = {}) => {
-  req = newReq
-
-  return req
-}
-
-/**
- * Set xlmrpc connection function.
- *
- * @param {Function} newConnect - new connect opennebula
- * @returns {Function} xmlrpc function
- */
-const setNodeConnect = (newConnect = defaultEmptyFunction) => {
-  nodeConnect = newConnect
-
-  return nodeConnect
-}
-
-/**
- * Set http response.
- *
- * @param {object} newRes - new response
- * @returns {object} http response
- */
-const setRes = (newRes = {}) => {
-  res = newRes
-
-  return res
-}
-
-/**
- * Set dates.
- *
+ * @param {object} params - Params
+ * @param {boolean} params.remember - Extend token expiration time
  * @returns {object} times
  */
-const setDates = () => {
+const getDates = ({ remember = false } = {}) => {
   const appConfig = getFireedgeConfig()
   const limitToken = remember
     ? appConfig.session_remember_expiration || defaultRememberSessionExpiration
@@ -210,139 +110,181 @@ const setDates = () => {
 }
 
 /**
- * Connect to function xmlrpc.
+ * Check 2FA configuration.
  *
- * @param {string} usr - user
- * @param {string} pss - password
- * @returns {Function} xmlrpc function
- */
-const connectOpennebula = (usr = '', pss = '') => {
-  const connectUser = usr || user
-  const connectPass = pss || pass
-
-  return nodeConnect(connectUser, connectPass)
-}
-
-/**
- * Updater http request.
- *
- * @param {string} code - http code
- */
-const updaterResponse = (code) => {
-  if ('id' in code && 'message' in code && res?.locals?.httpCode) {
-    res.locals.httpCode = code
-  }
-}
-
-/**
- * Validate 2FA.
- *
- * @param {object} informationUser - user data
+ * @param {object} userData - user data
+ * @param {object} userData.USER - Full user template
+ * @param {object} userData.USER.TEMPLATE - Internal template
+ * @param {string|number} userData.USER.ID - User ID
+ * @param {object} params - Context specific params
+ * @param {string} params.tfatoken - 2FA token
+ * @param {Function} params.connect - OpenNebula connector callback
+ * @param {string} params.protocol - Auth protocol type
  * @returns {boolean} return if data is valid
  */
-const validate2faAuthentication = (informationUser) => {
-  let rtn = false
-  const template = informationUser?.TEMPLATE
-  if (
-    template?.SUNSTONE?.[default2FAOpennebulaVar] ||
-    template?.FIREEDGE?.[default2FAOpennebulaVar]
-  ) {
-    /*********************************************************
-     * Validate 2FA
-     *
-     * Gives priority to the 2FA created directly in the fireedge and in case it is not configured, uses the 2FA created from the sunstone.
-     *********************************************************/
-
-    if (tfatoken.length <= 0) {
-      updaterResponse(httpResponse(accepted, { id: informationUser?.ID }))
-    } else {
-      const secret =
-        template.FIREEDGE?.[default2FAOpennebulaVar] ||
-        template.SUNSTONE?.[default2FAOpennebulaVar]
-      if (!check2Fa(secret, tfatoken)) {
-        updaterResponse(httpResponse(unauthorized, '', 'invalid 2fa token'))
-      } else {
-        rtn = true
-      }
-    }
-  } else {
-    /*********************************************************
-     * Without 2FA
-     *********************************************************/
-
-    rtn = true
+const check2FA = async (
+  { USER: { TEMPLATE = {}, ID } = {} },
+  { tfatoken, connect, protocol } = {}
+) => {
+  if (!TFA_SUPPORTED_PROTOCOLS.has(protocol)) {
+    return TFAResult.NOT_SUPPORTED
   }
 
-  return rtn
+  const { enforce_2fa: force2FA = false } = getSunstoneConfig() ?? {}
+
+  const MFASecret =
+    TEMPLATE?.SUNSTONE?.[default2FAOpennebulaVar] ||
+    TEMPLATE?.FIREEDGE?.[default2FAOpennebulaVar]
+
+  if (!(force2FA || MFASecret)) return TFAResult.OK
+
+  if (!MFASecret) {
+    if (!tfatoken?.length) return TFAResult.NEED_2FA_SETUP
+    global.pending2FA ??= new Map()
+    const { secret } = global.pending2FA.get(ID)
+    if (validate2FA(secret, tfatoken)) return TFAResult.COMPLETE_2FA_SETUP
+  }
+  if (!tfatoken?.length) return TFAResult.NEED_2FA_TOKEN
+  if (!validate2FA(MFASecret, tfatoken)) return TFAResult.INVALID_2FA
+
+  return TFAResult.OK
 }
 
 /**
- * Generate a JWT.
- *
- * @param {string} token - opennebula token
- * @param {object} informationUser - user data
+ * @param {object} root0 - Params
+ * @param {object} root0.USER - User info
+ * @param {string} root0.USER.ID - User ID
+ * @returns {object} - QR code url
  */
-const genJWT = (token, informationUser) => {
-  if (
-    token?.time &&
-    token?.token &&
-    informationUser?.ID &&
-    informationUser?.NAME
-  ) {
-    const { ID: id, TEMPLATE: userTemplate, NAME: username } = informationUser
-    const jwt = createJWT({ id, user: username, token: token.token })
+const generateQr2FA = async ({ USER: { ID } = {} } = {}) => {
+  if (!ID) throw httpResponse(internalServerError)
 
-    if (jwt) {
-      const rtn = { token: jwt, id }
-      if (userTemplate?.SUNSTONE?.LANG) {
-        rtn.language = userTemplate.SUNSTONE.LANG
-      }
-      updaterResponse(httpResponse(ok, rtn))
-    }
+  const issuer = getFireedgeConfig()?.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer
+  const secret = speakeasy.generateSecret({ length: 10, name: issuer })
+
+  global.pending2FA ??= new Map()
+  global.pending2FA.set(ID, { secret: secret.base32 })
+
+  const imgUrl = await new Promise((resolve, reject) => {
+    qrcode.toDataURL(secret.otpauth_url, (err, url) =>
+      err ? reject(httpResponse(internalServerError)) : resolve(url)
+    )
+  })
+
+  return { imgUrl }
+}
+
+/**
+ * @param root0
+ * @param root0.USER
+ * @param root0.USER.ID
+ * @param root0.USER.TEMPLATE
+ * @param root1
+ * @param root1.connect
+ */
+const setup2FASecret = async ({ USER: { ID, TEMPLATE } = {} }, { connect }) => {
+  const { username, token } = getServerAdmin()
+  const oneConnect = connect(`${username}:${username}`, token.token)
+
+  global.pending2FA ??= new Map()
+  const { secret } = global.pending2FA.get(ID)
+
+  if (!ID || !TEMPLATE || !secret) throw httpResponse(internalServerError)
+
+  await new Promise((resolve, reject) => {
+    oneConnect({
+      action: Actions.USER_UPDATE,
+      parameters: [
+        parseInt(ID, 10),
+        generateNewResourceTemplate(
+          TEMPLATE?.FIREEDGE || {},
+          { [default2FAOpennebulaVar]: secret },
+          [default2FAOpennebulaTmpVar]
+        ),
+        1,
+      ],
+      callback: (err) =>
+        err ? reject(httpResponse(internalServerError)) : resolve(),
+    })
+  })
+}
+
+/**
+ * Create a JWT for a user session.
+ *
+ * @param {object} tokenData - { token, time }
+ * @param {object} userInfo - { ID, NAME, TEMPLATE }
+ * @returns {object|null} { token: jwt, id, language? }
+ */
+const genJWT = (tokenData = {}, userInfo = {}) => {
+  const rawToken = tokenData?.token
+  const { ID: id, NAME: username, TEMPLATE: template } = userInfo
+
+  if (!rawToken || !tokenData?.time || !id || !username) return null
+
+  const jwt = createJWT({
+    id,
+    user: username,
+    token: rawToken,
+  })
+
+  if (!jwt) return null
+
+  const lang = template?.SUNSTONE?.LANG
+
+  return {
+    token: jwt,
+    id,
+    expiration: tokenData?.time,
+    ...(lang && { language: lang }),
   }
 }
 
 /**
  * Get created user tokens.
  *
- * @param {string} username - username
+ * @param {string} user - Username
+ * @param {object} params - Drilled props
  * @returns {object} - user token
  */
-const getCreatedTokenOpennebula = (username = '') => {
-  const { now, nowUnix, limitExpirationReuseToken } = setDates()
-  if (username && global?.users?.[username]?.tokens) {
-    let acc = { token: '', time: 0 }
-    global.users[username].tokens.forEach((curr = {}, index = 0) => {
-      const tokenExpirationTime = parseInt(curr.time, 10)
+const getCreatedTokenOpennebula = (user = '', params) => {
+  ensureSessionStore()
+  const { nowUnix, limitExpirationReuseToken } = getDates(params)
 
-      // this delete expired tokens of global.users[username]
-      if (tokenExpirationTime <= nowUnix) {
-        delete global.users[username].tokens[index]
-      }
+  const tokens = global.sessionStore[user]?.tokens
+  if (!user || !Array.isArray(tokens)) return
 
-      // this select a valid token
-      if (
-        DateTime.fromSeconds(tokenExpirationTime).minus({
-          minutes: limitExpirationReuseToken,
-        }) > now &&
-        tokenExpirationTime > acc.time
-      ) {
-        acc = { token: curr.token, time: curr.time }
+  let maxToken
+
+  for (let i = tokens.length - 1; i >= 0; i--) {
+    const { token, expires } = tokens[i]
+    const exp = parseInt(expires, 10)
+
+    if (exp <= nowUnix) {
+      removeUserSession(token)
+      continue
+    }
+
+    const reusableThreshold = exp - limitExpirationReuseToken * 60
+
+    if (reusableThreshold > nowUnix) {
+      if (!maxToken || exp > maxToken.expires) {
+        maxToken = { token, time: exp }
       }
-    })
-    if (acc.token && acc.time) {
-      return acc
     }
   }
+
+  return maxToken
 }
 
 /**
  * Get zones.
+ *
+ * @param {Function} connect - OpenNebula connector callback
  */
-const setZones = () => {
+const setZones = ({ connect, next }) => {
   if (global && !global.zones) {
-    const oneConnect = connectOpennebula()
-    oneConnect({
+    connect({
       action: ZONE_POOL_INFO,
       parameters: getDefaultParamsOfOpennebulaCommand(ZONE_POOL_INFO, GET),
       callback: (err, value) => {
@@ -395,16 +337,15 @@ const setZones = () => {
  * @param {string} config.key - serverAdmin key
  * @param {string} config.iv - serverAdmin iv
  * @param {string} config.serverAdmin - serverAdmin username
+ * @param {object} params - Drilled props
  * @returns {object|undefined} data encrypted serveradmin
  */
-const createTokenServerAdmin = ({
-  username,
-  key,
-  iv,
-  serverAdmin = username,
-}) => {
+const createTokenServerAdmin = (
+  { username, key, iv, serverAdmin = username },
+  params
+) => {
   if (username && key && iv) {
-    const { expireTime } = setDates()
+    const { expireTime } = getDates(params)
     const expire = parseInt(expireTime, 10)
 
     return {
@@ -415,76 +356,58 @@ const createTokenServerAdmin = ({
 }
 
 /**
- * Wrap user with serveradmin.
+ * Generate a session token for a user.
  *
  * @param {object} serverAdminData - opennebula serveradmin data
  * @param {object} userData - opennebula user data
+ * @param {object} userData.USER - User template
+ * @param {object} params - Drilled props
+ * @returns {object} - Session token
  */
-const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
-  let serverAdminName = ''
-  let serverAdminPassword = ''
-  let userName = ''
-  const { relativeTime, expireTime } = setDates()
+const generateSessionToken = (serverAdminData = {}, { USER = {} }, params) => {
+  const { relativeTime } = getDates(params)
+  const adminUser = serverAdminData?.USER
+  const { NAME, ID, TEMPLATE } = USER
 
-  if (
-    relativeTime &&
-    serverAdminData?.USER &&
-    (serverAdminName = serverAdminData.USER.NAME) &&
-    (serverAdminPassword = serverAdminData.USER.PASSWORD) &&
-    userData &&
-    (userName = userData.NAME) &&
-    userData.ID &&
-    userData.TEMPLATE
-  ) {
-    const JWTusername = `${serverAdminName}:${userName}`
-
-    let tokenWithServerAdmin
-    let setGlobalNewToken = false
-    const validToken = getCreatedTokenOpennebula(JWTusername)
-    if (validToken) {
-      tokenWithServerAdmin = validToken
-    } else {
-      setGlobalNewToken = true
-      tokenWithServerAdmin = createTokenServerAdmin({
-        serverAdmin: serverAdminName,
-        username: userName,
-        /*********************************************************
-         * equals what is placed in:
-         * src/authm_mad/remotes/server_cipher/server_cipher_auth.rb:44
-         *********************************************************/
-        key: serverAdminPassword.substring(0, 32),
-        iv: serverAdminPassword.substring(0, 16),
-      })
-    }
-
-    if (tokenWithServerAdmin) {
-      // set global state
-      if (setGlobalNewToken) {
-        if (!global.users) {
-          global.users = {}
-        }
-        if (!global.users[JWTusername]) {
-          global.users[JWTusername] = { tokens: [] }
-        }
-        !validToken &&
-          global.users[JWTusername].tokens.push({
-            token: tokenWithServerAdmin.token,
-            time: parseInt(expireTime, 10),
-          })
-      }
-
-      genJWT(tokenWithServerAdmin, {
-        NAME: JWTusername,
-        ID: userData.ID,
-        TEMPLATE: userData.TEMPLATE,
-      })
-
-      next()
-    }
-  } else {
-    updaterResponse(httpResponse(internalServerError))
-    next()
+  const required = {
+    relativeTime,
+    adminName: adminUser?.NAME,
+    adminPassword: adminUser?.PASSWORD,
+    userName: NAME,
+    userId: ID,
+    template: TEMPLATE,
   }
+
+  if (Object.values(required).some((v) => !v)) return null
+
+  const { adminName, adminPassword, userId, userName, template } = required
+
+  const JWTusername = `${adminName}:${userName}`
+
+  const tokenData =
+    getCreatedTokenOpennebula(JWTusername, params) ||
+    createTokenServerAdmin(
+      {
+        serverAdmin: adminName,
+        username: userName,
+        key: adminPassword.substring(0, 32),
+        iv: adminPassword.substring(0, 16),
+      },
+      params
+    )
+
+  if (!tokenData) return null
+
+  addUserSession(JWTusername, {
+    token: tokenData.token,
+    expires: tokenData.time,
+  })
+
+  return genJWT(tokenData, {
+    NAME: JWTusername,
+    ID: userId,
+    TEMPLATE: template,
+  })
 }
 
 /**
@@ -508,162 +431,202 @@ const getServerAdmin = () => {
   }
 }
 
+const callAsServerAdmin = async ({ connect }, action, params = []) => {
+  const { username, token } = getServerAdmin()
+
+  if (!username || !token) {
+    throw httpResponse(unauthorized, '', 'serveradmin credentials missing')
+  }
+
+  return new Promise((resolve, reject) => {
+    const oneConnect = connect(`${username}:${username}`, token.token)
+
+    return oneConnect({
+      action,
+      parameters: params,
+      callback: (err, value) => {
+        if (err) reject(err)
+        else resolve(value)
+      },
+      fillHookResource: false,
+    })
+  })
+}
+
+const fetchUserPool = async ({ connect }) =>
+  []
+    .concat(
+      (
+        await callAsServerAdmin(
+          { connect },
+          USER_POOL_INFO,
+          getDefaultParamsOfOpennebulaCommand(USER_POOL_INFO, GET)
+        )
+      )?.USER_POOL?.USER || []
+    )
+    .flat()
+
 /**
- * Get server admin and wrap user.
- *
- * @param {object} userData - opennebula user data
+ * @param {object} params - Params
+ * @param {Function} params.connect - OpenNebula connector callback
+ * @returns {Promise} Promise resolving to user info call
  */
-const getServerAdminAndWrapUser = (userData = {}) => {
-  const serverAdminData = getServerAdmin()
-  const { username, token } = serverAdminData
-  if (username && token) {
-    const oneConnect = connectOpennebula(`${username}:${username}`, token.token)
-    oneConnect({
+const fetchUserInfo = async ({ connect }) => {
+  if (!connect) {
+    throw httpResponse(unauthorized, '', 'missing connection handler')
+  }
+
+  return new Promise((resolve, reject) =>
+    connect({
       action: USER_INFO,
       parameters: getDefaultParamsOfOpennebulaCommand(USER_INFO, GET),
       callback: (err, value) => {
-        responseOpennebula(
-          updaterResponse,
-          err,
-          value,
-          (serverAdmin = {}) => wrapUserWithServerAdmin(serverAdmin, userData),
-          next
-        )
+        if (err) reject(err)
+        else resolve(value)
       },
       fillHookResource: false,
     })
-  }
+  )
+}
+
+const createUserSession = async (userData = {}, params) => {
+  const serverAdmin = await callAsServerAdmin(
+    params,
+    USER_INFO,
+    getDefaultParamsOfOpennebulaCommand(USER_INFO, GET)
+  )
+
+  if (!serverAdmin) throw httpResponse(internalServerError)
+
+  const session = generateSessionToken(serverAdmin, userData, params)
+  if (!session) throw httpResponse(internalServerError)
+
+  return session
 }
 
 /**
- * Remote login route function.
- *
- * @param {string} userData - user remote data user:password
- * @param {object} response - http response
+ * @param {string} status - TFAResult status
+ * @param {object} userData - User data object
+ * @param {params} params - All passed down props like router control + one connector
+ * @returns {object} - Response containing httpCode & payload
  */
-const remoteLogin = (userData = '', response = {}) => {
-  const serverAdminData = getServerAdmin()
-  const { username, token } = serverAdminData
-  const [usr, pss = usr] = userData.split(':')
-  if (username && token && usr && pss) {
-    const oneConnect = connectOpennebula(`${username}:${username}`, token.token)
-    oneConnect({
-      action: USER_POOL_INFO,
-      parameters: getDefaultParamsOfOpennebulaCommand(USER_POOL_INFO, GET),
-      callback: (_, value) => {
-        const users = value?.USER_POOL?.USER || []
-        if (users.length) {
-          const userFound = users.find(
-            (data) =>
-              data.NAME === usr &&
-              data.PASSWORD === pss &&
-              data.AUTH_DRIVER === 'public'
-          )
-          if (userFound) {
-            setRes(response)
-            setZones()
-            getServerAdminAndWrapUser(userFound)
-          } else {
-            next()
-          }
-        } else {
-          next()
-        }
-      },
-      fillHookResource: false,
-    })
-  }
-}
-
-/**
- * X.509 login route function.
- *
- * @param {string} userData - user remote data /DC=es/O=one/CN=user|/DC=us/O=two/CN=user
- * @param {object} response - http response
- */
-const x509Login = (userData = '', response = {}) => {
-  const serverAdminData = getServerAdmin()
-  const { username, token } = serverAdminData
-  if (username && token && userData) {
-    const reverseStringFields = (str) =>
-      /,/.test(str) ? str.split(',').reverse().join('/') : str
-    const parsedUserData = reverseStringFields(userData)
-
-    const oneConnect = connectOpennebula(`${username}:${username}`, token.token)
-    oneConnect({
-      action: USER_POOL_INFO,
-      parameters: getDefaultParamsOfOpennebulaCommand(USER_POOL_INFO, GET),
-      callback: (_, value) => {
-        const users = value?.USER_POOL?.USER || []
-        if (users.length) {
-          const userFound = users.find(
-            (data) =>
-              data.PASSWORD.includes(parsedUserData) &&
-              data.AUTH_DRIVER === 'x509'
-          )
-          if (userFound) {
-            setRes(response)
-            setZones()
-            getServerAdminAndWrapUser(userFound)
-          } else {
-            next()
-          }
-        } else {
-          next()
-        }
-      },
-      fillHookResource: false,
-    })
-  }
-}
-
-/**
- * Login route function.
- *
- * @param {object} userData - opennebula user data
- */
-const login = (userData) => {
-  let rtn = false
-  if (userData) {
-    const appConfig = getFireedgeConfig()
-    const namespace = appConfig.namespace || defaultNamespace
-    const findTextError = `[${namespace}.${USER_INFO}]`
-    if (userData.indexOf && userData.indexOf(findTextError) >= 0) {
-      updaterResponse(httpResponse(unauthorized))
-    } else {
-      rtn = true
-    }
-    if (userData.USER) {
-      setZones()
-      if (validate2faAuthentication(userData.USER)) {
-        rtn = false
-        getServerAdminAndWrapUser(userData.USER)
+const resolveTFAResponse = async (status, userData, params) => {
+  switch (status) {
+    case TFAResult.NOT_SUPPORTED:
+    case TFAResult.OK:
+      return {
+        httpCode: ok,
+        payload: {
+          status: TFAResult.OK,
+        },
+        session: await createUserSession(userData, params), // Session should NOT be included in payload, these are passed as httpOnly cookies
       }
-    }
+    case TFAResult.NEED_2FA_SETUP:
+      return {
+        httpCode: accepted,
+        payload: {
+          ...(await generateQr2FA(userData)),
+          status,
+        },
+      }
+    case TFAResult.COMPLETE_2FA_SETUP:
+      await setup2FASecret(userData, params)
+
+      global.pending2FA.delete(userData.USER.ID)
+
+      return {
+        httpCode: ok,
+        payload: {
+          status: TFAResult.OK,
+        },
+        session: await createUserSession(userData, params),
+      }
+    case TFAResult.NEED_2FA_TOKEN:
+      return { httpCode: accepted, payload: { status } }
+
+    case TFAResult.INVALID_2FA:
+      return { httpCode: unauthorized, payload: { status } }
+
+    default:
+      return null
   }
-  if (rtn) {
-    next()
+}
+
+/**
+ *
+ * @param {object} params - Params
+ * @param {object|string} params.user - User object or username
+ * @param {Function} params.connect - OpenNebula connection callback
+ * @param {string} params.token - User token
+ * @param {string} params.protocol - Authentication protocol
+ * @returns {object} - User template when found
+ */
+const verifyUserExists = async ({ user, token, connect, protocol }) => {
+  switch (protocol) {
+    case AUTH_TYPES.SAML:
+    case AUTH_TYPES.CORE: {
+      const userData = await fetchUserInfo({ connect: connect(user, token) })
+      if (!userData?.USER) {
+        throw httpResponse(unauthorized, '', 'core user not found')
+      }
+
+      return userData
+    }
+
+    case AUTH_TYPES.x509: {
+      const userPool = await fetchUserPool({ connect })
+      if (!userPool?.length) {
+        throw httpResponse(unauthorized, '', 'user pool empty')
+      }
+
+      const parsed = /,/.test(user) ? user.split(',').reverse().join('/') : user
+
+      const found = userPool.find(
+        (u) => u.PASSWORD.includes(parsed) && u.AUTH_DRIVER === 'x509'
+      )
+
+      if (!found) {
+        throw httpResponse(unauthorized, '', 'x509 user not found')
+      }
+
+      return { USER: found }
+    }
+
+    case AUTH_TYPES.REMOTE: {
+      const userPool = await fetchUserPool({ connect })
+      if (!userPool?.length) {
+        throw httpResponse(unauthorized, '', 'user pool empty')
+      }
+
+      const [usr, pss = usr] = user.split(':')
+
+      const found = userPool.find(
+        (u) =>
+          u.NAME === usr && u.PASSWORD === pss && u.AUTH_DRIVER === 'public'
+      )
+
+      if (!found) {
+        throw httpResponse(unauthorized, '', 'remote user not found')
+      }
+
+      return { USER: found }
+    }
+
+    default:
+      throw httpResponse(unauthorized, '', 'auth protocol unsupported')
   }
 }
 
 module.exports = {
-  login,
-  getUser,
-  getPass,
-  setType,
-  setUser,
-  setPass,
-  setTfaToken,
-  setRemember,
-  setNext,
-  setReq,
-  setRes,
-  updaterResponse,
-  setNodeConnect,
-  connectOpennebula,
-  getCreatedTokenOpennebula,
+  fetchUserInfo,
+  generateQr2FA,
   createTokenServerAdmin,
-  remoteLogin,
-  x509Login,
+  getCreatedTokenOpennebula,
   getServerAdmin,
+  verifyUserExists,
+  check2FA,
+  resolveTFAResponse,
+  setZones,
+  setup2FASecret,
+  AUTH_TYPES,
 }

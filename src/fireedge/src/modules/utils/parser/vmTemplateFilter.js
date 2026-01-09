@@ -355,6 +355,7 @@ const reduceExtra = (
     if (key === 'MEMORY_ENCRYPTION' && value?.TYPE) {
       return false // Don't omit MEMORY_ENCRYPTION if TYPE is set
     }
+
     return _.isEmpty(value)
   })
 

@@ -14,9 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { HOST_ERRORS } from '@modules/constants/host'
+import { AUTH_ERRORS } from '@modules/constants/system'
 
 export const ERROR_LOOKUP_TABLE = {
   ...HOST_ERRORS,
+  ...AUTH_ERRORS,
 }
 
 export default ERROR_LOOKUP_TABLE

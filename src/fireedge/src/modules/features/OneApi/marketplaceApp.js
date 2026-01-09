@@ -497,14 +497,12 @@ const marketAppApi = oneApi.injectEndpoints({
        */
       queryFn: (id, { getState }) => {
         try {
-          const state = getState()
-          const token = state.auth.jwt
           const name = ExtraActions.MARKETAPP_DOWNLOAD
 
           const command = { name, ...ExtraCommands[name] }
-          const { url, params } = requestConfig({ id, token }, command)
+          const { url } = requestConfig({ id }, command)
 
-          return { data: `/fireedge${url}?token=${params.token}` }
+          return { data: `/fireedge${url}` } // Token no longer passed here as its stored as a httpOnly cookie. Sent automatically by axios.
         } catch (error) {
           return { error }
         }

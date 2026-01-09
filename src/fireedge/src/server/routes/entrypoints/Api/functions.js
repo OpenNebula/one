@@ -21,11 +21,8 @@ const {
 } = require('server/utils/constants/defaults')
 const {
   validateSession,
-  getIdUserOpennebula,
-  getUserOpennebula,
-  getPassOpennebula,
   getZone,
-} = require('server/routes/entrypoints/Api/middlawares')
+} = require('server/routes/entrypoints/Api/middlewares')
 const { httpResponse, validateHttpMethod } = require('server/utils/server')
 const { opennebulaConnect } = require('server/utils/opennebula')
 const { httpCodes } = require('server/utils/constants')
@@ -63,9 +60,7 @@ const functionsRoutes = ({
             const { zone } = req.query
             const zoneData = getZone(zone)
             if (zoneData) {
-              const user = getUserOpennebula()
-              const password = getPassOpennebula()
-              const userId = getIdUserOpennebula()
+              const { user, password, id } = req.auth ?? {}
               const { rpc } = zoneData
               writeInLoggerInvalidRPC(rpc)
               req.serverDataSource = {
@@ -80,7 +75,7 @@ const functionsRoutes = ({
                 next,
                 (ONEuser, ONEpass) => opennebulaConnect(ONEuser, ONEpass, rpc),
                 {
-                  id: userId,
+                  id,
                   user,
                   password,
                 }

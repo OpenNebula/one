@@ -21,7 +21,6 @@ const {
   middlewareValidateResourceForHookConnection,
   getResourceDataForRequest,
   getDataZone,
-  getQueryData,
 } = require('server/utils/server')
 
 const DEFAULT_ERROR_CONFIG = {
@@ -42,7 +41,7 @@ const main = (app = {}, type = '') => {
       .use(middlewareValidateResourceForHookConnection)
       .on('connection', (server = {}) => {
         const { id, resource } = getResourceDataForRequest(server)
-        const { zone: queryZone } = getQueryData(server)
+        const { zone: queryZone } = server?.handshake?.query ?? {}
         const zone = queryZone && queryZone !== 'undefined' ? queryZone : '0'
         const dataZone = getDataZone(zone)
         const zeromqData =

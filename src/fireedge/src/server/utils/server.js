@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const dns = require('dns')
+const { jwtDecode } = require('server/utils/jwt')
 const https = require('https')
 const http = require('http')
 const { env } = require('process')
@@ -44,12 +45,12 @@ const { DateTime } = require('luxon')
 const { request: axios } = require('axios')
 const { defaults, httpCodes } = require('server/utils/constants')
 const { messageTerminal } = require('server/utils/general')
-const { validateAuth } = require('server/utils/jwt')
 const { writeInLogger } = require('server/utils/logger')
 
 const eventsEmitter = new events.EventEmitter()
 const {
   httpMethod,
+  defaultJwtCookieName,
   defaultApps,
   defaultAppName,
   defaultConfigFile,
@@ -134,31 +135,41 @@ const httpResponse = (response = null, data = '', message = '', file = '') => {
 }
 
 /**
- * Get Query data for websockets.
- *
- * @param {object} server - express app
- * @returns {object} queries http
- */
-const getQueryData = (server = {}) => {
-  let rtn = {}
-  if (server && server.handshake && server.handshake.query) {
-    rtn = server.handshake.query
-  }
-
-  return rtn
-}
-
-/**
  * Validate Authentication for websocket.
  *
  * @param {object} server - express app
  * @returns {undefined|boolean} if token is valid
  */
 const validateAuthWebsocket = (server = {}) => {
-  const { token } = getQueryData(server)
-  if (token) {
-    return validateAuth({
-      headers: { authorization: token },
+  try {
+    const cookies =
+      server?.handshake?.headers?.cookie ??
+      server?.handshake?.headers?.cookies ??
+      {}
+    const encoded = cookies
+      ?.split(';')
+      ?.map((v) => v.trim())
+      ?.find((v) => v.startsWith(`${defaultJwtCookieName}=`))
+      ?.slice(defaultJwtCookieName.length + 1)
+
+    if (!encoded) return false
+    const { token } = JSON.parse(decodeURIComponent(encoded))
+
+    const payload = jwtDecode(token)
+
+    const { iss, aud, jti } = payload
+
+    if (!iss || !aud || !jti) return false
+
+    return {
+      iss,
+      aud,
+      jti,
+    }
+  } catch (error) {
+    messageTerminal({
+      color: 'red',
+      error: `${error.stack}`,
     })
   }
 }
@@ -170,7 +181,7 @@ const validateAuthWebsocket = (server = {}) => {
  * @returns {object} request data
  */
 const getResourceDataForRequest = (server = {}) => {
-  const { id, resource } = getQueryData(server)
+  const { id, resource } = server?.handshake?.query ?? {}
   const { aud: username } = validateAuthWebsocket(server)
 
   return { id, resource, username }
@@ -1023,7 +1034,6 @@ module.exports = {
   parsePostData,
   getRequestFiles,
   getRequestParameters,
-  getQueryData,
   getResourceDataForRequest,
   middlewareValidateAuthWebsocket,
   middlewareValidateResourceForHookConnection,

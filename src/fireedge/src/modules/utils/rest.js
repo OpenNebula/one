@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { findStorageData } from '@modules/utils'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
-import { APP_URL, JWT_NAME, T } from '@ConstantsModule'
+import { APP_URL, T } from '@ConstantsModule'
 
 const httpCodes = {
   badRequest: {
@@ -63,25 +62,20 @@ const httpCodes = {
 
 const http = axios.create({ baseURL: APP_URL })
 
-http.interceptors.request.use((config) => {
-  const token = findStorageData(JWT_NAME)
-  token && (config.headers.Authorization = `Bearer ${token}`)
-
-  return {
-    ...config,
-    headers: {
-      ...config.headers,
-      'Content-Type': 'application/json',
-    },
-    ...(!config?.onUploadProgress
-      ? { timeout: window.__GLOBAL_API_TIMEOUT__ }
-      : {}),
-    timeoutErrorMessage: T.Timeout,
-    withCredentials: true,
-    validateStatus: (status) =>
-      Object.values(httpCodes).some(({ id }) => id === status),
-  }
-})
+http.interceptors.request.use((config) => ({
+  ...config,
+  headers: {
+    ...config.headers,
+    'Content-Type': 'application/json',
+  },
+  ...(!config?.onUploadProgress
+    ? { timeout: window.__GLOBAL_API_TIMEOUT__ }
+    : {}),
+  timeoutErrorMessage: T.Timeout,
+  withCredentials: true,
+  validateStatus: (status) =>
+    Object.values(httpCodes).some(({ id }) => id === status),
+}))
 
 http.interceptors.response.use(
   (response) => {

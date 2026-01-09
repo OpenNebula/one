@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Dispatch, isRejectedWithValue, Middleware } from '@reduxjs/toolkit'
+import { Dispatch, Middleware } from '@reduxjs/toolkit'
 
 import { T } from '@ConstantsModule'
 import { logout } from '@modules/features/Auth/slice'
@@ -27,11 +27,12 @@ export const unauthenticatedMiddleware =
   ({ dispatch }) =>
   (next) =>
   (action) => {
-    if (
-      oneApi.endpoints.getAuthUser.matchRejected(action) ||
-      (isRejectedWithValue(action) && action.payload.status === 401)
-    ) {
-      dispatch(logout(T.SessionExpired))
+    if (oneApi.endpoints.getAuthUser.matchRejected(action) && action.payload) {
+      const { status, data } = action.payload
+
+      if (status === 401 && data === 'expired') {
+        dispatch(logout(T.SessionExpired))
+      }
     }
 
     return next(action)

@@ -15,13 +15,21 @@
  * ------------------------------------------------------------------------- */
 
 const { Actions, Commands } = require('server/routes/api/auth/routes')
-const { selectTypeAuth, samlAuth } = require('server/routes/api/auth/functions')
-const { AUTHENTICATION, SAML_AUTHENTICATION } = Actions
+const {
+  selectTypeAuth,
+  samlAuth,
+  logout,
+} = require('server/routes/api/auth/functions')
+const { AUTHENTICATION, LOGOUT, SAML_AUTHENTICATION } = Actions
 
 module.exports = [
   {
     ...Commands[AUTHENTICATION],
     action: selectTypeAuth,
+  },
+  {
+    ...Commands[LOGOUT],
+    action: logout,
   },
   {
     ...Commands[SAML_AUTHENTICATION],

@@ -123,7 +123,10 @@ const ROUTES_FIELD = {
     .default(() => [])
     .transform((value, originalValue) =>
       typeof originalValue === 'string'
-        ? originalValue.split(',').map((v) => v.trim()).filter(Boolean)
+        ? originalValue
+            .split(',')
+            .map((v) => v.trim())
+            .filter(Boolean)
         : value
     )
     .afterSubmit((value) => value?.join(',')),

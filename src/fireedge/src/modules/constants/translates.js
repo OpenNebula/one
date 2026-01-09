@@ -370,7 +370,10 @@ module.exports = {
   LimitProfileImage: 'the image must be less than 2 MB',
 
   /* login */
-  LogIn: 'Login in your account:',
+  LogIn: 'Login to your account:',
+  Continue: 'Continue',
+  EnforceTFAConcept:
+    'Two-factor authentication is being enforced. Please add a mobile authenticator in order to sign in.',
   Username: 'Username',
   Password: 'Password',
   ConfirmPassword: 'Confirm Password',
@@ -401,6 +404,7 @@ module.exports = {
   TakeMeToTheAppGui: 'Take me to the %s GUI',
 
   /* errors */
+  InvalidTfa: 'Invalid 2FA code',
   Low: 'Low',
   Medium: 'Medium',
   High: 'High',

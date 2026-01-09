@@ -15,14 +15,12 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/routes/api/auth/routes'
 
-import { AuthSlice } from '@modules/features/Auth/slice'
-import { dismissSnackbar } from '@modules/features/General/actions'
+import { AuthSlice, logout } from '@modules/features/Auth/slice'
 import { ONE_RESOURCES_POOL } from '@modules/features/OneApi/resources'
 import { oneApi } from '@modules/features/OneApi/oneApi'
 
 import { jsonToXml } from '@ModelsModule'
-import { storage } from '@UtilsModule'
-import { JWT_NAME, FILTER_POOL, ONEADMIN_ID } from '@ConstantsModule'
+import { FILTER_POOL } from '@ConstantsModule'
 const { actions: authActions } = AuthSlice
 
 const { GROUP_POOL, ...restOfPool } = ONE_RESOURCES_POOL
@@ -46,7 +44,10 @@ const authApi = oneApi.injectEndpoints({
         try {
           const { data: user } = await queryFulfilled
           dispatch(authActions.changeAuthUser(user))
-        } catch {}
+        } catch {
+        } finally {
+          dispatch(authActions.setSessionVerified())
+        }
       },
     }),
     login: builder.mutation({
@@ -57,7 +58,7 @@ const authApi = oneApi.injectEndpoints({
        * @param {string} params.user - Username
        * @param {string} params.token - Password
        * @param {boolean} [params.remember] - Remember session
-       * @param {string} [params.token2fa] - Token for Two factor authentication
+       * @param {string} [params.tfatoken] - Token for Two factor authentication
        * @returns {object} Response data from request
        * @throws Fails when response isn't code 200
        */
@@ -68,29 +69,37 @@ const authApi = oneApi.injectEndpoints({
         return { params, command, needState: true }
       },
       transformResponse: (response, meta) => {
-        const { id, token } = response
         const { withGroupSwitcher } = meta?.state?.general ?? {}
-        const isOneAdmin = id === ONEADMIN_ID
 
         return {
-          jwt: token,
-          user: { ID: id },
-          isLoginInProgress: withGroupSwitcher && !!token && !isOneAdmin,
+          ...response,
+          isLoginInProgress: withGroupSwitcher,
         }
+      },
+    }),
+    logout: builder.mutation({
+      /**
+       * Logout from the interface.
+       * Session token is automatically sent by axios, so no need to specify any auth params for logout.
+       * This route requests to invalidate early the session cookie.
+       *
+       * @returns {object} Response data from request
+       * @throws Fails when response isn't code 200
+       */
+      query: () => {
+        const name = Actions.LOGOUT
+        const command = { name, ...Commands[name] }
+
+        return { command }
       },
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
-          const { data: queryData } = await queryFulfilled
-          const { jwt, ...user } = queryData
-
-          if (jwt) {
-            storage(JWT_NAME, jwt)
-            dispatch(dismissSnackbar({ dismissAll: true }))
-          }
-
-          dispatch(authActions.changeJwt(jwt))
-          dispatch(authActions.changeAuthUser(user))
-        } catch {}
+          await queryFulfilled
+        } catch {
+        } finally {
+          dispatch(logout())
+          dispatch(oneApi.util.resetApiState())
+        }
       },
     }),
     changeAuthGroup: builder.mutation({
@@ -205,6 +214,7 @@ const authQueries = (({
   useLazyGetAuthUserQuery,
   // Mutations
   useLoginMutation,
+  useLogoutMutation,
   useChangeAuthGroupMutation,
   useAddLabelMutation,
   useRemoveLabelMutation,
@@ -214,6 +224,7 @@ const authQueries = (({
   useLazyGetAuthUserQuery,
   // Mutations
   useLoginMutation,
+  useLogoutMutation,
   useChangeAuthGroupMutation,
   useAddLabelMutation,
   useRemoveLabelMutation,

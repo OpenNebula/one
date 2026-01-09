@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
-import { useAuthApi } from '@FeaturesModule'
+import { AuthAPI } from '@FeaturesModule'
 import { SubmitButton } from '@ComponentsModule'
 import { Box, useTheme } from '@mui/material'
 import { LogOut as LogOutIcon } from 'iconoir-react'
@@ -34,12 +34,12 @@ const styles = ({ typography }) => ({
 const LogOut = memo(() => {
   const theme = useTheme()
   const classes = useMemo(() => styles(theme), [theme])
-  const { logout } = useAuthApi()
+  const [logout] = AuthAPI.useLogoutMutation()
 
   return (
     <Box className={classes.root}>
       <SubmitButton
-        onClick={logout}
+        onClick={() => logout()}
         importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
         size={STYLE_BUTTONS.SIZE.MEDIUM}
         type={STYLE_BUTTONS.TYPE.OUTLINED}

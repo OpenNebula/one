@@ -24,11 +24,13 @@ const { postBody } = fromData
 
 const basepath = '/auth'
 const AUTHENTICATION = 'authentication'
+const LOGOUT = 'logout'
 const SAML_AUTHENTICATION = 'authentication.saml'
 
 const Actions = {
   AUTHENTICATION,
   SAML_AUTHENTICATION,
+  LOGOUT,
 }
 
 module.exports = {
@@ -48,13 +50,18 @@ module.exports = {
         type: {
           from: postBody,
         },
-        token2fa: {
+        tfatoken: {
           from: postBody,
         },
         remember: {
           from: postBody,
         },
       },
+    },
+    [LOGOUT]: {
+      path: `${basepath}/logout`,
+      httpMethod: POST,
+      auth: true,
     },
     [SAML_AUTHENTICATION]: {
       path: `${basepath}/acs`,

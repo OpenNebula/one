@@ -15,9 +15,10 @@
  * ------------------------------------------------------------------------- */
 
 import { OpenNebulaLogo, Tr } from '@ComponentsModule'
-import { JWT_NAME, T } from '@ConstantsModule'
-import { AuthAPI, AuthSlice, useAuth, useAuthApi } from '@FeaturesModule'
+import { T } from '@ConstantsModule'
+import { AuthAPI, useAuth, useAuthApi } from '@FeaturesModule'
 import { Form } from '@modules/containers/Login/Opennebula/Form'
+import { QrDisplay } from '@modules/containers/Login/Opennebula/QrDisplay'
 import * as FORM_SCHEMA from '@modules/containers/Login/Opennebula/schema'
 import {
   Box,
@@ -27,19 +28,16 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
-import { storage } from '@UtilsModule'
 import PropTypes from 'prop-types'
-import { ReactElement, useEffect, useMemo, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { ReactElement, useMemo, useState } from 'react'
 
 import { styles } from '@modules/containers/Login/styles'
 
-const { actions: authActions } = AuthSlice
-
 const STEPS = {
   USER_FORM: 0,
-  FA2_FORM: 1,
-  GROUP_FORM: 2,
+  REGISTER_2FA: 1,
+  FA2_FORM: 2,
+  GROUP_FORM: 3,
 }
 
 /**
@@ -50,30 +48,30 @@ const STEPS = {
  * @returns {ReactElement} The login form.
  */
 export function OpenNebulaLoginHandler({ data = {} }) {
-  const dispatch = useDispatch()
-  const { remoteRedirect, jwt: userJWT } = data
+  const [isLoading, setIsLoading] = useState(false)
+  const { remoteRedirect } = data
 
-  useEffect(() => {
-    if (userJWT) {
-      storage(JWT_NAME, userJWT)
-      dispatch(authActions.changeJwt(userJWT))
-    }
-  }, [])
+  const [MFAParams, setMFAParams] = useState(null)
+  const [loginParams, setLoginParams] = useState({
+    username: '',
+    password: '',
+    token: '',
+  })
 
   const isMobile = useMediaQuery((themeMobile) =>
     themeMobile.breakpoints.only('xs')
   )
 
-  const { logout, setErrorMessage } = useAuthApi()
+  const { setErrorMessage } = useAuthApi()
   const { error: authError, isLoginInProgress: needGroupToContinue } = useAuth()
 
-  const [changeAuthGroup, changeAuthGroupState] =
-    AuthAPI.useChangeAuthGroupMutation()
+  const [changeAuthGroup] = AuthAPI.useChangeAuthGroupMutation()
+
   const [login, loginState] = AuthAPI.useLoginMutation()
-  const isLoading = loginState.isLoading || changeAuthGroupState.isLoading
+  const [getAuthUser] = AuthAPI.useLazyGetAuthUserQuery()
+
   const errorMessage = loginState.error?.data?.message ?? authError
 
-  const [dataUserForm, setDataUserForm] = useState(undefined)
   const [step, setStep] = useState(() =>
     needGroupToContinue ? STEPS.GROUP_FORM : STEPS.USER_FORM
   )
@@ -81,20 +79,41 @@ export function OpenNebulaLoginHandler({ data = {} }) {
   // Wrong username and password message
   const wrongUsernamePassword = Tr(T.WrongUsernamePassword)
 
-  const handleSubmitUser = async (dataForm) => {
+  const handleSubmit = async (formData) => {
+    setIsLoading(true)
+    setLoginParams((prev) => ({ ...prev, ...formData }))
     try {
-      const response = await login({ ...dataUserForm, ...dataForm }).unwrap()
-      const { jwt, user, isLoginInProgress } = response || {}
+      const response = await login({ ...loginParams, ...formData }).unwrap()
+      await getAuthUser()
+      const { isLoginInProgress, imgUrl, status } = response || {}
 
-      if (jwt && isLoginInProgress) {
-        setStep(STEPS.GROUP_FORM)
-      } else if (!jwt && user?.ID) {
-        setStep(STEPS.FA2_FORM)
-        setDataUserForm(dataForm)
+      switch (status) {
+        case 'ok': {
+          if (isLoginInProgress) {
+            setStep(STEPS.GROUP_FORM)
+          }
+          break
+        }
+
+        case 'need_2fa_setup': {
+          setMFAParams({ imgSrc: imgUrl, ...formData })
+          setStep(STEPS.REGISTER_2FA)
+          break
+        }
+
+        case 'need_2fa_token': {
+          setStep(STEPS.FA2_FORM)
+          break
+        }
       }
     } catch (error) {
-      // If login request returns 401, show error message about username and password
-      error?.status === 401 && setErrorMessage(wrongUsernamePassword)
+      if (error?.status === 401) {
+        setErrorMessage(wrongUsernamePassword)
+      } else {
+        setErrorMessage(error?.data?.message || 'Login failed')
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -103,9 +122,8 @@ export function OpenNebulaLoginHandler({ data = {} }) {
   }
 
   const handleBack = () => {
-    logout()
-    setDataUserForm(undefined)
     setStep(STEPS.USER_FORM)
+    setLoginParams({})
   }
 
   const theme = useTheme()
@@ -133,11 +151,13 @@ export function OpenNebulaLoginHandler({ data = {} }) {
           withText
         />
 
-        <Box display="flex" overflow="hidden">
-          <Typography variant="h2" sx={{ margin: '3.5rem 0rem 0rem 0rem' }}>
-            {Tr(T.LogIn)}
-          </Typography>
-        </Box>
+        {![STEPS.FA2_FORM, STEPS.REGISTER_2FA]?.includes(step) && (
+          <Box display="flex" overflow="hidden">
+            <Typography variant="h2" sx={{ margin: '3.5rem 0rem 0rem 0rem' }}>
+              {Tr(T.LogIn)}
+            </Typography>
+          </Box>
+        )}
 
         <Box display="flex" overflow="hidden">
           {step === STEPS.USER_FORM && (
@@ -147,7 +167,7 @@ export function OpenNebulaLoginHandler({ data = {} }) {
                 in: step === STEPS.USER_FORM,
                 enter: false,
               }}
-              onSubmit={handleSubmitUser}
+              onSubmit={handleSubmit}
               resolver={FORM_SCHEMA.FORM_USER_SCHEMA}
               fields={FORM_SCHEMA.FORM_USER_FIELDS}
               error={errorMessage}
@@ -155,6 +175,8 @@ export function OpenNebulaLoginHandler({ data = {} }) {
               remoteRedirect={remoteRedirect}
             />
           )}
+          {step === STEPS.REGISTER_2FA && <QrDisplay {...MFAParams} />}
+
           {step === STEPS.FA2_FORM && (
             <Form
               transitionProps={{
@@ -162,13 +184,14 @@ export function OpenNebulaLoginHandler({ data = {} }) {
                 in: step === STEPS.FA2_FORM,
               }}
               onBack={handleBack}
-              onSubmit={handleSubmitUser}
+              onSubmit={handleSubmit}
               resolver={FORM_SCHEMA.FORM_2FA_SCHEMA}
               fields={FORM_SCHEMA.FORM_2FA_FIELDS}
               error={errorMessage}
               isLoading={isLoading}
             />
           )}
+
           {step === STEPS.GROUP_FORM && (
             <Form
               transitionProps={{
@@ -191,7 +214,6 @@ export function OpenNebulaLoginHandler({ data = {} }) {
 
 OpenNebulaLoginHandler.propTypes = {
   data: PropTypes.shape({
-    jwt: PropTypes.string,
     id: PropTypes.string,
     remoteRedirect: PropTypes.string,
   }),

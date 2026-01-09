@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+const { ensureSessionStore } = require('server/utils/sessions')
 const { global } = require('window-or-global')
 
 /**
@@ -23,19 +24,12 @@ const { global } = require('window-or-global')
  * @returns {object} user session
  */
 const getSession = (username = '', token = '') => {
-  if (
-    username &&
-    token &&
-    global &&
-    global.users &&
-    username &&
-    global.users[username] &&
-    global.users[username].tokens
-  ) {
-    return global.users[username].tokens.find(
-      (curr = {}, index = 0) => curr.token === token
-    )
-  }
+  ensureSessionStore()
+  if (!username || !token) return
+
+  return global.sessionStore?.[username]?.tokens?.find(
+    ({ token: t }) => t === token
+  )
 }
 
 const functions = {

@@ -17,7 +17,7 @@
 import { useCallback, useMemo } from 'react'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 import { GeneralSlice } from '@modules/features/General/slice'
-import { AuthSlice, logout } from '@modules/features/Auth/slice'
+import { AuthSlice } from '@modules/features/Auth/slice'
 import { SystemAPI, oneApi } from '@modules/features/OneApi'
 import { parseLabels } from '@UtilsModule'
 import { merge } from 'lodash'
@@ -47,18 +47,19 @@ const appNeedViews = () => {
 
 export const useAuth = () => {
   const auth = useSelector((state) => state[authSlice], shallowEqual)
-  const { jwt, user, view, isLoginInProgress } = auth
+  const { user, view, isLoginInProgress, sessionVerified } = auth
 
   const waitViewToLogin = appNeedViews() ? !!view : true
 
-  const { data: defaultLabels = {} } =
+  const { data: defaultLabels = {}, isLoading: isLabelsLoading } =
     oneApi.endpoints.getDefaultLabels.useQueryState(undefined, {
-      skip: !jwt || !user,
+      skip: !user,
     })
 
-  const { data: groups } = oneApi.endpoints.getGroups.useQueryState(undefined, {
-    skip: !jwt || !user?.GROUPS?.ID,
-  })
+  const { data: groups, isLoading: isGroupsLoading } =
+    oneApi.endpoints.getGroups.useQueryState(undefined, {
+      skip: !user?.GROUPS?.ID,
+    })
 
   const isOneAdmin = user?.ID === ONEADMIN_ID
 
@@ -110,15 +111,13 @@ export const useAuth = () => {
       },
       labels: allLabels,
       isLogged:
-        !!jwt &&
-        !!user &&
-        !!authGroups?.length &&
-        !isLoginInProgress &&
-        waitViewToLogin,
+        !!user && !!authGroups?.length && !isLoginInProgress && waitViewToLogin,
+      isSessionVerified:
+        sessionVerified && !isGroupsLoading && !isLabelsLoading,
     }),
     [
+      sessionVerified,
       user,
-      jwt,
       isLoginInProgress,
       authGroups,
       auth,
@@ -152,10 +151,7 @@ export const useAuthApi = () => {
   const dispatch = useDispatch()
 
   return {
-    stopFirstRender: () => dispatch(actions.stopFirstRender()),
-    logout: () => dispatch(logout()),
     changeView: (view) => dispatch(actions.changeView(view)),
-    changeJwt: (jwt) => dispatch(actions.changeJwt(jwt)),
     changeAuthUser: (user) => dispatch(actions.changeAuthUser(user)),
     setErrorMessage: (message) => dispatch(actions.setErrorMessage(message)),
     changeExternalRedirect: (url) =>
@@ -168,11 +164,11 @@ export const useAuthApi = () => {
 // --------------------------------------------------------------
 
 export const useViews = () => {
-  const { jwt, view } = useSelector((state) => state[authSlice], shallowEqual)
+  const { user, view } = useSelector((state) => state[authSlice], shallowEqual)
 
   const { data: { views = {} } = {} } =
     oneApi.endpoints.getSunstoneViews.useQueryState(undefined, {
-      skip: !jwt,
+      skip: !user,
     })
 
   /**

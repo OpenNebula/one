@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { createAction, createSlice } from '@reduxjs/toolkit'
-import { logout } from '@modules/features/Auth/slice'
 
 export const login = createAction('Support Portal Login')
 
@@ -41,11 +40,6 @@ const slice = createSlice({
       state.user = null
       state.isLoginInProgress = false
     },
-  },
-  extraReducers: (builder) => {
-    builder.addCase(logout, (_) => ({
-      ...initial(),
-    }))
   },
 })
 

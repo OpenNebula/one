@@ -22,7 +22,7 @@ const TFA_TOKEN = {
   label: T.EnterVerificationCode,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  validation: number().min(0).required(),
+  validation: number().min(0).required().default(),
   grid: { md: 12 },
 }
 

@@ -16,14 +16,6 @@
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const { Router } = require('express')
-const { ServerStyleSheets } = require('@mui/styles')
-const { request: axios } = require('axios')
-const { writeInLogger } = require('server/utils/logger')
-const {
-  MissingHeaderError,
-  MissingSamlUserInfoError,
-} = require('server/utils/errors')
-
 // server
 const { getSunstoneConfig, getFireedgeConfig } = require('server/utils/yml')
 
@@ -33,16 +25,8 @@ const { getForecastConfig } = require('server/utils/config')
 const { getEncodedFavicon } = require('server/utils/logo')
 const {
   defaultApps,
-  defaultAppName,
-  defaultHeaderRemote,
-  defaultHeaderx509,
   defaultApiTimeout,
-  defaultProtocol,
-  defaultIP,
-  defaultPort,
-  httpMethod,
 } = require('server/utils/constants/defaults')
-const { global } = require('window-or-global')
 
 const APP_NAMES = Object.keys(defaultApps)
 const APP_URL = '/fireedge'
@@ -64,7 +48,6 @@ const router = Router()
 const defaultConfig = {
   currentTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 }
-const { POST } = httpMethod
 
 router.get('*', async (req, res) => {
   const APP_CONFIG = {
@@ -80,82 +63,15 @@ router.get('*', async (req, res) => {
   const appConfig = getFireedgeConfig()
   const remotesConfig = getRemotesConfig()
   const forecastConfig = getForecastConfig()
-  const authType = appConfig?.auth
-  const validAuthTypes = ['remote', 'x509']
 
   const remoteJWT = {
     remoteRedirect: appConfig?.auth_redirect ?? '',
-  }
-  const samlUser = req?.cookies?.saml_user
-  const samlUserData = global?.saml?.[samlUser]
-  const validateAuth = validAuthTypes.includes(authType)
-
-  if (validateAuth || samlUserData) {
-    let remoteUser = {
-      user: samlUser,
-      token: samlUserData,
-      remember: false,
-    }
-    let findHeader = false
-
-    if (validateAuth) {
-      remoteJWT.remote = true
-      const finderHeader = () => {
-        const headers = Object.keys(req.headers)
-        switch (authType) {
-          case validAuthTypes[1]:
-            return headers.find((header) => defaultHeaderx509.includes(header))
-          default:
-            return headers.find((header) =>
-              defaultHeaderRemote.includes(header)
-            )
-        }
-      }
-      findHeader = finderHeader()
-      remoteUser = findHeader && {
-        user: req.get(findHeader),
-      }
-    }
-
-    try {
-      if (samlUser) {
-        delete global.saml[req.cookies.saml_user]
-        res.clearCookie('saml_user', {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'lax',
-        })
-      } else {
-        if (validateAuth && !findHeader) {
-          throw new MissingHeaderError(JSON.stringify(req.headers))
-        } else {
-          throw new MissingSamlUserInfoError(req?.cookies?.saml_user)
-        }
-      }
-
-      const paramsAxios = {
-        method: POST,
-        url: `${defaultProtocol}://${defaultIP}:${
-          appConfig.port || defaultPort
-        }/${defaultAppName}/api/auth`,
-        data: remoteUser,
-        validateStatus: (status) => status >= 200 && status <= 400,
-      }
-
-      const jwt = await axios(paramsAxios)
-
-      jwt?.data?.data?.token && (remoteJWT.jwt = jwt.data.data.token)
-      jwt?.data?.data?.id && (remoteJWT.id = jwt.data.data.id)
-    } catch (e) {
-      writeInLogger(e)
-    }
   }
 
   const appName = parse(req.url)
     .pathname.split(/\//gi)
     .filter((sub) => sub?.length > 0)
     .find((resource) => APP_NAMES.includes(resource))
-  const sheets = new ServerStyleSheets()
 
   const PRELOAD_STATE = {}
 
@@ -205,8 +121,6 @@ router.get('*', async (req, res) => {
       window.__PRELOADED_STATE__ = ${ensuredScriptValue(PRELOAD_STATE)}
     </script>`
 
-  const css = `<style id="jss-server-side">${sheets.toString()}</style>`
-
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -216,7 +130,6 @@ router.get('*', async (req, res) => {
       <meta name="theme-color" content="#ffffff">
       <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width">
       <meta http-equiv="X-UA-Compatible" content="ie=edge">
-      ${css}
     </head>
     <body>
       <div id="root"/>

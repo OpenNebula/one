@@ -102,9 +102,8 @@ const UpdateFromSocket =
     { cacheEntryRemoved, cacheDataLoaded, updateCachedData, getState, dispatch }
   ) => {
     const { zone } = getState().general
-    const { jwt: token } = getState().auth
 
-    const query = { token, zone, resource, id }
+    const query = { zone, resource, id }
     const socket = createWebsocket(SOCKETS.HOOKS, query)
     const queries = getState().oneApi.queries
 

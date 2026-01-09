@@ -66,8 +66,8 @@ const REMEMBER = {
   },
 }
 
-const TOKEN = {
-  name: 'token2fa',
+const TFA_TOKEN = {
+  name: 'tfatoken',
   label: T.Token2FA,
   type: INPUT_TYPES.TEXT,
   validation: string()
@@ -120,7 +120,7 @@ const FORM_USER_FIELDS = [
   `${SERVER_CONFIG?.keep_me_logged}` === 'true' && REMEMBER,
 ].filter(Boolean)
 
-const FORM_2FA_FIELDS = [TOKEN]
+const FORM_2FA_FIELDS = [TFA_TOKEN]
 
 const FORM_GROUP_FIELDS = [GROUP]
 
