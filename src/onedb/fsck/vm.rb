@@ -89,10 +89,11 @@ module OneDBFsck
                         log_error("VM #{row[:oid]} is using VNet #{net_id}, "<<
                             "but it does not exist", false)
                     else
-
-                        mac = nic.at_xpath("MAC").nil? ? nil : nic.at_xpath("MAC").text
+                        mac = nic.at_xpath('MAC')&.text
 
                         ar_id_e = nic.at_xpath('AR_ID')
+
+                        floating_only = nic.at_xpath('FLOATING_ONLY')&.text&.upcase == 'YES'
 
                         if ar_id_e.nil?
                             if !counters[:vnet][net_id][:no_ar_leases][mac_s_to_i(mac)].nil?
@@ -102,10 +103,10 @@ module OneDBFsck
 
                             # DATA: IPs per network no ar
                             counters[:vnet][net_id][:no_ar_leases][mac_s_to_i(mac)] = {
-                                :ip         => nic.at_xpath("IP").nil? ? nil : nic.at_xpath("IP").text,
-                                :ip6_global => nic.at_xpath("IP6_GLOBAL").nil? ? nil : nic.at_xpath("IP6_GLOBAL").text,
-                                :ip6_link   => nic.at_xpath("IP6_LINK").nil? ? nil : nic.at_xpath("IP6_LINK").text,
-                                :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
+                                :ip         => nic.at_xpath('IP')&.text,
+                                :ip6_global => nic.at_xpath('IP6_GLOBAL')&.text,
+                                :ip6_link   => nic.at_xpath('IP6_LINK')&.text,
+                                :ip6_ula    => nic.at_xpath('IP6_ULA')&.text,
                                 :mac        => mac,
                                 :vm         => row[:oid],
                                 :vnet       => nil,
@@ -118,18 +119,27 @@ module OneDBFsck
                                 log_error("VM #{row[:oid]} is using VNet #{net_id}, AR #{ar_id}, "<<
                                     "but the AR does not exist", false)
                                 # DATA: why these are not added to counters?
-                            else
-                                # DATA: IPs per network with ar
-                                counters[:vnet][net_id][:ar_leases][ar_id][mac_s_to_i(mac)] = {
-                                    :ip         => nic.at_xpath("IP").nil? ? nil : nic.at_xpath("IP").text,
-                                    :ip6_global => nic.at_xpath("IP6_GLOBAL").nil? ? nil : nic.at_xpath("IP6_GLOBAL").text,
-                                    :ip6_link   => nic.at_xpath("IP6_LINK").nil? ? nil : nic.at_xpath("IP6_LINK").text,
-                                    :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
-                                    :mac        => mac,
-                                    :vm         => row[:oid],
-                                    :vnet       => nil,
-                                    :vrouter    => nil
-                                }
+                            elsif !floating_only
+                                lease = counters[:vnet][net_id][:ar_leases][ar_id][mac_s_to_i(mac)]
+
+                                if lease.nil?
+                                    # DATA: IPs per network with ar
+                                    counters[:vnet][net_id][:ar_leases][ar_id][mac_s_to_i(mac)] = {
+                                        :ip         => nic.at_xpath('IP')&.text,
+                                        :ip6_global => nic.at_xpath('IP6_GLOBAL')&.text,
+                                        :ip6_link   => nic.at_xpath('IP6_LINK')&.text,
+                                        :ip6_ula    => nic.at_xpath('IP6_ULA')&.text,
+                                        :mac        => mac,
+                                        :vm         => row[:oid],
+                                        :vnet       => nil,
+                                        :vrouter    => nil
+                                    }
+                                else
+                                    lease[:reported] = true
+
+                                    log_error("VNet #{net_id} AR #{ar_id} has more than one lease with the same MAC address (#{mac}). "\
+                                        "VM #{row[:oid]} and #{lease[:vm]} are in conflict", false)
+                                end
                             end
                         end
                     end

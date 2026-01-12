@@ -516,7 +516,7 @@ module OneDBFsck
             else
                 new_leases << lease_str
 
-                next if counter_lease == lease
+                next if counter_lease == lease || counter_lease[:reported]
 
                 # Things that can be fixed
                 if counter_lease[:vm]      != lease[:vm] ||

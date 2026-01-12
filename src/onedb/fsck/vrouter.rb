@@ -16,11 +16,7 @@ module OneDBFsck
                     net_id = nid.text.to_i
                 end
 
-                floating = false
-
-                nic.xpath("FLOATING_IP").each do |floating_e|
-                    floating = (floating_e.text.upcase == "YES")
-                end
+                floating = nic.at_xpath('FLOATING_IP')&.text&.upcase == 'YES'
 
                 if !net_id.nil? && floating
                     if counters[:vnet][net_id].nil?
@@ -28,7 +24,7 @@ module OneDBFsck
                             "but it does not exist", false)
                     else
                         # DATA: this part is copied from "VNets used by this VM"
-                        mac = nic.at_xpath("MAC").nil? ? nil : nic.at_xpath("MAC").text
+                        mac = nic.at_xpath('VROUTER_MAC')&.text
 
                         ar_id_e = nic.at_xpath('AR_ID')
 
@@ -39,10 +35,10 @@ module OneDBFsck
                             end
 
                             counters[:vnet][net_id][:no_ar_leases][mac_s_to_i(mac)] = {
-                                :ip         => nic.at_xpath("IP").nil? ? nil : nic.at_xpath("IP").text,
-                                :ip6_global => nic.at_xpath("IP6_GLOBAL").nil? ? nil : nic.at_xpath("IP6_GLOBAL").text,
-                                :ip6_link   => nic.at_xpath("IP6_LINK").nil? ? nil : nic.at_xpath("IP6_LINK").text,
-                                :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
+                                :ip         => nic.at_xpath('VROUTER_IP')&.text,
+                                :ip6_global => nic.at_xpath('VROUTER_IP6_GLOBAL')&.text,
+                                :ip6_link   => nic.at_xpath('VROUTER_IP6_LINK')&.text,
+                                :ip6_ula    => nic.at_xpath('VROUTER_IP6_ULA')&.text,
                                 :mac        => mac,
                                 :vm         => nil,
                                 :vnet       => nil,
@@ -54,17 +50,32 @@ module OneDBFsck
                             if counters[:vnet][net_id][:ar_leases][ar_id].nil?
                                 log_error("VRouter #{row[:oid]} is using VNet #{net_id}, AR #{ar_id}, "<<
                                     "but the AR does not exist", false)
-                            else
+                            elsif counters[:vnet][net_id][:ar_leases][ar_id][mac_s_to_i(mac)].nil?
+                                # New lease for vrouter
                                 counters[:vnet][net_id][:ar_leases][ar_id][mac_s_to_i(mac)] = {
-                                    :ip         => nic.at_xpath("IP").nil? ? nil : nic.at_xpath("IP").text,
-                                    :ip6_global => nic.at_xpath("IP6_GLOBAL").nil? ? nil : nic.at_xpath("IP6_GLOBAL").text,
-                                    :ip6_link   => nic.at_xpath("IP6_LINK").nil? ? nil : nic.at_xpath("IP6_LINK").text,
-                                    :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
+                                    :ip         => nic.at_xpath('VROUTER_IP')&.text,
+                                    :ip6_global => nic.at_xpath('VROUTER_IP6_GLOBAL')&.text,
+                                    :ip6_link   => nic.at_xpath('VROUTER_IP6_LINK')&.text,
+                                    :ip6_ula    => nic.at_xpath('VROUTER_IP6_ULA')&.text,
                                     :mac        => mac,
                                     :vm         => nil,
                                     :vnet       => nil,
                                     :vrouter    => row[:oid],
                                 }
+                            else
+                                lease = counters[:vnet][net_id][:ar_leases][ar_id][mac_s_to_i(mac)]
+                                if lease[:vm]
+                                    conflict_obj = 'VM'
+                                    conflict_oid = lease[:vm].to_i
+                                else
+                                    conflict_obj = 'VRouter'
+                                    conflict_oid = lease[:vrouter].to_i
+                                end
+
+                                lease[:reported] = true
+
+                                log_error("VNet #{net_id} AR #{ar_id} has more than one lease with the same MAC address (#{mac}). " \
+                                    "VRouter #{row[:oid]} and #{conflict_obj} #{conflict_oid} are in conflict", false)
                             end
                         end
                     end

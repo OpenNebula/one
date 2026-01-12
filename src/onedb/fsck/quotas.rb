@@ -349,7 +349,7 @@ module OneDBFsck
 
             log_error("#{resource} #{oid} (clusters #{cluster_ids}) quotas: " \
                 "SYSTEM_DISK_SIZE_USED has #{e.text} \tis\t#{sys_used[cluster_ids]}")
-            e.content = sys_used.to_s
+            e.content = sys_used[cluster_ids].to_s
         end
 
         datastore_usage
@@ -528,17 +528,8 @@ module OneDBFsck
             vrouter_doc = nokogiri_doc(vrouter_row[:body], 'vrouter_pool')
 
             vrouter_doc.root.xpath('TEMPLATE/NIC').each do |nic|
-                net_id = nil
-
-                nic.xpath('NETWORK_ID').each do |nid|
-                    net_id = nid.text
-                end
-
-                floating = false
-
-                nic.xpath('FLOATING_IP').each do |floating_e|
-                    floating = floating_e.text.casecmp('YES').zero?
-                end
+                net_id = nic.at_xpath('NETWORK_ID')&.text
+                floating = nic.at_xpath('FLOATING_IP')&.text&.upcase == 'YES'
 
                 if !net_id.nil? && floating
                     vnet_usage[net_id] = 0 if vnet_usage[net_id].nil?
