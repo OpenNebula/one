@@ -27,9 +27,7 @@ require 'raw'
 require 'rbd'
 require 'device'
 
-require_relative '../lib/xmlparser'
 require_relative '../lib/opennebula_vm'
-require_relative '../../DriverLogger'
 
 # -----------------------------------------------------------------------------
 # This class reads and holds configuration attributes for the LXC driver

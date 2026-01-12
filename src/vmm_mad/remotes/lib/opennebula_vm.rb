@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'load_opennebula_paths'
+require_relative 'xmlparser'
+require_relative '../../DriverLogger'
 
 # This class parses and wraps the information in the Driver action data
 class OpenNebulaVM
