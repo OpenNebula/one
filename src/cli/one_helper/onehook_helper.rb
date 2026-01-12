@@ -15,7 +15,10 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
-require 'rubygems'
+require 'opennebula/hook'
+require 'opennebula/hook_pool'
+require 'opennebula/hook_log'
+require 'base64'
 
 # implements onehook command
 class OneHookHelper < OpenNebulaHelper::OneHelper

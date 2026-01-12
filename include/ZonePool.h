@@ -120,7 +120,8 @@ public:
      *    @param _serv list of servers and associated xml-rpc endpoints
      *    @return the number of servers in the zone
      */
-    unsigned int get_zone_servers(int zone_id, std::map<int, std::string>& srv);
+    unsigned int get_zone_servers(int zone_id,
+                                  std::map<int, std::pair<std::string, std::string>>& srv);
 
     /**
      * ID for the special local zone in stand-alone mode

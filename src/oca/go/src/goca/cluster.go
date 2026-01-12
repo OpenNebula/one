@@ -75,14 +75,15 @@ func (c *ClustersController) ByNameContext(ctx context.Context, name string) (in
 
 // Info returns a cluster pool. A connection to OpenNebula is
 // performed.
+// todo Remove unused decrypt parameter
 func (cc *ClustersController) Info(decrypt bool) (*cluster.Pool, error) {
-	return cc.InfoContext(context.Background(), decrypt)
+	return cc.InfoContext(context.Background(), false)
 }
 
 // InfoContext returns a cluster pool. A connection to OpenNebula is
 // performed.
 func (cc *ClustersController) InfoContext(ctx context.Context, decrypt bool) (*cluster.Pool, error) {
-	response, err := cc.c.Client.CallContext(ctx, "one.clusterpool.info", decrypt)
+	response, err := cc.c.Client.ClusterPoolInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -97,13 +98,14 @@ func (cc *ClustersController) InfoContext(ctx context.Context, decrypt bool) (*c
 }
 
 // Info retrieves information for the cluster.
+// todo: Add optional argument decrypt
 func (cc *ClusterController) Info() (*cluster.Cluster, error) {
 	return cc.InfoContext(context.Background())
 }
 
 // InfoContext retrieves information for the cluster.
 func (cc *ClusterController) InfoContext(ctx context.Context) (*cluster.Cluster, error) {
-	response, err := cc.c.Client.CallContext(ctx, "one.cluster.info", cc.ID)
+	response, err := cc.c.Client.ClusterInfo(ctx, cc.ID, false)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +124,7 @@ func (cc *ClustersController) Create(name string) (int, error) {
 
 // CreateContext allocates a new cluster. It returns the new cluster ID.
 func (cc *ClustersController) CreateContext(ctx context.Context, name string) (int, error) {
-	response, err := cc.c.Client.CallContext(ctx, "one.cluster.allocate", name)
+	response, err := cc.c.Client.ClusterAllocate(ctx, name)
 	if err != nil {
 		return -1, err
 	}
@@ -138,7 +140,7 @@ func (cc *ClusterController) Delete() error {
 // DeleteContext deletes the given cluster from the pool.
 // * ctx: context for cancelation
 func (cc *ClusterController) DeleteContext(ctx context.Context) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.delete", cc.ID)
+	_, err := cc.c.Client.ClusterDelete(ctx, cc.ID)
 	return err
 }
 
@@ -156,7 +158,7 @@ func (cc *ClusterController) Update(tpl string, uType parameters.UpdateType) err
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (cc *ClusterController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.update", cc.ID, tpl, uType)
+	_, err := cc.c.Client.ClusterUpdate(ctx, cc.ID, tpl, int(uType))
 	return err
 }
 
@@ -170,7 +172,7 @@ func (cc *ClusterController) AddHost(hostID int) error {
 // * ctx: context for cancelation
 // * hostID: The host ID.
 func (cc *ClusterController) AddHostContext(ctx context.Context, hostID int) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.addhost", cc.ID, int(hostID))
+	_, err := cc.c.Client.ClusterAddHost(ctx, cc.ID, hostID)
 	return err
 }
 
@@ -184,7 +186,7 @@ func (cc *ClusterController) DelHost(hostID int) error {
 // * ctx: context for cancelation
 // * hostID: The host ID.
 func (cc *ClusterController) DelHostContext(ctx context.Context, hostID int) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.delhost", cc.ID, int(hostID))
+	_, err := cc.c.Client.ClusterDelHost(ctx, cc.ID, hostID)
 	return err
 }
 
@@ -198,7 +200,7 @@ func (cc *ClusterController) AddDatastore(dsID int) error {
 // * ctx: context for cancelation
 // * dsID: The datastore ID.
 func (cc *ClusterController) AddDatastoreContext(ctx context.Context, dsID int) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.adddatastore", cc.ID, int(dsID))
+	_, err := cc.c.Client.ClusterAddDatastore(ctx, cc.ID, dsID)
 	return err
 }
 
@@ -212,7 +214,7 @@ func (cc *ClusterController) DelDatastore(dsID int) error {
 // * ctx: context for cancelation
 // * dsID: The datastore ID.
 func (cc *ClusterController) DelDatastoreContext(ctx context.Context, dsID int) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.deldatastore", cc.ID, int(dsID))
+	_, err := cc.c.Client.ClusterDelDatastore(ctx, cc.ID, dsID)
 	return err
 }
 
@@ -226,7 +228,7 @@ func (cc *ClusterController) AddVnet(vnetID int) error {
 // * ctx: context for cancelation
 // * vnetID: The vnet ID.
 func (cc *ClusterController) AddVnetContext(ctx context.Context, vnetID int) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.addvnet", cc.ID, int(vnetID))
+	_, err := cc.c.Client.ClusterAddVnet(ctx, cc.ID, vnetID)
 	return err
 }
 
@@ -240,7 +242,7 @@ func (cc *ClusterController) DelVnet(vnetID int) error {
 // * ctx: context for cancelation
 // * vnetID: The vnet ID.
 func (cc *ClusterController) DelVnetContext(ctx context.Context, vnetID int) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.delvnet", cc.ID, int(vnetID))
+	_, err := cc.c.Client.ClusterDelVnet(ctx, cc.ID, vnetID)
 	return err
 }
 
@@ -254,7 +256,7 @@ func (cc *ClusterController) Rename(newName string) error {
 // * ctx: context for cancelation
 // * newName: The new name.
 func (cc *ClusterController) RenameContext(ctx context.Context, newName string) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.rename", cc.ID, newName)
+	_, err := cc.c.Client.ClusterRename(ctx, cc.ID, newName)
 	return err
 }
 
@@ -266,7 +268,7 @@ func (cc *ClusterController) Optimize() error {
 // OptimizeContext creates optimization plan for a cluster..
 // * ctx: context for cancelation
 func (cc *ClusterController) OptimizeContext(ctx context.Context) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.optimize", cc.ID)
+	_, err := cc.c.Client.ClusterOptimize(ctx, cc.ID)
 	return err
 }
 
@@ -278,7 +280,7 @@ func (cc *ClusterController) PlanExecute() error {
 // PlanExecuteContext executes optimization plan for cluster a cluster.
 // * ctx: context for cancelation
 func (cc *ClusterController) PlanExecuteContext(ctx context.Context) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.planexecute", cc.ID)
+	_, err := cc.c.Client.ClusterPlanExecute(ctx, cc.ID)
 	return err
 }
 
@@ -290,6 +292,6 @@ func (cc *ClusterController) PlanDelete() error {
 // PlanDeleteContext renames a cluster.
 // * ctx: context for cancelation
 func (cc *ClusterController) PlanDeleteContext(ctx context.Context) error {
-	_, err := cc.c.Client.CallContext(ctx, "one.cluster.plandelete", cc.ID)
+	_, err := cc.c.Client.ClusterPlanDelete(ctx, cc.ID)
 	return err
 }

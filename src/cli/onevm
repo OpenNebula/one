@@ -1281,7 +1281,7 @@ CommandParser::CmdParser.new(ARGV) do
             )
 
             if !rc.nil?
-                puts rc.message
+                STDERR.puts rc.message
                 exit(-1)
             end
 

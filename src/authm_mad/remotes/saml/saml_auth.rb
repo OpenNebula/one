@@ -16,7 +16,7 @@
 
 require 'rubygems'
 require 'opennebula/xml_utils'
-require 'opennebula/client'
+require 'opennebula/lib/client'
 require 'opennebula/group_pool'
 require 'yaml'
 require 'onelogin/ruby-saml'

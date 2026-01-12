@@ -26,11 +26,14 @@ module OpenNebula
         EAUTHORIZATION  = 0x0200
         ENO_EXISTS      = 0x0400
         EACTION         = 0x0800
-        EXML_RPC_API    = 0x1000
+        ERPC_API        = 0x1000
         EINTERNAL       = 0x2000
         EALLOCATE       = 0x4000
+        ELOCKED         = 0x8000
         ENOTDEFINED     = 0xF001
         EXML_RPC_CALL   = 0xF002
+        EGRPC_CALL      = 0xF004
+        ETIMEOUT        = 0xF008
 
         attr_reader :message, :errno
 
@@ -38,8 +41,8 @@ module OpenNebula
         # +message+ Description of the error
         # +errno+   OpenNebula code error
         def initialize(message=nil, errno=0x1111)
-            @message = message
             @errno   = errno
+            @message = message
         end
 
         def to_str()
@@ -52,6 +55,9 @@ module OpenNebula
             @errno == EXML_RPC_CALL
         end
 
+        def is_egrpc_call?
+            @errno == EGRPC_CALL
+        end
     end
 
     # Returns true if the object returned by a method of the OpenNebula

@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'parse-cron'
+require 'opennebula/document_json'
 
 module OpenNebula
 

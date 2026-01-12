@@ -87,7 +87,7 @@ func (bjc *BackupJobsController) InfoContext(ctx context.Context, args ...int) (
 		return nil, err
 	}
 
-	response, err := bjc.c.Client.CallContext(ctx, "one.backupjobpool.info", fArgs...)
+	response, err := bjc.c.Client.BackupJobPoolInfo(ctx, fArgs[0], fArgs[1], fArgs[2])
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (bjc *BackupJobController) Info() (*backupjob.BackupJob, error) {
 
 // InfoContext connects to OpenNebula and fetches the information of the Backup Job
 func (bjc *BackupJobController) InfoContext(ctx context.Context) (*backupjob.BackupJob, error) {
-	response, err := bjc.c.Client.CallContext(ctx, "one.backupjob.info", bjc.ID)
+	response, err := bjc.c.Client.BackupJobInfo(ctx, bjc.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (bjc *BackupJobsController) Create(template string) (int, error) {
 // CreateContext allocates a new Backup Job based on the template string provided. It
 // returns the Backup Job ID.
 func (bjc *BackupJobsController) CreateContext(ctx context.Context, template string) (int, error) {
-	response, err := bjc.c.Client.CallContext(ctx, "one.backupjob.allocate", template)
+	response, err := bjc.c.Client.BackupJobAllocate(ctx, template)
 	if err != nil {
 		return -1, err
 	}
@@ -146,7 +146,7 @@ func (bjc *BackupJobController) Update(tpl string, uType parameters.UpdateType) 
 // UpdateContext adds Backup Job content.
 // * tpl: The new Backup Job content. Syntax can be the usual attribute=value or XML.
 func (bjc *BackupJobController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.update", bjc.ID, tpl, uType)
+	_, err := bjc.c.Client.BackupJobUpdate(ctx, bjc.ID, tpl, int(uType))
 	return err
 }
 
@@ -159,7 +159,7 @@ func (bjc *BackupJobController) Chown(uid, gid int) error {
 // ChownContext changes the owner/group of the Backup Job. If uid or gid is -1 it will not
 // change
 func (bjc *BackupJobController) ChownContext(ctx context.Context, uid, gid int) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.chown", bjc.ID, uid, gid)
+	_, err := bjc.c.Client.BackupJobChown(ctx, bjc.ID, uid, gid)
 	return err
 }
 
@@ -172,9 +172,7 @@ func (bjc *BackupJobController) Chmod(perm shared.Permissions) error {
 // ChmodContext changes the permissions of the Backup Job. If any perm is -1 it will not
 // change
 func (bjc *BackupJobController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
-	args := append([]interface{}{bjc.ID}, perm.ToArgs()...)
-
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.chmod", args...)
+	_, err := bjc.c.Client.BackupJobChmod(ctx, bjc.ID, perm)
 	return err
 }
 
@@ -185,7 +183,7 @@ func (bjc *BackupJobController) Rename(newName string) error {
 
 // RenameContext changes the name of the image
 func (bjc *BackupJobController) RenameContext(ctx context.Context, newName string) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.rename", bjc.ID, newName)
+	_, err := bjc.c.Client.BackupJobRename(ctx, bjc.ID, newName)
 	return err
 }
 
@@ -196,7 +194,7 @@ func (bjc *BackupJobController) Lock(level shared.LockLevel) error {
 
 // LockContext locks the Backup Job following lock level. See levels in locks.go.
 func (bjc *BackupJobController) LockContext(ctx context.Context, level shared.LockLevel) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.lock", bjc.ID, level)
+	_, err := bjc.c.Client.BackupJobLock(ctx, bjc.ID, int(level), false)
 	return err
 }
 
@@ -207,7 +205,7 @@ func (bjc *BackupJobController) Unlock() error {
 
 // UnlockContext unlocks the BackupJob.
 func (bjc *BackupJobController) UnlockContext(ctx context.Context) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.unlock", bjc.ID)
+	_, err := bjc.c.Client.BackupJobUnlock(ctx, bjc.ID)
 	return err
 }
 
@@ -220,7 +218,7 @@ func (bjc *BackupJobController) Delete() error {
 // DeleteContext will remove the Backup Job from OpenNebula, which will remove it from the
 // backend.
 func (bjc *BackupJobController) DeleteContext(ctx context.Context) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.delete", bjc.ID)
+	_, err := bjc.c.Client.BackupJobDelete(ctx, bjc.ID)
 	return err
 }
 
@@ -231,7 +229,7 @@ func (bjc *BackupJobController) Backup() error {
 
 // BackupContext runs the Backup Job
 func (bjc *BackupJobController) BackupContext(ctx context.Context) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.backup", bjc.ID)
+	_, err := bjc.c.Client.BackupJobBackup(ctx, bjc.ID)
 	return err
 }
 
@@ -242,7 +240,7 @@ func (bjc *BackupJobController) Cancel() error {
 
 // CancelContext ongoing Backup Job execution
 func (bjc *BackupJobController) CancelContext(ctx context.Context) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.cancel", bjc.ID)
+	_, err := bjc.c.Client.BackupJobCancel(ctx, bjc.ID)
 	return err
 }
 
@@ -253,7 +251,7 @@ func (bjc *BackupJobController) Retry() error {
 
 // RetryContext backup for failed Virtual Machine
 func (bjc *BackupJobController) RetryContext(ctx context.Context) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.retry", bjc.ID)
+	_, err := bjc.c.Client.BackupJobRetry(ctx, bjc.ID)
 	return err
 }
 
@@ -264,7 +262,7 @@ func (bjc *BackupJobController) Priority(prio int) error {
 
 // PriorityContext set priority for Backup Job, only admin can set priority over 50
 func (bjc *BackupJobController) PriorityContext(ctx context.Context, prio int) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.priority", bjc.ID, prio)
+	_, err := bjc.c.Client.BackupJobPriority(ctx, bjc.ID, prio)
 	return err
 }
 
@@ -275,7 +273,7 @@ func (bjc *BackupJobController) SchedAdd(description string) (int, error) {
 
 // SchedAddContext creates a new Scheduled Action for the Backup Job
 func (bjc *BackupJobController) SchedAddContext(ctx context.Context, description string) (int, error) {
-	response, err := bjc.c.Client.CallContext(ctx, "one.backupjob.schedadd", bjc.ID, description)
+	response, err := bjc.c.Client.BackupJobSchedAdd(ctx, bjc.ID, description)
 	if err != nil {
 		return -1, err
 	}
@@ -290,7 +288,7 @@ func (bjc *BackupJobController) SchedUpdate(saID int, description string) (int, 
 
 // SchedUpdateContext updates a Scheduled Action for the Backup Job
 func (bjc *BackupJobController) SchedUpdateContext(ctx context.Context, saID int, description string) (int, error) {
-	response, err := bjc.c.Client.CallContext(ctx, "one.backupjob.schedupdate", bjc.ID, saID, description)
+	response, err := bjc.c.Client.BackupJobSchedUpdate(ctx, bjc.ID, saID, description)
 	if err != nil {
 		return -1, err
 	}
@@ -305,6 +303,6 @@ func (bjc *BackupJobController) SchedDelete(saID int) error {
 
 // SchedDeleteContext deletes a Scheduled Action
 func (bjc *BackupJobController) SchedDeleteContext(ctx context.Context, saID int) error {
-	_, err := bjc.c.Client.CallContext(ctx, "one.backupjob.scheddelete", bjc.ID, saID)
+	_, err := bjc.c.Client.BackupJobSchedDel(ctx, bjc.ID, saID)
 	return err
 }

@@ -73,7 +73,7 @@ func (s *MarketPlaceSuite) TestGetByNameAndID(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(baseUrl, Equals, "http://url/")
 
-	// Get Backup Job by Name
+	// Get MarketPlace by Name
 	id, err := testCtrl.MarketPlaces().ByName(s.marketName)
 	c.Assert(err, IsNil)
 	c.Assert(id, Equals, s.marketID)

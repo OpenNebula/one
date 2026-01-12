@@ -157,6 +157,9 @@
 
         <xs:element name="GROUP_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
+        <xs:element name="GRPC_LISTEN_ADDRESS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="GRPC_PORT" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+
         <xs:element name="HM_MAD" minOccurs="0" maxOccurs="1">
           <xs:complexType>
             <xs:all>

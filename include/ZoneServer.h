@@ -45,9 +45,9 @@ public:
             return -1;
         }
 
-        if ( vector_value("ENDPOINT").empty() )
+        if ( vector_value("ENDPOINT").empty() && vector_value("ENDPOINT_GRPC").empty() )
         {
-            error = "Missing ENDPOINT in SERVER";
+            error = "Missing ENDPOINT or ENDPOINT_GRPC in SERVER";
             return -1;
         }
 

@@ -81,7 +81,7 @@ func (hc *HostsController) Info() (*host.Pool, error) {
 // InfoContext returns a host pool. A connection to OpenNebula is
 // performed
 func (hc *HostsController) InfoContext(ctx context.Context) (*host.Pool, error) {
-	response, err := hc.c.Client.CallContext(ctx, "one.hostpool.info")
+	response, err := hc.c.Client.HostPoolInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (hc *HostController) Info(decrypt bool) (*host.Host, error) {
 
 // InfoContext retrieves information for the host from ID
 func (hc *HostController) InfoContext(ctx context.Context, decrypt bool) (*host.Host, error) {
-	response, err := hc.c.Client.CallContext(ctx, "one.host.info", hc.ID, decrypt)
+	response, err := hc.c.Client.HostInfo(ctx, hc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (hc *HostsController) Create(name, im, vm string, clusterID int) (int, erro
 // * vm: virtualization driver for the host
 // * clusterID: The cluster ID. If it is -1, the default one will be used.
 func (hc *HostsController) CreateContext(ctx context.Context, name, im, vm string, clusterID int) (int, error) {
-	response, err := hc.c.Client.CallContext(ctx, "one.host.allocate", name, im, vm, clusterID)
+	response, err := hc.c.Client.HostAllocate(ctx, name, im, vm, clusterID)
 	if err != nil {
 		return -1, err
 	}
@@ -149,7 +149,7 @@ func (hc *HostsController) Monitoring(num int) (*host.PoolMonitoring, error) {
 // num: Retrieve monitor records in the last num seconds.
 // 0 just the last record, -1 all records
 func (hc *HostsController) MonitoringContext(ctx context.Context, num int) (*host.PoolMonitoring, error) {
-	monitorData, err := hc.c.Client.CallContext(ctx, "one.hostpool.monitoring", num)
+	monitorData, err := hc.c.Client.HostPoolMonitoring(ctx, num)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func (hc *HostController) Delete() error {
 
 // DeleteContext deletes the given host from the pool
 func (hc *HostController) DeleteContext(ctx context.Context) error {
-	_, err := hc.c.Client.CallContext(ctx, "one.host.delete", hc.ID)
+	_, err := hc.c.Client.HostDelete(ctx, hc.ID)
 	return err
 }
 
@@ -184,7 +184,7 @@ func (hc *HostController) Status(status int) error {
 // * ctx: context for cancelation
 // * status: 0: ENABLED, 1: DISABLED, 2: OFFLINE
 func (hc *HostController) StatusContext(ctx context.Context, status int) error {
-	_, err := hc.c.Client.CallContext(ctx, "one.host.status", hc.ID, status)
+	_, err := hc.c.Client.HostStatus(ctx, hc.ID, status)
 	return err
 }
 
@@ -202,7 +202,7 @@ func (hc *HostController) Update(tpl string, uType parameters.UpdateType) error 
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (hc *HostController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := hc.c.Client.CallContext(ctx, "one.host.update", hc.ID, tpl, uType)
+	_, err := hc.c.Client.HostUpdate(ctx, hc.ID, tpl, int(uType))
 	return err
 }
 
@@ -216,7 +216,7 @@ func (hc *HostController) Rename(newName string) error {
 // * ctx: context for cancelation
 // * newName: The new name.
 func (hc *HostController) RenameContext(ctx context.Context, newName string) error {
-	_, err := hc.c.Client.CallContext(ctx, "one.host.rename", hc.ID, newName)
+	_, err := hc.c.Client.HostRename(ctx, hc.ID, newName)
 	return err
 }
 
@@ -227,7 +227,7 @@ func (hc *HostController) Monitoring() (*host.Monitoring, error) {
 
 // MonitoringContext returns the host monitoring records.
 func (hc *HostController) MonitoringContext(ctx context.Context) (*host.Monitoring, error) {
-	monitorData, err := hc.c.Client.CallContext(ctx, "one.host.monitoring", hc.ID)
+	monitorData, err := hc.c.Client.HostMonitoring(ctx, hc.ID)
 	if err != nil {
 		return nil, err
 	}

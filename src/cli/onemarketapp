@@ -39,6 +39,9 @@ require 'command_parser'
 require 'one_helper/onemarketapp_helper'
 require 'one_helper/onemarket_helper'
 require 'one_helper/onedatastore_helper'
+require 'opennebula/template_pool'
+require 'opennebula/virtual_machine_pool'
+require 'opennebula/flow'
 
 CommandParser::CmdParser.new(ARGV) do
     usage '`onemarket` <command> [<args>] [<options>]'

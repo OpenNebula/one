@@ -27,8 +27,10 @@ rubygems_version = Gem::Version.new(`gem -v`)
 # Gems only in one ruby version
 ################################################################################
 
-if ruby_version >= Gem::Version.new('2.4.0')
+if ruby_version >= Gem::Version.new('2.4.0') && ruby_version < Gem::Version.new('3.3.0')
     gem 'xmlrpc'
+elsif ruby_version >= Gem::Version.new('3.3.0')
+    gem 'xmlrpc', '= 0.3.2'
 end
 
 if ruby_version < Gem::Version.new('2.1.0')
@@ -66,7 +68,7 @@ if ruby_version < Gem::Version.new('2.3.0')
 end
 
 if ruby_version <= Gem::Version.new('2.0.0')
-   gem 'multipart-post', '~> 2.1.0'
+    gem 'multipart-post', '~> 2.1.0'
 end
 
 if rubygems_version < Gem::Version.new('3.3.21')
@@ -80,6 +82,7 @@ gem 'public_suffix', ps
 gem 'rexml'
 gem 'aws-sdk-ec2', '>=1.151'
 gem 'aws-sdk-s3'
+gem 'grpc'
 gem 'ruby-saml'
 
 # Since Ruby 3.4 some common libraries were dropped

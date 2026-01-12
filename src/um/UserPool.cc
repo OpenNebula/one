@@ -224,86 +224,6 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static int master_allocate(const string& uname, const string& passwd,
-                           const string& driver, const set<int>& gids, string& error_str)
-{
-    Client * client = Client::client();
-
-    xmlrpc_c::value         result;
-    vector<xmlrpc_c::value> values;
-
-    std::ostringstream oss("Cannot allocate user at federation master: ",
-                           std::ios::ate);
-    try
-    {
-        client->call("one.user.allocate", "sssI", &result, uname.c_str(),
-                     passwd.c_str(), driver.c_str(), &gids);
-    }
-    catch (exception const& e)
-    {
-        oss << e.what();
-        error_str = oss.str();
-
-        return -1;
-    }
-
-    values = xmlrpc_c::value_array(result).vectorValueValue();
-
-    if ( xmlrpc_c::value_boolean(values[0]) == false )
-    {
-        std::string error_xml = xmlrpc_c::value_string(values[1]);
-
-        oss << error_xml;
-        error_str = oss.str();
-
-        return -1;
-    }
-
-    int oid = xmlrpc_c::value_int(values[1]);
-
-    return oid;
-}
-
-/* -------------------------------------------------------------------------- */
-
-static int master_chgrp(int user_id, int group_id, string& error_str)
-{
-    Client * client = Client::client();
-
-    xmlrpc_c::value         result;
-    vector<xmlrpc_c::value> values;
-
-    std::ostringstream oss("Cannot change user group at federation master: ",
-                           std::ios::ate);
-    try
-    {
-        client->call("one.user.chgrp", "ii", &result, user_id, group_id);
-    }
-    catch (exception const& e)
-    {
-        oss << e.what();
-        error_str = oss.str();
-
-        return -1;
-    }
-
-    values = xmlrpc_c::value_array(result).vectorValueValue();
-
-    if ( xmlrpc_c::value_boolean(values[0]) == false )
-    {
-        std::string error_xml = xmlrpc_c::value_string(values[1]);
-
-        oss << error_xml;
-        error_str = oss.str();
-
-        return -1;
-    }
-
-    return 0;
-};
-
-/* -------------------------------------------------------------------------- */
-
 int UserPool::allocate(
         int * oid,
         const string& uname,
@@ -321,7 +241,7 @@ int UserPool::allocate(
 
     if (nd.is_federation_slave())
     {
-        *oid = master_allocate(uname, password, auth, gids, error_str);
+        *oid = Client::client()->user_allocate(uname, password, auth, gids, error_str);
 
         if ( *oid < 0 )
         {
@@ -329,7 +249,7 @@ int UserPool::allocate(
             return -1;
         }
 
-        if ( master_chgrp(*oid, gid, error_str) == -1 )
+        if ( Client::client()->user_chgrp(*oid, gid, error_str) == -1 )
         {
             NebulaLog::log("ONE", Log::ERROR, error_str);
         }

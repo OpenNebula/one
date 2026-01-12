@@ -163,8 +163,8 @@ int RaftReplicaThread::replicate()
         return -1;
     }
 
-    if ( raftm->xmlrpc_replicate_log(follower_id, &lr, success, follower_term,
-                                     error) != 0 )
+    if ( raftm->rpc_replicate_log(follower_id, &lr, success, follower_term,
+                                  error) != 0 )
     {
         std::ostringstream oss;
 
@@ -223,7 +223,7 @@ int FedReplicaThread::replicate()
 
     uint64_t last;
 
-    int rc = frm->xmlrpc_replicate_log(follower_id, success, last, error);
+    int rc = frm->rpc_replicate_log(follower_id, success, last, error);
 
     if ( rc == -1 )
     {
@@ -285,7 +285,7 @@ int HeartBeatThread::replicate()
     lr.timestamp = 0;
     lr.fed_index = UINT64_MAX;
 
-    rc = raftm->xmlrpc_replicate_log(follower_id, &lr, success, fterm, error);
+    rc = raftm->rpc_replicate_log(follower_id, &lr, success, fterm, error);
 
     if ( rc == -1 )
     {

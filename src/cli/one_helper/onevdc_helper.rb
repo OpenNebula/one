@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'opennebula/vdc'
+require 'opennebula/vdc_pool'
 
 class OneVdcHelper < OpenNebulaHelper::OneHelper
 

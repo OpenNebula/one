@@ -21,13 +21,14 @@ import (
 	"fmt"
 	"math"
 	"strconv"
-	"testing"
 	"time"
 )
 
-var testClient = NewDefaultClient(NewConfig("", "", ""))
-var testClientFlow = NewDefaultFlowClient(NewFlowConfig("", "", ""))
-var testCtrl = NewGenericController(testClient, testClientFlow)
+var (
+	testClient, _  = NewClientFromConfig(NewConfig("", "", ""))
+	testClientFlow = NewDefaultFlowClient(NewFlowConfig("", "", ""))
+	testCtrl       = NewGenericController(testClient, testClientFlow)
+)
 
 // Appends a random string to a name
 func GenName(name string) string {
@@ -39,26 +40,26 @@ func GenName(name string) string {
 }
 
 func WaitResource(f func() bool) bool {
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 40; i++ {
 		if f() {
 			return true
 		}
-		time.Sleep(2 * time.Second)
+		time.Sleep(time.Second)
 	}
 	return false
 }
 
 // Get User Main Group name
-func GetUserGroup(t *testing.T, user string) (string, error) {
+func GetUserGroup(user string) (string, error) {
 	uid, err := testCtrl.Users().ByName(user)
 	if err != nil {
-		t.Error("Cannot retreive caller user ID")
+		return "", err
 	}
 
 	// Get User Info
 	u, err := testCtrl.User(uid).Info(false)
 	if err != nil {
-		t.Error("Cannot retreive caller user Info")
+		return "", err
 	}
 
 	return u.GName, nil

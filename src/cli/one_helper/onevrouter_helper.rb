@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'opennebula/virtual_router'
+require 'opennebula/virtual_router_pool'
 
 class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
 

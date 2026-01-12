@@ -17,18 +17,20 @@
 package goca
 
 import (
+	"fmt"
 	"strings"
-	"testing"
 
-	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image"
-	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image/keys"
+	//"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	. "gopkg.in/check.v1"
 )
 
-var imageTpl = `
-NAME = "test-image"
-SIZE = 1
-TYPE = "DATABLOCK"
-`
+type ImageSuite struct {
+	ID       int
+}
+
+var _ = Suite(&ImageSuite{})
 
 func ImageExpectState(imageC *ImageController, state string) func() bool {
 	return func() bool {
@@ -50,126 +52,194 @@ func ImageExpectState(imageC *ImageController, state string) func() bool {
 	}
 }
 
-// Helper to create a Image
-func createImage(t *testing.T) (*image.Image, int) {
+func (s *ImageSuite) SetUpTest(c *C) {
+	imageTpl := fmt.Sprintf(`
+		NAME = "%s"
+		SIZE = 1
+		TYPE = "DATABLOCK"`, GenName("test-image"))
 
-	tpl := image.NewTemplate()
-	tpl.Add(keys.Name, "test-image")
-	tpl.Add(keys.Size, "1")
-	tpl.SetType(image.Datablock)
-
-	// Datastore ID 1 means default for image
+	// Create image
 	id, err := testCtrl.Images().Create(imageTpl, 1)
-	if err != nil {
-		t.Fatal(err)
-	}
+	c.Assert(err, IsNil)
 
-	// Get Image by ID
-	image, err := testCtrl.Image(id).Info(false)
-	if err != nil {
-		t.Error(err)
-	}
-
-	return image, id
+	s.ID = id
 }
 
-func TestImage(t *testing.T) {
-	var err error
+func (s *ImageSuite) TearDownTest(c *C) {
+	// Delete Image
+	imageC := testCtrl.Image(s.ID)
 
-	image, idOrig := createImage(t)
+	wait := WaitResource(ImageExpectState(imageC, "READY"))
+	c.Assert(wait, Equals, true)
 
-	idParse := image.ID
-	if idParse != idOrig {
-		t.Errorf("Image ID does not match")
-	}
+	err := imageC.Delete()
+	c.Assert(err, IsNil)
+}
 
-	// Get image by Name
-	name := image.Name
+func (s *ImageSuite) TestGetByNameAndID(c *C) {
+	// Get Image by ID
+	imageC := testCtrl.Image(s.ID)
+	image, err := imageC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(image.ID, Equals, s.ID)
 
-	id, err := testCtrl.Images().ByName(name)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Get Image by Name
+	id, err := testCtrl.Images().ByName(image.Name)
+	c.Assert(err, IsNil)
+	c.Assert(image.ID, Equals, id)
+}
 
-	imageCtrl := testCtrl.Image(id)
-	image, err = imageCtrl.Info(false)
-	if err != nil {
-		t.Error(err)
-	}
+func (s *ImageSuite) TestUpdate(c *C) {
+	imageC := testCtrl.Image(s.ID)
+	err := imageC.Update(`Description = "Image description"`, parameters.Merge)
 
-	idParse = image.ID
-	if idParse != idOrig {
-		t.Errorf("Image ID does not match")
-	}
+	c.Assert(err, IsNil)
 
-	// Wait image is ready
-	wait := WaitResource(ImageExpectState(imageCtrl, "READY"))
-	if wait == false {
-		t.Error("Image not READY")
-	}
+	image, err := testCtrl.Image(s.ID).Info(false)
+	c.Assert(err, IsNil)
 
+	vms, err := image.Template.GetStr("DESCRIPTION")
+
+	c.Assert(err, IsNil)
+	c.Assert(vms, Equals, "Image description")
+}
+
+func (s *ImageSuite) TestRename(c *C) {
+	imageC := testCtrl.Image(s.ID)
+	err := imageC.Rename("new_name")
+	c.Assert(err, IsNil)
+
+	image, err := imageC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(image.Name, Equals, "new_name");
+}
+
+func (s *ImageSuite) TestChmod(c *C) {
+	new_permissions := shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
+
+	imageC := testCtrl.Image(s.ID)
+
+	err := imageC.Chmod(new_permissions)
+
+	c.Assert(err, IsNil)
+
+	image, err := imageC.Info(false)
+
+	c.Assert(err, IsNil)
+	c.Assert(*image.Permissions, Equals, new_permissions);
+}
+
+func (s *ImageSuite) TestChown(c *C) {
 	// Change Owner to user call
-	err = imageCtrl.Chown(-1, -1)
-	if err != nil {
-		t.Error(err)
-	}
+	imageC := testCtrl.Image(s.ID);
 
-	image, err = imageCtrl.Info(false)
-	if err != nil {
-		t.Error(err)
-	}
+	err := imageC.Chown(-1, -1)
+	c.Assert(err, IsNil)
 
-	// Get Image Owner Name
-	uname := image.UName
-
-	// Get Image owner group Name
-	gname := image.GName
+	image, err := imageC.Info(false)
+	c.Assert(err, IsNil)
 
 	// Compare with caller username
-	caller := strings.Split(testClient.token, ":")[0]
-	if caller != uname {
-		t.Error("Caller user and image owner user mismatch")
-	}
-
-	group, err := GetUserGroup(t, caller)
-	if err != nil {
-		t.Error("Cannot retreive caller group")
-	}
+	caller := strings.Split(testClient.GetToken(), ":")[0]
+	c.Assert(image.UName, Equals, caller)
 
 	// Compare with caller group
-	if group != gname {
-		t.Error("Caller group and image owner group mismatch")
-	}
+	group, err := GetUserGroup(caller)
+	c.Assert(image.GName, Equals, group)
+}
 
-	// Change Owner to oneadmin call
-	err = imageCtrl.Chown(1, 1)
-	if err != nil {
-		t.Error(err)
-	}
+func (s *ImageSuite) TestLock(c *C) {
+	// Wait Image is ready
+	imageC := testCtrl.Image(s.ID)
+	wait := WaitResource(ImageExpectState(imageC, "READY"))
+	c.Assert(wait, Equals, true)
 
-	image, err = imageCtrl.Info(false)
-	if err != nil {
-		t.Error(err)
-	}
+	// Lock
+	err := imageC.Lock(shared.LockUse)
+	c.Assert(err, IsNil)
 
-	// Get Image Owner Name
-	uname = image.UName
+	image, err := imageC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(image.LockInfos.Locked, Equals, 1);
 
-	// Get Image owner group Name
-	gname = image.GName
+	// Unlock
+	err = imageC.Unlock()
+	c.Assert(err, IsNil)
 
-	if "serveradmin" != uname {
-		t.Error("Image owner is not oneadmin")
-	}
+	image, err = imageC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(image.LockInfos, IsNil)
+}
 
-	// Compare with caller group
-	if "users" != gname {
-		t.Error("Image owner group is not oneadmin")
-	}
+func (s *ImageSuite) TestClone(c *C) {
+	// Wait Image is ready
+	imageC := testCtrl.Image(s.ID)
+	wait := WaitResource(ImageExpectState(imageC, "READY"))
+	c.Assert(wait, Equals, true)
 
-	// Delete template
-	err = imageCtrl.Delete()
-	if err != nil {
-		t.Error(err)
-	}
+	id, err := imageC.Clone(GenName("cloned_image"), 1)
+	c.Assert(err, IsNil)
+
+	// Delete cloned image
+	clonedImageC := testCtrl.Image(id)
+
+	wait = WaitResource(ImageExpectState(clonedImageC, "READY"))
+	c.Assert(wait, Equals, true)
+
+	err = clonedImageC.Delete()
+	c.Assert(err, IsNil)
+}
+
+func (s *ImageSuite) TestEnable(c *C) {
+	// Wait Image is ready
+	imageC := testCtrl.Image(s.ID)
+	wait := WaitResource(ImageExpectState(imageC, "READY"))
+	c.Assert(wait, Equals, true)
+
+	err := imageC.Enable(false)
+	c.Assert(err, IsNil)
+
+	err = imageC.Enable(true)
+	c.Assert(err, IsNil)
+}
+
+func (s *ImageSuite) TestPersistent(c *C) {
+	imageC := testCtrl.Image(s.ID)
+
+	err := imageC.Persistent(true)
+	c.Assert(err, IsNil)
+}
+
+func (s *ImageSuite) TestChtype(c *C) {
+	imageC := testCtrl.Image(s.ID)
+
+	err := imageC.Chtype("CDROM")
+	c.Assert(err, IsNil)
+}
+
+func (s *ImageSuite) TestSnapshots(c *C) {
+	// Wait Image is ready
+	imageC := testCtrl.Image(s.ID)
+	wait := WaitResource(ImageExpectState(imageC, "READY"))
+	c.Assert(wait, Equals, true)
+
+	snapC := imageC.Snapshot(-1)
+	err := snapC.Revert()
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*does not exist.*")
+
+	err = snapC.Flatten()
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*does not exist.*")
+
+	err = snapC.Delete()
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*does not exist.*")
+}
+
+func (s *ImageSuite) TestRestore(c *C) {
+	imageC := testCtrl.Image(s.ID)
+	err := imageC.Restore(1, "")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Can only restore images of type BACKUP.*")
 }

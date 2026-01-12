@@ -26,7 +26,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const time_t FedReplicaManager::xmlrpc_timeout_ms = 10000;
+const time_t FedReplicaManager::rpc_timeout_ms = 10000;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -112,7 +112,13 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
             {
                 std::string zedp;
 
-                zone->get_template_attribute("ENDPOINT", zedp);
+                // Prefer grpc over xml-rpc
+                zone->get_template_attribute("ENDPOINT_GRPC", zedp);
+
+                if ( zedp.empty() )
+                {
+                    zone->get_template_attribute("ENDPOINT", zedp);
+                }
 
                 ZoneServers * zs = new ZoneServers(*it, last_index, zedp);
 
@@ -142,7 +148,13 @@ void FedReplicaManager::add_zone(int zone_id)
 
     if (auto zone = zpool->get_ro(zone_id))
     {
-        zone->get_template_attribute("ENDPOINT", zedp);
+        // Prefer grpc over xml-rpc
+        zone->get_template_attribute("ENDPOINT_GRPC", zedp);
+
+        if ( zedp.empty() )
+        {
+            zone->get_template_attribute("ENDPOINT", zedp);
+        }
     }
     else
     {
@@ -318,14 +330,10 @@ void FedReplicaManager::replicate_failure(int zone_id, uint64_t last_zone)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
-                                            uint64_t& last, std::string& error)
+int FedReplicaManager::rpc_replicate_log(int zone_id, bool& success,
+                                         uint64_t& last, std::string& error)
 {
-    static const std::string replica_method = "one.zone.fedreplicate";
-
-    std::string zedp, xmlrpc_secret;
-
-    int xml_rc = 0;
+    std::string zedp;
 
     LogDBRecord lr;
 
@@ -338,46 +346,9 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 
     uint64_t prev_index = logdb->previous_federated(lr.index);
 
-    // -------------------------------------------------------------------------
-    // Get parameters to call append entries on follower
-    // -------------------------------------------------------------------------
-    xmlrpc_c::value result;
-    xmlrpc_c::paramList replica_params;
+    rc = Client::fed_replicate(zedp, lr.index, prev_index, lr.sql, rpc_timeout_ms, success, last, error);
 
-    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
-    {
-        return -1;
-    }
-
-    replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
-    replica_params.add(xmlrpc_c::value_i8(lr.index));
-    replica_params.add(xmlrpc_c::value_i8(prev_index));
-    replica_params.add(xmlrpc_c::value_string(lr.sql));
-
-    // -------------------------------------------------------------------------
-    // Do the XML-RPC call
-    // -------------------------------------------------------------------------
-    xml_rc = Client::client()->call(zedp, replica_method, replica_params,
-                                    xmlrpc_timeout_ms, &result, error);
-
-    if ( xml_rc == 0 )
-    {
-        vector<xmlrpc_c::value> values;
-
-        values  = xmlrpc_c::value_array(result).vectorValueValue();
-        success = xmlrpc_c::value_boolean(values[0]);
-
-        if ( success ) //values[2] = error code (string)
-        {
-            last = xmlrpc_c::value_i8(values[1]);
-        }
-        else
-        {
-            error = xmlrpc_c::value_string(values[1]);
-            last  = xmlrpc_c::value_i8(values[4]);
-        }
-    }
-    else
+    if ( rc != 0)
     {
         std::ostringstream ess;
 
@@ -389,6 +360,6 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
         error = ess.str();
     }
 
-    return xml_rc;
+    return rc;
 }
 

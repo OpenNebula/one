@@ -19,19 +19,9 @@
 package goca
 
 import (
-	//"testing"
-	//"strconv"
-
-	//ds "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore"
-	//dskeys "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore/keys"
-	//"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vmgroup"
-	//"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 	. "gopkg.in/check.v1"
 )
-
-// Hook up gocheck into the "go test" runner.
-//func Test(t *testing.T) { TestingT(t) }
 
 type VMGroupSuite struct {
 	vmgID int
@@ -87,7 +77,7 @@ func (s *VMGroupSuite) TestCreated(c *C) {
 	c.Assert(vmg.Roles[3].ID, Equals, 3)
 	c.Assert(vmg.Roles[3].Name, Equals, "bck")
 
-	// Get Backup Job by Name
+	// Get VM Group by Name
 	id, err := testCtrl.VMGroups().ByName(vmg.Name)
 	c.Assert(err, IsNil)
 	c.Assert(id, Equals, s.vmgID)

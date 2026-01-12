@@ -47,7 +47,7 @@ func (hc *HookLogController) Info(minTs, maxTs, hookId, hook_rc int) (*hook.Hook
 // * hookId: Hook ID to filer for.
 // * rc: return code of the hook execution to filer for. (-1 error, 0 all, 1 success)
 func (hc *HookLogController) InfoContext(ctx context.Context, minTs, maxTs, hookId, hook_rc int) (*hook.HookLog, error) {
-	response, err := hc.c.Client.CallContext(ctx, "one.hooklog.info", minTs, maxTs, hookId, hook_rc)
+	response, err := hc.c.Client.HookLogInfo(ctx, minTs, maxTs, hookId, hook_rc)
 	if err != nil {
 		return nil, err
 	}

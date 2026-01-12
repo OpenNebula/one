@@ -19,6 +19,7 @@
 #include "NebulaUtil.h"
 #include "Nebula.h"
 #include "ScheduledActionPool.h"
+#include "BackupJobPool.h"
 #include "VirtualMachinePool.h"
 
 using namespace std;
@@ -676,6 +677,7 @@ int BackupJob::process_backup_vms(const std::string& vms_new_str,
     bool is_error = false;
 
     auto vmpool = Nebula::instance().get_vmpool();
+    auto bjpool = Nebula::instance().get_bjpool();
 
     one_util::split_unique(vms_new_str, ',', vms_new);
     one_util::split_unique(vms_old_str, ',', vms_old);
@@ -698,16 +700,18 @@ int BackupJob::process_backup_vms(const std::string& vms_new_str,
         }
 
         auto& backups = vm->backups();
+        int current_bjid = backups.backup_job_id();
 
-        if (backups.backup_job_id() != -1 &&
-            backups.backup_job_id() != bjid)
+        if (current_bjid != -1 &&
+            current_bjid != bjid &&
+            bjpool->exist(current_bjid) != -1 )
         {
             ostringstream oss;
 
             is_error = true;
 
             oss << "Unable to add VM " << vmid << " to Backup Job "
-                << bjid << ". It's already in Backup Job " << backups.backup_job_id();
+                << bjid << ". It's already in Backup Job " << current_bjid;
 
             error = oss.str();
 

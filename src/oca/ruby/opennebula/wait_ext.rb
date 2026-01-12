@@ -17,6 +17,7 @@
 require 'opennebula/host'
 require 'opennebula/image'
 require 'opennebula/virtual_machine'
+require 'opennebula/virtual_network'
 
 module OpenNebula
 

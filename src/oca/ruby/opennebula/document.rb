@@ -264,7 +264,7 @@ module OpenNebula
             type = self['TYPE']
 
             if type.nil? && @pe_id
-                rc = @client.call(DOCUMENT_METHODS[:info], @pe_id)
+                rc = @client.call(DOCUMENT_METHODS[:info], @pe_id, false)
 
                 return rc if OpenNebula.is_error?(rc)
 

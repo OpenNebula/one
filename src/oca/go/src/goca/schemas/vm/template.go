@@ -316,3 +316,15 @@ func (t *SchedAction) Add(key keys.SchedAction, value interface{}) {
 func (t *SchedAction) Get(key keys.SchedAction) (string, error) {
 	return t.GetStr(string(key))
 }
+
+// GetSchedActions returns a slice of SchedAction
+func (t *Template) GetSchedActions() []SchedAction {
+	vecs := t.GetVectors(string(keys.SchedActionVec))
+	actions := make([]SchedAction, len(vecs))
+
+	for i, v := range vecs {
+		actions[i] = SchedAction{*v}
+	}
+
+	return actions
+}

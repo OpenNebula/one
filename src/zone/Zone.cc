@@ -311,7 +311,7 @@ int Zone::post_update_template(string& error, Template *_old_tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Zone::add_server(Template& tmpl, int& sid, string& xmlep, string& error)
+int Zone::add_server(Template& tmpl, int& sid, string& xmlep, string& grpcep, string& error)
 {
     VectorAttribute * server;
 
@@ -321,6 +321,8 @@ int Zone::add_server(Template& tmpl, int& sid, string& xmlep, string& error)
 
     if ( tmpl_server == 0 )
     {
+        error = "SERVER not found in template";
+
         return -1;
     }
 
@@ -334,6 +336,7 @@ int Zone::add_server(Template& tmpl, int& sid, string& xmlep, string& error)
     }
 
     xmlep = server->vector_value("ENDPOINT");
+    grpcep = server->vector_value("ENDPOINT_GRPC");
 
     servers_template.set(server);
 

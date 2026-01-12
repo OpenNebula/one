@@ -15,9 +15,12 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'opennebula/marketplaceapp'
+require 'opennebula/marketplaceapp_pool'
 require 'opennebula/marketplaceapp_ext'
 require 'opennebula/template_ext'
 require 'opennebula/virtual_machine_ext'
+require 'opennebula/flow/service_template'
 require 'opennebula/flow/service_template_ext'
 
 require 'securerandom'

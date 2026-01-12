@@ -14,18 +14,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
-begin # require 'rubygems'
-    require 'rubygems'
-rescue Exception
-end
-
 require 'digest/sha1'
 require 'rexml/document'
 require 'pp'
 
 require 'opennebula/xml_utils'
-require 'opennebula/client'
+require 'opennebula/lib/client'
 require 'opennebula/error'
 require 'opennebula/utils'
 require 'opennebula/virtual_machine'
@@ -75,9 +69,4 @@ require 'opennebula/hook_log'
 require 'opennebula/flow'
 require 'opennebula/backupjob'
 require 'opennebula/backupjob_pool'
-
-module OpenNebula
-
-    # OpenNebula version
-    VERSION = '7.1.80'
-end
+require 'opennebula/version'

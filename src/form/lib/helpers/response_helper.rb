@@ -76,7 +76,7 @@ module ResponseHelper
             404  # Not Found
         when OpenNebula::Error::EACTION, OPERATION_EC
             405  # Method Not Allowed (invalid action)
-        when OpenNebula::Error::EXML_RPC_API, OpenNebula::Error::EXML_RPC_CALL
+        when OpenNebula::Error::ERPC_API, OpenNebula::Error::EXML_RPC_CALL
             502  # Bad Gateway (XML-RPC API failure)
         when OpenNebula::Error::EINTERNAL
             500  # Internal Server Error

@@ -84,10 +84,11 @@ module OpenNebula
             return rc if OpenNebula.is_error?(rc)
 
             @xml.xpath("SERVER_POOL/SERVER").each do |server|
-                endpoint = server.xpath("ENDPOINT")
-                endpoint = endpoint.text if endpoint
+                endpoint = server.xpath("ENDPOINT_GRPC")&.text
+                endpoint = server.xpath("ENDPOINT")&.text if endpoint.nil? || endpoint.empty?
 
-                next if endpoint.nil?
+                #puts "endpoint:#{endpoint}:#{server.xpath("ENDPOINT_GRPC").text}:#{server.xpath("ENDPOINT").text}"
+                next if endpoint.nil? || endpoint.empty?
 
                 client = OpenNebula::Client.new(nil, endpoint, {:timeout => 5})
 

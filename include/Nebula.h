@@ -64,7 +64,10 @@ class LifeCycleManager;
 class MarketPlaceManager;
 class PlanManager;
 class RaftManager;
-class RequestManager;
+class RequestManagerXRPC;
+#ifdef GRPC
+class RequestManagerGRPC;
+#endif
 class ScheduledActionManager;
 class TransferManager;
 class VirtualMachineManager;
@@ -276,10 +279,17 @@ public:
         return frm;
     };
 
-    RequestManager * get_rm() const
+    RequestManagerXRPC * get_rm_xrpc() const
     {
-        return rm;
+        return rm_xrpc;
     };
+
+#ifdef GRPC
+    RequestManagerGRPC * get_rm_grpc() const
+    {
+        return rm_grpc;
+    };
+#endif
 
     ScheduledActionManager * get_sam() const
     {
@@ -373,10 +383,15 @@ public:
         return server_id;
     };
 
-    const std::string& get_master_oned() const
+    const std::string& get_master_oned_xmlrpc() const
     {
-        return master_oned;
-    };
+        return master_oned_xmlrpc;
+    }
+
+    const std::string& get_master_oned_grpc() const
+    {
+        return master_oned_grpc;
+    }
 
     void set_zone_state(Zone::ZoneState state)
     {
@@ -655,9 +670,12 @@ public:
         , dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0)
         , vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0)
         , vntpool(0), hkpool(0), bjpool(0), sapool(0), plpool(0)
-        , lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0)
-        , hl(0), authm(0), aclm(0), imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
-        , sam(0), sm(0), planm(0)
+        , lcm(0), vmm(0), im(0), tm(0), dm(0), rm_xrpc(0)
+#ifdef GRPC
+        , rm_grpc(0)
+#endif
+        , hm(0), hl(0), authm(0), aclm(0), imagem(0), marketm(0), ipamm(0)
+        , raftm(0), frm(0), sam(0), sm(0), planm(0)
     {
     };
 
@@ -687,7 +705,8 @@ private:
     bool        cache;
     int         zone_id;
     int         server_id;
-    std::string master_oned;
+    std::string master_oned_xmlrpc;
+    std::string master_oned_grpc;
     Zone::ZoneState zone_state = Zone::ENABLED;
 
     // ---------------------------------------------------------------
@@ -742,7 +761,10 @@ private:
     InformationManager *    im;
     TransferManager *       tm;
     DispatchManager *       dm;
-    RequestManager *        rm;
+    RequestManagerXRPC *    rm_xrpc;
+#ifdef GRPC
+    RequestManagerGRPC *    rm_grpc;
+#endif
     HookManager *           hm;
     HookLog *               hl;
     AuthManager *           authm;

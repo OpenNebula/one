@@ -45,6 +45,17 @@ public:
 
     virtual ~PoolSQL() = default;
 
+
+    /**
+     * Filter modes for pools. Constants are defined to match API defintion
+     */
+    enum PoolFilter {
+        ALL        = -2,
+        MINE       = -3,
+        MINE_GROUP = -1,
+        GROUP      = -4,
+    };
+
     /**
      *  Allocates a new object, writting it in the pool database. No memory is
      *  allocated for the object.

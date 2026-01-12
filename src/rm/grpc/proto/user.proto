@@ -1,0 +1,155 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+syntax = "proto3";
+
+import "shared.proto";
+
+package one.user;
+
+option go_package = "github.com/OpenNebula/one/src/oca/go/src/goca/api/user";
+
+message AllocateRequest
+{
+  string session_id        = 1;
+  string username          = 2;
+  string password          = 3;
+  string driver            = 4;
+  repeated int32 group_ids = 5;
+}
+
+message DeleteRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+}
+
+message InfoRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  bool decrypt      = 3;
+}
+
+message UpdateRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string template   = 3;
+  int32 append      = 4;
+}
+
+message AddGroupRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 group_id    = 3;
+}
+
+message ChangeAuthRequest
+{
+  string session_id   = 1;
+  int32 oid           = 2;
+  string new_auth     = 3;
+  string new_password = 4;
+}
+
+message ChangeGroupRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 new_gid     = 3;
+}
+
+message DelGroupRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 group_id    = 3;
+}
+
+message EnableRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  bool enable       = 3;
+}
+
+message LoginRequest
+{
+  string session_id = 1;
+  string uname      = 2;
+  string token      = 3;
+  int32 valid       = 4;
+  int32 egid        = 5;
+}
+
+message PasswordRequest
+{
+  string session_id   = 1;
+  int32 oid           = 2;
+  string new_password = 3;
+}
+
+message QuotaRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string quota      = 3;
+}
+
+message DefaultQuotaUpdateRequest
+{
+  string session_id     = 1;
+  string quota = 2;
+}
+
+message PoolInfoRequest
+{
+  string session_id = 1;
+}
+
+service UserService
+{
+  rpc Allocate (one.user.AllocateRequest) returns (one.ResponseID);
+
+  rpc Delete (one.user.DeleteRequest) returns (one.ResponseID);
+
+  rpc Info (one.user.InfoRequest) returns (one.ResponseXML);
+
+  rpc Update (one.user.UpdateRequest) returns (one.ResponseID);
+
+  rpc Login (one.user.LoginRequest) returns (one.ResponseXML);
+
+  rpc Enable (one.user.EnableRequest) returns (one.ResponseID);
+
+  rpc Password (one.user.PasswordRequest) returns (one.ResponseID);
+
+  rpc ChangeAuth (one.user.ChangeAuthRequest) returns (one.ResponseID);
+
+  rpc Quota (one.user.QuotaRequest) returns (one.ResponseID);
+
+  rpc ChangeGroup (one.user.ChangeGroupRequest) returns (one.ResponseID);
+
+  rpc AddGroup (one.user.AddGroupRequest) returns (one.ResponseID);
+
+  rpc DelGroup (one.user.DelGroupRequest) returns (one.ResponseID);
+
+  rpc DefaultQuotaInfo (one.user.PoolInfoRequest) returns (one.ResponseXML);
+
+  rpc DefaultQuotaUpdate (one.user.DefaultQuotaUpdateRequest) returns (one.ResponseXML);
+
+  rpc PoolInfo (one.user.PoolInfoRequest) returns (one.ResponseXML);
+}

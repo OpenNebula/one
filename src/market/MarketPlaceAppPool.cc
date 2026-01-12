@@ -23,47 +23,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static int master_allocate(MarketPlaceApp &mp, string& error)
-{
-    Client * client = Client::client();
-    
-    std::ostringstream oss("Cannot allocate marketapp at federation master: ",
-                           std::ios::ate);
-
-    std::string mp_xml;
-    mp.to_xml(mp_xml);
-
-    xmlrpc_c::value result;
-    try
-    {
-        client->call("one.marketapp.allocatedb", "s", &result, mp_xml.c_str());
-    }
-    catch (exception const& e)
-    {
-        oss << e.what();
-        error = oss.str();
-
-        return -1;
-    }
-    
-    const auto values = xmlrpc_c::value_array(result).vectorValueValue();
-    
-    if ( xmlrpc_c::value_boolean(values[0]) == false )
-    {
-        std::string error_xml = xmlrpc_c::value_string(values[1]);
-        
-        oss << error_xml;
-        error = oss.str();
-        
-        return -1;
-    }
-    
-    return xmlrpc_c::value_int(values[1]);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int MarketPlaceAppPool:: allocate(
+int MarketPlaceAppPool::allocate(
         int                uid,
         int                gid,
         const std::string& uname,
@@ -117,7 +77,8 @@ int MarketPlaceAppPool:: allocate(
     // -------------------------------------------------------------------------
     if (Nebula::instance().is_federation_slave())
     {
-        *oid = master_allocate(mp, error_str);
+        string tmp_xml;
+        *oid = Client::client()->market_app_allocate(mp.to_xml(tmp_xml), error_str);
 
         return *oid;
     }
@@ -134,38 +95,7 @@ int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        Client * client = Client::client();
-
-        xmlrpc_c::value result;
-        vector<xmlrpc_c::value> values;
-
-        std::ostringstream oss("Cannot drop marketapp at federation master: ",
-                               std::ios::ate);
-        try
-        {
-            client->call("one.marketapp.dropdb", "i", &result, objsql->get_oid());
-        }
-        catch (exception const& e)
-        {
-            oss << e.what();
-
-            error_msg = oss.str();
-            return -1;
-        }
-
-        values = xmlrpc_c::value_array(result).vectorValueValue();
-
-        if ( xmlrpc_c::value_boolean(values[0]) == false )
-        {
-            std::string error = xmlrpc_c::value_string(values[1]);
-
-            oss << error;
-
-            error_msg = oss.str();
-            return -1;
-        }
-
-        return 0;
+        return Client::client()->market_app_drop(objsql->get_oid(), error_msg);
     }
 
     return PoolSQL::drop(objsql, error_msg);
@@ -227,7 +157,8 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
     // -------------------------------------------------------------------------
     if (Nebula::instance().is_federation_slave())
     {
-        app_id = master_allocate(app, error_str);
+        string tmp_xml;
+        app_id = Client::client()->market_app_allocate(app.to_xml(tmp_xml), error_str);
 
         return app_id;
     }
@@ -244,41 +175,8 @@ int MarketPlaceAppPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        std::string tmpl_xml;
-        Client * client = Client::client();
-
-        xmlrpc_c::value result;
-        vector<xmlrpc_c::value> values;
-
-        std::ostringstream oss("Cannot update marketapp at federation master: ",
-                               std::ios::ate);
-
-        try
-        {
-            client->call("one.marketapp.updatedb", "is", &result,
-                         objsql->get_oid(), objsql->to_xml(tmpl_xml).c_str());
-        }
-        catch (exception const& e)
-        {
-            oss << e.what();
-            NebulaLog::log("MKP", Log::ERROR, oss);
-
-            return -1;
-        }
-
-        values = xmlrpc_c::value_array(result).vectorValueValue();
-
-        if ( xmlrpc_c::value_boolean(values[0]) == false )
-        {
-            std::string error = xmlrpc_c::value_string(values[1]);
-
-            oss << error;
-            NebulaLog::log("MKP", Log::ERROR, oss);
-
-            return -1;
-        }
-
-        return 0;
+        std::string tmp_xml;
+        return Client::client()->market_app_update(objsql->get_oid(), objsql->to_xml(tmp_xml));
     }
 
     return PoolSQL::update(objsql);

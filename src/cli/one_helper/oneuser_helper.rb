@@ -16,7 +16,10 @@
 
 require 'one_helper'
 require 'one_helper/onequota_helper'
+require 'opennebula/user'
+require 'opennebula/user_pool'
 
+require 'fileutils'
 require 'digest/md5'
 
 # Interface for OpenNebula generated tokens.

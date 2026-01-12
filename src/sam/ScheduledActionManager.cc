@@ -21,8 +21,10 @@
 #include "ScheduledActionPool.h"
 #include "VirtualMachinePool.h"
 #include "DispatchManager.h"
-#include "RequestManagerVirtualMachine.h"
+#include "VirtualMachineAPI.h"
 #include "RaftManager.h"
+#include "Request.h"
+#include "RequestAttributes.h"
 
 using namespace std;
 
@@ -461,7 +463,8 @@ void ScheduledActionManager::backup_jobs()
             /* -------------------------------------------------------------- */
             /* Launch backup, notify backup job                               */
             /* -------------------------------------------------------------- */
-            VirtualMachineBackup vm_backup;
+            Request r("internal call");
+            VirtualMachineAPI api(r);
 
             RequestAttributes ra(AuthRequest::ADMIN,
                                  UserPool::ONEADMIN_ID,
@@ -471,7 +474,7 @@ void ScheduledActionManager::backup_jobs()
             NebulaLog::info("SCH", "Backup Job " + to_string(bj_id) +
                             " executing backup for VM " + to_string(vm_id) );
 
-            auto ec = vm_backup.request_execute(ra, vm_id, ds_id, reset);
+            auto ec = api.backup(vm_id, ds_id, reset, bj_id, ra);
 
             if ( ec != Request::SUCCESS)
             {
@@ -607,6 +610,9 @@ int ScheduledActionManager::vm_action_call(int vmid, int sa_id, string& error)
                          GroupPool::ONEADMIN_ID,
                          PoolObjectSQL::VM);
 
+    Request r("internal call");
+    VirtualMachineAPI api(r);
+
     if (aname == "snapshot-create")
     {
         string name;
@@ -618,8 +624,9 @@ int ScheduledActionManager::vm_action_call(int vmid, int sa_id, string& error)
             return -1;
         }
 
-        VirtualMachineSnapshotCreate request;
-        ec = request.request_execute(ra, vmid, name);
+        int snap_id;
+
+        ec = api.snapshot_create(vmid, name, snap_id, ra);
     }
     else if (aname == "snapshot-revert")
     {
@@ -632,8 +639,7 @@ int ScheduledActionManager::vm_action_call(int vmid, int sa_id, string& error)
             return -1;
         }
 
-        VirtualMachineSnapshotRevert request;
-        ec = request.request_execute(ra, vmid, snapid);
+        ec = api.snapshot_revert(vmid, snapid, ra);
     }
     else if (aname == "snapshot-delete")
     {
@@ -646,8 +652,7 @@ int ScheduledActionManager::vm_action_call(int vmid, int sa_id, string& error)
             return -1;
         }
 
-        VirtualMachineSnapshotDelete request;
-        ec = request.request_execute(ra, vmid, snapid);
+        ec = api.snapshot_delete(vmid, snapid, ra);
     }
     else if (aname == "disk-snapshot-create")
     {
@@ -661,8 +666,9 @@ int ScheduledActionManager::vm_action_call(int vmid, int sa_id, string& error)
             return -1;
         }
 
-        VirtualMachineDiskSnapshotCreate request;
-        ec = request.request_execute(ra, vmid, diskid, name);
+        int snap_id;
+
+        ec = api.disk_snapshot_create(vmid, diskid, name, snap_id, ra);
     }
     else if (aname == "disk-snapshot-revert")
     {
@@ -675,9 +681,7 @@ int ScheduledActionManager::vm_action_call(int vmid, int sa_id, string& error)
             return -1;
         }
 
-
-        VirtualMachineDiskSnapshotRevert request;
-        ec = request.request_execute(ra, vmid, diskid, snapid);
+        ec = api.disk_snapshot_revert(vmid, diskid, snapid, ra);
     }
     else if (aname == "disk-snapshot-delete")
     {
@@ -690,8 +694,7 @@ int ScheduledActionManager::vm_action_call(int vmid, int sa_id, string& error)
             return -1;
         }
 
-        VirtualMachineDiskSnapshotDelete request;
-        ec = request.request_execute(ra, vmid, diskid, snapid);
+        ec = api.disk_snapshot_delete(vmid, diskid, snapid, ra);
     }
     else if (aname == "backup")
     {
@@ -710,18 +713,16 @@ int ScheduledActionManager::vm_action_call(int vmid, int sa_id, string& error)
             return -1;
         }
 
-        VirtualMachineBackup request;
-        ec = request.request_execute(ra, vmid, dsid, reset);
+        ec = api.backup(vmid, dsid, reset, -1, ra);
     }
     else
     {
-        VirtualMachineAction req;
-        ec = req.request_execute(ra, aname, vmid);
+        ec = api.action(vmid, aname, ra);
     }
 
     if (ec != Request::SUCCESS)
     {
-        error = Request::failure_message(ec, ra, aname);
+        error = Request::failure_message(ec, ra, aname, PoolObjectSQL::VM);
         NebulaLog::error("SCH", error);
 
         return -1;

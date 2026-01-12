@@ -118,7 +118,8 @@ for GEMFILE in \
     "/usr/share/one/Gemfile"
 do
     if [ -f "${GEMFILE}" ]; then
-        bundle install --system --gemfile="${GEMFILE}"
+        bundle config set path.system true
+        bundle install --gemfile="${GEMFILE}"
 
         echo 'Successfully done!'
         exit 0

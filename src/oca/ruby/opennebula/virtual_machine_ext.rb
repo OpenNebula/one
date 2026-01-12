@@ -60,6 +60,8 @@ module OpenNebula::VirtualMachineExt
                                   'OPENNEBULA_MANAGED', 'PERSISTENT_SNAPSHOTS']
 
             def save_as_template(name, desc, opts = {})
+                require 'opennebula/template'
+
                 opts = {
                     :persistent => false,
                     :poweroff   => false,

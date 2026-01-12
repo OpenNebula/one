@@ -1,0 +1,143 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+syntax = "proto3";
+
+import "shared.proto";
+
+package one.vntemplate;
+
+option go_package = "github.com/OpenNebula/one/src/oca/go/src/goca/api/vntemplate";
+
+message AllocateRequest
+{
+  string session_id = 1;
+  string template   = 2;
+}
+
+message DeleteRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+}
+
+message InfoRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  bool decrypt      = 3;
+}
+
+message UpdateRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string template   = 3;
+  int32 append      = 4;
+}
+
+message RenameRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string name       = 3;
+}
+
+message ChmodRequest
+{
+  string session_id   = 1;
+  int32 oid           = 2;
+  sint32 user_use     = 3;
+  sint32 user_manage  = 4;
+  sint32 user_admin   = 5;
+  sint32 group_use    = 6;
+  sint32 group_manage = 7;
+  sint32 group_admin  = 8;
+  sint32 other_use    = 9;
+  sint32 other_manage = 10;
+  sint32 other_admin  = 11;
+}
+
+message ChownRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  sint32 user_id    = 3;
+  sint32 group_id   = 4;
+}
+
+message LockRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 level       = 3;
+  bool test         = 4;
+}
+
+message UnlockRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+}
+
+message CloneRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string name       = 3;
+}
+
+message InstantiateRequest
+{
+  string session_id     = 1;
+  int32 oid             = 2;
+  string name           = 3;
+  string extra_template = 4;
+}
+
+message PoolInfoRequest
+{
+  string session_id  = 1;
+  sint32 filter_flag = 2;
+  sint32 start       = 3;
+  sint32 end         = 4;
+}
+
+service VNTemplateService
+{
+  rpc Allocate (one.vntemplate.AllocateRequest) returns (one.ResponseID);
+
+  rpc Delete (one.vntemplate.DeleteRequest) returns (one.ResponseID);
+
+  rpc Info (one.vntemplate.InfoRequest) returns (one.ResponseXML);
+
+  rpc Update (one.vntemplate.UpdateRequest) returns (one.ResponseID);
+
+  rpc Rename (one.vntemplate.RenameRequest) returns (one.ResponseID);
+
+  rpc Chmod (one.vntemplate.ChmodRequest) returns (one.ResponseID);
+
+  rpc Chown (one.vntemplate.ChownRequest) returns (one.ResponseID);
+
+  rpc Lock (one.vntemplate.LockRequest) returns (one.ResponseID);
+
+  rpc Unlock (one.vntemplate.UnlockRequest) returns (one.ResponseID);
+
+  rpc Clone (one.vntemplate.CloneRequest) returns (one.ResponseID);
+
+  rpc Instantiate (one.vntemplate.InstantiateRequest) returns (one.ResponseID);
+
+  rpc PoolInfo (one.vntemplate.PoolInfoRequest) returns (one.ResponseXML);
+}

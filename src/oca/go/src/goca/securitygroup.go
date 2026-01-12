@@ -89,7 +89,7 @@ func (sc *SecurityGroupsController) InfoContext(ctx context.Context, args ...int
 		return nil, err
 	}
 
-	response, err := sc.c.Client.CallContext(ctx, "one.secgrouppool.info", fArgs...)
+	response, err := sc.c.Client.SecGroupPoolInfo(ctx, fArgs[0], fArgs[1], fArgs[2])
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (sc *SecurityGroupController) Info(decrypt bool) (*securitygroup.SecurityGr
 
 // InfoContext retrieves information for the security group.
 func (sc *SecurityGroupController) InfoContext(ctx context.Context, decrypt bool) (*securitygroup.SecurityGroup, error) {
-	response, err := sc.c.Client.CallContext(ctx, "one.secgroup.info", sc.ID, decrypt)
+	response, err := sc.c.Client.SecGroupInfo(ctx, sc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (sc *SecurityGroupsController) Create(tpl string) (int, error) {
 // * ctx: context for cancelation
 // * tpl: template of the security group
 func (sc *SecurityGroupsController) CreateContext(ctx context.Context, tpl string) (int, error) {
-	response, err := sc.c.Client.CallContext(ctx, "one.secgroup.allocate", tpl)
+	response, err := sc.c.Client.SecGroupAllocate(ctx, tpl)
 	if err != nil {
 		return -1, err
 	}
@@ -148,7 +148,7 @@ func (sc *SecurityGroupController) Clone(cloneName string) (int, error) {
 
 // CloneContext clones an existing security group. It returns the clone ID
 func (sc *SecurityGroupController) CloneContext(ctx context.Context, cloneName string) (int, error) {
-	response, err := sc.c.Client.CallContext(ctx, "one.secgroup.clone", sc.ID, cloneName)
+	response, err := sc.c.Client.SecGroupClone(ctx, sc.ID, cloneName)
 	if err != nil {
 		return -1, err
 	}
@@ -163,7 +163,7 @@ func (sc *SecurityGroupController) Delete() error {
 
 // DeleteContext deletes the given security group from the pool.
 func (sc *SecurityGroupController) DeleteContext(ctx context.Context) error {
-	_, err := sc.c.Client.CallContext(ctx, "one.secgroup.delete", sc.ID)
+	_, err := sc.c.Client.SecGroupDelete(ctx, sc.ID)
 	return err
 }
 
@@ -181,7 +181,7 @@ func (sc *SecurityGroupController) Update(tpl string, uType parameters.UpdateTyp
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (sc *SecurityGroupController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := sc.c.Client.CallContext(ctx, "one.secgroup.update", sc.ID, tpl, uType)
+	_, err := sc.c.Client.SecGroupUpdate(ctx, sc.ID, tpl, int(uType))
 	return err
 }
 
@@ -195,7 +195,7 @@ func (sc *SecurityGroupController) Commit(recovery bool) error {
 // * ctx: context for cancelation
 // * recovery: If set the commit operation will only operate on outdated and error VMs. If not set operate on all VMs
 func (sc *SecurityGroupController) CommitContext(ctx context.Context, recovery bool) error {
-	_, err := sc.c.Client.CallContext(ctx, "one.secgroup.commit", sc.ID, recovery)
+	_, err := sc.c.Client.SecGroupCommit(ctx, sc.ID, recovery)
 	return err
 }
 
@@ -206,8 +206,7 @@ func (sc *SecurityGroupController) Chmod(perm shared.Permissions) error {
 
 // ChmodContext changes the permission bits of a security group
 func (sc *SecurityGroupController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
-	args := append([]interface{}{sc.ID}, perm.ToArgs()...)
-	_, err := sc.c.Client.CallContext(ctx, "one.secgroup.chmod", args...)
+	_, err := sc.c.Client.SecGroupChmod(ctx, sc.ID, perm)
 	return err
 }
 
@@ -223,7 +222,7 @@ func (sc *SecurityGroupController) Chown(userID, groupID int) error {
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (sc *SecurityGroupController) ChownContext(ctx context.Context, userID, groupID int) error {
-	_, err := sc.c.Client.CallContext(ctx, "one.secgroup.chown", sc.ID, userID, groupID)
+	_, err := sc.c.Client.SecGroupChown(ctx, sc.ID, userID, groupID)
 	return err
 }
 
@@ -237,6 +236,6 @@ func (sc *SecurityGroupController) Rename(newName string) error {
 // * ctx: context for cancelation
 // * newName: The new name.
 func (sc *SecurityGroupController) RenameContext(ctx context.Context, newName string) error {
-	_, err := sc.c.Client.CallContext(ctx, "one.secgroup.rename", sc.ID, newName)
+	_, err := sc.c.Client.SecGroupRename(ctx, sc.ID, newName)
 	return err
 }

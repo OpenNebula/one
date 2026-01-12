@@ -97,7 +97,7 @@ func (vc *VMsController) InfoContext(ctx context.Context, args ...int) (*vm.Pool
 		return nil, err
 	}
 
-	response, err := vc.c.Client.CallContext(ctx, "one.vmpool.info", fArgs...)
+	response, err := vc.c.Client.VMPoolInfo(ctx, fArgs[0], fArgs[1], fArgs[2], fArgs[3], "")
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (vc *VMsController) InfoExtendedContext(ctx context.Context, args ...int) (
 		return nil, err
 	}
 
-	response, err := vc.c.Client.CallContext(ctx, "one.vmpool.infoextended", fArgs...)
+	response, err := vc.c.Client.VMPoolInfoExtended(ctx, fArgs[0], fArgs[1], fArgs[2], fArgs[3], "")
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (vc *VMsController) InfoFilterContext(ctx context.Context, f *VMFilter) (*v
 		return nil, fmt.Errorf("InfoFilter: nil parameter passed.")
 	}
 
-	response, err := vc.c.Client.CallContext(ctx, "one.vmpool.info", f.toArgs()...)
+	response, err := vc.c.Client.VMPoolInfo(ctx, f.Who, f.StartID, f.EndID, f.State, f.Pair)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +174,7 @@ func (vc *VMsController) InfoExtendedFilterContext(ctx context.Context, f *VMFil
 		return nil, fmt.Errorf("InfoFilter: nil parameter passed.")
 	}
 
-	response, err := vc.c.Client.CallContext(ctx, "one.vmpool.infoextended", f.toArgs()...)
+	response, err := vc.c.Client.VMPoolInfoExtended(ctx, f.Who, f.StartID, f.EndID, f.State, f.Pair)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +193,7 @@ func (vc *VMsController) InfoSet(vmIds string, extended bool) (*vm.Pool, error) 
 
 // InfoSetContext connects to OpenNebula and fetches a VM_POOL containing the VMs in vmIds
 func (vc *VMsController) InfoSetContext(ctx context.Context, vmIds string, extended bool) (*vm.Pool, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vmpool.infoset", vmIds, extended)
+	response, err := vc.c.Client.VMPoolInfoSet(ctx, vmIds, extended)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +212,7 @@ func (vc *VMController) Info(decrypt bool) (*vm.VM, error) {
 
 // InfoContext connects to OpenNebula and fetches the information of the VM
 func (vc *VMController) InfoContext(ctx context.Context, decrypt bool) (*vm.VM, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vm.info", vc.ID, decrypt)
+	response, err := vc.c.Client.VMInfo(ctx, vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -248,7 +248,7 @@ func (vc *VMsController) Monitoring(filter, num int) (*vm.PoolMonitoring, error)
 // num: Retrieve monitor records in the last num seconds.
 // 0 just the last record, -1 all records
 func (vc *VMsController) MonitoringContext(ctx context.Context, filter, num int) (*vm.PoolMonitoring, error) {
-	monitorData, err := vc.c.Client.CallContext(ctx, "one.vmpool.monitoring", filter, num)
+	monitorData, err := vc.c.Client.VMPoolMonitoring(ctx, filter, num)
 	if err != nil {
 		return nil, err
 	}
@@ -287,8 +287,10 @@ func (vc *VMsController) Accounting(filter, startTime, endTime int) error {
 //	>= 0: UID User's Resources
 //
 // if startTime and/or endTime are -1 it means no limit
+//
+// todo: Fix return type, should be (*vm.PoolMonitoring, error)
 func (vc *VMsController) AccountingContext(ctx context.Context, filter, startTime, endTime int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmpool.accounting", filter)
+	_, err := vc.c.Client.VMPoolAccounting(ctx, filter, startTime, endTime)
 	return err
 }
 
@@ -301,19 +303,15 @@ func (vc *VMsController) AccountingContext(ctx context.Context, filter, startTim
 //	>= 0: UID User's Resources
 //
 // firstMonth: January is 1. Can be -1, in which case the time interval won't have
-//
 //	a left boundary.
 //
 // firstYear: Can be -1, in which case the time interval won't have a left
-//
 //	boundary.
 //
 // lastMonth: January is 1. Can be -1, in which case the time interval won't have
-//
 //	a right boundary.
 //
 // lastYear: Can be -1, in which case the time interval won't have a right
-//
 //	boundary.
 func (vc *VMsController) Showback(filter, firstMonth, firstYear, lastMonth, lastYear int) error {
 	return vc.ShowbackContext(context.Background(), filter, firstMonth, firstYear, lastMonth, lastYear)
@@ -329,40 +327,34 @@ func (vc *VMsController) Showback(filter, firstMonth, firstYear, lastMonth, last
 //	>= 0: UID User's Resources
 //
 // firstMonth: January is 1. Can be -1, in which case the time interval won't have
-//
 //	a left boundary.
 //
 // firstYear: Can be -1, in which case the time interval won't have a left
-//
 //	boundary.
 //
 // lastMonth: January is 1. Can be -1, in which case the time interval won't have
-//
 //	a right boundary.
 //
 // lastYear: Can be -1, in which case the time interval won't have a right
-//
 //	boundary.
+//
+// todo: Fix return type, should be (*vm.Pool, error)
 func (vc *VMsController) ShowbackContext(ctx context.Context, filter, firstMonth, firstYear, lastMonth, lastYear int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmpool.showback", filter, firstMonth, firstYear, lastMonth, lastYear)
+	_, err := vc.c.Client.VMPoolShowback(ctx, filter, firstMonth, firstYear, lastMonth, lastYear)
 	return err
 }
 
 // CalculateShowback processes all the history records, and stores the monthly cost for each VM
 // firstMonth: January is 1. Can be -1, in which case the time interval won't have
-//
 //	a left boundary.
 //
 // firstYear: Can be -1, in which case the time interval won't have a left
-//
 //	boundary.
 //
 // lastMonth: January is 1. Can be -1, in which case the time interval won't have
-//
 //	a right boundary.
 //
 // lastYear: Can be -1, in which case the time interval won't have a right
-//
 //	boundary.
 func (vc *VMsController) CalculateShowback(firstMonth, firstYear, lastMonth, lastYear int) error {
 	return vc.CalculateShowbackContext(context.Background(), firstMonth, firstYear, lastMonth, lastYear)
@@ -371,22 +363,18 @@ func (vc *VMsController) CalculateShowback(firstMonth, firstYear, lastMonth, las
 // CalculateShowbackContext processes all the history records, and stores the monthly cost for each VM
 // ctx: context for cancelation
 // firstMonth: January is 1. Can be -1, in which case the time interval won't have
-//
 //	a left boundary.
 //
 // firstYear: Can be -1, in which case the time interval won't have a left
-//
 //	boundary.
 //
 // lastMonth: January is 1. Can be -1, in which case the time interval won't have
-//
 //	a right boundary.
 //
 // lastYear: Can be -1, in which case the time interval won't have a right
-//
 //	boundary.
 func (vc *VMsController) CalculateShowbackContext(ctx context.Context, firstMonth, firstYear, lastMonth, lastYear int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmpool.calculateshowback", firstMonth, firstYear, lastMonth, lastYear)
+	_, err := vc.c.Client.VMPoolShowbackCalculate(ctx, firstMonth, firstYear, lastMonth, lastYear)
 	return err
 }
 
@@ -399,7 +387,7 @@ func (vc *VMsController) Create(template string, pending bool) (int, error) {
 // CreateContext allocates a new VM based on the template string provided. It
 // returns the image ID
 func (vc *VMsController) CreateContext(ctx context.Context, template string, pending bool) (int, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vm.allocate", template, pending)
+	response, err := vc.c.Client.VMAllocate(ctx, template, pending)
 	if err != nil {
 		return -1, err
 	}
@@ -414,7 +402,7 @@ func (vc *VMController) Action(action string) error {
 
 // ActionContext is the generic method to run any action on the VM
 func (vc *VMController) ActionContext(ctx context.Context, action string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.action", action, vc.ID)
+	_, err := vc.c.Client.VMAction(ctx, action, vc.ID)
 	return err
 }
 
@@ -432,7 +420,7 @@ func (vc *VMController) Update(tpl string, uType parameters.UpdateType) error {
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (vc *VMController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.update", vc.ID, tpl, uType)
+	_, err := vc.c.Client.VMUpdate(ctx, vc.ID, tpl, int(uType))
 	return err
 }
 
@@ -444,8 +432,9 @@ func (vc *VMController) UpdateConf(tpl string) error {
 
 // UpdateConf updates (appends) a set of supported configuration attributes in
 // the VM template
+// todo: add missing paremetr uType
 func (vc *VMController) UpdateConfContext(ctx context.Context, tpl string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.updateconf", vc.ID, tpl)
+	_, err := vc.c.Client.VMUpdateConf(ctx, vc.ID, tpl, 0)
 	return err
 }
 
@@ -456,7 +445,7 @@ func (vc *VMController) Monitoring() (*vm.Monitoring, error) {
 
 // MonitoringContext Returns the virtual machine monitoring records
 func (vc *VMController) MonitoringContext(ctx context.Context) (*vm.Monitoring, error) {
-	monitorData, err := vc.c.Client.CallContext(ctx, "one.vm.monitoring", vc.ID)
+	monitorData, err := vc.c.Client.VMMonitoring(ctx, vc.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -479,7 +468,7 @@ func (vc *VMController) Chown(uid, gid int) error {
 // ChownContext changes the owner/group of a VM. If uid or gid is -1 it will not
 // change
 func (vc *VMController) ChownContext(ctx context.Context, uid, gid int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.chown", vc.ID, uid, gid)
+	_, err := vc.c.Client.VMChown(ctx, vc.ID, uid, gid)
 	return err
 }
 
@@ -492,8 +481,7 @@ func (vc *VMController) Chmod(perm shared.Permissions) error {
 // ChmodContext changes the permissions of a VM. If any perm is -1 it will not
 // change
 func (vc *VMController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
-	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.chmod", args...)
+	_, err := vc.c.Client.VMChmod(ctx, vc.ID, perm)
 	return err
 }
 
@@ -504,7 +492,7 @@ func (vc *VMController) Rename(newName string) error {
 
 // RenameContext changes the name of a VM
 func (vc *VMController) RenameContext(ctx context.Context, newName string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.rename", vc.ID, newName)
+	_, err := vc.c.Client.VMRename(ctx, vc.ID, newName)
 	return err
 }
 
@@ -518,8 +506,9 @@ func (vc *VMController) Deploy(hostID int, enforce bool, dsID int) error {
 // Deploy in the selected hostID and/or dsID. Enforce to return error in case of
 // overcommitment. Enforce is automatically enabled for non-oneadmin users.
 // Set dsID to -1 to let OpenNebula choose the datastore.
+// todo: Add missing parameter nic template
 func (vc *VMController) DeployContext(ctx context.Context, hostID int, enforce bool, dsID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.deploy", vc.ID, int(hostID), enforce, dsID)
+	_, err := vc.c.Client.VMDeploy(ctx, vc.ID, int(hostID), enforce, dsID, "")
 	return err
 }
 
@@ -530,7 +519,7 @@ func (vc *VMController) Resize(template string, enforce bool) error {
 
 // ResizeContext changes the capacity of the virtual machine
 func (vc *VMController) ResizeContext(ctx context.Context, template string, enforce bool) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.resize", vc.ID, template, enforce)
+	_, err := vc.c.Client.VMResize(ctx, vc.ID, template, enforce)
 	return err
 }
 
@@ -545,7 +534,7 @@ func (vc *VMDiskController) Saveas(imageName, imageType string, snapID int) (int
 // If imageType is empty the default one will be used.
 // If snapID is -1 the current image state will be exported
 func (vc *VMDiskController) SaveasContext(ctx context.Context, imageName, imageType string, snapID int) (int, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vm.disksaveas", vc.entityID, vc.ID, imageName, imageType, snapID)
+	response, err := vc.c.Client.VMDiskSaveAs(ctx, vc.entityID, vc.ID, imageName, imageType, snapID)
 	if err != nil {
 		return -1, err
 	}
@@ -560,7 +549,7 @@ func (vc *VMDiskController) SnapshotCreate(description string) (int, error) {
 
 // SnapshotCreateContext will create a snapshot of the disk image
 func (vc *VMDiskController) SnapshotCreateContext(ctx context.Context, description string) (int, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vm.disksnapshotcreate", vc.entityID, vc.ID, description)
+	response, err := vc.c.Client.VMDiskSnapshotCreate(ctx, vc.entityID, vc.ID, description)
 	if err != nil {
 		return -1, err
 	}
@@ -575,7 +564,7 @@ func (vc *VMDiskController) SnapshotDelete(snapID int) error {
 
 // SnapshotDeleteContext will delete a snapshot
 func (vc *VMDiskController) SnapshotDeleteContext(ctx context.Context, snapID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.disksnapshotdelete", vc.entityID, vc.ID, snapID)
+	_, err := vc.c.Client.VMDiskSnapshotDelete(ctx, vc.entityID, vc.ID, snapID)
 	return err
 }
 
@@ -586,7 +575,7 @@ func (vc *VMDiskController) SnapshotRevert(snapID int) error {
 
 // SnapshotRevertContext will revert disk state to a previously taken snapshot
 func (vc *VMDiskController) SnapshotRevertContext(ctx context.Context, snapID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.disksnapshotrevert", vc.entityID, vc.ID, snapID)
+	_, err := vc.c.Client.VMDiskSnapshotRevert(ctx, vc.entityID, vc.ID, snapID)
 	return err
 }
 
@@ -597,7 +586,7 @@ func (vc *VMDiskController) SnapshotRename(snapID int, newName string) error {
 
 // SnapshotRenameContext renames a snapshot
 func (vc *VMDiskController) SnapshotRenameContext(ctx context.Context, snapID int, newName string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.disksnapshotrename", vc.entityID, vc.ID, snapID, newName)
+	_, err := vc.c.Client.VMDiskSnapshotRename(ctx, vc.entityID, vc.ID, snapID, newName)
 	return err
 }
 
@@ -612,7 +601,7 @@ func (vc *VMController) DiskAttach(diskTemplate string) error {
 // a single DISK vector attribute. Syntax can be the usual attribute=value or
 // XML
 func (vc *VMController) DiskAttachContext(ctx context.Context, diskTemplate string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.attach", vc.ID, diskTemplate)
+	_, err := vc.c.Client.VMDiskAttach(ctx, vc.ID, diskTemplate)
 	return err
 }
 
@@ -623,7 +612,7 @@ func (vc *VMDiskController) Detach() error {
 
 // DetachContext a disk from a virtual machine
 func (vc *VMDiskController) DetachContext(ctx context.Context) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.detach", vc.entityID, vc.ID)
+	_, err := vc.c.Client.VMDiskDetach(ctx, vc.entityID, vc.ID)
 	return err
 }
 
@@ -634,7 +623,7 @@ func (vc *VMDiskController) Resize(size string) error {
 
 // ResizeContext a disk of a virtual machine
 func (vc *VMDiskController) ResizeContext(ctx context.Context, size string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.diskresize", vc.entityID, vc.ID, size)
+	_, err := vc.c.Client.VMDiskResize(ctx, vc.entityID, vc.ID, size)
 	return err
 }
 
@@ -645,7 +634,7 @@ func (vc *VMController) SnapshotCreate(name string) error {
 
 // SnapshotCreateContext creates a new virtual machine snapshot. name can be empty
 func (vc *VMController) SnapshotCreateContext(ctx context.Context, name string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.snapshotcreate", vc.ID, name)
+	_, err := vc.c.Client.VMSnapshotCreate(ctx, vc.ID, name)
 	return err
 }
 
@@ -656,7 +645,7 @@ func (vc *VMController) SnapshotDelete(snapID int) error {
 
 // SnapshotDeleteContext deletes a virtual machine snapshot
 func (vc *VMController) SnapshotDeleteContext(ctx context.Context, snapID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.snapshotdelete", vc.ID, snapID)
+	_, err := vc.c.Client.VMSnapshotDelete(ctx, vc.ID, snapID)
 	return err
 }
 
@@ -667,7 +656,7 @@ func (vc *VMController) SnapshotRevert(snapID int) error {
 
 // SnapshotRevertContext reverts a virtual machine to a snapshot
 func (vc *VMController) SnapshotRevertContext(ctx context.Context, snapID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.snapshotrevert", vc.ID, snapID)
+	_, err := vc.c.Client.VMSnapshotRevert(ctx, vc.ID, snapID)
 	return err
 }
 
@@ -678,7 +667,7 @@ func (vc *VMController) Migrate(hostID int, live, enforce bool, dsID int, migrat
 
 // MigrateContext a VM to a target host and/or to another ds
 func (vc *VMController) MigrateContext(ctx context.Context, hostID int, live, enforce bool, dsID int, migrationType int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.migrate", vc.ID, hostID, live, enforce, dsID, migrationType)
+	_, err := vc.c.Client.VMMigrate(ctx, vc.ID, hostID, live, enforce, dsID, migrationType)
 	return err
 }
 
@@ -689,7 +678,7 @@ func (vc *VMController) AttachNIC(tpl string) error {
 
 // AttachNICContext attaches new network interface to the virtual machine
 func (vc *VMController) AttachNICContext(ctx context.Context, tpl string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.attachnic", vc.ID, tpl)
+	_, err := vc.c.Client.VMNicAttach(ctx, vc.ID, tpl)
 	return err
 }
 
@@ -700,7 +689,18 @@ func (vc *VMController) DetachNIC(nicID int) error {
 
 // DetachNICContext detaches a network interface from the virtual machine
 func (vc *VMController) DetachNICContext(ctx context.Context, nicID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.detachnic", vc.ID, nicID)
+	_, err := vc.c.Client.VMNicDetach(ctx, vc.ID, nicID)
+	return err
+}
+
+// UpdateNIC updates a network interface. Only limited set of attributes could be updated.
+func (vc *VMController) UpdateNIC(nicID int, tpl string, uType parameters.UpdateType) error {
+	return vc.UpdateNICContext(context.Background(), nicID, tpl, uType)
+}
+
+// UpdateNICContext detaches a network interface. Only limited set of attributes could be updated.
+func (vc *VMController) UpdateNICContext(ctx context.Context, nicID int, tpl string, uType parameters.UpdateType) error {
+	_, err := vc.c.Client.VMNicUpdate(ctx, vc.ID, nicID, tpl, int(uType))
 	return err
 }
 
@@ -865,7 +865,7 @@ func (vc *VMController) Recover(op int) error {
 
 // RecoverContext recovers a stuck VM that is waiting for a driver operation
 func (vc *VMController) RecoverContext(ctx context.Context, op int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.recover", vc.ID, op)
+	_, err := vc.c.Client.VMRecover(ctx, vc.ID, op)
 	return err
 }
 
@@ -925,8 +925,9 @@ func (vc *VMController) Lock(level shared.LockLevel) error {
 }
 
 // LockContext locks the vm following lock level. See levels in locks.go.
+// todo: add missing test argument
 func (vc *VMController) LockContext(ctx context.Context, level shared.LockLevel) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.lock", vc.ID, level)
+	_, err := vc.c.Client.VMLock(ctx, vc.ID, int(level), false)
 	return err
 }
 
@@ -937,7 +938,7 @@ func (vc *VMController) Unlock() error {
 
 // UnlockContext unlocks the vm.
 func (vc *VMController) UnlockContext(ctx context.Context) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.unlock", vc.ID)
+	_, err := vc.c.Client.VMUnlock(ctx, vc.ID)
 	return err
 }
 
@@ -948,7 +949,7 @@ func (vc *VMController) AddSchedAction(action *vm.SchedAction) error {
 
 // AddSchedActionContext adds a new scheduled action to the VM
 func (vc *VMController) AddSchedActionContext(ctx context.Context, action *vm.SchedAction) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.schedadd", vc.ID, action.String())
+	_, err := vc.c.Client.VMSchedAdd(ctx, vc.ID, action.String())
 	return err
 }
 
@@ -964,7 +965,7 @@ func (vc *VMController) UpdateSchedActionContext(ctx context.Context, action *vm
 		return err
 	}
 
-	_, err = vc.c.Client.CallContext(ctx, "one.vm.schedupdate", vc.ID, actionId, action.String())
+	_, err = vc.c.Client.VMSchedUpdate(ctx, vc.ID, actionId, action.String())
 	return err
 }
 
@@ -975,7 +976,7 @@ func (vc *VMController) DeleteSchedAction(actionId int) error {
 
 // DeleteSchedActionContext deletes the actionId action
 func (vc *VMController) DeleteSchedActionContext(ctx context.Context, actionId int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.scheddelete", vc.ID, actionId)
+	_, err := vc.c.Client.VMSchedDelete(ctx, vc.ID, actionId)
 	return err
 }
 
@@ -986,7 +987,7 @@ func (vc *VMController) AttachSG(nicID int, sgID int) error {
 
 // AttachSGContext attaches new Security Group to Virtual Machine NIC
 func (vc *VMController) AttachSGContext(ctx context.Context, nicID int, sgID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.attachsg", vc.ID, nicID, sgID)
+	_, err := vc.c.Client.VMSGAttach(ctx, vc.ID, nicID, sgID)
 	return err
 }
 
@@ -997,7 +998,7 @@ func (vc *VMController) DetachSG(nicID int, sgID int) error {
 
 // DetachSGContext detaches a Security Group from Virtual Machine NIC
 func (vc *VMController) DetachSGContext(ctx context.Context, nicID int, sgID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.detachsg", vc.ID, nicID, sgID)
+	_, err := vc.c.Client.VMSGDetach(ctx, vc.ID, nicID, sgID)
 	return err
 }
 
@@ -1008,7 +1009,7 @@ func (vc *VMController) AttachPCI(pciTemplate string) error {
 
 // AttachSGContext attaches new Security Group to Virtual Machine NIC
 func (vc *VMController) AttachPCIContext(ctx context.Context, pciTemplate string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.attachpci", vc.ID, pciTemplate)
+	_, err := vc.c.Client.VMPciAttach(ctx, vc.ID, pciTemplate)
 	return err
 }
 
@@ -1019,7 +1020,7 @@ func (vc *VMController) DetachPCI(pciID int) error {
 
 // DetachPCIContext detaches a PCI from Virtual Machine
 func (vc *VMController) DetachPCIContext(ctx context.Context, pciID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.detachpci", vc.ID, pciID)
+	_, err := vc.c.Client.VMPciDetach(ctx, vc.ID, pciID)
 	return err
 }
 
@@ -1030,7 +1031,7 @@ func (vc *VMController) Backup(dsID int, reset bool) error {
 
 // Backup Virtual Machine
 func (vc *VMController) BackupContext(ctx context.Context, dsID int, reset bool) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.backup", vc.ID, dsID, reset)
+	_, err := vc.c.Client.VMBackup(ctx, vc.ID, dsID, reset)
 	return err
 }
 
@@ -1041,7 +1042,7 @@ func (vc *VMController) BackupCancel() error {
 
 // Cancel ongoing backup operation
 func (vc *VMController) BackupCancelContext(ctx context.Context) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.backupcancel", vc.ID)
+	_, err := vc.c.Client.VMBackupCancel(ctx, vc.ID)
 	return err
 }
 
@@ -1052,6 +1053,39 @@ func (vc *VMController) Restore(imageID int, incrementID int, diskID int) error 
 
 // Restore Virtual Machine disks from backup Image
 func (vc *VMController) RestoreContext(ctx context.Context, imageID int, incrementID int, diskID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vm.restore", vc.ID, imageID, incrementID, diskID)
+	_, err := vc.c.Client.VMRestore(ctx, vc.ID, imageID, incrementID, diskID)
+	return err
+}
+
+// Execute a command in the Virtual Machine
+func (vc *VMController) Exec(cmd string, cmd_stdin string) error {
+	return vc.ExecContext(context.Background(), cmd, cmd_stdin)
+}
+
+// ExecuteContext executes a command in the Virtual Machine
+func (vc *VMController) ExecContext(ctx context.Context, cmd string, cmd_stdin string) error {
+	_, err := vc.c.Client.VMExec(ctx, vc.ID, cmd, cmd_stdin)
+	return err
+}
+
+// Retry the last command executed in the Virtual Machine
+func (vc *VMController) ExecRetry() error {
+	return vc.ExecRetryContext(context.Background())
+}
+
+// ExecRetryContext retries the last command executed in the Virtual Machine
+func (vc *VMController) ExecRetryContext(ctx context.Context) error {
+	_, err := vc.c.Client.VMExecRetry(ctx, vc.ID)
+	return err
+}
+
+// Cancel the last command being executed in the Virtual Machine
+func (vc *VMController) ExecCancel() error {
+	return vc.ExecCancelContext(context.Background())
+}
+
+// ExecCancelContext cancels the last command being executed in the Virtual Machine
+func (vc *VMController) ExecCancelContext(ctx context.Context) error {
+	_, err := vc.c.Client.VMExecCancel(ctx, vc.ID)
 	return err
 }

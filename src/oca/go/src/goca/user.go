@@ -22,6 +22,7 @@ import (
 	"errors"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/user"
 )
 
@@ -93,7 +94,7 @@ func (uc *UsersController) Info() (*user.Pool, error) {
 // InfoContext returns a user pool. A connection to OpenNebula is
 // performed.
 func (uc *UsersController) InfoContext(ctx context.Context) (*user.Pool, error) {
-	response, err := uc.c.Client.CallContext(ctx, "one.userpool.info")
+	response, err := uc.c.Client.UserPoolInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +108,43 @@ func (uc *UsersController) InfoContext(ctx context.Context) (*user.Pool, error) 
 	return userpool, nil
 }
 
+// DefaultQuotaInfo returns default quota limits.
+func (gc *UsersController) DefaultQuotaInfo() (*shared.QuotasList, error) {
+	return gc.DefaultQuotaInfoContext(context.Background())
+}
+
+// DefaultQuotaInfoContext returns default quota limits.
+// * ctx: context for cancelation
+func (gc *UsersController) DefaultQuotaInfoContext(ctx context.Context) (*shared.QuotasList, error) {
+	response, err := gc.c.Client.UserDefaultQuotaInfo(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	quotas := &shared.QuotasList{}
+	err = xml.Unmarshal([]byte(response.Body()), quotas)
+	if err != nil {
+		return nil, err
+	}
+
+	return quotas, nil
+}
+
+// DefaultQuota sets limits for user default quota.
+// * tpl: The new quota template contents. Syntax can be the usual attribute=value or XML.
+func (gc *UsersController) DefaultQuotaUpdate(tpl string) error {
+	return gc.DefaultQuotaUpdateContext(context.Background(), tpl)
+}
+
+// DefaultQuotaUpdateContext sets limits for user default quota.
+// * ctx: context for cancelation
+// * tpl: The new quota template contents. Syntax can be the usual attribute=value or XML.
+func (gc *UsersController) DefaultQuotaUpdateContext(ctx context.Context, tpl string) error {
+	_, err := gc.c.Client.UserDefaultQuotaUpdate(ctx, tpl)
+	return err
+}
+
 // Info retrieves information for the user from ID
 func (uc *UserController) Info(decrypt bool) (*user.User, error) {
 	return uc.InfoContext(context.Background(), decrypt)
@@ -114,7 +152,7 @@ func (uc *UserController) Info(decrypt bool) (*user.User, error) {
 
 // InfoContext retrieves information for the user from ID
 func (uc *UserController) InfoContext(ctx context.Context, decrypt bool) (*user.User, error) {
-	response, err := uc.c.Client.CallContext(ctx, "one.user.info", uc.ID, decrypt)
+	response, err := uc.c.Client.UserInfo(ctx, uc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +181,7 @@ func (uc *UsersController) Create(name, password, authDriver string, groupIDs []
 // * authDriver: auth driver
 // * groupIDs: array of groupIDs to add to the user
 func (uc *UsersController) CreateContext(ctx context.Context, name, password, authDriver string, groupIDs []int) (int, error) {
-	response, err := uc.c.Client.CallContext(ctx, "one.user.allocate", name, password, authDriver, groupIDs)
+	response, err := uc.c.Client.UserAllocate(ctx, name, password, authDriver, groupIDs)
 	if err != nil {
 		return -1, err
 	}
@@ -158,7 +196,7 @@ func (uc *UserController) Delete() error {
 
 // DeleteContext deletes the given user from the pool.
 func (uc *UserController) DeleteContext(ctx context.Context) error {
-	_, err := uc.c.Client.CallContext(ctx, "one.user.delete", uc.ID)
+	_, err := uc.c.Client.UserDelete(ctx, uc.ID)
 	return err
 }
 
@@ -171,7 +209,7 @@ func (uc *UserController) Passwd(password string) error {
 // PasswdContext changes the password for the given user.
 // * password: The new password
 func (uc *UserController) PasswdContext(ctx context.Context, password string) error {
-	_, err := uc.c.Client.CallContext(ctx, "one.user.passwd", uc.ID, password)
+	_, err := uc.c.Client.UserPassword(ctx, uc.ID, password)
 	return err
 }
 
@@ -196,7 +234,7 @@ func (uc *UserController) LoginContext(ctx context.Context, token string, timeSe
 	if err != nil {
 		return err
 	}
-	_, err = uc.c.Client.CallContext(ctx, "one.user.login", user.Name, token, timeSeconds, effectiveGID)
+	_, err = uc.c.Client.UserLogin(ctx, user.Name, token, timeSeconds, effectiveGID)
 	return err
 }
 
@@ -214,7 +252,7 @@ func (uc *UserByNameController) Login(token string, timeSeconds int, effectiveGI
 // * timeSeconds: Valid period in seconds; 0 reset the token and -1 for a non-expiring token.
 // * effectiveGID: Effective GID to use with this token. To use the current GID and user groups set it to -1
 func (uc *UserByNameController) LoginContext(ctx context.Context, token string, timeSeconds int, effectiveGID int) error {
-	_, err := uc.c.Client.CallContext(ctx, "one.user.login", uc.Name, token, timeSeconds, effectiveGID)
+	_, err := uc.c.Client.UserLogin(ctx, uc.Name, token, timeSeconds, effectiveGID)
 	return err
 }
 
@@ -232,7 +270,7 @@ func (uc *UserController) Update(tpl string, uType parameters.UpdateType) error 
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (uc *UserController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := uc.c.Client.CallContext(ctx, "one.user.update", uc.ID, tpl, uType)
+	_, err := uc.c.Client.UserUpdate(ctx, uc.ID, tpl, int(uType))
 	return err
 }
 
@@ -248,7 +286,7 @@ func (uc *UserController) Chauth(authDriver, password string) error {
 // * authDriver: The new authentication driver.
 // * password: The new password. If it is an empty string
 func (uc *UserController) ChauthContext(ctx context.Context, authDriver, password string) error {
-	_, err := uc.c.Client.CallContext(ctx, "one.user.chauth", uc.ID, authDriver, password)
+	_, err := uc.c.Client.UserChangeAuth(ctx, uc.ID, authDriver, password)
 	return err
 }
 
@@ -262,7 +300,7 @@ func (uc *UserController) Quota(tpl string) error {
 // * ctx: context for cancelation
 // * tpl: The new quota template contents. Syntax can be the usual attribute=value or XML.
 func (uc *UserController) QuotaContext(ctx context.Context, tpl string) error {
-	_, err := uc.c.Client.CallContext(ctx, "one.user.quota", uc.ID, tpl)
+	_, err := uc.c.Client.UserQuota(ctx, uc.ID, tpl)
 	return err
 }
 
@@ -276,7 +314,7 @@ func (uc *UserController) Chgrp(groupID int) error {
 // * ctx: context for cancelation
 // * groupID: The Group ID of the new group.
 func (uc *UserController) ChgrpContext(ctx context.Context, groupID int) error {
-	_, err := uc.c.Client.CallContext(ctx, "one.user.chgrp", uc.ID, int(groupID))
+	_, err := uc.c.Client.UserChangeGroup(ctx, uc.ID, groupID)
 	return err
 }
 
@@ -290,7 +328,7 @@ func (uc *UserController) AddGroup(groupID int) error {
 // * ctx: context for cancelation
 // * groupID: The Group ID of the new group.
 func (uc *UserController) AddGroupContext(ctx context.Context, groupID int) error {
-	_, err := uc.c.Client.CallContext(ctx, "one.user.addgroup", uc.ID, int(groupID))
+	_, err := uc.c.Client.UserAddGroup(ctx, uc.ID, groupID)
 	return err
 }
 
@@ -304,6 +342,21 @@ func (uc *UserController) DelGroup(groupID int) error {
 // * ctx: context for cancelation
 // * groupID: The Group ID.
 func (uc *UserController) DelGroupContext(ctx context.Context, groupID int) error {
-	_, err := uc.c.Client.CallContext(ctx, "one.user.delgroup", uc.ID, int(groupID))
+	_, err := uc.c.Client.UserDelGroup(ctx, uc.ID, groupID)
 	return err
 }
+
+// Enable enable or disable user
+// * enable: true enable, false disable
+func (uc *UserController) Enable(enable bool) error {
+	return uc.EnableContext(context.Background(), enable)
+}
+
+// EnableContext enable or disable user
+// * ctx: context for cancelation
+// * enable: true enable, false disable
+func (uc *UserController) EnableContext(ctx context.Context, enable bool) error {
+	_, err := uc.c.Client.UserEnable(ctx, uc.ID, enable)
+	return err
+}
+

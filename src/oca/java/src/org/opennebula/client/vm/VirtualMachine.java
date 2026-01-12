@@ -67,6 +67,9 @@ public class VirtualMachine extends PoolElement{
     private static final String BACKUP              = METHOD_PREFIX + "backup";
     private static final String BACKUPCANCEL        = METHOD_PREFIX + "backupcancel";
     private static final String RESTORE             = METHOD_PREFIX + "restore";
+    private static final String EXEC                = METHOD_PREFIX + "exec";
+    private static final String EXEC_RETRY          = METHOD_PREFIX + "exec_retry";
+    private static final String EXEC_CANCEL         = METHOD_PREFIX + "exec_cancel";
 
     private static final String[] VM_STATES =
     {
@@ -854,6 +857,44 @@ public class VirtualMachine extends PoolElement{
         return client.call(RESTORE, id, imageId, incrementId, diskId);
     }
 
+    /**
+     * Execute a command in the Virtual Machine.
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Machine ID (vid) of the target instance.
+     * @param cmd The command to execute.
+     * @param cmd_stdin Standard input passed to the command.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse exec(Client client, int id, String cmd, String cmd_stdin)
+    {
+        return client.call(EXEC, id, cmd, cmd_stdin);
+    }
+
+    /**
+     * Retry the last command executed in the Virtual Machine.
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Machine ID (vid) of the target instance.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse execRetry(Client client, int id)
+    {
+        return client.call(EXEC_RETRY, id);
+    }
+
+    /**
+     * Cancel the last command being executed in the Virtual Machine.
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Machine ID (vid) of the target instance.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse execCancel(Client client, int id)
+    {
+        return client.call(EXEC_CANCEL, id);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -1479,6 +1520,38 @@ public class VirtualMachine extends PoolElement{
     public OneResponse restore(int imageId, int incrementId, int diskId)
     {
         return restore(client, id, imageId, incrementId, diskId);
+    }
+
+    /**
+     * Execute a command in the Virtual Machine.
+     *
+     * @param cmd The command to execute.
+     * @param cmd_stdin Standard input passed to the command.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse exec(String cmd, String cmd_stdin)
+    {
+        return exec(client, id, cmd, cmd_stdin);
+    }
+
+    /**
+     * Retry the last command executed in the Virtual Machine.
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse execRetry()
+    {
+        return execRetry(client, id);
+    }
+
+    /**
+     * Cancel the last command being executed in the Virtual Machine.
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse execCancel()
+    {
+        return execCancel(client, id);
     }
 
     // =================================

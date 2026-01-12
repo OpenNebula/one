@@ -103,7 +103,9 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int add_server(Template& tmpl, int& sid,
-                   std::string& xmlep, std::string& error);
+                   std::string& xmlep,
+                   std::string& grpcep,
+                   std::string& error);
 
     /**
      *  Delete a server from this zone

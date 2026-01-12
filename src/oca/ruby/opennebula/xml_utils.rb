@@ -46,7 +46,7 @@ module OpenNebula
     module ParsePoolBase
         attr_accessor :pool
 
-        def initialize (pool_name, elem_name)
+        def initialize(pool_name, elem_name)
             clear
 
             @pool_name = pool_name
@@ -91,7 +91,7 @@ module OpenNebula
                 @current   = 0
                 @levels[0] = Hash.new
             else
-                @current = @current -1
+                @current = @current - 1
             end
         end
     end

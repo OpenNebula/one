@@ -60,6 +60,11 @@ share/context/*
 !share/context/download_context.sh
 !share/context/SConstruct
 
+# grpc generated
+src/rm/grpc/src/
+src/oca/ruby/opennebula/grpc/*_pb.rb
+src/oca/ruby/opennebula/grpc/.proto_built
+
 # editors temporary/swap files
 *.swp
 *.swo
@@ -67,7 +72,7 @@ share/context/*
 # backups
 *.*-
 
-# vendor
+# vendor
 src/datastore_mad/remotes/restic/vendor/bin/
 src/oneprometheus/vendor/alertmanager.arm64/
 src/oneprometheus/vendor/alertmanager/

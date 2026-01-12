@@ -38,6 +38,7 @@ module OpenNebula
 
         # Factory method to create User objects
         def factory(element_xml)
+            require 'opennebula/user'
             OpenNebula::User.new(element_xml,@client)
         end
 

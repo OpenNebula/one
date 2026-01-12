@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'cli_helper'
+require 'opennebula/system'
 
 class OneQuotaHelper
 

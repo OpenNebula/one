@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'rexml/document'
 
 module OpenNebula
     # The XMLElement class provides an abstraction of the underlying

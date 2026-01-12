@@ -19,9 +19,12 @@ require 'open3'
 require 'io/console'
 require 'time'
 require 'io/wait'
+require 'logger'
 
 begin
-    require 'opennebula'
+    require 'opennebula/version'
+    require 'opennebula/lib/client'
+    require 'opennebula/pool'
 rescue Exception => e
     puts 'Error: '+e.message.to_s
     exit(-1)
@@ -162,12 +165,17 @@ Bash symbols must be escaped on STDIN passing'
         {
             :name   => 'endpoint',
             :large  => '--endpoint endpoint',
-            :description => 'URL of OpenNebula xmlrpc frontend',
+            :description => 'URL of OpenNebula RPC frontend',
             :format => String,
             :proc => lambda do |o, _options|
                 OneHelper.set_endpoint(o)
                 [0, o]
             end
+        },
+        {
+            :name   => 'grpc',
+            :large  => '--grpc',
+            :description => 'Use gRPC protocol to connect to OpenNebula',
         }
     ]
 
@@ -1518,20 +1526,47 @@ Bash symbols must be escaped on STDIN passing'
         client=OneHelper.client
 
         pool = case poolname
-               when 'HOST'          then OpenNebula::HostPool.new(client)
-               when 'HOOK'          then OpenNebula::HookPool.new(client)
-               when 'GROUP'         then OpenNebula::GroupPool.new(client)
-               when 'USER'          then OpenNebula::UserPool.new(client)
-               when 'DATASTORE'     then OpenNebula::DatastorePool.new(client)
-               when 'CLUSTER'       then OpenNebula::ClusterPool.new(client)
-               when 'VNET'          then OpenNebula::VirtualNetworkPool.new(client)
-               when 'IMAGE'         then OpenNebula::ImagePool.new(client)
-               when 'VMTEMPLATE'    then OpenNebula::TemplatePool.new(client)
-               when 'VNTEMPLATES'   then OpenNebula::VNTemplatePool.new(client)
-               when 'VM'            then OpenNebula::VirtualMachinePool.new(client)
-               when 'ZONE'          then OpenNebula::ZonePool.new(client)
-               when 'MARKETPLACE'   then OpenNebula::MarketPlacePool.new(client)
-               when 'FLOWTEMPLATES' then OpenNebula::ServiceTemplatePool.new(client)
+               when 'HOST'
+                   require 'opennebula/host_pool'
+                   OpenNebula::HostPool.new(client)
+               when 'HOOK'
+                   require 'opennebula/hook_pool'
+                   OpenNebula::HookPool.new(client)
+               when 'GROUP'
+                   require 'opennebula/group_pool'
+                   OpenNebula::GroupPool.new(client)
+               when 'USER'
+                   require 'opennebula/user_pool'
+                   OpenNebula::UserPool.new(client)
+               when 'DATASTORE'
+                   require 'opennebula/datastore_pool'
+                   OpenNebula::DatastorePool.new(client)
+               when 'CLUSTER'
+                   require 'opennebula/cluster_pool'
+                   OpenNebula::ClusterPool.new(client)
+               when 'VNET'
+                   require 'opennebula/virtual_network_pool'
+                   OpenNebula::VirtualNetworkPool.new(client)
+               when 'IMAGE'
+                   require 'opennebula/image_pool'
+                   OpenNebula::ImagePool.new(client)
+               when 'VMTEMPLATE'
+                   require 'opennebula/template_pool'
+                   OpenNebula::TemplatePool.new(client)
+               when 'VNTEMPLATES'
+                   require 'opennebula/vntemplate_pool'
+                   OpenNebula::VNTemplatePool.new(client)
+               when 'VM'
+                   require 'opennebula/virtual_machine_pool'
+                   OpenNebula::VirtualMachinePool.new(client)
+               when 'ZONE'
+                   require 'opennebula/zone_pool'
+                   OpenNebula::ZonePool.new(client)
+               when 'MARKETPLACE'
+                   require 'opennebula/marketplace_pool'
+                   OpenNebula::MarketPlacePool.new(client)
+               when 'FLOWTEMPLATES'
+                   OpenNebula::ServiceTemplatePool.new(client)
                end
 
         rc = pool.info

@@ -61,4 +61,6 @@ vmpool.each do |vm|
     end
 end
 
+sleep 2
+
 puts result

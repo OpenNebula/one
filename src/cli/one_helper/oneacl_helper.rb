@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'opennebula/acl'
+require 'opennebula/acl_pool'
 
 # Helper for oneacl command
 class OneAclHelper < OpenNebulaHelper::OneHelper

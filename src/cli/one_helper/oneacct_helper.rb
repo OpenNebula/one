@@ -16,6 +16,8 @@
 
 require 'one_helper'
 require 'optparse/time'
+require 'opennebula/virtual_machine'
+require 'opennebula/virtual_machine_pool'
 
 class AcctHelper < OpenNebulaHelper::OneHelper
     TIME_ZONE_CUR = {

@@ -44,7 +44,7 @@ static void set_timeout(long long ms, struct timespec& timeout)
     timeout.tv_nsec = d.rem * 1000000;
 }
 
-static unsigned int get_zone_servers(std::map<int, std::string>& _s);
+static unsigned int get_zone_servers(map<int, pair<string, string>>& _s);
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -54,7 +54,7 @@ static unsigned int get_zone_servers(std::map<int, std::string>& _s);
 
 RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
                          const VectorAttribute * follower_hook_mad, time_t log_purge,
-                         long long bcast, long long elect, time_t xmlrpc,
+                         long long bcast, long long elect, time_t rpc_timeout,
                          const string& remotes_location)
     : server_id(id)
     , term(0)
@@ -123,7 +123,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     // -------------------------------------------------------------------------
 
     purge_period_ms   = log_purge * 1000;
-    xmlrpc_timeout_ms = xmlrpc;
+    rpc_timeout_ms = rpc_timeout;
 
     set_timeout(bcast, broadcast_timeout);
     set_timeout(elect, election_timeout);
@@ -207,7 +207,7 @@ void RaftManager::finalize()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static unsigned int get_zone_servers(std::map<int, std::string>& _serv)
+static unsigned int get_zone_servers(map<int, pair<string, string>>& _serv)
 {
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
@@ -217,7 +217,7 @@ static unsigned int get_zone_servers(std::map<int, std::string>& _serv)
     return zpool->get_zone_servers(zone_id, _serv);
 }
 
-int RaftManager::get_leader_endpoint(std::string& endpoint)
+int RaftManager::get_leader_endpoint(string& endpoint, bool grpc)
 {
     int rc;
 
@@ -237,7 +237,17 @@ int RaftManager::get_leader_endpoint(std::string& endpoint)
         }
         else
         {
-            endpoint = it->second;
+            // Prefer gRPC, fallback to xml-rpc
+            if ( grpc )
+            {
+                endpoint = it->second.second;
+            }
+
+            if ( endpoint.empty() )
+            {
+                endpoint = it->second.first;
+            }
+
             rc = 0;
         }
     }
@@ -248,7 +258,9 @@ int RaftManager::get_leader_endpoint(std::string& endpoint)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::add_server(int follower_id, const std::string& endpoint)
+void RaftManager::add_server(int follower_id,
+                             const std::string& endpoint_xrpc,
+                             const std::string& endpoint_grpc)
 {
     std::ostringstream oss;
 
@@ -268,7 +280,7 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
 
     num_servers++;
 
-    servers.insert(std::make_pair(follower_id, endpoint));
+    servers.insert(std::make_pair(follower_id, std::make_pair(endpoint_xrpc, endpoint_grpc)));
 
     next.insert(std::make_pair(follower_id, log_index + 1));
 
@@ -773,7 +785,7 @@ void RaftManager::purge_action()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/* XML-RPC interface to talk to followers                                     */
+/* RPC interface to talk to followers                                         */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -783,7 +795,7 @@ void RaftManager::request_vote()
     uint64_t lindex;
     int _server_id;
 
-    std::map<int, std::string> _servers;
+    map<int, pair<string, string>> _servers;
 
     std::ostringstream oss;
 
@@ -854,7 +866,7 @@ void RaftManager::request_vote()
                 continue;
             }
 
-            rc = xmlrpc_request_vote(id, lindex, lterm, success, fterm, error);
+            rc = rpc_request_vote(id, lindex, lterm, success, fterm, error);
 
             if ( rc == -1 )
             {
@@ -944,19 +956,14 @@ void RaftManager::request_vote()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
-                                      bool& success, unsigned int& fterm, std::string& error)
+int RaftManager::rpc_replicate_log(int follower_id, LogDBRecord * lr,
+                                   bool& success, unsigned int& fterm, std::string& error)
 {
     int _server_id;
     uint64_t _commit;
     unsigned int _term;
-    std::string xmlrpc_secret;
-
-    static const std::string replica_method = "one.zone.replicate";
 
     std::string follower_edp;
-
-    int xml_rc = 0;
 
     {
         std::lock_guard<mutex> lock(raft_mutex);
@@ -970,59 +977,28 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
             return -1;
         }
 
-        follower_edp = it->second;
+        const auto& [xrpc, grpc] = it->second;
+
+        follower_edp = grpc.empty() ? xrpc : grpc;
 
         _commit    = commit;
         _term      = term;
         _server_id = server_id;
     }
 
-    // -------------------------------------------------------------------------
-    // Get parameters to call append entries on follower
-    // -------------------------------------------------------------------------
-    xmlrpc_c::value result;
-    xmlrpc_c::paramList replica_params;
+    Client::replicate_params params;
+    params.leader_id     = _server_id;
+    params.leader_commit = _commit;
+    params.leader_term   = _term;
+    params.index         = lr->index;
+    params.term          = lr->term;
+    params.prev_index    = lr->prev_index;
+    params.prev_term     = lr->prev_term;
+    params.fed_index     = lr->fed_index;
 
-    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
-    {
-        return -1;
-    }
+    int rc = Client::replicate(follower_edp, params, lr->sql, rpc_timeout_ms, success, fterm, error);
 
-    replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
-    replica_params.add(xmlrpc_c::value_int(_server_id));
-    replica_params.add(xmlrpc_c::value_i8(_commit));
-    replica_params.add(xmlrpc_c::value_int(_term));
-    replica_params.add(xmlrpc_c::value_i8(lr->index));
-    replica_params.add(xmlrpc_c::value_int(lr->term));
-    replica_params.add(xmlrpc_c::value_i8(lr->prev_index));
-    replica_params.add(xmlrpc_c::value_int(lr->prev_term));
-    replica_params.add(xmlrpc_c::value_i8(lr->fed_index));
-    replica_params.add(xmlrpc_c::value_string(lr->sql));
-
-    // -------------------------------------------------------------------------
-    // Do the XML-RPC call
-    // -------------------------------------------------------------------------
-    xml_rc = Client::call(follower_edp, replica_method, replica_params,
-                          xmlrpc_timeout_ms, &result, error);
-
-    if ( xml_rc == 0 )
-    {
-        vector<xmlrpc_c::value> values;
-
-        values  = xmlrpc_c::value_array(result).vectorValueValue();
-        success = xmlrpc_c::value_boolean(values[0]);
-
-        if ( success ) //values[2] = error code (string)
-        {
-            fterm = xmlrpc_c::value_int(values[1]);
-        }
-        else
-        {
-            error = xmlrpc_c::value_string(values[1]);
-            fterm = xmlrpc_c::value_int(values[3]);
-        }
-    }
-    else
+    if ( rc != 0 )
     {
         std::ostringstream ess;
 
@@ -1032,25 +1008,20 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
         error = ess.str();
     }
 
-    return xml_rc;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int RaftManager::xmlrpc_request_vote(int follower_id, uint64_t lindex,
-                                     unsigned int lterm, bool& success, unsigned int& fterm,
-                                     std::string& error)
+int RaftManager::rpc_request_vote(int follower_id, uint64_t lindex, unsigned int lterm,
+                                  bool& success, unsigned int& fterm,
+                                  std::string& error)
 {
     int _server_id;
     unsigned int _term;
-    std::string xmlrpc_secret;
-
-    static const std::string replica_method = "one.zone.voterequest";
 
     std::string follower_edp;
-
-    int xml_rc = 0;
 
     {
         std::lock_guard<mutex> lock(raft_mutex);
@@ -1064,53 +1035,18 @@ int RaftManager::xmlrpc_request_vote(int follower_id, uint64_t lindex,
             return -1;
         }
 
-        follower_edp = it->second;
+        const auto& [xrpc, grpc] = it->second;
+
+        follower_edp = grpc.empty() ? xrpc : grpc;
 
         _term      = term;
         _server_id = server_id;
     }
 
-    // -------------------------------------------------------------------------
-    // Get parameters to call append entries on follower
-    // -------------------------------------------------------------------------
-    xmlrpc_c::value result;
-    xmlrpc_c::paramList replica_params;
+    int rc = Client::vote_request(follower_edp, _term, _server_id, lindex, lterm,
+                                  rpc_timeout_ms, success, fterm, error);
 
-    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
-    {
-        return -1;
-    }
-
-    replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
-    replica_params.add(xmlrpc_c::value_int(_term));
-    replica_params.add(xmlrpc_c::value_int(_server_id));
-    replica_params.add(xmlrpc_c::value_i8(lindex));
-    replica_params.add(xmlrpc_c::value_int(lterm));
-
-    // -------------------------------------------------------------------------
-    // Do the XML-RPC call
-    // -------------------------------------------------------------------------
-    xml_rc = Client::call(follower_edp, replica_method, replica_params,
-                          xmlrpc_timeout_ms, &result, error);
-
-    if ( xml_rc == 0 )
-    {
-        vector<xmlrpc_c::value> values;
-
-        values  = xmlrpc_c::value_array(result).vectorValueValue();
-        success = xmlrpc_c::value_boolean(values[0]);
-
-        if ( success ) //values[2] = error code (string)
-        {
-            fterm = xmlrpc_c::value_int(values[1]);
-        }
-        else
-        {
-            error = xmlrpc_c::value_string(values[1]);
-            fterm = xmlrpc_c::value_int(values[3]);
-        }
-    }
-    else
+    if ( rc != 0 )
     {
         std::ostringstream ess;
 
@@ -1120,7 +1056,7 @@ int RaftManager::xmlrpc_request_vote(int follower_id, uint64_t lindex,
         error = ess.str();
     }
 
-    return xml_rc;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

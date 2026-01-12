@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 require 'one_helper'
 require 'one_helper/onevm_helper'
+require 'opennebula/virtual_network'
+require 'opennebula/virtual_network_pool'
 
 # OneVnet Command Helper
 class OneVNetHelper < OpenNebulaHelper::OneHelper

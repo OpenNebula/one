@@ -312,6 +312,8 @@ module OpenNebula
         # Creates an acl array of acl strings. Returns true or error and
         # a qrray with the new acl ids
         def create_group_acls(acls)
+            require 'opennebula/acl'
+
             acls_ids = Array.new
 
             acls.each{|rule|
@@ -363,6 +365,7 @@ module OpenNebula
             udriver = gdef[:group_admin][:auth_driver]
 
             if !uadmin.nil? && !upasswd.nil?
+                require 'opennebula/user'
 
                 group_admin = OpenNebula::User.new(OpenNebula::User.build_xml,
                                                    @client)

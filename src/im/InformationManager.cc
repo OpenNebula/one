@@ -19,6 +19,7 @@
 #include "VirtualMachinePool.h"
 #include "Nebula.h"
 #include "Request.h"
+#include "RequestXRPC.h"
 #include "HookAPI.h"
 #include "HookManager.h"
 #include "LifeCycleManager.h"
@@ -647,7 +648,7 @@ void InformationManager::_vm_exec(unique_ptr<im_msg_t> msg)
         }
 
         std::set<int> hidden;
-        ParamList pl(&plist, hidden);
+        ParamListXRPC pl(&plist, hidden);
 
         RequestAttributes att(AuthRequest::NONE);
         att.success   = true;

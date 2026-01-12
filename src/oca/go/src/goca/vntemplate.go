@@ -91,7 +91,7 @@ func (vc *VNTemplatesController) InfoContext(ctx context.Context, args ...int) (
 		return nil, err
 	}
 
-	response, err := vc.c.Client.CallContext(ctx, "one.vntemplatepool.info", fArgs...)
+	response, err := vc.c.Client.VNTemplatePoolInfo(ctx, fArgs[0], fArgs[1], fArgs[2])
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (vc *VNTemplateController) Info(decrypt bool) (*vntemplate.VNTemplate, erro
 
 // InfoContext connects to OpenNebula and fetches the information of the VNTemplate
 func (vc *VNTemplateController) InfoContext(ctx context.Context, decrypt bool) (*vntemplate.VNTemplate, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vntemplate.info", vc.ID, decrypt)
+	response, err := vc.c.Client.VNTemplateInfo(ctx, vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -127,13 +127,13 @@ func (vc *VNTemplateController) InfoContext(ctx context.Context, decrypt bool) (
 }
 
 // Create allocates a new vntemplate. It returns the new vntemplate ID.
-func (vc *VNTemplateController) Create(vntemplate string) (int, error) {
+func (vc *VNTemplatesController) Create(vntemplate string) (int, error) {
 	return vc.CreateContext(context.Background(), vntemplate)
 }
 
 // CreateContext allocates a new vntemplate. It returns the new vntemplate ID.
-func (vc *VNTemplateController) CreateContext(ctx context.Context, vntemplate string) (int, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vntemplate.allocate", vntemplate)
+func (vc *VNTemplatesController) CreateContext(ctx context.Context, vntemplate string) (int, error) {
+	response, err := vc.c.Client.VNTemplateAllocate(ctx, vntemplate)
 	if err != nil {
 		return -1, err
 	}
@@ -155,7 +155,7 @@ func (vc *VNTemplateController) Update(tpl string, uType parameters.UpdateType) 
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (vc *VNTemplateController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vntemplate.update", vc.ID, tpl, uType)
+	_, err := vc.c.Client.VNTemplateUpdate(ctx, vc.ID, tpl, int(uType))
 	return err
 }
 
@@ -168,7 +168,7 @@ func (vc *VNTemplateController) Chown(uid, gid int) error {
 // ChownContext changes the owner/group of a vntemplate. If uid or gid is -1 it will not
 // change
 func (vc *VNTemplateController) ChownContext(ctx context.Context, uid, gid int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vntemplate.chown", vc.ID, uid, gid)
+	_, err := vc.c.Client.VNTemplateChown(ctx, vc.ID, uid, gid)
 	return err
 }
 
@@ -181,8 +181,7 @@ func (vc *VNTemplateController) Chmod(perm shared.Permissions) error {
 // ChmodContext changes the permissions of a vntemplate. If any perm is -1 it will not
 // change
 func (vc *VNTemplateController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
-	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
-	_, err := vc.c.Client.CallContext(ctx, "one.vntemplate.chmod", args...)
+	_, err := vc.c.Client.VNTemplateChmod(ctx, vc.ID, perm)
 	return err
 }
 
@@ -193,7 +192,7 @@ func (vc *VNTemplateController) Rename(newName string) error {
 
 // RenameContext changes the name of vntemplate
 func (vc *VNTemplateController) RenameContext(ctx context.Context, newName string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vntemplate.rename", vc.ID, newName)
+	_, err := vc.c.Client.VNTemplateRename(ctx, vc.ID, newName)
 	return err
 }
 
@@ -204,7 +203,7 @@ func (vc *VNTemplateController) Delete() error {
 
 // DeleteContext will remove the vntemplate from OpenNebula.
 func (vc *VNTemplateController) DeleteContext(ctx context.Context) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vntemplate.delete", vc.ID)
+	_, err := vc.c.Client.VNTemplateDelete(ctx, vc.ID)
 	return err
 }
 
@@ -215,7 +214,7 @@ func (vc *VNTemplateController) Instantiate(name string, extra string) (int, err
 
 // InstantiateContext will instantiate the template
 func (vc *VNTemplateController) InstantiateContext(ctx context.Context, name string, extra string) (int, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vntemplate.instantiate", vc.ID, name, extra)
+	response, err := vc.c.Client.VNTemplateInstantiate(ctx, vc.ID, name, extra)
 
 	if err != nil {
 		return -1, err
@@ -231,7 +230,7 @@ func (vc *VNTemplateController) Clone(name string) error {
 
 // CloneContext an existing vntemplate.
 func (vc *VNTemplateController) CloneContext(ctx context.Context, name string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vntemplate.clone", vc.ID, name)
+	_, err := vc.c.Client.VNTemplateClone(ctx, vc.ID, name)
 	return err
 }
 
@@ -242,7 +241,7 @@ func (vc *VNTemplateController) Lock(level shared.LockLevel) error {
 
 // LockContext an existing vntemplate. See levels in locks.go.
 func (vc *VNTemplateController) LockContext(ctx context.Context, level shared.LockLevel) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vntemplate.lock", vc.ID, level)
+	_, err := vc.c.Client.VNTemplateLock(ctx, vc.ID, int(level), false)
 	return err
 }
 
@@ -253,6 +252,6 @@ func (vc *VNTemplateController) Unlock() error {
 
 // UnlockContext an existing vntemplate
 func (vc *VNTemplateController) UnlockContext(ctx context.Context) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vntemplate.unlock", vc.ID)
+	_, err := vc.c.Client.VNTemplateUnlock(ctx, vc.ID)
 	return err
 }

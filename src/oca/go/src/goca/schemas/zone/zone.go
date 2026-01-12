@@ -32,6 +32,7 @@ type Zone struct {
 	XMLName    xml.Name `xml:"ZONE"`
 	ID         int      `xml:"ID,omitempty"`
 	Name       string   `xml:"NAME"`
+	StateRaw   int      `xml:"STATE"`
 	Template   Template `xml:"TEMPLATE"`
 	ServerPool []Server `xml:"SERVER_POOL>SERVER,omitempty"`
 }
@@ -55,6 +56,49 @@ type ServerRaftStatus struct {
 	Commit      int `xml:"COMMIT"`
 	LogIndex    int `xml:"LOG_INDEX"`
 	FedlogIndex int `xml:"FEDLOG_INDEX"`
+}
+
+// State is the state of an OpenNebula Zone
+type State int
+
+const (
+	// Zone Enabled
+	Enabled = iota
+
+	// Zone Disabled
+	Disabled
+)
+
+func (s State) isValid() bool {
+	if s >= Enabled && s <= Disabled {
+		return true
+	}
+	return false
+}
+
+func (s State) String() string {
+	return [...]string{
+		"ENABLED",
+		"DISABLED",
+	}[s]
+}
+
+// State looks up the state of the zone
+func (zone *Zone) State() (State, error) {
+	state := State(zone.StateRaw)
+	if !state.isValid() {
+		return -1, fmt.Errorf("Zone State: this state value is not currently handled: %d\n", zone.StateRaw)
+	}
+	return state, nil
+}
+
+// StateString returns the state in string format
+func (zone *Zone) StateString() (string, error) {
+	state := State(zone.StateRaw)
+	if !state.isValid() {
+		return "", fmt.Errorf("Zone StateString: this state value is not currently handled: %d\n", zone.StateRaw)
+	}
+	return state.String(), nil
 }
 
 // ServerRaftState is the state of an OpenNebula server from a zone (See HA and Raft)

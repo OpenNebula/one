@@ -88,7 +88,7 @@ func (vc *VMGroupsController) InfoContext(ctx context.Context, args ...int) (*vm
 		return nil, err
 	}
 
-	response, err := vc.c.Client.CallContext(ctx, "one.vmgrouppool.info", fArgs...)
+	response, err := vc.c.Client.VMGroupPoolInfo(ctx, fArgs[0], fArgs[1], fArgs[2])
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (vc *VMGroupController) Info(decrypt bool) (*vmgroup.VMGroup, error) {
 
 // InfoContext retrieves information for the vm group.
 func (vc *VMGroupController) InfoContext(ctx context.Context, decrypt bool) (*vmgroup.VMGroup, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vmgroup.info", vc.ID, decrypt)
+	response, err := vc.c.Client.VMGroupInfo(ctx, vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (vc *VMGroupsController) Create(tpl string) (int, error) {
 
 // CreateContext allocates a new vmGroup. It returns the new vmGroup ID.
 func (vc *VMGroupsController) CreateContext(ctx context.Context, tpl string) (int, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vmgroup.allocate", tpl)
+	response, err := vc.c.Client.VMGroupAllocate(ctx, tpl)
 	if err != nil {
 		return -1, err
 	}
@@ -144,7 +144,7 @@ func (vc *VMGroupController) Delete() error {
 
 // DeleteContext deletes the given vmGroup from the pool.
 func (vc *VMGroupController) DeleteContext(ctx context.Context) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.delete", vc.ID)
+	_, err := vc.c.Client.VMGroupDelete(ctx, vc.ID)
 	return err
 }
 
@@ -160,7 +160,7 @@ func (vc *VMGroupController) Update(tpl string, uType int) error {
 // * tpl: The new vmGroup template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
 func (vc *VMGroupController) UpdateContext(ctx context.Context, tpl string, uType int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.update", vc.ID, tpl, uType)
+	_, err := vc.c.Client.VMGroupUpdate(ctx, vc.ID, tpl, uType)
 	return err
 }
 
@@ -171,8 +171,7 @@ func (vc *VMGroupController) Chmod(perm shared.Permissions) error {
 
 // ChmodContext changes the permission bits of a vmGroup.
 func (vc *VMGroupController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
-	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.chmod", args...)
+	_, err := vc.c.Client.VMGroupChmod(ctx, vc.ID, perm)
 	return err
 }
 
@@ -188,7 +187,7 @@ func (vc *VMGroupController) Chown(userID, groupID int) error {
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (vc *VMGroupController) ChownContext(ctx context.Context, userID, groupID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.chown", vc.ID, userID, groupID)
+	_, err := vc.c.Client.VMGroupChown(ctx, vc.ID, userID, groupID)
 	return err
 }
 
@@ -202,7 +201,7 @@ func (vc *VMGroupController) Rename(newName string) error {
 // * ctx: context for cancelation
 // * newName: The new name.
 func (vc *VMGroupController) RenameContext(ctx context.Context, newName string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.rename", vc.ID, newName)
+	_, err := vc.c.Client.VMGroupRename(ctx, vc.ID, newName)
 	return err
 }
 
@@ -213,8 +212,9 @@ func (vc *VMGroupController) Lock(level shared.LockLevel) error {
 
 // LockContext locks the vmGroup following lock level. See levels in locks.go.
 // * ctx: context for cancelation
+// todo: Add missing test parameter
 func (vc *VMGroupController) LockContext(ctx context.Context, level shared.LockLevel) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.lock", vc.ID, level)
+	_, err := vc.c.Client.VMGroupLock(ctx, vc.ID, int(level), false)
 	return err
 }
 
@@ -226,7 +226,7 @@ func (vc *VMGroupController) Unlock() error {
 // UnlockContext unlocks the vmGroup.
 // * ctx: context for cancelation
 func (vc *VMGroupController) UnlockContext(ctx context.Context) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.unlock", vc.ID)
+	_, err := vc.c.Client.VMGroupUnlock(ctx, vc.ID)
 	return err
 }
 
@@ -240,7 +240,7 @@ func (vc *VMGroupController) RoleAdd(roleTemplate string) error {
 // * ctx: context for cancelation
 // * roleTemplate: The new role content. Syntax can be the usual attribute=value or XML.
 func (vc *VMGroupController) RoleAddContext(ctx context.Context, roleTemplate string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.roleadd", vc.ID, roleTemplate)
+	_, err := vc.c.Client.VMGroupRoleAdd(ctx, vc.ID, roleTemplate)
 	return err
 }
 
@@ -253,7 +253,7 @@ func (vc *VMGroupController) RoleDelete(roleID int) error {
 // RoleDeleteContext deletes role from VM Group
 // * roleID: ID of the role to delete
 func (vc *VMGroupController) RoleDeleteContext(ctx context.Context, roleID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.roledelete", vc.ID, roleID)
+	_, err := vc.c.Client.VMGroupRoleDelete(ctx, vc.ID, roleID)
 	return err
 }
 
@@ -269,6 +269,6 @@ func (vc *VMGroupController) RoleUpdate(roleID int, roleTemplate string) error {
 // * roleID: ID of the role to update
 // * roleTemplate: The new role content. Syntax can be the usual attribute=value or XML.
 func (vc *VMGroupController) RoleUpdateContext(ctx context.Context, roleID int, roleTemplate string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.roleupdate", vc.ID, roleID, roleTemplate)
+	_, err := vc.c.Client.VMGroupRoleUpdate(ctx, vc.ID, roleID, roleTemplate)
 	return err
 }

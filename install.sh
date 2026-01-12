@@ -291,6 +291,9 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
 LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/opennebula \
           $LIB_LOCATION/ruby/opennebula/flow \
+          $LIB_LOCATION/ruby/opennebula/lib \
+          $LIB_LOCATION/ruby/opennebula/grpc \
+          $LIB_LOCATION/ruby/opennebula/grpc/lib \
           $LIB_LOCATION/ruby/opennebula/form \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
@@ -483,6 +486,7 @@ ANS_DIRS="$ANS_LOCATION/plugins \
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/opennebula/flow \
+                 $LIB_LOCATION/ruby/opennebula/lib \
                  $LIB_LOCATION/ruby/opennebula/form"
 
 LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
@@ -520,9 +524,13 @@ INSTALL_FILES=(
 
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
+    RUBY_OPENNEBULA_CLIENT_FILES:$LIB_LOCATION/ruby/opennebula/lib
+    RUBY_OPENNEBULA_GRPC_FILES:$LIB_LOCATION/ruby/opennebula/grpc
+    RUBY_OPENNEBULA_GRPC_LIB_FILES:$LIB_LOCATION/ruby/opennebula/grpc/lib
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     RUBY_OPENNEBULA_LIB_FLOW_FILES:$LIB_LOCATION/ruby/opennebula/flow
     RUBY_OPENNEBULA_LIB_FORM_FILES:$LIB_LOCATION/ruby/opennebula/form
+
     MAD_RUBY_LIB_FILES:$LIB_LOCATION/ruby
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
@@ -710,6 +718,7 @@ INSTALL_CLIENT_FILES=(
     OCA_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     RUBY_OPENNEBULA_LIB_FLOW_FILES:$LIB_LOCATION/ruby/opennebula/flow
+    RUBY_OPENNEBULA_CLIENT_FILES:$LIB_LOCATION/ruby/opennebula/lib
     RUBY_OPENNEBULA_LIB_FORM_FILES:$LIB_LOCATION/ruby/opennebula/form
     RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
@@ -1043,7 +1052,8 @@ IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/probe_db.rb \
     src/im_mad/remotes/lib/monitord_client.rb \
     src/im_mad/remotes/lib/domain.rb \
-    src/im_mad/remotes/lib/process_list.rb"
+    src/im_mad/remotes/lib/process_list.rb \
+    src/im_mad/remotes/lib/kvm_qemu_ga.rb"
 
 IM_PROBES_LIB_PYTHON_FILES="\
     src/im_mad/remotes/lib/python/models/ \
@@ -1951,9 +1961,82 @@ START_SCRIPT_SHARE_FILES="share/start-scripts/map_vnets_start_script \
 #-------------------------------------------------------------------------------
 OCA_LIB_FILES="src/oca/ruby/opennebula.rb"
 
+RUBY_OPENNEBULA_CLIENT_FILES="src/oca/ruby/opennebula/lib/client.rb \
+                              src/oca/ruby/opennebula/lib/xml_client.rb \
+                              src/oca/ruby/opennebula/lib/grpc_client.rb"
+
+RUBY_OPENNEBULA_GRPC_FILES="src/oca/ruby/opennebula/grpc/shared_pb.rb \
+                            src/oca/ruby/opennebula/grpc/acl_pb.rb \
+                            src/oca/ruby/opennebula/grpc/acl_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/backupjob_pb.rb \
+                            src/oca/ruby/opennebula/grpc/backupjob_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/cluster_pb.rb \
+                            src/oca/ruby/opennebula/grpc/cluster_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/datastore_pb.rb \
+                            src/oca/ruby/opennebula/grpc/datastore_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/document_pb.rb \
+                            src/oca/ruby/opennebula/grpc/document_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/group_pb.rb \
+                            src/oca/ruby/opennebula/grpc/group_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/hook_pb.rb \
+                            src/oca/ruby/opennebula/grpc/hook_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/host_pb.rb \
+                            src/oca/ruby/opennebula/grpc/host_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/image_pb.rb \
+                            src/oca/ruby/opennebula/grpc/image_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/marketplace_pb.rb \
+                            src/oca/ruby/opennebula/grpc/marketplace_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/marketplaceapp_pb.rb \
+                            src/oca/ruby/opennebula/grpc/marketplaceapp_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/secgroup_pb.rb \
+                            src/oca/ruby/opennebula/grpc/secgroup_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/system_pb.rb \
+                            src/oca/ruby/opennebula/grpc/system_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/template_pb.rb \
+                            src/oca/ruby/opennebula/grpc/template_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/user_pb.rb \
+                            src/oca/ruby/opennebula/grpc/user_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vdc_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vdc_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vm_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vm_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vmgroup_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vmgroup_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vn_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vn_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vntemplate_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vntemplate_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vrouter_pb.rb \
+                            src/oca/ruby/opennebula/grpc/vrouter_services_pb.rb \
+                            src/oca/ruby/opennebula/grpc/zone_pb.rb \
+                            src/oca/ruby/opennebula/grpc/zone_services_pb.rb"
+
+RUBY_OPENNEBULA_GRPC_LIB_FILES="src/oca/ruby/opennebula/grpc/lib/acl_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/backupjob_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/cluster_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/datastore_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/document_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/group_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/grpc_map_loader.rb \
+                                src/oca/ruby/opennebula/grpc/lib/hook_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/host_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/image_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/marketplace_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/marketplaceapp_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/securitygroup_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/system_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/template_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/user_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/vdc_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/virtualmachine_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/virtualnetwork_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/virtualrouter_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/vmgroup_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/vntemplate_map.rb \
+                                src/oca/ruby/opennebula/grpc/lib/zone_map.rb"
+
 RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/acl.rb \
-                            src/oca/ruby/opennebula/client.rb \
                             src/oca/ruby/opennebula/cluster_pool.rb \
                             src/oca/ruby/opennebula/cluster.rb \
                             src/oca/ruby/opennebula/datastore_pool.rb \
@@ -2012,7 +2095,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/backupjob_pool.rb \
                             src/oca/ruby/opennebula/backupjob.rb \
                             src/oca/ruby/opennebula/hook_log.rb \
-                            src/oca/ruby/opennebula/flow.rb"
+                            src/oca/ruby/opennebula/flow.rb \
+                            src/oca/ruby/opennebula/version.rb"
 
 RUBY_OPENNEBULA_LIB_FLOW_FILES="src/oca/ruby/opennebula/flow/grammar.rb \
                                  src/oca/ruby/opennebula/flow/service_pool.rb \
@@ -2206,8 +2290,8 @@ FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/views/groupadmi
                                 src/fireedge/etc/sunstone/views/groupadmin/vnet-tab.yaml \
                                 src/fireedge/etc/sunstone/views/groupadmin/vnet-template-tab.yaml \
                                 src/fireedge/etc/sunstone/views/groupadmin/image-tab.yaml \
-                                src/fireedge/etc/sunstone/views/groupadmin/file-tab.yaml \                                
-                                src/fireedge/etc/sunstone/views/groupadmin/backup-tab.yaml \                                
+                                src/fireedge/etc/sunstone/views/groupadmin/file-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/backup-tab.yaml \
                                 src/fireedge/etc/sunstone/views/groupadmin/user-tab.yaml \
                                 src/fireedge/etc/sunstone/views/groupadmin/service-tab.yaml \
                                 src/fireedge/etc/sunstone/views/groupadmin/service-template-tab.yaml \

@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'json'
+require 'opennebula/document'
 
 module OpenNebula
     class DocumentJSON < Document

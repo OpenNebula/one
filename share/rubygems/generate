@@ -21,6 +21,9 @@ require 'tmpdir'
 
 VERSION = '7.1.80'
 
+GRPC_PROTO_FILES_DIR='src/rm/grpc/proto'
+GRPC_TARGET_DIR='src/oca/ruby/opennebula/grpc'
+
 def version
     v = VERSION
 
@@ -72,16 +75,19 @@ GEM_DESCRIPTION={
             ['src/flow/lib/models/*.rb', '/lib/models'],
 
             ['src/oca/ruby/opennebula/*.rb', '/lib/opennebula'],
+            ['src/oca/ruby/opennebula/grpc/*.rb', '/lib/opennebula/grpc'],
             ['src/oca/ruby/opennebula/flow/*.rb', '/lib/opennebula/flow'],
             ['src/authm_mad/remotes/**/*.rb', '/lib/opennebula'],
             ['src/cloud/common/CloudClient.rb', '/lib/cloud'],
+            ['src/cloud/common/CloudClient.rb', '/lib/cloud'],
+
             ['NOTICE', ''],
             ['LICENSE', '']
         ],
         :summary => 'OpenNebula Client API',
         :description => 'Libraries needed to talk to OpenNebula',
         :dependencies => [
-            ['nokogiri','<1.16'],
+            ['nokogiri', '<1.16'],
             'json',
             'xmlrpc',
             'treetop',    # oneflow
@@ -112,7 +118,7 @@ GEM_DESCRIPTION={
 }
 
 def sane_prefix(prefix)
-    return '' if !prefix or prefix.empty?
+    return '' if !prefix || prefix.empty?
 
     p=prefix
 
@@ -127,7 +133,7 @@ def file_list(description)
 
     description[:files].each do |f, prefix, exclude|
         Dir.glob(f).each do |source|
-            next if !exclude.nil? and source.match(exclude)
+            next if !exclude.nil? && source.match(exclude)
 
             files << [source, sane_prefix(prefix)+File.basename(source)]
         end
@@ -208,6 +214,23 @@ def generate_gem_file(gem_file, description, files)
     end
 end
 
+def generate_grpc_files()
+     print("Generating Ruby gRPC files...\n")
+     cmd = [
+         "grpc_tools_ruby_protoc",
+         "-I#{GRPC_PROTO_FILES_DIR}",
+         "--ruby_out=#{GRPC_TARGET_DIR}",
+         "--grpc_out=#{GRPC_TARGET_DIR}",
+         "#{GRPC_PROTO_FILES_DIR}/*.proto",
+     ]
+
+     system(cmd.join(' '))
+     if $?.exitstatus!=0
+         puts 'Error generating gRPC files'
+         exit(-2)
+     end
+end
+
 def generate_gem(description)
     Dir.mktmpdir do |tmp|
         files=file_list(description)
@@ -237,5 +260,7 @@ end
 root=Dir.pwd
 root.gsub!(%r{/share/rubygems$}, '')
 Dir.chdir(root)
+
+generate_grpc_files()
 
 GEM_DESCRIPTION.each {|_name, gem| generate_gem(gem) }

@@ -17,8 +17,9 @@
 package goca
 
 import (
-	"testing"
+	. "gopkg.in/check.v1"
 
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 	vn "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork"
 	vnkeys "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork/keys"
@@ -28,9 +29,14 @@ import (
 	vmkeys "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 )
 
-func TestVirtualRouter(t *testing.T) {
+type VRSuite struct {
+	ID       int
+}
+
+var _ = Suite(&VRSuite{})
+
+func (s *VRSuite) SetUpSuite(c *C) {
 	var vr_name string = "new_vr"
-	var vr *vrouter.VirtualRouter
 
 	vr_template := vrouter.NewTemplate()
 	vr_template.Add(keys.Name, vr_name)
@@ -39,146 +45,127 @@ func TestVirtualRouter(t *testing.T) {
 
 	//Create VirtualRouter
 	vr_id, err := testCtrl.VirtualRouters().Create(vr_template.String())
+	c.Assert(err, IsNil)
 
-	if err != nil {
-		t.Fatalf("Test failed:\n" + err.Error())
-	}
+	s.ID = vr_id
+}
 
-	vrC := testCtrl.VirtualRouter(vr_id)
-	vr, err = vrC.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+func (s *VRSuite) TearDownSuite(c *C) {
+	// Delete Virtul Network
+	testCtrl.VirtualRouter(s.ID).Delete()
+}
 
-	actual := vr.Name
+func (s *VRSuite) TestGetByNameAndID(c *C) {
+	// Get Virtual Network by ID
+	vrC := testCtrl.VirtualRouter(s.ID)
+	vr, err := vrC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(vr.ID, Equals, s.ID)
 
-	if actual != vr_name {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", vr_name, actual)
-	}
+	// Get Virtual Network by Name
+	id, err := testCtrl.VirtualRouterByName(vr.Name)
+	c.Assert(err, IsNil)
+	c.Assert(vr.ID, Equals, id)
+}
 
-	tmpl := "ATT3 = \"VAL3\""
+func (s *VRSuite) TestUpdate(c *C) {
+	// Update
+	vrC := testCtrl.VirtualRouter(s.ID)
+	err := vrC.Update("ATT3=VAL3", parameters.Merge)
+	c.Assert(err, IsNil)
 
-	//Update VirtualRouter
-	err = vrC.Update(tmpl, 1)
-
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
-
-	vr, err = vrC.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	vr, err := vrC.Info(false)
+	c.Assert(err, IsNil)
 
 	actual_1, err := vr.Template.GetStr("ATT1")
-	if err != nil {
-		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
-	} else {
-		if actual_1 != "VAL1" {
-			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
-		}
-	}
+	c.Assert(err, IsNil)
+	c.Assert(actual_1, Equals, "VAL1")
 
 	actual_3, err := vr.Template.GetStr("ATT3")
-	if err != nil {
-		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT3", err.Error())
-	} else {
-		if actual_3 != "VAL3" {
-			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL3", actual_3)
-		}
-	}
+	c.Assert(err, IsNil)
+	c.Assert(actual_3, Equals, "VAL3")
+}
 
-	//Change permissions of VirtualRouter
-	err = vrC.Chmod(shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
+func (s *VRSuite) TestRename(c *C) {
+	vrC := testCtrl.VirtualRouter(s.ID)
+	vrC.Rename("new_name")
 
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	vr, err := vrC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(vr.Name, Equals, "new_name");
+}
 
-	vr, err = vrC.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+func (s *VRSuite) TestChmod(c *C) {
+	new_permissions := shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
 
-	expected_perm := shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
-	actual_perm := vr.Permissions
+	vrC := testCtrl.VirtualRouter(s.ID)
 
-	if actual_perm == nil || *actual_perm != expected_perm {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_perm.String(), actual_perm.String())
-	}
+	err := vrC.Chmod(new_permissions)
 
-	//Change owner of VirtualRouter
-	err = vrC.Chown(1, 1)
+	c.Assert(err, IsNil)
 
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	vr, err := vrC.Info(false)
 
-	vr, err = vrC.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
+	c.Assert(*vr.Permissions, Equals, new_permissions);
+}
 
-	expected_usr := 1
-	expected_grp := 1
-	actual_usr := vr.UID
-	actual_grp := vr.GID
+func (s *VRSuite) TestChown(c *C) {
+	// Test only if the call exists, no real change
+	vrC := testCtrl.VirtualRouter(s.ID)
+	err := vrC.Chown(1, 1)
 
-	if actual_usr != expected_usr {
-		t.Errorf("Test failed, expected: '%d', got:  '%d'", expected_usr, actual_usr)
-	}
+	c.Assert(err, IsNil)
 
-	if actual_grp != expected_grp {
-		t.Errorf("Test failed, expected: '%d', got:  '%d'", expected_grp, actual_grp)
-	}
+	vr, err := vrC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(vr.UID, Equals, 1);
+	c.Assert(vr.GID, Equals, 1);
+}
 
-	rename := vr_name + "-renamed"
+func (s *VRSuite) TestLock(c *C) {
+	// Lock
+	vrC := testCtrl.VirtualRouter(s.ID)
+	err := vrC.Lock(shared.LockUse)
+	c.Assert(err, IsNil)
 
-	//Rename VirtualRouter
-	err = vrC.Rename(rename)
+	vr, err := vrC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(vr.LockInfos.Locked, Equals, 1);
 
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	// Unlock
+	err = vrC.Unlock()
+	c.Assert(err, IsNil)
 
 	vr, err = vrC.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
+	c.Assert(vr.LockInfos, IsNil)
+}
 
-	actual = vr.Name
-
-	if actual != rename {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", rename, actual)
-	}
-
+func (s *VRSuite) TestInstantiate(c *C) {
 	vrTmpl := vm.NewTemplate()
 	vrTmpl.Add(vmkeys.Name, "vrtemplate")
 	vrTmpl.Add(vmkeys.VRouter, "YES")
 	vrTmpl.CPU(0.1).Memory(64)
 
 	tmpl_id, err := testCtrl.Templates().Create(vrTmpl.String())
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
 
 	//Instantiate VirtualRouter
+	vrC := testCtrl.VirtualRouter(s.ID)
 	vrC.Instantiate(1, int(tmpl_id), "vr_test_go", false, "")
 
 	id, err := testCtrl.VMs().ByName("vr_test_go")
-	if err != nil {
-		t.Fatal("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
 
 	err = testCtrl.VM(id).TerminateHard()
-	if err != nil {
-		t.Fatal("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
 
-	template := testCtrl.Template(tmpl_id)
+	err = testCtrl.Template(tmpl_id).Delete()
+	c.Assert(err, IsNil)
+}
 
-	template.Delete()
-
+func (s *VRSuite) TestNIC(c *C) {
 	vn_tmpl := vn.NewTemplate()
 	vn_tmpl.Add(vnkeys.Name, "go-net")
 	vn_tmpl.Add(vnkeys.Bridge, "vbr0")
@@ -186,86 +173,29 @@ func TestVirtualRouter(t *testing.T) {
 
 	vnet_id, _ := testCtrl.VirtualNetworks().Create(vn_tmpl.String(), 0)
 	vnetC := testCtrl.VirtualNetwork(vnet_id)
-	WaitState(t, vnetC, "READY")
+	WaitState(c, vnetC, "READY")
 
 	nic_tmpl := shared.NewNIC()
 	nic_tmpl.Add(shared.Network, "go-net")
 
 	//Attach nic to VirtualRouter
-	err = vrC.AttachNic(nic_tmpl.String())
+	vrC := testCtrl.VirtualRouter(s.ID)
+	err := vrC.AttachNic(nic_tmpl.String())
+	c.Assert(err, IsNil)
 
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
-
-	vr, err = vrC.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	vr, err := vrC.Info(false)
+	c.Assert(err, IsNil)
 
 	nics := vr.Template.GetVectors(string(shared.NICVec))
-	if len(nics) == 0 {
-		t.Errorf("Test failed, can't retrieve '%s', error: %s", "NIC", err.Error())
-	} else {
-		actualNetName, _ := nics[0].GetStr("NETWORK")
+	c.Assert(len(nics), Equals, 1)
 
-		if actualNetName != "go-net" {
-			t.Errorf("Test failed, expected: '%s', got:  '%s'", "go-net", actualNetName)
-		}
-	}
+	actualNetName, _ := nics[0].GetStr("NETWORK")
+	c.Assert(actualNetName, Equals, "go-net")
 
-	err = testCtrl.VirtualNetwork(vnet_id).Delete()
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	err = vnetC.Delete()
+	c.Assert(err, IsNil)
 
 	//Detach nic from VirtualRouter
 	err = vrC.DetachNic(0)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
-
-	//LockUse for VirtualRouter
-	err = vrC.Lock(shared.LockUse)
-
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
-
-	vr, err = vrC.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
-
-	actualLock := vr.LockInfos
-	if actualLock == nil {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "LockInfos", "nil")
-	}
-	if actualLock.Locked != int(shared.LockUse) {
-		t.Errorf("Test failed, expected: '%d', got:  '%d'", shared.LockUse, actualLock.Locked)
-	}
-
-	//Unlock VirtualRouter
-	err = vrC.Unlock()
-
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
-
-	vr, err = vrC.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
-
-	actualLock = vr.LockInfos
-	if actualLock != nil {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "nil", "LockInfos")
-	}
-
-	//Delete VirtualRouter
-	err = vrC.Delete()
-
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
 }

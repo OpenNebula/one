@@ -41,34 +41,42 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
         return;
     }
 
-    string one_port;
-    string master_oned;
     Nebula& nd = Nebula::instance();
-    nd.get_configuration_attribute("PORT", one_port);
-    master_oned = nd.get_master_oned();
+
+    const string& master_oned_xmlrpc = nd.get_master_oned_xmlrpc();
+    const string& master_oned_grpc = nd.get_master_oned_grpc();
 
     ostringstream zone_tmpl;
-    zone_tmpl << "NAME=OpenNebula\nENDPOINT=";
+    zone_tmpl << "NAME=OpenNebula\n";
 
-    if (master_oned.empty())
+    if (master_oned_xmlrpc.empty() && master_oned_grpc.empty())
     {
-        zone_tmpl << "http://localhost:" << one_port << "/RPC2";
+        string xmlrpc_port;
+        string grpc_port;
+
+        nd.get_configuration_attribute("PORT", xmlrpc_port);
+        nd.get_configuration_attribute("GRPC_PORT", grpc_port);
+
+        zone_tmpl << "ENDPOINT=http://localhost:" << xmlrpc_port << "/RPC2\n";
+        zone_tmpl << "ENDPOINT_GRPC=localhost:" << grpc_port << '\n';
     }
-    else
+
+    if (!master_oned_xmlrpc.empty())
     {
-        zone_tmpl << master_oned;
+        zone_tmpl << "ENDPOINT=" << master_oned_xmlrpc << '\n';
+    }
+
+    if (!master_oned_grpc.empty())
+    {
+        zone_tmpl << "ENDPOINT_GRPC=" << master_oned_grpc << '\n';
     }
 
     //lastOID is set in PoolSQL::init_cb
     if (get_lastOID() == -1)
     {
-        int         rc;
-
         // Build the local zone
         auto tmpl = make_unique<Template>();
-        rc = tmpl->parse_str_or_xml(
-                     zone_tmpl.str(),
-                     error_str);
+        int rc = tmpl->parse_str_or_xml(zone_tmpl.str(), error_str);
 
         if( rc < 0 )
         {
@@ -195,7 +203,7 @@ int ZonePool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 
 unsigned int ZonePool::get_zone_servers(int zone_id,
-                                        std::map<int, std::string>& _serv)
+                                        std::map<int, std::pair<std::string, std::string>>& _serv)
 {
     unsigned int _num_servers;
 
@@ -213,10 +221,13 @@ unsigned int ZonePool::get_zone_servers(int zone_id,
 
     for (zit = followers->begin(); zit != followers->end(); ++zit)
     {
-        int id = (*zit)->get_id();
-        std::string  edp = (*zit)->vector_value("ENDPOINT");
+        ZoneServer* server = *zit;
 
-        _serv.insert(make_pair(id, edp));
+        int id = server->get_id();
+        const string& edp = server->vector_value("ENDPOINT");
+        const string& edp_grpc = server->vector_value("ENDPOINT_GRPC");
+
+        _serv.insert(make_pair(id, make_pair(edp, edp_grpc)));
     }
 
     _num_servers = zone->servers_size();

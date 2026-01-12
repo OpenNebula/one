@@ -34,7 +34,7 @@ class SecurityGroupPool;
 class VirtualMachinePool;
 class VirtualMachine;
 class VirtualNetworkPool;
-struct RequestAttributes;
+class RequestAttributes;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

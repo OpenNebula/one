@@ -156,50 +156,15 @@ int MarketPlacePool::allocate(
     // -------------------------------------------------------------------------
     if (Nebula::instance().is_federation_slave())
     {
-        Client * client = Client::client();
-
-        xmlrpc_c::value         result;
-        vector<xmlrpc_c::value> values;
-
-        std::ostringstream oss;
-        oss << "Cannot allocate market at federation master: ";
-
-        std::string mp_xml;
-
-        mp.to_xml(mp_xml);
-
-        try
-        {
-            client->call("one.market.allocatedb", "s", &result, mp_xml.c_str());
-        }
-        catch (exception const& e)
-        {
-            oss << e.what();
-            error_str = oss.str();
-
-            return -1;
-        }
-
-        values = xmlrpc_c::value_array(result).vectorValueValue();
-
-        if ( xmlrpc_c::value_boolean(values[0]) == false )
-        {
-            std::string error_xml = xmlrpc_c::value_string(values[1]);
-
-            oss << error_xml;
-            error_str = oss.str();
-
-            return -1;
-        }
-
-        *oid = xmlrpc_c::value_int(values[1]);
+        string tmp_xml;
+        *oid = Client::client()->market_allocate(mp.to_xml(tmp_xml), error_str);
 
         return *oid;
     }
 
     *oid = PoolSQL::allocate(mp, error_str);
 
-    return *oid;    
+    return *oid;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -226,40 +191,8 @@ int MarketPlacePool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        std::string tmpl_xml;
-        Client * client = Client::client();
-
-        xmlrpc_c::value result;
-        vector<xmlrpc_c::value> values;
-
-        std::ostringstream oss;
-
-        try
-        {
-            client->call("one.market.updatedb", "is", &result, objsql->get_oid(),
-                         objsql->to_xml(tmpl_xml).c_str());
-        }
-        catch (exception const& e)
-        {
-            oss << "Cannot update market in federation master db: "<<e.what();
-            NebulaLog::log("MKP", Log::ERROR, oss);
-
-            return -1;
-        }
-
-        values = xmlrpc_c::value_array(result).vectorValueValue();
-
-        if ( xmlrpc_c::value_boolean(values[0]) == false )
-        {
-            std::string error = xmlrpc_c::value_string(values[1]);
-
-            oss << "Cannot update market in federation master db: " << error;
-            NebulaLog::log("MKP", Log::ERROR, oss);
-
-            return -1;
-        }
-
-        return 0;
+        std::string tmp_xml;
+        return Client::client()->market_update(objsql->get_oid(), objsql->to_xml(tmp_xml));
     }
 
     return PoolSQL::update(objsql);

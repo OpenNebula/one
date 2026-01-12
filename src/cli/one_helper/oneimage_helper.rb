@@ -16,6 +16,8 @@
 
 require 'one_helper'
 require 'one_helper/onevm_helper'
+require 'opennebula/image'
+require 'opennebula/image_pool'
 
 # CLI helper for oneimage command
 class OneImageHelper < OpenNebulaHelper::OneHelper

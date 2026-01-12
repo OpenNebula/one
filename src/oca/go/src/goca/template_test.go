@@ -17,17 +17,20 @@
 package goca
 
 import (
-	"testing"
-
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
-	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/template"
+	. "gopkg.in/check.v1"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
-// Helper to create a template
-func createTemplate(t *testing.T) (*template.Template, int) {
+type TemplateSuite struct {
+	ID       int
+}
+
+var _ = Suite(&TemplateSuite{})
+
+func (s *TemplateSuite) SetUpTest(c *C) {
 	templateName := GenName("template")
 
 	// Create template
@@ -36,116 +39,120 @@ func createTemplate(t *testing.T) (*template.Template, int) {
 	tpl.CPU(1).Memory(64)
 
 	id, err := testCtrl.Templates().Create(tpl.String())
-	if err != nil {
-		t.Fatal(err)
-	}
+	c.Assert(err, IsNil)
 
-	// Get template by ID
-	template, err := testCtrl.Template(id).Info(false, false)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	return template, id
+	s.ID = id
 }
 
-func TestTemplateCreateAndDelete(t *testing.T) {
-	var err error
+func (s *TemplateSuite) TearDownTest(c *C) {
+	// Delete tmpl
+	testCtrl.Template(s.ID).Delete()
+}
 
-	template, idOrig := createTemplate(t)
+func (s *TemplateSuite) TestGetByNameAndID(c *C) {
+	// Get tmpl by ID
+	tmplC := testCtrl.Template(s.ID)
+	tmpl, err := tmplC.Info(false, false)
+	c.Assert(err, IsNil)
+	c.Assert(tmpl.ID, Equals, s.ID)
 
-	idParse := template.ID
-	if idParse != idOrig {
-		t.Errorf("Template ID does not match")
-	}
+	// Get tmpl by Name
+	id, err := testCtrl.Templates().ByName(tmpl.Name)
+	c.Assert(err, IsNil)
+	c.Assert(tmpl.ID, Equals, id)
+}
 
-	// Get template by Name
-	name := template.Name
+func (s *TemplateSuite) TestUpdate(c *C) {
+	// Update
+	tmplC := testCtrl.Template(s.ID)
+	err := tmplC.Update("A=B", 1)
+	c.Assert(err, IsNil)
+
+	tmpl, err := tmplC.Info(false, false)
+	c.Assert(err, IsNil)
+
+	val, err := tmpl.Template.GetStr("A")
+	c.Assert(err, IsNil)
+	c.Assert(val, Equals, "B")
+}
+
+func (s *TemplateSuite) TestRename(c *C) {
+	tmplC := testCtrl.Template(s.ID)
+	tmplC.Rename("new_name")
+
+	tmpl, err := tmplC.Info(false, false)
+	c.Assert(err, IsNil)
+	c.Assert(tmpl.Name, Equals, "new_name");
+}
+
+func (s *TemplateSuite) TestChmod(c *C) {
+	new_permissions := shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
+
+	tmplC := testCtrl.Template(s.ID)
+
+	err := tmplC.Chmod(new_permissions)
+
+	c.Assert(err, IsNil)
+
+	tmpl, err := tmplC.Info(false, false)
+
+	c.Assert(err, IsNil)
+	c.Assert(*tmpl.Permissions, Equals, new_permissions);
+}
+
+func (s *TemplateSuite) TestChown(c *C) {
+	// Test only if the call exists, no real change
+	tmplC := testCtrl.Template(s.ID)
+	err := tmplC.Chown(1, 1)
+
+	c.Assert(err, IsNil)
+
+	tmpl, err := tmplC.Info(false, false)
+	c.Assert(err, IsNil)
+	c.Assert(tmpl.UID, Equals, 1);
+	c.Assert(tmpl.GID, Equals, 1);
+}
+
+func (s *TemplateSuite) TestLock(c *C) {
+	// Lock
+	tmplC := testCtrl.Template(s.ID)
+	err := tmplC.Lock(shared.LockUse)
+	c.Assert(err, IsNil)
+
+	tmpl, err := tmplC.Info(false, false)
+	c.Assert(err, IsNil)
+	c.Assert(tmpl.LockInfos.Locked, Equals, 1);
+
+	// Unlock
+	err = tmplC.Unlock()
+	c.Assert(err, IsNil)
+
+	tmpl, err = tmplC.Info(false, false)
+	c.Assert(err, IsNil)
+	c.Assert(tmpl.LockInfos, IsNil)
+}
+
+func (s *TemplateSuite) TestClone(c *C) {
+	name := GenName("cloned_tmpl")
+	tmplC := testCtrl.Template(s.ID)
+	err := tmplC.Clone(name, false)
+	c.Assert(err, IsNil)
+
+	// Delete cloned tmpl
 	id, err := testCtrl.Templates().ByName(name)
-	if err != nil {
-		t.Fatal(err)
-	}
+	c.Assert(err, IsNil)
 
-	template, err = testCtrl.Template(id).Info(false, false)
-	if err != nil {
-		t.Error(err)
-	}
-
-	idParse = template.ID
-	if idParse != idOrig {
-		t.Errorf("Template ID does not match")
-	}
-
-	// Delete template
-	err = testCtrl.Template(id).Delete()
-	if err != nil {
-		t.Error(err)
-	}
+	testCtrl.Template(id).Delete()
 }
 
-func TestTemplateInstantiate(t *testing.T) {
-	templateName := GenName("template")
-
-	// Create template
-	tpl := vm.NewTemplate()
-	tpl.Add(keys.Name, templateName)
-	tpl.CPU(1).Memory(64)
-
-	id, err := testCtrl.Templates().Create(tpl.String())
-	if err != nil {
-		t.Error(err)
-	}
-
+func (s *TemplateSuite) TestInstantiate(c *C) {
 	// Get template by ID
-	templateC := testCtrl.Template(id)
+	tmplC := testCtrl.Template(s.ID)
 
 	// Instantiate(name string, pending bool, extra string) (uint, error)
-	vmid, err := templateC.Instantiate("", false, "", false)
-	if err != nil {
-		t.Error(err)
-	}
+	vmid, err := tmplC.Instantiate("", false, "", false)
+	c.Assert(err, IsNil)
 
 	err = testCtrl.VM(vmid).Terminate()
-	if err != nil {
-		t.Error(err)
-	}
-
-	// Delete template
-	err = templateC.Delete()
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func TestTemplateUpdate(t *testing.T) {
-
-	template, _ := createTemplate(t)
-	templateCtrl := testCtrl.Template(template.ID)
-
-	tpl := dyn.NewTemplate()
-	tpl.AddPair("A", "B")
-
-	// Update
-	templateCtrl.Update(tpl.String(), 1)
-
-	template, err := templateCtrl.Info(false, false)
-	if err != nil {
-		t.Error(err)
-	}
-
-	val, err := template.Template.GetStr("A")
-	if err != nil {
-		t.Errorf("Test failed, can't retrieve '%s', error: %s", "A", err.Error())
-	} else {
-		if val != "B" {
-			t.Errorf("Expecting A=B")
-		}
-	}
-
-	// Delete template
-	err = templateCtrl.Delete()
-	if err != nil {
-		t.Error(err)
-	}
+	c.Assert(err, IsNil)
 }

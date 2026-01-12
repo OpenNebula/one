@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/pool_element'
 
 module OpenNebula
 
@@ -122,19 +123,14 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def allocate(user, resource, rights, zone=nil)
-            if !zone.nil?
-                return super( AclPool::ACL_POOL_METHODS[:addrule],
-                            user,
-                            resource,
-                            rights,
-                            zone )
-            else
-                return super( AclPool::ACL_POOL_METHODS[:addrule],
-                            user,
-                            resource,
-                            rights)
-            end
+        def allocate(user, resource, rights, zone='')
+            require 'opennebula/acl_pool'
+
+            return super( AclPool::ACL_POOL_METHODS[:addrule],
+                        user,
+                        resource,
+                        rights,
+                        zone )
         end
 
         # Deletes the Acl rule
@@ -142,6 +138,8 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def delete()
+            require 'opennebula/acl_pool'
+
             super(AclPool::ACL_POOL_METHODS[:delrule])
         end
 

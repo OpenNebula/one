@@ -16,7 +16,8 @@
 
 require 'one_helper'
 require 'one_helper/onetemplate_helper'
-require 'base64'
+require 'opennebula/vntemplate'
+require 'opennebula/vntemplate_pool'
 
 class OneVNTemplateHelper < OneTemplateHelper
     VN_NAME={

@@ -14,11 +14,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'time'
+require 'fileutils'
 require 'HostSyncManager'
 require 'one_helper'
 require 'one_helper/onevm_helper'
-require 'rubygems'
-require 'time'
+require 'opennebula/host'
+require 'opennebula/host_pool'
+require 'opennebula/system'
 
 # implements onehost command
 class OneHostHelper < OpenNebulaHelper::OneHelper

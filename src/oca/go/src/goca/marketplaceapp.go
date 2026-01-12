@@ -89,7 +89,7 @@ func (mc *MarketPlaceAppsController) InfoContext(ctx context.Context, args ...in
 		return nil, err
 	}
 
-	response, err := mc.c.Client.CallContext(ctx, "one.marketapppool.info", fArgs...)
+	response, err := mc.c.Client.MarketAppPoolInfo(ctx, fArgs[0], fArgs[1], fArgs[2])
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (mc *MarketPlaceAppController) Info(decrypt bool) (*marketplaceapp.MarketPl
 
 // InfoContext retrieves information for the marketplace app.
 func (mc *MarketPlaceAppController) InfoContext(ctx context.Context, decrypt bool) (*marketplaceapp.MarketPlaceApp, error) {
-	response, err := mc.c.Client.CallContext(ctx, "one.marketapp.info", mc.ID, decrypt)
+	response, err := mc.c.Client.MarketAppInfo(ctx, mc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func (mc *MarketPlaceAppsController) Create(tpl string, market int) (int, error)
 // * tpl: template of the marketplace app
 // * market: market place ID
 func (mc *MarketPlaceAppsController) CreateContext(ctx context.Context, tpl string, market int) (int, error) {
-	response, err := mc.c.Client.CallContext(ctx, "one.marketapp.allocate", tpl, market)
+	response, err := mc.c.Client.MarketAppAllocate(ctx, tpl, market)
 	if err != nil {
 		return -1, err
 	}
@@ -150,7 +150,7 @@ func (mc *MarketPlaceAppController) Delete() error {
 
 // DeleteContext deletes the given marketplace app from the pool.
 func (mc *MarketPlaceAppController) DeleteContext(ctx context.Context) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.marketapp.delete", mc.ID)
+	_, err := mc.c.Client.MarketAppDelete(ctx, mc.ID)
 	return err
 }
 
@@ -164,7 +164,7 @@ func (mc *MarketPlaceAppController) Enable(enable bool) error {
 // * ctx: context for cancelation
 // * enable: True for enabling, False for disabling
 func (mc *MarketPlaceAppController) EnableContext(ctx context.Context, enable bool) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.marketapp.enable", mc.ID, enable)
+	_, err := mc.c.Client.MarketAppEnable(ctx, mc.ID, enable)
 	return err
 }
 
@@ -182,7 +182,7 @@ func (mc *MarketPlaceAppController) Update(tpl string, uType parameters.UpdateTy
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (mc *MarketPlaceAppController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.marketapp.update", mc.ID, tpl, uType)
+	_, err := mc.c.Client.MarketAppUpdate(ctx, mc.ID, tpl, int(uType))
 	return err
 }
 
@@ -193,8 +193,7 @@ func (mc *MarketPlaceAppController) Chmod(perm shared.Permissions) error {
 
 // ChmodContext changes the permission bits of a marketplace app
 func (mc *MarketPlaceAppController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
-	args := append([]interface{}{mc.ID}, perm.ToArgs()...)
-	_, err := mc.c.Client.CallContext(ctx, "one.marketapp.chmod", args...)
+	_, err := mc.c.Client.MarketAppChmod(ctx, mc.ID, perm)
 	return err
 }
 
@@ -210,7 +209,7 @@ func (mc *MarketPlaceAppController) Chown(userID, groupID int) error {
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (mc *MarketPlaceAppController) ChownContext(ctx context.Context, userID, groupID int) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.marketapp.chown", mc.ID, userID, groupID)
+	_, err := mc.c.Client.MarketAppChown(ctx, mc.ID, userID, groupID)
 	return err
 }
 
@@ -224,7 +223,7 @@ func (mc *MarketPlaceAppController) Rename(newName string) error {
 // * ctx: context for cancelation
 // * newName: The new name.
 func (mc *MarketPlaceAppController) RenameContext(ctx context.Context, newName string) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.marketapp.rename", mc.ID, newName)
+	_, err := mc.c.Client.MarketAppRename(ctx, mc.ID, newName)
 	return err
 }
 
@@ -234,8 +233,9 @@ func (mc *MarketPlaceAppController) Lock(level shared.LockLevel) error {
 }
 
 // LockContext locks the marketplace app depending on blocking level. See levels in locks.go.
+// todo: add missing test parameter
 func (mc *MarketPlaceAppController) LockContext(ctx context.Context, level shared.LockLevel) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.marketapp.lock", mc.ID, level)
+	_, err := mc.c.Client.MarketAppLock(ctx, mc.ID, int(level), false)
 	return err
 }
 
@@ -246,6 +246,6 @@ func (mc *MarketPlaceAppController) Unlock() error {
 
 // UnlockContext unlocks the marketplace app.
 func (mc *MarketPlaceAppController) UnlockContext(ctx context.Context) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.marketapp.unlock", mc.ID)
+	_, err := mc.c.Client.MarketAppUnlock(ctx, mc.ID)
 	return err
 }

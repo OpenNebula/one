@@ -38,6 +38,8 @@ module OpenNebula
 
         # Factory method to create datastore objects
         def factory(element_xml)
+            require 'opennebula/datastore'
+
             OpenNebula::Datastore.new(element_xml,@client)
         end
 

@@ -50,11 +50,11 @@ public:
      *   @param log_purge period to purge logDB records
      *   @param bcast heartbeat broadcast timeout
      *   @param election timeout
-     *   @param xmlrpc timeout for RAFT related xmlrpc API calls
+     *   @param rpc_timeout timeout for RAFT related rpc API calls
      **/
     RaftManager(int server_id, const VectorAttribute * leader_hook_mad,
                 const VectorAttribute * follower_hook_mad, time_t log_purge,
-                long long bcast, long long election, time_t xmlrpc,
+                long long bcast, long long election, time_t rpc_timeout,
                 const std::string& remotes_location);
 
     ~RaftManager() = default;
@@ -236,40 +236,40 @@ public:
     }
 
     /**
-     * Gets the endpoint for xml-rpc calls of the current leader
+     * Gets the endpoint for rpc calls of the current leader
      *   @param endpoint
      *   @return 0 on success, -1 if no leader found
      */
-    int get_leader_endpoint(std::string& endpoint);
+    int get_leader_endpoint(std::string& endpoint, bool grpc = true);
 
     // -------------------------------------------------------------------------
-    // XML-RPC Raft API calls
+    // RPC Raft API calls
     // -------------------------------------------------------------------------
     /**
-     *  Calls the follower xml-rpc method
+     *  Calls the follower rpc method
      *    @param follower_id to make the call
      *    @param lr the record to replicate
-     *    @param success of the xml-rpc method
+     *    @param success of the rpc method
      *    @param ft term in the follower as returned by the replicate call
      *    @param error describing error if any
-     *    @return -1 if a XMl-RPC (network) error occurs, 0 otherwise
+     *    @return -1 if a RPC (network) error occurs, 0 otherwise
      */
-    int xmlrpc_replicate_log(int follower_id, LogDBRecord * lr, bool& success,
-                             unsigned int& ft, std::string& error);
+    int rpc_replicate_log(int follower_id, LogDBRecord * lr, bool& success,
+                          unsigned int& ft, std::string& error);
 
     /**
-     *  Calls the request vote xml-rpc method
+     *  Calls the request vote rpc method
      *    @param follower_id to make the call
      *    @param lindex highest last log index
      *    @param lterm highest last log term
-     *    @param success of the xml-rpc method
+     *    @param success of the rpc method
      *    @param ft term in the follower as returned by the replicate call
      *    @param error describing error if any
-     *    @return -1 if a XMl-RPC (network) error occurs, 0 otherwise
+     *    @return -1 if a RPC (network) error occurs, 0 otherwise
      */
-    int xmlrpc_request_vote(int follower_id, uint64_t lindex,
-                            unsigned int lterm, bool& success, unsigned int& fterm,
-                            std::string& error);
+    int rpc_request_vote(int follower_id, uint64_t lindex, unsigned int lterm,
+                         bool& success, unsigned int& fterm,
+                         std::string& error);
 
     // -------------------------------------------------------------------------
     // Server related interface
@@ -278,9 +278,11 @@ public:
      *  Adds a new server to the follower list and starts associated replica
      *  thread.
      *    @param follower_id id of new server
-     *    @param xmlep xmlrpc endpoint for new server
+     *    @param endpoint rpc endpoint for new server
      */
-    void add_server(int follower_id, const std::string& xmlep);
+    void add_server(int follower_id,
+                    const std::string& endpoint_xrpc,
+                    const std::string& endpoint_grpc);
 
     /**
      *  Deletes a new server to the follower list and stops associated replica
@@ -362,7 +364,7 @@ private:
     //  Timers
     //    - timer_period_ms. Base timer to wake up the manager (10ms)
     //    - purge_period_ms. How often the LogDB is purged (600s)
-    //    - xmlrpc_timeout. To timeout xml-rpc api calls to replicate log
+    //    - rpc_timeout_ms. To timeout api calls to replicate log
     //    - election_timeout. Timeout leader heartbeats (followers)
     //    - broadcast_timeout. To send heartbeat to followers (leader)
     //--------------------------------------------------------------------------
@@ -370,7 +372,7 @@ private:
 
     time_t purge_period_ms;
 
-    time_t xmlrpc_timeout_ms;
+    time_t rpc_timeout_ms;
 
     struct timespec election_timeout;
 
@@ -392,7 +394,7 @@ private:
     //
     //   - next, next log to send to each follower <follower, next>
     //   - match, highest log replicated in this server <follower, match>
-    //   - servers, list of servers in zone and xml-rpc edp <follower, edp>
+    //   - servers, list of servers in zone and rpc edp <follower, edp>
     // -------------------------------------------------------------------------
     RaftReplicaManager replica_manager;
 
@@ -404,7 +406,7 @@ private:
 
     std::map<int, uint64_t> match;
 
-    std::map<int, std::string>  servers;
+    std::map<int, std::pair<std::string, std::string>> servers;
 
     // -------------------------------------------------------------------------
     // Hooks

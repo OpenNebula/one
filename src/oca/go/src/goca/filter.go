@@ -33,6 +33,7 @@ type VMFilter struct {
 	State   int
 
 	// Pair is optional. Format: "KEY=VALUE"
+	// todo: KEY=VALUE is obsolete, new search querries use JSON string
 	Pair string
 }
 
@@ -81,7 +82,7 @@ func (f *VMFilter) toArgs() []interface{} {
 
 }
 
-func handleArgs(args []int) ([]interface{}, error) {
+func handleArgs(args []int) ([]int, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -103,10 +104,10 @@ func handleArgs(args []int) ([]interface{}, error) {
 		return nil, errors.New("Info method: too many arguments")
 	}
 
-	return []interface{}{who, start, end}, nil
+	return []int{who, start, end}, nil
 }
 
-func handleVMArgs(args []int) ([]interface{}, error) {
+func handleVMArgs(args []int) ([]int, error) {
 
 	if len(args) > 4 {
 		return nil, errors.New("Info method: too many arguments")

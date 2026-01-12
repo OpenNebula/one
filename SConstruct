@@ -66,6 +66,8 @@ add_bison(main_env)
 # Include dirs
 main_env.Append(CPPPATH=[
     cwd+'/include',
+    cwd+'/src/rm/xml-rpc',
+    cwd+'/src/rm/api',
     cwd+'/src/monitor/include',
     cwd+'/src/parsers'
 ])
@@ -170,6 +172,45 @@ if mysql == 'yes':
     main_env.Append(LIBS=['mysqlclient'])
 else:
     main_env.Append(mysql='no')
+
+# grpc
+grpc = ARGUMENTS.get('grpc', 'yes')
+
+if grpc == 'yes':
+    main_env.Append(grpc='yes')
+
+    main_env.Append(CPPFLAGS=["-DGRPC", "-DGRPC_CALLBACK_API_NONEXPERIMENTAL"])
+
+    main_env.Append(CPPPATH=[
+        cwd+'/src/rm/grpc',
+        cwd+'/src/rm/grpc/src',
+    ])
+
+    main_env.Append(LIBS=[
+        'grpc++',
+        'grpc++_reflection',
+        'grpc',
+        'gpr',
+        'absl_synchronization',
+        'absl_cord',
+        # 'absl_cordz_info',
+        # 'absl_cordz_functions',
+        # 'absl_log_internal_check_op',
+        # 'absl_log_internal_message',
+        'absl_spinlock_wait',
+        'absl_raw_logging_internal',
+        'protobuf'
+     ])
+else:
+    main_env.Append(grpc='no')
+
+# grpc
+grpcproto = ARGUMENTS.get('grpcproto', 'no')
+
+if grpcproto == 'yes':
+    main_env.Append(proto='yes')
+else:
+    main_env.Append(proto='no')
 
 # systemd
 systemd = ARGUMENTS.get('systemd', 'no')

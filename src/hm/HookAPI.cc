@@ -16,58 +16,60 @@
 
 #include "HookAPI.h"
 #include "Nebula.h"
-#include "Request.h"
 #include "SSLUtil.h"
+#include "RequestAttributes.h"
+#include "RequestManagerXRPC.h"
+
+#include <unordered_set>
 
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const string HookAPI::unsupported_calls[] =  {"one.vm.info",
-                                              "one.vmpool.info",
-                                              "one.vmpool.infoextended",
-                                              "one.template.info",
-                                              "one.templatepool.info",
-                                              "one.host.info",
-                                              "one.hostpool.info",
-                                              "one.group.info",
-                                              "one.grouppool.info",
-                                              "one.groupquota.info",
-                                              "one.vn.info",
-                                              "one.vnpool.info",
-                                              "one.user.info",
-                                              "one.userpool.info",
-                                              "one.userquota.info",
-                                              "one.datastore.info",
-                                              "one.datastorepool.info",
-                                              "one.image.info",
-                                              "one.imagepool.info",
-                                              "one.acl.info",
-                                              "one.vntemplate.info",
-                                              "one.vntemplatepool.info",
-                                              "one.cluster.info",
-                                              "one.clusterpool.info",
-                                              "one.document.info",
-                                              "one.documentpool.info",
-                                              "one.zone.info",
-                                              "one.zonepool.info",
-                                              "one.secgroup.info",
-                                              "one.secgrouppool.info",
-                                              "one.vmgroup.info",
-                                              "one.vmgrouppool.info",
-                                              "one.vdc.info",
-                                              "one.vdcpool.info",
-                                              "one.vrouter.info",
-                                              "one.vrouterpool.info",
-                                              "one.market.info",
-                                              "one.marketpool.info",
-                                              "one.marketapp.info",
-                                              "one.marketapppool.info",
-                                              "one.hook.info",
-                                              "one.hookpool.info",
-                                              "one.hooklog.info"
-                                             };
+const unordered_set<string> unsupported_calls =  { "one.vm.info",
+                                                   "one.vmpool.info",
+                                                   "one.vmpool.infoextended",
+                                                   "one.template.info",
+                                                   "one.templatepool.info",
+                                                   "one.host.info",
+                                                   "one.hostpool.info",
+                                                   "one.group.info",
+                                                   "one.grouppool.info",
+                                                   "one.groupquota.info",
+                                                   "one.vn.info",
+                                                   "one.vnpool.info",
+                                                   "one.user.info",
+                                                   "one.userpool.info",
+                                                   "one.userquota.info",
+                                                   "one.datastore.info",
+                                                   "one.datastorepool.info",
+                                                   "one.image.info",
+                                                   "one.imagepool.info",
+                                                   "one.acl.info",
+                                                   "one.vntemplate.info",
+                                                   "one.vntemplatepool.info",
+                                                   "one.cluster.info",
+                                                   "one.clusterpool.info",
+                                                   "one.document.info",
+                                                   "one.documentpool.info",
+                                                   "one.zone.info",
+                                                   "one.zonepool.info",
+                                                   "one.secgroup.info",
+                                                   "one.secgrouppool.info",
+                                                   "one.vmgroup.info",
+                                                   "one.vmgrouppool.info",
+                                                   "one.vdc.info",
+                                                   "one.vdcpool.info",
+                                                   "one.vrouter.info",
+                                                   "one.vrouterpool.info",
+                                                   "one.market.info",
+                                                   "one.marketpool.info",
+                                                   "one.marketapp.info",
+                                                   "one.marketapppool.info",
+                                                   "one.hook.info",
+                                                   "one.hookpool.info",
+                                                   "one.hooklog.info" };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -90,12 +92,12 @@ std::string HookAPI::format_message(const std::string& method,
         << "<RESULT>" << att.success << "</RESULT>"
         << "<PARAMETERS>";
 
-    for (int i = 0; i < paramList.size(); i++)
+    for (unsigned int i = 0; i < paramList.size(); i++)
     {
         oss << "<PARAMETER>"
             << "<POSITION>" << i + 1 << "</POSITION>"
             << "<TYPE>IN</TYPE>"
-            << "<VALUE>" << paramList.get_value_as_string(i) << "</VALUE>"
+            << "<VALUE>" << paramList.param_value(i) << "</VALUE>"
             << "</PARAMETER>";
     }
 
@@ -174,7 +176,7 @@ int HookAPI::post_update_template(Template * tmpl, string& error)
 
 bool HookAPI::call_exist(const string& api_call)
 {
-    RequestManager * rm = Nebula::instance().get_rm();
+    RequestManagerXRPC * rm = Nebula::instance().get_rm_xrpc();
 
     if (!rm->exist_method(api_call))
     {
@@ -189,13 +191,5 @@ bool HookAPI::call_exist(const string& api_call)
 
 bool HookAPI::supported_call(const string& api_call)
 {
-    for (const auto& call : unsupported_calls)
-    {
-        if (api_call == call)
-        {
-            return false;
-        }
-    }
-
-    return true;
+    return unsupported_calls.count(api_call) == 0;
 }

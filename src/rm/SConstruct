@@ -15,49 +15,259 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+import os
+import subprocess
+import tempfile
+import shutil
 
 Import('env')
 
+def proto_files(source_dir, target_cpp_dir, target_go_dir, proto_include_path=None):
+    """
+    Recursively generate C++ and Ruby Protobuf + gRPC mappings from .proto files,
+    using a staged directory structure for consistent import paths.
+
+    :param source_dir: path to original .proto source tree
+    :param target_cpp_dir: output directory for C++ generated code
+    :param target_go_dir: output directory for golang generated code
+    :param proto_include_path: optional additional include path
+    """
+    # Ensure output dirs exist
+    os.makedirs(target_cpp_dir, exist_ok=True)
+    os.makedirs(target_go_dir, exist_ok=True)
+
+    # Locate grpc_cpp_plugin
+    cpp_plugin_path = os.environ.get('GRPC_CPP_PLUGIN_PATH') or shutil.which('grpc_cpp_plugin')
+    if not cpp_plugin_path:
+        raise RuntimeError("Could not find grpc_cpp_plugin on PATH or in GRPC_CPP_PLUGIN_PATH")
+
+    # Generate C++ code
+    for root, _, files in os.walk(source_dir):
+        for f in files:
+            if not f.endswith('.proto'):
+                continue
+            proto = os.path.join(root, f)
+            print(f"Generating C++ files for {proto}...")
+
+            cmd = [
+                'protoc',
+                f'-I{source_dir}',
+                f'--cpp_out={target_cpp_dir}',
+            ]
+            # add gRPC flags for service files
+            if 'response' not in proto:
+                cmd.append(f'--plugin=protoc-gen-grpc={cpp_plugin_path}')
+                cmd.append(f'--grpc_out={target_cpp_dir}')
+            cmd.append(proto)
+
+            subprocess.run(cmd, check=True)
+
+    # Generate golang code
+    # Prerequisities:
+    #   go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+    #   go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+    print("Generating golang gRPC files...")
+    if shutil.which("go") is None:
+        print("Warning: 'go' command not found in PATH. Skipping Go proto file generation.")
+        return
+
+    # 2. Check if 'protoc-gen-go' and 'protoc-gen-go-grpc' are installed (essential for gRPC Go)
+    # These are usually installed via 'go install' and should be in GOPATH/bin, which should be in PATH.
+    if shutil.which("protoc-gen-go") is None:
+        print("Warning: 'protoc-gen-go' plugin not found in PATH. Skipping Go proto file generation.")
+        print("You might need to install it: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest")
+        return
+
+    if shutil.which("protoc-gen-go-grpc") is None:
+        print("Warning: 'protoc-gen-go-grpc' plugin not found in PATH. Skipping Go proto file generation.")
+        print("You might need to install it: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest")
+        return
+
+    for root, _, files in os.walk(source_dir):
+        for f in files:
+            if f.endswith('.proto'):
+                # Get the filename without the .proto extension
+                proto_name = os.path.splitext(f)[0]
+
+                # Create a specific output directory for this proto file
+                specific_go_dir = os.path.join(target_go_dir, proto_name)
+                os.makedirs(specific_go_dir, exist_ok=True)
+
+                # Generate go files from proto file
+                go_cmd = [
+                    'protoc',
+                    f'-I{source_dir}',
+                    f'--go_out={specific_go_dir}',
+                    f'--go_opt=paths=source_relative',
+                    f'--go-grpc_out={specific_go_dir}',
+                    f'--go-grpc_opt=paths=source_relative'
+                ]
+                go_cmd.append(os.path.join(root, f))
+
+                subprocess.run(go_cmd, check=True)
+
+    print("All proto generations complete.")
+
+
+def gen_file_list(target_dir):
+    """
+    Recursively find all generated .pb.cc, .pb.h, .grpc.pb.cc, and .grpc.pb.h files
+    in the target directory.
+
+    :param target_dir: Path to the target directory containing generated files.
+    :return: List of relative paths to the generated files.
+    """
+    generated_files = []
+    allowed_extensions = {".pb.cc", ".pb.h", ".grpc.pb.cc", ".grpc.pb.h"}
+
+    for root, _, files in os.walk(target_dir):
+        for file in files:
+            if any(file.endswith(ext) for ext in allowed_extensions):
+                generated_files.append(os.path.join(root, file))
+
+    return generated_files
+
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Folder definition
+#  grpc_path: src/rm/grpc
+#  gen_cpp_path:  src/rm/grpc/src/
+# -----------------------------------------------------------------------------
+grpc_path  = os.path.join(os.getcwd(), "grpc")
+proto_path = os.path.join(grpc_path, "proto")
+
+gen_cpp_path  = os.path.join(grpc_path, "src")
+gen_go_path   = os.path.join(os.getcwd(), "../oca/go/src/goca/api")
+
+# print(f"Generated files : {generated_grpc_src_files}")
+
+# Include dirs
+if env['grpc'] == 'yes':
+    if env['proto'] == 'yes':
+        proto_files(proto_path, gen_cpp_path, gen_go_path)
+
+    grpc_src_files = gen_file_list(gen_cpp_path)
+
+    env.Append(CPPPATH=[
+        gen_cpp_path
+    ])
+
 lib_name='nebula_rm'
+
+GRPC_VERSION_STRING = None
+try:
+    GRPC_VERSION_STRING = subprocess.check_output(
+        ['pkg-config', '--modversion', 'grpc++'],
+        universal_newlines=True,
+        stderr=subprocess.PIPE
+    ).strip()
+
+    version_parts = [int(p) for p in GRPC_VERSION_STRING.split('.')[:2]]
+    GRPC_MAJOR_MINOR = version_parts[0] * 100 + version_parts[1] # e.g., 151 for 1.51
+
+    print(f"Found gRPC C++ version: {GRPC_VERSION_STRING} (Internal ID: {GRPC_MAJOR_MINOR})")
+
+except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
+    GRPC_MAJOR_MINOR = 0
+    print("Warning: gRPC C++ library not found or version detection failed.")
+
+VERSION_THRESHOLD = 142 # 1.42
+CPP_DEFINES_TO_ADD = []
+
+if GRPC_MAJOR_MINOR >= VERSION_THRESHOLD:
+    print("Using gRPC Newer Interface.")
+    env.Append(CPPFLAGS=["-DNEW_GRPC"])
 
 #Sources to generate the library
 source_files=[
+    'RequestLogger.cc',
     'Request.cc',
-    'RequestManager.cc',
-    'RequestManagerInfo.cc',
-    'RequestManagerPoolInfoFilter.cc',
-    'RequestManagerDelete.cc',
-    'RequestManagerAllocate.cc',
-    'RequestManagerVirtualNetwork.cc',
-    'RequestManagerVirtualMachine.cc',
-    'RequestManagerVMTemplate.cc',
-    'RequestManagerUpdateTemplate.cc',
-    'RequestManagerUser.cc',
-    'RequestManagerGroup.cc',
-    'RequestManagerHost.cc',
-    'RequestManagerImage.cc',
-    'RequestManagerChown.cc',
-    'RequestManagerAcl.cc',
-    'RequestManagerChmod.cc',
-    'RequestManagerCluster.cc',
-    'RequestManagerClone.cc',
-    'RequestManagerSystem.cc',
-    'RequestManagerRename.cc',
-    'RequestManagerProxy.cc',
-    'RequestManagerVdc.cc',
-    'RequestManagerZone.cc',
-    'RequestManagerDatastore.cc',
-    'RequestManagerLock.cc',
-    'RequestManagerMarketPlace.cc',
-    'RequestManagerMarketPlaceApp.cc',
-    'RequestManagerVirtualRouter.cc',
-    'RequestManagerSecurityGroup.cc',
-    'RequestManagerVMGroup.cc',
-    'RequestManagerVNTemplate.cc',
-    'RequestManagerHook.cc',
-    'RequestManagerBackupJob.cc',
-    'RequestManagerSchedAction.cc'
+    'api/SharedAPI.cc',
+    'api/PoolSharedAPI.cc',
+    'api/AclAPI.cc',
+    'api/BackupJobAPI.cc',
+    'api/DatastoreAPI.cc',
+    'api/DocumentAPI.cc',
+    'api/ClusterAPI.cc',
+    'api/ClusterPoolAPI.cc',
+    'api/GroupAPI.cc',
+    'api/HookPoolAPI.cc',
+    'api/HostAPI.cc',
+    'api/HostPoolAPI.cc',
+    'api/ImageAPI.cc',
+    'api/MarketPlaceAPI.cc',
+    'api/MarketPlaceAppAPI.cc',
+    'api/RMHookAPI.cc',
+    'api/SecurityGroupAPI.cc',
+    'api/SystemAPI.cc',
+    'api/TemplateAPI.cc',
+    'api/UserAPI.cc',
+    'api/VdcAPI.cc',
+    'api/VirtualMachineAPI.cc',
+    'api/VirtualMachinePoolAPI.cc',
+    'api/VirtualNetworkAPI.cc',
+    'api/VirtualRouterAPI.cc',
+    'api/VMGroupAPI.cc',
+    'api/VNTemplateAPI.cc',
+    'api/ZoneAPI.cc',
+    'xml-rpc/RequestLoggerXRPC.cc',
+    'xml-rpc/RequestXRPC.cc',
+    'xml-rpc/RequestManagerXRPC.cc',
+    'xml-rpc/RequestManagerProxyXRPC.cc',
+    'xml-rpc/AclXRPC.cc',
+    'xml-rpc/BackupJobXRPC.cc',
+    'xml-rpc/ClusterXRPC.cc',
+    'xml-rpc/DatastoreXRPC.cc',
+    'xml-rpc/DocumentXRPC.cc',
+    'xml-rpc/GroupXRPC.cc',
+    'xml-rpc/HookXRPC.cc',
+    'xml-rpc/HostXRPC.cc',
+    'xml-rpc/ImageXRPC.cc',
+    'xml-rpc/MarketPlaceXRPC.cc',
+    'xml-rpc/MarketPlaceAppXRPC.cc',
+    'xml-rpc/SecurityGroupXRPC.cc',
+    'xml-rpc/SystemXRPC.cc',
+    'xml-rpc/TemplateXRPC.cc',
+    'xml-rpc/UserXRPC.cc',
+    'xml-rpc/VdcXRPC.cc',
+    'xml-rpc/VirtualMachineXRPC.cc',
+    'xml-rpc/VirtualNetworkXRPC.cc',
+    'xml-rpc/VirtualRouterXRPC.cc',
+    'xml-rpc/VMGroupXRPC.cc',
+    'xml-rpc/VNTemplateXRPC.cc',
+    'xml-rpc/ZoneXRPC.cc'
 ]
+
+if env['grpc'] == 'yes':
+    source_files.extend(grpc_src_files)
+    source_files.extend([
+        'grpc/RequestGRPC.cc',
+        'grpc/RequestManagerGRPC.cc',
+        'grpc/RequestLoggerGRPC.cc',
+        'grpc/AclServiceGRPC.cc',
+        'grpc/BackupJobServiceGRPC.cc',
+        'grpc/ClusterServiceGRPC.cc',
+        'grpc/DatastoreServiceGRPC.cc',
+        'grpc/DocumentServiceGRPC.cc',
+        'grpc/GroupServiceGRPC.cc',
+        'grpc/HookServiceGRPC.cc',
+        'grpc/HostServiceGRPC.cc',
+        'grpc/ImageServiceGRPC.cc',
+        'grpc/MarketPlaceServiceGRPC.cc',
+        'grpc/MarketPlaceAppServiceGRPC.cc',
+        'grpc/SecurityGroupServiceGRPC.cc',
+        'grpc/SystemServiceGRPC.cc',
+        'grpc/TemplateServiceGRPC.cc',
+        'grpc/UserServiceGRPC.cc',
+        'grpc/VdcServiceGRPC.cc',
+        'grpc/VirtualMachineServiceGRPC.cc',
+        'grpc/VirtualNetworkServiceGRPC.cc',
+        'grpc/VirtualRouterServiceGRPC.cc',
+        'grpc/VMGroupServiceGRPC.cc',
+        'grpc/VNTemplateServiceGRPC.cc',
+        'grpc/ZoneServiceGRPC.cc'
+    ])
 
 # Build library
 env.StaticLibrary(lib_name, source_files)

@@ -20,8 +20,34 @@ import (
 	"testing"
 
 	srv_tmpl "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service_template"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/template"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 )
+
+func createTemplate(t *testing.T) (*template.Template, int) {
+	templateName := GenName("template")
+
+	// Create template
+	tpl := vm.NewTemplate()
+	tpl.Add(keys.Name, templateName)
+	tpl.CPU(1).Memory(64)
+
+	id, err := testCtrl.Templates().Create(tpl.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Get template by ID
+	template, err := testCtrl.Template(id).Info(false, false)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	return template, id
+}
 
 func createServiceTemplate(t *testing.T) (*srv_tmpl.ServiceTemplate, int) {
 	_, vmtmpl_id := createTemplate(t)

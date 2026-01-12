@@ -130,15 +130,20 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"server-add", addserver_desc, :zoneid, :options =>
-        [OneZoneHelper::SERVER_NAME, OneZoneHelper::SERVER_ENDPOINT] do
-        if options[:server_name].nil? || options[:server_rpc].nil?
+        [OneZoneHelper::SERVER_NAME, OneZoneHelper::SERVER_ENDPOINT,
+         OneZoneHelper::SERVER_ENDPOINT_GRPC] do
+        if options[:server_name].nil? || (options[:server_rpc].nil? && options[:server_grpc].nil?)
             STDERR.puts 'To add a server set:'
             STDERR.puts "\t-n <server name>"
-            STDERR.puts "\t-r <RPC endpoint>"
+            STDERR.puts "\t-r <XML-RPC endpoint>"
+            STDERR.puts "\t-g <gRPC endpoint>"
             exit(-1)
         end
 
-        if !%r{^(http|https):\/\/}.match(options[:server_rpc])
+        puts "#{options[:server_rpc]}:#{options[:server_grpc]}"
+
+        if !options[:server_rpc].nil? && !options[:server_rpc].empty? &&
+           !%r{^(http|https):\/\/}.match(options[:server_rpc])
             puts 'Wrong protocol specified. Only http or https allowed!'
             exit(-1)
         end
@@ -146,7 +151,8 @@ CommandParser::CmdParser.new(ARGV) do
         template = <<-EOT
             SERVER = [
               NAME="#{options[:server_name]}",
-              ENDPOINT="#{options[:server_rpc]}"
+              ENDPOINT="#{options[:server_rpc]}",
+              ENDPOINT_GRPC="#{options[:server_grpc]}"
             ]
         EOT
 

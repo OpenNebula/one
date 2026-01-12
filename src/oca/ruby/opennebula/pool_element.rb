@@ -39,21 +39,21 @@ module OpenNebula
         end
 
         #######################################################################
-        # Common XML-RPC Methods for all the Pool Element Types
+        # Common RPC Methods for all the Pool Element Types
         #######################################################################
 
         # Common client call wrapper. Checks that @pe_id is defined, and
         # returns nil instead of the response if it is successful
         #
-        # @param [String] xml_method xml-rpc method
+        # @param [String] rpc_method the name of the RPC method
         # @param [Array] args any arguments for the xml-rpc method
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def call(xml_method, *args)
+        def call(rpc_method, *args)
             return Error.new('ID not defined') unless @pe_id
 
-            rc = @client.call(xml_method, *args)
+            rc = @client.call(rpc_method, *args)
             rc = nil unless OpenNebula.is_error?(rc)
 
             rc
@@ -86,13 +86,13 @@ module OpenNebula
         # Calls to the corresponding allocate method to create a new element
         # in the OpenNebula core
         #
-        # @param [String] xml_method the name of the XML-RPC method
-        # @param [Array] args any extra arguments for the xml-rpc method
+        # @param [String] rpc_method the name of the RPC method
+        # @param [Array] args any extra arguments for the RPC method
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def allocate(xml_method, *args)
-            rc = @client.call(xml_method, *args)
+        def allocate(rpc_method, *args)
+            rc = @client.call(rpc_method, *args)
 
             if !OpenNebula.is_error?(rc)
                 @pe_id = rc

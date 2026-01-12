@@ -41,6 +41,8 @@ module OpenNebula
 
         # Factory method to create Cluster objects
         def factory(element_xml)
+            require 'opennebula/cluster'
+
             OpenNebula::Cluster.new(element_xml,@client)
         end
 

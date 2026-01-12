@@ -17,16 +17,21 @@
 package goca
 
 import (
-	"strings"
-	"testing"
+	. "gopkg.in/check.v1"
 
 	vn "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork/keys"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 )
 
-// Helper to create a Virtual Network
-func createVirtualNetwork(t *testing.T) (*vn.VirtualNetwork, int) {
+type VNSuite struct {
+	ID       int
+}
 
+var _ = Suite(&VNSuite{})
+
+func (s *VNSuite) SetUpSuite(c *C) {
 	vnTpl := vn.NewTemplate()
 	vnTpl.Add(keys.Name, "vntest")
 	vnTpl.Add(keys.Bridge, "vnetbr")
@@ -36,20 +41,17 @@ func createVirtualNetwork(t *testing.T) (*vn.VirtualNetwork, int) {
 	vnTpl.Add(keys.VNMad, "vxlan")
 
 	id, err := testCtrl.VirtualNetworks().Create(vnTpl.String(), -1)
-	if err != nil {
-		t.Fatal(err)
-	}
+	c.Assert(err, IsNil)
 
-	// Get Virtual Network by ID
-	vnet, err := testCtrl.VirtualNetwork(id).Info(false)
-	if err != nil {
-		t.Error(err)
-	}
-
-	return vnet, id
+	s.ID = id
 }
 
-func WaitState(t *testing.T, vnetC *VirtualNetworkController, state string) {
+func (s *VNSuite) TearDownSuite(c *C) {
+	// Delete Virtul Network
+	testCtrl.VirtualNetwork(s.ID).Delete()
+}
+
+func WaitState(c *C, vnetC *VirtualNetworkController, state string) {
 	wait := WaitResource(func() bool {
 		vnet, _ := vnetC.Info(false)
 
@@ -57,112 +59,136 @@ func WaitState(t *testing.T, vnetC *VirtualNetworkController, state string) {
 		return st == state
 	})
 
-	if !wait {
-		t.Error("Virtual Network should be in ERROR state")
-	}
-
+	c.Assert(wait, Equals, true)
 }
 
-func TestVirtualNetwork(t *testing.T) {
-	var err error
+func (s *VNSuite) TestGetByNameAndID(c *C) {
+	// Get Virtual Network by ID
+	vnC := testCtrl.VirtualNetwork(s.ID)
+	vn, err := vnC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(vn.ID, Equals, s.ID)
 
-	vnet, idOrig := createVirtualNetwork(t)
-
-	idParse := vnet.ID
-	if idParse != idOrig {
-		t.Errorf("Virtual Network ID does not match")
-	}
-
-	// Get virtual network by Name
-	name := vnet.Name
-
-	id, err := testCtrl.VirtualNetworks().ByName(name)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	vnetC := testCtrl.VirtualNetwork(id)
-
-	WaitState(t, vnetC, "READY")
-
-	vnet, err = vnetC.Info(false)
-	if err != nil {
-		t.Error(err)
-	}
-
-	idParse = vnet.ID
-	if idParse != idOrig {
-		t.Errorf("Virtual Network ID does not match")
-	}
-
-	// Change Owner to user call
-	err = vnetC.Chown(-1, -1)
-	if err != nil {
-		t.Error(err)
-	}
-
-	vnet, err = vnetC.Info(false)
-	if err != nil {
-		t.Error(err)
-	}
-
-	// Get Virtual Network Owner Name
-	uname := vnet.UName
-
-	// Get Image owner group Name
-	gname := vnet.GName
-
-	// Compare with caller username
-	caller := strings.Split(testClient.token, ":")[0]
-	if caller != uname {
-		t.Error("Caller user and virtual network owner user mismatch")
-	}
-
-	group, err := GetUserGroup(t, caller)
-	if err != nil {
-		t.Error("Cannot retreive caller group")
-	}
-
-	// Compare with caller group
-	if group != gname {
-		t.Error("Caller group and security group owner group mismatch")
-	}
-
-	// Change Owner to oneadmin call
-	err = vnetC.Chown(1, 1)
-	if err != nil {
-		t.Error(err)
-	}
-
-	vnet, err = vnetC.Info(false)
-	if err != nil {
-		t.Error(err)
-	}
-
-	// Get Virtual Network Owner Name
-	uname = vnet.UName
-
-	// Get Image owner group Name
-	gname = vnet.GName
-
-	if "serveradmin" != uname {
-		t.Error("Virtual network owner is not oneadmin")
-	}
-
-	// Compare with caller group
-	if "users" != gname {
-		t.Error("Virtual network owner group is not oneadmin")
-	}
-
-	// Delete template
-	err = vnetC.Delete()
-	if err != nil {
-		t.Error(err)
-	}
+	// Get Virtual Network by Name
+	id, err := testCtrl.VirtualNetworks().ByName(vn.Name)
+	c.Assert(err, IsNil)
+	c.Assert(vn.ID, Equals, id)
 }
 
-func TestVirtualNetworkRecover(t *testing.T) {
-	var err error
+func (s *VNSuite) TestUpdate(c *C) {
+	// Update
+	vnC := testCtrl.VirtualNetwork(s.ID)
+	err := vnC.Update("A=B", parameters.Merge)
+	c.Assert(err, IsNil)
+
+	vn, err := vnC.Info(false)
+	c.Assert(err, IsNil)
+
+	val, err := vn.Template.GetStr("A")
+	c.Assert(err, IsNil)
+	c.Assert(val, Equals, "B")
+}
+
+func (s *VNSuite) TestRename(c *C) {
+	vnC := testCtrl.VirtualNetwork(s.ID)
+	err := vnC.Rename("new_name")
+	c.Assert(err, IsNil)
+
+	vn, err := vnC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(vn.Name, Equals, "new_name");
+}
+
+func (s *VNSuite) TestChmod(c *C) {
+	new_permissions := shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
+
+	vnC := testCtrl.VirtualNetwork(s.ID)
+
+	err := vnC.Chmod(new_permissions)
+
+	c.Assert(err, IsNil)
+
+	vn, err := vnC.Info(false)
+
+	c.Assert(err, IsNil)
+	c.Assert(*vn.Permissions, Equals, new_permissions);
+}
+
+func (s *VNSuite) TestChown(c *C) {
+	vnC := testCtrl.VirtualNetwork(s.ID)
+	err := vnC.Chown(1, 1)
+	c.Assert(err, IsNil)
+
+	vn, err := vnC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(vn.UID, Equals, 1);
+	c.Assert(vn.GID, Equals, 1);
+
+	err   = vnC.Chown(0, 0)
+	c.Assert(err, IsNil)
+}
+
+func (s *VNSuite) TestLock(c *C) {
+	// Lock
+	vnC := testCtrl.VirtualNetwork(s.ID)
+	err := vnC.Lock(shared.LockUse)
+	c.Assert(err, IsNil)
+
+	vn, err := vnC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(vn.Lock.Locked, Equals, 1);
+
+	// Unlock
+	err = vnC.Unlock()
+	c.Assert(err, IsNil)
+
+	vn, err = vnC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(vn.Lock, IsNil)
+}
+
+func (s *VNSuite) TestAR(c *C) {
+	// Add
+	vnC := testCtrl.VirtualNetwork(s.ID)
+
+	WaitState(c, vnC, "READY")
+
+	err := vnC.AddAR("AR=[TYPE=IP4,IP=10.0.0.1,SIZE=200]")
+	c.Assert(err, IsNil)
+
+	// Update
+	err = vnC.UpdateAR("AR=[AR_ID=0,SIZE=100]")
+	c.Assert(err, IsNil)
+
+	// Reserve
+	r1, err := vnC.Reserve("NAME=r1\nSIZE=2")
+	c.Assert(err, IsNil)
+
+	// Hold
+	err = vnC.Hold("LEASES=[IP=10.0.0.50]")
+	c.Assert(err, IsNil)
+
+	// Release
+	err = vnC.Release("LEASES=[IP=10.0.0.50]")
+	c.Assert(err, IsNil)
+
+	// Free
+	vnr1C := testCtrl.VirtualNetwork(r1)
+	WaitState(c, vnr1C, "READY")
+	err = vnr1C.FreeAR(0)
+	c.Assert(err, IsNil)
+
+	// Remove AR
+	err = vnC.RmAR(0)
+	c.Assert(err, IsNil)
+
+	// Delete reservation Virtual Network
+	err = vnr1C.Delete()
+	c.Assert(err, IsNil)
+}
+
+func (s *VNSuite) TestRecover(c *C) {
+	//var err error
 
 	vnTpl := "NAME = vn_invalid_ar\n" +
 		"BRIDGE = vbr0\n" +
@@ -171,22 +197,18 @@ func TestVirtualNetworkRecover(t *testing.T) {
 		"AR = [ TYPE = IP4, IP = 192.168.0.1, SIZE = -1 ]\n"
 
 	id, err := testCtrl.VirtualNetworks().Create(vnTpl, -1)
-	if err != nil {
-		t.Fatal(err)
-	}
+	c.Assert(err, IsNil)
 
-	// Get Virtual Network by ID
+	// Get Virtual Network
 	vnetC := testCtrl.VirtualNetwork(id)
 
-	WaitState(t, vnetC, "ERROR")
+	WaitState(c, vnetC, "ERROR")
 
 	vnetC.RecoverSuccess()
 
-	WaitState(t, vnetC, "READY")
+	WaitState(c, vnetC, "READY")
 
-	// Delete template
+	// Delete Virtual Network
 	err = vnetC.Delete()
-	if err != nil {
-		t.Error(err)
-	}
+	c.Assert(err, IsNil)
 }

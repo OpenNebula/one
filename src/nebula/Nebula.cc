@@ -59,7 +59,11 @@
 #include "MarketPlaceManager.h"
 #include "PlanManager.h"
 #include "RaftManager.h"
-#include "RequestManager.h"
+#include "RequestManagerXRPC.h"
+#ifdef GRPC
+#include "RequestManagerGRPC.h"
+#endif
+#include "RequestLogger.h"
 #include "ScheduledActionManager.h"
 #include "SchedulerManager.h"
 #include "TransferManager.h"
@@ -93,7 +97,11 @@ Nebula::~Nebula()
     // Stop the managers & free resources
     // -----------------------------------------------------------
 
-    if (rm) rm->finalize();
+    if (rm_xrpc) rm_xrpc->finalize();
+
+#ifdef GRPC
+    if (rm_grpc) rm_grpc->finalize();
+#endif
 
     if (raftm) raftm->finalize();
 
@@ -176,7 +184,7 @@ Nebula::~Nebula()
     delete im;
     delete tm;
     delete dm;
-    delete rm;
+    delete rm_xrpc;
     delete hm;
     delete hl;
     delete authm;
@@ -364,7 +372,8 @@ void Nebula::start(bool bootstrap_only)
 
     if (vatt != 0)
     {
-        master_oned = vatt->vector_value("MASTER_ONED");
+        master_oned_xmlrpc = vatt->vector_value("MASTER_ONED");
+        master_oned_grpc = vatt->vector_value("MASTER_ONED_GRPC");
         mode = vatt->vector_value("MODE");
 
         one_util::toupper(mode);
@@ -391,9 +400,9 @@ void Nebula::start(bool bootstrap_only)
 
             cache = false;
 
-            if ( master_oned.empty() )
+            if ( master_oned_xmlrpc.empty() && master_oned_grpc.empty() )
             {
-                throw runtime_error("MASTER_ONED endpoint is missing.");
+                throw runtime_error("MASTER_ONED and MASTER_ONED_GRPC endpoints are missing.");
             }
         }
         else if (mode == "CACHE")
@@ -403,9 +412,9 @@ void Nebula::start(bool bootstrap_only)
 
             cache = true;
 
-            if ( master_oned.empty() )
+            if ( master_oned_xmlrpc.empty() && master_oned_grpc.empty() )
             {
-                throw runtime_error("MASTER_ONED is missing.");
+                throw runtime_error("MASTER_ONED and MASTER_ONED_GRPC endpoints are missing.");
             }
         }
         else
@@ -918,7 +927,7 @@ void Nebula::start(bool bootstrap_only)
 
         get_configuration_attribute("TIMEOUT", timeout);
 
-        Client::initialize("", get_master_oned(), msg_size, timeout);
+        Client::initialize("", get_master_oned_xmlrpc(), get_master_oned_grpc(),  msg_size, timeout);
     }
 
     // ---- Hook Manager and log----
@@ -1287,9 +1296,27 @@ void Nebula::start(bool bootstrap_only)
             rpc_filename = log_location + "one_xmlrpc.log";
         }
 
-        rm = new RequestManager(rm_port, max_conn, max_conn_backlog,
-                                keepalive_timeout, keepalive_max_conn, timeout, rpc_filename,
-                                log_call_format, rm_listen_address, message_size);
+        RequestLogger::set_call_log_format(log_call_format);
+
+        rm_xrpc = new RequestManagerXRPC(rm_port,
+                                         max_conn,
+                                         max_conn_backlog,
+                                         keepalive_timeout,
+                                         keepalive_max_conn,
+                                         timeout,
+                                         rpc_filename,
+                                         rm_listen_address,
+                                         message_size);
+#ifdef GRPC
+        string grpc_port;
+        string grpc_listen_address = "0.0.0.0";
+
+        nebula_configuration->get("GRPC_LISTEN_ADDRESS", grpc_listen_address);
+        nebula_configuration->get("GRPC_PORT", grpc_port);
+
+        rm_grpc = new RequestManagerGRPC(grpc_listen_address,
+                                         grpc_port);
+#endif
     }
     catch (bad_alloc&)
     {
@@ -1317,10 +1344,17 @@ void Nebula::start(bool bootstrap_only)
         }
     }
 
-    if ( rm->start() != 0 )
+    if ( rm_xrpc->start() != 0 )
     {
-        throw runtime_error("Could not start the Request Manager");
+        throw runtime_error("Could not start the Request Manager (XML-RPC)");
     }
+
+#ifdef GRPC
+    if ( rm_grpc->start() != 0 )
+    {
+        throw runtime_error("Could not start the Request Manager (GRPC)");
+    }
+#endif
 
 #ifdef SYSTEMD
     // ---- Notify service manager ----

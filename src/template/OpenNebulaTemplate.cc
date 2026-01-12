@@ -362,8 +362,8 @@ void OpenNebulaTemplate::set_conf_default()
     #  MONITORING_INTERVAL_DATASTORE
     #  DS_MONITOR_VM_DISK
     #  VM_MONITORING_EXPIRATION_TIME
-    #  LISTEN_ADDRESS
-    #  PORT
+    #  LISTEN_ADDRESS, GRPC_LISTEN_ADDRESS
+    #  PORT, GRPC_PORT
     #  DB
     #  SCRIPTS_REMOTE_DIR
     #  VM_SUBMIT_ON_HOLD
@@ -379,6 +379,10 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("VM_MONITORING_EXPIRATION_TIME", "14400");
     set_conf_single("PORT", "2633");
     set_conf_single("LISTEN_ADDRESS", "0.0.0.0");
+#ifdef GRPC
+    set_conf_single("GRPC_PORT", "2634");
+    set_conf_single("GRPC_LISTEN_ADDRESS", "0.0.0.0");
+#endif
     set_conf_single("SCRIPTS_REMOTE_DIR", "/var/tmp/one");
     set_conf_single("VM_SUBMIT_ON_HOLD", "NO");
     set_conf_single("API_LIST_ORDER", "DESC");
@@ -439,6 +443,7 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.insert(make_pair("ZONE_ID", "0"));
     vvalue.insert(make_pair("SERVER_ID", "-1"));
     vvalue.insert(make_pair("MASTER_ONED", ""));
+    vvalue.insert(make_pair("MASTER_ONED_GRPC", ""));
 
     vattribute = new VectorAttribute("FEDERATION", vvalue);
     conf_default.insert(make_pair(vattribute->name(), vattribute));

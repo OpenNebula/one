@@ -15,7 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
-require 'base64'
+require 'opennebula/template'
+require 'opennebula/template_pool'
 
 class OneTemplateHelper < OpenNebulaHelper::OneHelper
     VM_NAME={

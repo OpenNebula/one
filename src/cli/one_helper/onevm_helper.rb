@@ -27,8 +27,12 @@ VMS_LOCATION = VAR_LOCATION + '/vms'
 
 $LOAD_PATH << MAD_LOCATION
 
-require 'one_helper'
 require 'optparse/time'
+require 'one_helper'
+require 'opennebula/virtual_machine'
+require 'opennebula/virtual_machine_pool'
+require 'opennebula/cluster'
+require 'opennebula/cluster_pool'
 
 # colored strings
 class String

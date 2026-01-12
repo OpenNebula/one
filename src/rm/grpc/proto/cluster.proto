@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+import "shared.proto";
+
+package one.cluster;
+
+option go_package = "github.com/OpenNebula/one/src/oca/go/src/goca/api/cluster";
+
+message AllocateRequest
+{
+  string session_id = 1;
+  string name       = 2;
+}
+
+message DeleteRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+}
+
+message InfoRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  bool decrypt      = 3;
+}
+
+message UpdateRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string template   = 3;
+  int32 append      = 4;
+}
+
+message RenameRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string name       = 3;
+}
+
+message AddHostRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 host_id     = 3;
+}
+
+message DelHostRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 host_id     = 3;
+}
+
+message AddDatastoreRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 ds_id       = 3;
+}
+
+message DelDatastoreRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 ds_id       = 3;
+}
+
+message AddVNetRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 vnet_id     = 3;
+}
+
+message DelVNetRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 vnet_id     = 3;
+}
+
+message OptimizeRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+}
+
+message PlanExecuteRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+}
+
+message PlanDeleteRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+}
+
+message PoolInfoRequest
+{
+  string session_id = 1;
+}
+
+service ClusterService
+{
+  rpc Allocate (one.cluster.AllocateRequest) returns (one.ResponseID);
+
+  rpc Delete (one.cluster.DeleteRequest) returns (one.ResponseID);
+
+  rpc Info (one.cluster.InfoRequest) returns (one.ResponseXML);
+
+  rpc Update (one.cluster.UpdateRequest) returns (one.ResponseID);
+
+  rpc Rename (one.cluster.RenameRequest) returns (one.ResponseID);
+
+  rpc AddHost (one.cluster.AddHostRequest) returns (one.ResponseID);
+
+  rpc DelHost (one.cluster.DelHostRequest) returns (one.ResponseID);
+
+  rpc AddDatastore (one.cluster.AddDatastoreRequest) returns (one.ResponseID);
+
+  rpc DelDatastore (one.cluster.DelDatastoreRequest) returns (one.ResponseID);
+
+  rpc AddVNet (one.cluster.AddVNetRequest) returns (one.ResponseID);
+
+  rpc DelVNet (one.cluster.DelVNetRequest) returns (one.ResponseID);
+
+  rpc Optimize (one.cluster.OptimizeRequest) returns (one.ResponseID);
+
+  rpc PlanExecute (one.cluster.PlanExecuteRequest) returns (one.ResponseID);
+
+  rpc PlanDelete (one.cluster.PlanDeleteRequest) returns (one.ResponseID);
+
+  rpc PoolInfo (one.cluster.PoolInfoRequest) returns (one.ResponseXML);
+}

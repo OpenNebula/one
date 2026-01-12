@@ -22,6 +22,7 @@ import (
 	"errors"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/group"
 )
 
@@ -82,7 +83,7 @@ func (gc *GroupsController) Info() (*group.Pool, error) {
 // InfoContext returns a group pool. A connection to OpenNebula is
 // performed.
 func (gc *GroupsController) InfoContext(ctx context.Context) (*group.Pool, error) {
-	response, err := gc.c.Client.CallContext(ctx, "one.grouppool.info")
+	response, err := gc.c.Client.GroupPoolInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +97,43 @@ func (gc *GroupsController) InfoContext(ctx context.Context) (*group.Pool, error
 	return groupPool, nil
 }
 
+// DefaultQuotaInfo returns default quota limits.
+func (gc *GroupsController) DefaultQuotaInfo() (*shared.QuotasList, error) {
+	return gc.DefaultQuotaInfoContext(context.Background())
+}
+
+// DefaultQuotaInfoContext returns default quota limits.
+// * ctx: context for cancelation
+func (gc *GroupsController) DefaultQuotaInfoContext(ctx context.Context) (*shared.QuotasList, error) {
+	response, err := gc.c.Client.GroupDefaultQuotaInfo(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	quotas := &shared.QuotasList{}
+	err = xml.Unmarshal([]byte(response.Body()), quotas)
+	if err != nil {
+		return nil, err
+	}
+
+	return quotas, nil
+}
+
+// DefaultQuota sets limits for group default quota.
+// * tpl: The new quota template contents. Syntax can be the usual attribute=value or XML.
+func (gc *GroupsController) DefaultQuotaUpdate(tpl string) error {
+	return gc.DefaultQuotaUpdateContext(context.Background(), tpl)
+}
+
+// DefaultQuotaUpdateContext sets limits for group default quota.
+// * ctx: context for cancelation
+// * tpl: The new quota template contents. Syntax can be the usual attribute=value or XML.
+func (gc *GroupsController) DefaultQuotaUpdateContext(ctx context.Context, tpl string) error {
+	_, err := gc.c.Client.GroupDefaultQuotaUpdate(ctx, tpl)
+	return err
+}
+
 // Info retrieves information for the group.
 func (gc *GroupController) Info(decrypt bool) (*group.Group, error) {
 	return gc.InfoContext(context.Background(), decrypt)
@@ -103,7 +141,7 @@ func (gc *GroupController) Info(decrypt bool) (*group.Group, error) {
 
 // InfoContext retrieves information for the group.
 func (gc *GroupController) InfoContext(ctx context.Context, decrypt bool) (*group.Group, error) {
-	response, err := gc.c.Client.CallContext(ctx, "one.group.info", gc.ID, decrypt)
+	response, err := gc.c.Client.GroupInfo(ctx, gc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +160,7 @@ func (gc *GroupsController) Create(name string) (int, error) {
 
 // CreateContext allocates a new group. It returns the new group ID.
 func (gc *GroupsController) CreateContext(ctx context.Context, name string) (int, error) {
-	response, err := gc.c.Client.CallContext(ctx, "one.group.allocate", name)
+	response, err := gc.c.Client.GroupAllocate(ctx, name)
 	if err != nil {
 		return -1, err
 	}
@@ -137,7 +175,7 @@ func (gc *GroupController) Delete() error {
 
 // DeleteContext deletes the given group from the pool.
 func (gc *GroupController) DeleteContext(ctx context.Context) error {
-	_, err := gc.c.Client.CallContext(ctx, "one.group.delete", gc.ID)
+	_, err := gc.c.Client.GroupDelete(ctx, gc.ID)
 	return err
 }
 
@@ -155,7 +193,7 @@ func (gc *GroupController) Update(tpl string, uType parameters.UpdateType) error
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (gc *GroupController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := gc.c.Client.CallContext(ctx, "one.group.update", gc.ID, tpl, uType)
+	_, err := gc.c.Client.GroupUpdate(ctx, gc.ID, tpl, int(uType))
 	return err
 }
 
@@ -169,7 +207,7 @@ func (gc *GroupController) AddAdmin(userID int) error {
 // * ctx: context for cancelation
 // * userID: The user ID.
 func (gc *GroupController) AddAdminContext(ctx context.Context, userID int) error {
-	_, err := gc.c.Client.CallContext(ctx, "one.group.addadmin", gc.ID, int(userID))
+	_, err := gc.c.Client.GroupAddAdmin(ctx, gc.ID, userID)
 	return err
 }
 
@@ -183,7 +221,7 @@ func (gc *GroupController) DelAdmin(userID int) error {
 // * ctx: context for cancelation
 // * userID: The user ID.
 func (gc *GroupController) DelAdminContext(ctx context.Context, userID int) error {
-	_, err := gc.c.Client.CallContext(ctx, "one.group.deladmin", gc.ID, int(userID))
+	_, err := gc.c.Client.GroupDelAdmin(ctx, gc.ID, userID)
 	return err
 }
 
@@ -197,6 +235,6 @@ func (gc *GroupController) Quota(tpl string) error {
 // * ctx: context for cancelation
 // * tpl: The new quota template contents. Syntax can be the usual attribute=value or XML.
 func (gc *GroupController) QuotaContext(ctx context.Context, tpl string) error {
-	_, err := gc.c.Client.CallContext(ctx, "one.group.quota", gc.ID, tpl)
+	_, err := gc.c.Client.GroupQuota(ctx, gc.ID, tpl)
 	return err
 }

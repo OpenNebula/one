@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'opennebula/backupjob'
+require 'opennebula/backupjob_pool'
 
 # Helper for onebackupjob command
 class OneBackupJobHelper < OpenNebulaHelper::OneHelper

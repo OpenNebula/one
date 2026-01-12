@@ -14,6 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/template'
+require 'opennebula/image_pool'
+
 # Module to decorate MarketApp class with additional helpers not directly
 # exposed through the OpenNebula XMLRPC API. The extensions include
 #   - export helper that creates OpenNebula related objects from a given app.

@@ -72,15 +72,14 @@ public:
     void replicate_failure(int zone_id, uint64_t zone_last);
 
     /**
-     *  XML-RPC API call to replicate a log entry on slaves
+     *  RPC API call to replicate a log entry on slaves
      *     @param zone_id
      *     @param success status of API call
      *     @param last index replicate in zone slave
      *     @param error description if any
-     *     @return 0 on success -1 if a xml-rpc/network error occurred
+     *     @return 0 on success -1 if a rpc/network error occurred
      */
-    int xmlrpc_replicate_log(int zone_id, bool& success, uint64_t& last,
-                             std::string& err);
+    int rpc_replicate_log(int zone_id, bool& success, uint64_t& last, std::string& err);
 
     /**
      *  Start the replication threads, and updates the server list of the zone
@@ -129,12 +128,12 @@ private:
 
     // -------------------------------------------------------------------------
     // Synchronization variables
-    //   - xmlrpc_timeout. To timeout xml-rpc api calls to replicate log
+    //   - rpc_timeout_ms. To timeout api calls to replicate log
     //   - zones list of zones in the federation with:
-    //     - list of servers <id, xmlrpc endpoint>
+    //     - list of servers <id, rpc endpoint>
     //     - next index to send to this zone
     // -------------------------------------------------------------------------
-    static const time_t xmlrpc_timeout_ms;
+    static const time_t rpc_timeout_ms;
 
     struct ZoneServers
     {
@@ -145,7 +144,7 @@ private:
 
         int zone_id;
 
-        std::string  endpoint;
+        std::string endpoint;
 
         uint64_t next;
 

@@ -17,51 +17,55 @@
 #ifndef ONE_CLIENT_H_
 #define ONE_CLIENT_H_
 
-#include <xmlrpc-c/base.hpp>
-#include <xmlrpc-c/client_simple.hpp>
-#include <xmlrpc-c/girerr.hpp>
-
 #include <string>
+#include <set>
+#include <cstdint>
 
-// =============================================================================
-// Doc:
-// http://xmlrpc-c.sourceforge.net/doc/#clientexamplepp
-// http://xmlrpc-c.sourceforge.net/doc/libxmlrpc_client++.html#simple_client
-// =============================================================================
+class ClientXRPC;
+class ClientGRPC;
 
 /**
  * This class represents the connection with the core and handles the
- * xml-rpc calls.
+ * rpc calls.
  */
 class Client
 {
 public:
+    struct replicate_params
+    {
+        int leader_id;
+        uint32_t leader_term;
+        uint64_t leader_commit;
+        uint64_t index;
+        uint64_t prev_index;
+        uint32_t term;
+        uint32_t prev_term;
+        uint64_t fed_index;
+    };
+
     /**
      *  Singleton accessor
      */
-    static Client * client()
+    static Client * client();
+
+    static ClientXRPC * client_xmlrpc()
     {
-        return _client;
-    };
+        return _client_xmlrpc;
+    }
+
+    static ClientGRPC * client_grpc()
+    {
+        return _client_grpc;
+    }
 
     /**
      *  Singleton initializer
      */
-    static Client * initialize(const std::string& secret,
-                               const std::string& endpoint, size_t message_size, unsigned int tout)
-    {
-        if ( _client == 0 )
-        {
-            _client = new Client(secret, endpoint, message_size, tout);
-        }
-
-        return _client;
-    };
-
-    size_t get_message_size() const
-    {
-        return xmlrpc_limit_get(XMLRPC_XML_SIZE_LIMIT_ID);
-    };
+    static void initialize(const std::string& secret,
+                           const std::string& endpoint_xmlrpc,
+                           const std::string& endpoint_grpc,
+                           size_t message_size,
+                           unsigned int tout);
 
     /**
      *  Reads ONE_AUTH from environment or its default location at
@@ -69,64 +73,62 @@ public:
      */
     static int read_oneauth(std::string &secret, std::string& error);
 
-    /**
-     *  Performs a xmlrpc call to the initialized server
-     *    @param method name
-     *    @param plist initialized param list
-     *    @param result of the xmlrpc call
-     */
-    void call(const std::string& method, const xmlrpc_c::paramList& plist,
-              xmlrpc_c::value * const result);
+    static bool is_grpc(const std::string& endpoint)
+    {
+        return endpoint.find("RPC2") == std::string::npos;
+    }
 
-    /**
-     *  Performs a xmlrpc call
-     *    @param endpoint of server
-     *    @param method name
-     *    @param plist initialized param list
-     *    @param timeout (ms) for the request, set 0 for global xml_rpc timeout
-     *    @param result of the xmlrpc call
-     *    @param error string if any
-     *    @return 0
-     */
-    static int call(const std::string& endpoint, const std::string& method,
-                    const xmlrpc_c::paramList& plist, unsigned int _timeout,
-                    xmlrpc_c::value * const result, std::string& error);
+    virtual int market_allocate(const std::string& xml, std::string& error) = 0;
+    virtual int market_update(int oid, const std::string& xml) = 0;
 
-    /**
-     *  Performs an xmlrpc call to the initialized server and credentials.
-     *  This method automatically adds the credential argument.
-     *    @param method name
-     *    @param format of the arguments, supported arguments are i:int, s:string
-     *    and b:bool
-     *    @param result to store the xmlrpc call result
-     *    @param ... xmlrpc arguments
-     */
-    void call(const std::string &method, const std::string &format,
-              xmlrpc_c::value * const result, ...);
+    virtual int market_app_allocate(const std::string& xml, std::string& error) = 0;
+    virtual int market_app_drop(int oid, std::string& error) = 0;
+    virtual int market_app_update(int oid, const std::string& xml) = 0;
 
-    void refresh_authentication();
+    virtual int user_allocate(const std::string& uname,
+                              const std::string& passwd,
+                              const std::string& driver,
+                              const std::set<int>& gids,
+                              std::string& error_str) = 0;
+    virtual int user_chgrp(int user_id, int group_id, std::string& error_str) = 0;
 
-private:
-    /**
-     * Creates a new xml-rpc client with specified options.
-     *
-     * @param secret A string containing the ONE user:password tuple.
-     * If not set, the auth. file will be assumed to be at $ONE_AUTH
-     * @param endpoint Where the rpc server is listening, must be something
-     * like "http://localhost:2633/RPC2". If not set, the endpoint will be set
-     * to $ONE_XMLRPC.
-     * @param message_size for XML elements in the client library (in bytes)
-     * @throws Exception if the authorization options are invalid
-     */
-    Client(const std::string& secret, const std::string& endpoint, size_t message_size,
-           unsigned int tout);
+    virtual int master_update_zone(int oid, const std::string& xml, std::string& error_str) = 0;
 
-    std::string  one_auth;
-    std::string  one_endpoint;
+    static int fed_replicate(const std::string& endpoint,
+                             uint64_t index,
+                             uint64_t prev_index,
+                             const std::string& sql,
+                             time_t timeout_ms,
+                             bool& success,
+                             uint64_t& last,
+                             std::string& error_msg);
 
-    unsigned int timeout;
+    static int replicate(const std::string& endpoint,
+                         const replicate_params& params,
+                         const std::string& sql,
+                         time_t timeout_ms,
+                         bool& success,
+                         uint32_t& follower_term,
+                         std::string& error_msg);
 
-    static Client * _client;
+    static int vote_request(const std::string& endpoint,
+                            uint32_t term,
+                            int candidate_id,
+                            uint32_t log_index,
+                            uint32_t log_term,
+                            time_t timeout_ms,
+                            bool& success,
+                            uint32_t& follower_term,
+                            std::string& error_msg);
+
+protected:
+    std::string one_auth;
+    std::string one_endpoint;
+
+    unsigned int timeout = 10000; // Timout for rpc calls
+
+    static ClientXRPC * _client_xmlrpc;
+    static ClientGRPC * _client_grpc;
 };
 
 #endif /*ONECLIENT_H_*/

@@ -1,0 +1,174 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+syntax = "proto3";
+
+import "shared.proto";
+
+package one.vdc;
+
+option go_package = "github.com/OpenNebula/one/src/oca/go/src/goca/api/vdc";
+
+message AllocateRequest
+{
+  string session_id = 1;
+  string template   = 2;
+}
+
+message DeleteRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+}
+
+message InfoRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  bool decrypt      = 3;
+}
+
+message UpdateRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string template   = 3;
+  int32 append      = 4;
+}
+
+message RenameRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string name       = 3;
+}
+
+message AddGroupRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 group_id    = 3;
+}
+
+message DelGroupRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 group_id    = 3;
+}
+
+message AddClusterRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 zone_id     = 3;
+  int32 cluster_id  = 4;
+}
+
+message DelClusterRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 zone_id     = 3;
+  int32 cluster_id  = 4;
+}
+
+message AddHostRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 zone_id     = 3;
+  int32 host_id     = 4;
+}
+
+message DelHostRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 zone_id     = 3;
+  int32 host_id     = 4;
+}
+
+message AddDatastoreRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 zone_id     = 3;
+  int32 ds_id       = 4;
+}
+
+message DelDatastoreRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 zone_id     = 3;
+  int32 ds_id       = 4;
+}
+
+message AddVnetRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 zone_id     = 3;
+  int32 vnet_id     = 4;
+}
+
+message DelVnetRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 zone_id     = 3;
+  int32 vnet_id     = 4;
+}
+
+message PoolInfoRequest
+{
+  string session_id = 1;
+}
+
+service VdcService
+{
+  rpc Allocate (one.vdc.AllocateRequest) returns (one.ResponseID);
+
+  rpc Delete (one.vdc.DeleteRequest) returns (one.ResponseID);
+
+  rpc Info (one.vdc.InfoRequest) returns (one.ResponseXML);
+
+  rpc Update (one.vdc.UpdateRequest) returns (one.ResponseID);
+
+  rpc Rename (one.vdc.RenameRequest) returns (one.ResponseID);
+
+  rpc AddGroup (one.vdc.AddGroupRequest) returns (one.ResponseID);
+
+  rpc DelGroup (one.vdc.DelGroupRequest) returns (one.ResponseID);
+
+  rpc AddCluster (one.vdc.AddClusterRequest) returns (one.ResponseID);
+
+  rpc DelCluster (one.vdc.DelClusterRequest) returns (one.ResponseID);
+
+  rpc AddHost (one.vdc.AddHostRequest) returns (one.ResponseID);
+
+  rpc DelHost (one.vdc.DelHostRequest) returns (one.ResponseID);
+
+  rpc AddDatastore (one.vdc.AddDatastoreRequest) returns (one.ResponseID);
+
+  rpc DelDatastore (one.vdc.DelDatastoreRequest) returns (one.ResponseID);
+
+  rpc AddVnet (one.vdc.AddVnetRequest) returns (one.ResponseID);
+
+  rpc DelVnet (one.vdc.DelVnetRequest) returns (one.ResponseID);
+
+  rpc PoolInfo (one.vdc.PoolInfoRequest) returns (one.ResponseXML);
+}

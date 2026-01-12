@@ -16,6 +16,8 @@
 
 require 'one_helper'
 require 'one_helper/onequota_helper'
+require 'opennebula/group'
+require 'opennebula/group_pool'
 
 class OneGroupHelper < OpenNebulaHelper::OneHelper
     def self.rname
@@ -289,8 +291,6 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
     end
 
     def format_resource(group, options = {})
-        system = System.new(@client)
-
         str="%-15s: %-20s"
         str_h1="%-80s"
 

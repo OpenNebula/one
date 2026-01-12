@@ -97,8 +97,6 @@ private:
      *  String representation of the API call
      */
     std::string call;
-
-    const static std::string unsupported_calls[];
 };
 
 #endif

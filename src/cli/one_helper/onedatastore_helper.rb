@@ -15,6 +15,9 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'opennebula/datastore'
+require 'opennebula/datastore_pool'
+require 'opennebula/image'
 
 class OneDatastoreHelper < OpenNebulaHelper::OneHelper
     DATASTORE = {

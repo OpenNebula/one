@@ -19,6 +19,9 @@ require 'tempfile'
 require 'CommandManager'
 
 require 'one_helper'
+require 'opennebula/system'
+require 'opennebula/zone'
+require 'opennebula/zone_pool'
 
 # Check differences between files and copy them
 class Replicator
@@ -56,7 +59,7 @@ class Replicator
         l_endpoint    = 'http://localhost:2633/RPC2'
         local_client  = Client.new(l_credentials, l_endpoint)
 
-        @l_config = OpenNebula::System.new(local_client).get_configuration
+        @l_config = System.new(local_client).get_configuration
         @l_config_elements = { :raw => @l_config }
         @l_fed_elements    = { :raw => @l_config }
 
@@ -74,7 +77,7 @@ class Replicator
         r_endpoint    = "http://#{server}:2633/RPC2"
         remote_client = Client.new(r_credentials, r_endpoint)
 
-        @r_config = OpenNebula::System.new(remote_client).get_configuration
+        @r_config = System.new(remote_client).get_configuration
         @r_config_elements = { :raw => @r_config }
         @r_fed_elements    = { :raw => @r_config }
 
@@ -447,10 +450,18 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
 
     SERVER_ENDPOINT={
         :name => "server_rpc",
-        :short => "-r rpc endpoint",
+        :short => "-r xml-rpc endpoint",
         :large => "--rpc",
         :format => String,
-        :description => "Zone server RPC endpoint"
+        :description => "Zone server XML-RPC endpoint"
+    }
+
+    SERVER_ENDPOINT_GRPC={
+        :name => "server_grpc",
+        :short => "-g gRPC endpoint",
+        :large => "--grpc-endpoint",
+        :format => String,
+        :description => "Zone server gRPC endpoint"
     }
 
     def show_resource(id, options)

@@ -239,6 +239,7 @@ AllCops:
     - src/oca/ruby/opennebula/marketplace_pool.rb
     - src/oca/ruby/opennebula/vdc.rb
     - src/oca/ruby/opennebula/user.rb
+    - src/oca/ruby/opennebula/grpc/*_pb.rb
     - src/vmm_mad/dummy/one_vmm_dummy.rb
     - src/mad/ruby/ssh_stream.rb
     - src/mad/ruby/test/MonkeyPatcher.rb

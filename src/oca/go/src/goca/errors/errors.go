@@ -17,6 +17,7 @@
 package errors
 
 import (
+	"google.golang.org/grpc/codes"
 	"fmt"
 	"net/http"
 )
@@ -61,6 +62,9 @@ const (
 
 	// ClientRespONeParse if we can't parse a correct OpenNebula response
 	ClientRespONeParse
+
+	// ClientGRPCFault gRPC client failures like unable to connect, timeout, ...
+	ClientGRPCFault
 )
 
 func (s ClientErrCode) String() string {
@@ -77,6 +81,8 @@ func (s ClientErrCode) String() string {
 		return "RESPONSE_XMLRPC_PARSE"
 	case ClientRespONeParse:
 		return "RESPONSE_ONE_PARSE"
+	case ClientGRPCFault:
+		return "CLIENT_GRPC_FAULT"
 	default:
 		return ""
 	}
@@ -176,4 +182,24 @@ type ResponseError struct {
 
 func (e *ResponseError) Error() string {
 	return fmt.Sprintf("OpenNebula error [%s]: %s", e.Code.String(), e.Msg)
+}
+
+// OneErrCodeFromGrpc translates a gRPC status code to an OpenNebula error code.
+func OneErrCodeFromGrpc(c codes.Code) OneErrCode {
+	switch c {
+	case codes.OK:
+		return OneSuccess
+	case codes.Unauthenticated:
+		return OneAuthenticationError
+	case codes.PermissionDenied:
+		return OneAuthorizationError // Note: OneLockedError also maps to this
+	case codes.NotFound:
+		return OneNoExistsError
+	case codes.InvalidArgument:
+		return OneXMLRPCAPIError
+	case codes.AlreadyExists:
+		return OneAllocateError
+	default:
+		return OneInternalError // Default for other gRPC errors like Internal, Unavailable, etc.
+	}
 }

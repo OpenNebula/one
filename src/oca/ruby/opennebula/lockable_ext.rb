@@ -16,17 +16,6 @@
 
 require 'date'
 
-require 'opennebula/document'
-require 'opennebula/hook'
-require 'opennebula/image'
-require 'opennebula/marketplaceapp'
-require 'opennebula/template'
-require 'opennebula/virtual_machine'
-require 'opennebula/virtual_network'
-require 'opennebula/virtual_router'
-require 'opennebula/vm_group'
-require 'opennebula/vntemplate'
-
 # Module to decorate Lockable classes with the following methods:
 #   - Lock
 #   - Unlock
@@ -125,17 +114,17 @@ module OpenNebula::LockableExt
     def self.lockable?(obj)
         # Lockable classes
         lockable = [
-            OpenNebula::BackupJob,
-            OpenNebula::Document,
-            OpenNebula::Hook,
-            OpenNebula::Image,
-            OpenNebula::MarketPlaceApp,
-            OpenNebula::Template,
-            OpenNebula::VirtualMachine,
-            OpenNebula::VirtualNetwork,
-            OpenNebula::VirtualRouter,
-            OpenNebula::VMGroup,
-            OpenNebula::VNTemplate
+            'OpenNebula::BackupJob',
+            'OpenNebula::Document',
+            'OpenNebula::Hook',
+            'OpenNebula::Image',
+            'OpenNebula::MarketPlaceApp',
+            'OpenNebula::Template',
+            'OpenNebula::VirtualMachine',
+            'OpenNebula::VirtualNetwork',
+            'OpenNebula::VirtualRouter',
+            'OpenNebula::VMGroup',
+            'OpenNebula::VNTemplate'
         ]
 
         # Get obj class to find parents in lockable class
@@ -147,7 +136,7 @@ module OpenNebula::LockableExt
         i_class = o_class
 
         while i_class
-            if lockable.include?(i_class)
+            if lockable.include?(i_class.name)
                 found = true
                 break
             end

@@ -82,7 +82,7 @@ func (vc *VDCsController) Info() (*vdc.Pool, error) {
 // InfoContext returns a vdc pool. A connection to OpenNebula is
 // performed.
 func (vc *VDCsController) InfoContext(ctx context.Context) (*vdc.Pool, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vdcpool.info")
+	response, err := vc.c.Client.VdcPoolInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (vc *VDCController) Info(decrypt bool) (*vdc.VDC, error) {
 
 // InfoContext retrieves information for the VDC.
 func (vc *VDCController) InfoContext(ctx context.Context, decrypt bool) (*vdc.VDC, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vdc.info", vc.ID, decrypt)
+	response, err := vc.c.Client.VdcInfo(ctx, vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -129,10 +129,9 @@ func (vc *VDCsController) Create(tpl string, clusterID int) (int, error) {
 //   - ctx: context for cancelation
 //   - tpl:	A string containing the template of the VDC. Syntax can be the usual
 //     attribute=value or XML.
-//   - clusterID: The cluster ID. If it is -1, this virtual network won’t be added
-//     to any cluster
+//   - clusterID: The cluster ID. todo: unused, remove
 func (vc *VDCsController) CreateContext(ctx context.Context, tpl string, clusterID int) (int, error) {
-	response, err := vc.c.Client.CallContext(ctx, "one.vdc.allocate", tpl, clusterID)
+	response, err := vc.c.Client.VdcAllocate(ctx, tpl)
 	if err != nil {
 		return -1, err
 	}
@@ -147,7 +146,7 @@ func (vc *VDCController) Delete() error {
 
 // DeleteContext deletes the given VDC from the pool.
 func (vc *VDCController) DeleteContext(ctx context.Context) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.delete", vc.ID)
+	_, err := vc.c.Client.VdcDelete(ctx, vc.ID)
 	return err
 }
 
@@ -165,7 +164,7 @@ func (vc *VDCController) Update(tpl string, uType parameters.UpdateType) error {
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (vc *VDCController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.update", vc.ID, tpl, uType)
+	_, err := vc.c.Client.VdcUpdate(ctx, vc.ID, tpl, int(uType))
 	return err
 }
 
@@ -179,7 +178,7 @@ func (vc *VDCController) Rename(newName string) error {
 // * ctx: context for cancelation
 // * newName: The new name.
 func (vc *VDCController) RenameContext(ctx context.Context, newName string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.rename", vc.ID, newName)
+	_, err := vc.c.Client.VdcRename(ctx, vc.ID, newName)
 	return err
 }
 
@@ -193,7 +192,7 @@ func (vc *VDCController) AddGroup(groupID int) error {
 // * ctx: context for cancelation
 // * groupID: The group ID.
 func (vc *VDCController) AddGroupContext(ctx context.Context, groupID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.addgroup", vc.ID, int(groupID))
+	_, err := vc.c.Client.VdcAddGroup(ctx, vc.ID, groupID)
 	return err
 }
 
@@ -207,7 +206,7 @@ func (vc *VDCController) DelGroup(groupID int) error {
 // * ctx: context for cancelation
 // * groupID: The group ID.
 func (vc *VDCController) DelGroupContext(ctx context.Context, groupID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.delgroup", vc.ID, int(groupID))
+	_, err := vc.c.Client.VdcDelGroup(ctx, vc.ID, groupID)
 	return err
 }
 
@@ -223,7 +222,7 @@ func (vc *VDCController) AddCluster(zoneID, clusterID int) error {
 // * zoneID: The Zone ID.
 // * clusterID: The Cluster ID.
 func (vc *VDCController) AddClusterContext(ctx context.Context, zoneID, clusterID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.addcluster", vc.ID, int(zoneID), int(clusterID))
+	_, err := vc.c.Client.VdcAddCluster(ctx, vc.ID, zoneID, clusterID)
 	return err
 }
 
@@ -239,7 +238,7 @@ func (vc *VDCController) DelCluster(zoneID, clusterID int) error {
 // * zoneID: The Zone ID.
 // * clusterID: The Cluster ID.
 func (vc *VDCController) DelClusterContext(ctx context.Context, zoneID, clusterID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.delcluster", vc.ID, int(zoneID), int(clusterID))
+	_, err := vc.c.Client.VdcDelCluster(ctx, vc.ID, zoneID, clusterID)
 	return err
 }
 
@@ -255,7 +254,7 @@ func (vc *VDCController) AddHost(zoneID, hostID int) error {
 // * zoneID: The Zone ID.
 // * hostID: The Host ID.
 func (vc *VDCController) AddHostContext(ctx context.Context, zoneID, hostID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.addhost", vc.ID, int(zoneID), int(hostID))
+	_, err := vc.c.Client.VdcAddHost(ctx, vc.ID, zoneID, hostID)
 	return err
 }
 
@@ -271,7 +270,7 @@ func (vc *VDCController) DelHost(zoneID, hostID int) error {
 // * zoneID: The Zone ID.
 // * hostID: The Host ID.
 func (vc *VDCController) DelHostContext(ctx context.Context, zoneID, hostID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.delhost", vc.ID, int(zoneID), int(hostID))
+	_, err := vc.c.Client.VdcDelHost(ctx, vc.ID, zoneID, hostID)
 	return err
 }
 
@@ -287,7 +286,7 @@ func (vc *VDCController) AddDatastore(zoneID, dsID int) error {
 // * zoneID: The Zone ID.
 // * dsID: The Datastore ID.
 func (vc *VDCController) AddDatastoreContext(ctx context.Context, zoneID, dsID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.adddatastore", vc.ID, int(zoneID), int(dsID))
+	_, err := vc.c.Client.VdcAddDatastore(ctx, vc.ID, zoneID, dsID)
 	return err
 }
 
@@ -303,7 +302,7 @@ func (vc *VDCController) DelDatastore(zoneID, dsID int) error {
 // * zoneID: The Zone ID.
 // * dsID: The Datastore ID.
 func (vc *VDCController) DelDatastoreContext(ctx context.Context, zoneID, dsID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.deldatastore", vc.ID, int(zoneID), int(dsID))
+	_, err := vc.c.Client.VdcDelDatastore(ctx, vc.ID, zoneID, dsID)
 	return err
 }
 
@@ -319,7 +318,7 @@ func (vc *VDCController) AddVnet(zoneID, vnetID int) error {
 // * zoneID: The Zone ID.
 // * vnetID: The Vnet ID.
 func (vc *VDCController) AddVnetContext(ctx context.Context, zoneID, vnetID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.addvnet", vc.ID, int(zoneID), int(vnetID))
+	_, err := vc.c.Client.VdcAddVnet(ctx, vc.ID, zoneID, vnetID)
 	return err
 }
 
@@ -335,6 +334,6 @@ func (vc *VDCController) DelVnet(zoneID, vnetID int) error {
 // * zoneID: The Zone ID.
 // * vnetID: The Vnet ID.
 func (vc *VDCController) DelVnetContext(ctx context.Context, zoneID, vnetID int) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vdc.delvnet", vc.ID, int(zoneID), int(vnetID))
+	_, err := vc.c.Client.VdcDelVnet(ctx, vc.ID, zoneID, vnetID)
 	return err
 }

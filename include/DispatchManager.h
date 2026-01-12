@@ -35,7 +35,7 @@ class SecurityGroupPool;
 class VirtualMachine;
 class VirtualMachineTemplate;
 
-struct RequestAttributes;
+class RequestAttributes;
 
 
 class DispatchManager : public Listener

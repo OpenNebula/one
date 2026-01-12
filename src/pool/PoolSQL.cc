@@ -15,7 +15,6 @@
 /* -------------------------------------------------------------------------- */
 
 #include "PoolSQL.h"
-#include "RequestManagerPoolInfoFilter.h"
 #include "AclManager.h"
 #include "Nebula.h"
 #include "ClusterPool.h"
@@ -327,11 +326,11 @@ void PoolSQL::usr_filter(int                uid,
 {
     ostringstream uid_filter;
 
-    if ( filter_flag == RequestManagerPoolInfoFilter::MINE )
+    if ( filter_flag == MINE )
     {
         uid_filter << "uid = " << uid;
     }
-    else if ( filter_flag == RequestManagerPoolInfoFilter::GROUP )
+    else if ( filter_flag == GROUP )
     {
         uid_filter << "gid = " << gid;
 
@@ -344,7 +343,7 @@ void PoolSQL::usr_filter(int                uid,
         }
 
     }
-    else if ( filter_flag == RequestManagerPoolInfoFilter::MINE_GROUP )
+    else if ( filter_flag == MINE_GROUP )
     {
         uid_filter << "uid = " << uid << " OR ( (";
 
@@ -372,7 +371,7 @@ void PoolSQL::usr_filter(int                uid,
 
         uid_filter << ")";
     }
-    else if ( filter_flag == RequestManagerPoolInfoFilter::ALL )
+    else if ( filter_flag == ALL )
     {
         if (!all)
         {

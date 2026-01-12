@@ -29,7 +29,7 @@ class CloudServer
         OpenNebula::Error::EAUTHORIZATION  => 403,
         OpenNebula::Error::ENO_EXISTS      => 404,
         OpenNebula::Error::EACTION         => 500,
-        OpenNebula::Error::EXML_RPC_API    => 500,
+        OpenNebula::Error::ERPC_API        => 500,
         OpenNebula::Error::EINTERNAL       => 500,
         OpenNebula::Error::ENOTDEFINED     => 500
     }

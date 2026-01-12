@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'opennebula/security_group'
+require 'opennebula/security_group_pool'
 
 class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
     RECOVER = {

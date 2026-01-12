@@ -19,10 +19,13 @@
 #include "NebulaLog.h"
 #include "RaftManager.h"
 #include "SchedulerManager.h"
-#include "RequestManagerVirtualMachine.h"
+#include "VirtualMachinePool.h"
+#include "Request.h"
+#include "RequestAttributes.h"
 #include "ClusterPool.h"
 #include "PlanPool.h"
 #include "Plan.h"
+#include "VirtualMachineAPI.h"
 
 using namespace std;
 
@@ -291,10 +294,11 @@ bool PlanManager::start_action(int plan_id, PlanAction& action)
 
     ra.set_auth_op(vm_action);
 
+    Request request("internal action");
+    VirtualMachineAPI api(request);
+
     if (vm_action == VMActions::DEPLOY_ACTION)
     {
-        VirtualMachineDeploy request;
-
         ostringstream extra;
 
         auto nics = action.nics();
@@ -306,21 +310,26 @@ bool PlanManager::start_action(int plan_id, PlanAction& action)
                   << "\"]";
         }
 
-        rc = request.request_execute(ra, action.vm_id(), action.host_id(), true,
-                action.ds_id(), extra.str());
+        rc = api.deploy(action.vm_id(),
+                        action.host_id(),
+                        true,
+                        action.ds_id(),
+                        extra.str(),
+                        ra);
     }
     else if (vm_action == VMActions::MIGRATE_ACTION)
     {
-        VirtualMachineMigrate request;
-
-        rc = request.request_execute(ra, action.vm_id(), action.host_id(), live_resched,
-                false, action.ds_id(), cold_migrate_mode);
+        rc = api.migrate(action.vm_id(),
+                         action.host_id(),
+                         live_resched,
+                         false,
+                         action.ds_id(),
+                         cold_migrate_mode,
+                         ra);
     }
     else
     {
-        VirtualMachineAction request;
-
-        rc = request.request_execute(ra, aname, action.vm_id());
+        rc = api.action(action.vm_id(), aname, ra);
     }
 
     action.timestamp(time(nullptr));

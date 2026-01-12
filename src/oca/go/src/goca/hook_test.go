@@ -19,10 +19,11 @@ package goca
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	hk "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook/keys"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 )
 
 // Helper to create a Hook
@@ -80,12 +81,10 @@ func TestHook(t *testing.T) {
 	// Check execution records
 	currentExecs := len(hook.Log.ExecutionRecords)
 
-	time.Sleep(time.Second)
-
-	//triger the hook
-	testCtrl.Zones().ServerRaftStatus()
-
+	// Trigger the hook
 	checkLogExecution := func() error {
+		testCtrl.Zones().ServerRaftStatus()
+
 		hook, err = hookC.Info(false)
 		if len(hook.Log.ExecutionRecords) <= currentExecs {
 			return fmt.Errorf("Hook have not been triggered")
@@ -96,6 +95,8 @@ func TestHook(t *testing.T) {
 	err = retryWithExponentialBackoff(checkLogExecution, 1000, 5, 2000, 3000)
 	if err != nil {
 		t.Errorf("Hook have not been triggered: %s", err)
+
+		return
 	}
 
 	// Check retry functionality
@@ -108,8 +109,59 @@ func TestHook(t *testing.T) {
 		t.Errorf("Hook execution has not been retried: %s", err)
 	}
 
-	if hook.Log.ExecutionRecords[len(hook.Log.ExecutionRecords)-1].Retry != "yes" {
+	// Check if any of the new executions is a retry
+	isRetry := false
+	for _, exec := range hook.Log.ExecutionRecords {
+		if exec.Retry == "yes" {
+			isRetry = true
+			break
+		}
+	}
+	if !isRetry {
 		t.Errorf("Hook execution has not been retried")
+	}
+
+	// Update
+	err = hookC.Update("CALL=one.host.allocate", parameters.Merge)
+	if err != nil {
+		t.Errorf("Hook update failed: %s", err)
+	}
+
+	hook, err = hookC.Info(false)
+	call, _ := hook.Template.GetStr("CALL")
+	if call != "one.host.allocate" {
+		t.Errorf("Hook update failed")
+	}
+
+	// Rename
+	err = hookC.Rename("hook-host-allocate")
+	if err != nil {
+		t.Errorf("Hook rename failed: %s", err)
+	}
+
+	hook, err = hookC.Info(false)
+	if hook.Name != "hook-host-allocate" {
+		t.Errorf("Hook rename failed")
+	}
+
+	// Lock
+	err = hookC.Lock(shared.LockUse)
+	if err != nil {
+		t.Errorf("Hook lock failed: %s", err)
+	}
+
+	err = hookC.Unlock()
+	if err != nil {
+		t.Errorf("Hook unlock failed: %s", err)
+	}
+
+	// Check hook log
+	logC := testCtrl.HookLog()
+	log, err := logC.Info(-1,-1, -1, 0)
+	if err != nil {
+		t.Errorf("Hook lock failed: %s", err)
+	} else if len(log.ExecutionRecords) == 0 {
+		t.Errorf("Hook log empty")
 	}
 
 	// Delete hook

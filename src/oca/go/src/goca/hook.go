@@ -81,14 +81,9 @@ func (hc *HooksController) Info(args ...int) (*hook.Pool, error) {
 
 // InfoContext returns a hook pool. A connection to OpenNebula is
 // performed
+// todo: Remove unused parameter args
 func (hc *HooksController) InfoContext(ctx context.Context, args ...int) (*hook.Pool, error) {
-
-	fArgs, err := handleArgs(args)
-	if err != nil {
-		return nil, err
-	}
-
-	response, err := hc.c.Client.CallContext(ctx, "one.hookpool.info", fArgs...)
+	response, err := hc.c.Client.HookPoolInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +103,7 @@ func (hc *HookController) Info(decrypt bool) (*hook.Hook, error) {
 
 // InfoContext retrieves information for the hook from ID
 func (hc *HookController) InfoContext(ctx context.Context, decrypt bool) (*hook.Hook, error) {
-	response, err := hc.c.Client.CallContext(ctx, "one.hook.info", hc.ID, decrypt)
+	response, err := hc.c.Client.HookInfo(ctx, hc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +127,7 @@ func (hc *HooksController) Create(template string) (int, error) {
 // * name: name of the hook
 // * template: hook template.
 func (hc *HooksController) CreateContext(ctx context.Context, template string) (int, error) {
-	response, err := hc.c.Client.CallContext(ctx, "one.hook.allocate", template)
+	response, err := hc.c.Client.HookAllocate(ctx, template)
 	if err != nil {
 		return -1, err
 	}
@@ -147,7 +142,7 @@ func (hc *HookController) Delete() error {
 
 // DeleteContext deletes the given hook from the pool
 func (hc *HookController) DeleteContext(ctx context.Context) error {
-	_, err := hc.c.Client.CallContext(ctx, "one.hook.delete", hc.ID)
+	_, err := hc.c.Client.HookDelete(ctx, hc.ID)
 	return err
 }
 
@@ -165,7 +160,7 @@ func (hc *HookController) Update(tpl string, uType parameters.UpdateType) error 
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (hc *HookController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := hc.c.Client.CallContext(ctx, "one.hook.update", hc.ID, tpl, uType)
+	_, err := hc.c.Client.HookUpdate(ctx, hc.ID, tpl, int(uType))
 	return err
 }
 
@@ -179,7 +174,7 @@ func (hc *HookController) Rename(newName string) error {
 // * ctx: context for cancelation
 // * newName: The new name.
 func (hc *HookController) RenameContext(ctx context.Context, newName string) error {
-	_, err := hc.c.Client.CallContext(ctx, "one.hook.rename", hc.ID, newName)
+	_, err := hc.c.Client.HookRename(ctx, hc.ID, newName)
 	return err
 }
 
@@ -189,8 +184,9 @@ func (hc *HookController) Lock(level shared.LockLevel) error {
 }
 
 // LockContext locks the hook following lock level. See levels in locks.go.
+// todo: Add missing parameter test
 func (hc *HookController) LockContext(ctx context.Context, level shared.LockLevel) error {
-	_, err := hc.c.Client.CallContext(ctx, "one.hook.lock", hc.ID, level)
+	_, err := hc.c.Client.HookLock(ctx, hc.ID, int(level), false)
 	return err
 }
 
@@ -201,7 +197,7 @@ func (hc *HookController) Unlock() error {
 
 // UnlockContext unlocks the hook.
 func (hc *HookController) UnlockContext(ctx context.Context) error {
-	_, err := hc.c.Client.CallContext(ctx, "one.hook.unlock", hc.ID)
+	_, err := hc.c.Client.HookUnlock(ctx, hc.ID)
 	return err
 }
 
@@ -212,6 +208,6 @@ func (hc *HookController) Retry(exec_id int) error {
 
 // RetryContext retry a hook execution
 func (hc *HookController) RetryContext(ctx context.Context, exec_id int) error {
-	_, err := hc.c.Client.CallContext(ctx, "one.hook.retry", hc.ID, exec_id)
+	_, err := hc.c.Client.HookRetry(ctx, hc.ID, exec_id)
 	return err
 }

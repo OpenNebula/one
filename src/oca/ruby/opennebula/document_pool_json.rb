@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/document_pool'
+
 module OpenNebula
     class DocumentPoolJSON < DocumentPool
 

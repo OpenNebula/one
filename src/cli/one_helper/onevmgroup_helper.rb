@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'opennebula/vm_group'
+require 'opennebula/vm_group_pool'
 
 class OneVMGroupHelper < OpenNebulaHelper::OneHelper
     def self.rname

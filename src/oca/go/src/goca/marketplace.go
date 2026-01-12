@@ -83,14 +83,9 @@ func (mc *MarketPlacesController) Info(args ...int) (*marketplace.Pool, error) {
 
 // InfoContext returns a marketplace pool. A connection to OpenNebula is
 // performed.
+// todo: Remove unused parameter args
 func (mc *MarketPlacesController) InfoContext(ctx context.Context, args ...int) (*marketplace.Pool, error) {
-
-	fArgs, err := handleArgs(args)
-	if err != nil {
-		return nil, err
-	}
-
-	response, err := mc.c.Client.CallContext(ctx, "one.marketpool.info", fArgs...)
+	response, err := mc.c.Client.MarketPoolInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +106,7 @@ func (mc *MarketPlaceController) Info(decrypt bool) (*marketplace.MarketPlace, e
 
 // InfoContext retrieves information for the marketplace.
 func (mc *MarketPlaceController) InfoContext(ctx context.Context, decrypt bool) (*marketplace.MarketPlace, error) {
-	response, err := mc.c.Client.CallContext(ctx, "one.market.info", mc.ID, decrypt)
+	response, err := mc.c.Client.MarketInfo(ctx, mc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +128,7 @@ func (mc *MarketPlacesController) Create(tpl string) (int, error) {
 // * ctx: context for cancelation
 // * tpl: template of the marketplace
 func (mc *MarketPlacesController) CreateContext(ctx context.Context, tpl string) (int, error) {
-	response, err := mc.c.Client.CallContext(ctx, "one.market.allocate", tpl)
+	response, err := mc.c.Client.MarketAllocate(ctx, tpl)
 	if err != nil {
 		return -1, err
 	}
@@ -148,7 +143,7 @@ func (mc *MarketPlaceController) Delete() error {
 
 // DeleteContext deletes the given marketplace from the pool.
 func (mc *MarketPlaceController) DeleteContext(ctx context.Context) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.market.delete", mc.ID)
+	_, err := mc.c.Client.MarketDelete(ctx, mc.ID)
 	return err
 }
 
@@ -161,7 +156,7 @@ func (mc *MarketPlaceController) Enable(enable bool) error {
 // Enable enables or disables a marketplace.
 // * enable: True for enabling, False for disabling
 func (mc *MarketPlaceController) EnableContext(ctx context.Context, enable bool) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.market.enable", mc.ID, enable)
+	_, err := mc.c.Client.MarketEnable(ctx, mc.ID, enable)
 	return err
 }
 
@@ -179,7 +174,7 @@ func (mc *MarketPlaceController) Update(tpl string, uType parameters.UpdateType)
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (mc *MarketPlaceController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.market.update", mc.ID, tpl, uType)
+	_, err := mc.c.Client.MarketUpdate(ctx, mc.ID, tpl, int(uType))
 	return err
 }
 
@@ -190,9 +185,7 @@ func (mc *MarketPlaceController) Chmod(perm shared.Permissions) error {
 
 // ChmodContext changes the permission bits of a marketplace
 func (mc *MarketPlaceController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
-	args := append([]interface{}{mc.ID}, perm.ToArgs()...)
-
-	_, err := mc.c.Client.CallContext(ctx, "one.market.chmod", args...)
+	_, err := mc.c.Client.MarketChmod(ctx, mc.ID, perm)
 	return err
 }
 
@@ -208,7 +201,7 @@ func (mc *MarketPlaceController) Chown(userID, groupID int) error {
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (mc *MarketPlaceController) ChownContext(ctx context.Context, userID, groupID int) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.market.chown", mc.ID, userID, groupID)
+	_, err := mc.c.Client.MarketChown(ctx, mc.ID, userID, groupID)
 	return err
 }
 
@@ -222,6 +215,6 @@ func (mc *MarketPlaceController) Rename(newName string) error {
 // * ctx: context for cancelation
 // * newName: The new name.
 func (mc *MarketPlaceController) RenameContext(ctx context.Context, newName string) error {
-	_, err := mc.c.Client.CallContext(ctx, "one.market.rename", mc.ID, newName)
+	_, err := mc.c.Client.MarketRename(ctx, mc.ID, newName)
 	return err
 }

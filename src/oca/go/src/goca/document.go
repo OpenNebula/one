@@ -92,7 +92,7 @@ func (dc *DocumentsController) InfoContext(ctx context.Context, args ...int) (*d
 	}
 	fArgs = append(fArgs, dc.dType)
 
-	response, err := dc.c.Client.CallContext(ctx, "one.documentpool.info", fArgs...)
+	response, err := dc.c.Client.DocumentPoolInfo(ctx, fArgs[0], fArgs[1], fArgs[2], 0)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (dc *DocumentController) Info(decrypt bool) (*document.Document, error) {
 
 // InfoContext retrieves information for the document.
 func (dc *DocumentController) InfoContext(ctx context.Context, decrypt bool) (*document.Document, error) {
-	response, err := dc.c.Client.CallContext(ctx, "one.document.info", dc.ID, decrypt)
+	response, err := dc.c.Client.DocumentInfo(ctx, dc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -132,8 +132,9 @@ func (dc *DocumentsController) Create(tpl string) (int, error) {
 }
 
 // CreateContext allocates a new document. It returns the new document ID.
+// todo Add parameter document type
 func (dc *DocumentsController) CreateContext(ctx context.Context, tpl string) (int, error) {
-	response, err := dc.c.Client.CallContext(ctx, "one.document.allocate", tpl)
+	response, err := dc.c.Client.DocumentAllocate(ctx, tpl, 0)
 	if err != nil {
 		return -1, err
 	}
@@ -151,7 +152,7 @@ func (dc *DocumentController) Clone(newName string) error {
 // * ctx: context for cancelation
 // * newName: Name for the new document.
 func (dc *DocumentController) CloneContext(ctx context.Context, newName string) error {
-	_, err := dc.c.Client.CallContext(ctx, "one.document.clone", dc.ID, newName)
+	_, err := dc.c.Client.DocumentClone(ctx, dc.ID, newName)
 	return err
 }
 
@@ -162,7 +163,7 @@ func (dc *DocumentController) Delete() error {
 
 // DeleteContext deletes the given document from the pool.
 func (dc *DocumentController) DeleteContext(ctx context.Context) error {
-	_, err := dc.c.Client.CallContext(ctx, "one.document.delete", dc.ID)
+	_, err := dc.c.Client.DocumentDelete(ctx, dc.ID)
 	return err
 }
 
@@ -180,7 +181,7 @@ func (dc *DocumentController) Update(tpl string, uType parameters.UpdateType) er
 //   - uType: Update type: Replace: Replace the whole template.
 //     Merge: Merge new template with the existing one.
 func (dc *DocumentController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
-	_, err := dc.c.Client.CallContext(ctx, "one.document.update", dc.ID, tpl, uType)
+	_, err := dc.c.Client.DocumentUpdate(ctx, dc.ID, tpl, int(uType))
 	return err
 }
 
@@ -191,8 +192,7 @@ func (dc *DocumentController) Chmod(perm shared.Permissions) error {
 
 // ChmodContext changes the permission bits of a document.
 func (dc *DocumentController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
-	args := append([]interface{}{dc.ID}, perm.ToArgs()...)
-	_, err := dc.c.Client.CallContext(ctx, "one.document.chmod", args...)
+	_, err := dc.c.Client.DocumentChmod(ctx, dc.ID, perm)
 	return err
 }
 
@@ -208,7 +208,7 @@ func (dc *DocumentController) Chown(userID, groupID int) error {
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (dc *DocumentController) ChownContext(ctx context.Context, userID, groupID int) error {
-	_, err := dc.c.Client.CallContext(ctx, "one.document.chown", dc.ID, userID, groupID)
+	_, err := dc.c.Client.DocumentChown(ctx, dc.ID, userID, groupID)
 	return err
 }
 
@@ -222,7 +222,7 @@ func (dc *DocumentController) Rename(newName string) error {
 // * ctx: context for cancelation
 // * newName: The new name.
 func (dc *DocumentController) RenameContext(ctx context.Context, newName string) error {
-	_, err := dc.c.Client.CallContext(ctx, "one.document.rename", dc.ID, newName)
+	_, err := dc.c.Client.DocumentRename(ctx, dc.ID, newName)
 	return err
 }
 
@@ -233,7 +233,7 @@ func (dc *DocumentController) Lock(level shared.LockLevel) error {
 
 // LockContext locks the document following lock level. See levels in locks.go.
 func (dc *DocumentController) LockContext(ctx context.Context, level shared.LockLevel) error {
-	_, err := dc.c.Client.CallContext(ctx, "one.document.lock", dc.ID, level)
+	_, err := dc.c.Client.DocumentLock(ctx, dc.ID, int(level), false)
 	return err
 }
 
@@ -243,6 +243,6 @@ func (dc *DocumentController) Unlock() error {
 }
 
 func (dc *DocumentController) UnlockContext(ctx context.Context) error {
-	_, err := dc.c.Client.CallContext(ctx, "one.document.unlock", dc.ID)
+	_, err := dc.c.Client.DocumentUnlock(ctx, dc.ID)
 	return err
 }

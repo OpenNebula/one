@@ -41,6 +41,8 @@ module OpenNebula
 
         # Factory Method for the Host Pool
         def factory(element_xml)
+            require 'opennebula/host'
+
             OpenNebula::Host.new(element_xml,@client)
         end
 

@@ -120,7 +120,7 @@ func TestService(t *testing.T) {
 	if err != nil {
 		err = service_ctrl.Recover(true)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Errorf("%v", err)
 		}
 	}
 }

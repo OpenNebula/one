@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'opennebula/xml_utils'
+require 'opennebula/error'
 
 module OpenNebula
 
@@ -259,7 +260,7 @@ module OpenNebula
                 end
 
                 size = OpenNebula.pool_page_size if (!size || size == 0)
-                rc   = @client.call(method, @user_id, current, -size, state)
+                rc   = @client.call(method, @user_id, current, -size, state, "")
 
                 return rc if OpenNebula.is_error?(rc)
 

@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'opennebula/marketplace'
+require 'opennebula/marketplace_pool'
 
 class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
     MARKETPLACE = {

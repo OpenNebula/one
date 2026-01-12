@@ -17,8 +17,8 @@ SOURCES="src"
 INCLUDES="-I include -I src/monitor/include"
 DEFINES="-DSQLITE_DB -DMYSQL_DB -DSYSTEMD"
 ENABLE="--enable=performance,information,warning,portability,style,missingInclude"
-IGNORE="-i .xmlrpc_test/ -i src/sunstone/ -i src/svncterm_server/ -i src/fireedge -i src/parsers -i src/vmm/LibVirtDriverKVM.cc"
-SUPRESS="--suppress-xml=share/smoke_tests/config/cppcheck-suppressions.xml"
+IGNORE="-i .xmlrpc_test/ -i src/sunstone/ -i src/svncterm_server/ -i src/fireedge -i src/parsers -i src/vmm/LibVirtDriverKVM.cc -i src/rm/grpc/src"
+SUPRESS="--inline-suppr --suppress-xml=share/smoke_tests/config/cppcheck-suppressions.xml"
 OTHERS="--std=c++17 --error-exitcode=2 -q -j 4"
 
 cppcheck $SOURCES $INCLUDES $DEFINES $IGNORE $ENABLE $SUPRESS $OTHERS

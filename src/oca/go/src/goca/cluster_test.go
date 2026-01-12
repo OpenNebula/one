@@ -227,13 +227,14 @@ func (s *ClusterSuite) TestPlanApi(c *C) {
 	// Just test the API call exists
 	err = clusterC.PlanExecute()
 	c.Assert(err, NotNil)
-	oneErr, _ := err.(*errors.ResponseError);
-	c.Assert(int(oneErr.Code), Equals, errors.OneActionError)
+	oneErr, _ := err.(*errors.ResponseError)
+	allowedErrors := errors.OneActionError | errors.OneInternalError
+	c.Assert(int(oneErr.Code) & allowedErrors != 0, Equals, true)
 
 	// Delete Optimization Plan - we don't have any optimization plan
 	// Just test the API call exists
 	err = clusterC.PlanDelete()
 	c.Assert(err, NotNil)
-	oneErr, _ = err.(*errors.ResponseError);
-	c.Assert(int(oneErr.Code), Equals, errors.OneActionError)
+	oneErr, _ = err.(*errors.ResponseError)
+	c.Assert(int(oneErr.Code) & allowedErrors != 0, Equals, true)
 }

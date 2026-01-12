@@ -42,6 +42,8 @@ module OpenNebula
 
         # Default Factory Method for the Pools
         def factory(element_xml)
+            require 'opennebula/virtual_network'
+
             OpenNebula::VirtualNetwork.new(element_xml,@client)
         end
 

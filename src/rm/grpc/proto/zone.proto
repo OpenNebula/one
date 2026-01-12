@@ -1,0 +1,182 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+syntax = "proto3";
+
+import "shared.proto";
+
+package one.zone;
+
+option go_package = "github.com/OpenNebula/one/src/oca/go/src/goca/api/zone";
+
+message AllocateRequest {
+  string session_id = 1;
+  string template   = 2;
+}
+
+message DeleteRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+}
+
+message InfoRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  bool decrypt      = 3;
+}
+
+message UpdateRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string template   = 3;
+  int32 append      = 4;
+}
+
+message RenameRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string name       = 3;
+}
+
+message AddServerRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string zs_str     = 3;
+}
+
+message DelServerRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 zs_id       = 3;
+}
+
+message ResetServerRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 zs_id       = 3;
+}
+
+message EnableRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  bool enable       = 3;
+}
+
+message ReplicateLogRequest
+{
+  string session_id    = 1;
+  int32 leader_id      = 2;
+  uint64 leader_commit = 3;
+  uint32 leader_term   = 4;
+  uint64 index         = 5;
+  uint32 term          = 6;
+  uint64 prev_index    = 7;
+  uint32 prev_term     = 8;
+  uint64 fed_index     = 9;
+  string sql           = 10;
+}
+
+message ResponseReplicateLog
+{
+  bool success = 1;
+  uint32 term  = 2;
+}
+
+message VoteRequest
+{
+  string session_id          = 1;
+  uint32 candidate_term      = 2;
+  int32 candidate_id         = 3;
+  uint64 candidate_log_index = 4;
+  uint32 candidate_log_term  = 5;
+}
+
+message ResponseVote
+{
+  bool success = 1;
+  uint32 term  = 2;
+}
+
+message RaftStatusRequest
+{
+  string session_id = 1;
+}
+
+message ReplicateFedLogRequest
+{
+  string session_id    = 1;
+  uint64 index         = 2;
+  uint64 prev          = 3;
+  string sql           = 4;
+}
+
+message ResponseReplicateFedLog
+{
+  bool success = 1;
+  uint64 index = 2;
+}
+
+message UpdateDBRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string xml        = 3;
+}
+
+message PoolInfoRequest
+{
+  string session_id = 1;
+}
+
+service ZoneService
+{
+  rpc Allocate (one.zone.AllocateRequest) returns (one.ResponseID);
+
+  rpc Delete (one.zone.DeleteRequest) returns (one.ResponseID);
+
+  rpc Info (one.zone.InfoRequest) returns (one.ResponseXML);
+
+  rpc Update (one.zone.UpdateRequest) returns (one.ResponseID);
+
+  rpc Rename (one.zone.RenameRequest) returns (one.ResponseID);
+
+  rpc AddServer (one.zone.AddServerRequest) returns (one.ResponseID);
+
+  rpc DelServer (one.zone.DelServerRequest) returns (one.ResponseID);
+
+  rpc ResetServer (one.zone.ResetServerRequest) returns (one.ResponseID);
+
+  rpc Enable (one.zone.EnableRequest) returns (one.ResponseID);
+
+  rpc ReplicateLog (one.zone.ReplicateLogRequest) returns (one.zone.ResponseReplicateLog);
+
+  rpc Vote (one.zone.VoteRequest) returns (one.zone.ResponseVote);
+
+  rpc RaftStatus (one.zone.RaftStatusRequest) returns (one.ResponseXML);
+
+  rpc ReplicateFedLog (one.zone.ReplicateFedLogRequest) returns (one.zone.ResponseReplicateFedLog);
+
+  rpc UpdateDB (one.zone.UpdateDBRequest) returns (one.ResponseID);
+
+  rpc PoolInfo (one.zone.PoolInfoRequest) returns (one.ResponseXML);
+}
