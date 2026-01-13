@@ -160,8 +160,9 @@ module MAD
             "sudo lvremove#{flags} -y '#{@lvfname}'\n"
         end
 
+        # Some distributions like Debian don't add sbin directories in non-root users PATH
         def mkswap_sh
-            "mkswap -L swap #{@dev}\n"
+            "PATH=/usr/sbin:/sbin:$PATH mkswap -L swap #{@dev}\n"
         end
 
         def mkfs_sh(format, fs)
@@ -700,7 +701,7 @@ module MAD
                 ln -sf '#{@lv.dev}' '#{dst.path}'
             EOF
         rescue StandardError => e
-            @ds.run_bridge(@lv.delete_sh(:cleanup_pool => true))
+            MAD.run(dst.host, @lv.delete_sh(:cleanup_pool => true))
             raise e
         end
 
