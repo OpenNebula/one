@@ -16,6 +16,7 @@
 
 require 'uri'
 require 'base64'
+require 'json'
 
 require 'opennebula/form/helpers'
 require 'opennebula/form/drivers'
