@@ -86,9 +86,10 @@ if command -v dpkg >/dev/null; then
 elif command -v rpm >/dev/null; then
     if grep -m1 '^Red Hat' /etc/redhat-release; then
       export SMDEV_CONTAINER_OFF=1
+      # TEMP: RHEL servers reset the connection after successfull register
       subscription-manager register --username ${RHEL_USER} \
                                     --password ${RHEL_PASSWORD} \
-                                    --force --auto-attach
+                                    --force --auto-attach ||:
       subscription-manager attach --pool=${RHEL_POOL_ID}
       subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms ||:
       subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms ||:
@@ -101,7 +102,7 @@ elif command -v rpm >/dev/null; then
         dnf config-manager --set-enabled crb        ||: # alma9
     fi
 
-    yum -q -y install rubygems findutils
+    yum -q -y install rubygems findutils openssl
     yum -q -y remove  rubygem-bundler
 fi
 
@@ -109,12 +110,8 @@ fi
 find /usr -name 'bundler*.gemspec' -delete
 export PATH=\$PATH:/usr/local/bin
 
-# use latest bundler since ruby 3.2
-if ruby -e 'Gem::Version.new(\`ruby --version | cut -d " "  -f2\`) > Gem::Version.new("3.1.1") ? exit(0) : exit(1)'; then
-    gem install bundler --no-document --quiet
-else
-    gem install bundler -v '<2' --no-document --quiet
-fi
+# use latest bundler
+gem install bundler --no-document --quiet
 
 # install OpenNebula
 mkdir -p /run/lock
