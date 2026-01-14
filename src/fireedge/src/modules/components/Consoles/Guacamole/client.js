@@ -152,12 +152,12 @@ const GuacamoleClient = ({ id, display, zone, externalZone, type }) => {
     const originalOnInstruction = guac.current.tunnel.oninstruction
 
     guac.current.tunnel.oninstruction = (opcode, args) => {
-      if (opcode === "blob") {
+      if (opcode === 'blob') {
         guac.current.client.getDisplay().flush()
       }
 
       if (originalOnInstruction) {
-        originalOnInstruction(opcode, args);
+        originalOnInstruction(opcode, args)
       }
     }
 

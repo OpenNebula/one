@@ -175,12 +175,12 @@ const generateQr2FA = async ({ USER: { ID } = {} } = {}) => {
 }
 
 /**
- * @param root0
- * @param root0.USER
- * @param root0.USER.ID
- * @param root0.USER.TEMPLATE
- * @param root1
- * @param root1.connect
+ * @param {object} root0 - Params
+ * @param {object} root0.USER - Auth user
+ * @param {string} root0.USER.ID - User ID
+ * @param {object} root0.USER.TEMPLATE - User template
+ * @param {object} root1 - Params
+ * @param {Function} root1.connect - OpenNebula connection callback
  */
 const setup2FASecret = async ({ USER: { ID, TEMPLATE } = {} }, { connect }) => {
   const { username, token } = getServerAdmin()

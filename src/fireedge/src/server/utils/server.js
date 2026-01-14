@@ -146,6 +146,8 @@ const validateAuthWebsocket = (server = {}) => {
       server?.handshake?.headers?.cookie ??
       server?.handshake?.headers?.cookies ??
       {}
+    if (!cookies || cookies?.length <= 0) return false
+
     const encoded = cookies
       ?.split(';')
       ?.map((v) => v.trim())

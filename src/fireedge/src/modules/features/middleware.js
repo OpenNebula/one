@@ -14,8 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Dispatch, Middleware } from '@reduxjs/toolkit'
-
-import { T } from '@ConstantsModule'
 import { logout } from '@modules/features/Auth/slice'
 import { oneApi } from '@modules/features/OneApi'
 
@@ -25,15 +23,22 @@ import { oneApi } from '@modules/features/OneApi'
  */
 export const unauthenticatedMiddleware =
   ({ dispatch }) =>
-  (next) =>
-  (action) => {
-    if (oneApi.endpoints.getAuthUser.matchRejected(action) && action.payload) {
-      const { status, data } = action.payload
+  (next) => {
+    let canResetCache = true
 
-      if (status === 401 && data === 'expired') {
-        dispatch(logout(T.SessionExpired))
+    return (action) => {
+      const status = action?.payload?.status
+
+      if (status != null) {
+        if (status === 401 && canResetCache) {
+          canResetCache = false
+          dispatch(logout())
+          dispatch(oneApi.util.resetApiState())
+        } else if (status !== 401) {
+          canResetCache = true
+        }
       }
-    }
 
-    return next(action)
+      return next(action)
+    }
   }
