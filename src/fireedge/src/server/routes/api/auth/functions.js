@@ -51,7 +51,7 @@ const login = async ({ protocol, next, params, connect }) => {
     protocol,
   })
 
-  setZones({ connect, next })
+  setZones({ connect: connect(params.user, params.token), next })
 
   const TFA_STATUS = await check2FA(verifiedUser, {
     tfatoken: params.tfatoken,
