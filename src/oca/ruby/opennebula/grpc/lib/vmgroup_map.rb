@@ -122,9 +122,12 @@ module GRPCMappings
             stub.info(req, options)
         end,
 
-        'vmgrouppool.info' => lambda do |one_auth, endpoint, *_args, options|
+        'vmgrouppool.info' => lambda do |one_auth, endpoint, *args, options|
             stub = One::Vmgroup::VMGroupService::Stub.new(endpoint, :this_channel_is_insecure)
-            req  = One::Vmgroup::PoolInfoRequest.new(:session_id => one_auth)
+            req  = One::Vmgroup::PoolInfoRequest.new(:session_id => one_auth,
+                                                     :filter_flag => args[0],
+                                                     :start       => args[1],
+                                                     :end         => args[2])
             stub.pool_info(req, options)
         end
     }.freeze
