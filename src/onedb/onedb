@@ -460,7 +460,10 @@ CommandParser::CmdParser.new(ARGV) do
     # fsck
     ###########################################################################
     fsck_desc = <<-EOT.unindent
-        Checks the consistency of the DB, and fixes the problems found
+        Checks the consistency of the DB, and fixes the problems found.
+        Return codes: 0 - success, no error found
+                      1 - error in DB found, see the output for details
+                     -1 (255) - error, unable to check DB consistency
     EOT
 
     command :fsck, fsck_desc, :options=>[FORCE, BACKUP, DRY] do

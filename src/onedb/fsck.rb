@@ -55,6 +55,8 @@ require 'fsck/scheduled_actions'
 
 module OneDBFsck
 
+    attr_accessor :errors
+
     def db_version
         if defined?(@db_version) && @db_version
             @db_version

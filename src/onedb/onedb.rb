@@ -475,7 +475,7 @@ class OneDB
 
                 puts "  > Total time: #{"%0.02f" % (time1 - time0).to_s}s" if ops[:verbose]
 
-                return 0
+                return @backend.errors == 0 ? 0 : 1
             rescue Exception => e
                 puts
                 puts e.message
