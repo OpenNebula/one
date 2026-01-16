@@ -129,6 +129,12 @@ module OneFormServer
                 ) unless body['driver']
 
                 dname  = body['driver'].downcase
+
+                return internal_error(
+                    'The onprem provider already exists and cannot be created again',
+                    ResponseHelper::VALIDATION_EC
+                ) if dname == 'onprem'
+
                 driver = OneForm::Driver.from_name(dname)
 
                 return internal_error(
@@ -393,6 +399,11 @@ module OneFormServer
                 return internal_error(
                     provider.message, one_error_to_http(provider.errno)
                 ) if OpenNebula.is_error?(provider)
+
+                return internal_error(
+                    'The onprem provider is required by the system and cannot be deleted',
+                    ResponseHelper::VALIDATION_EC
+                ) if provider.driver == 'onprem'
 
                 rc = provider.delete
 

@@ -59,6 +59,40 @@ module OneForm
             ids.include?(id)
         end
 
+        def exists_type?(type)
+            any? do |provider|
+                raw = provider.to_hash.dig('DOCUMENT', 'TEMPLATE', 'PROVIDER_BODY')
+                next false if raw.nil? || raw.empty?
+
+                body = JSON.parse(raw)
+                body['driver'] == type
+            rescue JSON::ParserError
+                false
+            end
+        end
+
+        # Ensure that a provider of the given type exists in the pool
+        #
+        # @param type [String]   Provider driver name (e.g. "onprem")
+        # @param options [Hash]  Extra options merged into the provider template
+        #
+        # @return [true, OpenNebula::Error]
+        def ensure_type!(type, options = {})
+            rc = info
+            return rc if OpenNebula.is_error?(rc)
+            return true if exists_type?(type)
+
+            driver   = OneForm::Driver.from_name(type)
+            provider = OneForm::Provider.new(@client)
+
+            template = driver.connection_body.merge(options)
+            rc = provider.allocate(template)
+
+            return rc if OpenNebula.is_error?(rc)
+
+            true
+        end
+
     end
 
     # Provider class

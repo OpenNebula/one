@@ -28,6 +28,18 @@ module OneFormServer
             app.configure do
                 lcm = OneForm::ProvisionLCM.new(app.settings.cloud_auth)
                 app.set :lcm, lcm
+
+                # Create the onprem provider by default when server starts
+                begin
+                    client = app.settings.cloud_auth.client('oneadmin')
+                    pool   = OneForm::ProviderDocumentPool.new(client)
+                    rc     = pool.ensure_type!('onprem', { 'connection' => {} })
+
+                    raise rc if OpenNebula.is_error?(rc)
+                rescue StandardError => e
+                    Log.error("Server startup failed ensuring onprem provider: #{e.message}")
+                    exit(1)
+                end
             end
 
             app.before do

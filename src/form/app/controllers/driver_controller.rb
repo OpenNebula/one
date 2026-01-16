@@ -28,12 +28,12 @@ module OneFormServer
 
             app.before do
                 user = User.new_with_id(OpenNebula::User::SELF, @client)
-                rc = user.info
+                rc   = user.info
 
-                if OpenNebula.is_error?(rc)
-                    STDERR.puts "Error retrieving user info: #{rc.message}"
-                    exit(1)
-                end
+                halt 500, internal_error(
+                    'Failed to retrieve user information',
+                    ResponseHelper::INTERNAL_EC
+                ) if OpenNebula.is_error?(rc)
 
                 # Only allow oneadmin group users to perform actions
                 halt 403, internal_error(
