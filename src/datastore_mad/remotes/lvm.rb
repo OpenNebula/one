@@ -115,7 +115,8 @@ module MAD
             #{script}
         EOF
         rc = if host
-                 SSHCommand.run('/bin/bash -s', host, nil, script)
+                 ssh_opts = '-o ForwardAgent=yes'
+                 SSHCommand.run('/bin/bash -s', host, nil, script, nil, ssh_opts)
              else
                  LocalCommand.run('/bin/bash -s', nil, script)
              end
@@ -628,6 +629,7 @@ module MAD
             @id      = xml_text('DISK_ID', true)
             @imageid = xml_text('IMAGE_ID')
             @size    = xml_text('SIZE').to_i
+            @fs      = xml_text('FS')
             @idsid   = xml_text('DATASTORE_ID')
             @sdsid   = vm.sdsid
 
@@ -695,9 +697,10 @@ module MAD
         # Create thin pool + volume. Tries to be atomic, i.e., on failure the half-created LV is
         # destroyed again.
         def create(dst, is_swap)
+            format = is_swap ? 'swap' : nil
             MAD.run(dst.host, <<~EOF, 'Error creating LV')
                 #{@lv.create_sh(@size, :activate => true).strip}
-                #{@lv.mkswap_sh.strip if is_swap}
+                #{@lv.mkfs_sh(format, @fs).strip if @fs}
                 ln -sf '#{@lv.dev}' '#{dst.path}'
             EOF
         rescue StandardError => e
