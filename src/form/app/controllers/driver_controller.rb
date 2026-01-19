@@ -21,11 +21,6 @@ module OneFormServer
     module DriverController
 
         def self.registered(app)
-            app.configure do
-                # Automatically synchronize OneForm drivers during startup
-                OneForm::Driver.sync
-            end
-
             app.before do
                 user = User.new_with_id(OpenNebula::User::SELF, @client)
                 rc   = user.info

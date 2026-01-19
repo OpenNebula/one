@@ -29,6 +29,9 @@ module OneFormServer
                 lcm = OneForm::ProvisionLCM.new(app.settings.cloud_auth)
                 app.set :lcm, lcm
 
+                # Automatically synchronize OneForm drivers during startup
+                OneForm::Driver.sync
+
                 # Create the onprem provider by default when server starts
                 begin
                     client = app.settings.cloud_auth.client('oneadmin')
