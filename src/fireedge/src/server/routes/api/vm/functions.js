@@ -106,7 +106,7 @@ const generateGuacamoleSession = (
   userData = {},
   xmlrpc = defaultEmptyFunction
 ) => {
-  const { id: userAuthId } = userData
+  const { id: userAuthId, user: authUser } = userData
   const { id: vmId, type, download } = params
   const ensuredType = `${type}`.toLowerCase()
 
@@ -119,13 +119,12 @@ const generateGuacamoleSession = (
   const serverAdmin = getSunstoneAuth() ?? {}
   const { token: authToken } = createTokenServerAdmin(serverAdmin) ?? {}
 
-  if (!authToken) {
+  if (!authToken || !authUser) {
     res.locals.httpCode = httpResponse(badRequest, '')
     next()
   }
 
-  const { username } = serverAdmin
-  const oneClient = xmlrpc(`${username}:${username}`, authToken)
+  const oneClient = xmlrpc(authUser, authToken)
 
   const callbackVmInfo = (vmInfoErr, VM, USER) => {
     if (vmInfoErr || !VM) {
