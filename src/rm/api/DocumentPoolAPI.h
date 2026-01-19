@@ -30,7 +30,7 @@ protected:
 
     DocumentPoolAPI(Request &r) : PoolSharedAPI(r)
     {
-        request.auth_object(PoolObjectSQL::VMGROUP);
+        request.auth_object(PoolObjectSQL::DOCUMENT);
 
         docpool = Nebula::instance().get_docpool();
         pool = docpool;

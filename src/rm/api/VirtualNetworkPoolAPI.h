@@ -31,12 +31,18 @@ protected:
     VirtualNetworkPoolAPI(Request &r)
         : PoolSharedAPI(r)
     {
-        request.auth_object(PoolObjectSQL::VNTEMPLATE);
+        request.auth_object(PoolObjectSQL::NET);
 
         pool = Nebula::instance().get_vnpool();
     }
 
+public:
     /* API calls */
+    Request::ErrorCode info(int filter_flag,
+                            int start_id,
+                            int end_id,
+                            std::string& xml,
+                            RequestAttributes& att) override;
 
     /* Helpers */
 };

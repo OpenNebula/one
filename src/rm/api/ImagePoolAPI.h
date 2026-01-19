@@ -31,7 +31,7 @@ protected:
     ImagePoolAPI(Request &r)
         : PoolSharedAPI(r)
     {
-        request.auth_object(PoolObjectSQL::TEMPLATE);
+        request.auth_object(PoolObjectSQL::IMAGE);
 
         pool = Nebula::instance().get_ipool();
     }

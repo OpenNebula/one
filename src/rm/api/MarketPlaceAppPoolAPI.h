@@ -31,7 +31,7 @@ protected:
     MarketPlaceAppPoolAPI(Request &r)
         : PoolSharedAPI(r)
     {
-        request.auth_object(PoolObjectSQL::MARKETPLACE);
+        request.auth_object(PoolObjectSQL::MARKETPLACEAPP);
 
         pool = Nebula::instance().get_apppool();
     }

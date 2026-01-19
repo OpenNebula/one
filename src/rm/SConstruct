@@ -207,6 +207,7 @@ source_files=[
     'api/VirtualMachineAPI.cc',
     'api/VirtualMachinePoolAPI.cc',
     'api/VirtualNetworkAPI.cc',
+    'api/VirtualNetworkPoolAPI.cc',
     'api/VirtualRouterAPI.cc',
     'api/VMGroupAPI.cc',
     'api/VNTemplateAPI.cc',
