@@ -13,32 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Dispatch, Middleware } from '@reduxjs/toolkit'
+import { Middleware } from '@reduxjs/toolkit'
 import { logout } from '@modules/features/Auth/slice'
 import { oneApi } from '@modules/features/OneApi'
+import { T } from '@ConstantsModule'
 
 /**
- * @param {{ dispatch: Dispatch }} params - Redux parameters
+ * @param {object} store - Redux store
  * @returns {Middleware} - Unauthenticated middleware
  */
-export const unauthenticatedMiddleware =
-  ({ dispatch }) =>
-  (next) => {
-    let canResetCache = true
+export const unauthenticatedMiddleware = (store) => (next) => {
+  const { getState, dispatch } = store
+  let canResetCache = true
 
-    return (action) => {
-      const status = action?.payload?.status
+  return (action) => {
+    const { auth } = getState()
+    const status = action?.payload?.status
 
-      if (status != null) {
-        if (status === 401 && canResetCache) {
-          canResetCache = false
-          dispatch(logout())
-          dispatch(oneApi.util.resetApiState())
-        } else if (status !== 401) {
-          canResetCache = true
-        }
+    if (status != null) {
+      if (status === 401 && canResetCache) {
+        canResetCache = false
+        dispatch(logout(auth?.isLoggedIn ? T.SessionExpired : undefined)) // Expired = true
+        dispatch(oneApi.util.resetApiState()) // Expired = false
+      } else if (status !== 401) {
+        canResetCache = true
       }
-
-      return next(action)
     }
+
+    return next(action)
   }
+}

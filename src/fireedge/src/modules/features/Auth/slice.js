@@ -23,6 +23,7 @@ const initial = () => ({
   isLoginInProgress: false,
   externalRedirect: '',
   sessionVerified: false,
+  isLoggedIn: false,
 })
 
 const slice = createSlice({
@@ -31,6 +32,9 @@ const slice = createSlice({
   reducers: {
     changeAuthUser: (state, { payload: { isLoginInProgress, ...user } }) => {
       state.user = { ...state.user, ...user }
+      if (user?.ID) {
+        state.isLoggedIn = true
+      }
 
       if (isLoginInProgress !== undefined) {
         state.isLoginInProgress = isLoginInProgress
