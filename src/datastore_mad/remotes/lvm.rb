@@ -166,13 +166,11 @@ module MAD
             "PATH=/usr/sbin:/sbin:$PATH mkswap -L swap #{@dev}\n"
         end
 
-        def mkfs_sh(format, fs)
+        def mkfs_sh(fs)
             script_dir = Pathname.new($PROGRAM_NAME).dirname
             ds_env     = MAD.load_env("#{script_dir}/../../etc/datastore/datastore.conf")
 
             supported_fs = ds_env['SUPPORTED_FS']&.split(',') || []
-
-            return mkswap_sh if format == 'swap'
 
             # rubocop:disable Layout/LineLength
             raise StandardError, "Unsupported file system type: #{fs.inspect}. Supported types are: #{supported_fs}" \
@@ -571,7 +569,8 @@ module MAD
         def create(activate = false)
             @ds.run_bridge(<<~EOF, 'Error creating LV')
                 #{@lv.create_sh(@size, :activate => true).strip}
-                #{@lv.mkfs_sh(@format, @fs).strip if @fs && @format != 'save_as'}
+                #{@lv.mkswap_sh.strip if @format == 'swap'}
+                #{@lv.mkfs_sh(@fs).strip if @fs && @format != 'save_as'}
                 #{@lv.activate_sh(false).strip unless activate}
             EOF
         rescue StandardError => e
@@ -697,10 +696,10 @@ module MAD
         # Create thin pool + volume. Tries to be atomic, i.e., on failure the half-created LV is
         # destroyed again.
         def create(dst, is_swap)
-            format = is_swap ? 'swap' : nil
             MAD.run(dst.host, <<~EOF, 'Error creating LV')
                 #{@lv.create_sh(@size, :activate => true).strip}
-                #{@lv.mkfs_sh(format, @fs).strip if @fs}
+                #{@lv.mkswap_sh.strip if is_swap}
+                #{@lv.mkfs_sh(@fs).strip if @fs}
                 ln -sf '#{@lv.dev}' '#{dst.path}'
             EOF
         rescue StandardError => e
