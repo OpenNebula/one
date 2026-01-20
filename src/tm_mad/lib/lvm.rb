@@ -207,7 +207,7 @@ module TransferManager
                 restore_cmds = <<~EOS
                     qemu-img convert -m 4 -O raw '#{qcow_path}' '#{qcow_path}.raw'
                     rm '#{qcow_path}'
-                    dd if='#{qcow_path}.raw' of='#{path(@lv)}' bs=64k conv=sparse
+                    dd if='#{qcow_path}.raw' of='#{path(@lv)}' bs=64k conv=sparse,fsync
                     rm '#{qcow_path}.raw'
                 EOS
                 cleanup_cmd = "rm -f '#{qcow_path}' '#{qcow_path}.raw'"
