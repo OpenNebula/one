@@ -441,8 +441,15 @@ rsync://*|rsync+rbd://*)
     eval "$defs"
     ;;
 netapp://*)
-    # netapp:///vol/one-101-234/one-123-disk-0 ?
+    # netapp:///vol/one-101-234/one-123-disk-0
     defs=`$VAR_LOCATION/remotes/datastore/netapp_downloader.rb "$FROM" | grep -e '^command=' -e '^clean_command='`
+    ret=$?
+    [ $ret -ne 0 ] && exit $ret
+    eval "$defs"
+    ;;
+purefa://*)
+    # purefa:///one_123_345_suffix
+    defs=`$VAR_LOCATION/remotes/datastore/purefa_downloader.rb "$FROM" | grep -e '^command=' -e '^clean_command='`
     ret=$?
     [ $ret -ne 0 ] && exit $ret
     eval "$defs"
