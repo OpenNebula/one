@@ -83,17 +83,16 @@ all:
               size: {{ user_inputs.size }}
 
     ds:
-      mode: shared
+      mode: generic
       config:
-        mounts:
-          - type: system
-            path: "{{ user_inputs.nfs_mount_path }}/{{ one.system_ds_id }}"
-          - type: image
-            path: "{{ user_inputs.nfs_mount_path }}/{{ one.image_ds_id }}"
-
         SYSTEM_DS:
           onprem_system_ds:
             id: {{ one.system_ds_id }}
+            symlink:
+              src: "{{ user_inputs.nfs_mount_path }}/{{ one.system_ds_id }}"
+              groups:
+                - frontend
+                - node
             template:
               type: SYSTEM_DS
               tm_mad: shared
@@ -101,6 +100,11 @@ all:
         IMAGE_DS:
           onprem_image_ds:
             id: {{ one.image_ds_id }}
+            symlink:
+              src: "{{ user_inputs.nfs_mount_path }}/{{ one.image_ds_id }}"
+              groups:
+                - frontend
+                - node
             template:
               type: IMAGE_DS
               ds_mad: fs
