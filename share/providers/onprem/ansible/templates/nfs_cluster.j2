@@ -1,12 +1,14 @@
 {#
-name: On-Prem Local Storage and Bridged Networking Cluster
+name: On-Prem Shared Storage and Bridged Networking Cluster
 description: |
-  Creates a cluster on your on-prem (local) infrastructure.
-  Requirements: Hosts must have the OS installed and be reachable via SSH.
-  Storage: VM images are copied to each host over SSH and stored on local disk.
+  Creates a cluster using your on-prem (local) infrastructure.
+  Requirements: Hosts must have the OS installed and be reachable via SSH. An NFS export must exist and be reachable from all hosts. The shared export MUST be owned by oneadmin (UID/GID 9869).
+  Storage: VM images and system files are stored on shared NFS storage.
   Network: VMs use a flat bridged network via a physical NIC on every host.
+
 fireedge:
   logo: "onprem_ssh_cluster.png"
+
 user_inputs:
   - name: phydev_name
     description: Host NIC used to bridge the VM network (must exist on all hosts), e.g. eth0 or ens3
@@ -42,6 +44,21 @@ user_inputs:
     description: Number of consecutive IPs to allocate starting from the first IP
     type: number
     default: 100
+
+  - name: nfs_server
+    description: NFS server IP or hostname
+    type: string
+    default: "172.20.0.1"
+
+  - name: nfs_export
+    description: NFS exported path for this cluster, e.g. /srv/one_cluster_prod. The path MUST be owned by UID and GID 9869
+    type: string
+    default: "/srv/one_cluster_prod"
+
+  - name: nfs_mount_path
+    description: Mount point on nodes for the NFS export, e.g. /mnt/opennebula/cluster_prod
+    type: string
+    default: "/mnt/opennebula/cluster_prod"
 #}
 
 ---
@@ -66,22 +83,36 @@ all:
               size: {{ user_inputs.size }}
 
     ds:
-      mode: generic
+      mode: shared
       config:
+        mounts:
+          - type: system
+            path: "{{ user_inputs.nfs_mount_path }}/{{ one.system_ds_id }}"
+          - type: image
+            path: "{{ user_inputs.nfs_mount_path }}/{{ one.image_ds_id }}"
+
         SYSTEM_DS:
           onprem_system_ds:
             id: {{ one.system_ds_id }}
             template:
               type: SYSTEM_DS
-              tm_mad: ssh
+              tm_mad: shared
+
         IMAGE_DS:
           onprem_image_ds:
             id: {{ one.image_ds_id }}
             template:
               type: IMAGE_DS
               ds_mad: fs
-              tm_mad: ssh
+              tm_mad: shared
               safe_dirs: /var/tmp /tmp
+
+    # Mount the NFS export on all nodes (front-end and hosts)
+    fstab:
+      - src: "{{ user_inputs.nfs_server }}:{{ user_inputs.nfs_export }}"
+        path: "{{ user_inputs.nfs_mount_path }}"
+        fstype: nfs
+        opts: rw,soft,intr,async
 
 frontend:
   hosts:

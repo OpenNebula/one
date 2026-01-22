@@ -20,6 +20,30 @@
 - ansible.builtin.import_playbook: opennebula.deploy.main
 
 # ------------------------------------------------------------------------------
+# Steps for shared NFS clusters using ds.config.mounts
+# Ensures mount targets exist so symlinks created by datastore roles are not dangling
+# ------------------------------------------------------------------------------
+- name: Ensure NFS datastore target directories exist (shared NFS clusters)
+  hosts: frontend
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Create SYSTEM/IMAGE datastore target directories on the NFS share
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: 9869
+        group: 9869
+        mode: "0755"
+      loop: "{{ ds.config.mounts | default([]) }}"
+      when:
+        - ds is defined
+        - ds.mode | default('') == 'shared'
+        - ds.config is defined
+        - ds.config.mounts is defined
+        - item.type in ['system', 'image']
+
+# ------------------------------------------------------------------------------
 # Other playbooks (optional)
 # ------------------------------------------------------------------------------
 # - name: 'Example role'
@@ -29,47 +53,3 @@
 #       ansible.builtin.debug:
 #         msg: 'Hello, world!'
 #   tags: always
-
-- name: Add OpenNebula paths script
-  hosts: node
-  become: true
-  tasks:
-    - name: Ensure /usr/lib/one/ruby directory exists
-      ansible.builtin.file:
-        path: /usr/lib/one/ruby
-        state: directory
-        mode: '0755'
-
-    - name: Create load_opennebula_paths.rb
-      ansible.builtin.copy:
-        dest: /usr/lib/one/ruby/load_opennebula_paths.rb
-        mode: '0644'
-        content: |
-          #!/usr/bin/env ruby
-
-          ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
-          if !ONE_LOCATION
-              RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
-              GEMS_LOCATION     ||= '/usr/share/one/gems'
-          else
-              RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
-              GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
-          end
-
-          require 'rubygems'
-          Gem.use_paths(File.realpath(GEMS_LOCATION))
-
-          $LOAD_PATH << RUBY_LIB_LOCATION
-
-    - name: Ensure /usr/local/lib/site_ruby directory exists
-      ansible.builtin.file:
-        path: /usr/local/lib/site_ruby
-        state: directory
-        mode: '0755'
-
-    - name: Create symbolic link in site_ruby to the Ruby file
-      ansible.builtin.file:
-        src: /usr/lib/one/ruby/load_opennebula_paths.rb
-        dest: /usr/local/lib/site_ruby/load_opennebula_paths.rb
-        state: link
-        force: true
