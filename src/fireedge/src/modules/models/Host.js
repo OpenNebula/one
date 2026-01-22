@@ -137,7 +137,9 @@ export const getKvmCpuModels = (hosts = [], common = false) => {
         host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm ||
         host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.dummy
     )
-    .map((host) => host.TEMPLATE?.KVM_CPU_MODELS.split(' '))
+    .map((host) => host.TEMPLATE?.KVM_CPU_MODELS?.split(' '))
+    .flat()
+    .filter(Boolean)
 
   if (common) {
     const hostDataFiltered = hostData.filter(Boolean)
