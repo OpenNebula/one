@@ -1716,7 +1716,7 @@ bool VirtualMachineDisks::backup_increment(bool do_volatile)
 
         if ((format == "QCOW2" && disk->has_snapshots()) ||
             (format == "RAW"   && raw_tms.find(tm_mad) != raw_tms.end()) ||
-            (tm_mad == "LVM"   && !lvm_thin_enabled))
+            ((tm_mad == "FS_LVM" || tm_mad == "FS_LVM_SSH") && !lvm_thin_enabled))
         {
             return false;
         }

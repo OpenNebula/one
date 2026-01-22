@@ -131,13 +131,11 @@ module MAD
         attr_reader :vgname, :lvname, :lvfname, :dev
 
         # Return volume size in bytes
-        # rubocop:disable Naming/AccesorMethodName
         def self.get_size_sh(lvfname)
             <<~EOF
                 sudo lvs --nosuffix --noheadings --units B -o lv_size #{lvfname}
             EOF
         end
-        # rubocop:enable Naming/AccesorMethodName
 
         def initialize(vgname, lvname)
             @vgname  = vgname
@@ -158,7 +156,13 @@ module MAD
         def delete_sh(opts = {})
             flags = ' -q' if opts[:quiet]
 
-            "sudo lvremove#{flags} -y '#{@lvfname}'\n"
+            <<~EOF
+                # If the LV exists...
+                if [ -n "$(sudo lvs --noheading -S 'vg_name = #{@vgname} && lv_name = #{@lvname}')" ]; then
+                    # ... delete it
+                    sudo lvremove#{flags} -y '#{@lvfname}'
+                fi
+            EOF
         end
 
         # Some distributions like Debian don't add sbin directories in non-root users PATH
@@ -207,7 +211,7 @@ module MAD
     class ThinPool < LV
 
         # METHOD OVERRIDE
-        # Create the pool. By default (safe mode) only creates it if it's not already created
+        # Create the pool, if it's not already created
         def create_sh(poolsize, _opts = {})
             # -ky enables activation skip, preventing possible data corruption e.g., in HA
             # -Zy is for auto-zeroing thin volumes. It already defaults to 'y' but just in case...
@@ -224,14 +228,18 @@ module MAD
         # Delete the pool, which also recursively deletes all its thin volumes
         # By default (safe mode) only deletes empty pools.
         def delete_sh(opts = {})
-            <<~EOF
-                # If the pool exists but no lv is using it...
-                if [ -n "$(sudo lvs --noheading -S 'vg_name = #{@vgname} && lv_name = #{@lvname}')" ] &&
-                    [ -z "$(sudo lvs --noheading -S 'vg_name = #{@vgname} && pool_lv = #{@lvname}')" ]; then
-                    # ... delete it
-                    #{super}
-                fi
-            EOF
+            safe = opts.fetch(:safe, true)
+
+            if safe
+                <<~EOF.chomp
+                    # If the pool is empty...
+                    if [ -z "$(sudo lvs --noheading -S 'vg_name = #{@vgname} && pool_lv = #{@lvname}')" ]; then
+                        #{super}
+                    fi
+                EOF
+            else
+                super
+            end
         end
 
         # Extend pool size to fill all of its thin LVs
@@ -260,7 +268,8 @@ module MAD
             super(vgname, lvname)
 
             @pool = pool
-            @snap_lv_prefix = "#{@lvname}_s"
+            @one_prefix = "#{@lvname}_one"
+            @snap_lv_prefix = "#{@one_prefix}_s"
         end
 
         # METHOD OVERRIDE
@@ -304,11 +313,10 @@ module MAD
                 # Create own LV as snapshot from the external origin base
                 sudo lvcreate --snapshot --thinpool #{@pool.lvname} #{from_lvfname} -n #{@lvname} -ky -an
 
-                # Extend clone LV to match pool size if size is bigger than base image
-                pool_size="$(#{self.class.get_size_sh(@pool.lvfname).strip})"
+                # Extend clone LV to match the required size if needed
                 base_size="$(#{self.class.get_size_sh(@lvfname).strip})"
-                if [ "$pool_size" -gt "$base_size" ]; then
-                    sudo lvextend -L ${pool_size}B #{@lvfname}
+                if [ "#{size*1024*1024}" -gt "$base_size" ]; then
+                    sudo lvextend -L #{size}M #{@lvfname}
                 fi
             EOF
         end
@@ -373,7 +381,7 @@ module MAD
 
             <<~EOF
                 for lv in $(sudo lvs --noheading -o lv_name -S \
-                            'vg_name = #{@vgname} && pool_lv = #{@pool.lvname} && lv_name =~ "#{@snap_lv_prefix}[0-9]+"'); do
+                            'vg_name = #{@vgname} && pool_lv = #{@pool.lvname} && lv_name =~ "#{@one_prefix}"'); do
                     sudo lvremove#{flags} -y "#{@vgname}/$lv"
                 done
             EOF

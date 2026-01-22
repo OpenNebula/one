@@ -20,6 +20,7 @@ require 'rexml/document'
 
 require_relative 'backup'
 require_relative 'datastore'
+require_relative '../../datastore/lvm'
 
 module TransferManager
 
@@ -64,22 +65,25 @@ module TransferManager
                 sysds_id = @vm.elements['HISTORY_RECORDS/HISTORY[last()]/DS_ID'].text.to_i
 
                 if @tm_mad == 'lvm'
-                    @vg = "vg-one-#{imgds_id}"
+                    @vgname = "vg-one-#{imgds_id}"
                     @is_thin = true
                     if is_persistent
-                        @lv = "img-one-#{imageid}"
-                        @pool = "img-one-#{imageid}-pool"
+                        @lvname = "img-one-#{imageid}"
+                        @poolname = "img-one-#{imageid}-pool"
                     else
-                        @lv = "vm-one-#{@vmid}-#{@id}"
-                        @pool = "vm-one-#{@vmid}-pool"
+                        @lvname = "vm-one-#{@vmid}-#{@id}"
+                        @poolname = "vm-one-#{@vmid}-pool"
                     end
                 else
-                    @vg = "vg-one-#{sysds_id}"
+                    @vgname = "vg-one-#{sysds_id}"
                     @is_thin = disk_xml.elements['LVM_THIN_ENABLE']&.text&.downcase == 'yes'
-                    @lv = "lv-one-#{@vmid}-#{@id}"
+                    @lvname = "lv-one-#{@vmid}-#{@id}"
                     if @is_thin
-                        @pool = "lv-one-#{@vmid}-pool"
+                        @poolname = "lv-one-#{@vmid}-pool"
                     end
+                end
+                if @is_thin
+                    @pool = MAD::ThinPool.new(@vgname, @poolname)
                 end
 
                 bc   = @vm.elements['BACKUPS/BACKUP_CONFIG']
@@ -99,11 +103,11 @@ module TransferManager
             end
 
             def qual(lv)
-                "#{@vg}/#{lv}"
+                "#{@vgname}/#{lv}"
             end
 
             def path(lv)
-                "/dev/#{@vg}/#{lv}"
+                "/dev/#{@vgname}/#{lv}"
             end
 
             # @param backup_dir [String]
@@ -130,10 +134,10 @@ module TransferManager
                     if live
                         if @is_thin
                             # Full, live, thin: create temporary thin snapshot and copy from it
-                            snapshot = "#{@lv}_one_backup"
+                            snapshot = "#{@lvname}_one_backup"
                             orig = path(snapshot)
 
-                            snap_cmd  << "sudo lvcreate -s -n #{snapshot} #{qual(@lv)}\n"
+                            snap_cmd  << "sudo lvcreate -s -n #{snapshot} #{qual(@lvname)}\n"
                             snap_clup << "sudo lvremove -y #{qual(snapshot)}\n"
                         else
                             # Full, live, non-thin: UNSUPPORTED
@@ -141,7 +145,7 @@ module TransferManager
                         end
                     else
                         # Full, offline: just qemu-convert the disk
-                        orig = path(@lv)
+                        orig = path(@lvname)
                     end
 
                     expo_cmd << ds.cmd_confinement(<<~EOF, backup_dir)
@@ -154,30 +158,39 @@ module TransferManager
 
                     incid     = 0
                     dexp      = "#{backup_dir}/disk.#{@id}.#{incid}"
-                    snap_curr = "#{@lv}_#{INC_SNAP_PREFIX}#{incid}"
+                    snap_curr = "#{@lvname}_#{INC_SNAP_PREFIX}#{incid}"
                     snap_path = path(snap_curr)
 
-                    snap_cmd << "sudo lvcreate -s -n #{snap_curr} #{qual(@lv)}\n"
+                    snap_cmd << <<~EOF
+                        sudo lvremove -y #{qual(snap_curr)} || true
+                        sudo lvcreate -s -n #{snap_curr} #{qual(@lvname)}
+                        #{@pool.adjust_sh if @pool}
+                    EOF
 
                     expo_cmd << ds.cmd_confinement(<<~EOF, backup_dir)
                         sudo lvchange -K -ay #{snap_path}
                         qemu-img convert -m 4 -O qcow2 #{snap_path} #{dexp}
                     EOF
+
+                    snap_clup << "sudo lvchange -K -an #{snap_path}\n"
                 else
                     # Incremental backup
                     return unless @is_thin
 
                     incid     = @vm_backup_config[:last_increment] + 1
                     dinc      = "#{backup_dir}/disk.#{@id}.#{incid}"
-                    snap_curr = "#{@lv}_#{INC_SNAP_PREFIX}#{incid}"
-                    snap_prev = "#{@lv}_#{INC_SNAP_PREFIX}#{@vm_backup_config[:last_increment]}"
+                    snap_curr = "#{@lvname}_#{INC_SNAP_PREFIX}#{incid}"
+                    snap_prev = "#{@lvname}_#{INC_SNAP_PREFIX}#{@vm_backup_config[:last_increment]}"
 
-                    snap_cmd << "sudo lvchange --refresh #{qual(@pool)}\n"
-                    snap_cmd << "sudo lvremove -y #{qual(snap_curr)} || true\n"
-                    snap_cmd << "sudo lvcreate -s -n #{snap_curr} #{qual(@lv)}\n"
+                    snap_cmd << <<~EOF
+                        sudo lvchange --refresh #{qual(@poolname)}
+                        sudo lvremove -y #{qual(snap_curr)} || true
+                        sudo lvcreate -s -n #{snap_curr} #{qual(@lvname)}
+                        #{@pool.adjust_sh if @pool}
+                    EOF
 
                     expo_cmd << ds.cmd_confinement(
-                        "ruby #{backup_util} #{qual(@lv)} " \
+                        "ruby #{backup_util} #{qual(@lvname)} " \
                         "#{qual(snap_prev)} #{qual(snap_curr)} #{dinc}\n",
                         backup_dir
                     )
@@ -207,7 +220,7 @@ module TransferManager
                 restore_cmds = <<~EOS
                     qemu-img convert -m 4 -O raw '#{qcow_path}' '#{qcow_path}.raw'
                     rm '#{qcow_path}'
-                    dd if='#{qcow_path}.raw' of='#{path(@lv)}' bs=64k conv=sparse,fsync
+                    dd if='#{qcow_path}.raw' of='#{path(@lvname)}' bs=64k conv=sparse,fsync
                     rm '#{qcow_path}.raw'
                 EOS
                 cleanup_cmd = "rm -f '#{qcow_path}' '#{qcow_path}.raw'"
