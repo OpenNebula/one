@@ -41,7 +41,7 @@ const samePciDevice = (a, b) =>
 export const transformPciToString = (pciDevice = {}) => {
   const { DEVICE = '', VENDOR = '', CLASS = '' } = pciDevice
 
-  return [DEVICE, VENDOR, CLASS].join(';')
+  return [DEVICE, VENDOR, CLASS]?.filter(Boolean)?.join(';') ?? ''
 }
 
 /**
@@ -69,7 +69,6 @@ const SPECIFIC_DEVICE = {
 /** @type {Field} Name PCI device field */
 const NAME_FIELD = {
   name: 'PCI_DEVICE_NAME',
-
   label: T.DeviceName,
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
@@ -211,19 +210,26 @@ const PROFILE_FIELD = {
   label: T.Profile,
   type: INPUT_TYPES.AUTOCOMPLETE,
   values: (dependencies = []) => {
-    const [selectedPciDevice] = dependencies
+    const [deviceVendorClass = '', shortAddress = '', specificDevice] =
+      dependencies
     const { data = [] } = HostAPI.useGetHostsAdminQuery({
-      skip: selectedPciDevice === undefined,
+      skip: deviceVendorClass === undefined,
     })
-    if (selectedPciDevice && data) {
+    if ((deviceVendorClass || shortAddress) && data) {
       const pciDevices = data.map(getPciDevices).flat()
-      const [DEVICE, VENDOR, CLASS] = selectedPciDevice?.split(';')
-      const selectedDevice = pciDevices.find(
-        (device) =>
-          device?.DEVICE === DEVICE &&
-          device?.VENDOR === VENDOR &&
-          device?.CLASS === CLASS
-      )
+      const selectedDevice = pciDevices.find((device) => {
+        if (specificDevice) {
+          return device?.SHORT_ADDRESS === shortAddress
+        } else {
+          const [DEVICE, VENDOR, CLASS] = deviceVendorClass?.split(';')
+
+          return (
+            device?.DEVICE === DEVICE &&
+            device?.VENDOR === VENDOR &&
+            device?.CLASS === CLASS
+          )
+        }
+      })
 
       const profiles = selectedDevice?.PROFILES?.split(',') || []
 
@@ -237,8 +243,7 @@ const PROFILE_FIELD = {
 
     return arrayToOptions([])
   },
-  dependOf: [NAME_FIELD.name, SPECIFIC_DEVICE.name],
-  htmlType: ([_, specificDevice] = []) => specificDevice && INPUT_TYPES.HIDDEN,
+  dependOf: [NAME_FIELD.name, SHORT_ADDRESS.name, SPECIFIC_DEVICE.name],
   validation: string()
     .trim()
     .notRequired()

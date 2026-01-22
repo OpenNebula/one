@@ -100,10 +100,8 @@ const PciDevices = ({ oneConfig, adminGroup }) => {
         CLASS: {
           __delete__: true,
         },
-        PROFILE: {
-          __delete__: true,
-        },
         SHORT_ADDRESS: true,
+        PROFILE: true,
       })
     } else {
       return setModifiedFields({

@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { TranslateProvider, VnTabs } from '@ComponentsModule'
-import { VnsTable } from '@modules/components/Tables'
+import { VnsTable, TranslateProvider, VnTabs } from '@ComponentsModule'
 import { ReactElement } from 'react'
 import { Redirect, useParams } from 'react-router-dom'
 

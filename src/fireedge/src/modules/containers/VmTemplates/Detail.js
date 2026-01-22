@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { VmTemplatesTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
 import { Redirect, useParams } from 'react-router-dom'
-
-import { TranslateProvider, VmTemplateTabs } from '@ComponentsModule'
+import {
+  VmTemplatesTable,
+  TranslateProvider,
+  VmTemplateTabs,
+} from '@ComponentsModule'
 
 /**
  * Displays the detail information about a VM Template.

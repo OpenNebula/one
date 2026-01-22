@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ServiceTemplatesTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
 import { Redirect, useParams } from 'react-router-dom'
-
-import { ServiceTemplateTabs, TranslateProvider } from '@ComponentsModule'
+import {
+  ServiceTemplatesTable,
+  ServiceTemplateTabs,
+  TranslateProvider,
+} from '@ComponentsModule'
 
 /**
  * Displays the detail information about a Service Template.

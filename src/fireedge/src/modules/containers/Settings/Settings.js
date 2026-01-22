@@ -16,9 +16,7 @@
 import { T } from '@ConstantsModule'
 import { Box, Paper, useTheme } from '@mui/material'
 import { ReactElement, useEffect, useMemo, useState } from 'react'
-
 import { TranslateProvider } from '@ComponentsModule'
-
 import { css } from '@emotion/css'
 import { AuthenticationSettings } from '@modules/containers/Settings/Authentication'
 import { ConfigurationChangePassword } from '@modules/containers/Settings/ChangePassword'

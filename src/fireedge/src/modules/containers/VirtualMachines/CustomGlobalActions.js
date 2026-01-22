@@ -16,8 +16,7 @@
 import PropTypes from 'prop-types'
 import { memo, useMemo, useEffect, useState } from 'react'
 import { useTheme } from '@mui/material'
-import EnhancedTableStyles from '@modules/components/Tables/Enhanced/styles'
-import { GlobalActions } from '@modules/components/Tables/Enhanced/Utils'
+import { EnhancedTableStyles, GlobalActions } from '@ComponentsModule'
 import { VmAPI } from '@FeaturesModule'
 import { VM_EXTENDED_POOL, VM_POOL_PAGINATION_SIZE } from '@ConstantsModule'
 

@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { TranslateProvider, VmTemplateTabs } from '@ComponentsModule'
-import { VmTemplatesTable } from '@modules/components/Tables'
+import {
+  VmTemplatesTable,
+  TranslateProvider,
+  VmTemplateTabs,
+} from '@ComponentsModule'
 import { ReactElement } from 'react'
 import { Redirect, useParams } from 'react-router-dom'
 

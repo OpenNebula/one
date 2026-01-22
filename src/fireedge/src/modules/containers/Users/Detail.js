@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { UserTabs } from '@ComponentsModule'
-import { UsersTable } from '@modules/components/Tables'
+import { UsersTable, UserTabs } from '@ComponentsModule'
 import { ReactElement } from 'react'
 import { Redirect, useParams } from 'react-router-dom'
 
