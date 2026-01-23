@@ -17,6 +17,7 @@
 require 'one_helper'
 require 'opennebula/cluster'
 require 'opennebula/cluster_pool'
+require 'opennebula/host'
 
 # OneCluster CLI command helper
 class OneClusterHelper < OpenNebulaHelper::OneHelper

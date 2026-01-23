@@ -1,10 +1,10 @@
 {#
-name: On-Prem Local Storage and Bridged Networking Cluster
+name: On-Prem SSH Cluster
 description: |
   Creates a cluster on your on-prem (local) infrastructure.
-  Requirements: Hosts must have the OS installed and be reachable via SSH.
-  Storage: VM images are copied to each host over SSH and stored on local disk.
-  Network: VMs use a flat bridged network via a physical NIC on every host.
+  * Requirements. Hosts must have the OS installed and be reachable via SSH.
+  * Storage. VM images are copied to each host over SSH and stored on local disk.
+  * Network. VMs use a flat bridged network via a physical NIC on every host.
 fireedge:
   logo: "onprem_ssh_cluster.png"
 user_inputs:
@@ -63,7 +63,7 @@ all:
           ar:
             - type: IP4
               ip: "{{ user_inputs.ip }}"
-              size: {{ user_inputs.size }}
+              size: "{{ user_inputs.size }}"
 
     ds:
       mode: generic

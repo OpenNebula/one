@@ -17,31 +17,40 @@
 # ------------------------------------------------------------------------------
 # One-deploy playbooks
 # ------------------------------------------------------------------------------
-- ansible.builtin.import_playbook: opennebula.deploy.main
+- ansible.builtin.import_playbook: opennebula.deploy.pre
 
-# ------------------------------------------------------------------------------
-# Steps for shared NFS clusters using ds.config.mounts
-# Ensures mount targets exist so symlinks created by datastore roles are not dangling
-# ------------------------------------------------------------------------------
-- name: Ensure NFS datastore target directories exist (shared NFS clusters)
+- name: Ensure NFS datastore target directories exist
   hosts: frontend
   become: true
+  become_user: oneadmin
+  become_method: sudo
   gather_facts: false
   tasks:
-    - name: Create SYSTEM/IMAGE datastore target directories on the NFS share
+    - name: Create datastore target directories on the NFS share
       ansible.builtin.file:
-        path: "{{ item.path }}"
+        path: "{{ item }}"
         state: directory
         owner: 9869
         group: 9869
         mode: "0755"
-      loop: "{{ ds.config.mounts | default([]) }}"
+      loop: "{{ _targets }}"
+      delegate_to: "{{ (groups['frontend']|default([])|first) | default(groups['all']|first) }}"
+      vars:
+        _targets: >-
+          {{
+            ds.config | default({})
+            | dict2items | map(attribute='value') | map('dict2items')
+            | flatten
+            | selectattr('value.symlink.src', 'defined')
+            | map(attribute='value.symlink.src')
+            | list
+          }}
       when:
         - ds is defined
-        - ds.mode | default('') == 'shared'
-        - ds.config is defined
-        - ds.config.mounts is defined
-        - item.type in ['system', 'image']
+        - ds.mode | default('') == 'generic'
+  tags: always
+
+- ansible.builtin.import_playbook: opennebula.deploy.site
 
 # ------------------------------------------------------------------------------
 # Other playbooks (optional)

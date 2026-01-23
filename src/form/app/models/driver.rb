@@ -176,7 +176,9 @@ module OneForm
                         when 'user_inputs_values'
                             user_inputs_values
                         when 'one_objects'
-                            deployment_conf[:one_objects]
+                            self.class.send(:deployment_objects,
+                                            deployment_conf[:template_path],
+                                            user_inputs_values)
                         when 'onedeploy_tags'
                             deployment_conf[:onedeploy_tags]
                         else
@@ -426,12 +428,13 @@ module OneForm
                     :inventory      => File.basename(inventory_path, '.*'),
                     :onedeploy_tags => conf[:onedeploy_tags],
                     :user_inputs    => conf[:user_inputs],
-                    :one_objects    => deployment_objects(inventory_path)
+                    :template_path  => inventory_path,
+                    :one_objects    => deployment_objects(inventory_path, nil)
                 }.compact
             end
 
             # Extracts OpenNebula objects from a Jinja2 inventory deployment template
-            def deployment_objects(inventory_path)
+            def deployment_objects(inventory_path, user_inputs)
                 raise "Inventory file '#{inventory_path}' does not exist" \
                 unless File.exist?(inventory_path)
 
@@ -440,7 +443,7 @@ module OneForm
                 # Remove comments and jinja tags
                 template.gsub!(/\{#.*?#\}/m, '')
                 template.gsub!(/^\s*#.*$/, '')
-                template.gsub!(/{{.*?}}/, 'null')
+                template.gsub!(/{{.*?}}/, 'null') unless user_inputs
                 template.gsub!(/\{%\s*.*?%\}/m, '')
 
                 # Tries to load the file as yaml
@@ -464,7 +467,7 @@ module OneForm
                         {
                             :id => nil,
                             :name => name,
-                            :template => config[:template] || {}
+                            :template => replace_user_inputs!(config[:template], user_inputs)
                         }
                     end,
                     :datastores => (datastores || {}).flat_map do |_, ds_info|
@@ -472,11 +475,37 @@ module OneForm
                             {
                                 :id => nil,
                                 :name => name,
-                                :template => config[:template]
+                                :template => replace_user_inputs!(config[:template], user_inputs)
                             }
                         end
                     end
                 }
+            end
+
+            def replace_user_inputs!(template, user_inputs)
+                return {} unless template
+                return template unless user_inputs
+
+                token_regexp = /\{\{\s*user_inputs\.([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/
+
+                iterator = lambda do |element|
+                    case element
+                    when Hash
+                        element.each { |k,v| element[k] = iterator.call(v) }
+                    when Array
+                        element.map! { |v| iterator.call(v) }
+                    when String
+                        element.gsub(token_regexp) do
+                            key = Regexp.last_match(1)
+                            user_inputs.key?(key) ? user_inputs[key].to_s : "null"
+                        end
+                    else # Integers,...
+                        element
+                    end
+                end
+
+                iterator.call(template)
+                template
             end
 
             # Extracts user input variables from Terraform files,

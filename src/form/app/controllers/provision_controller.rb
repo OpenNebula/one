@@ -715,7 +715,7 @@ module OneFormServer
                 if provision.state != OneForm::Provision::STATE['DONE'] && !force
                     return internal_error(
                         "Provision in state #{provision.str_state} cannot be deleted, " \
-                        'use `force=true` to delete it',
+                        'use force option to delete it',
                         ResponseHelper::OPERATION_EC
                     )
                 end

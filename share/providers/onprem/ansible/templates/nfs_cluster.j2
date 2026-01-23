@@ -1,10 +1,10 @@
 {#
-name: On-Prem Shared Storage and Bridged Networking Cluster
+name: On-Prem NFS Cluster
 description: |
   Creates a cluster using your on-prem (local) infrastructure.
-  Requirements: Hosts must have the OS installed and be reachable via SSH. An NFS export must exist and be reachable from all hosts. The shared export MUST be owned by oneadmin (UID/GID 9869).
-  Storage: VM images and system files are stored on shared NFS storage.
-  Network: VMs use a flat bridged network via a physical NIC on every host.
+  * Requirements. Hosts must have the OS installed and be reachable via SSH. An NFS export must exist and be reachable from all hosts. The shared export MUST be owned by oneadmin (UID/GID 9869). And mounted in the the front-end in the designeted NFS mount pat in the designeted NFS mount path.
+  * Storage. VM images and system files are stored on shared NFS storage.
+  * Network. VMs use a flat bridged network via a physical NIC on every host.
 
 fireedge:
   logo: "onprem_ssh_cluster.png"
@@ -80,7 +80,7 @@ all:
           ar:
             - type: IP4
               ip: "{{ user_inputs.ip }}"
-              size: {{ user_inputs.size }}
+              size: "{{ user_inputs.size }}"
 
     ds:
       mode: generic
@@ -116,7 +116,7 @@ all:
       - src: "{{ user_inputs.nfs_server }}:{{ user_inputs.nfs_export }}"
         path: "{{ user_inputs.nfs_mount_path }}"
         fstype: nfs
-        opts: rw,soft,intr,async
+        opts: rw,soft,intr,async,rsize=32768,wsize=32768
 
 frontend:
   hosts:
