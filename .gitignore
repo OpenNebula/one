@@ -64,6 +64,7 @@ share/context/*
 src/rm/grpc/src/
 src/oca/ruby/opennebula/grpc/*_pb.rb
 src/oca/ruby/opennebula/grpc/.proto_built
+src/oca/python/pyone/grpc/
 
 # editors temporary/swap files
 *.swp
