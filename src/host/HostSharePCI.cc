@@ -286,7 +286,7 @@ bool HostSharePCI::add_by_addr(VectorAttribute *device, const string& short_addr
 
         pci_attribute(device, pci, true, sr.vgpu_profile);
 
-        if (set_pci_address(device, palloc, sr.is_q35, sr.nodes.size() > 0) == -1)
+        if (set_pci_address(device, palloc, sr.is_q35, sr.nodes) == -1)
         {
             pci->attrs->replace("VMID", "-1");
 
@@ -331,7 +331,7 @@ bool HostSharePCI::add_by_name(VectorAttribute *device,
 
             pci_attribute(device, pci, true, sr.vgpu_profile);
 
-            if (set_pci_address(device, palloc, sr.is_q35, sr.nodes.size() > 0) == -1)
+            if (set_pci_address(device, palloc, sr.is_q35, sr.nodes) == -1)
             {
                 pci->attrs->replace("VMID", "-1");
 
@@ -649,11 +649,12 @@ int HostSharePCI::get_pci_value(const char * name,
 /* ------------------------------------------------------------------------*/
 int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
         std::map<unsigned int, std::set<unsigned int>>& palloc,
-        bool bus_index, bool numa)
+        bool bus_index, const std::vector<VectorAttribute *> &nodes)
 {
     ostringstream oss;
 
     unsigned int slot;
+    unsigned int total_nodes = 0;
 
     if (pci_device->vector_value("PCI_ID", slot) == -1)
     {
@@ -662,11 +663,22 @@ int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
 
     int numa_node = -1;
 
-    if (numa)
+    if (!nodes.empty())
     {
         if (pci_device->vector_value("NUMA_NODE", numa_node) == -1)
         {
             numa_node = -1;
+        }
+
+        for (const auto &n : nodes)
+        {
+            int cpu = 0;
+            int mem = 0;
+
+            n->vector_value("TOTAL_CPUS", cpu);
+            n->vector_value("MEMORY", mem);
+
+            if ( cpu > 0 && mem > 0 ) ++total_nodes;
         }
     }
 
@@ -675,43 +687,81 @@ int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
         /* ---------------------------------------------------------------------
          * NUMA node allocation for VM pinning
          * ---------------------------------------------------------------------
-         *           +-----------+                    Example for NUMA node 0
-         *           |           |                    =======================
+         *           +-----------+
+         *           |           |
          *           | PCIe Root |
-         *           |           |                    IDX | DESCRIPTION
-         *           +--+--------+                    -----------------
-         *               |                            20  | expander
-         *        +------+                            21  | port 1
-         *        |                                   22  | port 2
-         *   +----+-----+                             23  | port 3
-         *   | expander |  index = 20 + (node * 14)   24  | port 4
-         *   +----+-----+                             25  | upstream switch
-         *        +------> root-port (0) (index+1)    26  | downstream port
-         *        |        ...                        27  | downstream port
-         *        +------> root-port (3) (index+4)    ... | ...
-         *        |                                   33  | downstream port
-         *        |    +-----------+
-         *        | up |           +-----> down port (index + 6) - 0x20 + 3
-         *        +----+  Switch   |
-         *             |           +-----> down port (index + 13)
-         *             +-----------+
+         *           |           |
+         *           +--+--+-----+
+         *              |  |
+         *        +-----+  +-------------------------------+
+         *        | NUMA NODE = 0                          | NUMA NODE = 1
+         *   +----------+                             +----------+
+         *   | expander |  index = 3 + (node * 9)     | expander |
+         *   +----------+                             +----------+
+         *        |------> root-port (0) (index+1)         |-------> root-port
+         *        |        ...                             |
+         *        +------> root-port (7) (index+7)         +-------> root-port
+         *        .                                        .
+         *        .                                        .
+         *   +----------+   --- (DEIDCATED DEVs) ---  +----------+
+         *   | expander |-->root-->device             | expander |-->root-->device
+         *   +----------+   index_m+1                 +----------+
+         *      index_m
          * ------------------------------------------------------------------ */
-        std::set<unsigned int>& ports = palloc[numa_node];
 
-        unsigned int first_port = 20 + numa_node * 14 + 6;
-        unsigned int index = 0;
-        unsigned int bus_addr = 0x20 + 0x20 * numa_node + 3;
+        string root = pci_device->vector_value("ROOT");
+        bool dedicated = !root.empty() && root == "dedicated";
 
-        for (unsigned int p = first_port ; p < first_port + 8; ++p, ++bus_addr)
+        unsigned int palloc_idx;
+
+        if (dedicated)
+        {
+            palloc_idx = std::numeric_limits<unsigned int>::max();
+        }
+        else
+        {
+            palloc_idx = static_cast<unsigned int>(numa_node);
+        }
+
+        std::set<unsigned int>& ports = palloc[palloc_idx];
+
+        unsigned int first_port, end_port, port_inc;
+        unsigned int bus_addr, bus_inc;
+
+        unsigned int index   = 0;
+
+        if (dedicated)
+        {
+            //Up to 8 dedicated
+            first_port = 3 + total_nodes * 9 + 1;
+            end_port   = first_port + 24;
+            port_inc   = 2;
+
+            bus_addr   = 0xA0 + 1;
+            bus_inc    = 0x08;
+        }
+        else
+        {
+            first_port = 3 + numa_node * 9 + 1;
+            end_port   = first_port + 8;
+            port_inc   = 1;
+
+            bus_addr   = (0x20 + 0x10 * numa_node) + 1;
+            bus_inc    = 1;
+        }
+
+        for (unsigned int p = first_port ; p < end_port ; p += port_inc)
         {
             if (ports.find(p) == ports.end())
             {
-                index     = p;
+                index = p;
                 break;
             }
+
+            bus_addr += bus_inc;
         }
 
-        if ( index == 0 ) //No free downstream port
+        if ( index == 0 ) //No free root ports
         {
             return -1;
         }
@@ -719,8 +769,6 @@ int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
         ports.insert(index);
 
         pci_device->replace("VM_BUS_INDEX", index);
-
-        index = 0x20 + (0x20 * numa_node) + (index - first_port) + 6;
 
         oss << noshowbase << internal << hex << setfill('0') << setw(2) << bus_addr
             << ":00.0";

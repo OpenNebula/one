@@ -232,6 +232,77 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void numa_distances(std::ofstream& file,
+                           unsigned int node_id,
+                           unsigned int total_nodes,
+                           const std::string& dist_str)
+{
+    constexpr unsigned int SELF_DISTANCE    = 10;
+    constexpr unsigned int DEFAULT_DISTANCE = 20;
+
+    //Define and initialize distance vector
+    std::vector<unsigned int> dist(total_nodes, DEFAULT_DISTANCE);
+    dist[node_id] = SELF_DISTANCE;
+
+    auto entries = one_util::split(dist_str, ',');
+
+    for (const auto& e : entries)
+    {
+        auto kv = one_util::split(e, ':');
+
+        if (kv.size() != 2)
+        {
+            continue;
+        }
+
+        unsigned int value = one_util::string_to_unsigned<unsigned int>(kv[1]);
+
+        unsigned int  m, M;
+        auto mM = one_util::split(kv[0], '-');
+
+        if (mM.size() == 1)
+        {
+            m = M = one_util::string_to_unsigned<unsigned int>(mM[0]);
+        }
+        else if (mM.size() == 2)
+        {
+            m = one_util::string_to_unsigned<unsigned int>(mM[0]);
+            M = one_util::string_to_unsigned<unsigned int>(mM[1]);
+
+            if (m > M) std::swap(m, M);
+        }
+        else
+        {
+            continue;
+        }
+
+        // Check node range is with in 0..total_nodes-1
+        if (m >= total_nodes)
+        {
+            continue;
+        }
+        else if (M >= total_nodes)
+        {
+            M = total_nodes - 1;
+        }
+
+        for (unsigned int id = m; id <= M; ++id)
+        {
+            dist[id] = value;
+        }
+    }
+
+    file << "\t\t\t\t<distances>\n";
+
+    for (unsigned int id = 0; id < total_nodes; ++id)
+    {
+        file << "\t\t\t\t\t<sibling id='" << id
+             << "' value='" << dist[id] << "'/>\n";
+    }
+
+    file << "\t\t\t\t</distances>\n";
+}
+
 static void vtopol(ofstream& file, const VectorAttribute * topology,
                    std::vector<const VectorAttribute *> &nodes,  std::string &numatune,
                    std::string &membacking)
@@ -278,6 +349,8 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
     unsigned int cpuid = 0;
     unsigned int cid   = 0;
 
+    const unsigned int total_nodes = static_cast<unsigned int>(nodes.size());
+
     oss << "\t<numatune>\n";
     file << "\t\t<numa>\n";
 
@@ -287,6 +360,7 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
 
         const string& mem    = (*it)->vector_value("MEMORY");
         const string& mem_id = (*it)->vector_value("MEMORY_NODE_ID");
+        const string& dist_s = (*it)->vector_value("DISTANCE");
 
         (*it)->vector_value("TOTAL_CPUS", ncpu);
 
@@ -302,7 +376,16 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
             file << " memAccess='" << ma << "'";
         }
 
-        file << "/>\n";
+        if (dist_s.empty())
+        {
+            file << "/>\n";
+        }
+        else
+        {
+            file << ">\n";
+            numa_distances(file, cid, total_nodes, dist_s);
+            file << "\t\t\t</cell>\n";
+        }
 
         cpuid += ncpu;
 
@@ -646,6 +729,8 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * input;
 
+    const VectorAttribute * iommu;
+
     vector<const VectorAttribute *> pci;
 
     string domain;
@@ -665,9 +750,13 @@ int LibVirtDriver::deployment_description_kvm(
     bool hyperv      = false;
     bool localtime   = false;
     bool guest_agent = false;
+    bool ras         = false;
+    string gic;
 
     int  iothreads        = 0;
     int  iothread_actual  = 1;
+
+    unsigned long long pcihole64  = 0;
 
     string virtio_scsi_queues;
     string hyperv_options;
@@ -2162,6 +2251,41 @@ int LibVirtDriver::deployment_description_kvm(
     }
 
     // ------------------------------------------------------------------------
+    // IOMMU device
+    // ------------------------------------------------------------------------
+    iommu = vm->get_template_attribute("IOMMU");
+
+    string iommu_opt;
+    string iommu_mode;
+    string iommu_model;
+
+    if ( iommu != nullptr )
+    {
+        iommu_opt   = iommu->vector_value("OPTIONS");
+        iommu_mode  = iommu->vector_value("MODE");
+        iommu_model = iommu->vector_value("MODEL");
+
+        ostringstream opt_parsed;
+        std::map<std::string, std::string> opt_kv;
+
+        one_util::string_to_options(iommu_opt, {}, opt_kv);
+
+        for (const auto& kv : opt_kv)
+        {
+            opt_parsed << " " << kv.first << "='" << one_util::xml_escape(kv.second) << "'";
+        }
+
+        iommu_opt = opt_parsed.str();
+
+        if ( iommu_mode == "single" )
+        {
+            file << "\t\t<iommu model='" << iommu_model << "'>\n"
+                 << "\t\t\t<driver" << iommu_opt << "/>\n"
+                 << "\t\t</iommu>\n";
+        }
+    }
+
+    // ------------------------------------------------------------------------
     // PCI Passthrough
     // ------------------------------------------------------------------------
     string pci_devices;
@@ -2183,6 +2307,12 @@ int LibVirtDriver::deployment_description_kvm(
 
         string uuid = pci[i]->vector_value("UUID");
         string mdev = pci[i]->vector_value("MDEV_MODE");
+
+        string acpi_nodes = pci[i]->vector_value("ACPI_NODES");
+
+        bool iommufd = false;
+
+        pci[i]->vector_value("IOMMUFD", iommufd);
 
         string _vendor = pci[i]->vector_value("VENDOR");
         one_util::tolower(_vendor);
@@ -2246,17 +2376,28 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t</source>\n";
         }
 
+        if (iommufd)
+        {
+            file << "\t\t\t<driver iommufd='yes'/>\n";
+        }
+
+        if (!acpi_nodes.empty())
+        {
+            file << "\t\t\t<acpi nodeset="
+                 << one_util::escape_xml_attr(acpi_nodes) << "/>\n";
+        }
+
         if (!vm_index.empty())
         {
-            file << "\t\t\t\t<address type='pci'"
-                 << " domain='0x0000' slot='0000' function='0' "
+            file << "\t\t\t<address type='pci'"
+                 << " domain='0x0000' slot='0x00' function='0x0' "
                  << " bus=" << one_util::escape_xml_attr(vm_index)
                  << "/>\n";
         }
         else if (!vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
              !vm_func.empty())
         {
-            file << "\t\t\t\t<address type='pci'"
+            file << "\t\t\t<address type='pci'"
                  << " domain="   << one_util::escape_xml_attr(vm_domain)
                  << " bus="      << one_util::escape_xml_attr(vm_bus)
                  << " slot="     << one_util::escape_xml_attr(vm_slot)
@@ -2282,32 +2423,66 @@ int LibVirtDriver::deployment_description_kvm(
 
         get_attribute(nullptr, host, cluster, "Q35_NUMA_PCIE", q35_numa_topo);
 
-        file << "\t\t<controller index='0' type='pci' model='pcie-root'/>" << endl;
+        get_attribute(vm, host, cluster, "FEATURES", "PCIHOLE64", pcihole64);
 
-        if (nodes.empty()) //Flat PCI hierarchy
+        if ( pcihole64 > 0 )
         {
-            for (int i=0; i<q35_root_ports; ++i)
+            file << "\t\t<controller index='0' type='pci' model='pcie-root'>" << endl;
+            file << "\t\t\t<pcihole64 unit='KiB'>" << pcihole64 << "</pcihole64>" << endl;
+            file << "\t\t</controller>" << endl;
+        }
+        else
+        {
+            file << "\t\t<controller index='0' type='pci' model='pcie-root'/>" << endl;
+        }
+
+        if (nodes.empty() || !q35_numa_topo) //Flat PCI hierarchy
+        {
+            int idx;
+
+            for (idx=1; idx<=q35_root_ports; ++idx)
             {
-                file << "\t\t<controller type='pci' model='pcie-root-port'/>" << endl;
+                file << "\t\t<controller type='pci' index='" << idx
+                     << "' model='pcie-root-port'/>" << endl;
             }
 
-            file << "\t\t<controller type='pci' model='pcie-to-pci-bridge'/>" << endl;
+            file << "\t\t<controller type='pci' index='" << idx
+                 << "' model='pcie-to-pci-bridge'/>" << endl;
         }
-        else if (q35_numa_topo) //PCIe expander bus in each NUMA node
+        else //PCIe expander bus in each NUMA node
         {
             ostringstream to_h_s;
+            unsigned int bus_i;
+            int total_nodes = 0;
 
-            to_h_s << showbase << internal << setfill('0') << hex << setw(4);
+            file << "\t\t<controller type='pci' index='1' model='pcie-root-port'/>" << endl;
+
+            file << "\t\t<controller type='pci' index='2' model='pcie-to-pci-bridge'/>" << endl;
 
             for (unsigned int i = 0; i < nodes.size(); i++)
             {
-                unsigned int bus_i = 20 + i * 14;
+                int cpu = 0;
+                int mem = 0;
 
-                to_h_s << (0x20 + 0x20 * i);
+                nodes[i]->vector_value("TOTAL_CPUS", cpu);
+                nodes[i]->vector_value("MEMORY", mem);
 
-                string bus_i_s = to_h_s.str();
+                if ( cpu == 0 || mem == 0 ) //empty nodes does not have pci devices
+                {
+                    continue;
+                }
+
+                total_nodes++;
+
+                bus_i = 3 + i * 9;
 
                 to_h_s.str("");
+                to_h_s.clear();
+
+                to_h_s << showbase << setfill('0') << hex << setw(4)
+                       << (0x20 + 0x10 * i);
+
+                string bus_i_s = to_h_s.str();
 
                 //PCIe expander bus in NUMA node i
                 file << "\t\t<controller type='pci' index='"<< bus_i <<"'"
@@ -2317,8 +2492,8 @@ int LibVirtDriver::deployment_description_kvm(
                      << "\t\t\t</target>" << endl
                      << "\t\t</controller>" << endl;
 
-                //4 PCIe root ports
-                for (unsigned int j = 0; j < 4; j++)
+                //8 PCIe root ports
+                for (unsigned int j = 0; j < 8; j++)
                 {
                     unsigned int root_i = bus_i + 1 + j;
 
@@ -2327,44 +2502,65 @@ int LibVirtDriver::deployment_description_kvm(
                          << "\t\t\t<address type='pci' bus='" << bus_i << "'"
                          << " slot='0' function='" << j << "'";
 
-                    if ( j == 0)
-                    {
-                        file << " multifunction='on'/>" << endl;
-                    }
-                    else
-                    {
-                        file << "/>" << endl;
-                    }
+                    if ( j == 0) file << " multifunction='on'";
+
+                    file << "/>" << endl;
 
                     file << "\t\t</controller>" << endl;
                 }
-
-                //8 port PCIe switch
-                unsigned int sw_i = bus_i + 5;
-
-                file << "\t\t<controller type='pci' index='" << sw_i << "'"
-                     << " model='pcie-switch-upstream-port'>" << endl
-                     << "\t\t\t<address type='pci' bus='" << bus_i + 1 << "'"
-                     << " slot='0' function='0'/>" << endl
-                     << "\t\t</controller>" << endl;
-
-                for (unsigned int j = 0; j < 8; j++)
-                {
-                    unsigned int root_i = sw_i + 1 + j;
-
-                    file << "\t\t<controller type='pci' index='" << root_i << "'"
-                         << " model='pcie-switch-downstream-port'>" << endl
-                         << "\t\t\t<address type='pci' bus='" << sw_i << "'"
-                         << " slot='" << j << "' function='0'/>" << endl
-                         << "\t\t</controller>" << endl;
-                }
             }
 
-            //Adds pcie-to-pci bridge in the first pcie port in NUMA node 0
-            file << "\t\t<controller type='pci' model='pcie-to-pci-bridge'>" << endl
-                 << "\t\t\t<address type='pci' bus='22' slot='0' function='0'/>" << endl
-                 << "\t\t</controller>" << endl;
+            int ddev = 0;
 
+            bus_i = 3 + total_nodes * 9;
+
+            for (auto &pci_dev: pci)
+            {
+                string root = pci_dev->vector_value("ROOT");
+
+                if ( root.empty() || root != "dedicated")
+                {
+                    continue;
+                }
+
+                string numa_node = pci_dev->vector_value("NUMA_NODE");
+                bool iommu       = false;
+
+                pci_dev->vector_value("IOMMU", iommu);
+
+                to_h_s.str("");
+                to_h_s.clear();
+
+                to_h_s << showbase << setfill('0') << hex << setw(4)
+                       << (0xA0 + 0x08 * ddev);
+
+                string bus_i_s = to_h_s.str();
+
+                //dedicated bus, root port for the device
+                file << "\t\t<controller type='pci' index='"<< bus_i <<"'"
+                     << " model='pcie-expander-bus'>" << endl
+                     << "\t\t\t<target busNr='" << bus_i_s << "'>" << endl
+                     << "\t\t\t\t<node>" << numa_node << "</node>" << endl
+                     << "\t\t\t</target>" << endl
+                     << "\t\t</controller>" << endl;
+
+                file << "\t\t<controller type='pci' index='" << bus_i+1 << "'"
+                     << " model='pcie-root-port'>" << endl
+                     << "\t\t\t<address type='pci' bus='" << bus_i << "'"
+                     << " slot='0' function='0x0'/>" << endl
+                     << "\t\t</controller>" << endl;
+
+                //dedicated iommu for the device
+                if ( iommu && iommu_mode == "device" )
+                {
+                    file << "\t\t<iommu model='" << iommu_model << "'>\n"
+                         << "\t\t\t<driver pciBus='" << bus_i <<"'" << iommu_opt << "/>\n"
+                         << "\t\t</iommu>\n";
+                }
+
+                bus_i += 2;
+                ddev  += 1;
+            }
         }
     }
 
@@ -2373,9 +2569,9 @@ int LibVirtDriver::deployment_description_kvm(
 
     if (!tpm_model.empty())
     {
-        file << "\t\t" << "<tpm model='" << tpm_model << "'>\n"
-            << "\t\t\t<backend type='emulator' version='2.0'/>\n"
-            << "\t\t</tpm>\n";
+        file << "\t\t<tpm model='" << tpm_model << "'>\n"
+             << "\t\t\t<backend type='emulator' version='2.0'/>\n"
+             << "\t\t</tpm>\n";
     }
 
     file << "\t</devices>" << endl;
@@ -2383,14 +2579,17 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Features
     // ------------------------------------------------------------------------
+
     get_attribute(vm, host, cluster, "FEATURES", "PAE", pae);
     get_attribute(vm, host, cluster, "FEATURES", "ACPI", acpi);
     get_attribute(vm, host, cluster, "FEATURES", "APIC", apic);
     get_attribute(vm, host, cluster, "FEATURES", "HYPERV", hyperv);
     get_attribute(vm, host, cluster, "FEATURES", "LOCALTIME", localtime);
     get_attribute(vm, host, cluster, "FEATURES", "GUEST_AGENT", guest_agent);
+    get_attribute(vm, host, cluster, "FEATURES", "GIC", gic);
+    get_attribute(vm, host, cluster, "FEATURES", "RAS", ras);
 
-    if ( acpi || pae || apic || hyperv || boot_secure)
+    if ( acpi || pae || apic || hyperv || boot_secure || !gic.empty())
     {
         file << "\t<features>" << endl;
 
@@ -2421,6 +2620,21 @@ int LibVirtDriver::deployment_description_kvm(
         if ( boot_secure )
         {
             file << "\t\t<smm state=\"on\"/>" << endl;
+        }
+
+        if (!gic.empty())
+        {
+            if ( gic != "2" && gic != "3" )
+            {
+                gic = "host";
+            }
+
+            file << "\t\t<gic version=\"" << gic << "\"/>" << endl;
+        }
+
+        if (ras)
+        {
+            file << "\t\t<ras state=\"on\"/>" << endl;
         }
 
         file << "\t</features>" << endl;

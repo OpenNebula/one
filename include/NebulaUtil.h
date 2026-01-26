@@ -402,6 +402,20 @@ namespace one_util
 
         return value;
     }
+
+    /**
+     *  This function parses a string of options in simple form,
+     *  e.g. key1=val1 key2=val2 key3=val3
+     *
+     *  @param str input string, whitespace-separated
+     *  @param valid_keys, set of keys considered valid, empty to ignore
+     *  @param out map of key - values
+     *  @return true if no parse error encontered
+     */
+    bool string_to_options(const std::string& str,
+                           const std::set<std::string>& valid_keys,
+                           std::map<std::string, std::string>& out);
+
 } // namespace one_util
 
 #endif /* _NEBULA_UTIL_H_ */

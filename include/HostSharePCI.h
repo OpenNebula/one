@@ -147,14 +147,14 @@ public:
      *  @param pci_device to set the address in
      *  @param palloc map of allocated pci ports per numa node
      *  @param bus_index when true devices uses slot = 0 and bus = pci_id + 1
-     *  @param numa when true generate NUMA-aware VM addresses for the PCI device
+     *  @param nodes when >0 generate NUMA-aware VM addresses for the PCI device
      *
      *  @return -1 if wrong bus 0 on success
      */
     static int set_pci_address(VectorAttribute * pci_device,
                                std::map<unsigned int, std::set<unsigned int>>& palloc,
                                bool bus_index,
-                               bool numa);
+                               const std::vector<VectorAttribute *> &nodes);
 private:
     /**
      *  Internal structure to represent PCI devices for fast look up and

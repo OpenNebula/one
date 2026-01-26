@@ -375,6 +375,12 @@ int HostShareNode::allocate_dedicated_cpus(int id, unsigned int tcpus,
 {
     std::ostringstream oss;
 
+    if ( tcpus == 0 )
+    {
+        c_s = "";
+        return 0;
+    }
+
     for (auto vc_it = cores.begin(); vc_it != cores.end(); ++vc_it)
     {
         // ---------------------------------------------------------------------
@@ -439,6 +445,12 @@ int HostShareNode::allocate_dedicated_cpus(int id, unsigned int tcpus,
 int HostShareNode::allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
                                     std::string &c_s)
 {
+    if ( tcpus == 0 )
+    {
+        c_s = "";
+        return 0;
+    }
+
     std::ostringstream oss;
 
     for (auto vc_it = cores.begin(); vc_it != cores.end() && tcpus > 0; ++vc_it)
@@ -1121,9 +1133,31 @@ int HostShareNUMA::make_hugepage_topology(HostShareCapacity &sr,
 
     for (auto &vm_node : sr.nodes)
     {
+        unsigned int node_cpus   = 0;
+        long long    node_memory = 0;
+
+        vm_node->vector_value("TOTAL_CPUS", node_cpus);
+        vm_node->vector_value("MEMORY", node_memory);
+
         vm_node->replace("NODE_ID", node_id);
-        vm_node->replace("MEMORY_NODE_ID", node_id);
-        vm_node->replace("CPUS", cpu_ids);
+
+        if (node_memory == 0)
+        {
+            vm_node->replace("MEMORY_NODE_ID", "");
+        }
+        else
+        {
+            vm_node->replace("MEMORY_NODE_ID", node_id);
+        }
+
+        if (node_cpus == 0)
+        {
+            vm_node->replace("CPUS", "");
+        }
+        else
+        {
+            vm_node->replace("CPUS", cpu_ids);
+        }
     }
 
     return 0;
@@ -1205,9 +1239,31 @@ int HostShareNUMA::make_affined_topology(HostShareCapacity &sr, int node_id,
 
     for (auto &vm_node : sr.nodes)
     {
+        unsigned int node_cpus   = 0;
+        long long    node_memory = 0;
+
+        vm_node->vector_value("TOTAL_CPUS", node_cpus);
+        vm_node->vector_value("MEMORY", node_memory);
+
         vm_node->replace("NODE_ID", node_id);
-        vm_node->replace("MEMORY_NODE_ID", node_id);
-        vm_node->replace("CPUS", cpu_ids);
+
+        if (node_memory == 0)
+        {
+            vm_node->replace("MEMORY_NODE_ID", "");
+        }
+        else
+        {
+            vm_node->replace("MEMORY_NODE_ID", node_id);
+        }
+
+        if (node_cpus == 0)
+        {
+            vm_node->replace("CPUS", "");
+        }
+        else
+        {
+            vm_node->replace("CPUS", cpu_ids);
+        }
     }
 
     return 0;
@@ -1280,9 +1336,12 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
         a_node->vector_value("TOTAL_CPUS", total_cpus);
         a_node->vector_value("MEMORY", memory);
 
-        NUMANodeRequest nr = {a_node, total_cpus, memory, -1, "", -1};
+        if ( total_cpus > 0 && memory > 0)
+        {
+            NUMANodeRequest nr = {a_node, total_cpus, memory, -1, "", -1};
 
-        vm_nodes.push_back(nr);
+            vm_nodes.push_back(nr);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -1502,8 +1561,24 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
         VectorAttribute * a_node = (*vn_it).attr;
 
         a_node->replace("NODE_ID", (*vn_it).node_id);
-        a_node->replace("CPUS", (*vn_it).cpu_ids);
-        a_node->replace("MEMORY_NODE_ID", (*vn_it).mem_node_id);
+
+        if ((*vn_it).total_cpus == 0)
+        {
+            a_node->replace("CPUS","");
+        }
+        else
+        {
+            a_node->replace("CPUS", (*vn_it).cpu_ids);
+        }
+
+        if ((*vn_it).memory == 0)
+        {
+            a_node->replace("MEMORY_NODE_ID","");
+        }
+        else
+        {
+            a_node->replace("MEMORY_NODE_ID", (*vn_it).mem_node_id);
+        }
     }
 
     //--------------------------------------------------------------------------

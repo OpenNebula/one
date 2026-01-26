@@ -349,6 +349,9 @@ int VirtualMachine::parse_vrouter(string& error_str, Template * tmpl)
 
 int VirtualMachine::check_pci_attributes(VectorAttribute * pci, string& error_str)
 {
+    // regex for libvirt nodeset syntax e.g. 1,2-6,8
+    const char* nodeset_pattern = "^[0-9]+(-[0-9]+)?(,[0-9]+(-[0-9]+)?)*$";
+
     static std::vector<std::string> attrs = {"VENDOR", "DEVICE", "CLASS"};
     bool   found = false;
 
@@ -368,9 +371,7 @@ int VirtualMachine::check_pci_attributes(VectorAttribute * pci, string& error_st
         }
     }
 
-    string saddr;
-
-    pci->vector_value("SHORT_ADDRESS", saddr);
+    const string& saddr = pci->vector_value("SHORT_ADDRESS");
 
     if (saddr.empty() && !found)
     {
@@ -381,6 +382,34 @@ int VirtualMachine::check_pci_attributes(VectorAttribute * pci, string& error_st
     {
         error_str = "SHORT_ADDRESS cannot be set with DEVICE, VENDOR or CLASS";
         return -1;
+    }
+
+    string root = pci->vector_value("ROOT");
+
+    if (!root.empty())
+    {
+        one_util::tolower(root);
+
+        if ( root != "shared" && root != "dedicated" )
+        {
+            error_str = "Unknown PCI root mode, has to be SHARED or DEDICATED";
+            return -1;
+        }
+
+        pci->replace("ROOT", root);
+    }
+
+    string acpi_nodes = one_util::trim(pci->vector_value("ACPI_NODES"));
+
+    if (!acpi_nodes.empty())
+    {
+        if (one_util::regex_match(nodeset_pattern, acpi_nodes.c_str()) != 0)
+        {
+            error_str = "Invalid nodeset specification in ACPI_NODES";
+            return -1;
+        }
+
+        pci->replace("ACPI_NODES", acpi_nodes);
     }
 
     // Save default passthrough bus in PCI if not set
@@ -905,6 +934,105 @@ int VirtualMachine::parse_memory_encryption(std::string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::parse_iommu(std::string &error, Template * tmpl)
+{
+    vector<unique_ptr<VectorAttribute>> viommu;
+
+    if (tmpl->remove("IOMMU", viommu) == 0)
+    {
+        return 0;
+    }
+
+    VectorAttribute * iommu = (*viommu.begin()).release();
+
+    obj_template->erase("IOMMU");
+    obj_template->set(iommu);
+
+    /* ---------------------------------------------------------------------- */
+    /* IOMMU/MODEL                                                            */
+    /* ---------------------------------------------------------------------- */
+    string model = iommu->vector_value("MODEL");
+    one_util::tolower(model);
+
+    if (model != "intel" && model != "virtio" && model != "smmuv3" && model != "amd")
+    {
+        error = "Unknown IOMMU model; must be intel, virtio, smmuv3 or amd";
+        return -1;
+    }
+
+    VectorAttribute * os = get_template_attribute("OS");
+    string arch;
+    bool   is_q35 = false;
+
+    if ( os != nullptr )
+    {
+        arch   = os->vector_value("ARCH");
+        is_q35 = test_machine_type(os, {"q35", "virt"});
+    }
+
+    if ((arch.empty() || arch != "aarch64") && model == "smmuv3" )
+    {
+        error = "IOMMU model smmuv3 requires ARM guests";
+        return -1;
+    }
+    else if (!is_q35)
+    {
+        error = "IOMMU device requires a Q35/virt guest";
+        return -1;
+    }
+
+    iommu->replace("MODEL", model);
+
+    /* ---------------------------------------------------------------------- */
+    /* IOMMU/MODE                                                             */
+    /* ---------------------------------------------------------------------- */
+    string mode = iommu->vector_value("MODE");
+    one_util::tolower(mode);
+
+    if (mode != "single" && mode != "device")
+    {
+        error = "Unknown IOMMU mode; must be single or device";
+        return -1;
+    }
+
+    iommu->replace("MODE", mode);
+
+    /* ---------------------------------------------------------------------- */
+    /* IOMMU/OPTIONS                                                          */
+    /* ---------------------------------------------------------------------- */
+    static const std::set<std::string> IOMMU_DRIVER_KEYS = {
+        "intremap",
+        "caching_mode",
+        "eim",
+        "iotlb",
+        "aw_bits",
+        "dma_translation",
+        "passthrough",
+        "xtsup",
+        "oas",
+        "pasid",
+        "ril",
+        "ats",
+        "accel",
+        "cmdqv"
+    };
+
+    std::map<std::string, std::string> out;
+
+    string options = iommu->vector_value("OPTIONS");
+
+    if (!one_util::string_to_options(options, IOMMU_DRIVER_KEYS, out))
+    {
+        error = "Parse error in IOMMU options";
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 {
     /**
@@ -968,7 +1096,8 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
     /* ---------------------------------------------------------------------- */
     /* Set MEMORY, HUGEPAGE_SIZE, vCPU & update CPU for pinned VMS            */
     /* ---------------------------------------------------------------------- */
-    long long    memory;
+    unsigned long long memory;
+
     unsigned int vcpu = 0;
     unsigned int vcpu_max = 0;
 
@@ -1126,11 +1255,19 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
     }
     else // Manual/Asymmetric Topology, NUMA_NODE array
     {
-        long long    node_mem = 0;
-        unsigned int node_cpu = 0;
+        // regex for NUMA nodeset distances e.g. 1:254,2-6:128,8:30
+        const char* dst_pattern = "^[0-9]+(-[0-9]+)?:[0-9]+(,[0-9]+(-[0-9]+)?:[0-9]+)*$";
 
-        long long    nmem = 0;
-        unsigned int ncpu = 0;
+        unsigned long long node_mem = 0;
+        unsigned int       node_cpu = 0;
+
+        unsigned long long nmem;
+        unsigned int       ncpu;
+
+        string  dst;
+
+        bool    distance_error = false;
+        bool    capacity_error = false;
 
         std::vector<VectorAttribute *> new_nodes;
 
@@ -1141,15 +1278,29 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
             (*it)->vector_value("TOTAL_CPUS", ncpu);
             (*it)->vector_value("MEMORY", nmem);
 
-            if ( ncpu == 0 || nmem <= 0)
+            dst = one_util::trim((*it)->vector_value("DISTANCE"));
+
+            if ((nmem == 0 && ncpu > 0) || (nmem > 0 && ncpu == 0))
             {
+                capacity_error = true;
                 break;
+            }
+
+            if (!dst.empty())
+            {
+                if ( one_util::regex_match(dst_pattern, dst.c_str()) != 0)
+                {
+                    distance_error = true;
+                    break;
+                }
             }
 
             VectorAttribute * node = new VectorAttribute("NUMA_NODE");
 
             node->replace("TOTAL_CPUS", ncpu);
             node->replace("MEMORY", nmem * 1024);
+
+            if (!dst.empty()) node->replace("DISTANCE", dst);
 
             new_nodes.push_back(node);
 
@@ -1159,8 +1310,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 
         tmpl->erase("NUMA_NODE");
 
-        if (node_cpu != vcpu || node_mem != memory ||
-            ncpu == 0 || nmem <= 0)
+        if (node_cpu != vcpu || node_mem != memory || distance_error || capacity_error)
         {
             for (auto it = new_nodes.begin(); it != new_nodes.end(); ++it)
             {
@@ -1168,15 +1318,15 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
             }
         }
 
-        if (ncpu == 0)
+        if (capacity_error)
         {
-            error = "A NUMA_NODE must have TOTAL_CPUS greater than 0";
+            error = "NUMA_NODE capacity cannot be MEMORY or CPU only";
             return -1;
         }
 
-        if (nmem <= 0)
+        if (distance_error)
         {
-            error = " A NUMA_NODE must have MEMORY greater than 0";
+            error = "A NUMA_NODE includes a syntax error for DISTANCE attribute";
             return -1;
         }
 

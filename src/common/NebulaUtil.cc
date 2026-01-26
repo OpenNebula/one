@@ -481,3 +481,47 @@ bool one_util::str_cast(const std::string& str, std::string& value)
 
     return true;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool one_util::string_to_options(const std::string& str,
+                       const std::set<std::string>& valid_keys,
+                       std::map<std::string, std::string>& out)
+{
+    out.clear();
+
+    static const char *KEY_REGEXP   = "^[A-Za-z_][A-Za-z0-9_-]*$";
+    static const char *VALUE_REGEXP = "^[^[:space:]<>&'\"]+$";
+
+    std::istringstream iss(str);
+    std::string token;
+
+    while (iss >> token)
+    {
+        std::vector<std::string> kv = one_util::split(token, '=', true);
+
+        if (kv.size() != 2)
+        {
+            return false;
+        }
+
+        const std::string& key = kv[0];
+        const std::string& val = kv[1];
+
+        if (!valid_keys.empty() && valid_keys.count(key) == 0)
+        {
+            return false;
+        }
+
+        if (one_util::regex_match(KEY_REGEXP, key.c_str()) != 0 ||
+            one_util::regex_match(VALUE_REGEXP, val.c_str()) != 0)
+        {
+            return false;
+        }
+
+        out[key] = val;
+    }
+
+    return true;
+}

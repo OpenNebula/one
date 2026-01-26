@@ -1054,7 +1054,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
-    // Check the OS attribute
+    // Parse VM attributes
     // ------------------------------------------------------------------------
     rc = parse_os(error_str);
 
@@ -1063,25 +1063,21 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_os;
     }
 
-    // ------------------------------------------------------------------------
-    // Parse TPM attribute
-    // ------------------------------------------------------------------------
+    if (parse_iommu(error_str, user_obj_template.get()) != 0)
+    {
+        goto error_common;
+    }
+
     if (parse_tpm(error_str) != 0)
     {
         goto error_common;
     }
 
-    // ------------------------------------------------------------------------
-    // Parse MEMORY_ENCRYPTION attribute
-    // ------------------------------------------------------------------------
     if (parse_memory_encryption(error_str) != 0)
     {
         goto error_common;
     }
 
-    // ------------------------------------------------------------------------
-    // Check the CPU Model attribute
-    // ------------------------------------------------------------------------
     parse_cpu_model(user_obj_template.get());
 
     // ------------------------------------------------------------------------
@@ -3814,6 +3810,27 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
     if ( is_pci )
     {
+        string root = _new_nic->vector_value("ROOT");
+
+        if (!root.empty())
+        {
+            one_util::tolower(root);
+
+            if ( root != "shared" && root != "dedicated")
+            {
+                err = "Unknown PCI root mode, has to be SHARED or DEDICATED";
+                return -1;
+            }
+            else if ( root == "dedicated" &&
+                        get_lcm_state() != VirtualMachine::HOTPLUG_NIC_POWEROFF )
+            {
+                err = "Dedicated PCI devices cannot be hotplug";
+                return -1;
+            }
+
+            _new_nic->replace("ROOT", root);
+        }
+
         std::vector<const VectorAttribute*> pcis;
         vector<VectorAttribute *> nodes;
 
@@ -3841,6 +3858,13 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
                 if ( pci->vector_value("VM_BUS_INDEX", index) != -1 )
                 {
+                    root = pci->vector_value("ROOT");
+
+                    if (!root.empty() && root == "dedicated") //Common allocation set for dedicated devices
+                    {
+                        numa_node = std::numeric_limits<unsigned int>::max();
+                    }
+
                     std::set<unsigned int>& ports = palloc[numa_node];
                     ports.insert(index);
                 }
@@ -3849,13 +3873,14 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
         _new_nic->replace("PCI_ID", max_pci_id + 1);
 
-        bool numa = obj_template->get("NUMA_NODE", nodes) > 0;
+        obj_template->get("NUMA_NODE", nodes);
 
         if (HostSharePCI::set_pci_address(_new_nic.get(),
                                           palloc,
                                           test_machine_type({"q35","virt"}),
-                                          numa) == -1)
+                                          nodes) == -1)
         {
+            err = "Cannot assign PCI bus address to device";
             return -1;
         }
     }
@@ -4000,6 +4025,14 @@ int VirtualMachine::attach_pci(VectorAttribute * vpci, string& err)
 
             if ( pci->vector_value("VM_BUS_INDEX", index) != -1 )
             {
+                string root = pci->vector_value("ROOT");
+
+                //Common allocation set for dedicated devices
+                if (!root.empty() && root == "dedicated")
+                {
+                    numa_node = std::numeric_limits<unsigned int>::max();
+                }
+
                 std::set<unsigned int>& ports = palloc[numa_node];
                 ports.insert(index);
             }
@@ -4011,19 +4044,41 @@ int VirtualMachine::attach_pci(VectorAttribute * vpci, string& err)
     // -------------------------------------------------------------------------
     std::unique_ptr<VectorAttribute> _new_pci(vpci->clone());
 
+    string root = _new_pci->vector_value("ROOT");
+
+    if (!root.empty())
+    {
+        one_util::tolower(root);
+
+        if ( root != "shared" && root != "dedicated")
+        {
+            err = "Unknown PCI root mode, has to be SHARED or DEDICATED";
+            return -1;
+        }
+        else if ( root == "dedicated" &&
+                    get_lcm_state() != VirtualMachine::HOTPLUG_NIC_POWEROFF )
+        {
+            err = "Dedicated PCI devices cannot be hotplug";
+            return -1;
+        }
+
+        _new_pci->replace("ROOT", root);
+    }
+
     _new_pci->replace("PCI_ID", max_pci_id + 1);
 
     add_pci_context(_new_pci.get());
 
     vector<VectorAttribute *> nodes;
 
-    bool numa = obj_template->get("NUMA_NODE", nodes) > 0;
+    obj_template->get("NUMA_NODE", nodes);
 
     if (HostSharePCI::set_pci_address(_new_pci.get(),
                                       palloc,
                                       test_machine_type({"q35","virt"}),
-                                      numa) == -1)
+                                      nodes) == -1)
     {
+        err = "Cannot assign PCI bus address to device";
         return -1;
     }
 
