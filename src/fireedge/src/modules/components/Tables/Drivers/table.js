@@ -14,8 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement, useEffect, useMemo } from 'react'
-import { Alert } from '@mui/material'
-import { Translate } from '@modules/components/HOC'
+import { Alert, Typography } from '@mui/material'
+import { Translate, Tr } from '@modules/components/HOC'
 import EnhancedTable, {
   createColumns,
 } from '@modules/components/Tables/Enhanced'
@@ -23,7 +23,8 @@ import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import DriverColumns from '@modules/components/Tables/Drivers/columns'
 import DriverRow from '@modules/components/Tables/Drivers/row'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useViews, DriverAPI } from '@FeaturesModule'
+import { useViews, DriverAPI, SystemAPI } from '@FeaturesModule'
+import { generateDocLink } from '@UtilsModule'
 
 const DEFAULT_DATA_CY = 'drivers'
 
@@ -43,11 +44,17 @@ const DriversTable = (props) => {
 
   const { view, getResourceView } = useViews()
   const {
-    data = [],
+    data: drivers = [],
     isFetching,
     refetch,
     error,
   } = DriverAPI.useGetDriversQuery()
+
+  // Filter data if there is filter function
+  const data =
+    props?.filterData && typeof props?.filterData === 'function'
+      ? props?.filterData(drivers)
+      : drivers
 
   useEffect(() => {
     if (handleRefetch && refetch) {
@@ -72,6 +79,9 @@ const DriversTable = (props) => {
 
   const { component, header } = WrapperRow(DriverRow)
 
+  // Get version to show links to documentation
+  const { data: version } = SystemAPI.useGetOneVersionQuery()
+
   return (
     <EnhancedTable
       columns={columns}
@@ -85,6 +95,19 @@ const DriversTable = (props) => {
         error?.status === 500 && (
           <Alert severity="error" variant="outlined">
             <Translate word={T.CannotConnectOneForm} />
+            <Typography variant="body2" gutterBottom>
+              {Tr(T['oneform.info.more'])}
+              <a
+                target="_blank"
+                href={generateDocLink(
+                  version,
+                  'product/operation_references/opennebula_services_configuration/oneform/'
+                )}
+                rel="noreferrer"
+              >
+                {Tr(T['oneform.info.more.link'])}
+              </a>
+            </Typography>
           </Alert>
         )
       }

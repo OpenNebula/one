@@ -26,6 +26,7 @@ const OpenNebulaLogo = memo(
     withText,
     viewBox = withText ? '600 400 750 300' : '600 400 250 270',
     disabledBetaText,
+    customColor,
     ...props
   }) => {
     const [displaySkeleton, setDisplaySkeleton] = useState(true)
@@ -127,27 +128,51 @@ const OpenNebulaLogo = memo(
               {/* Log image */}
               <g id="logo__cloud">
                 <path
-                  fill={spinner ? 'url(#gradient)' : cloudColor.static}
+                  fill={
+                    spinner
+                      ? 'url(#gradient)'
+                      : customColor || cloudColor.static
+                  }
                   d="M806.78,656.65l.05,0h0Z"
                 />
                 <path
-                  fill={spinner ? 'url(#gradient)' : cloudColor.static}
+                  fill={
+                    spinner
+                      ? 'url(#gradient)'
+                      : customColor || cloudColor.static
+                  }
                   d="M679.93,657.38H804.87a2.93,2.93,0,0,0,2-.77h0a2.9,2.9,0,0,0,1-2.16h0V538.37A290.87,290.87,0,0,1,623.55,615.1,58.75,58.75,0,0,0,679.93,657.38Z"
                 />
                 <path
-                  fill={spinner ? 'url(#gradient)' : cloudColor.static}
+                  fill={
+                    spinner
+                      ? 'url(#gradient)'
+                      : customColor || cloudColor.static
+                  }
                   d="M807.8,654.45h0Z"
                 />
                 <path
-                  fill={spinner ? 'url(#gradient)' : cloudColor.static}
+                  fill={
+                    spinner
+                      ? 'url(#gradient)'
+                      : customColor || cloudColor.static
+                  }
                   d="M807.79,654.59a.66.66,0,0,0,0-.14h0A.66.66,0,0,1,807.79,654.59Z"
                 />
                 <path
-                  fill={spinner ? 'url(#gradient)' : cloudColor.static}
+                  fill={
+                    spinner
+                      ? 'url(#gradient)'
+                      : customColor || cloudColor.static
+                  }
                   d="M610.31,615.41h0Z"
                 />
                 <path
-                  fill={spinner ? 'url(#gradient)' : cloudColor.static}
+                  fill={
+                    spinner
+                      ? 'url(#gradient)'
+                      : customColor || cloudColor.static
+                  }
                   d="M804.86,422.52h-.22A58.74,58.74,0,0,0,750.4,470.8h0a2.94,2.94,0,0,1-2.88,2.39,3,3,0,0,1-1.47-.39h0l0,0-.16-.1a58.65,58.65,0,0,0-87,68.22h0a2.9,2.9,0,0,1,.16.94,3,3,0,0,1-1.85,2.73h0A58.67,58.67,0,0,0,623.51,615C724,608.33,804,526.57,807.78,425.3A2.92,2.92,0,0,0,804.86,422.52Z"
                 />
               </g>
@@ -240,6 +265,7 @@ OpenNebulaLogo.propTypes = {
   spinner: bool,
   withText: bool,
   disabledBetaText: bool,
+  customColor: string,
 }
 
 OpenNebulaLogo.defaultProps = {

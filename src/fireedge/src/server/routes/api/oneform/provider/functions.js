@@ -118,10 +118,10 @@ const provider = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: 'providers/{0}',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
   }
 
   oneFormConnection(
@@ -276,10 +276,10 @@ const providerUpdate = (
     const template = parsePostData(params.template)
     const config = {
       method: command.httpMethod,
-      path: command.path,
+      path: 'providers/{0}',
       user,
       password,
-      request: { id: params.id },
+      request: params.id,
       post: template,
     }
 
@@ -327,10 +327,10 @@ const providerDelete = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/providers/{0}',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
   }
 
   oneFormConnection(
@@ -376,10 +376,10 @@ const providerChmod = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/providers/{0}/chmod',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: { octet: params.octet },
   }
 
@@ -418,20 +418,13 @@ const providerChown = (
     return next()
   }
 
-  if (
-    params.owner_id == null ||
-    isNaN(Number(params.owner_id)) ||
-    Number(params.owner_id) < 0
-  ) {
+  if (params.owner_id == null || isNaN(Number(params.owner_id))) {
     res.locals.httpCode = httpResponse(methodNotAllowed, '', 'invalid owner ID')
 
     return next()
   }
 
-  if (
-    params.group_id !== null &&
-    (isNaN(Number(params.group_id)) || Number(params.group_id) < 0)
-  ) {
+  if (params.group_id !== null && isNaN(Number(params.group_id))) {
     res.locals.httpCode = httpResponse(methodNotAllowed, '', 'invalid group ID')
 
     return next()
@@ -439,10 +432,10 @@ const providerChown = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/providers/{0}/chown',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: {
       owner_id: params.owner_id,
       ...(params.group_id && { group_id: params.group_id }),
@@ -484,11 +477,7 @@ const providerChgrp = (
     return next()
   }
 
-  if (
-    params.group_id == null ||
-    isNaN(Number(params.group_id)) ||
-    Number(params.group_id) < 0
-  ) {
+  if (params.group_id == null || isNaN(Number(params.group_id))) {
     res.locals.httpCode = httpResponse(methodNotAllowed, '', 'invalid group ID')
 
     return next()
@@ -496,10 +485,10 @@ const providerChgrp = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/providers/{0}/chgrp',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: { group_id: params.group_id },
   }
 

@@ -37,6 +37,11 @@ const driverApi = oneApi.injectEndpoints({
 
         return { command }
       },
+      transformResponse: (data) =>
+        data.map((driver) => ({
+          ...driver,
+          name: driver.name.toLowerCase(),
+        })),
       providesTags: (drivers) =>
         drivers
           ? [
@@ -64,7 +69,10 @@ const driverApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      providesTags: (_, __, { name }) => [{ type: DRIVER, id: name }],
+      transformResponse: (data) => ({ ...data, name: data.name.toLowerCase() }),
+      providesTags: (_, __, { name }) => [
+        { type: DRIVER, id: name.toLowerCase() },
+      ],
     }),
 
     enableDriver: builder.mutation({

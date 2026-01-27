@@ -15,4 +15,6 @@
  * ------------------------------------------------------------------------- */
 export * from '@modules/containers/Clusters/Clusters'
 export * from '@modules/containers/Clusters/Create'
+export * from '@modules/containers/Clusters/CreateCloud'
+export * from '@modules/containers/Clusters/CreateCloudLogs'
 export * from '@modules/containers/Clusters/Detail'

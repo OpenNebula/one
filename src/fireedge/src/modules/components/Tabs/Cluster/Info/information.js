@@ -15,10 +15,12 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { ClusterAPI } from '@FeaturesModule'
+import { ClusterAPI, ProvisionAPI } from '@FeaturesModule'
 import { List } from '@modules/components/Tabs/Common'
+import { StatusChip, StatusCircle } from '@modules/components/Status'
 import { T, Cluster, CLUSTER_ACTIONS } from '@ConstantsModule'
-import { jsonToXml } from '@ModelsModule'
+import { getProvisionColorState, jsonToXml } from '@ModelsModule'
+import { Stack } from '@mui/material'
 
 /**
  * Renders mainly information tab.
@@ -49,6 +51,28 @@ const InformationPanel = ({ cluster = {}, actions }) => {
       dataCy: 'name',
     },
   ]
+
+  // Show only Provision status if the cluster was created by OneForm
+  if (cluster?.TEMPLATE?.ONEFORM) {
+    const { data: provision } = ProvisionAPI.useGetProvisionQuery({
+      id: cluster?.TEMPLATE?.ONEFORM?.PROVISION_ID,
+    })
+    const provisionState = provision?.TEMPLATE?.PROVISION_BODY?.state
+    const stateColor = getProvisionColorState(provisionState)
+    info.push({
+      name: T.State,
+      value: (
+        <Stack direction="row" alignItems="center" gap={1}>
+          <StatusCircle color={stateColor} />
+          <StatusChip
+            dataCy="state"
+            text={provisionState}
+            stateColor={stateColor}
+          />
+        </Stack>
+      ),
+    })
+  }
 
   /**
    * Update reserved CPU on the template cluster.

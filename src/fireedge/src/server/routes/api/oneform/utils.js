@@ -23,7 +23,6 @@ const { addPrintf } = require('server/utils/general')
 
 const { GET, DELETE } = httpMethod
 const appConfig = getFireedgeConfig()
-const apiVersion = '/api/v1'
 
 /**
  * Return schema error.
@@ -57,7 +56,7 @@ const oneFormConnection = (
   success = () => undefined,
   error = () => undefined
 ) => {
-  const { method, path, user, password, request, post } = requestData
+  const { method, path, user, password, request, post, query } = requestData
   const optionMethod = method || GET
   const optionPath = path || '/'
 
@@ -68,9 +67,7 @@ const oneFormConnection = (
 
   const options = {
     method: optionMethod,
-    baseURL: `${
-      appConfig.oneform_server || defaultOneFormServer
-    }/${apiVersion}`,
+    baseURL: `${appConfig.oneform_server || defaultOneFormServer}`,
     url: request ? addPrintf(optionPath, request) : optionPath,
     headers: {
       Authorization: `Basic ${optionAuth}`,
@@ -80,6 +77,7 @@ const oneFormConnection = (
   }
 
   if (post) options.data = post
+  if (query) options.params = query
 
   axios(options)
     .then((response) => {

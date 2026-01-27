@@ -9,7 +9,11 @@ resource_name: "CLUSTER"
 
 actions:
   create_dialog: true
+  create_cloud_dialog: true
+  create_cloud_dialog_logs: true
   update_dialog: true
+  deprovision: true
+  retry: true
   delete: true
 
 # Filters - List of criteria to filter the resources
@@ -40,9 +44,21 @@ info-tabs:
 
   host:
     enabled: true
+    provision:
+      actions:
+        add: true
+        delete: true
   vnet:
     enabled: true
+    provision:
+      actions:
+        add: true
+        delete: true
+        delete_ar: true
+        
   datastore:
     enabled: true
   drs:
+    enabled: true
+  logs:
     enabled: true

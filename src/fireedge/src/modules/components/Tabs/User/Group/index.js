@@ -85,12 +85,16 @@ const GroupsInfoTab = ({ tabProps: { actions } = {}, id: userId }) => {
     )
 
   /* Filter groups showing only the ones the user is linked into and it's not its primary group */
-  const filterGroupsLinked = (data) =>
-    data.filter(
+  const filterGroupsLinked = (data) => {
+    const x = data.filter(
       (group) =>
         USER_GROUPS.some((userGroup) => userGroup === group.ID) &&
         group.ID !== primaryGroupId
     )
+    console.log('revi', x)
+
+    return x
+  }
 
   /* Filter groups showing only the ones the user has not as primary group */
   const filterByNotPrimaryGroup = (data) =>

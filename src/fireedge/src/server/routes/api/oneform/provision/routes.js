@@ -20,7 +20,7 @@ const {
 } = require('../../../../utils/constants/defaults')
 
 const basepath = '/provisions'
-const { resource, postBody } = fromData
+const { resource, postBody, query } = fromData
 const { GET, POST, DELETE, PATCH } = httpMethod
 
 const Actions = {
@@ -46,8 +46,8 @@ const Commands = {
     httpMethod: GET,
     auth: true,
     params: {
-      all: {
-        from: fromData.query,
+      extended: {
+        from: query,
         default: 'false',
       },
     },
@@ -58,6 +58,10 @@ const Commands = {
     auth: true,
     params: {
       id: { from: resource },
+      extended: {
+        from: query,
+        default: 'false',
+      },
     },
   },
   [Actions.LOGS]: {
@@ -66,6 +70,10 @@ const Commands = {
     auth: true,
     params: {
       id: { from: resource },
+      all: {
+        from: query,
+        default: 'true',
+      },
     },
   },
   [Actions.CREATE]: {
@@ -98,6 +106,10 @@ const Commands = {
     params: {
       id: {
         from: resource,
+      },
+      force: {
+        from: query,
+        default: false,
       },
     },
   },

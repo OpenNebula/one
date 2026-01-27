@@ -198,9 +198,17 @@
   routes:
     - title: Drivers
       path: /driver
+      sidebar: false
+      icon: DataTransferUp
+      Component: Drivers
+    - title: Providers
+      path: /provider
       sidebar: true
-      icon: HardDrive
-      Component: Drivers  
+      icon: SettingsProfiles
+      Component: Providers
+    - title: Create Provider
+      path: /provider/create
+      Component: CreateProvider
     - title: Clusters
       path: /cluster
       sidebar: true
@@ -209,6 +217,12 @@
     - title: Create Cluster
       path: /cluster/create
       Component: CreateCluster
+    - title: Create Cluster Cloud
+      path: /cluster/create_cloud
+      Component: CreateClusterCloud
+    - title: Cluster Logs
+      path: /cluster/create_cloud_logs/:id
+      Component: CreateClusterCloudLogs
     - title: Cluster
       path: /cluster/:id
       Component: ClusterDetail

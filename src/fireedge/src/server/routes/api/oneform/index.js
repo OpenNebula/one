@@ -63,7 +63,9 @@ const {
   provisionRetry,
   provisionScaleHost,
   provisionAddIp,
+  provisionAddHost,
   provisionRemoveIp,
+  provisionRemoveHost,
   provisionChmod,
   provisionChown,
   provisionChgrp,
@@ -174,8 +176,16 @@ const provisionEndpoints = [
     ...CommandsProvision[ActionsProvision.ADD_IP],
   },
   {
+    action: provisionAddHost,
+    ...CommandsProvision[ActionsProvision.ADD_HOST],
+  },
+  {
     action: provisionRemoveIp,
     ...CommandsProvision[ActionsProvision.REMOVE_IP],
+  },
+  {
+    action: provisionRemoveHost,
+    ...CommandsProvision[ActionsProvision.REMOVE_HOST],
   },
   {
     action: provisionChmod,

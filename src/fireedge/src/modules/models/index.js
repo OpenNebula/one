@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 export * from '@modules/models/ACL'
+export * from '@modules/models/Cluster'
 export * from '@modules/models/Datastore'
 export * from '@modules/models/Group'
 export * from '@modules/models/Guacamole'

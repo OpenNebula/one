@@ -16,14 +16,32 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { Typography, useTheme } from '@mui/material'
-import { Cloud, Folder, HardDrive, NetworkAlt } from 'iconoir-react'
+import { alpha, Box, styled, Typography, useTheme } from '@mui/material'
+import { Folder, HardDrive, NetworkAlt } from 'iconoir-react'
 
-import { useMemo } from 'react'
 import { rowStyles } from '@modules/components/Tables/styles'
+import { useMemo } from 'react'
 
-import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
+import { Tr } from '@modules/components/HOC'
+
+const TagType = styled(Typography, {
+  shouldForwardProp: (prop) => !['provision'].includes(prop),
+})(({ theme, provision }) => {
+  const color = provision?.color
+    ? `#${provision.color}`
+    : theme.palette.primary.main
+
+  return {
+    color: alpha(color, 1),
+    border: `1px solid ${alpha(color, 1)}`,
+    fontSize: theme.typography.button.fontSize,
+    textTransform: 'capitalize',
+    padding: `${theme.typography.pxToRem(1)} ${theme.typography.pxToRem(8)}`,
+    backgroundColor: alpha(color, 0.1),
+    userSelect: 'none',
+  }
+})
 
 const Row = ({
   original,
@@ -36,7 +54,7 @@ const Row = ({
 }) => {
   const theme = useTheme()
   const classes = useMemo(() => rowStyles(theme), [theme])
-  const { ID, NAME, HOSTS, DATASTORES, VNETS, PROVIDER_NAME } = value
+  const { ID, NAME, HOSTS, DATASTORES, VNETS, TEMPLATE } = value
 
   return (
     <div data-cy={`cluster-${ID}`} {...props}>
@@ -45,6 +63,21 @@ const Row = ({
           <Typography noWrap component="span" data-cy="cluster-card-name">
             {NAME}
           </Typography>
+          <span className={classes.labels}>
+            {TEMPLATE?.ONEFORM && TEMPLATE?.ONEFORM?.PROVIDER && (
+              <Box sx={{ width: '100%', textAlign: 'end' }}>
+                <TagType
+                  component="span"
+                  variant="overline"
+                  lineHeight="normal"
+                  borderRadius="0.5em"
+                  provision={TEMPLATE?.fireedge}
+                >
+                  {TEMPLATE?.ONEFORM?.PROVIDER}
+                </TagType>
+              </Box>
+            )}
+          </span>
         </div>
         <div className={classes.caption}>
           <span data-cy="cluster-card-id">{`#${ID}`}</span>
@@ -69,12 +102,6 @@ const Row = ({
             <Folder />
             <span>{`${DATASTORES}`}</span>
           </span>
-          {PROVIDER_NAME && (
-            <span title={`${Tr(T.Provider)}: ${PROVIDER_NAME}`}>
-              <Cloud />
-              <span>{` ${PROVIDER_NAME}`}</span>
-            </span>
-          )}
         </div>
       </div>
     </div>

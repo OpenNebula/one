@@ -106,6 +106,7 @@ module.exports = {
   CreateMarketplace: 'Create Marketplace',
   CreateMarketApp: 'Create App',
   CreateApp: 'Create App',
+  CreateProvider: 'Create Provider',
   CreateSecurityGroup: 'Create Security Group',
   CreateServiceTemplate: 'Create Service Template',
   CreateVirtualRouterTemplate: 'Create Virtual Router Template',
@@ -139,6 +140,8 @@ module.exports = {
   DeleteOtherSnapshots: 'This will delete all the other image snapshots',
   Deploy: 'Deploy',
   DeployServiceTemplate: 'Deploy Service Template',
+  DeploymentTypes: 'Deployment Types',
+  Deprovision: 'Deprovision',
   Detach: 'Detach',
   DetachRestricted:
     'You cannot delete this resource because it has restricted attributes on this template. Please, contact with your administrator.',
@@ -218,6 +221,7 @@ module.exports = {
   SelectDatastoreImage: 'Select a Datastore',
   SelectDatastores: 'Select datastores',
   SelectDisk: 'Select disk',
+  SelectDriver: 'Select Provider driver',
   SelectDockerHubTag: 'Select DockerHub image tag (default latest)',
   SelectGroup: 'Select a group',
   SelectHost: 'Select Host',
@@ -227,6 +231,7 @@ module.exports = {
   SelectVirtualNetworks: 'Select virtual networks',
   SelectNewCluster: 'Select a new Cluster',
   SelectNewSecGroup: 'Select security group',
+  SelectProvider: 'Select Provider',
   SelectRequest: 'Select request',
   SelectTheNewDatastore: 'Select the new datastore',
   SelectTheNewGroup: 'Select the new group',
@@ -421,7 +426,8 @@ module.exports = {
   WrongUsernamePassword: 'Wrong username or password',
   SomethingWrong: 'Something go wrong',
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
-  CannotConnectOneForm: 'Cannot connect to OneForm server',
+  CannotConnectOneForm:
+    'Cannot connect to OneForm server, please verify that service is running.',
   ContactYourAdmin: 'Please contact your system administrator',
   NotFound: 'Not found',
   Timeout: 'Timeout',
@@ -690,6 +696,27 @@ module.exports = {
   Zones: 'Zones',
   Vnet: 'Vnet',
   Vnets: 'Vnets',
+  OneformTags: 'Oneform Tags',
+  Providers: 'Providers',
+  Provisions: 'Provisions',
+  NumberProvisions: 'Number of associated provisions',
+  'cluster.create.selection.head': 'Creating New Cluster',
+  'cluster.create.selection.title': 'Choose Your Deployment Type',
+  'cluster.create.selection.subtitle':
+    'Select how you want to create the cluster.',
+  'cluster.create.opennebula.title': 'OpenNebula Cluster',
+  'cluster.create.opennebula.subtitle':
+    'Manually create new infrastructure on-premise.',
+  'cluster.create.opennebula.help': 'More info in OpenNebula Documentation.',
+  'cluster.create.provider.title': 'Cloud Provider',
+  'cluster.create.provider.subtitle':
+    'Automatically provision new infrastructure on cloud provider',
+  'cluster.create.provider.help': 'More info in OpenNebula Documentation.',
+  'cluster.create.onpremise.title': 'On-premise Cluster',
+  'cluster.create.onpremise.subtitle':
+    'Automatically provision new infrastructure on-premise',
+  'cluster.create.onpremise.help': 'More info in OpenNebula Documentation.',
+  'cluster.deployment_conf': 'Deployment configurations',
   'cluster.form.create.general.help.title': 'Cluster',
   'cluster.form.create.general.help.paragraph.1.1':
     'Clusters group together hosts, datastores and virtual networks that are configured to work together. A cluster is used to:',
@@ -722,6 +749,13 @@ module.exports = {
     'FQDN or IP that OpenNebula can use to reach the hypervisor host',
   'host.form.create.general.name.tooltip':
     "Please make sure the OpenNebula front-end can ssh passwrodlessly to the host using the 'oneadmin' user",
+  'cluster.create.provisioning.description':
+    'OneForm is automatically provisioning your cloud infrastructure. This typically takes 5-10 minutes.',
+  'oneformtags.info':
+    'Optional key-value pairs that will be propagated in the OpenNebula and Cloud resources',
+  'oneform.info.more': 'See OpenNebula documentation to get more details ',
+  'oneform.info.more.link': 'about OneForm service configuration.',
+  'cluster.vnet.del.ip': 'Delete IP range',
 
   /* sections - network */
   Network: 'Network',
@@ -1922,6 +1956,18 @@ module.exports = {
   NumberOfAddresses: 'Number of addresses',
   AddToNewVirtualNetwork: 'Add to a new Virtual Network',
   AddToExistingReservation: 'Add to an existing Reservation',
+  AddHostProvision: 'Add Host to Provision',
+  AddHostProvisionSuccess: 'Host(s) added to provision successfully',
+  DeleteHostProvisionSuccess: 'Host(s) deleted from provision successfully',
+  DeleteVnetProvisionSuccess: 'Vnet(s) deleted from provision successfully',
+  AddIpsProvision: 'Add public IPs',
+  AddIpsProvisionSuccess: 'Public IPs added to the provision',
+  DeleteIpsProvisionSuccess: 'IP deleted',
+  DeleteHostProvision: 'Delete Provision Hosts',
+  NumberOfHostsToAdd: 'Number of Hosts to Add',
+  NumberOfIPsToAdd: 'Number of IPs to add',
+  SelectNewHostsToAdd: 'Select New Hosts to Add',
+  SelectNewVnetsToAdd: 'Select New Vnets to Add',
   FirstAddress: 'First address',
   IpOrMac: 'IP or MAC',
   MessageQos:
@@ -1980,6 +2026,7 @@ module.exports = {
   /* Cluster schema */
   CreateCluster: 'Create Cluster',
   'cluster.create.name': 'Name',
+  'cluster.create.description': 'Description',
   'cluster.create.general.info': 'Cluster info',
 
   /* Cluster schema - capacity */
@@ -2206,6 +2253,7 @@ module.exports = {
   Max: 'Max',
   DefaultValue: 'Default value',
   Mandatory: 'Mandatory',
+  PressKeysToAddAHost: 'Add a hostname or IP address and press %s',
   PressKeysToAddAValue: 'Press any of the following keys to add a value: %s',
   MandatoryUserInputs: 'Show only mandatory inputs',
   Suggestion: 'Suggestion',
@@ -2558,6 +2606,7 @@ module.exports = {
   SuccessVNetTemplateUpdated: 'Virtual Network Template updated - #%s %s',
 
   /* Error messages */
+  ErrorCommaSeparatedValues: 'Must match a comma separated values list',
   ErrorExportingData: 'Error exporting data to %s : %s',
   ErrorVmTemplateFetching: 'Error fetching VM templates data: %s',
   ErrorHostFetching: 'Error fetching host data: %s',
@@ -2574,6 +2623,7 @@ module.exports = {
   ErrorClusterOperation: 'Error performing operation on cluster',
   ErrorGroupCreated: 'Error creating group',
   ErrorMarketplaceCreated: 'Error creating marketplace',
+  ErrorProviderCreated: 'Error creating provider',
   ErrorProviderTemplateSelected:
     'The template selected has a bad format. Ask your cloud administrator',
   ErrorShowbackCalculated: 'Error calculating showback: %s',
@@ -2594,6 +2644,28 @@ module.exports = {
   Synchronize: 'Synchronize',
   Source: 'Source',
 
+  /* Connection Values */
+  ConnectionValues: 'Connection Values',
+  access_key: 'Access Key',
+  auth_token: 'Auth Token',
+  i3dnet_api_key: 'i3D.net API Key',
+  project_id: 'Project ID',
+  region: 'Region',
+  secret_key: 'Secret Key',
+  zone: 'Zone',
+
+  /* Provision User Inputs */
+  cidr_block: 'CIDR Block',
+  instance_disk_size: 'Disk instance size',
+  instance_os_name: 'Instance OS name',
+  instance_type: 'Instance Type',
+  oneform_hosts: 'Number of Hosts',
+  oneform_public_ips: 'Number of Public IPs',
+  oneform_onprem_hosts: 'Onprem Hosts',
+  phydev_name: 'Physical interface',
+
   /* Log viewer */
   'logs.level': 'Level',
+
+  LearnMore: 'Learn more',
 }

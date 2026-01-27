@@ -40,6 +40,7 @@ import NetworkCard from '@modules/components/Cards/NetworkCard'
 import NicCard from '@modules/components/Cards/NicCard'
 import PciCard from '@modules/components/Cards/PciCard'
 import PolicyCard from '@modules/components/Cards/PolicyCard'
+import ProviderCard from '@modules/components/Cards/ProviderCard'
 import ScheduleActionCard from '@modules/components/Cards/ScheduleActionCard'
 import SecurityGroupCard from '@modules/components/Cards/SecurityGroupCard'
 import SelectCard from '@modules/components/Cards/SelectCard'
@@ -84,6 +85,7 @@ export {
   NicCard,
   PciCard,
   PolicyCard,
+  ProviderCard,
   ScheduleActionCard,
   SecurityGroupCard,
   SelectCard,

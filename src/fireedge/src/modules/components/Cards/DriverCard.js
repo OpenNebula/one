@@ -44,6 +44,8 @@ const DriverCard = memo(
     // Get logo for the driver
     const logoSource = useMemo(() => {
       if (!fireedge?.logo) return `${LOGO_DRIVERS_IMAGES_URL}/default.png`
+      if (fireedge?.logo.includes(LOGO_DRIVERS_IMAGES_URL))
+        return `${fireedge.logo}`
 
       return `${LOGO_DRIVERS_IMAGES_URL}/${fireedge?.logo}`
     }, [fireedge])

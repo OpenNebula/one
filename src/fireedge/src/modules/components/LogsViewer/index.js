@@ -36,8 +36,10 @@ import {
   SortDown,
   SortUp,
   RefreshDouble,
+  RedoCircle,
 } from 'iconoir-react'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import { ProvisionAPI } from '@FeaturesModule'
 import { Tr, Translate, SubmitButton } from '@modules/components'
 import { styles } from '@modules/components/LogsViewer/styles'
 import HeaderPopover from '@modules/components/Header/Popover'
@@ -61,9 +63,16 @@ const cache = new CellMeasurerCache({
  * @param {object} props.getLogs - Function to refresh logs
  * @param {boolean} props.isFetching - If the request to get logs to the API is in progress
  * @param {object} props.options - Component options
+ * @param {number} props.provisionId - Provision ID
  * @returns {object} - The Log Viewer component
  */
-const LogsViewer = ({ logs, getLogs, isFetching, options = {} }) => {
+const LogsViewer = ({
+  logs,
+  getLogs,
+  isFetching,
+  provisionId,
+  options = {},
+}) => {
   // Get options
   const { followLogs = false } = options
 
@@ -82,6 +91,8 @@ const LogsViewer = ({ logs, getLogs, isFetching, options = {} }) => {
   const [level, setLevel] = useState()
   const [filterValue, setFilterValue] = useState('')
   const [filteredLogs, setFilteredLogs] = useState(logs?.lines || [])
+
+  const [retry] = ProvisionAPI.useRetryProvisionMutation()
 
   // Follow logs
   useEffect(() => {
@@ -159,7 +170,6 @@ const LogsViewer = ({ logs, getLogs, isFetching, options = {} }) => {
       )
     )
   }
-
   const Row = ({ index, key, style, parent }) => {
     const log = filteredLogs[index]
     const regexDate = /^(.+?\[\w\])\s*(.*)/
@@ -313,6 +323,13 @@ const LogsViewer = ({ logs, getLogs, isFetching, options = {} }) => {
             isSubmitting={isFetching}
             onClick={() => getLogs()}
           />
+          <SubmitButton
+            data-cy="detail-retry"
+            icon={<RedoCircle />}
+            tooltip={Tr(T.Retry)}
+            isSubmitting={isFetching}
+            onClick={() => retry({ id: provisionId })}
+          />
         </Stack>
       </Stack>
 
@@ -346,6 +363,7 @@ LogsViewer.propTypes = {
   getLogs: PropTypes.object,
   isFetching: PropTypes.bool,
   options: PropTypes.object,
+  provisionId: PropTypes.string,
 }
 
 export default LogsViewer

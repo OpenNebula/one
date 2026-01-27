@@ -35,6 +35,7 @@ export { default as Image } from '@modules/components/Image'
 export * from '@modules/components/List'
 export { default as LoadingScreen } from '@modules/components/LoadingScreen'
 export * from '@modules/components/LoadingState'
+export * from '@modules/components/LogsViewer'
 export { default as MultipleTags } from '@modules/components/MultipleTags'
 export {
   default as Notifier,

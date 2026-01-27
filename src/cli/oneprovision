@@ -83,7 +83,7 @@ CommandParser::CmdParser.new(ARGV) do
         :large       => '--ids ids',
         :short       => '-i ids',
         :description => 'Hosts IDs to remove from the provision',
-        :format      => Integer
+        :format      => Array
     }
 
     AMOUNT = {
@@ -107,7 +107,7 @@ CommandParser::CmdParser.new(ARGV) do
         :short       => '-i ips',
         :large       => '--ips ips',
         :description => 'IP addresses to add as hosts. Only valid for on-prem providers',
-        :format      => Integer
+        :format      => Array
     }
 
     PROVIDER_ID = {
@@ -391,8 +391,7 @@ CommandParser::CmdParser.new(ARGV) do
         if amount.nil? && host_ips.nil?
             amount = 1
         end
-
-        nodes    = amount || [host_ips]
+        nodes    = amount || host_ips
         response = client.scale_provision(provision_id, 'up', nodes)
 
         return [response[:err_code], response[:message]] \
@@ -442,7 +441,7 @@ CommandParser::CmdParser.new(ARGV) do
             amount = 1
         end
 
-        nodes    = amount || [host_ids]
+        nodes    = amount || host_ids
         response = client.scale_provision(provision_id, 'down', nodes, :force => force)
 
         return [response[:err_code], response[:message]] \

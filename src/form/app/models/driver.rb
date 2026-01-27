@@ -531,6 +531,7 @@ module OneForm
                         :description => normalized_values['description'] || nil,
                         :type        => normalized_values['type'].to_s.downcase,
                         :default     => normalized_values['default'],
+                        :mandatory   => normalized_values['default'].nil?,
                         :match       => match.empty? ? nil : match
                     }.compact
                 end

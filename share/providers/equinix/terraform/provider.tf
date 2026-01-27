@@ -21,6 +21,7 @@ variable "project_id" {
 variable "region" {
     type = string
     description = "Equinix Region"
+    default = "am"
 }
 
 provider "equinix" {

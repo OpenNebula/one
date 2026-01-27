@@ -186,6 +186,8 @@ export const RESOURCE_NAMES = {
   FILE: 'file',
   LOGO: 'logo',
   MARKETPLACE: 'marketplace',
+  PROVIDER: 'provider',
+  PROVISION: 'provision',
   SEC_GROUP: 'security-group',
   USER: 'user',
   VDC: 'virtual-data-center',
@@ -230,6 +232,9 @@ export * from '@modules/constants/scheduler'
 export * from '@modules/constants/securityGroup'
 export * from '@modules/constants/serviceTemplate'
 export * as STATES from '@modules/constants/states'
+export * from '@modules/constants/ods'
+export * from '@modules/constants/provider'
+export * from '@modules/constants/provision'
 export * from '@modules/constants/styles'
 export * from '@modules/constants/support'
 export * from '@modules/constants/system'

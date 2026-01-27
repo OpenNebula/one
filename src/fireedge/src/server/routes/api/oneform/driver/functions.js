@@ -109,10 +109,10 @@ const driver = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: 'drivers/{0}',
     user,
     password,
-    request: { name: params.name },
+    request: params.name,
   }
 
   oneFormConnection(
@@ -194,10 +194,10 @@ const driverEnable = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: 'drivers/{0}/enable',
     user,
     password,
-    ...(params.name && { request: { name: params.name } }),
+    request: params.name,
   }
 
   oneFormConnection(
@@ -237,10 +237,10 @@ const driverDisable = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: 'drivers/{0}/disable',
     user,
     password,
-    ...(params.name && { request: { name: params.name } }),
+    request: params.name,
   }
 
   oneFormConnection(

@@ -97,3 +97,78 @@ export const PLAN_STATE = {
     color: COLOR.warning.main,
   },
 }
+
+export const PROVISION_STATES = {
+  PENDING: {
+    name: 'PENDING',
+    color: COLOR.info.light,
+  },
+  INIT: {
+    name: 'INIT',
+    color: COLOR.info.light,
+  },
+  INIT_FAILURE: {
+    name: 'INIT_FAILURE',
+    color: COLOR.error.dark,
+  },
+  PLANNING: {
+    name: 'PLANNING',
+    color: COLOR.info.light,
+  },
+  PLANNING_FAILURE: {
+    name: 'PLANNING_FAILURE',
+    color: COLOR.error.dark,
+  },
+  APPLYING: {
+    name: 'APPLYING',
+    color: COLOR.info.light,
+  },
+  APPLYING_FAILURE: {
+    name: 'APPLYING_FAILURE',
+    color: COLOR.error.dark,
+  },
+  CONFIGURING_ONE: {
+    name: 'CONFIGURING_ONE',
+    color: COLOR.info.light,
+  },
+  CONFIGURING_ONE_FAILURE: {
+    name: 'CONFIGURING_ONE_FAILURE',
+    color: COLOR.error.dark,
+  },
+  CONFIGURING_PROVISION: {
+    name: 'CONFIGURING_PROVISION',
+    color: COLOR.info.light,
+  },
+  CONFIGURING_PROVISION_FAILURE: {
+    name: 'CONFIGURING_PROVISION_FAILURE',
+    color: COLOR.error.dark,
+  },
+  RUNNING: {
+    name: 'RUNNING',
+    color: COLOR.success.light,
+  },
+  SCALING: {
+    name: 'SCALING',
+    color: COLOR.info.light,
+  },
+  SCALING_FAILURE: {
+    name: 'SCALING_FAILURE',
+    color: COLOR.error.dark,
+  },
+  DEPROVISIONING_ONE: {
+    name: 'DEPROVISIONING_ONE',
+    color: COLOR.info.light,
+  },
+  DEPROVISIONING_ONE_FAILURE: {
+    name: 'DEPROVISIONING_ONE_FAILURE',
+    color: COLOR.error.dark,
+  },
+  DEPROVISIONING: {
+    name: 'DEPROVISIONING',
+    color: COLOR.info.light,
+  },
+  DONE: {
+    name: 'DONE',
+    color: COLOR.success.light,
+  },
+}

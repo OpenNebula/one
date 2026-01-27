@@ -20,8 +20,8 @@ info-tabs:
     information_panel:
       enabled: true
   connection:
-    enabled: true
+    enabled: false
   deployment_confs:
-    enabled: true
+    enabled: false
   user_inputs:
-    enabled: true        
+    enabled: false

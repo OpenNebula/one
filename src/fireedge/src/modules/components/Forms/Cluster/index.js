@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import { AsyncLoadForm, ConfigurationProps } from '@modules/components/HOC'
 import { CreateFormCallback } from '@UtilsModule'
+import { ReactElement } from 'react'
 
 /**
  * @param {ConfigurationProps} configProps - Configuration
@@ -41,4 +41,48 @@ const ChangeClusterForm = (configProps) =>
 const CreateForm = (configProps) =>
   AsyncLoadForm({ formPath: 'Cluster/CreateForm' }, configProps)
 
-export { ChangeClusterForm, CreateForm, UpdatePlanConfigurationForm }
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CreateCloudForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Cluster/CreateCloudForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const AddHostForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Cluster/AddHostForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const AddVnetsForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Cluster/AddVnetsForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const DeleteVnetsForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Cluster/DeleteVnetsForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const DeleteHostForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Cluster/DeleteHostForm' }, configProps)
+
+export {
+  AddHostForm,
+  AddVnetsForm,
+  ChangeClusterForm,
+  CreateCloudForm,
+  CreateForm,
+  DeleteHostForm,
+  DeleteVnetsForm,
+  UpdatePlanConfigurationForm,
+}

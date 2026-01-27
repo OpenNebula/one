@@ -18,7 +18,7 @@ import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { ClusterAPI, useGeneralApi, useViews } from '@FeaturesModule'
+import { ClusterAPI, ProvisionAPI, useViews } from '@FeaturesModule'
 
 import {
   createActions,
@@ -27,12 +27,14 @@ import {
 
 import {
   CLUSTER_ACTIONS,
+  PROVISION_ACTIONS,
   RESOURCE_NAMES,
   STYLE_BUTTONS,
   T,
 } from '@ConstantsModule'
 import { Translate } from '@modules/components/HOC'
 import { PATH } from '@modules/components/path'
+import { CreateAction } from '@modules/components/Tables/Clusters/CreateAction'
 
 const ListClusterNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -72,7 +74,9 @@ const Actions = (props = {}) => {
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [remove] = ClusterAPI.useRemoveClusterMutation()
-  const { setSecondTitle } = useGeneralApi()
+  const [removeProvision] = ProvisionAPI.useRemoveProvisionMutation()
+  const [deprovision] = ProvisionAPI.useUndeployProvisionMutation()
+  const [retry] = ProvisionAPI.useRetryProvisionMutation()
 
   return useMemo(
     () =>
@@ -87,10 +91,18 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
-            action: () => {
-              setSecondTitle({})
-              history.push(PATH.INFRASTRUCTURE.CLUSTERS.CREATE)
-            },
+            options: [
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T['cluster.create.selection.head'],
+                  children: () => <CreateAction />,
+                  fixedWidth: false,
+                  fixedHeight: false,
+                  handleAccept: undefined,
+                },
+              },
+            ],
           },
           {
             accessor: CLUSTER_ACTIONS.UPDATE_DIALOG,
@@ -100,12 +112,70 @@ const Actions = (props = {}) => {
             importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.OUTLINED,
+            disabled: (rows) =>
+              rows.some(({ original }) => original?.TEMPLATE?.ONEFORM),
             action: (rows) => {
               const cluster = rows?.[0]?.original ?? {}
               const path = PATH.INFRASTRUCTURE.CLUSTERS.CREATE
 
               history.push(path, cluster)
             },
+          },
+          {
+            accessor: PROVISION_ACTIONS.DEPROVISION,
+            label: T.Deprovision,
+            tooltip: T.Deprovision,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
+            selected: { min: 1 },
+            dataCy: `cluster_${PROVISION_ACTIONS.DEPROVISION}`,
+            disabled: (rows) =>
+              rows.some(({ original }) => !original?.TEMPLATE?.ONEFORM),
+            options: [
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.DEPROVISION,
+                  dataCy: `modal-${PROVISION_ACTIONS.DEPROVISION}`,
+                  children: MessageToConfirmAction,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(
+                    ({ original }) => original?.TEMPLATE?.ONEFORM?.PROVISION_ID
+                  )
+                  await Promise.all(ids.map((id) => deprovision({ id })))
+                  setSelectedRows && setSelectedRows([])
+                },
+              },
+            ],
+          },
+          {
+            accessor: PROVISION_ACTIONS.RETRY,
+            tooltip: T.Retry,
+            label: T.Retry,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
+            selected: { min: 1 },
+            dataCy: `cluster_${PROVISION_ACTIONS.RETRY}`,
+            disabled: (rows) =>
+              rows.some(({ original }) => !original?.TEMPLATE?.ONEFORM),
+            options: [
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Retry,
+                  dataCy: `modal-${PROVISION_ACTIONS.RETRY}`,
+                  children: MessageToConfirmAction,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(ids.map((id) => retry({ id })))
+                  setSelectedRows && setSelectedRows([])
+                },
+              },
+            ],
           },
           {
             accessor: CLUSTER_ACTIONS.DELETE,
@@ -125,8 +195,23 @@ const Actions = (props = {}) => {
                   children: MessageToConfirmAction,
                 },
                 onSubmit: (rows) => async () => {
-                  const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => remove({ id })))
+                  const idsWithType = rows?.map?.(({ original }) => ({
+                    id: original?.ID,
+                    type: original?.TEMPLATE?.ONEFORM?.PROVISION_ID
+                      ? 'removeProvision'
+                      : 'remove',
+                    provisionId:
+                      original?.TEMPLATE?.ONEFORM?.PROVISION_ID ?? -1,
+                  }))
+                  await Promise.all(
+                    idsWithType.map(({ id, type, provisionId }) => {
+                      if (type === 'removeProvision') {
+                        return removeProvision({ id: provisionId, force: true })
+                      }
+
+                      return remove({ id })
+                    })
+                  )
                   setSelectedRows && setSelectedRows([])
                 },
               },

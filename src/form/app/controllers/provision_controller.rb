@@ -47,7 +47,8 @@ module OneFormServer
             #   200 OK - Array of provisions (JSON)
             #   500 Internal Server Error - If OpenNebula or retrieval error
             app.get '/provisions' do
-                show_all = params['all'] == 'true'
+                show_all         = params['all'] == 'true'
+                include_provider = params['include_provider'] == 'true'
 
                 pool   = OneForm::ProvisionDocumentPool.new(@client)
                 rc     = pool.info
@@ -66,6 +67,8 @@ module OneFormServer
                     ) if OpenNebula.is_error?(provision)
 
                     next if provision.state == OneForm::Provision::STATE['DONE'] && !show_all
+
+                    provision.include_provider if include_provider
 
                     provisions << provision
                 end
@@ -87,7 +90,8 @@ module OneFormServer
             #   404 Not Found - If provision does not exist
             #   500 Internal Server Error - If OpenNebula error
             app.get '/provisions/:id' do
-                decode = params['decode'] == 'true'
+                decode           = params['decode'] == 'true'
+                include_provider = params['include_provider'] == 'true'
 
                 provision = OneForm::Provision.new_from_id(@client, params[:id])
 
@@ -96,6 +100,7 @@ module OneFormServer
                 ) if OpenNebula.is_error?(provision)
 
                 provision.decode_tfstate if decode
+                provision.include_provider if include_provider
 
                 status 200
                 body process_response(provision)

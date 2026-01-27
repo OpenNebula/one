@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useEffect, useMemo } from 'react'
-import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import { useViews, VmGroupAPI } from '@FeaturesModule'
+import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
+import { ReactElement, useEffect, useMemo } from 'react'
 
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import EnhancedTable, {
   createColumns,
 } from '@modules/components/Tables/Enhanced'
 import VmGroupColumns from '@modules/components/Tables/VmGroups/columns'
 import VmGroupRow from '@modules/components/Tables/VmGroups/row'
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
 
 const DEFAULT_DATA_CY = 'vmgroups'
 

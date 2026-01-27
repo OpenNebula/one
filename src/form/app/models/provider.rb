@@ -21,7 +21,7 @@ module OneForm
 
         params do
             required(:name).filled(:string)
-            required(:description).filled(:string)
+            optional(:description).filled(:string)
             required(:driver).filled(:string)
 
             required(:fireedge).hash do

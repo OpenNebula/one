@@ -26,6 +26,10 @@ import ImageAPI from '@modules/features/OneApi/image'
 import LogoAPI from '@modules/features/OneApi/logo'
 import MarketplaceAPI from '@modules/features/OneApi/marketplace'
 import MarketplaceAppAPI from '@modules/features/OneApi/marketplaceApp'
+import ProviderAPI from '@modules/features/OneApi/provider'
+import ProvisionAPI, {
+  provisionEndpoints,
+} from '@modules/features/OneApi/provision'
 import VnAPI from '@modules/features/OneApi/network'
 import VnTemplateAPI from '@modules/features/OneApi/networkTemplate'
 import { oneApi } from '@modules/features/OneApi/oneApi'
@@ -69,6 +73,9 @@ export {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
   oneApi,
+  ProviderAPI,
+  ProvisionAPI,
+  provisionEndpoints,
   SecurityGroupAPI,
   ServiceAPI,
   ServiceTemplateAPI,

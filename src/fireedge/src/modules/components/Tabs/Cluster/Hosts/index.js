@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { Box } from '@mui/material'
-import { HostsTable } from '@modules/components/Tables'
-import { ClusterAPI, HostAPI } from '@FeaturesModule'
-import { useHistory, generatePath } from 'react-router-dom'
+import { T } from '@ConstantsModule'
+import {
+  ClusterAPI,
+  HostAPI,
+  ProvisionAPI,
+  useGeneralApi,
+} from '@FeaturesModule'
+import { getActionsAvailable } from '@ModelsModule'
 import { PATH } from '@modules/components/path'
+import { HostsTable } from '@modules/components/Tables'
 import { ProfileSelector } from '@modules/components/Tabs/Common/PCI'
+import { Box, Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, useMemo } from 'react'
+import { generatePath, useHistory } from 'react-router-dom'
+import { AddHost, DeleteHost } from './Action'
 const _ = require('lodash')
 
 /**
@@ -28,13 +36,50 @@ const _ = require('lodash')
  *
  * @param {object} props - Props
  * @param {string} props.id - Cluster id
+ * @param {object} props.tabProps - Tab props
+ * @param {object} props.tabProps.provision - Provision panel info
  * @returns {ReactElement} Hosts tab
  */
-const Hosts = ({ id }) => {
+const Hosts = ({ tabProps: { provision: provisionPanel } = {}, id }) => {
   const [update] = ClusterAPI.useUpdateClusterMutation()
+  const { enqueueSuccess } = useGeneralApi()
+  const actionsAvailable = getActionsAvailable(provisionPanel?.actions)
+
   // Get info about the cluster
-  const { data: cluster } = ClusterAPI.useGetClusterQuery({ id })
+  const { data: cluster, refetch: refetchCluster } =
+    ClusterAPI.useGetClusterQuery({ id })
   const { data: hosts = [] } = HostAPI.useGetHostsQuery()
+  const provisionID = cluster?.TEMPLATE?.ONEFORM?.PROVISION_ID
+  const { data: dataProvision = {}, refetch: refetchProvision } = provisionID
+    ? ProvisionAPI.useGetProvisionQuery({ id: provisionID, extended: true })
+    : { data: {}, refetch: () => undefined }
+  const [scaleProvisionHosts] = ProvisionAPI.useScaleProvisionHostsMutation()
+
+  const refetchAll = () => {
+    refetchProvision() && refetchCluster()
+  }
+
+  const operations = useMemo(
+    () => dataProvision?.TEMPLATE?.PROVISION_BODY?.fireedge?.operations ?? {},
+    [cluster, dataProvision]
+  )
+
+  const ars = useMemo(
+    () =>
+      dataProvision?.TEMPLATE?.PROVISION_BODY?.one_objects?.networks
+        ?.filter((n) => n?.template?.netrole !== 'public')
+        ?.flatMap((n) => n?.template?.ar ?? [])
+        ?.map(
+          (ar) =>
+            Object.fromEntries(
+              Object.entries(ar).map(([key, value]) => [
+                key.toUpperCase(),
+                value,
+              ])
+            ) ?? []
+        ),
+    [cluster, dataProvision]
+  )
 
   // Define function to get details of a host
   const history = useHistory()
@@ -55,6 +100,31 @@ const Hosts = ({ id }) => {
     .concat(hosts)
     ?.filter(({ ID }) => hostIds?.includes(ID))
 
+  const filterHostsIncluded = (dataToFilter) =>
+    dataToFilter.filter((host) => _.includes(hostIds, host.ID))
+
+  const handleAddHost = async (data) => {
+    if (!data) return
+    await scaleProvisionHosts({ id: provisionID, nodes: data, direction: 'up' })
+    refetchAll()
+
+    // Success message
+    enqueueSuccess(T.AddHostProvisionSuccess)
+  }
+
+  const handleDeleteHost = async (data) => {
+    if (!data) return
+    await scaleProvisionHosts({
+      id: provisionID,
+      nodes: data,
+      direction: 'down',
+    })
+    refetchAll()
+
+    // Success message
+    enqueueSuccess(T.DeleteHostProvisionSuccess)
+  }
+
   return (
     <Box display="grid" gridTemplateColumns="1fr 2fr" gap={1} height="100%">
       <Box
@@ -72,19 +142,43 @@ const Hosts = ({ id }) => {
           resource={cluster}
         />
       </Box>
-      <HostsTable.Table
-        disableRowSelect
-        filter={(dataToFilter) =>
-          dataToFilter.filter((host) => _.includes(hostIds, host.ID))
-        }
-        onRowClick={(row) => handleRowClick(row.ID)}
-      />
+      <Box>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="start"
+          gap="1rem"
+          marginBottom="1rem"
+        >
+          {actionsAvailable?.includes?.('add') && operations?.['add-host'] && (
+            <AddHost
+              formType={operations['add-host']}
+              ars={ars}
+              submit={handleAddHost}
+            />
+          )}
+          {actionsAvailable?.includes?.('delete') &&
+            operations?.['del-host'] && (
+              <DeleteHost
+                formType={operations['del-host']}
+                filter={filterHostsIncluded}
+                submit={handleDeleteHost}
+              />
+            )}
+        </Stack>
+        <HostsTable.Table
+          disableRowSelect
+          filter={filterHostsIncluded}
+          onRowClick={(row) => handleRowClick(row.ID)}
+        />
+      </Box>
     </Box>
   )
 }
 
 Hosts.propTypes = {
   id: PropTypes.string,
+  tabProps: PropTypes.object,
 }
 
 Hosts.displayName = 'Hosts'

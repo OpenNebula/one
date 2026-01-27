@@ -38,8 +38,8 @@ import {
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import HostColumns from '@modules/components/Tables/Hosts/columns'
 import HostRow from '@modules/components/Tables/Hosts/row'
-import { useFormContext } from 'react-hook-form'
 import { getResourceLabels } from '@UtilsModule'
+import { useFormContext } from 'react-hook-form'
 
 const DEFAULT_DATA_CY = 'hosts'
 

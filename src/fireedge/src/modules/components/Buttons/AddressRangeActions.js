@@ -133,7 +133,7 @@ const UpdateAddressRangeAction = memo(
 )
 
 const DeleteAddressRangeAction = memo(
-  ({ vnetId, ar, onSubmit, oneConfig, adminGroup }) => {
+  ({ vnetId, ar, onSubmit, oneConfig, adminGroup, submit }) => {
     const [removeAR] = VnAPI.useRemoveRangeFromVNetMutation()
     const { AR_ID } = ar
 
@@ -142,7 +142,10 @@ const DeleteAddressRangeAction = memo(
         return await onSubmit(AR_ID)
       }
 
-      await removeAR({ id: vnetId, address: AR_ID })
+      // When deleting AR in a provision, use the oneform API
+      submit
+        ? await submit({ arId: AR_ID })
+        : await removeAR({ id: vnetId, address: AR_ID })
     }
 
     // Disable action if the disk has a restricted attribute on the template
@@ -181,6 +184,7 @@ const ActionPropTypes = {
   onSubmit: PropTypes.func,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  submit: PropTypes.object,
 }
 
 AddAddressRangeAction.propTypes = ActionPropTypes

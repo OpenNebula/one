@@ -122,6 +122,8 @@ export const PATH = {
       LIST: `/${RESOURCE_NAMES.CLUSTER}`,
       DETAIL: `/${RESOURCE_NAMES.CLUSTER}/:id`,
       CREATE: `/${RESOURCE_NAMES.CLUSTER}/create`,
+      CREATE_CLOUD: `/${RESOURCE_NAMES.CLUSTER}/create_cloud`,
+      CREATE_CLOUD_LOGS: `/${RESOURCE_NAMES.CLUSTER}/create_cloud_logs/:id`,
     },
     HOSTS: {
       LIST: `/${RESOURCE_NAMES.HOST}`,
@@ -131,6 +133,11 @@ export const PATH = {
     ZONES: {
       LIST: `/${RESOURCE_NAMES.ZONE}`,
       DETAIL: `/${RESOURCE_NAMES.ZONE}/:id`,
+    },
+    PROVIDERS: {
+      LIST: `/${RESOURCE_NAMES.PROVIDER}`,
+      DETAIL: `/${RESOURCE_NAMES.PROVIDER}/:id`,
+      CREATE: `/${RESOURCE_NAMES.PROVIDER}/create`,
     },
   },
   SYSTEM: {

@@ -27,6 +27,7 @@ import Datastores from '@modules/components/Tabs/Cluster/Datastores'
 import PlanOptimization from '@modules/components/Tabs/Cluster/Drs'
 import Hosts from '@modules/components/Tabs/Cluster/Hosts'
 import Info from '@modules/components/Tabs/Cluster/Info'
+import Logs from '@modules/components/Tabs/Cluster/Logs'
 import Vnets from '@modules/components/Tabs/Cluster/Vnets'
 import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
 
@@ -37,6 +38,7 @@ const getTabComponent = (tabName) =>
     vnet: Vnets,
     datastore: Datastores,
     drs: PlanOptimization,
+    logs: Logs,
   }[tabName])
 
 const ClusterTabs = memo(({ id, singleActions }) => {

@@ -505,6 +505,28 @@ export const darkPalette = {
     },
   },
 
+  // Cluster
+  cluster: {
+    createCluster: {
+      title: '#F5F7F9',
+      subtitle: '#C4CDD5',
+      cardBorder: '#40435C',
+      icon: '#58D2FF',
+      link: sunstoneColors.blue[400],
+    },
+  },
+
+  // Progress bar
+  progressBar: {
+    completed: {
+      color: '#58D2FF',
+      auxColor: '#58FFFF',
+    },
+    pending: {
+      color: '#34384C',
+    },
+  },
+
   sunstoneColors: sunstoneColors,
 
   error: {

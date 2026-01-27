@@ -2271,7 +2271,9 @@ FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/views/admin/vm-tab.y
                                 src/fireedge/etc/sunstone/views/admin/cluster-tab.yaml \
                                 src/fireedge/etc/sunstone/views/admin/support-tab.yaml \
                                 src/fireedge/etc/sunstone/views/admin/zone-tab.yaml \
-                                src/fireedge/etc/sunstone/views/admin/marketplace-tab.yaml"
+                                src/fireedge/etc/sunstone/views/admin/marketplace-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/driver-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/provider-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/views/user/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/views/user/vm-template-tab.yaml \

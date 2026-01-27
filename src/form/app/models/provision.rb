@@ -21,7 +21,7 @@ module OneForm
 
         params do
             required(:name).filled(:string)
-            required(:description).filled(:string)
+            optional(:description).filled(:string)
             required(:deployment_file).filled(:string)
             optional(:onedeploy_tags).filled(:string)
             required(:provider_id).filled(:integer)
@@ -765,6 +765,17 @@ module OneForm
 
             decoded_state    = Base64.decode64(tfstate)
             @body['tfstate'] = JSON.parse(decoded_state)
+        end
+
+        def include_provider
+            provider_id = @body['provider_id']
+            return unless provider_id
+
+            provider = OneForm::Provider.new_from_id(@client, provider_id)
+            raise provider if OpenNebula.is_error?(provider)
+
+            @body['provider'] = provider.body
+            @body.delete('provider_id')
         end
 
         # ------------------------------------------------------

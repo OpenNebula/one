@@ -113,6 +113,7 @@ const Actions = () => {
             size: STYLE_BUTTONS.SIZE.MEDIUM,
             type: STYLE_BUTTONS.TYPE.FILLED,
             selected: false,
+            disabled: (rows) => rows.length > 0,
             options: [
               {
                 isConfirmDialog: true,

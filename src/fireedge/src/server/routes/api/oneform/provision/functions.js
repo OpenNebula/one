@@ -118,10 +118,10 @@ const provision = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
   }
 
   oneFormConnection(
@@ -147,6 +147,7 @@ const provisions = (
   userData = {}
 ) => {
   const { user, password } = userData
+  const { extended: includedProvider } = params
   const command = Commands[Actions.LIST]
 
   if (!user || !password) {
@@ -164,6 +165,10 @@ const provisions = (
     path: command.path,
     user,
     password,
+  }
+
+  if (includedProvider) {
+    config.query = { include_provider: includedProvider }
   }
 
   oneFormConnection(
@@ -213,10 +218,10 @@ const provisionLogs = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}/logs' + (params?.all && '?all={1}'),
     user,
     password,
-    request: { id: params.id },
+    request: [params.id, params?.all],
   }
 
   oneFormConnection(
@@ -329,10 +334,10 @@ const provisionUpdate = (
     const template = parsePostData(params.template)
     const config = {
       method: command.httpMethod,
-      path: command.path,
+      path: '/provisions/{0}',
       user,
       password,
-      request: { id: params.id },
+      request: params.id,
       post: template,
     }
 
@@ -380,11 +385,11 @@ const provisionDelete = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}',
     user,
     password,
-    request: { id: params.id },
-    post: {
+    request: params.id,
+    query: {
       ...(params.force !== undefined && { force: params.force }),
     },
   }
@@ -426,10 +431,10 @@ const provisionUndeploy = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}/undeploy',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: {
       ...(params.force !== undefined && { force: params.force }),
     },
@@ -472,10 +477,10 @@ const provisionRetry = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}/retry',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: {
       ...(params.force !== undefined && { force: params.force }),
     },
@@ -507,6 +512,7 @@ const provisionScaleHost = (
 ) => {
   const { user, password } = userData
   const command = Commands[Actions.SCALE]
+  const nodes = params.nodes
 
   if (!user || !password || !params.id) {
     res.locals.httpCode = httpResponse(
@@ -518,8 +524,21 @@ const provisionScaleHost = (
     return next()
   }
 
-  if (params.nodes == null || isNaN(params.nodes) || Number(params.nodes) < 0) {
-    res.locals.httpCode = httpResponse(methodNotAllowed, '', 'invalid nodes')
+  const isNull = nodes == null
+  const isPositiveNumber =
+    (typeof nodes === 'number' ||
+      (typeof nodes === 'string' && String(Number(nodes)) !== 'NaN')) &&
+    Number(nodes) > 0 &&
+    Number.isInteger(Number(nodes))
+  const isArrayOfStrings =
+    Array.isArray(nodes) && nodes.every((v) => typeof v === 'string')
+
+  if (isNull || (!isPositiveNumber && !isArrayOfStrings)) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      `invalid nodes ${nodes}`
+    )
 
     return next()
   }
@@ -536,10 +555,10 @@ const provisionScaleHost = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}/scale',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: {
       direction: params.direction,
       nodes: params.nodes,
@@ -589,14 +608,108 @@ const provisionAddIp = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}/add-ip',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: {
       amount: params.amount,
     },
   }
+
+  oneFormConnection(
+    config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
+ * Add IP to a provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {object} userData - user data
+ * @returns {void}
+ */
+const provisionAddHost = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.ADD_HOST]
+
+  if (!user || !password || !params.id) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'invalid provision ID'
+    )
+
+    return next()
+  }
+
+  const config = {
+    method: command.httpMethod,
+    path: '/provisions/{0}/add-host',
+    user,
+    password,
+    request: params.id,
+    post: {},
+  }
+
+  params?.ips && (config.post.ips = params.ips)
+  params?.amount && (config.post.amount = params.amount)
+
+  oneFormConnection(
+    config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
+ * Remove HOST from a provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {object} userData - user data
+ * @returns {void}
+ */
+const provisionRemoveHost = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.REMOVE_HOST]
+
+  if (!user || !password || !params.id) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'invalid provision ID'
+    )
+
+    return next()
+  }
+
+  const config = {
+    method: command.httpMethod,
+    path: '/provisions/{0}/remove-host',
+    user,
+    password,
+    request: params.id,
+    post: {},
+  }
+
+  params?.ids && (config.post.ids = params.ids)
+  params?.amount && (config.post.amount = params.amount)
 
   oneFormConnection(
     config,
@@ -645,10 +758,10 @@ const provisionRemoveIp = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}/remove-ip',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: {
       ar_id: params.ar_id,
     },
@@ -697,10 +810,10 @@ const provisionChmod = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}/chmod',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: { octet: params.octet },
   }
 
@@ -739,20 +852,13 @@ const provisionChown = (
     return next()
   }
 
-  if (
-    params.owner_id == null ||
-    isNaN(Number(params.owner_id)) ||
-    Number(params.owner_id) < 0
-  ) {
+  if (params.owner_id == null || isNaN(Number(params.owner_id))) {
     res.locals.httpCode = httpResponse(methodNotAllowed, '', 'invalid owner ID')
 
     return next()
   }
 
-  if (
-    params.group_id !== null &&
-    (isNaN(Number(params.group_id)) || Number(params.group_id) < 0)
-  ) {
+  if (params.group_id !== null && isNaN(Number(params.group_id))) {
     res.locals.httpCode = httpResponse(methodNotAllowed, '', 'invalid group ID')
 
     return next()
@@ -760,10 +866,10 @@ const provisionChown = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}/chown',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: {
       owner_id: params.owner_id,
       ...(params.group_id && { group_id: params.group_id }),
@@ -805,11 +911,7 @@ const provisionChgrp = (
     return next()
   }
 
-  if (
-    params.group_id == null ||
-    isNaN(Number(params.group_id)) ||
-    Number(params.group_id) < 0
-  ) {
+  if (params.group_id == null || isNaN(Number(params.group_id))) {
     res.locals.httpCode = httpResponse(methodNotAllowed, '', 'invalid group ID')
 
     return next()
@@ -817,10 +919,10 @@ const provisionChgrp = (
 
   const config = {
     method: command.httpMethod,
-    path: command.path,
+    path: '/provisions/{0}/chgrp',
     user,
     password,
-    request: { id: params.id },
+    request: params.id,
     post: { group_id: params.group_id },
   }
 
@@ -842,7 +944,9 @@ const provisionApi = {
   provisionRetry,
   provisionScaleHost,
   provisionAddIp,
+  provisionAddHost,
   provisionRemoveIp,
+  provisionRemoveHost,
   provisionChmod,
   provisionChown,
   provisionChgrp,

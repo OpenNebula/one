@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
+import { JSXElementConstructor, memo } from 'react'
 
+import { STYLE_BUTTONS, T } from '@ConstantsModule'
+import { Action } from '@modules/components/Cards/SelectCard'
+import SubmitButton from '@modules/components/FormControl/SubmitButton'
+import { Tr } from '@modules/components/HOC'
 import {
-  useMediaQuery,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
   Typography,
+  useMediaQuery,
 } from '@mui/material'
 import { Box } from '@mui/system'
 import { Cancel as CancelIcon } from 'iconoir-react'
-import SubmitButton from '@modules/components/FormControl/SubmitButton'
-import { Action } from '@modules/components/Cards/SelectCard'
-import { Tr } from '@modules/components/HOC'
-import { T, STYLE_BUTTONS } from '@ConstantsModule'
 
 /**
  * @typedef {object} DialogProps
@@ -51,8 +51,8 @@ import { T, STYLE_BUTTONS } from '@ConstantsModule'
  * @param {DialogProps} props - Dialog properties
  * @returns {JSXElementConstructor} - Dialog with confirmation basic buttons
  */
-const DialogConfirmation = memo(
-  ({
+const DialogConfirmation = memo((props) => {
+  const {
     open = true,
     title = '',
     subheader,
@@ -66,108 +66,107 @@ const DialogConfirmation = memo(
     fixedHeight,
     children,
     dataCy,
-  }) => {
-    const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
+  } = props
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
 
-    return (
-      <Dialog
-        fullScreen={isMobile}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            minWidth:
-              typeof fixedWidth === 'string'
-                ? fixedWidth
-                : fixedWidth
-                ? '80vw'
-                : 'auto',
-            minHeight:
-              typeof fixedHeight === 'string'
-                ? fixedHeight
-                : fixedHeight
-                ? '80vh'
-                : 'auto',
-            maxWidth:
-              typeof fixedWidth === 'string'
-                ? fixedWidth
-                : fixedWidth
-                ? '80vw'
-                : 'auto',
-            maxHeight:
-              typeof fixedHeight === 'string'
-                ? fixedHeight
-                : fixedHeight
-                ? '80vh'
-                : 'auto',
-          },
+  return (
+    <Dialog
+      fullScreen={isMobile}
+      PaperProps={{
+        elevation: 0,
+        sx: {
+          minWidth:
+            typeof fixedWidth === 'string'
+              ? fixedWidth
+              : fixedWidth
+              ? '80vw'
+              : 'auto',
+          minHeight:
+            typeof fixedHeight === 'string'
+              ? fixedHeight
+              : fixedHeight
+              ? '80vh'
+              : 'auto',
+          maxWidth:
+            typeof fixedWidth === 'string'
+              ? fixedWidth
+              : fixedWidth
+              ? '80vw'
+              : 'auto',
+          maxHeight:
+            typeof fixedHeight === 'string'
+              ? fixedHeight
+              : fixedHeight
+              ? '80vh'
+              : 'auto',
+        },
+      }}
+      open={open}
+      onClose={handleCancel}
+      maxWidth="lg"
+      scroll="paper"
+      TransitionProps={{
+        onEntering: handleEntering,
+      }}
+      {...(dataCy && { 'data-cy': dataCy })}
+    >
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          flexWrap: 'nowrap',
+          alignItems: 'center',
+          gap: '2em',
+          padding: '0.5rem 0.5rem 0.5rem 1rem',
         }}
-        open={open}
-        onClose={handleCancel}
-        maxWidth="lg"
-        scroll="paper"
-        TransitionProps={{
-          onEntering: handleEntering,
-        }}
-        {...(dataCy && { 'data-cy': dataCy })}
       >
-        <DialogTitle
-          sx={{
-            display: 'flex',
-            flexWrap: 'nowrap',
-            alignItems: 'center',
-            gap: '2em',
-            padding: '0.5rem 0.5rem 0.5rem 1rem',
-          }}
-        >
-          <Box flexGrow={1}>
-            {title && (
-              <Typography variant="h8">
-                {typeof title === 'string' ? Tr(title) : title}
-              </Typography>
-            )}
-            {subheader && (
-              <Typography variant="body1">
-                {typeof subheader === 'string' ? Tr(subheader) : subheader}
-              </Typography>
-            )}
-          </Box>
-          {handleCancel && (
-            <SubmitButton
-              aria-label="close"
-              onClick={handleCancel}
-              data-cy="dg-cancel-button"
-              {...cancelButtonProps}
-              icon={<CancelIcon />}
-            />
+        <Box flexGrow={1}>
+          {title && (
+            <Typography variant="h8">
+              {typeof title === 'string' ? Tr(title) : title}
+            </Typography>
           )}
-        </DialogTitle>
-        {children && (
-          <DialogContent
-            dividers
-            sx={{ display: 'flex', flexDirection: 'column' }}
-            {...contentProps}
-          >
-            {children}
-          </DialogContent>
+          {subheader && (
+            <Typography variant="body1">
+              {typeof subheader === 'string' ? Tr(subheader) : subheader}
+            </Typography>
+          )}
+        </Box>
+        {handleCancel && (
+          <SubmitButton
+            aria-label="close"
+            onClick={handleCancel}
+            data-cy="dg-cancel-button"
+            {...cancelButtonProps}
+            icon={<CancelIcon />}
+          />
         )}
-        {handleAccept && (
-          <DialogActions>
-            <Action
-              aria-label="accept"
-              data-cy="dg-accept-button"
-              handleClick={handleAccept}
-              label={T.Accept}
-              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
-              size={STYLE_BUTTONS.SIZE.MEDIUM}
-              type={STYLE_BUTTONS.TYPE.FILLED}
-              {...acceptButtonProps}
-            />
-          </DialogActions>
-        )}
-      </Dialog>
-    )
-  }
-)
+      </DialogTitle>
+      {children && (
+        <DialogContent
+          dividers
+          sx={{ display: 'flex', flexDirection: 'column' }}
+          {...contentProps}
+        >
+          {typeof children === 'function' ? children(props) : children}
+        </DialogContent>
+      )}
+      {handleAccept && (
+        <DialogActions>
+          <Action
+            aria-label="accept"
+            data-cy="dg-accept-button"
+            handleClick={handleAccept}
+            label={T.Accept}
+            importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.FILLED}
+            {...acceptButtonProps}
+          />
+        </DialogActions>
+      )}
+    </Dialog>
+  )
+})
 
 export const DialogPropTypes = {
   open: PropTypes.bool,

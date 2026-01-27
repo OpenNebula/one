@@ -15,14 +15,14 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { ClusterAPI, useViews } from '@FeaturesModule'
 import ClusterColumns from '@modules/components/Tables/Clusters/columns'
 import ClusterRow from '@modules/components/Tables/Clusters/row'
 import EnhancedTable, {
   createColumns,
 } from '@modules/components/Tables/Enhanced'
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useViews, ClusterAPI } from '@FeaturesModule'
 
 const DEFAULT_DATA_CY = 'clusters'
 
@@ -94,6 +94,11 @@ const ClustersTable = (props) => {
       accessor: ({ DATASTORES }) =>
         Array.isArray(DATASTORES.ID) ? DATASTORES.ID.length : 1,
     },
+    {
+      header: T.Type,
+      id: 'provision',
+      accessor: 'TEMPLATE.ONEFORM.PROVIDER',
+    },
   ]
 
   const { component, header } = WrapperRow(ClusterRow)
@@ -101,7 +106,7 @@ const ClustersTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={data}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
