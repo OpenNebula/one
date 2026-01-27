@@ -46,6 +46,7 @@ COMMANDS=(
     'bin/onemarketapp'      'manages appliances from Marketplaces'
     'bin/onevmgroup'        'manages VM groups'
     'bin/onevntemplate'     'manages Virtual Network Templates'
+    'bin/oneswap'           'convert Virtual Machines from vCenter to OpenNebula.'
 
     'bin/oneflow'           'Manage oneFlow Services'
     'bin/oneflow-template'  'Manage oneFlow Templates'
