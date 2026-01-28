@@ -18,9 +18,9 @@ import {
   Form,
   SkeletonStepsForm,
   TranslateProvider,
+  PATH,
 } from '@ComponentsModule'
 import { ReactElement } from 'react'
-// import { generatePath, useHistory } from 'react-router-dom'
 import { generatePath, useHistory, useLocation } from 'react-router'
 
 import { T } from '@ConstantsModule'
@@ -30,7 +30,6 @@ import {
   ProviderAPI,
   useGeneralApi,
 } from '@FeaturesModule'
-import { PATH } from '@modules/components/path'
 import { get, filter } from 'lodash'
 const { Cluster } = Form
 

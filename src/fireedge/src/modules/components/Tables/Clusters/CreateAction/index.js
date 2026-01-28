@@ -23,7 +23,7 @@ import { OpenNebulaLogo } from '@modules/components/Icons'
 import { PATH } from '@modules/components/path'
 import { Cloud, City, OpenNewWindow } from 'iconoir-react'
 import { generateDocLink } from '@UtilsModule'
-import { SystemAPI } from '@FeaturesModule'
+import { SystemAPI, DriverAPI } from '@FeaturesModule'
 
 const CLUSTER_TYPES = {
   OPENNEBULA: 'OPENNEBULA',
@@ -38,6 +38,15 @@ const CLUSTER_TYPES = {
  */
 const CreateAction = () => {
   const { data: version } = SystemAPI.useGetOneVersionQuery()
+  const { data: drivers } = DriverAPI.useGetDriversQuery()
+  const onpremDriver =
+    drivers?.filter((driver) => driver.name === 'onprem')[0] ?? undefined
+  const enabledOnpremDriver = onpremDriver?.state === 'ENABLED'
+  const cloudDrivers =
+    drivers?.filter((driver) => driver.name !== 'onprem') ?? []
+  const enabledCloudDrivers = cloudDrivers.some(
+    (driver) => driver.state === 'ENABLED'
+  )
 
   // Get classes
   const theme = useTheme()
@@ -110,71 +119,75 @@ const CreateAction = () => {
           </Stack>
         </Stack>
 
-        <Stack
-          direction="column"
-          className={classes.card}
-          onClick={() => onClick(CLUSTER_TYPES.ONEFORM_ONPREMISE)}
-        >
-          <Box className={classes.cardIcon}>
-            <City className={classes.icon} />
-          </Box>
-          <Stack direction="column" className={classes.cardContent}>
-            <Typography className={classes.title}>
-              {Tr(T['cluster.create.onpremise.title'])}
-            </Typography>
-            <Typography className={classes.subtitle}>
-              {Tr(T['cluster.create.onpremise.subtitle'])}
-            </Typography>
-            <Typography className={classes.linkContainer}>
-              <a
-                target="_blank"
-                href={generateDocLink(
-                  version,
-                  'product/cloud_cluster_provisioning/cloud_cluster_provisions/onprem_cluster'
-                )}
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className={classes.linkContent}
-              >
-                {Tr(T.LearnMore)}
-              </a>
-              <OpenNewWindow className={classes.linkIcon} />
-            </Typography>
+        {onpremDriver && enabledOnpremDriver && (
+          <Stack
+            direction="column"
+            className={classes.card}
+            onClick={() => onClick(CLUSTER_TYPES.ONEFORM_ONPREMISE)}
+          >
+            <Box className={classes.cardIcon}>
+              <City className={classes.icon} />
+            </Box>
+            <Stack direction="column" className={classes.cardContent}>
+              <Typography className={classes.title}>
+                {Tr(T['cluster.create.onpremise.title'])}
+              </Typography>
+              <Typography className={classes.subtitle}>
+                {Tr(T['cluster.create.onpremise.subtitle'])}
+              </Typography>
+              <Typography className={classes.linkContainer}>
+                <a
+                  target="_blank"
+                  href={generateDocLink(
+                    version,
+                    'product/cloud_cluster_provisioning/cloud_cluster_provisions/onprem_cluster'
+                  )}
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className={classes.linkContent}
+                >
+                  {Tr(T.LearnMore)}
+                </a>
+                <OpenNewWindow className={classes.linkIcon} />
+              </Typography>
+            </Stack>
           </Stack>
-        </Stack>
+        )}
 
-        <Stack
-          direction="column"
-          className={classes.card}
-          onClick={() => onClick(CLUSTER_TYPES.ONEFORM)}
-        >
-          <Box className={classes.cardIcon}>
-            <Cloud className={classes.icon} />
-          </Box>
-          <Stack direction="column" className={classes.cardContent}>
-            <Typography className={classes.title}>
-              {Tr(T['cluster.create.provider.title'])}
-            </Typography>
-            <Typography className={classes.subtitle}>
-              {Tr(T['cluster.create.provider.subtitle'])}
-            </Typography>
-            <Typography className={classes.linkContainer}>
-              <a
-                target="_blank"
-                href={generateDocLink(
-                  version,
-                  'product/cloud_cluster_provisioning/cloud_cluster_provisions/'
-                )}
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className={classes.linkContent}
-              >
-                {Tr(T.LearnMore)}
-              </a>
-              <OpenNewWindow className={classes.linkIcon} />
-            </Typography>
+        {cloudDrivers && enabledCloudDrivers && (
+          <Stack
+            direction="column"
+            className={classes.card}
+            onClick={() => onClick(CLUSTER_TYPES.ONEFORM)}
+          >
+            <Box className={classes.cardIcon}>
+              <Cloud className={classes.icon} />
+            </Box>
+            <Stack direction="column" className={classes.cardContent}>
+              <Typography className={classes.title}>
+                {Tr(T['cluster.create.provider.title'])}
+              </Typography>
+              <Typography className={classes.subtitle}>
+                {Tr(T['cluster.create.provider.subtitle'])}
+              </Typography>
+              <Typography className={classes.linkContainer}>
+                <a
+                  target="_blank"
+                  href={generateDocLink(
+                    version,
+                    'product/cloud_cluster_provisioning/cloud_cluster_provisions/'
+                  )}
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className={classes.linkContent}
+                >
+                  {Tr(T.LearnMore)}
+                </a>
+                <OpenNewWindow className={classes.linkIcon} />
+              </Typography>
+            </Stack>
           </Stack>
-        </Stack>
+        )}
       </Stack>
     </Stack>
   )
