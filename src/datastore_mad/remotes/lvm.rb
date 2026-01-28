@@ -189,7 +189,8 @@ module MAD
                 fs_opts += ' -f '
             end
 
-            "mkfs -t '#{fs}' #{fs_opts.strip} '#{@dev}'\n"
+            # Some distributions like Debian don't add sbin directories in non-root users PATH
+            "PATH=/usr/sbin:/sbin:$PATH mkfs -t '#{fs}' #{fs_opts.strip} '#{@dev}'\n"
         end
 
         # Activate or deactivate volume

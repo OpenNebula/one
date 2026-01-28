@@ -186,8 +186,10 @@ def main(origin_lv, from_snap_lv, to_snap_lv, output_file)
         OpenNebula::DriverLogger.log_info "Getting changed blocks from #{from_id} to #{to_id}"
 
         LocalCommand.run("sudo dmsetup message #{tpool_dev} 0 reserve_metadata_snap")
+
+        # Some distributions like Debian don't add sbin directories in non-root users PATH
         LocalCommand.run(
-            "thin_delta --metadata-snap --thin1 #{from_id} " \
+            "PATH=/usr/sbin:/sbin:$PATH thin_delta --metadata-snap --thin1 #{from_id} " \
             "--thin2 #{to_id} #{tmeta_dev} > #{delta_file_path}"
         )
     ensure
