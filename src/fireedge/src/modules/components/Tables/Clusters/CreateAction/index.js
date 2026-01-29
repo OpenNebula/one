@@ -84,6 +84,7 @@ const CreateAction = () => {
       <Stack className={classes.cardContainer}>
         <Stack
           className={classes.card}
+          data-cy="cluster-opennebula"
           onClick={() => onClick(CLUSTER_TYPES.OPENNEBULA)}
         >
           <Box className={classes.cardIcon}>
@@ -123,6 +124,7 @@ const CreateAction = () => {
           <Stack
             direction="column"
             className={classes.card}
+            data-cy="cluster-onpremise"
             onClick={() => onClick(CLUSTER_TYPES.ONEFORM_ONPREMISE)}
           >
             <Box className={classes.cardIcon}>
@@ -158,6 +160,7 @@ const CreateAction = () => {
           <Stack
             direction="column"
             className={classes.card}
+            data-cy="cluster-cloud"
             onClick={() => onClick(CLUSTER_TYPES.ONEFORM)}
           >
             <Box className={classes.cardIcon}>

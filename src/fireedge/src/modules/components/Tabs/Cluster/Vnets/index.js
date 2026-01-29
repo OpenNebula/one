@@ -147,11 +147,12 @@ const Vnets = ({
 
       <VnsTable.Table
         disableRowSelect
-        filter={(dataToFilter) =>
-          dataToFilter.filter((vnet) =>
-            vnets.some((net) => String(net.id) === vnet.ID)
-          )
-        }
+        {...(provisionID && {
+          filter: (dataToFilter) =>
+            dataToFilter.filter((vnet) =>
+              vnets.some((net) => String(net.id) === vnet.ID)
+            ),
+        })}
         onRowClick={(row) => handleRowClick(row.ID)}
       />
     </Stack>

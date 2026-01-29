@@ -26,6 +26,8 @@ import {
   STATES,
 } from '@ConstantsModule'
 
+import { uniq } from 'lodash'
+
 /**
  * Returns information about the host state.
  *
@@ -146,11 +148,7 @@ export const getKvmCpuModels = (hosts = [], common = false) => {
     if (!hostDataFiltered.length || hosts.length > hostDataFiltered.length)
       return []
 
-    return hostDataFiltered.reduce((acc, arr) => {
-      const set = new Set(arr)
-
-      return acc.filter((x) => set.has(x))
-    })
+    return uniq(hostDataFiltered)
   }
 
   const hostDataFlatted = hostData.flat()
