@@ -491,13 +491,13 @@ module OneForm
                 iterator = lambda do |element|
                     case element
                     when Hash
-                        element.each { |k,v| element[k] = iterator.call(v) }
+                        element.each {|k, v| element[k] = iterator.call(v) }
                     when Array
-                        element.map! { |v| iterator.call(v) }
+                        element.map! {|v| iterator.call(v) }
                     when String
                         element.gsub(token_regexp) do
                             key = Regexp.last_match(1)
-                            user_inputs.key?(key) ? user_inputs[key].to_s : "null"
+                            user_inputs.key?(key) ? user_inputs[key].to_s : 'null'
                         end
                     else # Integers,...
                         element
