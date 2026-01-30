@@ -112,6 +112,10 @@ module MAD
     def self.run(host, script, errmsg = nil)
         script = <<~EOF
             set -eo pipefail
+
+            # Some distributions like Debian don't add sbin directories in non-root users PATH
+            export PATH=$PATH:/usr/sbin:/sbin
+
             #{script}
         EOF
         rc = if host
@@ -165,9 +169,8 @@ module MAD
             EOF
         end
 
-        # Some distributions like Debian don't add sbin directories in non-root users PATH
         def mkswap_sh
-            "PATH=/usr/sbin:/sbin:$PATH mkswap -L swap #{@dev}\n"
+            "mkswap -L swap #{@dev}\n"
         end
 
         def mkfs_sh(fs)
@@ -189,8 +192,7 @@ module MAD
                 fs_opts += ' -f '
             end
 
-            # Some distributions like Debian don't add sbin directories in non-root users PATH
-            "PATH=/usr/sbin:/sbin:$PATH mkfs -t '#{fs}' #{fs_opts.strip} '#{@dev}'\n"
+            "mkfs -t '#{fs}' #{fs_opts.strip} '#{@dev}'\n"
         end
 
         # Activate or deactivate volume

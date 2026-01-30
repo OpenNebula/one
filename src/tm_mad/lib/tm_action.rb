@@ -247,9 +247,11 @@ module TransferManager
                 :silent   => false
             }.merge!(options)
 
+            # Some distributions like Debian don't add sbin directories in non-root users PATH
             script = <<~EOS
                 export LANG=C
                 export LC_ALL=C
+                export PATH=$PATH:/usr/sbin:/sbin
                 #{opt[:cmds]}
             EOS
 
