@@ -80,6 +80,7 @@ do_documentation()
     mkdir -p $DOC_DIR
     javadoc -quiet -classpath $LIB_DIR"/*" -d $DOC_DIR \
       -sourcepath ./src/ \
+      -Xdoclint:-missing  \
       -subpackages org.opennebula \
       -windowtitle 'OpenNebula Cloud API' \
       -doctitle 'OpenNebula Cloud API Specification' \
