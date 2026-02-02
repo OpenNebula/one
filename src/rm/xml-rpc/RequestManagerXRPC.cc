@@ -138,11 +138,23 @@ void RequestManagerXRPC::xml_server_loop()
         {
             socket_map.insert(this_thread::get_id(), client_fd);
 
-            xmlrpc_c::serverAbyss * as = create_abyss();
+            struct sockaddr_storage addr;
+            socklen_t               addr_len = sizeof(addr);
 
-            as->runConn(client_fd);
+            // The extra getpeername solves bug in xml-rpc, which crashes
+            // if the socket is terminated immediatelly after creating connection
+            if (getpeername(client_fd, (struct sockaddr *)&addr, &addr_len) == 0)
+            {
+                xmlrpc_c::serverAbyss * as = create_abyss();
 
-            delete as;
+                as->runConn(client_fd);
+
+                delete as;
+            }
+            else
+            {
+                NebulaLog::log("ReM", Log::ERROR, "Could not get peer name, connection closed");
+            }
 
             cm->del();
 
