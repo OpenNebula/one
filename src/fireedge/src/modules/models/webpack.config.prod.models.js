@@ -69,7 +69,7 @@ module.exports = {
         '.': path.resolve(__dirname, 'index.js'),
       },
       remotes: configuredRemotes,
-      shared: sharedDeps({ eager: false }),
+      shared: sharedDeps(),
     }),
     new ExternalRemotesPlugin(),
   ],

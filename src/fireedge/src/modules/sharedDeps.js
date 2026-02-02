@@ -15,140 +15,37 @@
  * ------------------------------------------------------------------------- */
 
 const deps = require('../../package.json').dependencies
+const specificVersion = [
+  'react',
+  'react-dom',
+  '@emotion/react',
+  '@mui/system',
+  '@reduxjs/toolkit',
+]
+
+const notShared = [
+  'react-transition-group',
+  'clsx',
+  'prop-types',
+  'redux',
+  'redux-thunk',
+  'socket.io-client',
+]
 
 /**
  * Returns shared dependencies configuration for Webpack Module Federation.
  *
- * @param {object} [options={}] - Options object.
- * @param {boolean} [options.eager=false] - Should only be true in the client host. Controls if the shared dependency should be loaded eagerly.
  * @returns {object} - Shared dependencies configuration for remote modules.
  */
-const sharedDeps = ({ eager = false } = {}) => ({
-  react: {
-    singleton: true,
-    eager,
-    requiredVersion: deps.react,
-  },
-  recharts: {
-    singleton: true,
-    eager,
-    requiredVersion: deps.recharts,
-  },
-  'react-dom': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['react-dom'],
-  },
-  '@mui/material': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['@mui/material'],
-  },
-  '@mui/styles': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['@mui/styles'],
-  },
-  redux: {
-    singleton: true,
-    eager,
-    requiredVersion: deps.redux,
-  },
-  'react-redux': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['react-redux'],
-  },
-  '@reduxjs/toolkit': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['@reduxjs/toolkit'],
-  },
-  'redux-thunk': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['redux-thunk'],
-  },
-  'redux-persist': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['redux-persist'],
-  },
-  'react-router': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['react-router'],
-  },
-  'react-router-dom': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['react-router-dom'],
-  },
-  'react-hook-form': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['react-hook-form'],
-  },
-  '@hookform/resolvers': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['@hookform/resolvers'],
-  },
-  yup: {
-    singleton: true,
-    eager,
-    requiredVersion: deps.yup,
-  },
-  'prop-types': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['prop-types'],
-  },
-  lodash: {
-    singleton: true,
-    eager,
-    requiredVersion: deps.lodash,
-  },
-  axios: {
-    singleton: true,
-    eager,
-    requiredVersion: deps.axios,
-  },
-  'react-transition-group': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['react-transition-group'],
-  },
-  'opennebula-react-table': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['opennebula-react-table'],
-  },
-  notistack: {
-    singleton: true,
-    eager,
-    requiredVersion: deps.notistack,
-  },
-  'd3-scale': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['d3-scale'],
-  },
-  '@emotion/react': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['@emotion/react'],
-  },
-  '@emotion/css': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['@emotion/css'],
-  },
-  '@emotion/styled': {
-    singleton: true,
-    eager,
-    requiredVersion: deps['@emotion/styled'],
-  },
-})
+const sharedDeps = () =>
+  Object.entries(deps)
+    ?.filter(([name, _version]) => !notShared?.includes(name))
+    ?.map(([name, version]) => ({
+      [name]: {
+        singleton: true,
+        eager: false,
+        ...(specificVersion?.includes(name) && { requiredVersion: version }),
+      },
+    }))
 
 module.exports = sharedDeps
