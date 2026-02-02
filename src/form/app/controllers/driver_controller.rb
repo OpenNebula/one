@@ -42,6 +42,10 @@ module OneFormServer
             # GET /drivers
             # Lists all available drivers and their metadata.
             #
+            # Query Params:
+            #   enabled [true|false] - Optional. Defaults to false.
+            #     If true, returns only enabled providers.
+            #
             # Returns:
             #   200 OK - Driver object (JSON)
             #   500 Internal Server Error - On unexpected failure or OpenNebula error
@@ -52,6 +56,11 @@ module OneFormServer
                     return internal_error(
                         rc.message, one_error_to_http(rc.errno)
                     ) if OpenNebula.is_error?(rc)
+
+                    only_enabled = params['enabled'].to_s.downcase == 'true'
+                    rc = rc.select do |driver|
+                        !only_enabled || driver.enabled?
+                    end
 
                     status 200
                     body process_response(rc)

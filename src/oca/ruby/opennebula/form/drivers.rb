@@ -21,9 +21,10 @@ module OneForm
 
         # Return a list of all drivers registered on the system
         #
+        # @param opts [Hash] Optional parameters for filtering drivers
         # @return [Array[Hash]] List of drivers installed on the system
-        def list_drivers
-            get('/drivers')
+        def list_drivers(opts = {})
+            get('/drivers', opts)
         end
 
         # Get information about a specific driver

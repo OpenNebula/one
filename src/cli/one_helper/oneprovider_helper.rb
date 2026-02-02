@@ -79,8 +79,8 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
     #
     # @param client  [Service::Client] Petition client
     # @param options [Hash]            CLI options
-    def list_provider_pool(client, options)
-        response = client.list_providers
+    def list_provider_pool(client, options, params = {})
+        response = client.list_providers(params)
 
         if CloudClient.is_error?(response)
             [response[:err_code], response[:message]]
@@ -104,7 +104,7 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
     #
     # @param client  [Service::Client] Petition client
     # @param options [Hash]            CLI options
-    def top_provider_pool(client, options)
+    def top_provider_pool(client, options, params = {})
         options[:delay] ? delay = options[:delay] : delay = 4
 
         begin
@@ -112,7 +112,7 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
                 CLIHelper.scr_cls
                 CLIHelper.scr_move(0, 0)
 
-                list_provider_pool(client, options)
+                list_provider_pool(client, options, params)
 
                 sleep delay
             end
@@ -129,8 +129,8 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
     # @param client           [Service::Client] Petition client
     # @param service_template [Integer]         Provider ID
     # @param options          [Hash]            CLI options
-    def format_resource(client, provider_id, options)
-        response = client.get_provider(provider_id)
+    def format_resource(client, provider_id, options, params = {})
+        response = client.get_provider(provider_id, params)
 
         if CloudClient.is_error?(response)
             [response[:err_code], response[:message]]
@@ -195,6 +195,7 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
                         :name,
                         :description,
                         :fireedge,
+                        :user_inputs,
                         :connection,
                         :registration_time,
                         :provision_ids,

@@ -52,6 +52,14 @@ CommandParser::CmdParser.new(ARGV) do
     set :option, CommandParser::VERSION
     set :option, CommandParser::HELP
 
+    ENABLED = {
+        :name => 'enabled',
+        :short => '-e',
+        :large => '--enabled',
+        :description => 'Show only enabled providers',
+        :default => false
+    }
+
     helper = OneFormHelper.new
 
     ########################################################################
@@ -64,8 +72,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list,
             list_desc,
-            :options => FORMAT + CLIHelper::OPTIONS + [OpenNebulaHelper::DESCRIBE] do
-        helper.list_driver_pool(helper.client(options), options)
+            :options => FORMAT + CLIHelper::OPTIONS + [OpenNebulaHelper::DESCRIBE, ENABLED] do
+        enabled = options[:enabled] || false
+        helper.list_driver_pool(helper.client(options), options, :enabled => enabled)
     end
 
     top_desc = <<-EOT.unindent
@@ -74,9 +83,10 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :top,
             top_desc,
-            :options => FORMAT + [CLIHelper::DELAY] do
+            :options => FORMAT + [CLIHelper::DELAY, ENABLED] do
         Signal.trap('INT') { exit(-1) }
-        helper.top_driver_pool(helper.client(options), options)
+        enabled = options[:enabled] || false
+        helper.top_driver_pool(helper.client(options), options, :enabled => enabled)
 
         0
     end

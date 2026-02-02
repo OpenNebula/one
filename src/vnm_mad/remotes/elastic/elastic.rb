@@ -93,10 +93,10 @@ class ElasticDriver < VNMMAD::VNMDriver
 
         provision   = document[:TEMPLATE][:PROVISION_BODY]
         provider_id = provision[:provider_id]
-        document    = client.get_provider(provider_id)
+        document    = client.get_provider(provider_id, :sensitive => true)
 
         if document.key?(:err_code)
-            STDERR.puts "Error retrieving provision #{provider_id}: #{document[:message]}"
+            STDERR.puts "Error retrieving provider #{provider_id}: #{document[:message]}"
             exit(-1)
         end
 

@@ -23,19 +23,25 @@ module OneFormServer
             # GET /providers
             # Retrieves all providers.
             #
-            # Params:
-            #   None
+            # Query Params:
+            #   include_sensitive [true|false] - Optional. Defaults to false.
+            #     If true, includes sensitive user_inputs_values in the response.
+            #   enabled [true|false] - Optional. Defaults to false.
+            #     If true, returns only enabled providers.
             #
             # Returns:
             #   200 OK - Array of providers (JSON)
             #   500 Internal Server Error - If OpenNebula or retrieval error
             app.get '/providers' do
-                pool   = OneForm::ProviderDocumentPool.new(@client)
-                rc     = pool.info
+                pool = OneForm::ProviderDocumentPool.new(@client)
+                rc   = pool.info
 
                 if OpenNebula.is_error?(rc)
                     return internal_error(rc.message, one_error_to_http(rc.errno))
                 end
+
+                only_enabled      = params['enabled'].to_s.downcase == 'true'
+                include_sensitive = params['include_sensitive'].to_s.downcase == 'true'
 
                 providers = []
 
@@ -46,11 +52,16 @@ module OneFormServer
                         provider.message, one_error_to_http(provider.errno)
                     ) if OpenNebula.is_error?(provider)
 
+                    # Skip disabled providers if enabled filter is set
+                    next if only_enabled && !provider.enabled?
+
                     providers << provider
                 end
 
+                opts = { :include_sensitive => include_sensitive }
+
                 status 200
-                body process_response(providers)
+                body process_response(providers, opts)
             end
 
             # GET /providers/:id
@@ -59,12 +70,19 @@ module OneFormServer
             # Params:
             #   :id [String] - ID of the provider
             #
+            # Query Params:
+            #   include_sensitive [true|false] - Optional. Defaults to false.
+            #     If true, includes sensitive user_inputs_values in the response.
+            #
             # Returns:
             #   200 OK - Provider object (JSON)
             #   404 Not Found - If provider does not exist
             #   500 Internal Server Error - If OpenNebula error
             app.get '/providers/:id' do
                 id = params[:id]
+
+                include_sensitive = params['include_sensitive'].to_s.downcase == 'true'
+                opts = { :include_sensitive => include_sensitive }
 
                 provider = OneForm::Provider.new_from_id(@client, id)
 
@@ -73,7 +91,7 @@ module OneFormServer
                 ) if OpenNebula.is_error?(provider)
 
                 status 200
-                body process_response(provider)
+                body process_response(provider, opts)
             end
 
             # GET /providers/:id/path
@@ -95,7 +113,7 @@ module OneFormServer
                     provider.message, one_error_to_http(provider.errno)
                 ) if OpenNebula.is_error?(provider)
 
-                path = File.join(DRIVERS_PATH, provider.driver)
+                path = provider.driver_path
 
                 status 200
                 body process_response({ 'path' => path })
@@ -145,7 +163,7 @@ module OneFormServer
                 return internal_error(
                     'Provider creation is not allowed from a disabled driver',
                     ResponseHelper::VALIDATION_EC
-                ) unless driver.enable?
+                ) unless driver.enabled?
 
                 # Merge request body to driver content
                 driver.merge(body)

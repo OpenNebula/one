@@ -31,8 +31,8 @@ module OneForm
         #
         # @param id [String] Provision ID.
         # @return [Hash] Details of the provision.
-        def get_provision(id)
-            get("/provisions/#{id}")
+        def get_provision(id, opts = {})
+            get("/provisions/#{id}", opts)
         end
 
         # Retrieve the unmanaged version of a provision.

@@ -43,7 +43,7 @@ class Ansible
             ddir = ansible_dir(provision, true)
             log.debug("Gathering Ansible files for provision #{provision.id}")
 
-            FileUtils.cp_r("#{DRIVERS_PATH}/#{provider.driver}/ansible/.", ddir)
+            FileUtils.cp_r("#{provider.driver_path}/ansible/.", ddir)
 
             within_dir(ddir) do
                 check_files(ddir)

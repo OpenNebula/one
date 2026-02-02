@@ -39,19 +39,22 @@ module OneFormServer
             # GET /provisions
             # Retrieves all provisions.
             #
-            # Params:
-            #   all [Boolean] - If true, show all provisions, including those in DONE state
-            #                   (default: false)
+            # Query Params:
+            #   all [true|false]               - If true, show all provisions including DONE
+            #                                    (default: false)
+            #   include_provider [true|false] - If true, include provider info (default: false)
+            #   include_sensitive [true|false] - If true, include sensitive values (default: false)
             #
             # Returns:
             #   200 OK - Array of provisions (JSON)
-            #   500 Internal Server Error - If OpenNebula or retrieval error
+            #   500 Internal Server Error
             app.get '/provisions' do
-                show_all         = params['all'] == 'true'
-                include_provider = params['include_provider'] == 'true'
+                show_all          = params['all'].to_s.downcase == 'true'
+                include_provider  = params['include_provider'].to_s.downcase == 'true'
+                include_sensitive = params['include_sensitive'].to_s.downcase == 'true'
 
-                pool   = OneForm::ProvisionDocumentPool.new(@client)
-                rc     = pool.info
+                pool = OneForm::ProvisionDocumentPool.new(@client)
+                rc   = pool.info
 
                 return internal_error(
                     rc.message, one_error_to_http(rc.errno)
@@ -66,15 +69,17 @@ module OneFormServer
                         provision.message, one_error_to_http(provision.errno)
                     ) if OpenNebula.is_error?(provision)
 
+                    # Skip DONE unless show_all
                     next if provision.state == OneForm::Provision::STATE['DONE'] && !show_all
 
                     provision.include_provider if include_provider
-
                     provisions << provision
                 end
 
+                opts = { :include_sensitive => include_sensitive }
+
                 status 200
-                body process_response(provisions)
+                body process_response(provisions, opts)
             end
 
             # GET /provisions/:id
@@ -82,16 +87,20 @@ module OneFormServer
             #
             # Params:
             #   :id [String] - ID of the provision
-            #   decode [Boolean] - If true, decode and returns the Terraform state
-            #                      (default: false)
+            #
+            # Query Params:
+            #   decode [true|false]            - Decode Terraform state (default: false)
+            #   include_provider [true|false]  - Include provider info (default: false)
+            #   include_sensitive [true|false] - Include sensitive values (default: false)
             #
             # Returns:
             #   200 OK - Provision object (JSON)
-            #   404 Not Found - If provision does not exist
-            #   500 Internal Server Error - If OpenNebula error
+            #   404 Not Found
+            #   500 Internal Server Error
             app.get '/provisions/:id' do
-                decode           = params['decode'] == 'true'
-                include_provider = params['include_provider'] == 'true'
+                decode            = params['decode'].to_s.downcase == 'true'
+                include_provider  = params['include_provider'].to_s.downcase == 'true'
+                include_sensitive = params['include_sensitive'].to_s.downcase == 'true'
 
                 provision = OneForm::Provision.new_from_id(@client, params[:id])
 
@@ -102,8 +111,10 @@ module OneFormServer
                 provision.decode_tfstate if decode
                 provision.include_provider if include_provider
 
+                opts = { :include_sensitive => include_sensitive }
+
                 status 200
-                body process_response(provision)
+                body process_response(provision, opts)
             end
 
             # GET /provisions/:id/unmanaged
@@ -191,7 +202,7 @@ module OneFormServer
                 return internal_error(
                     'Provision creation is not allowed from a disabled driver',
                     ResponseHelper::VALIDATION_EC
-                ) unless driver.enable?
+                ) unless driver.enabled?
 
                 # Merge request body to driver content
                 driver.merge(body)
@@ -210,10 +221,10 @@ module OneFormServer
 
                 # Check that driver and provider are compatibles
                 return internal_error(
-                    "The specified driver '#{provider.driver}' is not compatible " \
-                    "with the '#{File.basename(driver.source)}' driver used for this provision.",
+                    "The specified driver '#{provider.driver}' is not compatible with " \
+                    "the '#{File.basename(driver.system_path)}' driver used for this provision.",
                     ResponseHelper::VALIDATION_EC
-                ) if provider.driver != File.basename(driver.source)
+                ) if provider.driver != File.basename(driver.system_path)
 
                 # Create provision from driver deployment body
                 provision = OneForm::Provision.new(@client)

@@ -126,6 +126,14 @@ CommandParser::CmdParser.new(ARGV) do
         :format => String
     }
 
+    SENSITIVE = {
+        :name => 'sensitive',
+        :short => '-s',
+        :large => '--sensitive',
+        :description => 'Include sensitive values information in the output',
+        :default => false
+    }
+
     helper = OneProvisionHelper.new
 
     ############################################################################
@@ -157,8 +165,17 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list,
             list_desc,
-            :options => FORMAT + CLIHelper::OPTIONS + [ALL, OpenNebulaHelper::DESCRIBE] do
-        helper.list_provision_pool(helper.client(options), options)
+            :options => (
+                FORMAT + CLIHelper::OPTIONS +
+                [ALL, OpenNebulaHelper::DESCRIBE, SENSITIVE]
+            )do
+        sensitive = options[:sensitive] || false
+
+        helper.list_provision_pool(
+            helper.client(options),
+            options,
+            :include_sensitive => sensitive
+        )
     end
 
     top_desc = <<-EOT.unindent
@@ -167,9 +184,15 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :top,
             top_desc,
-            :options => FORMAT + [CLIHelper::DELAY] do
+            :options => FORMAT + [CLIHelper::DELAY, SENSITIVE] do
         Signal.trap('INT') { exit(-1) }
-        helper.top_provision_pool(helper.client(options), options)
+        sensitive = options[:sensitive] || false
+
+        helper.top_provision_pool(
+            helper.client(options),
+            options,
+            :include_sensitive => sensitive
+        )
 
         0
     end
@@ -178,10 +201,16 @@ CommandParser::CmdParser.new(ARGV) do
         Show details of a specific provision.
     EOT
 
-    command :show, show_desc, :provision_id, :options => FORMAT do
+    command :show, show_desc, :provision_id, :options => FORMAT + [SENSITIVE] do
         provision_id = args[0].to_i
+        sensitive    = options[:sensitive] || false
 
-        helper.format_resource(helper.client(options), provision_id, options)
+        helper.format_resource(
+            helper.client(options),
+            provision_id,
+            options,
+            :include_sensitive => sensitive
+        )
     end
 
     create_desc = <<-EOT.unindent

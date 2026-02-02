@@ -52,6 +52,22 @@ CommandParser::CmdParser.new(ARGV) do
     set :option, CommandParser::VERSION
     set :option, CommandParser::HELP
 
+    SENSITIVE = {
+        :name => 'sensitive',
+        :short => '-s',
+        :large => '--sensitive',
+        :description => 'Include sensitive values information in the output',
+        :default => false
+    }
+
+    ENABLED = {
+        :name => 'enabled',
+        :short => '-e',
+        :large => '--enabled',
+        :description => 'Show only enabled providers',
+        :default => false
+    }
+
     helper = OneProviderHelper.new
 
     ############################################################################
@@ -83,8 +99,19 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list,
             list_desc,
-            :options => FORMAT + CLIHelper::OPTIONS + [OpenNebulaHelper::DESCRIBE] do
-        helper.list_provider_pool(helper.client(options), options)
+            :options => (
+                FORMAT + CLIHelper::OPTIONS +
+                [OpenNebulaHelper::DESCRIBE, SENSITIVE, ENABLED]
+            ) do
+        sensitive = options[:sensitive] || false
+        enabled   = options[:enabled] || false
+
+        helper.list_provider_pool(
+            helper.client(options),
+            options,
+            :include_sensitive => sensitive,
+            :enabled           => enabled
+        )
     end
 
     top_desc = <<-EOT.unindent
@@ -93,9 +120,17 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :top,
             top_desc,
-            :options => FORMAT + [CLIHelper::DELAY] do
+            :options => FORMAT + [CLIHelper::DELAY, SENSITIVE, ENABLED] do
         Signal.trap('INT') { exit(-1) }
-        helper.top_provider_pool(helper.client(options), options)
+        sensitive = options[:sensitive] || false
+        enabled   = options[:enabled] || false
+
+        helper.top_provider_pool(
+            helper.client(options),
+            options,
+            :include_sensitive => sensitive,
+            :enabled           => enabled
+        )
 
         0
     end
@@ -104,15 +139,21 @@ CommandParser::CmdParser.new(ARGV) do
         Show details of a specific provider template.
     EOT
 
-    command :show, show_desc, :provider_id, :options => FORMAT do
+    command :show, show_desc, :provider_id, :options => FORMAT + [SENSITIVE] do
         provider_id = args[0].to_i
+        sensitive   = options[:sensitive] || false
 
         if args[0].to_s !~ /^\d+$/
             STDERR.puts 'Invalid provider ID'
             exit(-1)
         end
 
-        helper.format_resource(helper.client(options), provider_id, options)
+        helper.format_resource(
+            helper.client(options),
+            provider_id,
+            options,
+            :include_sensitive => sensitive
+        )
     end
 
     create_desc = <<-EOT.unindent

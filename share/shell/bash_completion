@@ -107,6 +107,10 @@ _oneflow_server() {
     _one_simple "start stop"
 }
 
+_oneform_server() {
+    _one_simple "start stop"
+}
+
 _onehem_server() {
     _one_simple "start stop"
 }
@@ -121,6 +125,7 @@ _sunstone_server() {
 
 complete -F _one one
 complete -F _oneflow_server oneflow-server
+complete -F _oneform_server oneform-server
 complete -F _onehem_server onehem-server
 complete -F _onegate_server onegate-server
 complete -F _sunstone_server sunstone-server
@@ -528,23 +533,52 @@ _onemarketapp() {
     fi
 }
 
-_oneprovision() {
+_oneform()
+{
     local cur prev opts cmd
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="create validate list show configure delete"
-    cmd=oneprovision
+
+    cmd=oneform
+    opts="list top show sync enable disable"
+
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
         return 0
     elif [ "$COMP_CWORD" == 2 ]; then
         case "$prev" in
-        show|configure|delete)
+        show|enable|disable|create)
+            local drivers
+            drivers="$(oneform list --csv --no-header -l name 2>/dev/null | tr -d '\r')"
+            COMPREPLY=( $(compgen -W "${drivers}" -- "${cur}") )
+            return 0
+        ;;
+    esac
+fi
+}
+
+_oneprovision() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    cmd=oneprovision
+    opts="list top show create update rename chgrp chown chmod retry add-host del-host add-ip del-ip deprovision delete logs"
+
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        show|update|rename|chgrp|chown|chmod|delete|retry)
             _complete $cmd ID
         ;;
-        create|validate)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+        create)
+            local drivers
+            drivers="$(oneform list --csv --no-header -l name 2>/dev/null | tr -d '\r')"
+            COMPREPLY=( $(compgen -W "${drivers}" -- "${cur}") )
             return 0
         ;;
         esac
@@ -556,18 +590,22 @@ _oneprovider() {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="create list show delete update"
+
     cmd=oneprovider
+    opts="list top show create update rename chgrp chown chmod delete"
+
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
         return 0
     elif [ "$COMP_CWORD" == 2 ]; then
         case "$prev" in
-        show|delete|update)
+        show|update|rename|chgrp|chown|chmod|delete|retry)
             _complete $cmd ID
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            local drivers
+            drivers="$(oneform list --csv --no-header -l name 2>/dev/null | tr -d '\r')"
+            COMPREPLY=( $(compgen -W "${drivers}" -- "${cur}") )
             return 0
         ;;
         esac
@@ -902,6 +940,7 @@ complete -F _onehost onehost
 complete -F _oneimage oneimage
 complete -F _onemarket onemarket
 complete -F _onemarketapp onemarketapp
+complete -F _oneform oneform
 complete -F _oneprovision oneprovision
 complete -F _oneprovider oneprovider
 complete -F _onesecgroup onesecgroup

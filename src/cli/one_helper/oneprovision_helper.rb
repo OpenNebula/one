@@ -93,8 +93,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     #
     # @param client  [Service::Client] Petition client
     # @param options [Hash]            CLI options
-    def list_provision_pool(client, options)
-        response = client.list_provisions(options)
+    def list_provision_pool(client, options, params = {})
+        response = client.list_provisions(params)
 
         if CloudClient.is_error?(response)
             [response[:err_code], response[:message]]
@@ -118,7 +118,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     #
     # @param client  [Service::Client] Petition client
     # @param options [Hash]            CLI options
-    def top_provision_pool(client, options)
+    def top_provision_pool(client, options, params = {})
         options[:delay] ? delay = options[:delay] : delay = 4
 
         begin
@@ -126,7 +126,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                 CLIHelper.scr_cls
                 CLIHelper.scr_move(0, 0)
 
-                list_provision_pool(client, options)
+                list_provision_pool(client, options, params)
 
                 sleep delay
             end
@@ -143,8 +143,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # @param client           [Service::Client] Petition client
     # @param service_template [Integer]         Provider ID
     # @param options          [Hash]            CLI options
-    def format_resource(client, provision_id, options)
-        response = client.get_provision(provision_id)
+    def format_resource(client, provision_id, options, params = {})
+        response = client.get_provision(provision_id, params)
 
         if CloudClient.is_error?(response)
             [response[:err_code], response[:message]]

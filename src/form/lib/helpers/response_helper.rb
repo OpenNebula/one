@@ -90,13 +90,33 @@ module ResponseHelper
     # --------------------------------------------------------------------------
     # Response processing
     # --------------------------------------------------------------------------
-    def process_response(response)
+    def process_response(response, opts = {})
         content_type = request.env['CONTENT_TYPE'] || 'application/json'
 
         case content_type
         when 'application/json'
             content_type(:json)
-            response.to_json
+
+            data =
+                if response.is_a?(Array)
+                    response.map do |obj|
+                        if obj.is_a?(Hash)
+                            obj
+                        elsif obj.respond_to?(:to_h)
+                            obj.to_h(opts)
+                        else
+                            obj
+                        end
+                    end
+                elsif response.is_a?(Hash)
+                    response
+                elsif response.respond_to?(:to_h)
+                    response.to_h(opts)
+                else
+                    response
+                end
+
+            JSON.generate(data)
         else
             content_type(:text)
             response.to_s

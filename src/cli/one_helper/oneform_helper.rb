@@ -42,7 +42,7 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper::ShowTable.new(config_file, self) do
             column :NAME, 'NAME', :left, :size => 15 do |d|
-                File.basename(d[:source])
+                File.basename(d[:system_path])
             end
 
             column :DEPLOYMENTS, 'DEPLOYMENTS', :left, :expand => true do |d|
@@ -65,8 +65,8 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
     #
     # @param client  [OneForm::Client] Petition client
     # @param options [Hash]            CLI options
-    def list_driver_pool(client, options)
-        response = client.list_drivers
+    def list_driver_pool(client, options, params = {})
+        response = client.list_drivers(params)
 
         if CloudClient.is_error?(response)
             [response[:err_code], response[:message]]
@@ -90,7 +90,7 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
     #
     # @param client  [OneForm::Client] Petition client
     # @param options [Hash]            CLI options
-    def top_driver_pool(client, options)
+    def top_driver_pool(client, options, params = {})
         options[:delay] ? delay = options[:delay] : delay = 4
 
         begin
@@ -98,7 +98,7 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
                 CLIHelper.scr_cls
                 CLIHelper.scr_move(0, 0)
 
-                list_driver_pool(client, options)
+                list_driver_pool(client, options, params)
 
                 sleep delay
             end
@@ -129,15 +129,14 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
                 str    = '%-20s: %-20s'
                 str_h1 = '%-80s'
 
-                CLIHelper.print_header(
-                    str_h1 % "#{File.basename(response[:source]).upcase} ONEFORM DRIVER INFORMATION"
-                )
+                driver_name = File.basename(response[:system_path])
+                CLIHelper.print_header(str_h1 % "#{driver_name.upcase} ONEFORM DRIVER INFORMATION")
 
                 puts Kernel.format str, 'NAME', response[:name]
                 puts Kernel.format str, 'DESCRIPTION', response[:description]
-                puts Kernel.format str, 'SYSTEM PATH', response[:source]
-                puts Kernel.format str, 'VERSION', response[:version]
                 puts Kernel.format str, 'STATE', response[:state]
+                puts Kernel.format str, 'SOURCE', response[:registry]
+                puts Kernel.format str, 'VERSION', response[:version]
 
                 puts
 
@@ -191,21 +190,20 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
 
                 puts
 
-                CLIHelper.print_header(str_h1 % 'DEPLOYMENT CONFIGURATIONS', false)
+                CLIHelper.print_header(str_h1 % 'DEPLOYMENT CONFIGURATIONS', true)
+                puts
 
                 configs = response[:deployment_confs] || []
 
                 configs.each do |conf|
-                    CLIHelper.print_header(str_h1 % conf[:name], false)
+                    CLIHelper.print_header(str_h1 % conf[:name].upcase, false)
 
-                    puts Kernel.format str, 'DESCRIPTION', conf[:description] || '--'
-                    puts Kernel.format str, 'INVENTORY_FILE', conf[:inventory] || '--'
-
+                    puts conf[:description].nil? ? '--' : CLIHelper.render_html(conf[:description])
                     puts
 
                     next unless conf[:user_inputs] && !conf[:user_inputs].empty?
 
-                    CLIHelper.print_header("#{conf[:inventory].upcase} INPUTS", false)
+                    CLIHelper.print_header("#{conf[:inventory].upcase} CONFIGURATION INPUTS", false)
                     CLIHelper::ShowTable.new(nil, self) do
                         column :NAME, '', :left, :size => 25, :adjust => true do |input|
                             input[:name] || '--'
@@ -233,13 +231,14 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
                     [
                         :name,
                         :description,
-                        :source,
+                        :version,
+                        :registry,
                         :state,
                         :fireedge,
                         :connection,
                         :user_inputs,
                         :deployment_confs,
-                        :version
+                        :system_path
                     ].include?(k)
                 end
 

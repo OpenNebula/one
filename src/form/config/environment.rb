@@ -28,7 +28,6 @@ if !ONE_LOCATION
     VAR_LOCATION      = '/var/lib/one'
     ETC_LOCATION      = '/etc/one'
     LIB_LOCATION      = '/usr/lib/one'
-    DRIVERS_PATH      = '/usr/share/one/oneform/drivers'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
@@ -36,7 +35,6 @@ else
     LOG_LOCATION      = ONE_LOCATION + '/var'
     ETC_LOCATION      = ONE_LOCATION + '/etc'
     LIB_LOCATION      = ONE_LOCATION + '/lib'
-    DRIVERS_PATH      = ONE_LOCATION + '/share/oneform/drivers'
 end
 
 require 'load_opennebula_paths'

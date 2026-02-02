@@ -102,6 +102,7 @@ module OneForm
 
         DOCUMENT_TYPE = ProviderDocumentPool::DOCUMENT_TYPE
         TEMPLATE_TAG  = 'PROVIDER_BODY'
+        REDACTED_MARK = '__redacted__'
 
         PROVIDER_ATTRS = [
             'name',
@@ -109,6 +110,7 @@ module OneForm
             'driver',
             'version',
             'fireedge',
+            'user_inputs',
             'connection',
             'provision_ids',
             'registration_time'
@@ -181,12 +183,47 @@ module OneForm
             ) if validation.failure?
         end
 
-        # Transform the provision body to JSON
-        def to_json(opts = {})
-            document = to_hash.clone
-            document['DOCUMENT']['TEMPLATE'][TEMPLATE_TAG] = @body.clone
+        def to_h(opts = {})
+            include_sensitive = opts[:include_sensitive] == true
 
-            document.to_json(opts)
+            document = to_hash.clone
+            template = Marshal.load(Marshal.dump(@body))
+
+            ui        = template['user_inputs'] || []
+            ui_values = (template['connection'] || {}).dup
+
+            unless include_sensitive
+                ui.each do |input|
+                    sensitive = input[:sensitive] || input['sensitive']
+                    name      = input[:name] || input['name']
+                    next unless sensitive && name
+
+                    ui_values[name] = REDACTED_MARK if ui_values.key?(name)
+                end
+            end
+
+            template = template.merge('connection' => ui_values)
+            document['DOCUMENT']['TEMPLATE'][TEMPLATE_TAG] = template
+
+            document
+        end
+
+        def to_json(*args)
+            super
+        end
+
+        def enabled?
+            rc = OneForm::Driver.from_name(driver)
+            return false if OpenNebula.is_error?(rc)
+
+            rc.enabled?
+        end
+
+        def driver_path
+            rc = OneForm::Driver.from_name(driver)
+            return rc.system_path if OpenNebula.is_error?(rc) == false
+
+            nil
         end
 
         ########################################################

@@ -265,6 +265,158 @@ module CLIHelper
         exit(-1)
     end
 
+    # Render a small HTML subset for terminal output
+    # Supports: p, br, ul/ol/li, strong/b, em/i, code, a[href]
+    def self.render_html(text)
+        return '' if text.nil? || text.empty?
+
+        use_ansi = $stdout.tty?
+
+        bold_on  = use_ansi ? "\33[1m"  : ''
+        faint_on = use_ansi ? "\33[2m"  : ''
+        reset    = use_ansi ? "\33[0m"  : ''
+        mono_on  = use_ansi ? "\33[36m" : ''
+        bullet   = use_ansi ? '•' : '*'
+
+        # OSC 8 hyperlink escape (clickable links)
+        osc8_link = lambda do |label, url|
+            return "#{label} (#{url})" unless use_ansi
+
+            "\e]8;;#{url}\a#{label}\e]8;;\a"
+        end
+
+        s = text.to_s.gsub("\r\n", "\n")
+
+        # Block tags -> newlines
+        s = s.gsub(%r{<\s*br\s*/?\s*>}i, "\n")
+        s = s.gsub(%r{<\s*/\s*p\s*>}i, "\n")
+        s = s.gsub(/<\s*p\b[^>]*>/i, '')
+        s = s.gsub(%r{<\s*/\s*(div|section|article)\s*>}i, "\n\n")
+        s = s.gsub(/<\s*(div|section|article)\b[^>]*>/i, '')
+
+        # Links: <a href="url">label</a>
+        s = s.gsub(%r{<\s*a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>(.*?)<\s*/\s*a\s*>}im) do
+            url   = Regexp.last_match(1).strip
+            label = Regexp.last_match(2).to_s
+            osc8_link.call(label, url)
+        end
+
+        # Lists
+        s = s.gsub(/<\s*li\b[^>]*>/i, "#{bullet} ")
+
+        # Inline formatting
+        if use_ansi
+            s = s.gsub(%r{<\s*/\s*(strong|b)\s*>}i, reset)
+            s = s.gsub(/<\s*(strong|b)\b[^>]*>/i, bold_on)
+
+            s = s.gsub(%r{<\s*/\s*(em|i)\s*>}i, reset)
+            s = s.gsub(/<\s*(em|i)\b[^>]*>/i, faint_on)
+
+            # <code>
+            s = s.gsub(%r{<\s*code\b[^>]*>(.*?)<\s*/\s*code\s*>}im) do
+                "#{faint_on}#{mono_on}#{Regexp.last_match(1)}#{reset}"
+            end
+        else
+            s = s.gsub(%r{<\s*/?\s*(strong|b|em|i|code)\b[^>]*>}i, '')
+        end
+
+        # Remove any remaining tags
+        s = s.gsub(/<[^>]+>/, '')
+
+        # Decode minimal HTML entities
+        s = s.gsub('&amp;', '&')
+             .gsub('&lt;', '<')
+             .gsub('&gt;', '>')
+             .gsub('&quot;', '"')
+             .gsub('&#39;', "'")
+             .gsub('&nbsp;', ' ')
+
+        # Normalize whitespace
+        s = s.lines.map(&:rstrip).join("\n")
+        s.gsub(/\n{3,}/, "\n\n").strip
+    end
+
+    # Render a small Markdown subset for terminal output. Supports headings,
+    # bold, italic, inline code, and unordered lists.
+    def self.render_md(text)
+        return '' if text.nil? || text.empty?
+
+        use_ansi  = $stdout.tty?
+
+        bold_on   = use_ansi ? "\33[1m"  : ''
+        reset     = use_ansi ? "\33[0m"  : ''
+        faint_on  = use_ansi ? "\33[2m"  : ''
+        mono_on   = use_ansi ? "\33[36m" : ''
+        bullet    = use_ansi ? '•' : '*'
+
+        # OSC 8 hyperlink sequences
+        osc8_link = lambda do |label, url|
+            return "#{label} (#{url})" unless use_ansi
+
+            "\e]8;;#{url}\a#{label}\e]8;;\a"
+        end
+
+        lines = text.to_s.gsub("\r\n", "\n").split("\n", -1)
+
+        out = lines.map do |line|
+            # Preserve empty lines
+            if line.strip.empty?
+                ''
+            # Headings (#, ##, ###)
+            elsif (m = line.match(/\A\s{0,3}(\#{1,3})\s+(.*)\z/))
+                title = m[2].strip
+                "#{bold_on}#{title}#{reset}"
+            # Unordered list items (*, -, +)
+            elsif (m = line.match(/\A(\s*)[*+-]\s+(.*)\z/))
+                indent = m[1]
+                item   = m[2]
+                "#{indent}#{bullet} #{item}"
+            else
+                line
+            end
+        end.join("\n")
+
+        # Links [label](url)
+        out = out.gsub(/\[([^\]]+)\]\(([^)]+)\)/) do
+            label = Regexp.last_match(1)
+            url   = Regexp.last_match(2).strip
+            osc8_link.call(label, url)
+        end
+
+        # Autolinks <https://example.com>
+        out = out.gsub(/<((?:https?|mailto):[^>\s]+)>/) do
+            url = Regexp.last_match(1)
+            osc8_link.call(url, url)
+        end
+
+        # Inline formatting (simple, non-nested)
+        if use_ansi
+            # Inline code: `code`
+            out = out.gsub(/`([^`]+)`/) do
+                m = Regexp.last_match(1)
+                "#{faint_on}#{mono_on}#{m}#{reset}"
+            end
+
+            # Bold: **text**
+            out = out.gsub(/\*\*([^\*]+)\*\*/) do
+                m = Regexp.last_match(1)
+                "#{bold_on}#{m}#{reset}"
+            end
+
+            # Italic: *text*
+            out = out.gsub(/(^|[^*])\*([^*\n]+)\*(?!\*)/) do
+                m1 = Regexp.last_match(1)
+                m2 = Regexp.last_match(2)
+                "#{m1}#{faint_on}#{m2}#{reset}"
+            end
+        else
+            # Non-tty, keep markdown mostly as-is, but normalize list bullets
+            out = out.gsub(/\A(\s*)[*+-]\s+/m, "\\1#{bullet} ")
+        end
+
+        out
+    end
+
     # Check if value is in base64
     #
     # @param value [String] Value to check

@@ -22,16 +22,16 @@ module OneForm
         # List all existing cloud providers.
         #
         # @return [Array<Hash>] List of configured providers with their metadata.
-        def list_providers
-            get('/providers')
+        def list_providers(opts = {})
+            get('/providers', opts)
         end
 
         # Retrieve a specific provider by its ID.
         #
         # @param id [Int] The provider's unique identifier.
         # @return [Hash] Provider configuration and status.
-        def get_provider(id)
-            get("/providers/#{id}")
+        def get_provider(id, opts = {})
+            get("/providers/#{id}", opts)
         end
 
         # Retrieve the location path of a provider.

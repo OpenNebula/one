@@ -24,9 +24,10 @@ module OneForm
         DRIVER_ATTRS = [
             'name',
             'description',
-            'source',
             'state',
+            'registry',
             'version',
+            'system_path',
             'fireedge',
             'connection',
             'connection_values',
@@ -65,11 +66,15 @@ module OneForm
             end
         end
 
+        def to_h(_opts = {})
+            @body.to_h
+        end
+
         def to_json(opts = {})
             @body.to_json(opts)
         end
 
-        def enable?
+        def enabled?
             state == STR_STATES[:enabled]
         end
 
@@ -124,7 +129,7 @@ module OneForm
             body = OneForm::Provider::PROVIDER_ATTRS.each_with_object({}) do |attr, hash|
                 value = case attr
                         when 'driver'
-                            File.basename(@body['source'])
+                            File.basename(@body['system_path'])
                         when 'connection'
                             @body['connection_values']
                         else
@@ -168,7 +173,7 @@ module OneForm
             OneForm::Provision::PROVISION_ATTRS.each_with_object({}) do |attr, hash|
                 value = case attr
                         when 'driver'
-                            File.basename(@body['source'])
+                            File.basename(@body['system_path'])
                         when 'deployment_file'
                             deployment_conf[:inventory]
                         when 'user_inputs'
@@ -191,27 +196,98 @@ module OneForm
 
         class << self
 
+            DEFAULT_DRIVER_DIR  = "#{LIB_LOCATION}/oneform/drivers"
+            EXTERNAL_DRIVER_DIR = "#{VAR_LOCATION}/oneform/drivers"
+            STATES_DIR          = "#{VAR_LOCATION}/oneform/drivers/.states"
+
+            # Returns a list of directories where drivers are located.
+            # It includes all subdirectories of default and all subdirectories inside each
+            # external registry source
+            #
+            # @return [Array<Pathname>]
+            def driver_dirs
+                dirs = []
+
+                default_root = Pathname.new(DEFAULT_DRIVER_DIR)
+                dirs.concat(visible_dirs(default_root)) if default_root.directory?
+
+                external_root = Pathname.new(EXTERNAL_DRIVER_DIR)
+                if external_root.directory?
+                    visible_dirs(external_root).each do |source_dir|
+                        dirs.concat(visible_dirs(source_dir))
+                    end
+                end
+
+                dirs
+            end
+
+            def visible_dirs(path)
+                path.children.select {|p| p.directory? && !p.basename.to_s.start_with?('.') }
+            end
+
+            # Builds a { driver_name => absolute_path } index
+            #
+            # @return [Hash{String => String}]
+            def driver_index
+                idx = {}
+
+                driver_dirs.each do |dir|
+                    name = dir.basename.to_s
+                    idx[name] ||= dir.to_s
+                end
+
+                idx
+            end
+
+            # Resolves a driver directory path from its name.
+            #
+            # @param driver_name [String]
+            # @return [String, nil]
+            def driver_dir_for(driver_name)
+                driver_index[driver_name.to_s]
+            end
+
+            # Determines the registry source for a given driver directory
+            def driver_registry_for_dir(driver_dir)
+                dir = Pathname.new(driver_dir).cleanpath
+
+                default_root  = Pathname.new(DEFAULT_DRIVER_DIR).cleanpath
+                external_root = Pathname.new(EXTERNAL_DRIVER_DIR).cleanpath
+
+                dir_s      = dir.to_s
+                default_s  = default_root.to_s
+                external_s = external_root.to_s
+
+                # default/<driver>
+                if dir_s.start_with?(default_s + File::SEPARATOR) || dir == default_root
+                    return 'default'
+                end
+
+                # external/<source>/<driver>
+                if dir_s.start_with?(external_s + File::SEPARATOR) || dir == external_root
+                    # rel = ["oneform-registry", "example"] -> source name is rel[0]
+                    rel = dir.relative_path_from(external_root).each_filename.to_a
+                    return rel[0] if rel && rel[0]
+                end
+
+                'unknown'
+            end
+
             # Returns all driver names, optionally filtered by state.
             #
             # @param [Symbol, nil] state to filter drivers
             # @return [Array<String>, OpenNebula::Error]
             def names(state = nil)
-                ddir = Pathname.new(DRIVERS_PATH)
-                return [] unless ddir.directory?
+                idx = driver_index
+                idx.keys.sort.select do |dname|
+                    next true unless state
 
-                ddir.children
-                    .select(&:directory?)
-                    .map(&:basename)
-                    .map(&:to_s)
-                    .select do |dname|
-                        next true unless state
-
-                        begin
-                            get_driver_state(dname) == state
-                        rescue StandardError
-                            false
-                        end
+                    begin
+                        get_driver_state(dname) == state
+                    rescue StandardError
+                        false
                     end
+                end
             rescue StandardError => e
                 error_msg = "Error retrieving driver names: #{e.message}"
 
@@ -239,34 +315,34 @@ module OneForm
             #                                        if something goes wrong, or nil if the
             #                                        driver is in unknown state
             def from_name(driver_name)
-                driver_dir  = File.join(DRIVERS_PATH, driver_name)
-                driver_file = File.join(driver_dir, 'driver.conf')
+                driver_dir = driver_dir_for(driver_name)
 
                 return OpenNebula::Error.new(
                     "Error getting #{driver_name} OneForm driver",
                     OpenNebula::Error::ENO_EXISTS
-                ) unless Dir.exist?(driver_dir)
+                ) unless driver_dir && Dir.exist?(driver_dir)
 
-                state = get_driver_state(driver_name)
+                driver_file = File.join(driver_dir, 'driver.conf')
+                state       = get_driver_state(driver_name)
 
                 case state
                 when :unknown
-                    # Ignoring driver if we don't have state for it
                     return
                 when :error
                     return error_body(driver_name)
                 when :enabled, :disabled
                     raise "Driver configuration file #{driver_file} does not exist" \
-                    unless File.exist?(driver_file)
+                        unless File.exist?(driver_file)
 
                     conf = YAML.load_file(driver_file, :symbolize_names => true)
 
                     body = {
                         :name             => conf[:name],
                         :description      => conf[:description],
-                        :source           => driver_dir,
                         :state            => STR_STATES[state],
+                        :registry         => driver_registry_for_dir(driver_dir),
                         :version          => conf[:version],
+                        :system_path      => driver_dir,
                         :fireedge         => conf[:fireedge],
                         :connection       => tf_inputs(driver_name, 'provider'),
                         :user_inputs      => tf_inputs(driver_name, 'variables'),
@@ -278,24 +354,18 @@ module OneForm
                     raise "Driver #{driver_name} is in an invalid state (#{state})"
                 end
             rescue StandardError => e
-                error_msg = "Error getting driver body: #{e.message}"
-                Log.error(error_msg)
+                Log.error("Error getting driver body: #{e.message}")
 
-                return OpenNebula::Error.new(error_msg)
+                set_driver_state(driver_name, :error, true)
+                set_driver_error(driver_name, e.message)
+                return error_body(driver_name)
             end
 
             # Returns a list of all available drivers.
             #
             # @return [Array<Hash>, OpenNebula::Error] list of drivers, OpenNebula error otherwise
             def list
-                ddir = Pathname.new(DRIVERS_PATH)
-                return [] unless ddir.directory?
-
-                ddir.children
-                    .select(&:directory?)
-                    .map    {|dir|   File.basename(dir.to_s) }
-                    .map    {|dname| Driver.from_name(dname) }
-                    .compact
+                driver_index.keys.map {|dname| from_name(dname) }.compact
             rescue StandardError => e
                 error_msg = "Error listing drivers: #{e.message}"
 
@@ -304,7 +374,7 @@ module OneForm
             end
 
             # Tries to validate and enable all drivers from the local drivers path.
-            #   - Iterates through each driver directory in DRIVERS_PATH.
+            #   - Iterates through each driver directory.
             #   - Verifies each driver using `verify_driver`.
             #   - Sets the state to `:enabled` if valid, or `:error` otherwise.
             #   - Writes the state to a `.state` file using `set_driver_state`.
@@ -317,43 +387,33 @@ module OneForm
             #   }
             #   or an OpenNebula::Error if a top-level error occurs
             def sync
-                ddir    = Pathname.new(DRIVERS_PATH)
                 results = { :success => [], :failed => [] }
 
-                return results unless ddir.directory?
+                driver_index.keys.each do |dname|
+                    rc    = verify_driver(dname)
+                    state = OpenNebula.is_error?(rc) ? :error : :enabled
 
-                ddir.children
-                    .select(&:directory?)
-                    .each do |dir|
-                        dname = dir.basename.to_s
-
-                        rc    = verify_driver(dname)
-                        state = OpenNebula.is_error?(rc) ? :error : :enabled
-
-                        if OpenNebula.is_error?(rc)
-                            results[:failed] << { :name => dname, :error => rc.message }
-                        else
-                            results[:success] << dname
-                        end
-
-                        begin
-                            # Avoid to enable disabled drivers
-                            next if get_driver_state(dname) == :disabled && state == :enabled
-
-                            set_driver_state(dname, state, true)
-                        rescue StandardError => e
-                            Log.error(
-                                "Failed to write .state file for driver '#{dname}': #{e.message}"
-                            )
-                        end
+                    if OpenNebula.is_error?(rc)
+                        results[:failed] << { :name => dname, :error => rc.message }
+                    else
+                        results[:success] << dname
                     end
+
+                    begin
+                        # Avoid to enable disabled drivers
+                        next if get_driver_state(dname) == :disabled && state == :enabled
+
+                        set_driver_state(dname, state, true)
+                    rescue StandardError => e
+                        Log.error("Failed to write .state file for driver '#{dname}': #{e.message}")
+                    end
+                end
 
                 results
             rescue StandardError => e
                 error_msg = "Error syncing drivers: #{e.message}"
-
                 Log.error(error_msg)
-                return OpenNebula::Error.new(error_msg)
+                OpenNebula::Error.new(error_msg)
             end
 
             # Enables the given driver by name if it exists in the drivers directory.
@@ -362,12 +422,12 @@ module OneForm
             # @param [String] driver_name the name of the driver to enable
             # @return [nil, OpenNebula::Error] nil on success, OpenNebula::Error otherwise
             def enable(driver_name)
-                driver_dir = File.join(DRIVERS_PATH, driver_name)
+                driver_dir = driver_dir_for(driver_name)
 
                 return OpenNebula::Error.new(
                     "Error getting #{driver_name} OneForm driver",
                     OpenNebula::Error::ENO_EXISTS
-                ) unless Dir.exist?(driver_dir)
+                ) unless driver_dir && Dir.exist?(driver_dir)
 
                 set_driver_state(driver_name, :enabled)
             end
@@ -378,12 +438,12 @@ module OneForm
             # @param [String] driver_name the name of the driver to disable
             # @return [nil, OpenNebula::Error] nil on success, OpenNebula::Error otherwise
             def disable(driver_name)
-                driver_dir = File.join(DRIVERS_PATH, driver_name)
+                driver_dir = driver_dir_for(driver_name)
 
                 return OpenNebula::Error.new(
                     "Error getting #{driver_name} OneForm driver",
                     OpenNebula::Error::ENO_EXISTS
-                ) unless Dir.exist?(driver_dir)
+                ) unless driver_dir && Dir.exist?(driver_dir)
 
                 set_driver_state(driver_name, :disabled)
             end
@@ -396,12 +456,10 @@ module OneForm
 
             # Lists all deployment inventories for the given driver
             def deployment_list(driver_name)
-                tmpl_dir = Pathname.new(
-                    File.join(DRIVERS_PATH, driver_name, 'ansible', 'templates')
-                )
+                tmpl_dir = Pathname.new(File.join(driver_path(driver_name), 'ansible', 'templates'))
 
                 raise "Driver '#{driver_name}' does not exist or is missing 'ansible/templates'" \
-                unless tmpl_dir.exist? && tmpl_dir.directory?
+                    unless tmpl_dir.exist? && tmpl_dir.directory?
 
                 tmpl_dir.children
                         .select {|file| file.file? && file.extname == '.j2' }
@@ -482,6 +540,7 @@ module OneForm
                 }
             end
 
+            # Replaces user input tokens in the given template with actual values.
             def replace_user_inputs!(template, user_inputs)
                 return {} unless template
                 return template unless user_inputs
@@ -512,12 +571,12 @@ module OneForm
             # including any associated validation rules
             def tf_inputs(driver_name, vars_path, keys = nil)
                 keys            = ['variable'] if keys.nil? || keys.empty?
-                tf_dir          = File.join(DRIVERS_PATH, driver_name, 'terraform')
+                tf_dir          = File.join(driver_path(driver_name), 'terraform')
                 vars_file       = File.join(tf_dir, "#{vars_path}.tf")
                 validators_file = File.join(tf_dir, 'validators.tf')
 
                 raise "Driver '#{driver_name}' does not exist or is missing " \
-                    "terraform/#{vars_path}.tf" unless File.exist?(vars_file)
+                "terraform/#{vars_path}.tf" unless File.exist?(vars_file)
 
                 vars       = load_hcl_file(vars_file, keys)
                 validators = load_hcl_file(validators_file, ['locals', 'validators'])
@@ -532,6 +591,7 @@ module OneForm
                         :type        => normalized_values['type'].to_s.downcase,
                         :default     => normalized_values['default'],
                         :mandatory   => normalized_values['default'].nil?,
+                        :sensitive   => normalized_values['sensitive'] || false,
                         :match       => match.empty? ? nil : match
                     }.compact
                 end
@@ -570,14 +630,22 @@ module OneForm
             # Driver states and verifications
             # --------------------------------------------------------
 
+            # Returns the path to a driver's directory
+            def driver_path(driver_name)
+                dir = driver_dir_for(driver_name)
+                raise "Driver '#{driver_name}' does not exist" unless dir
+
+                dir
+            end
+
             # Returns the path to the driver's .state file.
             def state_file(driver_name)
-                File.join(DRIVERS_PATH, driver_name, '.state')
+                File.join(STATES_DIR, "#{driver_name}.state")
             end
 
             # Returns the path to the driver's .error file.
             def error_file(driver_name)
-                File.join(DRIVERS_PATH, driver_name, '.error')
+                File.join(STATES_DIR, "#{driver_name}.error")
             end
 
             # Retrieves the current state of the driver as a symbol
@@ -639,20 +707,20 @@ module OneForm
 
             # Builds a hash representing the driver's error state and message
             def error_body(driver_name)
-                ddir  = File.join(DRIVERS_PATH, driver_name)
+                ddir  = File.join(driver_path(driver_name))
                 error = File.read(error_file(driver_name)) if File.exist?(error_file(driver_name))
 
                 {
-                    :name      => driver_name,
-                    :source    => ddir,
-                    :state     => STR_STATES[:error],
-                    :error_msg => error
+                    :name        => driver_name,
+                    :state       => STR_STATES[:error],
+                    :system_path => ddir,
+                    :error_msg   => error
                 }.compact
             end
 
             # Verifies that the required files and structure exist for a driver
             def verify_driver(driver_name)
-                path = File.join(DRIVERS_PATH, driver_name)
+                path = driver_path(driver_name)
 
                 raise "Path '#{path}' does not exist or is not a directory" \
                 unless File.directory?(path)
@@ -693,12 +761,10 @@ module OneForm
                 # === Validate templates metadata
                 Dir.glob(File.join(templates_dir, '*.j2')).each do |template_path|
                     template = File.read(template_path)
-
-                    # Get YAML block from template between `{# ... #}`
                     yaml_block = template.match(/(?<=\{#).+?(?=\#\})/m)
 
                     raise "OneForm metadata block not found in template: #{template_path}" \
-                        if yaml_block.nil?
+                         if yaml_block.nil?
                 end
 
                 # === Optional: elastic
@@ -722,7 +788,6 @@ module OneForm
                         assert_file_exists(File.join(ipam_dir, script))
                     end
 
-                    # Create symlinks to ipam remotes folder
                     create_symlinks(driver_name)
                 end
 
@@ -740,7 +805,7 @@ module OneForm
 
             # Creates symbolic links for the driver's IPAM files
             def create_symlinks(driver_name)
-                ipam_path  = File.join(DRIVERS_PATH, driver_name, 'ipam')
+                ipam_path  = File.join(driver_path(driver_name), 'ipam')
                 target_dir = File.join(VAR_LOCATION, 'remotes', 'ipam', driver_name)
 
                 return unless Dir.exist?(ipam_path)

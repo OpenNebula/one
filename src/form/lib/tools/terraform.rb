@@ -37,17 +37,16 @@ class Terraform
             ddir = tf_dir(provision, true)
 
             log.debug("Gathering Terraform files for provision #{provision.id}")
-
-            FileUtils.cp_r(
-                "#{DRIVERS_PATH}/#{provider.driver}/terraform/.", ddir
-            )
+            FileUtils.cp_r("#{provider.driver_path}/terraform/.", ddir)
 
             # Change to the terraform provision directory
             within_dir(ddir) do
                 # Add provider info to terraform tags
                 vars = provision.user_inputs_values.merge(
                     'oneform_tags' => {
-                        'provision_id' => provision.id
+                        'provision_id' => provision.id,
+                        'provider_id' => provider.id,
+                        'driver' => provider.driver
                     }.merge(provision.tags_values)
                 )
                 generate_tfvars(provider.connection, vars)
@@ -257,9 +256,7 @@ class Terraform
         def copy_terraform_files(provision, provider)
             ddir = tf_dir(provision, true)
 
-            FileUtils.cp_r(
-                "#{DRIVERS_PATH}/#{provider.driver}/terraform/.", ddir
-            )
+            FileUtils.cp_r("#{provider.driver_path}/terraform/.", ddir)
         end
 
         # Generate the terraform variables file

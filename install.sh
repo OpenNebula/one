@@ -126,7 +126,9 @@ if [ -z "$ROOT" ] ; then
     DOCS_LOCATION="/usr/share/doc/one"
     ANS_LOCATION="$SHARE_LOCATION/ansible"
 
-    ONEFORM_PROVIDERS_LOCATION="$SHARE_LOCATION/oneform/drivers"
+    ONEFORM_PROVIDERS_LOCATION="$ONEFORM_LOCATION/drivers"
+    ONEFORM_PROVIDERS_STATES_LOCATION="$VAR_LOCATION/oneform/drivers/.states"
+    ONEFORM_EXTERNAL_PROVIDERS_LOCATION="$VAR_LOCATION/oneform/drivers"
 
     ONEPROMETHEUS_SYSTEMD_LOCATION="/lib/systemd/system"
     ONEPROMETHEUS_VAR_ALERTMANAGER_LOCATION="/var/lib/alertmanager"
@@ -165,7 +167,8 @@ if [ -z "$ROOT" ] ; then
         CHOWN_DIRS=""
     elif [ "$ONEFORM" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $ONEFORM_LOCATION \
-                    $ETC_LOCATION $ONEFORM_PROVIDERS_LOCATION $ANS_LOCATION"
+                    $ETC_LOCATION $ONEFORM_PROVIDERS_LOCATION $ONEFORM_EXTERNAL_PROVIDERS_LOCATION \
+                    $ONEFORM_PROVIDERS_STATES_LOCATION $ANS_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -176,7 +179,8 @@ if [ -z "$ROOT" ] ; then
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $ONEFORM_LOCATION \
-                   $ONEHEM_LOCATION $ONEPROMETHEUS_DIRS $ONEFORM_PROVIDERS_LOCATION $ANS_LOCATION"
+                   $ONEHEM_LOCATION $ONEPROMETHEUS_DIRS $ONEFORM_PROVIDERS_LOCATION $ONEFORM_EXTERNAL_PROVIDERS_LOCATION \
+                   $ONEFORM_PROVIDERS_STATES_LOCATION $ANS_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -206,7 +210,9 @@ else
     DOCS_LOCATION="$ROOT/share/doc"
     ANS_LOCATION="$SHARE_LOCATION/ansible"
 
-    ONEFORM_PROVIDERS_LOCATION="$SHARE_LOCATION/oneform/drivers"
+    ONEFORM_PROVIDERS_LOCATION="$LIB_LOCATION/oneform/drivers"
+    ONEFORM_PROVIDERS_STATES_LOCATION="$VAR_LOCATION/oneform/drivers/.states"
+    ONEFORM_EXTERNAL_PROVIDERS_LOCATION="$VAR_LOCATION/oneform/drivers"
 
     ONEPROMETHEUS_SYSTEMD_LOCATION="$LIB_LOCATION/systemd"
     ONEPROMETHEUS_VAR_ALERTMANAGER_LOCATION="$ROOT/var/alertmanager"
@@ -237,7 +243,8 @@ else
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$ONEFORM" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $ONEFORM_LOCATION \
-                    $ETC_LOCATION $ONEFORM_PROVIDERS_LOCATION $ANS_LOCATION"
+                    $ETC_LOCATION $ONEFORM_PROVIDERS_LOCATION $ONEFORM_EXTERNAL_PROVIDERS_LOCATION \
+                    $ONEFORM_PROVIDERS_STATES_LOCATION $ANS_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -248,7 +255,8 @@ else
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $ONEFORM_LOCATION \
                    $ONEHEM_LOCATION $LOCK_LOCATION $RUN_LOCATION \
-                   $ONEPROMETHEUS_DIRS $ONEFORM_PROVIDERS_LOCATION $ANS_LOCATION"
+                   $ONEPROMETHEUS_DIRS $ONEFORM_PROVIDERS_LOCATION $ONEFORM_EXTERNAL_PROVIDERS_LOCATION \
+                   $ONEFORM_PROVIDERS_STATES_LOCATION $ANS_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -795,6 +803,7 @@ INSTALL_ONEFORM_FILES=(
     ONEFORM_CONFIG_FILES:$ONEFORM_LOCATION/config
     ONEFORM_ANSIBLE_INVENTORY:$ANS_LOCATION/plugins/inventory
     ONEFORM_ANSIBLE_LIB:$ANS_LOCATION/plugins/lib
+    ONEFORM_PROVIDERS_STATES_FILES:$ONEFORM_PROVIDERS_STATES_LOCATION
     ONEFORM_PROVIDERS_FILES:$ONEFORM_PROVIDERS_LOCATION
 )
 
@@ -880,11 +889,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/oca/ruby/opennebula.rb \
-                share/providers/aws/elastic/aws_vnm.rb \
-                share/providers/equinix/elastic/equinix_vnm.rb \
-                share/providers/equinix/elastic/equinix.rb \
-                share/providers/scaleway/elastic/scaleway_vnm.rb \
-                share/providers/scaleway/elastic/scaleway.rb \
                 share/misc/load_opennebula_paths.rb"
 
 #-------------------------------------------------------------------------------
@@ -2389,7 +2393,8 @@ ONEFORM_LIB_TOOLS_FILES="src/form/lib/tools/ansible.rb \
                          src/form/lib/tools/terraform.rb \
                          src/form/lib/tools/log.rb"
 
-ONEFORM_PROVIDERS_FILES="share/providers/*"
+ONEFORM_PROVIDERS_FILES="src/form/drivers/*"
+ONEFORM_PROVIDERS_STATES_FILES="src/form/drivers/.states/*"
 
 ONEFORM_ANSIBLE_INVENTORY="share/ansible/plugins/inventory/opennebula_form.py"
 

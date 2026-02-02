@@ -22,12 +22,10 @@ if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
     GEMS_LOCATION     = '/usr/share/one/gems'
     ETC_LOCATION      = '/etc/one/'
-    DRIVERS_PATH      = '/usr/share/one/oneform/drivers'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     ETC_LOCATION      = ONE_LOCATION + '/etc/'
-    DRIVERS_PATH      = ONE_LOCATION + '/share/oneform/drivers'
 end
 
 # %%RUBYGEMS_SETUP_BEGIN%%
@@ -76,10 +74,9 @@ class IPAMDriver < OpenNebulaDriver
         super('ipam/', @options)
 
         if ipam_type.nil?
-            @types = ( Dir["#{@local_scripts_path}/*/"] +
-                       Dir["#{DRIVERS_PATH}/*/ipam"]).map do |d|
-                File.basename(File.dirname(d))
-            end.uniq
+            @types = Dir["#{@local_scripts_path}/*/"].map do |d|
+                d.split('/')[-1]
+            end
         elsif ipam_type.class == String
             @types = [ipam_type]
         else
@@ -154,15 +151,7 @@ class IPAMDriver < OpenNebulaDriver
 
         return unless available?(ipam, id, action)
 
-        local_path  = File.join(@local_scripts_path, ipam)
-        driver_path = File.join(DRIVERS_PATH, ipam, 'ipam')
-
-        path = if File.exist?(driver_path)
-                   driver_path
-               else
-                   local_path
-               end
-
+        path = File.join(@local_scripts_path, ipam)
         cmd  = File.join(path, ACTION[action].downcase)
         cmd << ' ' << id
 

@@ -83,6 +83,7 @@ module OneForm
 
         DOCUMENT_TYPE = ProvisionDocumentPool::DOCUMENT_TYPE
         TEMPLATE_TAG  = 'PROVISION_BODY'
+        REDACTED_MARK = '__redacted__'
         BASE_DIR      = conf[:work_dir]
 
         # Log configuration
@@ -272,31 +273,52 @@ module OneForm
             File.join(logdir, "#{id}.log")
         end
 
-        # Transform the provision body to JSON
-        def to_json(opts = {})
+        def to_h(opts = {})
+            include_sensitive = opts[:include_sensitive] == true
+
             document = to_hash.clone
-            body     = @body.clone
+            template = Marshal.load(Marshal.dump(@body))
 
-            # Transformin state
-            body['state'] = str_state
-
+            # Transforming state
+            template['state'] = str_state
             # Removing tfstate
-            body.delete('tfstate')
-
-            # Removing component from inputs
-            body['user_inputs'].each do |ui|
-                ui.delete('component')
-            end
+            template.delete('tfstate')
 
             # Transforming tags
-            body['tags'] = tags_values
+            template['tags'] = tags_values
 
-            if body['tags'].any?
-                body['user_inputs_values'] = body['user_inputs_values'].except('oneform_tags')
+            ui        = template['user_inputs'] || []
+            ui_values = (template['user_inputs_values'] || {}).dup
+
+            # Removing component from inputs
+            ui.each do |input|
+                input.delete('component')
             end
 
-            document['DOCUMENT']['TEMPLATE'][TEMPLATE_TAG] = body
-            document.to_json(opts)
+            # Remove oneform_tags from user_inputs_values if tags exist
+            if template['tags'].is_a?(Array) && !template['tags'].empty?
+                ui_values.delete(:oneform_tags)
+            end
+
+            # Redact sensitive values
+            unless include_sensitive
+                ui.each do |input|
+                    sensitive = input[:sensitive] || input['sensitive']
+                    name      = input[:name] || input['name']
+                    next unless sensitive && name
+
+                    ui_values[name] = REDACTED_MARK if ui_values.key?(name)
+                end
+            end
+
+            template['user_inputs_values'] = ui_values
+
+            document['DOCUMENT']['TEMPLATE'][TEMPLATE_TAG] = template
+            document
+        end
+
+        def to_json(*args)
+            super
         end
 
         # Returns a logger for this provision. Provision::dir should exist before
@@ -785,8 +807,15 @@ module OneForm
         def create_one_objects(success_cb, failure_cb)
             @logger.info('Creating OpenNebula objects')
 
-            suffix = "(provision_#{id})"
-            tags   = { 'oneform' => { 'provision_id' => id }.merge(tags_values) }
+            provider = Provider.new_from_id(@client, provider_id)
+            suffix   = "(provision_#{id})"
+            tags     = {
+                'oneform' => {
+                    'provision_id' => id,
+                    'provider_id'  => provider.id,
+                    'driver'       => provider.driver
+                }.merge(tags_values)
+            }
 
             run_block(@logger, success_cb, failure_cb) do
                 # Create the OpenNebula objects for each resource type
