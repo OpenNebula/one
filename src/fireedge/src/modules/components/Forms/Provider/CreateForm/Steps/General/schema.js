@@ -42,6 +42,7 @@ const DESCRIPTION_FIELD = {
       'Description should not be a numeric value',
       (value) => isNaN(value) || value.trim() === ''
     )
+    .required()
     .default(() => ''),
   grid: { md: 12 },
 }

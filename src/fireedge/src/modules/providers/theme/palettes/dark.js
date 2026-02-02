@@ -511,6 +511,7 @@ export const darkPalette = {
       title: '#F5F7F9',
       subtitle: '#C4CDD5',
       cardBorder: '#40435C',
+      cardSelected: primaryColor,
       icon: '#58D2FF',
       link: sunstoneColors.blue[400],
     },

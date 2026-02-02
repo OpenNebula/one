@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Typography } from '@mui/material'
+import { Box, Alert, Typography } from '@mui/material'
 import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -25,6 +25,10 @@ import {
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
 
+import { Translate, Tr } from '@modules/components/HOC'
+import { PATH } from '@modules/components/path'
+import { CreateAction } from '@modules/components/Tables/Clusters/CreateAction'
+
 import {
   CLUSTER_ACTIONS,
   PROVISION_ACTIONS,
@@ -32,9 +36,6 @@ import {
   STYLE_BUTTONS,
   T,
 } from '@ConstantsModule'
-import { Translate } from '@modules/components/HOC'
-import { PATH } from '@modules/components/path'
-import { CreateAction } from '@modules/components/Tables/Clusters/CreateAction'
 
 const ListClusterNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -52,13 +53,55 @@ const ListClusterNames = ({ rows = [] }) =>
     )
   })
 
-const MessageToConfirmAction = (rows, description) => (
-  <>
-    <ListClusterNames rows={rows} />
-    {description && <Translate word={description} />}
-    <Translate word={T.DoYouWantProceed} />
-  </>
-)
+const ListCloudClustersNames = ({ rows = [] }) =>
+  rows?.map?.(({ id, original }) => {
+    const { ID, NAME } = original
+
+    return (
+      <Typography
+        key={`cluster-${id}`}
+        variant="inherit"
+        component="span"
+        display="block"
+      >
+        <Box
+          display="grid"
+          gap="1em"
+          sx={{
+            gridColumn: '1 / -1',
+            marginTop: '1em',
+            backgroundColor: 'background.paper',
+          }}
+        >
+          <Alert
+            severity="warning"
+            variant="outlined"
+            sx={{ bgcolor: 'background.paper' }}
+          >
+            {`#${ID} ${NAME} ${Tr(T['oneform.provision.delete'])}`}
+          </Alert>
+        </Box>
+      </Typography>
+    )
+  })
+
+const MessageToConfirmAction = (rows, description) => {
+  const cloudClusters = rows.filter(
+    ({ original }) => original?.TEMPLATE.ONEFORM
+  )
+
+  return (
+    <>
+      {cloudClusters.length > 0 ? (
+        <ListCloudClustersNames rows={cloudClusters} />
+      ) : (
+        <ListClusterNames rows={rows} />
+      )}
+      {description && <Translate word={description} />}
+      <Translate word={T.DoYouWantProceed} />
+    </>
+  )
+}
 
 MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 

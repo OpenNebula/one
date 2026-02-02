@@ -15,42 +15,50 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import FormWithSchema from '@modules/components/Forms/FormWithSchema'
-import { getObjectSchemaFromFields } from '@UtilsModule'
 import { T } from '@ConstantsModule'
+import { useFormContext, useController } from 'react-hook-form'
+import { find } from 'lodash'
+import { SCHEMA } from './schema'
 
-const STEP_ID = 'connection_values'
+export const STEP_ID = 'connection_values'
 
-const Content = (driverName, fields) => (
-  <FormWithSchema
-    id={driverName}
-    cy={`${STEP_ID}-${driverName}`}
-    key={`${STEP_ID}-${driverName}`}
-    fields={fields}
-  />
-)
+const Content = (groupDrivers) => {
+  // Access to the form
+  const { control } = useFormContext()
+
+  // Control the driver value
+  const {
+    field: { value },
+  } = useController({ name: `driver.DRIVER`, control: control })
+
+  // Get the correspoding driver
+  const driver = find(groupDrivers, { name: value })
+
+  // Render the form with the connection values from the driver
+  return (
+    <FormWithSchema
+      id={`${STEP_ID}`}
+      cy={`${STEP_ID}`}
+      key={`${STEP_ID}`}
+      fields={driver?.driverFields}
+    />
+  )
+}
 
 /**
  * Connection Values configuration.
  *
- * @param {object} driver - Driver data
- * @param {boolean} create - Determine if this step is shown. True as default
+ * @param {object} props - Properties for the step
+ * @param {object} props.groupedDrivers - Drivers data
  * @returns {object} Connection values configuration step
  */
-const ConnectionValues = (driver, create = true) => {
-  const driverName = driver?.name
-  const driverFields = driver?.driverFields
-
-  return {
-    id: driverName,
-    label: T.ConnectionValues,
-    resolver: getObjectSchemaFromFields(driverFields),
-    optionsValidate: { abortEarly: false },
-    content: () => Content(driverName, driverFields),
-    defaultDisabled: {
-      condition: () => create,
-    },
-  }
-}
+const ConnectionValues = ({ groupedDrivers }) => ({
+  id: STEP_ID,
+  label: T.ConnectionValues,
+  resolver: SCHEMA(groupedDrivers),
+  optionsValidate: { abortEarly: false },
+  content: () => Content(groupedDrivers),
+})
 
 ConnectionValues.propTypes = {
   data: PropTypes.object,

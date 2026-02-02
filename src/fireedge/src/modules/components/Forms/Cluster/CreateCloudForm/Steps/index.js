@@ -24,7 +24,9 @@ import Deployments, {
   STEP_ID as DEPLOYMENT_ID,
 } from '@modules/components/Forms/Cluster/CreateCloudForm/Steps/Deployments'
 
-import UserInputs from '@modules/components/Forms/Cluster/CreateCloudForm/Steps/UserInputs'
+import UserInputs, {
+  STEP_ID as USER_INPUTS_ID,
+} from '@modules/components/Forms/Cluster/CreateCloudForm/Steps/UserInputs'
 
 import OneformTags, {
   STEP_ID as TAGS_ID,
@@ -40,63 +42,18 @@ import { createSteps, groupUserInputs } from '@UtilsModule'
  */
 const Steps = createSteps(
   ({ providers = [], drivers = [], onpremiseProvider = false }) => {
-    /**
-     * 1. GENERAL STEP
-     */
-
-    const steps = [() => General()]
+    const steps = []
 
     // Group drivers to generate provider step
     const groupedDrivers = createFieldsFromDeploymentConfs(drivers)
-    const providerSteps = providers.map((provider) => {
-      const selectedDriver = drivers.find(
-        (driver) => driver.name === provider.TEMPLATE.PROVIDER_BODY.driver
-      )
-
-      return {
-        id: provider.ID,
-        name: provider.NAME,
-        hasSteps: selectedDriver?.deployment_confs?.length > 0,
-      }
-    })
-
-    /**
-     * 2. PROVIDER STEP
-     */
-
-    // Add provider step if is not the onpremise case
-    steps.push(() => ProvidersStep(providerSteps, onpremiseProvider))
-
-    /**
-     * 3. DEPLOYMENT CONF STEP
-     */
-
-    // Get deployment configurations available
-    const deploymentSteps = []
-    groupedDrivers.forEach((driverWithDeployments) => {
-      const deploymentConfs = driverWithDeployments.deploymentConfs
-      deploymentConfs.forEach((deploymentConf) => {
-        const componentName = deploymentConf.deploymentAlias
-        const step = {
-          name: componentName,
-        }
-        deploymentSteps.push(step)
-      })
-    })
-
-    // Add deployment conf step
-    steps.push(() => Deployments(providers, groupedDrivers, deploymentSteps))
-
-    /**
-     * 4. USER INPUTS STEP: This step is only displayed after select the deployment conf of the step 3
-     */
 
     // Generate user inputs step for each provider and deployment conf
-    groupedDrivers.forEach((driverWithDeployments) => {
+    const groupConfs = groupedDrivers.map((driverWithDeployments) => {
       const deploymentConfs = driverWithDeployments.deploymentConfs
       const fireedge = driverWithDeployments.fireedge
       const name = driverWithDeployments.name
-      deploymentConfs.forEach((deploymentConf) => {
+
+      const test = deploymentConfs.map((deploymentConf) => {
         // Get the user inputs to display
         const userInputs = deploymentConf.deploymentUserInputs
 
@@ -105,21 +62,43 @@ const Steps = createSteps(
           ? groupUserInputs(userInputs, fireedge, name)
           : undefined
 
-        // Get the component name
-        const componentName = deploymentConf.deploymentAlias
-        steps.push(() =>
-          UserInputs(componentName, userInputs, userInputsLayout)
-        )
+        return {
+          ...deploymentConf,
+          userInputsLayout,
+        }
       })
+
+      return {
+        ...driverWithDeployments,
+        deploymentConfs: test,
+      }
     })
 
-    /**
-     * 5. TAGS STEP
-     */
+    const deploymentConfsList = groupConfs.flatMap((e) => e.deploymentConfs)
+
+    // STEP 1. Providers - Add provider step if is not the onpremise case
+    steps.push(() => ProvidersStep({ onpremiseProvider }))
+
+    // STEP 2. General information
+    steps.push(() => General())
+
+    // STEP 3. Deployment configurations
+    steps.push(() =>
+      Deployments({
+        providers,
+        groupedDrivers,
+        deploymentConfsList,
+      })
+    )
+
+    // STEP 4. User inputs
+    steps.push(() => UserInputs({ deploymentConfs: deploymentConfsList }))
+
+    // STEP 5. Tags
     steps.push(() => OneformTags())
 
-    // Delete empty steps
-    return steps.filter(Boolean)
+    // Return steps
+    return steps
   },
   {
     transformInitialValue: (initialValues, schema) => {
@@ -129,8 +108,10 @@ const Steps = createSteps(
         initialValues?.onpremProviders &&
         initialValues?.onpremProviders?.length > 0
       ) {
+        // Add default data to the schema
         schema.default()
 
+        // Add the onprem provider
         const knownTemplate = schema.cast(
           {
             [PROVIDER_ID]: { PROVIDER: initialValues?.onpremProviders[0].ID },
@@ -140,39 +121,39 @@ const Steps = createSteps(
           }
         )
 
+        // Return template with onprem provider
         return knownTemplate
       } else {
+        // Return template without provider
         return schema.default()
       }
     },
     transformBeforeSubmit: (formData) => {
+      // Get data from steps
       const {
         [GENERAL_ID]: generalData,
         [PROVIDER_ID]: providerData,
         [DEPLOYMENT_ID]: deploymentData,
+        [USER_INPUTS_ID]: userInputsData,
         [TAGS_ID]: tagsData,
       } = formData
 
+      // Get provider id, driver name and deployment type
       const providerId = providerData.PROVIDER
-      const userInputsData = formData[deploymentData.DEPLOYMENT_CONF]
       const [driver, deploymentType] = deploymentData.DEPLOYMENT_CONF.split('-')
 
+      // Tags will be send as user inputs
       if (tagsData) {
         userInputsData.oneform_tags = tagsData ?? {}
       }
 
+      // Create template to send to oneform
       const template = {
         name: generalData.NAME,
         driver: driver,
         deployment_type: deploymentType,
         provider_id: providerId,
         user_inputs_values: userInputsData,
-      }
-
-      const description = generalData.DESCRIPTION
-
-      if (description) {
-        return { ...template, description: description }
       }
 
       return template

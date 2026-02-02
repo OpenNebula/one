@@ -520,6 +520,7 @@ export const lightPalette = {
       title: sunstoneColors.darkBlue[200],
       subtitle: sunstoneColors.darkGrey[200],
       cardBorder: sunstoneColors.grey[400],
+      cardSelected: primaryColor,
       icon: '#58D2FF',
       link: sunstoneColors.blue[400],
     },

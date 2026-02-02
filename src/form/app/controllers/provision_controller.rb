@@ -106,7 +106,7 @@ module OneFormServer
                 body process_response(provision)
             end
 
-            # GET /provisions/:id/unmanged
+            # GET /provisions/:id/unmanaged
             # Retrieves unmanaged resources related to a provision (e.g. VMs, images, leases).
             #
             # Params:
@@ -123,7 +123,7 @@ module OneFormServer
             #   200 OK - List of unmanaged resources (JSON)
             #   404 Not Found - If provision does not exist
             #   500 Internal Server Error - If OpenNebula error
-            app.get '/provisions/:id/unmanged' do
+            app.get '/provisions/:id/unmanaged' do
                 provision = OneForm::Provision.new_from_id(@client, params[:id])
 
                 return internal_error(

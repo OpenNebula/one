@@ -15,54 +15,33 @@
  * ------------------------------------------------------------------------- */
 import { DriversTable } from '@modules/components/Tables'
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { Field, getObjectSchemaFromFields } from '@UtilsModule'
-import { string, ArraySchema } from 'yup'
-import { findIndex } from 'lodash'
+import { getObjectSchemaFromFields } from '@UtilsModule'
+import { string } from 'yup'
 
-const DRIVER = (driversSteps) => {
-  const stepControl = []
-
-  driversSteps?.forEach((driver, indexDriver) => {
-    if (driver?.hasSteps) {
-      const stepControlDriver = {
-        condition: (value) =>
-          findIndex(driversSteps, { name: value }) !== indexDriver,
-        steps: [driversSteps[indexDriver]?.name],
-      }
-
-      stepControl.push(stepControlDriver)
-    }
-  })
-
-  return {
-    name: 'DRIVER',
-    label: T.Drivers,
-    type: INPUT_TYPES.TABLE,
-    Table: () => DriversTable.Table,
-    getRowId: (row) => String(row.name),
-    validation: string()
-      .trim()
-      .required()
-      .default(() => undefined),
-    grid: { md: 12 },
-    fieldProps: {
-      filterData: (drivers) =>
-        drivers.filter(
-          (driver) =>
-            driver.name.toLowerCase() !== 'onprem' && driver.state === 'ENABLED'
-        ),
-    },
-    stepControl: stepControl || undefined,
-  }
+const DRIVER = {
+  name: 'DRIVER',
+  label: T.Drivers,
+  type: INPUT_TYPES.TABLE,
+  Table: () => DriversTable.Table,
+  getRowId: (row) => String(row.name),
+  singleSelect: true,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => undefined),
+  grid: { md: 12 },
+  fieldProps: {
+    preserveState: true,
+    filterData: (drivers) =>
+      drivers.filter(
+        (driver) =>
+          driver.name.toLowerCase() !== 'onprem' && driver.state === 'ENABLED'
+      ),
+  },
 }
 
-/**
- * @param {object} driversSteps - Associated steps for each driver
- * @returns {Field[]} Fields
- */
-const FIELDS = (driversSteps) => [DRIVER(driversSteps)]
+const FIELDS = [DRIVER]
 
-/** @type {ArraySchema} Drivers table schema */
-const SCHEMA = (driversSteps) => getObjectSchemaFromFields(FIELDS(driversSteps))
+const SCHEMA = getObjectSchemaFromFields(FIELDS)
 
 export { SCHEMA, FIELDS }

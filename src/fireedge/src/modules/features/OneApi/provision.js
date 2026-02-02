@@ -103,7 +103,7 @@ const provisionApi = oneApi.injectEndpoints({
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
-        const name = Actions.ADD_HOST
+        const name = Actions.SCALE
         Array.isArray(params?.hosts)
           ? (params.ips = params.hosts.join(','))
           : (params.amount = params.hosts)

@@ -40,15 +40,18 @@ const AutocompleteController = memo(
     watcher,
     dependencies,
     disableEnter = false,
+    defaultValue,
   }) => {
     const {
       field: { value: renderValue, onBlur, onChange },
       fieldState: { error },
     } = useController({ name, control })
 
-    const selected = multiple
-      ? renderValue ?? []
-      : values.find(({ value }) => value === renderValue) || renderValue
+    const selected =
+      defaultValue ||
+      (multiple
+        ? renderValue ?? []
+        : values.find(({ value }) => value === renderValue) || renderValue)
 
     const handleChange = useCallback(
       (_, newValue) => {
@@ -255,6 +258,7 @@ AutocompleteController.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
+  defaultValue: PropTypes.string,
 }
 
 AutocompleteController.displayName = 'AutocompleteController'

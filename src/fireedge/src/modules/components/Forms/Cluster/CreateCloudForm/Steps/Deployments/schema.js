@@ -13,72 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { INPUT_TYPES, T } from '@ConstantsModule'
-import { Field, getObjectSchemaFromFields, arrayToOptions } from '@UtilsModule'
-import { ObjectSchema, string } from 'yup'
-import { findIndex } from 'lodash'
+import { INPUT_TYPES } from '@ConstantsModule'
+import { getObjectSchemaFromFields } from '@UtilsModule'
+import { string } from 'yup'
 
-/** @type {Field} Name field */
-const DEPLOYMENT_CONF = (providers, groupedDrivers, deploymentSteps) => {
-  const stepControl = []
-
-  deploymentSteps?.forEach((deploymentStep, index) => {
-    const deploymentConf = {
-      condition: (deployment) =>
-        findIndex(deploymentSteps, { name: deployment }) !== index,
-      steps: [deploymentSteps[index].name],
-    }
-    stepControl.push(deploymentConf)
-  })
-
-  return {
-    name: 'DEPLOYMENT_CONF',
-    label: T['cluster.deployment_conf'],
-    type: INPUT_TYPES.AUTOCOMPLETE,
-    optionsOnly: true,
-    dependOf: '$provider.PROVIDER',
-    dependencies: '$provider.PROVIDER',
-    clearInvalid: true,
-    values: (providerId = []) => {
-      const selectedProvider = providers.find((p) => p.ID === providerId)
-      const selectedDriver = selectedProvider
-        ? groupedDrivers.find(
-            (driver) =>
-              driver.name === selectedProvider.TEMPLATE.PROVIDER_BODY.driver
-          )
-        : {}
-
-      return arrayToOptions(selectedDriver?.deploymentConfs, {
-        addEmpty: true,
-        getText: ({ deploymentName }) => deploymentName,
-        getValue: ({ deploymentAlias }) => deploymentAlias,
-      })
-    },
-    validation: string()
-      .trim()
-      .required()
-      .default(() => undefined),
-    grid: { md: 12 },
-    stepControl: stepControl,
-  }
+const DEPLOYMENT_CONF = {
+  name: 'DEPLOYMENT_CONF',
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => undefined),
 }
 
-/**
- * @param {Array} providers - Array of Providers
- * @param {Array} groupedDrivers - Array of drivers with deployment configurations fields
- * @param {Array} deploymentSteps - Array of deployment steps
- * @returns {Field[]} Fields
- */
-const FIELDS = (providers, groupedDrivers, deploymentSteps) => [
-  DEPLOYMENT_CONF(providers, groupedDrivers, deploymentSteps),
-]
-
-/**
- * @param {Array} providers - Array of Providers
- * @param {Array} groupedDrivers - Array of drivers with deployment configurations fields
- * @returns {ObjectSchema} Schema
- */
-const SCHEMA = (providers, groupedDrivers) =>
-  getObjectSchemaFromFields(FIELDS(providers, groupedDrivers))
+const FIELDS = [DEPLOYMENT_CONF]
+const SCHEMA = getObjectSchemaFromFields(FIELDS)
 
 export { SCHEMA, FIELDS }

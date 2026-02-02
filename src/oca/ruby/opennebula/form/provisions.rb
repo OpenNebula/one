@@ -40,7 +40,7 @@ module OneForm
         # @param id [String] Provision ID.
         # @return [Hash] Unmanaged data of the provision.
         def get_unmanaged_provision(id)
-            get("/provisions/#{id}/unmanged")
+            get("/provisions/#{id}/unmanaged")
         end
 
         # Creates a new provision using a base driver definition

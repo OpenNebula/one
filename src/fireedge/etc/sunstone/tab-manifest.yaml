@@ -217,7 +217,7 @@
     - title: Create Cluster
       path: /cluster/create
       Component: CreateCluster
-    - title: Create Cluster Cloud
+    - title: Create Cluster
       path: /cluster/create_cloud
       Component: CreateClusterCloud
     - title: Cluster Logs

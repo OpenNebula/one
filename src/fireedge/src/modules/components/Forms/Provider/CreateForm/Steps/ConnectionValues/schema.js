@@ -13,38 +13,28 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import { T } from '@ConstantsModule'
-import { SCHEMA, FIELDS } from './schema'
-import FormWithSchema from '@modules/components/Forms/FormWithSchema'
+import { getObjectSchemaFromFields } from '@UtilsModule'
+import { find } from 'lodash'
+import { ObjectSchema, object } from 'yup'
 
-export const STEP_ID = 'provider'
+const generateSchema = (form, groupedDrivers) => {
+  // Get selected driver
+  const driver = find(groupedDrivers, { name: form?.driver?.DRIVER })
 
-const Content = () => (
-  <FormWithSchema id={STEP_ID} cy={`${STEP_ID}`} fields={FIELDS} />
-)
+  // Create the corresponding schema
+  const schema = driver?.driverFields
+    ? getObjectSchemaFromFields(driver?.driverFields)
+    : undefined
 
-/**
- * Providers table selector.
- *
- * @param {object} props - Step props
- * @param {boolean} props.onpremiseProvider - Use onpremise provider
- * @returns {object} Drivers table selector step
- */
-const ProvidersStep = ({ onpremiseProvider }) => ({
-  id: STEP_ID,
-  label: T.SelectProvider,
-  resolver: SCHEMA,
-  optionsValidate: { abortEarly: false },
-  content: () => Content(),
-  defaultDisabled: {
-    condition: () => onpremiseProvider,
-  },
-})
-
-ProvidersStep.propTypes = {
-  data: PropTypes.object,
-  setFormData: PropTypes.func,
+  // Return the schema
+  return schema || object()
 }
 
-export default ProvidersStep
+/**
+ * Create the schema.
+ *
+ * @param {object} groupedDrivers - Drivers data
+ * @returns {ObjectSchema} - Generated schema
+ */
+export const SCHEMA = (groupedDrivers) => (form) =>
+  generateSchema(form, groupedDrivers)

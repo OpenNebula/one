@@ -395,7 +395,7 @@ export const schemaOdsUserInputField = (odsUserInput = {}) => {
   }
 
   if (defaultValue) {
-    config.default = defaultValue
+    config.defaultValue = defaultValue
   }
 
   return config

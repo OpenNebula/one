@@ -35,6 +35,7 @@ const SliderController = memo(
     fieldProps = {},
     readOnly = false,
     onConditionChange,
+    defaultValue,
   }) => {
     const watch = useWatch({
       name: dependencies,
@@ -47,7 +48,7 @@ const SliderController = memo(
     const {
       field: { value, onChange, onBlur, ...inputProps },
       fieldState: { error },
-    } = useController({ name, control })
+    } = useController({ name, control, defaultValue })
 
     const handleEnsuredChange = useCallback(
       (newValue) => {
@@ -152,6 +153,7 @@ SliderController.propTypes = {
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
   onConditionChange: PropTypes.func,
+  defaultValue: PropTypes.string,
 }
 
 SliderController.displayName = 'SliderController'

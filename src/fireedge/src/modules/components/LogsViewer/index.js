@@ -323,13 +323,15 @@ const LogsViewer = ({
             isSubmitting={isFetching}
             onClick={() => getLogs()}
           />
-          <SubmitButton
-            data-cy="detail-retry"
-            icon={<RedoCircle />}
-            tooltip={Tr(T.Retry)}
-            isSubmitting={isFetching}
-            onClick={() => retry({ id: provisionId })}
-          />
+          {provisionId && (
+            <SubmitButton
+              data-cy="detail-retry"
+              icon={<RedoCircle />}
+              tooltip={Tr(T.Retry)}
+              isSubmitting={isFetching}
+              onClick={() => retry({ id: provisionId })}
+            />
+          )}
         </Stack>
       </Stack>
 

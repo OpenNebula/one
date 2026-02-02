@@ -8,7 +8,7 @@ fireedge:
 ---
 all:
   vars:
-    one_version: {{ one.version }}
+    one_version: "{{ one.version }}"
     vn:
       private_i3dnet_network:
         managed: true
@@ -32,14 +32,14 @@ all:
       config:
         SYSTEM_DS:
           i3dnet_system_ds:
-            id: {{ one.system_ds_id}}
+            id: "{{ one.system_ds_id}}"
             template:
               type: SYSTEM_DS
               tm_mad: ssh
               safe_dirs: /var/tmp /tmp
         IMAGE_DS:
           i3dnet_image_ds:
-            id: {{ one.image_ds_id }}
+            id: "{{ one.image_ds_id }}"
             template:
               type: IMAGE_DS
               ds_mad: fs

@@ -696,25 +696,25 @@ module.exports = {
   Zones: 'Zones',
   Vnet: 'Vnet',
   Vnets: 'Vnets',
-  OneformTags: 'Oneform Tags',
+  OneformTags: 'Tags',
   Providers: 'Providers',
   Provisions: 'Provisions',
   NumberProvisions: 'Number of associated provisions',
   'cluster.create.selection.head': 'Creating New Cluster',
-  'cluster.create.selection.title': 'Choose Your Deployment Type',
+  'cluster.create.selection.title': 'Choose Your Cluster Type',
   'cluster.create.selection.subtitle':
     'Select how you want to create the cluster.',
   'cluster.create.opennebula.title': 'OpenNebula Cluster',
   'cluster.create.opennebula.subtitle':
-    'Manually create new infrastructure on-premise.',
+    'Organize existing OpenNebula resources into a logical group.',
   'cluster.create.opennebula.help': 'More info in OpenNebula Documentation.',
   'cluster.create.provider.title': 'Cloud Provider',
   'cluster.create.provider.subtitle':
-    'Automatically provision new infrastructure on cloud provider',
+    'Provision and configure resources from a cloud provider.',
   'cluster.create.provider.help': 'More info in OpenNebula Documentation.',
   'cluster.create.onpremise.title': 'On-premise Cluster',
   'cluster.create.onpremise.subtitle':
-    'Automatically provision new infrastructure on-premise',
+    'Install and configure on-premises hosts from scratch.',
   'cluster.create.onpremise.help': 'More info in OpenNebula Documentation.',
   'cluster.deployment_conf': 'Deployment configurations',
   'cluster.form.create.general.help.title': 'Cluster',
@@ -752,10 +752,17 @@ module.exports = {
   'cluster.create.provisioning.description':
     'OneForm is automatically provisioning your cloud infrastructure. This typically takes 5-10 minutes.',
   'oneformtags.info':
-    'Optional key-value pairs that will be propagated in the OpenNebula and Cloud resources',
+    'Optional key-value pairs applied to OpenNebula and cloud resources.',
   'oneform.info.more': 'See OpenNebula documentation to get more details ',
   'oneform.info.more.link': 'about OneForm service configuration.',
   'cluster.vnet.del.ip': 'Delete IP range',
+  'oneform.deploymentConf.info': 'Select the deployment configuration:',
+  'oneform.deploymentConf.info.link':
+    'See OpenNebula documentation to get more details',
+  'oneform.deploymentConf.error':
+    'Select one deployment configuration to continue.',
+  'oneform.provision.delete':
+    'This will delete the cluster and all the created resources in the cloud provider and in OpenNebula.',
 
   /* sections - network */
   Network: 'Network',

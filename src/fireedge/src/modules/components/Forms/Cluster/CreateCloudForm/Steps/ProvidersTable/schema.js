@@ -15,39 +15,33 @@
  * ------------------------------------------------------------------------- */
 import { ProvidersTable } from '@modules/components/Tables'
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { Field, getObjectSchemaFromFields } from '@UtilsModule'
-import { string, ArraySchema } from 'yup'
+import { getObjectSchemaFromFields } from '@UtilsModule'
+import { string } from 'yup'
 
-const PROVIDER = (providersSteps) => {
-  const stepControl = []
+const PROVIDER = {
+  name: 'PROVIDER',
+  label: T.Providers,
+  type: INPUT_TYPES.TABLE,
+  Table: () => ProvidersTable.Table,
+  getRowId: (row) => String(row.ID),
+  singleSelect: true,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => undefined),
+  grid: { md: 12 },
+  fieldProps: {
+    preserveState: true,
+    filterData: (providers) =>
+      providers.filter((provider) => {
+        const driver = provider.TEMPLATE.PROVIDER_BODY.driver
 
-  return {
-    name: 'PROVIDER',
-    label: T.Providers,
-    type: INPUT_TYPES.TABLE,
-    Table: () => ProvidersTable.Table,
-    getRowId: (row) => String(row.ID),
-    singleSelect: true,
-    validation: string()
-      .trim()
-      .required()
-      .default(() => undefined),
-    grid: { md: 12 },
-    stepControl: stepControl || undefined,
-    fieldProps: {
-      preserveState: true,
-    },
-  }
+        return driver.toLowerCase() !== 'onprem'
+      }),
+  },
 }
 
-/**
- * @param {object} providersSteps - Associated steps for each driver
- * @returns {Field[]} Fields
- */
-const FIELDS = (providersSteps) => [PROVIDER(providersSteps)]
-
-/** @type {ArraySchema} Drivers table schema */
-const SCHEMA = (providersSteps) =>
-  getObjectSchemaFromFields(FIELDS(providersSteps))
+const FIELDS = [PROVIDER]
+const SCHEMA = getObjectSchemaFromFields(FIELDS)
 
 export { SCHEMA, FIELDS }

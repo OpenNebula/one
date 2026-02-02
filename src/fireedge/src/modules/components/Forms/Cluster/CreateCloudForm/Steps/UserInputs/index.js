@@ -18,21 +18,42 @@ import { T } from '@ConstantsModule'
 import FormWithSchema from '@modules/components/Forms/FormWithSchema'
 import { generateTabs } from '@modules/components/Forms/UserInputs'
 
-import {
-  FIELDS,
-  SCHEMA,
-} from '@modules/components/Forms/Cluster/CreateCloudForm/Steps/UserInputs/schema'
+import { useFormContext, useController } from 'react-hook-form'
+import { find } from 'lodash'
 
-const Content = (stepName, userInputs, userInputsLayout) => {
-  if (userInputsLayout && userInputsLayout.length > 0) {
-    return generateTabs(userInputsLayout, stepName, FIELDS)
+import { SCHEMA } from '@modules/components/Forms/Cluster/CreateCloudForm/Steps/UserInputs/schema'
+
+export const STEP_ID = 'user_inputs'
+
+const Content = ({ deploymentConfs }) => {
+  // Access to the form
+  const { control } = useFormContext()
+
+  // Control the driver value
+  const {
+    field: { value: deployment },
+  } = useController({ name: `deployments.DEPLOYMENT_CONF`, control: control })
+
+  // Get the corresponding deployment conf
+  const deploymentConf = find(deploymentConfs, { deploymentAlias: deployment })
+
+  // Render tabs or form depending if there is layout
+  if (
+    deploymentConf?.userInputsLayout &&
+    deploymentConf?.userInputsLayout.length > 0
+  ) {
+    return generateTabs(
+      deploymentConf?.userInputsLayout,
+      STEP_ID,
+      (userInputs = []) => userInputs
+    )
   } else {
     return (
       <FormWithSchema
-        id={stepName}
-        cy={`${stepName}`}
-        key={`${stepName}`}
-        fields={userInputs}
+        id={STEP_ID}
+        cy={`${STEP_ID}`}
+        key={`${STEP_ID}`}
+        fields={deploymentConf?.deploymentUserInputs}
       />
     )
   }
@@ -41,20 +62,16 @@ const Content = (stepName, userInputs, userInputsLayout) => {
 /**
  * User Inputs configuration.
  *
- * @param {string} stepName - Name of the step
- * @param {object} userInputs - user inputs fields
- * @param {object} userInputsLayout - The user inputs layout
+ * @param {object} props - Step props
+ * @param {object} props.deploymentConfs - Deployment configuration data
  * @returns {object} User Inputs configuration step
  */
-const UserInputs = (stepName, userInputs, userInputsLayout) => ({
-  id: stepName,
+const UserInputs = ({ deploymentConfs }) => ({
+  id: STEP_ID,
   label: T.UserInputs,
-  resolver: SCHEMA(userInputs),
+  resolver: SCHEMA({ deploymentConfs }),
   optionsValidate: { abortEarly: false },
-  content: () => Content(stepName, userInputs, userInputsLayout),
-  defaultDisabled: {
-    condition: () => true,
-  },
+  content: () => Content({ deploymentConfs }),
 })
 
 UserInputs.propTypes = {
@@ -62,6 +79,6 @@ UserInputs.propTypes = {
   setFormData: PropTypes.func,
 }
 
-Content.propTypes = { isUpdate: PropTypes.bool }
+Content.propTypes = { deploymentConfs: PropTypes.array }
 
 export default UserInputs

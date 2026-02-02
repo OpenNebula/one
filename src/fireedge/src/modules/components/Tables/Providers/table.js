@@ -46,11 +46,17 @@ const ProvidersTable = (props) => {
 
   const { view, getResourceView } = useViews()
   const {
-    data = [],
+    data: providers = [],
     isFetching,
     refetch,
     error,
   } = ProviderAPI.useGetProvidersQuery()
+
+  // Filter data if there is filter function
+  const data =
+    props?.filterData && typeof props?.filterData === 'function'
+      ? props?.filterData(providers)
+      : providers
 
   // Get version to show links to documentation
   const { data: version } = SystemAPI.useGetOneVersionQuery()

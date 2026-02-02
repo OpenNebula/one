@@ -21,89 +21,74 @@ import DriversStep, {
   STEP_ID as DRIVER_ID,
 } from '@modules/components/Forms/Provider/CreateForm/Steps/DriversTable'
 
-import ConnectionValues from '@modules/components/Forms/Provider/CreateForm/Steps/ConnectionValues'
+import ConnectionValues, {
+  STEP_ID as CONNECTION_VALUES_ID,
+} from '@modules/components/Forms/Provider/CreateForm/Steps/ConnectionValues'
 
 import { createFieldsFromDriversOdsUserInputs } from '@modules/components/Forms/Oneform'
-
 import { createSteps } from '@UtilsModule'
 import { isEmpty } from 'lodash'
 
 const Steps = createSteps(
   ({ dataTemplate = {}, drivers = [] }) => {
+    // Create steps list
     const steps = []
-    let driversSteps, groupedDrivers
-    // if dataTemplateExtended is populated, render DriverStep but disabled
-    if (!isEmpty(dataTemplate)) {
-      const selectedProvider = dataTemplate.TEMPLATE.PROVIDER_BODY ?? {}
-      const providerDriver = drivers.find(
-        (driver) => driver.name === selectedProvider?.driver
-      )
-      groupedDrivers = createFieldsFromDriversOdsUserInputs([providerDriver])
-      const connectionValuesFields = groupedDrivers[0]
-      const driverFields = groupedDrivers[0].driverFields
-      driversSteps = [
-        {
-          name: selectedProvider.name,
-        },
-      ]
-      steps.push(() => DriversStep(driversSteps, true))
-      steps.push(() => General())
-      if (driverFields && driverFields.length > 0) {
-        steps.push(() => ConnectionValues(connectionValuesFields, false))
-      }
-    } else {
-      // Group drivers with their connection values to get if step is available or not
-      groupedDrivers = createFieldsFromDriversOdsUserInputs(drivers)
-      driversSteps = groupedDrivers?.map((driver) => ({
-        name: driver?.name,
-        hasSteps: driver?.driverFields?.length > 0,
-      }))
-      steps.push(() => DriversStep(driversSteps))
-      steps.push(() => General())
-      // If available connection values, it will be as part of the Form Stepper
-      groupedDrivers.forEach((driver) => {
-        steps.push(() => ConnectionValues(driver))
-      })
-    }
 
-    return steps.filter(Boolean)
+    // Create the Sunstone user inputs that will be used in each provider
+    const groupedDrivers = createFieldsFromDriversOdsUserInputs(drivers)
+
+    // STEP 1. Drivers
+    steps.push(() =>
+      DriversStep({ update: !isEmpty(dataTemplate), groupedDrivers })
+    )
+
+    // STEP 2. General information
+    steps.push(() => General())
+
+    // STEP 3. Connection values
+    steps.push(() => ConnectionValues({ groupedDrivers }))
+
+    // Return steps
+    return steps
   },
   {
-    saveState: true,
-    transformInitialValue: (Provider, schema) => {
-      const { NAME: name } = Provider
+    transformInitialValue: (provider, schema) => {
+      // Get provider name
+      const { NAME: name } = provider
 
-      const template = Provider?.TEMPLATE?.PROVIDER_BODY ?? {}
+      // Get provider template
+      const template = provider?.TEMPLATE?.PROVIDER_BODY ?? {}
 
+      // Get provider attributes
       const { description, driver, connection: connectionValues } = template
 
+      // Create object with the initial data
       const objectSchema = {
         [GENERAL_ID]: { name, description },
         [DRIVER_ID]: { DRIVER: driver },
-        [driver]: connectionValues,
+        [CONNECTION_VALUES_ID]: connectionValues,
       }
 
-      const knownTemplate = schema.cast(objectSchema, { stripUnknown: true })
+      // Cast to validate data
+      const knownTemplate = schema.cast(objectSchema, { stripUnknown: false })
 
+      // Return data
       return knownTemplate
     },
-
     transformBeforeSubmit: (formData) => {
-      const { [GENERAL_ID]: generalData, [DRIVER_ID]: driverData } = formData
+      // Get data from the form
+      const {
+        [GENERAL_ID]: generalData,
+        [DRIVER_ID]: driverData,
+        [CONNECTION_VALUES_ID]: connectionValuesData,
+      } = formData
 
-      const connectionValuesData = formData[driverData.DRIVER]
-
+      // Create template to send to oneform
       const template = {
-        name: generalData.name,
+        ...generalData,
         driver: driverData.DRIVER,
         connection_values: connectionValuesData || {}, // create
         connection: connectionValuesData || {}, // update
-      }
-
-      const description = generalData.description
-
-      if (description) {
-        return { ...template, description: description }
       }
 
       return template

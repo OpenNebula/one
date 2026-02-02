@@ -48,7 +48,7 @@ user_inputs:
 all:
   vars:
     ansible_user: ubuntu
-    one_version: {{ one.version }}
+    one_version: "{{ one.version }}"
 
     vn:
       private_onprem_network:
@@ -70,13 +70,13 @@ all:
       config:
         SYSTEM_DS:
           onprem_system_ds:
-            id: {{ one.system_ds_id }}
+            id: "{{ one.system_ds_id }}"
             template:
               type: SYSTEM_DS
               tm_mad: ssh
         IMAGE_DS:
           onprem_image_ds:
-            id: {{ one.image_ds_id }}
+            id: "{{ one.image_ds_id }}"
             template:
               type: IMAGE_DS
               ds_mad: fs
@@ -85,10 +85,10 @@ all:
 
 frontend:
   hosts:
-    f1: { ansible_user: root, ansible_host: {{ one.frontend_ip }} }
+    f1: { ansible_user: root, ansible_host: "{{ one.frontend_ip }}" }
 
 node:
   hosts:
     {% for node in one.nodes %}
-    n{{ loop.index }}: { ansible_user: root, ansible_host: {{ node }} }
+    n{{ loop.index }}: { ansible_user: root, ansible_host: "{{ node }}" }
     {% endfor %}

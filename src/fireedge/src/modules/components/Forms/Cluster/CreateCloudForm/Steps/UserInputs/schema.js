@@ -13,22 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ObjectSchema } from 'yup'
-
+import { ObjectSchema, object } from 'yup'
 import { getObjectSchemaFromFields } from '@UtilsModule'
-import { Field, UserInputObject } from '@ConstantsModule'
+import { find } from 'lodash'
+
+const generateSchema = (form, deploymentConfs) => {
+  // Get selected deployment conf
+  const deploymentConf = find(deploymentConfs, {
+    deploymentAlias: form?.deployments.DEPLOYMENT_CONF,
+  })
+
+  // Create the corresponding schema
+  const schema = deploymentConf?.deploymentUserInputs
+    ? getObjectSchemaFromFields(deploymentConf?.deploymentUserInputs)
+    : undefined
+
+  // Return the schema
+  return schema || object()
+}
 
 /**
- * @param {UserInputObject[]} userInputs - User inputs
- * @returns {Field[]} User inputs in Field format
- */
-const FIELDS = (userInputs = []) => userInputs
-
-/**
- * @param {UserInputObject[]} userInputs - User inputs
+ * @param {object} props - Step props
+ * @param {object} props.deploymentConfs - Deployment configuration data
  * @returns {ObjectSchema} User inputs schema
  */
-const SCHEMA = (userInputs = []) =>
-  getObjectSchemaFromFields(FIELDS(userInputs))
-
-export { FIELDS, SCHEMA }
+export const SCHEMA =
+  ({ deploymentConfs }) =>
+  (form) =>
+    generateSchema(form, deploymentConfs)

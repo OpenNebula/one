@@ -29,13 +29,13 @@ user_inputs:
 ---
 all:
   vars:
-    one_version: {{ one.version }}
+    one_version: "{{ one.version }}"
     form_vars:
-        id: {{ id }}
-        name: {{ name }}
-        description: {{ description }}
-        one: {{ one }}
-        user_inputs: {{ user_inputs }}
+        id: "{{ id }}"
+        name: "{{ name }}"
+        description: "{{ description }}"
+        one: "{{ one }}"
+        user_inputs: "{{ user_inputs }}"
     vn:
       private_dummy_network:
         managed: true
@@ -65,14 +65,14 @@ all:
       config:
         SYSTEM_DS:
           dummy_system_ds:
-            id: {{ one.system_ds_id}}
+            id: "{{ one.system_ds_id}}"
             template:
               type: SYSTEM_DS
               tm_mad: ssh
               safe_dirs: /var/tmp /tmp
         IMAGE_DS:
           dummy_image_ds:
-            id: {{ one.image_ds_id }}
+            id: "{{ one.image_ds_id }}"
             template:
               type: IMAGE_DS
               ds_mad: fs
@@ -81,7 +81,7 @@ all:
 
 frontend:
   hosts:
-    f1: { ansible_user: root, ansible_host: {{ one.frontend_ip}} }
+    f1: { ansible_user: root, ansible_host: "{{ one.frontend_ip}}" }
 
 node:
   hosts: {}
