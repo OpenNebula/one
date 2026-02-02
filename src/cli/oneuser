@@ -52,7 +52,8 @@ CommandParser::CmdParser.new(ARGV) do
             rescue StandardError => e
                 STDERR.puts e.message
 
-                if e.message != OpenNebula::Client::NO_ONE_AUTH_ERROR
+                if e.message != OpenNebula::Client::NO_ONE_AUTH_ERROR &&
+                   e.message != OpenNebula::Client::GRPC_NOT_SUPPORTED
                     STDERR.puts e.backtrace
                 end
 

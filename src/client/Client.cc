@@ -16,31 +16,34 @@
 
 #include "Client.h"
 #include "ClientXRPC.h"
-#include "ClientGRPC.h"
 #include "NebulaLog.h"
 
 #include <pwd.h>
 #include <unistd.h>
 
-using namespace std;
-
 ClientXRPC * Client::_client_xmlrpc = nullptr;
-ClientGRPC * Client::_client_grpc   = nullptr;
+
+#ifdef GRPC
+    #include "ClientGRPC.h"
+    ClientGRPC * Client::_client_grpc   = nullptr;
+#endif
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 Client* Client::client()
 {
+#ifdef GRPC
     // Prefer grpc client if defined
     if (_client_grpc)
     {
         return _client_grpc;
     }
-    else
-    {
-        return _client_xmlrpc;
-    }
+#endif
+
+    return _client_xmlrpc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -52,10 +55,12 @@ void Client::initialize(const std::string& secret,
                         size_t message_size,
                         unsigned int tout)
 {
+#ifdef GRPC
     if ( !_client_grpc && !endpoint_grpc.empty() )
     {
         _client_grpc = new ClientGRPC(secret, endpoint_grpc, tout);
     }
+#endif
 
     if ( !_client_xmlrpc && !endpoint_xmlrpc.empty() )
     {
@@ -146,16 +151,17 @@ int Client::fed_replicate(const std::string& endpoint,
         return -1;
     }
 
+#ifdef GRPC
+
     if (is_grpc(endpoint))
     {
         return ClientGRPC::fed_replicate(endpoint, secret, index, prev_index, sql, timeout_ms,
                                          success, last, error_msg);
     }
-    else
-    {
-        return ClientXRPC::fed_replicate(endpoint, secret, index, prev_index, sql, timeout_ms,
+#endif
+
+    return ClientXRPC::fed_replicate(endpoint, secret, index, prev_index, sql, timeout_ms,
                                          success, last, error_msg);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -176,16 +182,16 @@ int Client::replicate(const std::string& endpoint,
         return -1;
     }
 
+#ifdef GRPC
     if (is_grpc(endpoint))
     {
         return ClientGRPC::replicate(endpoint, secret, params, sql, timeout_ms,
                                      success, follower_term, error_msg);
     }
-    else
-    {
-        return ClientXRPC::replicate(endpoint, secret, params, sql, timeout_ms,
+#endif
+
+    return ClientXRPC::replicate(endpoint, secret, params, sql, timeout_ms,
                                      success, follower_term, error_msg);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -208,14 +214,14 @@ int Client::vote_request(const std::string& endpoint,
         return -1;
     }
 
+#ifdef GRPC
     if (is_grpc(endpoint))
     {
         return ClientGRPC::vote_request(endpoint, secret, term, candidate_id, log_index, log_term,
                                         timeout_ms, success, follower_term, error_msg);
     }
-    else
-    {
-        return ClientXRPC::vote_request(endpoint, secret, term, candidate_id, log_index, log_term,
+#endif
+
+    return ClientXRPC::vote_request(endpoint, secret, term, candidate_id, log_index, log_term,
                                         timeout_ms, success, follower_term, error_msg);
-    }
 }

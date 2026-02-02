@@ -37,6 +37,7 @@ module OpenNebula
     class Client
 
         NO_ONE_AUTH_ERROR = 'ONE_AUTH file not present'
+        GRPC_NOT_SUPPORTED = 'gRPC API not supported'
 
         attr_reader :client, :one_auth, :one_endpoint, :one_zmq
 
@@ -83,7 +84,11 @@ module OpenNebula
             is_grpc = !endpoint.include?('RPC2') if !endpoint.nil? && !endpoint.empty?
 
             if is_grpc
-                require_relative 'grpc_client'
+                begin
+                    require_relative 'grpc_client'
+                rescue LoadError
+                    raise GRPC_NOT_SUPPORTED
+                end
                 @one_endpoint = mk_endpoint(endpoint,
                                             'ONE_GRPC',
                                             'localhost:2634').rstrip

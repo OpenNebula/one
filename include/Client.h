@@ -22,7 +22,9 @@
 #include <cstdint>
 
 class ClientXRPC;
-class ClientGRPC;
+#ifdef GRPC
+    class ClientGRPC;
+#endif
 
 /**
  * This class represents the connection with the core and handles the
@@ -53,10 +55,12 @@ public:
         return _client_xmlrpc;
     }
 
+#ifdef GRPC
     static ClientGRPC * client_grpc()
     {
         return _client_grpc;
     }
+#endif
 
     /**
      *  Singleton initializer
@@ -128,7 +132,9 @@ protected:
     unsigned int timeout = 10000; // Timout for rpc calls
 
     static ClientXRPC * _client_xmlrpc;
+#ifdef GRPC
     static ClientGRPC * _client_grpc;
+#endif
 };
 
 #endif /*ONECLIENT_H_*/
