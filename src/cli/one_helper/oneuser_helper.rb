@@ -24,39 +24,43 @@ require 'digest/md5'
 
 # Interface for OpenNebula generated tokens.
 class TokenAuth
-    def login_token(username, expire)
+
+    def login_token(_username, _expire)
         return OpenNebulaHelper::OneHelper.get_password
     end
+
 end
 
+# CLI helper for oneuser command
 class OneUserHelper < OpenNebulaHelper::OneHelper
+
     if ENV['ONE_AUTH']
         ONE_AUTH = ENV['ONE_AUTH']
     else
-        if ENV['HOME']
-            ONE_AUTH = ENV['HOME']+'/.one/one_auth'
+        if Dir.home
+            ONE_AUTH = Dir.home + '/.one/one_auth'
         else
-            ONE_AUTH = "/var/lib/one/.one/one_auth"
+            ONE_AUTH = '/var/lib/one/.one/one_auth'
         end
     end
 
     def self.rname
-        "USER"
+        'USER'
     end
 
     def self.conf_file
-        "oneuser.yaml"
+        'oneuser.yaml'
     end
 
     def self.password_to_str_desc
-        "User password"
+        'User password'
     end
 
     def self.password_to_str(arg, options)
         if options[:read_file]
             begin
                 password = File.read(arg).split("\n").first
-            rescue
+            rescue StandardError
                 return -1, "Cannot read file: #{arg}"
             end
         else
@@ -80,21 +84,21 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         case options[:driver]
         when OpenNebula::User::SSH_AUTH
             if !options[:key]
-                return -1, "You have to specify the --key option"
+                return -1, 'You have to specify the --key option'
             end
 
             require 'opennebula/ssh_auth'
 
             begin
                 auth = OpenNebula::SshAuth.new(:private_key=>options[:key])
-            rescue Exception => e
+            rescue StandardError => e
                 return -1, e.message
             end
         when OpenNebula::User::X509_AUTH
             options[:cert] ||= ENV['X509_USER_CERT']
 
             if !options[:cert]
-                return -1, "You have to specify the --cert option"
+                return -1, 'You have to specify the --cert option'
             end
 
             require 'opennebula/x509_auth'
@@ -102,7 +106,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             begin
                 cert = [File.read(options[:cert])]
                 auth = OpenNebula::X509Auth.new(:certs_pem=>cert)
-            rescue Exception => e
+            rescue StandardError => e
                 return -1, e.message
             end
         else
@@ -114,7 +118,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
     def auth_file(auth_string)
         auth_filename = Digest::MD5.hexdigest(auth_string)
-        ENV['HOME'] + "/.one/#{auth_filename}.token"
+        Dir.home + "/.one/#{auth_filename}.token"
     end
 
     def get_login_client(username, options)
@@ -125,11 +129,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         when OpenNebula::User::SSH_AUTH
             require 'opennebula/ssh_auth'
 
-            options[:key]  ||= ENV['HOME']+'/.ssh/id_rsa'
+            options[:key] ||= Dir.home + '/.ssh/id_rsa'
 
             begin
                 auth = OpenNebula::SshAuth.new(:private_key=>options[:key])
-            rescue Exception => e
+            rescue StandardError => e
                 return -1, e.message
             end
 
@@ -144,7 +148,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 key   = File.read(options[:key])
 
                 auth = OpenNebula::X509Auth.new(:certs_pem=>certs, :key_pem=>key)
-            rescue Exception => e
+            rescue StandardError => e
                 return -1, e.message
             end
 
@@ -163,12 +167,12 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 key= rc[1]
 
                 auth = OpenNebula::X509Auth.new(:certs_pem=>certs, :key_pem=>key)
-            rescue => e
+            rescue StandardError => e
                 return -1, e.message
             end
 
         else
-            auth = TokenAuth.new() #oned generated token
+            auth = TokenAuth.new # oned generated token
         end
 
         #-----------------------------------------------------------------------
@@ -197,11 +201,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     ############################################################################
     # Generates a token and stores it in ONE_AUTH path as defined in this class
     ############################################################################
-    def login(username, options, use_client=false)
+    def login(username, options, use_client = false)
         if use_client
             login_client = OpenNebulaHelper::OneHelper.get_client
         else
-            login_client = self.get_login_client(username, options)
+            login_client = get_login_client(username, options)
         end
 
         if (login_client.is_a? Array) && login_client[0] == -1
@@ -212,7 +216,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         egid = options[:group] || -1
 
-        token_oned = user.login(username, "", options[:time], egid)
+        token_oned = user.login(username, '', options[:time], egid)
 
         return -1, token_oned.message if OpenNebula.is_error?(token_oned)
 
@@ -233,7 +237,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 return 0, "File #{ONE_AUTH} exists, use --force to overwrite."\
                 "\n#{token_info}"
             else
-                puts "Not valid option."
+                puts 'Not valid option.'
                 return -1
             end
         end
@@ -246,11 +250,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         rescue Errno::EEXIST
         end
 
-        file = File.open(ONE_AUTH, "w")
+        file = File.open(ONE_AUTH, 'w')
         file.write("#{username}:#{token_oned}")
         file.close
 
-        File.chmod(0600, ONE_AUTH)
+        File.chmod(0o0600, ONE_AUTH)
 
         return 0, token_info
     end
@@ -258,20 +262,29 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            def pool_default_quotas(path)
-                @data.dsearch('/USER_POOL/DEFAULT_USER_QUOTAS/'+path)
+        # rubocop:disable Style/FormatStringToken
+        CLIHelper::ShowTable.new(config_file, self) do
+            pool_default_quotas = lambda do |path|
+                limit = @data.dsearch('/USER_POOL/DEFAULT_USER_QUOTAS/'+path)
+                limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
+                limit
             end
 
-            def quotas
+            quotas_proc = lambda do
                 if !defined?(@quotas)
                     quotas = @data.dsearch('USER_POOL/QUOTAS')
-                    @quotas = Hash.new
+                    @quotas = {}
 
-                    if (!quotas.nil?)
+                    if !quotas.nil?
                         quotas = [quotas].flatten
 
                         quotas.each do |q|
+                            # Fix rare bug, when there are multiple VM_QUOTA values
+                            vm_quota = q['VM_QUOTA']
+                            if vm_quota.is_a?(Array)
+                                q['VM_QUOTA'] = vm_quota.max_by {|h| h.size }
+                            end
+
                             @quotas[q['ID']] = q
                         end
                     end
@@ -279,201 +292,174 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 @quotas
             end
 
-            column :ID, "ONE identifier for the User", :size=>4 do |d|
-                d["ID"]
+            column :ID, 'ONE identifier for the User', :size=>4 do |d|
+                d['ID']
             end
 
-            column :NAME, "Name of the User", :left, :size=>5 do |d|
-                d["NAME"]
+            column :NAME, 'Name of the User', :left, :size=>5 do |d|
+                d['NAME']
             end
 
-            column :ENABLED, "User is enabled", :left, :size=>4 do |d|
-                if d["ENABLED"] == "1"
-                    "yes"
+            column :ENABLED, 'User is enabled', :left, :size=>4 do |d|
+                if d['ENABLED'] == '1'
+                    'yes'
                 else
-                    "no"
+                    'no'
                 end
             end
 
-            column :GROUP, "Group of the User", :left, :size=>10 do |d|
+            column :GROUP, 'Group of the User', :left, :size=>10 do |d|
                 helper.group_name(d, options)
             end
 
-            column :AUTH, "Auth driver of the User", :left, :size=>8 do |d|
-                d["AUTH_DRIVER"]
+            column :AUTH, 'Auth driver of the User', :left, :size=>8 do |d|
+                d['AUTH_DRIVER']
             end
 
-            column :VMS , "Number of VMS", :size=>9 do |d|
+            column :VMS, 'Number of VMS', :size=>9 do |d|
                 begin
-                    q = quotas[d['ID']]['VM_QUOTA']['VM']
+                    q = quotas_proc.call[d['ID']]['VM_QUOTA']['VM']
 
-                    if q.nil? && d["ID"].to_i != 0
+                    if q.nil? && d['ID'].to_i != 0
                         q = OneQuotaHelper::DEFAULT_VM_QUOTA
                     end
 
                     # In case of multiple quotas, use the global quota or the first
                     if q.is_a?(Array)
-                        global_quota = q.find{|hash| hash['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
-                        q = global_quota || q[0]
+                        global_q = q.find {|h| h['CLUSTER_IDS'].nil? || h['CLUSTER_IDS'].empty? }
+                        q = global_q || q[0]
                     end
 
-                    limit = q["VMS"]
-
-                    if limit == OneQuotaHelper::LIMIT_DEFAULT
-                        limit = pool_default_quotas("VM_QUOTA/VM/VMS")
-                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
-                    end
+                    limit = q['VMS']
+                    limit = pool_default_quotas.call('VM_QUOTA/VM/VMS') if limit == OneQuotaHelper::LIMIT_DEFAULT
 
                     if limit == OneQuotaHelper::LIMIT_UNLIMITED
-                        "%3d /   -" % [q["VMS_USED"]]
+                        format('%3d /   -', q['VMS_USED'])
                     else
-                        "%3d / %3d" % [q["VMS_USED"], limit]
+                        format('%3d / %3d', q['VMS_USED'], limit)
                     end
-
                 rescue NoMethodError
-                    "-"
+                    '-'
                 end
             end
 
-            column :MEMORY, "Total memory allocated to user VMs", :size=>15 do |d|
+            column :MEMORY, 'Total memory allocated to user VMs', :size=>15 do |d|
                 begin
-                    q = quotas[d['ID']]['VM_QUOTA']['VM']
+                    q = quotas_proc.call[d['ID']]['VM_QUOTA']['VM']
 
-                    if q.nil? && d["ID"].to_i != 0
+                    if q.nil? && d['ID'].to_i != 0
                         q = OneQuotaHelper::DEFAULT_VM_QUOTA
                     end
 
                     # In case of multiple quotas, use the global quota or the first
                     if q.is_a?(Array)
-                        global_quota = q.find{|hash| hash['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
-                        q = global_quota || q[0]
+                        global_q = q.find {|h| h['CLUSTER_IDS'].nil? || h['CLUSTER_IDS'].empty? }
+                        q = global_q || q[0]
                     end
 
-                    limit = q["MEMORY"]
-
-                    if limit == OneQuotaHelper::LIMIT_DEFAULT
-                        limit = pool_default_quotas("VM_QUOTA/VM/MEMORY")
-                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
-                    end
+                    limit = q['MEMORY']
+                    limit = pool_default_quotas.call('VM_QUOTA/VM/MEMORY') if limit == OneQuotaHelper::LIMIT_DEFAULT
 
                     if limit == OneQuotaHelper::LIMIT_UNLIMITED
-                        "%6s /      -" % [
-                            OpenNebulaHelper.unit_to_str(q["MEMORY_USED"].to_i,{},"M")]
+                        format('%6s /      -',
+                               OpenNebulaHelper.unit_to_str(q['MEMORY_USED'].to_i, {}, 'M'))
                     else
-                        "%6s / %6s" % [
-                            OpenNebulaHelper.unit_to_str(q["MEMORY_USED"].to_i,{},"M"),
-                            OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")]
+                        format('%6s / %6s',
+                               OpenNebulaHelper.unit_to_str(q['MEMORY_USED'].to_i, {}, 'M'),
+                               OpenNebulaHelper.unit_to_str(limit.to_i, {}, 'M'))
                     end
-
                 rescue NoMethodError
-                    "-"
+                    '-'
                 end
             end
 
-            column :CPU, "Total CPU allocated to user VMs", :size=>11 do |d|
+            column :CPU, 'Total CPU allocated to user VMs', :size=>11 do |d|
                 begin
-                    q = quotas[d['ID']]['VM_QUOTA']['VM']
+                    q = quotas_proc.call[d['ID']]['VM_QUOTA']['VM']
 
-                    if q.nil? && d["ID"].to_i != 0
+                    if q.nil? && d['ID'].to_i != 0
                         q = OneQuotaHelper::DEFAULT_VM_QUOTA
                     end
 
                     # In case of multiple quotas, use the global quota or the first
                     if q.is_a?(Array)
-                        global_quota = q.find{|hash| hash['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
-                        q = global_quota || q[0]
+                        global_q = q.find {|h| h['CLUSTER_IDS'].nil? || h['CLUSTER_IDS'].empty? }
+                        q = global_q || q[0]
                     end
 
-                    limit = q["CPU"]
-
-                    if limit == OneQuotaHelper::LIMIT_DEFAULT
-                        limit = pool_default_quotas("VM_QUOTA/VM/CPU")
-                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
-                    end
+                    limit = q['CPU']
+                    limit = pool_default_quotas.call('VM_QUOTA/VM/CPU') if limit == OneQuotaHelper::LIMIT_DEFAULT
 
                     if limit == OneQuotaHelper::LIMIT_UNLIMITED
-                        "%3.1f /   -" % [q["CPU_USED"]]
+                        format('%3.1f /   -', q['CPU_USED'])
                     else
-                        "%3.1f / %3.1f" % [q["CPU_USED"], limit]
+                        format('%3.1f / %3.1f', q['CPU_USED'], limit)
                     end
-
                 rescue NoMethodError
-                    "-"
+                    '-'
                 end
             end
 
-            column :PCI, "Total PCIs allocated to user VMs", :size=>9 do |d|
+            column :PCI, 'Total PCIs allocated to user VMs', :size=>9 do |d|
                 begin
                     q = quotas[d['ID']]['VM_QUOTA']['VM']
 
-                    if q.nil? && d["ID"].to_i != 0
+                    if q.nil? && d['ID'].to_i != 0
                         q = OneQuotaHelper::DEFAULT_VM_QUOTA
                     end
 
                     # In case of multiple quotas, use the global quota or the first
                     if q.is_a?(Array)
-                        global_quota = q.find{|hash| hash['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
-                        q = global_quota || q[0]
+                        global_q = q.find {|h| h['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
+                        q = global_q || q[0]
                     end
 
-                    limit = q["PCI_DEV"]
-
-                    if limit == OneQuotaHelper::LIMIT_DEFAULT
-                        limit = pool_default_quotas("VM_QUOTA/VM/PCI_DEV")
-                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit.empty?
-                    end
+                    limit = q['PCI_DEV']
+                    limit = pool_default_quotas.call('VM_QUOTA/VM/PCI_DEV') if limit == OneQuotaHelper::LIMIT_DEFAULT
 
                     if limit == OneQuotaHelper::LIMIT_UNLIMITED
-                        "%3s /   -" % [q["PCI_DEV_USED"]]
+                        format('%3s /   -', q['PCI_DEV_USED'])
                     else
-                        "%3s / %3s" % [q["PCI_DEV_USED"], limit]
+                        format('%3s / %3s', q['PCI_DEV_USED'], limit)
                     end
-
                 rescue NoMethodError
-                    "-"
+                    '-'
                 end
             end
 
-            column :PASSWORD, "Password of the User", :size=>50 do |d|
+            column :PASSWORD, 'Password of the User', :size=>50 do |d|
                 d['PASSWORD']
             end
 
             default :ID, :NAME, :ENABLED, :GROUP, :AUTH, :VMS, :MEMORY, :CPU, :PCI
         end
-
-        table
+        # rubocop:enable Style/FormatStringToken
     end
 
-    def find_token(user, token, group=nil, show_expired=false)
+    def find_token(user, token, group = nil, show_expired = false)
         user_hash = user.to_hash
 
-        valid_tokens = [user_hash["USER"]["LOGIN_TOKEN"]].flatten.compact
+        valid_tokens = [user_hash['USER']['LOGIN_TOKEN']].flatten.compact
 
         return [] if valid_tokens.empty?
 
         valid_tokens.map! do |e|
-            if token
-                next if !e["TOKEN"].start_with?(token)
-            end
+            next if token && !e['TOKEN'].start_with?(token)
 
-            exp_time = e["EXPIRATION_TIME"].to_i
-            if group
-                next if e["EGID"].to_i != group.to_i
-            end
+            next if group && e['EGID'].to_i != group.to_i
 
-            if !show_expired
-                next if exp_time != -1 && Time.now > Time.at(exp_time)
-            end
+            exp_time = e['EXPIRATION_TIME'].to_i
+            next if !show_expired && exp_time != -1 && Time.now > Time.at(exp_time)
 
             e
         end.compact!
 
         # Sort the tokens so it returns first the one that will expire the
-        # latest.
+        # latest .
 
-        valid_tokens.sort! do |a,b|
-            a_exp = a["EXPIRATION_TIME"].to_i
-            b_exp = b["EXPIRATION_TIME"].to_i
+        valid_tokens.sort! do |a, b|
+            a_exp = a['EXPIRATION_TIME'].to_i
+            b_exp = b['EXPIRATION_TIME'].to_i
 
             if a_exp == -1 || b_exp == -1
                 a_exp <=> b_exp
@@ -485,8 +471,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         valid_tokens
     end
 
-    def get_client_user
-        user = self.retrieve_resource(OpenNebula::User::SELF)
+    def read_user
+        user = retrieve_resource(OpenNebula::User::SELF)
         rc   = user.info
         if OpenNebula.is_error?(rc)
             puts rc.message
@@ -503,20 +489,20 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             use_client = false
         else
             if !defined?(@@client)
-                return -1, "No username in the argument or valid ONE_AUTH found."
+                return -1, 'No username in the argument or valid ONE_AUTH found.'
             end
 
-            user = self.get_client_user
+            user = read_user
             username = user['NAME']
             use_client = true
         end
 
-        self.login(username, options, use_client)
+        login(username, options, use_client)
     end
 
     private
 
-    def factory(id=nil)
+    def factory(id = nil)
         if id
             OpenNebula::User.new_with_id(id, @client)
         else
@@ -525,28 +511,23 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def factory_pool(user_flag=-2)
-        #TBD OpenNebula::UserPool.new(@client, user_flag)
+    def factory_pool(_user_flag = -2)
         @user_pool = OpenNebula::UserPool.new(@client)
-        return @user_pool
     end
 
-    def format_resource(user, options = {})
-        system = System.new(@client)
-
-        str="%-16s: %-20s"
-        str_h1="%-80s"
+    def format_resource(user, _options = {})
+        str='%-16s: %-20s'
+        str_h1='%-80s'
 
         CLIHelper.print_header(str_h1 % "USER #{user['ID']} INFORMATION")
-        puts str % ["ID",          user.id.to_s]
-        puts str % ["NAME",        user.name]
-        puts str % ["GROUP",       user['GNAME']]
-        groups = user.retrieve_elements("GROUPS/ID")
-        puts str % ["SECONDARY GROUPS", groups.join(',') ] if groups.size > 1
-        puts str % ["PASSWORD",    user['PASSWORD']]
-        puts str % ["AUTH_DRIVER", user['AUTH_DRIVER']]
-        puts str % ["ENABLED",
-            OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
+        puts format(str, 'ID',          user.id.to_s)
+        puts format(str, 'NAME',        user.name)
+        puts format(str, 'GROUP',       user['GNAME'])
+        groups = user.retrieve_elements('GROUPS/ID')
+        puts format(str, 'SECONDARY GROUPS', groups.join(',')) if groups.size > 1
+        puts format(str, 'PASSWORD',    user['PASSWORD'])
+        puts format(str, 'AUTH_DRIVER', user['AUTH_DRIVER'])
+        puts format(str, 'ENABLED',     OpenNebulaHelper.boolean_to_str(user['ENABLED']))
         puts
 
         user_hash = user.to_hash
@@ -555,61 +536,60 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         gid = user['GID']
         tokens = [user_hash['USER']['LOGIN_TOKEN']].flatten.compact
 
-        CLIHelper.print_header(str_h1 % "TOKENS",false)
+        CLIHelper.print_header(str_h1 % 'TOKENS', false)
         if tokens && !tokens.empty?
             CLIHelper::ShowTable.new(nil, self) do
-                column :ID, "", :size=>7 do |d|
-                    d["TOKEN"]
+                column :ID, '', :size=>7 do |d|
+                    d['TOKEN']
                 end
 
-                column :EGID, "", :left, :size=>5 do |d|
-                    d["EGID"].to_i == -1 ? "*" + gid : d["EGID"]
+                column :EGID, '', :left, :size=>5 do |d|
+                    d['EGID'].to_i == -1 ? '*' + gid : d['EGID']
                 end
 
-                column :EGROUP, "", :left, :size=>10 do |d|
+                column :EGROUP, '', :left, :size=>10 do |d|
                     client = OpenNebulaHelper::OneHelper.get_client
 
-                    egid = d["EGID"].to_i == -1 ? gid : d["EGID"]
+                    egid = d['EGID'].to_i == -1 ? gid : d['EGID']
 
                     group = Group.new_with_id(egid, client)
                     rc = group.info
 
                     if OpenNebula.is_error?(rc)
-                        "-"
+                        '-'
                     else
                         group['NAME']
                     end
                 end
 
-                column :EXPIRATION, "", :left, :size=>20 do |d|
-                    etime = d["EXPIRATION_TIME"]
-                    expired = Time.now >= Time.at(d["EXPIRATION_TIME"].to_i)
+                column :EXPIRATION, '', :left, :size=>20 do |d|
+                    etime = d['EXPIRATION_TIME']
+                    expired = Time.now >= Time.at(d['EXPIRATION_TIME'].to_i)
                     case etime
-                    when nil  then ""
-                    when "-1" then "forever"
+                    when nil  then ''
+                    when '-1' then 'forever'
                     else
                         if expired
-                            "expired"
+                            'expired'
                         else
                             Time.at(etime.to_i).to_s
                         end
                     end
                 end
-            end.show(tokens,{})
+            end.show(tokens, {})
         end
 
         puts
 
-        CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
+        CLIHelper.print_header(str_h1 % 'USER TEMPLATE', false)
         puts user.template_str
 
         default_quotas = nil
 
-        user.each('/USER/DEFAULT_USER_QUOTAS') { |elem|
-            default_quotas = elem
-        }
+        user.each('/USER/DEFAULT_USER_QUOTAS') {|elem| default_quotas = elem }
 
         helper = OneQuotaHelper.new(@client)
         helper.format_quota(user_hash['USER'], default_quotas, user.id)
     end
+
 end
