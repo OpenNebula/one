@@ -39,12 +39,12 @@ const notShared = [
  */
 const sharedDeps = () =>
   Object.entries(deps)
-    ?.filter(([name, _version]) => !notShared?.includes(name))
-    ?.map(([name, version]) => ({
+    .filter(([name, _version]) => !notShared.includes(name))
+    .map(([name, version]) => ({
       [name]: {
         singleton: true,
         eager: false,
-        ...(specificVersion?.includes(name) && { requiredVersion: version }),
+        ...(specificVersion.includes(name) && { requiredVersion: version }),
       },
     }))
 
