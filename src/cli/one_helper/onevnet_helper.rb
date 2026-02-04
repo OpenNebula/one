@@ -285,6 +285,9 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 exit(-1)
             end
 
+            obj.info
+            obj.delete_element('AR_POOL/AR/LEASES')
+
             xpath = "AR_POOL/AR[AR_ID=#{ar_id}]"
 
             if options[:append]
@@ -293,10 +296,16 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                                                        file,
                                                        xpath)
             else
-                str = OpenNebulaHelper.update_template(vnet_id,
-                                                       obj,
-                                                       file,
-                                                       xpath)
+                if file || !OpenNebulaHelper.read_stdin.empty?
+                    str = OpenNebulaHelper.update_template(vnet_id,
+                                                           obj,
+                                                           file,
+                                                           xpath)
+                else
+                    str = OpenNebulaHelper.editor_input(
+                        obj.template_like_str(xpath)
+                    )
+                end
             end
 
             if options[:append]
