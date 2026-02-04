@@ -402,7 +402,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
             column :PCI, 'Total PCIs allocated to user VMs', :size=>9 do |d|
                 begin
-                    q = quotas[d['ID']]['VM_QUOTA']['VM']
+                    q = quotas_proc.call[d['ID']]['VM_QUOTA']['VM']
 
                     if q.nil? && d['ID'].to_i != 0
                         q = OneQuotaHelper::DEFAULT_VM_QUOTA
