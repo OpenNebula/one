@@ -30,7 +30,7 @@ usage() {
  echo
  echo "Usage: install.sh [-u install_user] [-g install_group] [-k keep conf]"
  echo "                  [-d ONE_LOCATION] [-c] [-a arch] [-r]"
- echo "                  [-F] [-P] [-G] [-f] [-l] [-h]"
+ echo "                  [-F] [-P] [-G] [-f] [-p] [-l] [-h]"
  echo
  echo "-u: user that will run opennebula, defaults to user executing install.sh"
  echo "-g: group of the user that will run opennebula, defaults to user"
@@ -54,7 +54,7 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-PARAMETERS=":u:g:d:a:hkcFPrlfG"
+PARAMETERS=":u:g:d:a:hkcFPprlfG"
 
 INSTALL_ETC="yes"
 UNINSTALL="no"

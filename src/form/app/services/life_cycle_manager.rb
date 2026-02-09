@@ -245,15 +245,14 @@ module OneForm
             # Options
             force     = opts['force'] || false
             resources = opts['resources'] || {}
-            delete    = opts['delete'] || false
 
             @provision_pool.get(provision_id, external_user) do |provision|
                 # Check if the provision is in a state that can be deprovisioned
-                # when delete is true, allow the provision to be deprovisioned in any state
+                # when force is true, allow the provision to be deprovisioned in any state
                 return OpenNebula::Error.new(
                     "Cannot deprovision provision in state: #{provision.str_state}",
                     OpenNebula::Error::EACTION
-                ) unless delete || provision.can_deprovision?
+                ) unless force || provision.can_deprovision?
 
                 # Check if resources types are valid
                 invalid_keys = resources.keys - Provision::REMOVABLE_RESOURCES
@@ -572,14 +571,14 @@ module OneForm
             if is_array
                 options = {
                     'resources' => {
-                        'hosts' => nodes
+                        'hosts' => nodes.map(&:to_i)
                     }.merge(opts)
                 }
             else
                 # Get a random list of hosts to destroy based on cardinality
                 # TODO: Try to destroy resources without unmanaged resources instead of random
                 # or flush the host first
-                hosts_ids = provision.hosts.map {|host| host['id'] }
+                hosts_ids = provision.hosts.map {|host| host['id'].to_i }
 
                 if hosts_ids.size < cardinality
                     return OpenNebula::Error.new(

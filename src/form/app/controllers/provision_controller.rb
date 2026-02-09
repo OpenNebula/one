@@ -736,46 +736,13 @@ module OneFormServer
                     )
                 end
 
-                rc = if force
-                         opts = { 'delete' => true, 'force' => true }
-                         @lcm.start_deprovisioning_one(@username, provision.id, opts)
-                     else
-                         provision.delete(true)
-                     end
+                rc = provision.delete(true)
 
                 return internal_error(
                     rc.message, one_error_to_http(rc.errno)
                 ) if OpenNebula.is_error?(rc)
 
                 status 204
-            end
-
-            # TODO: remove debug endpoint
-            app.patch '/patch-state/:id' do
-                return internal_error(
-                    'Missing request body', ResponseHelper::VALIDATION_EC
-                ) if request.body.eof?
-
-                id     = params[:id]
-                body   = JSON.parse(request.body.read)
-
-                new_state = body['new_state']
-                provision = OneForm::Provision.new_from_id(@client, id)
-
-                return internal_error(
-                    provision.message, one_error_to_http(provision.errno)
-                ) if OpenNebula.is_error?(provision)
-
-                provision.body['state'] = OneForm::Provision::STATE[new_state]
-
-                rc = provision.update
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 200
-                body process_response(provision)
             end
         end
 

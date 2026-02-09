@@ -19,6 +19,9 @@ require 'one_helper'
 # Oneflow Template command helper
 class OneProviderHelper < OpenNebulaHelper::OneHelper
 
+    REDACTED_MARK = '__redacted__'
+    SECRET_MARK   = '************'
+
     # Configuration file
     def self.conf_file
         'oneprovider.yaml'
@@ -179,7 +182,8 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
 
                 connection_values = body[:connection] || {}
                 connection_values.each do |key, value|
-                    puts Kernel.format(str, key.to_s, value.to_s)
+                    value_text = value.to_s == REDACTED_MARK ? SECRET_MARK : value.to_s
+                    puts Kernel.format(str, key.to_s, value_text)
                 end
 
                 puts

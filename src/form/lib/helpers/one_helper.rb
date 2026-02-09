@@ -601,7 +601,7 @@ module OneForm
                     end
                 end
 
-                resource['id'] = resource_id
+                resource['id'] = resource_id.to_i
             end
         rescue StandardError => e
             log.error("Error creating resources: #{e.message}")

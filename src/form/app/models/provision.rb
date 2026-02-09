@@ -422,7 +422,7 @@ module OneForm
                 "#{resource_ip} provisioned"
             )
 
-            hosts << { 'id' => id, 'resource_id' => resource_id, 'name' => resource_ip }
+            hosts << { 'id' => id.to_i, 'resource_id' => resource_id, 'name' => resource_ip }
         end
 
         def remove_host(resource_ip)
@@ -447,7 +447,7 @@ module OneForm
         end
 
         def host_id?(id)
-            hosts.any? {|h| h['id'] == id }
+            hosts.any? {|h| h['id'] == id.to_i }
         end
 
         def hosts_ips
