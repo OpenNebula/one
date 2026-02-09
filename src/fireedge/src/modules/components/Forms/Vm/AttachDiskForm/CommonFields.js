@@ -69,6 +69,7 @@ export const GENERAL_FIELDS = [
     values: [
       { text: '', value: '' },
       { text: 'Default', value: 'default' },
+      { text: 'None', value: 'none' },
       { text: 'Writethrough', value: 'writethrough' },
       { text: 'Writeback', value: 'writeback' },
       { text: 'Directsync', value: 'directsync' },
