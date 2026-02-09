@@ -23,14 +23,8 @@ import {
   disableFields,
 } from '@UtilsModule'
 import { T, INPUT_TYPES } from '@ConstantsModule'
-import { uniqWith } from 'lodash'
+import { uniqWith, isEqual } from 'lodash'
 import { useFormContext } from 'react-hook-form'
-
-const samePciDevice = (a, b) =>
-  a &&
-  b &&
-  ['DEVICE', 'VENDOR', 'CLASS'].every((k) => a[k] === b[k]) &&
-  a.SHORT_ADDRESS?.split('.')[0] === b.SHORT_ADDRESS?.split('.')[0]
 
 /**
  * Transform a PCI device to String.
@@ -78,7 +72,18 @@ const NAME_FIELD = {
     const { data: hosts = [] } = HostAPI.useGetHostsAdminQuery()
     const pciDevices = hosts.map(getPciDevices).flat()
 
-    return arrayToOptions(uniqWith(pciDevices, samePciDevice), {
+    const formatPciDevices = []
+      .concat(pciDevices)
+      ?.filter(Boolean)
+      ?.map(({ DEVICE_NAME, TYPE, CLASS, DEVICE, VENDOR }) => ({
+        DEVICE_NAME,
+        TYPE,
+        CLASS,
+        DEVICE,
+        VENDOR,
+      }))
+
+    return arrayToOptions(uniqWith(formatPciDevices, isEqual), {
       getText: ({ DEVICE_NAME } = {}) => DEVICE_NAME,
       addDescription: true,
       getDescription: (opt) => opt?.TYPE,
@@ -185,7 +190,18 @@ const SHORT_ADDRESS = {
     const { data: hosts = [] } = HostAPI.useGetHostsAdminQuery()
     const pciDevices = hosts.map(getPciDevices).flat()
 
-    return arrayToOptions(uniqWith(pciDevices, samePciDevice), {
+    const formatPciDevices = []
+      .concat(pciDevices)
+      ?.filter(Boolean)
+      ?.map(({ DEVICE_NAME, SHORT_ADDRESS: SA, CLASS, DEVICE, VENDOR }) => ({
+        DEVICE_NAME,
+        SHORT_ADDRESS: SA,
+        CLASS,
+        DEVICE,
+        VENDOR,
+      }))
+
+    return arrayToOptions(uniqWith(formatPciDevices, isEqual), {
       addEmpty: false,
       getText: ({ SHORT_ADDRESS: ADDRESS, DEVICE_NAME } = {}) =>
         `${DEVICE_NAME}: ${ADDRESS}`,
