@@ -394,42 +394,18 @@ public:
      *    @param arid of the address range where the address was leased from
      *    @param ot the type of the object requesting the address
      *    @param oid the id of the object requesting the address
-     *    @param mac MAC address identifying the lease
+     *    @param nic the VirtualMachine NIC
      */
     void free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot, int oid,
-                   const std::string& mac)
-    {
-        ar_pool.free_addr(arid, ot, oid, mac);
-
-        if (ot == PoolObjectSQL::VROUTER)
-        {
-            vrouters.del(oid);
-        }
-        else if (ot == PoolObjectSQL::VM)
-        {
-            clear_update_vm(oid);
-        }
-    }
-
+                   const VirtualMachineNic * nic);
     /**
      *  Release previously given address lease
      *    @param ot the type of the object requesting the address
      *    @param oid the id of the object requesting the address
-     *    @param mac MAC address identifying the lease
+     *    @param nic the VirtualMachine NIC
      */
-    void free_addr(PoolObjectSQL::ObjectType ot, int oid, const std::string& mac)
-    {
-        ar_pool.free_addr(ot, oid, mac);
-
-        if (ot == PoolObjectSQL::VROUTER)
-        {
-            vrouters.del(oid);
-        }
-        else if (ot == PoolObjectSQL::VM)
-        {
-            clear_update_vm(oid);
-        }
-    }
+    void free_addr(PoolObjectSQL::ObjectType ot, int oid,
+                   const VirtualMachineNic * nic);
 
     /**
      *  Release all previously given address leases to the given object

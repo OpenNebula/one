@@ -348,7 +348,7 @@ module OneDBFsck
             end
 
             # MAC
-            first_mac = mac_s_to_i(net_ar.at_xpath('MAC').text)
+            first_mac = mac_s_to_i(net_ar.at_xpath('MAC')&.text)
 
             # IP
             unless net_ar.at_xpath('IP').nil?

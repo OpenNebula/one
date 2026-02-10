@@ -34,9 +34,10 @@ export const CUSTOM_ATTRS_ID = 'custom-attributes'
  * @param {boolean} [props.isUpdate] - Is `true` the form will be filter immutable attributes
  * @param {object} props.oneConfig - Open Nebula configuration
  * @param {boolean} props.adminGroup - If the user belongs to oneadmin group
+ * @param {boolean} props.hasLease - If the address range has leases
  * @returns {ReactElement} Form content component
  */
-const Content = ({ isUpdate, oneConfig, adminGroup }) => {
+const Content = ({ isUpdate, hasLease, oneConfig, adminGroup }) => {
   const { setValue } = useFormContext()
   const customAttrs = useWatch({ name: CUSTOM_ATTRS_ID }) || {}
 
@@ -52,7 +53,7 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
       <FormWithSchema
         fields={
           isUpdate
-            ? MUTABLE_FIELDS(oneConfig, adminGroup)
+            ? MUTABLE_FIELDS(oneConfig, adminGroup, isUpdate, hasLease)
             : FIELDS(oneConfig, adminGroup)
         }
       />
@@ -73,6 +74,7 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
 
 Content.propTypes = {
   isUpdate: PropTypes.bool,
+  hasLease: PropTypes.bool,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
 }

@@ -1453,6 +1453,113 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualNetwork::free_addr(unsigned int arid,
+                               PoolObjectSQL::ObjectType ot,
+                               int oid,
+                               const VirtualMachineNic * nic)
+{
+    string addr_s;
+
+    if ( nic->is_shared())
+    {
+        addr_s = nic->vector_value("IP");
+
+        if (!addr_s.empty())
+        {
+            ar_pool.free_addr_by_ip(arid, ot, oid, addr_s);
+        }
+        else
+        {
+            addr_s = nic->vector_value("IP6");
+
+            if (addr_s.empty())
+            {
+                return;
+            }
+
+            ar_pool.free_addr_by_ip6(arid, ot, oid, addr_s);
+        }
+    }
+    else
+    {
+        if (ot == PoolObjectSQL::VROUTER)
+        {
+            addr_s = nic->vector_value("VROUTER_MAC");
+        }
+        else
+        {
+            addr_s = nic->vector_value("MAC");
+        }
+
+        ar_pool.free_addr(arid, ot, oid, addr_s);
+    }
+
+    if (ot == PoolObjectSQL::VROUTER)
+    {
+        vrouters.del(oid);
+    }
+    else if (ot == PoolObjectSQL::VM)
+    {
+        clear_update_vm(oid);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::free_addr(PoolObjectSQL::ObjectType ot,
+                               int oid,
+                               const VirtualMachineNic * nic)
+{
+    string addr_s;
+
+    if ( nic->is_shared())
+    {
+        addr_s = nic->vector_value("IP");
+
+        if (!addr_s.empty())
+        {
+            ar_pool.free_addr_by_ip(ot, oid, addr_s);
+        }
+        else
+        {
+            addr_s = nic->vector_value("IP6");
+
+            if (addr_s.empty())
+            {
+                return;
+            }
+
+            ar_pool.free_addr_by_ip6(ot, oid, addr_s);
+        }
+    }
+    else
+    {
+        if (ot == PoolObjectSQL::VROUTER)
+        {
+            addr_s = nic->vector_value("VROUTER_MAC");
+        }
+        else
+        {
+            addr_s = nic->vector_value("MAC");
+        }
+
+        ar_pool.free_addr(ot, oid, addr_s);
+    }
+
+    if (ot == PoolObjectSQL::VROUTER)
+    {
+        vrouters.del(oid);
+    }
+    else if (ot == PoolObjectSQL::VM)
+    {
+        clear_update_vm(oid);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualNetwork::replace_template(const std::string& tmpl_str,
                                      bool keep_restricted,
                                      std::string& error)

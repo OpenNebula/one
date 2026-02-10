@@ -17,7 +17,6 @@
 #include "AddressRange.h"
 #include "Attribute.h"
 #include "VirtualNetworkPool.h"
-#include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Nebula.h"
 
@@ -184,6 +183,16 @@ int AddressRange::init_ipv6_static(string& error_msg)
 
 int AddressRange::init_mac(string& error_msg)
 {
+    if (_shared)
+    {
+        mac[0] = 0;
+        mac[1] = 0;
+
+        set_mac(0,attr);
+
+        return 0;
+    }
+
     string value = attr->vector_value("MAC");
 
     if (value.empty())
@@ -231,6 +240,30 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
     {
         error_msg = "Unknown or missing address range TYPE.";
         return -1;
+    }
+
+    if (vattr->vector_value("SHARED", _shared) != 0)
+    {
+        _shared = false;
+    }
+
+    vattr->replace("SHARED", _shared);
+
+    if (_shared)
+    {
+        if (type != IP4 && type != IP6_STATIC)
+        {
+            error_msg = "Shared ARs can be only of type IP4 or IP6_STATIC.";
+            return -1;
+        }
+
+        string ipam_mad = attr->vector_value("IPAM_MAD");
+
+        if (!ipam_mad.empty() && ipam_mad != "internal")
+        {
+            error_msg = "Shared ARs cannot use an external IPAM";
+            return -1;
+        }
     }
 
     /* ---------------------- L3 & L2 start addresses ---------------------- */
@@ -329,16 +362,16 @@ int AddressRange::update_attributes(
 
     vup->replace("TYPE", attr->vector_value("TYPE"));
 
+    vup->replace("SHARED", attr->vector_value("SHARED"));
+
     vup->replace("MAC", attr->vector_value("MAC"));
 
     string ipam_mad = attr->vector_value("IPAM_MAD");
 
-    if ( !ipam_mad.empty() )
+    if ( !ipam_mad.empty() && !_shared)
     {
         vup->replace("IPAM_MAD", ipam_mad);
     }
-
-    vup->replace("MAC", attr->vector_value("MAC"));
 
     vup->remove("IP");
 
@@ -459,7 +492,7 @@ int AddressRange::update_attributes(
             return -1;
         }
 
-        std::map<unsigned int, long long>::iterator it;
+        std::map<unsigned int, std::set<long long>>::iterator it;
 
         if ( new_size == 0 )
         {
@@ -560,6 +593,13 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
     value = vattr->vector_value("TYPE");
     type  = str_to_type(value);
 
+    //Initialize SHARED if missing TODO: migrator?
+    if (vattr->vector_value("SHARED", _shared) != 0)
+    {
+        _shared = false;
+        vattr->replace("SHARED", _shared);
+    }
+
     rc += vattr->vector_value("SIZE", size);
 
     rc += mac_to_i(vattr->vector_value("MAC"), mac);
@@ -613,7 +653,7 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
                                ostringstream& oss) const
 {
-    unsigned int new_mac[2];
+    unsigned int new_mac[2] = {0};
     string       ip6_s;
 
     new_mac[0] = mac[0] + index;
@@ -661,7 +701,7 @@ void AddressRange::to_xml(ostringstream &oss) const
 {
     const map<string, string>& ar_attrs = attr->value();
 
-    unsigned int mac_end[2];
+    unsigned int mac_end[2] = {0};
 
     oss << "<AR>";
 
@@ -677,8 +717,11 @@ void AddressRange::to_xml(ostringstream &oss) const
             << "</"<< it->first << ">";
     }
 
-    mac_end[1] = mac[1];
-    mac_end[0] = (mac[0] + size - 1);
+    if (!_shared)
+    {
+        mac_end[1] = mac[1];
+        mac_end[0] = (mac[0] + size - 1);
+    }
 
     oss << "<MAC_END>" << one_util::escape_xml(mac_to_s(mac_end))<<"</MAC_END>";
 
@@ -749,7 +792,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
     const map<string, string>&          ar_attrs = attr->value();
 
     int          rc;
-    unsigned int mac_end[2];
+    unsigned int mac_end[2] = {0};
 
     bool all_vms = (vms.size() == 1 && vms[0] == -1);
     bool all_vns = (vns.size() == 1 && vns[0] == -1);
@@ -769,8 +812,11 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
             << "</"<< it->first << ">";
     }
 
-    mac_end[1] = mac[1];
-    mac_end[0] = (mac[0] + size - 1);
+    if (!_shared)
+    {
+        mac_end[1] = mac[1];
+        mac_end[0] = (mac[0] + size - 1);
+    }
 
     oss << "<MAC_END>" << one_util::escape_xml(mac_to_s(mac_end))<<"</MAC_END>";
 
@@ -843,66 +889,75 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
         for (auto it = allocated.begin(); it != allocated.end(); it++)
         {
-            lease.clear();
-
-            is_in = false;
-
-            if (it->second & PoolObjectSQL::VM)
+            for (auto lit = it->second.begin(); lit != it->second.end(); ++lit)
             {
-                int vmid = it->second & 0x00000000FFFFFFFFLL;
+                lease.clear();
 
-                if (all_vms || (find(vms.begin(), vms.end(), vmid) != vms.end()))
+                is_in = false;
+
+                long long owner = *lit;
+
+                if (owner & PoolObjectSQL::VM)
                 {
-                    lease.replace("VM", vmid);
-                    is_in = true;
-                }
-            }
-            else if (it->second & PoolObjectSQL::NET)
-            {
-                int vnid = it->second & 0x00000000FFFFFFFFLL;
+                    int vmid = owner & 0x00000000FFFFFFFFLL;
 
-                if (all_vns || (find(vns.begin(), vns.end(), vnid) != vns.end()))
+                    if (all_vms || find(vms.begin(), vms.end(), vmid) != vms.end())
+                    {
+                        lease.replace("VM", vmid);
+                        is_in = true;
+                    }
+                }
+                else if (owner & PoolObjectSQL::NET)
                 {
-                    lease.replace("VNET", vnid);
-                    is_in = true;
-                }
-            }
-            else if (it->second & PoolObjectSQL::VROUTER)
-            {
-                int oid = it->second & 0x00000000FFFFFFFFLL;
+                    int vnid = owner & 0x00000000FFFFFFFFLL;
 
-                if (all_vrs || (find(vrs.begin(), vrs.end(), oid) != vrs.end()))
+                    if (all_vns || find(vns.begin(), vns.end(), vnid) != vns.end())
+                    {
+                        lease.replace("VNET", vnid);
+                        is_in = true;
+                    }
+                }
+                else if (owner & PoolObjectSQL::VROUTER)
                 {
-                    lease.replace("VROUTER", oid);
-                    is_in = true;
+                    int oid = owner & 0x00000000FFFFFFFFLL;
+
+                    if (all_vrs || find(vrs.begin(), vrs.end(), oid) != vrs.end())
+                    {
+                        lease.replace("VROUTER", oid);
+                        is_in = true;
+                    }
                 }
+
+                if (!is_in)
+                {
+                    continue;
+                }
+
+                if (!_shared)
+                {
+                    //Shared leases generates a random MAC upon allocation
+                    set_mac(it->first, &lease);
+                }
+
+                set_port_ranges(it->first, &lease);
+
+                if (is_ipv4())
+                {
+                    set_ip(it->first, &lease);
+                }
+
+                if (is_ipv6())
+                {
+                    set_ip6(it->first, &lease);
+                }
+
+                if (is_ipv6_static())
+                {
+                    set_ip6_static(it->first, &lease);
+                }
+
+                lease.to_xml(oss);
             }
-
-            if (!is_in)
-            {
-                continue;
-            }
-
-            set_mac(it->first, &lease);
-
-            set_port_ranges(it->first, &lease);
-
-            if (is_ipv4())
-            {
-                set_ip(it->first, &lease);
-            }
-
-            if (is_ipv6())
-            {
-                set_ip6(it->first, &lease);
-            }
-
-            if (is_ipv6_static())
-            {
-                set_ip6_static(it->first, &lease);
-            }
-
-            lease.to_xml(oss);
         }
 
         oss << "</LEASES>";
@@ -922,6 +977,12 @@ int AddressRange::mac_to_i(string mac, unsigned int i_mac[])
     int    count = 0;
 
     unsigned int tmp;
+
+    if ( mac.empty() || mac == "00:00:00:00:00:00")
+    {
+        i_mac[0] = i_mac[1] = 0;
+        return 0;
+    }
 
     while ( (pos = mac.find(':')) !=  string::npos )
     {
@@ -961,6 +1022,11 @@ string AddressRange::mac_to_s(const unsigned int i_mac[])
 {
     ostringstream oss;
     unsigned int  temp_byte;
+
+    if (i_mac[0] == 0 && i_mac[1] == 0)
+    {
+        return "00:00:00:00:00:00";
+    }
 
     for (int i=5; i>=0; i--)
     {
@@ -1423,9 +1489,12 @@ void AddressRange::allocated_to_attr()
 
     ostringstream oss;
 
-    for (auto it = allocated.begin(); it != allocated.end(); it++)
+    for (auto it = allocated.begin(); it != allocated.end(); ++it)
     {
-        oss << " " << it->first << " " << it->second;
+        for (auto lit = it->second.begin(); lit != it->second.end(); ++lit)
+        {
+            oss << " " << it->first << " " << *lit;
+        }
     }
 
     attr->replace("ALLOCATED", oss.str());
@@ -1445,16 +1514,14 @@ int AddressRange::attr_to_allocated(const string& allocated_s)
     unsigned int  addr_index;
     long long     object_pack;
 
-    while (!iss.eof())
+    while (iss >> ws >> addr_index >> ws >> object_pack)
     {
-        iss >> ws >> addr_index >> ws >> object_pack;
+        allocated[addr_index].insert(object_pack);
+    }
 
-        if (iss.fail())
-        {
-            return -1;
-        }
-
-        allocated.insert(make_pair(addr_index, object_pack));
+    if (!iss.eof())
+    {
+        return -1;
     }
 
     if ( get_used_addr() > size )
@@ -1471,8 +1538,9 @@ void AddressRange::set_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
                                       unsigned int addr_index)
 {
     long long lobid = obid & 0x00000000FFFFFFFFLL;
+    long long owner = ot | lobid;
 
-    allocated.insert(make_pair(addr_index, ot|lobid));
+    allocated[addr_index].insert(owner);
 
     allocated_to_attr();
 }
@@ -1482,13 +1550,19 @@ void AddressRange::set_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
 int AddressRange::free_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
                                       unsigned int addr_index)
 {
-    long long lobid = obid & 0x00000000FFFFFFFFLL;
+    long long obj_pack = ot | (obid & 0x00000000FFFFFFFFLL);
 
     auto it = allocated.find(addr_index);
 
-    if (it != allocated.end() && it->second == (ot|lobid))
+    if (it != allocated.end() && it->second.count(obj_pack))
     {
-        allocated.erase(it);
+        it->second.erase(obj_pack);
+
+        if (it->second.empty())
+        {
+            allocated.erase(it);
+        }
+
         allocated_to_attr();
 
         return 0;
@@ -1506,7 +1580,22 @@ void AddressRange::allocate_by_index(unsigned int index,
                                      VectorAttribute*          nic,
                                      const set<string>&     inherit)
 {
-    set_mac(index, nic);
+    if (_shared)
+    {
+        //Shared AR generate a random MAC (not stored in LEASE)
+        unsigned int rmac[2];
+
+        rmac[1] = VirtualNetworkPool::mac_prefix();
+        rmac[0] = one_util::random<uint32_t>() & 0xFFFFFFFF;
+
+        nic->replace("MAC", mac_to_s(rmac));
+
+        nic->replace("SHARED", "YES");
+    }
+    else
+    {
+        set_mac(index, nic);
+    }
 
     set_port_ranges(index, nic);
 
@@ -1562,7 +1651,8 @@ int AddressRange::allocate_addr(
     unsigned int index;
     string       error_msg;
 
-    if ( get_used_addr() >= size )
+    //Shared ARs cannot use automatic allocation
+    if ( _shared || get_used_addr() >= size )
     {
         return -1;
     }
@@ -1591,7 +1681,8 @@ int AddressRange::allocate_by_mac(
     string error_msg;
     unsigned int index;
 
-    if (!is_valid_mac(index, mac_s, true))
+    //Shared ARs cannot allocate by MAC
+    if (_shared || !is_valid_mac(index, mac_s, true))
     {
         return -1;
     }
@@ -1620,7 +1711,7 @@ int AddressRange::allocate_by_ip(
     string error_msg;
     unsigned int index;
 
-    if (!is_valid_ip(index, ip_s, true))
+    if (!is_valid_ip(index, ip_s, !_shared))
     {
         return -1;
     }
@@ -1649,7 +1740,7 @@ int AddressRange::allocate_by_ip6(
     string error_msg;
     unsigned int index;
 
-    if (!is_valid_ip6(index, ip6_s, true))
+    if (!is_valid_ip6(index, ip6_s, !_shared))
     {
         return -1;
     }
@@ -1671,12 +1762,19 @@ int AddressRange::allocate_by_ip6(
 int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
                             const string& mac_s)
 {
-    string error_msg;
+    string error_msg, addr_s;
+    unsigned int index;
+
+    if (mac_s.empty())
+    {
+        return -1;
+    }
+
     unsigned int mac_i[2];
 
     mac_to_i(mac_s, mac_i);
 
-    unsigned int index = mac_i[0] - mac[0];
+    index = mac_i[0] - mac[0];
 
     if ( mac[0] > mac_i[0] || index >= size)
     {
@@ -1781,9 +1879,18 @@ int AddressRange::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
 
     while (it != allocated.end())
     {
-        if (it->second == obj_pack && free_addr(it->first, error_msg) == 0)
+        if (it->second.count(obj_pack) && free_addr(it->first, error_msg) == 0)
         {
-            it = allocated.erase(it);
+            it->second.erase(obj_pack);
+
+            if (it->second.empty())
+            {
+                it = allocated.erase(it);
+            }
+            else
+            {
+                it++;
+            }
 
             freed++;
         }
@@ -1808,6 +1915,12 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
 
     unsigned int mac_i[2];
 
+    if (_shared)
+    {
+        //Shared AR cannot free by range
+        return 0;
+    }
+
     mac_to_i(mac_s, mac_i);
 
     unsigned int index = mac_i[0] - mac[0];
@@ -1825,18 +1938,26 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
 
         long long obj_pack = ot | (obid & 0x00000000FFFFFFFFLL);
 
-        for (unsigned int i=0; i<rsize; i++)
+        for (unsigned int i=0; i<rsize && it != allocated.end(); i++)
         {
-            if (it != allocated.end() && it->second == obj_pack &&
-                free_addr(it->first, error_msg) == 0)
+            if (it->second.count(obj_pack) && free_addr(it->first, error_msg) == 0)
             {
-                it = allocated.erase(it);
+                it->second.erase(obj_pack);
+
+                if (it->second.empty())
+                {
+                    it = allocated.erase(it);
+                }
+                else
+                {
+                    ++it;
+                }
 
                 freed++;
             }
             else
             {
-                it++;
+                ++it;
             }
         }
 
@@ -1946,7 +2067,8 @@ int AddressRange::hold_by_mac(const string& mac_s)
     unsigned int index;
     string error_msg;
 
-    if (!is_valid_mac(index, mac_s, true))
+    //Shared ARs cannot hold by MAC
+    if (_shared || !is_valid_mac(index, mac_s, true))
     {
         return -1;
     }
@@ -1970,7 +2092,8 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
     unsigned int first_index;
     string error_msg;
 
-    if (rsize > get_free_addr())
+    //Shared AR cannot reserve IPs
+    if (_shared || rsize > get_free_addr())
     {
         return -1;
     }
@@ -2081,7 +2204,8 @@ int AddressRange::reserve_addr_by_ip6(int vid, unsigned int rsize,
 {
     unsigned int sindex;
 
-    if (!is_valid_ip6(sindex, ip_s, false))
+    //Shared AR cannot reserve IPs
+    if (_shared || !is_valid_ip6(sindex, ip_s, false))
     {
         return -1;
     }
@@ -2097,7 +2221,8 @@ int AddressRange::reserve_addr_by_ip(int vid, unsigned int rsize,
 {
     unsigned int sindex;
 
-    if (!is_valid_ip(sindex, ip_s, false))
+    //Shared AR cannot reserve IPs
+    if (_shared || !is_valid_ip(sindex, ip_s, false))
     {
         return -1;
     }
@@ -2113,7 +2238,8 @@ int AddressRange::reserve_addr_by_mac(int vid, unsigned int rsize,
 {
     unsigned int sindex;
 
-    if (!is_valid_mac(sindex, mac_s, false))
+    //Shared AR cannot reserve IPs
+    if (_shared || !is_valid_mac(sindex, mac_s, false))
     {
         return -1;
     }

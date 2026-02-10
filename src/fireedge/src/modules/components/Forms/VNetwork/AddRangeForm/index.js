@@ -38,6 +38,27 @@ const IMMUTABLE_ATTRS = [
   'LEASES',
   'IPAM_MAD',
 ]
+const sharedRemoveData = ['MAC']
+const removeSharedData = (data) => {
+  Object.keys(data).forEach((attr) => {
+    if (sharedRemoveData.some((prefix) => attr.startsWith(prefix))) {
+      delete data[attr]
+    }
+  })
+
+  return data
+}
+
+const cleanSharedData = (data) => {
+  if (data?.SHARED === 'YES') {
+    removeSharedData(data)
+    if (data.LEASES?.LEASE) {
+      removeSharedData(data.LEASES.LEASE)
+    }
+  }
+
+  return data
+}
 
 const AddRangeForm = createForm(SCHEMA, undefined, {
   ContentForm,
@@ -49,10 +70,14 @@ const AddRangeForm = createForm(SCHEMA, undefined, {
       !IMMUTABLE_ATTRS[attr] && (mutableAttrs[attr] = addressRange[attr])
     }
 
+    if (mutableAttrs?.SHARED === 'NO') mutableAttrs.SHARED = false
+
     return { ...mutableAttrs }
   },
   transformBeforeSubmit: (formData) => {
-    const { [CUSTOM_ATTRS_ID]: customAttrs = {}, ...rest } = formData ?? {}
+    const filteredData = cleanSharedData(formData)
+
+    const { [CUSTOM_ATTRS_ID]: customAttrs = {}, ...rest } = filteredData ?? {}
 
     return { ...customAttrs, ...rest }
   },

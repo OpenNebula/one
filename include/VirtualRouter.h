@@ -26,6 +26,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 class RequestAttributes;
+class VirtualMachineNic;
 
 /**
  *  The VirtualRouter class.
@@ -279,7 +280,7 @@ private:
      *
      * @return 0 on success, -1 otherwise
      */
-    int release_network_leases(const VectorAttribute  * nic);
+    int release_network_leases(const VirtualMachineNic  * nic);
 
     /**
      * Returns the nic with the giver nic_id, or 0

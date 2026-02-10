@@ -37,13 +37,6 @@ int VirtualMachineNic::release_network_leases(int vmid)
         return -1;
     }
 
-    string mac = vector_value("MAC");
-
-    if (mac.empty())
-    {
-        return -1;
-    }
-
     auto vn = vnpool->get(vnid);
 
     if (vn == nullptr)
@@ -55,11 +48,11 @@ int VirtualMachineNic::release_network_leases(int vmid)
 
     if (vector_value("AR_ID", ar_id) == 0)
     {
-        vn->free_addr(ar_id, PoolObjectSQL::VM, vmid, mac);
+        vn->free_addr(ar_id, PoolObjectSQL::VM, vmid, this);
     }
     else
     {
-        vn->free_addr(PoolObjectSQL::VM, vmid, mac);
+        vn->free_addr(PoolObjectSQL::VM, vmid, this);
     }
 
     vnpool->update(vn.get());

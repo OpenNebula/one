@@ -230,7 +230,7 @@ public:
      *  Frees a previous allocated address, referenced by its MAC/IP address
      *  @param ot the object type of the owner of the address
      *  @param obid the id of the owner of the address
-     *  @param mac/ip the MAC/IP address in string form
+     *  @param addr_s the MAC/IP address in string form
      *  @return 0 if the address was freed
      */
     int free_addr(PoolObjectSQL::ObjectType ot, int obid, const std::string& mac);
@@ -328,9 +328,12 @@ public:
     {
         for (const auto& lease: allocated)
         {
-            if (lease.second & ob)
+            for (const long long owner : lease.second)
             {
-                ids.emplace(lease.second & 0x00000000FFFFFFFFLL);
+                if (owner & ob)
+                {
+                    ids.emplace(owner & 0x00000000FFFFFFFFLL);
+                }
             }
         }
     }
@@ -555,7 +558,7 @@ protected:
      *
      *  Address = First Address + index
      */
-    std::map<unsigned int, long long> allocated;
+    std::map<unsigned int, std::set<long long>> allocated;
 
 private:
     /* ---------------------------------------------------------------------- */
@@ -832,6 +835,11 @@ private:
      *  used to generate XML or a template representation of the AR.
      */
     VectorAttribute * attr = nullptr;
+
+    /**
+     *  Boolean to indicate if the AR is shared (contians VIP addresses) or not
+     */
+    bool _shared = false;
 
     /* ---------------------------------------------------------------------- */
     /* Restricted Attributes                                                  */

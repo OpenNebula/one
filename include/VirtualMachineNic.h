@@ -153,6 +153,21 @@ public:
         return one_util::icasecmp(net_mode, "AUTO");
     }
 
+    /**
+     *  Check if the NIC is using a shared address
+     */
+    bool is_shared() const
+    {
+        bool shared;
+
+        if ( vector_value("SHARED", shared) != 0 )
+        {
+            return false;
+        }
+
+        return shared;
+    }
+
     /*
      * Set nic NAME attribute if not empty, defaults to NAME = NIC${NIC_ID}
      */

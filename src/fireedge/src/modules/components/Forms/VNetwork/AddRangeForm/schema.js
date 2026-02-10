@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { BaseSchema, string, number } from 'yup'
+import { BaseSchema, string, number, boolean } from 'yup'
 
 import {
   Field,
@@ -120,12 +120,32 @@ const PREFIX_LENGTH_FIELD = {
     }),
 }
 
+/**
+ * @param {boolean} [isUpdate=false] - If true the form is for update
+ * @returns {Field} Shared field
+ */
+const SHARED_FIELD = (isUpdate = false) => ({
+  name: 'SHARED',
+  label: T.Shared,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean()
+    .yesOrNo()
+    .default(() => false),
+  grid: { xs: 12, md: 6 },
+  ...(isUpdate && {
+    fieldProps: { disabled: true },
+    tooltip: T.CannotModifySharedWithLeases,
+  }),
+})
+
 /** @type {Field} MAC field */
 const MAC_FIELD = {
   name: 'MAC',
   label: T.FirstMacAddress,
   tooltip: T.MacConcept,
   type: INPUT_TYPES.TEXT,
+  dependOf: SHARED_FIELD().name,
+  htmlType: (mode) => mode && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
@@ -190,6 +210,7 @@ const FIELDS = (oneConfig, adminGroup) =>
       TYPE_FIELD,
       IP_FIELD,
       MAC_FIELD,
+      SHARED_FIELD(),
       IP6_FIELD,
       SIZE_FIELD,
       GLOBAL_PREFIX_FIELD,
@@ -203,30 +224,32 @@ const FIELDS = (oneConfig, adminGroup) =>
   )
 
 /**
- * @param {object} oneConfig - Open Nebula configuration
+ * @param {object} oneConfig - OpenNebula configuration
  * @param {boolean} adminGroup - If the user belongs to oneadmin group
+ * @param {boolean} isUpdate - If true the form is to update the AR
+ * @param {boolean} hasLease - If true the address range has leases
  * @returns {Array} - Mutable fields
  */
-const MUTABLE_FIELDS = (oneConfig, adminGroup) =>
+const MUTABLE_FIELDS = (oneConfig, adminGroup, isUpdate, hasLease) =>
   disableFields(
-    [SIZE_FIELD],
+    [SIZE_FIELD, SHARED_FIELD(isUpdate, hasLease)],
     'AR',
     oneConfig,
     adminGroup,
     RESTRICTED_ATTRIBUTES_TYPE.VNET
   )
-
 /**
  * @param {object} stepProps - Step props
  * @param {boolean} stepProps.isUpdate - If true the form is to update the AR
  * @param {object} stepProps.oneConfig - Open Nebula configuration
  * @param {boolean} stepProps.adminGroup - If the user belongs to oneadmin group
+ * @param {boolean} stepProps.hasLease - If true the address range has leases
  * @returns {BaseSchema} Schema
  */
-const SCHEMA = ({ isUpdate, oneConfig, adminGroup } = {}) =>
+const SCHEMA = ({ isUpdate, oneConfig, adminGroup, hasLease } = {}) =>
   getObjectSchemaFromFields([
     ...(isUpdate
-      ? MUTABLE_FIELDS(oneConfig, adminGroup)
+      ? MUTABLE_FIELDS(oneConfig, adminGroup, isUpdate, hasLease)
       : FIELDS(oneConfig, adminGroup)),
   ])
 

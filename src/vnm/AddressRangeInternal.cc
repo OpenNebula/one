@@ -67,4 +67,3 @@ int AddressRangeInternal::get_range_addr(unsigned int& index,
     msg = "There isn't a continuous range big enough";
     return -1;
 }
-

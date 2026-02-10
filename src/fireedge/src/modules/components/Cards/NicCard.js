@@ -86,6 +86,7 @@ const NicCard = memo(
       ADDRESS,
       SECURITY_GROUPS,
       TYPE,
+      SHARED,
     } = nic
 
     const isAlias = !!PARENT?.length
@@ -186,6 +187,8 @@ const NicCard = memo(
               ) : (
                 'auto'
               )}
+              {SHARED === 'YES' && Tr(T.Shared)}
+
               <Stack
                 direction="row"
                 justifyContent="end"

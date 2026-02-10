@@ -1941,6 +1941,7 @@ module.exports = {
   FirstMacAddress: 'First MAC address',
   PrefixLength: 'Prefix length',
   PrefixLengthConcept: 'Length of the prefix to configure VM interfaces',
+  CannotModifySharedWithLeases: 'Cannot modify shared field',
   SLAAC: 'SLAAC',
   IPv6GlobalPrefix: 'IPv6 Global prefix',
   IPv6ULAPrefix: 'IPv6 ULA prefix',

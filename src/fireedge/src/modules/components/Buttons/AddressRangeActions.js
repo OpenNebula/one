@@ -87,7 +87,7 @@ const AddAddressRangeAction = memo(
 const UpdateAddressRangeAction = memo(
   ({ vnetId, ar, onSubmit, oneConfig, adminGroup }) => {
     const [updateAR] = VnAPI.useUpdateVNetRangeMutation()
-    const { AR_ID } = ar
+    const { AR_ID, LEASES } = ar
 
     const handleUpdate = async (formData) => {
       if (onSubmit && typeof onSubmit === 'function') {
@@ -118,6 +118,7 @@ const UpdateAddressRangeAction = memo(
                 initialValues: ar,
                 stepProps: {
                   isUpdate: !onSubmit && AR_ID !== undefined,
+                  hasLease: typeof LEASES === 'object',
                   oneConfig,
                   adminGroup,
                   restrictedAttributesType: RESTRICTED_ATTRIBUTES_TYPE.VNET,

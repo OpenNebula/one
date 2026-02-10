@@ -404,20 +404,26 @@ int VirtualRouter::from_xml(const string& xml)
 
 void VirtualRouter::release_network_leases()
 {
-    vector<VectorAttribute const *> nics;
+    vector<VectorAttribute *> nics;
 
     int num_nics = get_template_attribute("NIC", nics);
 
     for (int i=0; i<num_nics; i++)
     {
-        release_network_leases(nics[i]);
+        int nic_id;
+
+        nics[i]->vector_value("NIC_ID", nic_id);
+
+        VirtualMachineNic nic(nics[i], nic_id);
+
+        release_network_leases(&nic);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualRouter::release_network_leases(const VectorAttribute * nic)
+int VirtualRouter::release_network_leases(const VirtualMachineNic * nic)
 {
     VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
 
@@ -434,8 +440,6 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
         return -1;
     }
 
-    const string& mac = nic->vector_value("VROUTER_MAC");
-
     auto vn = vnpool->get(vnid);
 
     if (vn == nullptr)
@@ -445,11 +449,11 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
 
     if (nic->vector_value("AR_ID", ar_id) == 0)
     {
-        vn->free_addr(ar_id, PoolObjectSQL::VROUTER, oid, mac);
+        vn->free_addr(ar_id, PoolObjectSQL::VROUTER, oid, nic);
     }
     else
     {
-        vn->free_addr(PoolObjectSQL::VROUTER, oid, mac);
+        vn->free_addr(PoolObjectSQL::VROUTER, oid, nic);
     }
 
     vnpool->update(vn.get());
@@ -648,7 +652,9 @@ int VirtualRouter::detach_nic(int nic_id)
         return -1;
     }
 
-    release_network_leases(nic);
+    VirtualMachineNic nic_obj(nic, nic_id);
+
+    release_network_leases(&nic_obj);
 
     obj_template->remove(nic);
 
