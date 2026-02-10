@@ -49,8 +49,9 @@ const InformationPanel = ({ node = {} }) => {
       </Stack>
       <Divider variant="middle" />
       <Grid container spacing={2} sx={{ padding: '10px 0 20px' }}>
-        {CORE.length &&
-          CORE.map((core) => <NumaCore key={core.ID} core={core} />)}
+        {[].concat(CORE)?.map((core) => (
+          <NumaCore key={core?.ID} core={core} />
+        ))}
       </Grid>
       <Divider variant="middle" />
       <Stack

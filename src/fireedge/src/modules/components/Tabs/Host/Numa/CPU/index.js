@@ -15,53 +15,88 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-
 import { Box, Grid, Paper, Typography } from '@mui/material'
-
 import { Translate } from '@modules/components/HOC'
 import { T, CPU_STATUS } from '@ConstantsModule'
+import { getColorFromString } from '@ModelsModule'
+import { PATH } from '@modules/components/path'
+import { generatePath, useHistory } from 'react-router'
 
 /**
  * @param {object} props - Props
  * @param {string} props.core - Numa core
- * @param {object} props.cpus - List of numa cores
+ * @param {number} props.status - Core pin status
  * @returns {ReactElement} Information tab
  */
-const NumaCoreCPU = ({ core, cpus }) => (
-  <Grid item xs={6}>
-    <Paper
-      variant="outlined"
-      sx={{
-        color: 'text.primary',
-        bgcolor:
-          CPU_STATUS[cpus[core]] === CPU_STATUS['-2']
-            ? 'action.disabled'
-            : 'action.disabledBackground',
-        pt: '0.3rem',
-        pb: '0.1rem',
-      }}
-    >
-      <Box sx={{ flexGrow: 1 }}>
-        <Typography gutterBottom variant="body2" component="div" align="center">
-          <Translate word={T.NumaNodeCPUItem} values={core} />
-        </Typography>
-        <Typography
-          gutterBottom
-          variant="body2"
-          component="div"
-          align="center"
-          data-cy={`cpu-${core}`}
-        >
-          {CPU_STATUS[cpus[core]]}
-        </Typography>
-      </Box>
-    </Paper>
-  </Grid>
-)
+const NumaCoreCPU = ({ core, status }) => {
+  // Generates unique colors for VM id, uses grey bg for isolated/free.
+  const history = useHistory()
+  const bgColor = CPU_STATUS?.[status]
+    ? 'action.disabled'
+    : getColorFromString(status)
+
+  const attachedToVm = status >= 0
+
+  const gotoVm = (id) =>
+    history.push(generatePath(PATH.INSTANCE.VMS.DETAIL, { id }))
+
+  return (
+    <Grid item xs={6}>
+      <Paper
+        variant="outlined"
+        sx={{
+          color: 'text.primary',
+          bgcolor: bgColor,
+          padding: '0.5rem',
+        }}
+      >
+        <Box sx={{ flexGrow: 1 }}>
+          <Typography
+            gutterBottom
+            variant="body2"
+            component="div"
+            align="center"
+            noWrap
+          >
+            <Translate word={T.NumaNodeCPUItem} values={core} />
+          </Typography>
+          {attachedToVm ? (
+            <Typography
+              gutterBottom
+              variant="body2"
+              component="div"
+              align="center"
+              data-cy={`cpu-${core}`}
+              sx={{
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+              onClick={() => gotoVm(status)}
+              noWrap
+            >
+              {`${T.VM} #${status}`}
+            </Typography>
+          ) : (
+            <Typography
+              gutterBottom
+              variant="body2"
+              component="div"
+              align="center"
+              data-cy={`cpu-${core}`}
+              noWrap
+            >
+              {CPU_STATUS?.[status]}
+            </Typography>
+          )}
+        </Box>
+      </Paper>
+    </Grid>
+  )
+}
 
 NumaCoreCPU.propTypes = {
   core: PropTypes.string.isRequired,
-  cpus: PropTypes.object.isRequired,
+  status: PropTypes.string.isRequired,
 }
 
 NumaCoreCPU.displayName = 'NumaCoreCPU'

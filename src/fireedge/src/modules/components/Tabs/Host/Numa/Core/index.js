@@ -28,6 +28,8 @@ import NumaCoreCPU from '@modules/components/Tabs/Host/Numa/CPU'
  * @returns {ReactElement} Information tab
  */
 const NumaCore = ({ core }) => {
+  if (!core) return null
+
   const cpus = Object.fromEntries(
     core.CPUS.split(',').map((item) => item.split(':'))
   )
@@ -46,10 +48,23 @@ const NumaCore = ({ core }) => {
         <Typography gutterBottom variant="body1" component="div" align="center">
           <Translate word={T.NumaCore} values={core.ID} />
         </Typography>
-        <Grid container spacing={1}>
-          {Object.keys(cpus).map((cpu, index) => (
-            <NumaCoreCPU key={index} core={cpu} cpus={cpus} />
-          ))}
+        <Grid
+          container
+          spacing={1}
+          sx={{
+            justifyContent: 'center',
+            marginLeft: 0,
+          }}
+        >
+          {Object.entries(cpus).map(
+            ([coreId, allocationStatus = -1], index) => (
+              <NumaCoreCPU
+                key={index}
+                core={coreId}
+                status={allocationStatus}
+              />
+            )
+          )}
         </Grid>
       </Box>
     </Grid>

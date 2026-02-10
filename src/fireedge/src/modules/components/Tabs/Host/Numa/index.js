@@ -35,6 +35,7 @@ import { T } from '@ConstantsModule'
  */
 const NumaInfoTab = ({ id }) => {
   const { data: host = {} } = HostAPI.useGetHostQuery({ id })
+
   const numa = getHostNuma(host)
 
   return (
