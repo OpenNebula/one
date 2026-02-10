@@ -31,6 +31,7 @@
 #include <grpcpp/support/proto_buffer_writer.h>
 #include <grpcpp/support/proto_buffer_reader.h>
 #include <unistd.h>
+#include <cassert>
 
 #include <future>
 
@@ -328,9 +329,9 @@ grpc::Status RequestGRPC::call(const std::string& endpoint,
 
 #if NEW_GRPC
     // Step 3: Make the generic unary call.
-    grpc::ByteBuffer response_buffer;
+    grpc::ByteBuffer    response_buffer;
     grpc::ClientContext context;
-    grpc::Status rpc_status;
+    grpc::Status        rpc_status;
 
     auto cq = std::make_unique<grpc::CompletionQueue>();
 
@@ -343,14 +344,14 @@ grpc::Status RequestGRPC::call(const std::string& endpoint,
     void* got_tag;
     bool ok = false;
 
-    GPR_ASSERT(cq->Next(&got_tag, &ok));
-    GPR_ASSERT(got_tag == (void*)1);
-    GPR_ASSERT(ok);
+    assert(cq->Next(&got_tag, &ok));
+    assert(got_tag == (void*)1);
+    assert(ok);
 #else
     // Step 3: Make the generic unary call (older gRPC versions).
-    grpc::ByteBuffer response_buffer;
+    grpc::ByteBuffer           response_buffer;
     std::promise<grpc::Status> status_promise;
-    std::future<grpc::Status> status_future = status_promise.get_future();
+    std::future<grpc::Status>  status_future = status_promise.get_future();
 
     grpc::ClientContext context;
 
@@ -368,11 +369,12 @@ grpc::Status RequestGRPC::call(const std::string& endpoint,
 
     // Step 4: Handle the RPC status.
     if (!rpc_status.ok()) {
-        return rpc_status; // Propagate the error.
+        return rpc_status;
     }
 
     // Step 5: Deserialize the response buffer into the response message.
     grpc::ProtoBufferReader response_reader(&response_buffer);
+
     if ( !response->ParseFromZeroCopyStream(&response_reader) )
     {
         return grpc::Status(grpc::StatusCode::INTERNAL,

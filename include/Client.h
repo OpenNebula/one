@@ -126,6 +126,8 @@ public:
                             std::string& error_msg);
 
 protected:
+    virtual ~Client() = default;
+
     std::string one_auth;
     std::string one_endpoint;
 

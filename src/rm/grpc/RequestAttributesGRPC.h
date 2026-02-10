@@ -95,14 +95,15 @@ private:
                 oss << std::boolalpha << reflection->GetBool(*input, field);
                 break;
             case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
-                return reflection->GetEnum(*input, field)->name();
-                break;
+            {
+                const auto sv = reflection->GetEnum(*input, field)->name();
+                return std::string(sv.data(), sv.size());
+            }
+            //return reflection->GetEnum(*input, field)->name();
             case google::protobuf::FieldDescriptor::CPPTYPE_STRING:
                 return reflection->GetString(*input, field);
-                break;
             case google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE:
                 return ""; //nested message
-                break;
         }
 
         return oss.str();
