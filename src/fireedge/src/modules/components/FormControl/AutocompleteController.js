@@ -47,11 +47,11 @@ const AutocompleteController = memo(
       fieldState: { error },
     } = useController({ name, control })
 
-    const selected =
-      defaultValue ||
-      (multiple
-        ? renderValue ?? []
-        : values.find(({ value }) => value === renderValue) || renderValue)
+    const selected = multiple
+      ? renderValue ?? []
+      : renderValue
+      ? values.find(({ value }) => value === renderValue) || renderValue
+      : defaultValue
 
     const handleChange = useCallback(
       (_, newValue) => {

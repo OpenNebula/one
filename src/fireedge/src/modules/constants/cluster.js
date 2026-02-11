@@ -33,7 +33,6 @@ export const CLUSTER_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
   UPDATE_DIALOG: 'update_dialog',
   DELETE: 'delete',
-
   RENAME: ACTIONS.RENAME,
 }
 
@@ -102,73 +101,115 @@ export const PROVISION_STATES = {
   PENDING: {
     name: 'PENDING',
     color: COLOR.info.light,
+    finalState: false,
   },
   INIT: {
     name: 'INIT',
     color: COLOR.info.light,
+    finalState: false,
   },
   INIT_FAILURE: {
     name: 'INIT_FAILURE',
     color: COLOR.error.dark,
+    finalState: true,
   },
   PLANNING: {
     name: 'PLANNING',
     color: COLOR.info.light,
+    finalState: false,
   },
   PLANNING_FAILURE: {
     name: 'PLANNING_FAILURE',
     color: COLOR.error.dark,
+    finalState: true,
   },
   APPLYING: {
     name: 'APPLYING',
     color: COLOR.info.light,
+    finalState: false,
   },
   APPLYING_FAILURE: {
     name: 'APPLYING_FAILURE',
     color: COLOR.error.dark,
+    finalState: true,
   },
   CONFIGURING_ONE: {
     name: 'CONFIGURING_ONE',
     color: COLOR.info.light,
+    finalState: false,
   },
   CONFIGURING_ONE_FAILURE: {
     name: 'CONFIGURING_ONE_FAILURE',
     color: COLOR.error.dark,
+    finalState: true,
   },
   CONFIGURING_PROVISION: {
     name: 'CONFIGURING_PROVISION',
     color: COLOR.info.light,
+    finalState: false,
   },
   CONFIGURING_PROVISION_FAILURE: {
     name: 'CONFIGURING_PROVISION_FAILURE',
     color: COLOR.error.dark,
+    finalState: true,
   },
   RUNNING: {
     name: 'RUNNING',
     color: COLOR.success.light,
+    finalState: true,
   },
   SCALING: {
     name: 'SCALING',
     color: COLOR.info.light,
+    finalState: false,
   },
   SCALING_FAILURE: {
     name: 'SCALING_FAILURE',
     color: COLOR.error.dark,
+    finalState: true,
   },
   DEPROVISIONING_ONE: {
     name: 'DEPROVISIONING_ONE',
     color: COLOR.info.light,
+    finalState: false,
   },
   DEPROVISIONING_ONE_FAILURE: {
     name: 'DEPROVISIONING_ONE_FAILURE',
     color: COLOR.error.dark,
+    finalState: true,
   },
   DEPROVISIONING: {
     name: 'DEPROVISIONING',
     color: COLOR.info.light,
+    finalState: false,
   },
   DONE: {
     name: 'DONE',
     color: COLOR.success.light,
+    finalState: true,
+  },
+}
+
+/** @enum {string} Cluster cloud operations */
+export const CLUSTER_CLOUD_OPERATIONS = {
+  CREATE: {
+    name: 'CREATE',
+    text: 'CreatingCluster',
+  },
+  DEPROVISION: {
+    name: 'DEPROVISION',
+    text: 'DeprovisioningCluster',
+  },
+  DELETE: {
+    name: 'DELETE',
+    text: 'DeletingCluster',
+  },
+  ADDHOST: {
+    name: 'ADDHOST',
+    text: 'AddingHostCluster',
+  },
+  DELETEHOST: {
+    name: 'DELETEHOST',
+    text: 'DeletingHostCluster',
   },
 }

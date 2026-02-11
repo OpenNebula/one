@@ -23,7 +23,7 @@ import {
 import { ReactElement } from 'react'
 import { generatePath, useHistory, useLocation } from 'react-router'
 
-import { T } from '@ConstantsModule'
+import { T, CLUSTER_CLOUD_OPERATIONS } from '@ConstantsModule'
 import {
   ProvisionAPI,
   DriverAPI,
@@ -69,7 +69,10 @@ export function CreateClusterCloud() {
       history.push(
         generatePath(PATH.INFRASTRUCTURE.CLUSTERS.CREATE_CLOUD_LOGS, {
           id: newProvisionId,
-        })
+        }),
+        {
+          operation: CLUSTER_CLOUD_OPERATIONS.CREATE.name,
+        }
       )
       enqueueSuccess(T.SuccessProviderCreated, [newProvisionId])
     } catch {

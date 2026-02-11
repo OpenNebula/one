@@ -9,7 +9,7 @@ resource_name: "PROVIDER"
 
 actions:
   create_dialog: true
-  update_dialog: true
+  update_dialog: false
   delete: true
   chown: true
   chgrp: true

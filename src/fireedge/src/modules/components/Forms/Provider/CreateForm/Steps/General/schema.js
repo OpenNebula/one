@@ -35,15 +35,7 @@ const DESCRIPTION_FIELD = {
   name: 'description',
   label: T.Description,
   type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .test(
-      'is-not-numeric',
-      'Description should not be a numeric value',
-      (value) => isNaN(value) || value.trim() === ''
-    )
-    .required()
-    .default(() => ''),
+  validation: string().trim(),
   grid: { md: 12 },
 }
 

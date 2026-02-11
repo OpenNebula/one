@@ -22,7 +22,7 @@ import { SCHEMA } from './schema'
 
 export const STEP_ID = 'connection_values'
 
-const Content = (groupDrivers) => {
+const Content = ({ isUpdate, groupedDrivers }) => {
   // Access to the form
   const { control } = useFormContext()
 
@@ -32,7 +32,13 @@ const Content = (groupDrivers) => {
   } = useController({ name: `driver.DRIVER`, control: control })
 
   // Get the correspoding driver
-  const driver = find(groupDrivers, { name: value })
+  const driver = find(groupedDrivers, { name: value })
+
+  let fields = driver?.driverFields
+
+  if (isUpdate) {
+    fields = fields?.filter((field) => !field.sensitive)
+  }
 
   // Render the form with the connection values from the driver
   return (
@@ -40,7 +46,7 @@ const Content = (groupDrivers) => {
       id={`${STEP_ID}`}
       cy={`${STEP_ID}`}
       key={`${STEP_ID}`}
-      fields={driver?.driverFields}
+      fields={fields}
     />
   )
 }
@@ -50,21 +56,26 @@ const Content = (groupDrivers) => {
  *
  * @param {object} props - Properties for the step
  * @param {object} props.groupedDrivers - Drivers data
+ * @param {boolean} props.isUpdate - Determine if this step is for update or create. False as default
  * @returns {object} Connection values configuration step
  */
-const ConnectionValues = ({ groupedDrivers }) => ({
+const ConnectionValues = ({ isUpdate = false, groupedDrivers }) => ({
   id: STEP_ID,
   label: T.ConnectionValues,
-  resolver: SCHEMA(groupedDrivers),
+  resolver: SCHEMA({ isUpdate: isUpdate, groupedDrivers: groupedDrivers }),
   optionsValidate: { abortEarly: false },
-  content: () => Content(groupedDrivers),
+  content: () =>
+    Content({ isUpdate: isUpdate, groupedDrivers: groupedDrivers }),
 })
 
 ConnectionValues.propTypes = {
-  data: PropTypes.object,
-  setFormData: PropTypes.func,
+  groupedDrivers: PropTypes.array,
+  isUpdate: PropTypes.bool,
 }
 
-Content.propTypes = { isUpdate: PropTypes.bool }
+Content.propTypes = {
+  isUpdate: PropTypes.bool,
+  groupedDrivers: PropTypes.array,
+}
 
 export default ConnectionValues

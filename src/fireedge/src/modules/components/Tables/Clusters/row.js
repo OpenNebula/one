@@ -64,7 +64,7 @@ const Row = ({
             {NAME}
           </Typography>
           <span className={classes.labels}>
-            {TEMPLATE?.ONEFORM && TEMPLATE?.ONEFORM?.PROVIDER && (
+            {TEMPLATE?.ONEFORM && TEMPLATE?.ONEFORM?.DRIVER && (
               <Box sx={{ width: '100%', textAlign: 'end' }}>
                 <TagType
                   component="span"
@@ -73,7 +73,7 @@ const Row = ({
                   borderRadius="0.5em"
                   provision={TEMPLATE?.fireedge}
                 >
-                  {TEMPLATE?.ONEFORM?.PROVIDER}
+                  {TEMPLATE?.ONEFORM?.DRIVER}
                 </TagType>
               </Box>
             )}

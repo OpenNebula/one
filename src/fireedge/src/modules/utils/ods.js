@@ -248,6 +248,7 @@ export const schemaOdsUserInputField = (odsUserInput = {}) => {
     label: odsUserInputLabel,
     tooltip: odsUserInput.description,
     grid: { md: 6 },
+    sensitive: odsUserInput.sensitive,
   }
 
   const {

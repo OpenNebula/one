@@ -69,7 +69,7 @@ const ListCloudClustersNames = ({ rows = [] }) =>
           gap="1em"
           sx={{
             gridColumn: '1 / -1',
-            marginTop: '1em',
+            marginBottom: '1em',
             backgroundColor: 'background.paper',
           }}
         >
@@ -85,18 +85,33 @@ const ListCloudClustersNames = ({ rows = [] }) =>
     )
   })
 
-const MessageToConfirmAction = (rows, description) => {
+const MessageToConfirmAction = (rows, description) => (
+  <>
+    <ListClusterNames rows={rows} />
+    {description && <Translate word={description} />}
+    <Translate word={T.DoYouWantProceed} />
+  </>
+)
+
+const MessageToConfirmOneformAction = (rows, description) => (
+  <>
+    <ListCloudClustersNames rows={rows} />
+    {description && <Translate word={description} />}
+    <Translate word={T.DoYouWantProceed} />
+  </>
+)
+
+const MessageToConfirmActions = (rows, description) => {
   const cloudClusters = rows.filter(
     ({ original }) => original?.TEMPLATE.ONEFORM
   )
 
+  const oneClusters = rows.filter(({ original }) => !original?.TEMPLATE.ONEFORM)
+
   return (
     <>
-      {cloudClusters.length > 0 ? (
-        <ListCloudClustersNames rows={cloudClusters} />
-      ) : (
-        <ListClusterNames rows={rows} />
-      )}
+      <ListCloudClustersNames rows={cloudClusters} />
+      <ListClusterNames rows={oneClusters} />
       {description && <Translate word={description} />}
       <Translate word={T.DoYouWantProceed} />
     </>
@@ -104,6 +119,8 @@ const MessageToConfirmAction = (rows, description) => {
 }
 
 MessageToConfirmAction.displayName = 'MessageToConfirmAction'
+MessageToConfirmOneformAction.displayName = 'MessageToConfirmOneformAction'
+MessageToConfirmActions.displayName = 'MessageToConfirmActions'
 
 /**
  * Generates the actions to operate resources on Clusters table.
@@ -179,9 +196,9 @@ const Actions = (props = {}) => {
               {
                 isConfirmDialog: true,
                 dialogProps: {
-                  title: T.DEPROVISION,
+                  title: T.Deprovision,
                   dataCy: `modal-${PROVISION_ACTIONS.DEPROVISION}`,
-                  children: MessageToConfirmAction,
+                  children: MessageToConfirmOneformAction,
                 },
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(
@@ -235,7 +252,7 @@ const Actions = (props = {}) => {
                 dialogProps: {
                   title: T.Delete,
                   dataCy: `modal-${CLUSTER_ACTIONS.DELETE}`,
-                  children: MessageToConfirmAction,
+                  children: MessageToConfirmActions,
                 },
                 onSubmit: (rows) => async () => {
                   const idsWithType = rows?.map?.(({ original }) => ({

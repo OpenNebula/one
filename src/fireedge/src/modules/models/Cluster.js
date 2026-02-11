@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { COLOR } from '@modules/constants/color'
 import { PROVISION_STATES } from '@modules/constants/cluster'
+import { get, find } from 'lodash'
 
 /**
  * Get the color for a provision state.
@@ -57,3 +58,12 @@ export const getProvisionProgress = (state) => {
       return undefined
   }
 }
+
+/**
+ * Return if the state is a final state.
+ *
+ * @param {string} state - Name of the sate
+ * @returns {boolean} - If the state is final or not
+ */
+export const isFinalState = (state) =>
+  get(find(PROVISION_STATES, { name: state }), 'finalState', false)

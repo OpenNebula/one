@@ -20,10 +20,8 @@ import { useTheme, Alert, Grid, Stack, Typography } from '@mui/material'
 import { useMemo, useEffect } from 'react'
 import clsx from 'clsx'
 import { Tr } from '@modules/components/HOC'
-import { generateDocLink, sanitize } from '@UtilsModule'
+import { sanitizeAllowingTarget } from '@UtilsModule'
 import { useFormContext, useController } from 'react-hook-form'
-import { SystemAPI } from '@FeaturesModule'
-import { OpenNewWindow } from 'iconoir-react'
 import styles from '@modules/components/Forms/Cluster/CreateCloudForm/Steps/Deployments/styles'
 import { find } from 'lodash'
 
@@ -37,9 +35,6 @@ const Content = ({ providers, groupedDrivers, deploymentConfs }) => {
     field: { value: selectedDeployment, onChange },
     fieldState: { error },
   } = useController({ name: `${STEP_ID}.DEPLOYMENT_CONF`, control })
-
-  // Gt OpenNebula version
-  const { data: version } = SystemAPI.useGetOneVersionQuery()
 
   // Theme
   const theme = useTheme()
@@ -119,26 +114,9 @@ const Content = ({ providers, groupedDrivers, deploymentConfs }) => {
                   component="div"
                   className={classes.subtitle}
                   dangerouslySetInnerHTML={{
-                    __html: sanitize`${conf.deploymentDescription}`,
+                    __html: sanitizeAllowingTarget`${conf.deploymentDescription}`,
                   }}
                 />
-              </Stack>
-              <Stack className={classes.linkContainer}>
-                <Typography className={classes.linkText}>
-                  <a
-                    target="_blank"
-                    href={generateDocLink(
-                      version,
-                      'product/cloud_cluster_provisioning/cloud_cluster_provisions/'
-                    )}
-                    rel="noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className={classes.linkContent}
-                  >
-                    {Tr(T.LearnMore)}
-                  </a>
-                  <OpenNewWindow className={classes.linkIcon} />
-                </Typography>
               </Stack>
             </Stack>
           </Grid>

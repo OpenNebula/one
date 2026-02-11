@@ -14,17 +14,27 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement, useEffect, useState, useMemo } from 'react'
-import { Redirect, useParams } from 'react-router-dom'
-import { SkeletonStepsForm, TranslateProvider } from '@ComponentsModule'
+import { Redirect, useParams, useLocation } from 'react-router-dom'
+import {
+  SkeletonStepsForm,
+  TranslateProvider,
+  SubmitButton,
+  PATH,
+} from '@ComponentsModule'
 import { Box, Stack, Typography, useTheme, LinearProgress } from '@mui/material'
 import { ProvisionAPI } from '@FeaturesModule'
 import LogsViewer from '@modules/components/LogsViewer'
 import { Tr } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS, CLUSTER_CLOUD_OPERATIONS } from '@ConstantsModule'
 import { StatusChip } from '@modules/components/Status'
 import { styles } from '@modules/containers/Clusters/styles'
-import { last, filter } from 'lodash'
-import { getProvisionColorState, getProvisionProgress } from '@ModelsModule'
+import { last, filter, find } from 'lodash'
+import {
+  getProvisionColorState,
+  getProvisionProgress,
+  isFinalState,
+} from '@ModelsModule'
+import { useHistory } from 'react-router'
 
 /**
  * Displays the creation form for a cluster.
@@ -36,11 +46,20 @@ export function CreateClusterCloudLogs() {
   const theme = useTheme()
   const classes = useMemo(() => styles(theme), [theme])
 
+  // Get history to redirect to back to clusters
+  const history = useHistory()
+
+  // Get id and the name of the operation
   const { id } = useParams()
+  const { state } = useLocation()
 
   if (Number.isNaN(+id)) {
     return <Redirect to="/" />
   }
+
+  const operationText = find(CLUSTER_CLOUD_OPERATIONS, {
+    name: state?.operation,
+  })?.text
 
   // Get provision
   const { data: provision } = ProvisionAPI.useGetProvisionQuery(
@@ -103,7 +122,9 @@ export function CreateClusterCloudLogs() {
           sx={{ marginTop: '10px' }}
         >
           <Typography className={classes.titleText}>
-            {provision?.NAME}
+            {operationText
+              ? Tr(T[operationText], [provision?.NAME])
+              : provision?.NAME}
           </Typography>
           <Box>
             <StatusChip
@@ -114,6 +135,18 @@ export function CreateClusterCloudLogs() {
               text={provision?.TEMPLATE?.PROVISION_BODY?.state}
             />
           </Box>
+          <SubmitButton
+            data-cy={`button-background`}
+            importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.FILLED}
+            onClick={() => history.push(PATH.INFRASTRUCTURE.CLUSTERS.LIST)}
+            label={
+              isFinalState(provision?.TEMPLATE?.PROVISION_BODY?.state)
+                ? T.Close
+                : T.RunBackground
+            }
+          />
         </Stack>
         <Stack
           direction="column"

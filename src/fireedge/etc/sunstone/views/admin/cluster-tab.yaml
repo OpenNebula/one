@@ -60,5 +60,7 @@ info-tabs:
     enabled: true
   drs:
     enabled: true
+  events:
+    enabled: true  
   logs:
-    enabled: true
+    enabled: true  

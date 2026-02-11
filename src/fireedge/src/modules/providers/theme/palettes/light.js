@@ -514,6 +514,14 @@ export const lightPalette = {
     },
   },
 
+  // Events viewer
+  eventsViewer: {
+    colorLog: '#637381',
+    colorDate: '#637381',
+    colorTime: '#637381',
+    highlight: '#ffee58',
+  },
+
   // Cluster
   cluster: {
     createCluster: {

@@ -505,6 +505,14 @@ export const darkPalette = {
     },
   },
 
+  // Events viewer
+  eventsViewer: {
+    colorLog: '#C4CDD5',
+    colorDate: '#C4CDD5',
+    colorTime: '#C4CDD5',
+    highlight: '#ffee58',
+  },
+
   // Cluster
   cluster: {
     createCluster: {

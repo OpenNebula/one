@@ -17,13 +17,19 @@ import { getObjectSchemaFromFields } from '@UtilsModule'
 import { find } from 'lodash'
 import { ObjectSchema, object } from 'yup'
 
-const generateSchema = (form, groupedDrivers) => {
+const generateSchema = ({ isUpdate, form, groupedDrivers }) => {
   // Get selected driver
   const driver = find(groupedDrivers, { name: form?.driver?.DRIVER })
 
+  let driverFields = driver?.driverFields
+
+  if (isUpdate) {
+    driverFields = driverFields.filter((field) => !field.sensitive)
+  }
+
   // Create the corresponding schema
-  const schema = driver?.driverFields
-    ? getObjectSchemaFromFields(driver?.driverFields)
+  const schema = driverFields
+    ? getObjectSchemaFromFields(driverFields)
     : undefined
 
   // Return the schema
@@ -33,8 +39,16 @@ const generateSchema = (form, groupedDrivers) => {
 /**
  * Create the schema.
  *
- * @param {object} groupedDrivers - Drivers data
+ * @param {object} props - Properties of step schema
+ * @param {boolean} props.isUpdate - Determine if is update or not
+ * @param {object} props.groupedDrivers - Drivers data
  * @returns {ObjectSchema} - Generated schema
  */
-export const SCHEMA = (groupedDrivers) => (form) =>
-  generateSchema(form, groupedDrivers)
+export const SCHEMA =
+  ({ isUpdate, groupedDrivers }) =>
+  (form) =>
+    generateSchema({
+      isUpdate: isUpdate,
+      form: form,
+      groupedDrivers: groupedDrivers,
+    })

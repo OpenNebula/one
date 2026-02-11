@@ -704,15 +704,15 @@ module.exports = {
   'cluster.create.selection.title': 'Choose Your Cluster Type',
   'cluster.create.selection.subtitle':
     'Select how you want to create the cluster.',
-  'cluster.create.opennebula.title': 'OpenNebula Cluster',
+  'cluster.create.opennebula.title': 'Define a Cluster',
   'cluster.create.opennebula.subtitle':
     'Organize existing OpenNebula resources into a logical group.',
   'cluster.create.opennebula.help': 'More info in OpenNebula Documentation.',
-  'cluster.create.provider.title': 'Cloud Provider',
+  'cluster.create.provider.title': 'Install a new Cloud Cluster',
   'cluster.create.provider.subtitle':
     'Provision and configure resources from a cloud provider.',
   'cluster.create.provider.help': 'More info in OpenNebula Documentation.',
-  'cluster.create.onpremise.title': 'On-premise Cluster',
+  'cluster.create.onpremise.title': 'Install a new On-Premise Cluster',
   'cluster.create.onpremise.subtitle':
     'Install and configure on-premises hosts from scratch.',
   'cluster.create.onpremise.help': 'More info in OpenNebula Documentation.',
@@ -2036,6 +2036,11 @@ module.exports = {
   'cluster.create.name': 'Name',
   'cluster.create.description': 'Description',
   'cluster.create.general.info': 'Cluster info',
+  CreatingCluster: 'Creating cluster %s',
+  DeprovisioningCluster: 'Deprovisioning cluster %s',
+  DeletingCluster: 'Deleting cluster %s',
+  AddingHostCluster: 'Adding host/s to cluster %s',
+  DeletingHostCluster: 'Deleting host/s from cluster %s',
 
   /* Cluster schema - capacity */
   ReservedMemory: 'Allocated Memory',
@@ -2664,16 +2669,26 @@ module.exports = {
 
   /* Provision User Inputs */
   cidr_block: 'CIDR Block',
+  dns: 'Primary DNS',
+  gateway: 'Gateway',
   instance_disk_size: 'Disk instance size',
   instance_os_name: 'Instance OS name',
   instance_type: 'Instance Type',
+  ip: 'IP Address',
+  network_address: 'Network Address',
+  network_mask: 'Network Mask',
+  nfs_export: 'NFS Export Directory',
+  nfs_mount_path: 'NFS Mount Path',
+  nfs_server: 'NFS Server',
   oneform_hosts: 'Number of Hosts',
   oneform_public_ips: 'Number of Public IPs',
   oneform_onprem_hosts: 'Onprem Hosts',
+  size: 'Network Size',
   phydev_name: 'Physical interface',
 
   /* Log viewer */
   'logs.level': 'Level',
+  RunBackground: 'Run in background',
 
   LearnMore: 'Learn more',
 }

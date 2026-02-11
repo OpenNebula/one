@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { T } from '@ConstantsModule'
+import { T, CLUSTER_CLOUD_OPERATIONS } from '@ConstantsModule'
 import {
   ClusterAPI,
   HostAPI,
@@ -46,18 +46,13 @@ const Hosts = ({ tabProps: { provision: provisionPanel } = {}, id }) => {
   const actionsAvailable = getActionsAvailable(provisionPanel?.actions)
 
   // Get info about the cluster
-  const { data: cluster, refetch: refetchCluster } =
-    ClusterAPI.useGetClusterQuery({ id })
+  const { data: cluster } = ClusterAPI.useGetClusterQuery({ id })
   const { data: hosts = [] } = HostAPI.useGetHostsQuery()
   const provisionID = cluster?.TEMPLATE?.ONEFORM?.PROVISION_ID
-  const { data: dataProvision = {}, refetch: refetchProvision } = provisionID
+  const { data: dataProvision = {} } = provisionID
     ? ProvisionAPI.useGetProvisionQuery({ id: provisionID, extended: true })
     : { data: {}, refetch: () => undefined }
   const [scaleProvisionHosts] = ProvisionAPI.useScaleProvisionHostsMutation()
-
-  const refetchAll = () => {
-    refetchProvision() && refetchCluster()
-  }
 
   const operations = useMemo(
     () => dataProvision?.TEMPLATE?.PROVISION_BODY?.fireedge?.operations ?? {},
@@ -106,7 +101,16 @@ const Hosts = ({ tabProps: { provision: provisionPanel } = {}, id }) => {
   const handleAddHost = async (data) => {
     if (!data) return
     await scaleProvisionHosts({ id: provisionID, nodes: data, direction: 'up' })
-    refetchAll()
+
+    // Redirect to the logs viewer
+    history.push(
+      generatePath(PATH.INFRASTRUCTURE.CLUSTERS.CREATE_CLOUD_LOGS, {
+        id: provisionID,
+      }),
+      {
+        operation: CLUSTER_CLOUD_OPERATIONS.ADDHOST.name,
+      }
+    )
 
     // Success message
     enqueueSuccess(T.AddHostProvisionSuccess)
@@ -119,7 +123,16 @@ const Hosts = ({ tabProps: { provision: provisionPanel } = {}, id }) => {
       nodes: data,
       direction: 'down',
     })
-    refetchAll()
+
+    // Redirect to the logs viewer
+    history.push(
+      generatePath(PATH.INFRASTRUCTURE.CLUSTERS.CREATE_CLOUD_LOGS, {
+        id: provisionID,
+      }),
+      {
+        operation: CLUSTER_CLOUD_OPERATIONS.DELETEHOST.name,
+      }
+    )
 
     // Success message
     enqueueSuccess(T.DeleteHostProvisionSuccess)

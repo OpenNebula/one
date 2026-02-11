@@ -71,6 +71,24 @@ export function sanitize(text, ...values) {
 }
 
 /**
+ * Sanitizes HTML and prevents XSS attacks. Target attribute will be allowed.
+ *
+ * @param {string[]} text - Text
+ * @param {...string} values - Rest of text
+ * @returns {string} Clean and secure string
+ */
+export function sanitizeAllowingTarget(text, ...values) {
+  const dirty = text.reduce(
+    (prev, next, i) => `${prev}${next}${values[i] || ''}`,
+    ''
+  )
+
+  return DOMPurify.sanitize(dirty, {
+    ADD_ATTR: ['target'],
+  })
+}
+
+/**
  * Decodes an string in base 64.
  *
  * @param {string} string - Value to decode

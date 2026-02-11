@@ -34,19 +34,19 @@ const Steps = createSteps(
     // Create steps list
     const steps = []
 
-    // Create the Sunstone user inputs that will be used in each provider
+    // Create the Sunstone user inputs that will be used in each provider, avoiding to
+    // show the sensitive fields in case of update.
+    const isUpdate = !isEmpty(dataTemplate)
     const groupedDrivers = createFieldsFromDriversOdsUserInputs(drivers)
 
     // STEP 1. Drivers
-    steps.push(() =>
-      DriversStep({ update: !isEmpty(dataTemplate), groupedDrivers })
-    )
+    steps.push(() => DriversStep({ update: isUpdate, groupedDrivers }))
 
     // STEP 2. General information
     steps.push(() => General())
 
     // STEP 3. Connection values
-    steps.push(() => ConnectionValues({ groupedDrivers }))
+    steps.push(() => ConnectionValues({ isUpdate, groupedDrivers }))
 
     // Return steps
     return steps

@@ -28,17 +28,19 @@ import PlanOptimization from '@modules/components/Tabs/Cluster/Drs'
 import Hosts from '@modules/components/Tabs/Cluster/Hosts'
 import Info from '@modules/components/Tabs/Cluster/Info'
 import Logs from '@modules/components/Tabs/Cluster/Logs'
+import Events from '@modules/components/Tabs/Cluster/Events'
 import Vnets from '@modules/components/Tabs/Cluster/Vnets'
 import SingleDetailActions from '@modules/components/Tabs/SingleDetailActions'
 
-const getTabComponent = (tabName) =>
+const getTabComponent = (isProvision) => (tabName) =>
   ({
     info: Info,
     host: Hosts,
     vnet: Vnets,
     datastore: Datastores,
     drs: PlanOptimization,
-    logs: Logs,
+    ...(isProvision && { events: Events }),
+    ...(isProvision && { logs: Logs }),
   }[tabName])
 
 const ClusterTabs = memo(({ id, singleActions }) => {
@@ -49,8 +51,12 @@ const ClusterTabs = memo(({ id, singleActions }) => {
     const resource = RESOURCE_NAMES.CLUSTER
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
-    return getAvailableInfoTabs(infoTabs, getTabComponent, id)
-  }, [view, id])
+    return getAvailableInfoTabs(
+      infoTabs,
+      getTabComponent(data?.TEMPLATE?.ONEFORM),
+      id
+    )
+  }, [view, id, data])
 
   if (isError) {
     return (

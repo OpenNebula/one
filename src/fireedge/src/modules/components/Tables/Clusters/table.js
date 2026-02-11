@@ -96,8 +96,8 @@ const ClustersTable = (props) => {
     },
     {
       header: T.Type,
-      id: 'provision',
-      accessor: 'TEMPLATE.ONEFORM.PROVIDER',
+      id: 'driver',
+      accessor: 'TEMPLATE.ONEFORM.DRIVER',
     },
   ]
 
