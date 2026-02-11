@@ -101,6 +101,7 @@
                     <xs:element name="IP" type="xs:string" minOccurs="0"/>
                     <xs:element name="MAC" type="xs:string"/>
                     <xs:element name="PARENT_NETWORK_AR_ID" type="xs:string" minOccurs="0"/>
+                    <xs:element name="SHARED" type="xs:string" minOccurs="0"/>
                     <xs:element name="SIZE" type="xs:integer"/>
                     <xs:element name="TYPE" type="xs:string"/>
                     <xs:element name="ULA_PREFIX" type="xs:string" minOccurs="0"/>
@@ -127,7 +128,7 @@
                                 <xs:element name="IP6_GLOBAL" type="xs:string" minOccurs="0"/>
                                 <xs:element name="IP6_LINK" type="xs:string" minOccurs="0"/>
                                 <xs:element name="IP6_ULA" type="xs:string" minOccurs="0"/>
-                                <xs:element name="MAC" type="xs:string"/>
+                                <xs:element name="MAC" type="xs:string" minOccurs="0"/>
                                 <xs:element name="VM" type="xs:integer" minOccurs="0"/>
                                 <xs:element name="VNET" type="xs:integer" minOccurs="0"/>
                                 <xs:element name="VROUTER" type="xs:integer" minOccurs="0"/>

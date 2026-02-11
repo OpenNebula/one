@@ -1762,7 +1762,7 @@ int AddressRange::allocate_by_ip6(
 int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
                             const string& mac_s)
 {
-    string error_msg, addr_s;
+    string error_msg;
     unsigned int index;
 
     if (mac_s.empty())
