@@ -141,7 +141,13 @@ const filterTemplateData = (
     ...formData['custom-variables'],
   }
 
-  const result = merge({}, newGeneral, newExtra, newCustomVariables)
+  const result = merge(
+    {},
+    newGeneral,
+    newExtra,
+    newCustomVariables,
+    formData?.user_inputs
+  )
 
   // Instantiate form could have another step called user_inputs
   if (formData.user_inputs) {
