@@ -100,7 +100,7 @@ stop()
 
   # Remove pid files
   rm -f $FLOW_PID > /dev/null 2>&1
-  rm -f $FLOW_LOCK_FILE &> /dev/null
+  rm -f $FLOW_LOCK_FILE > /dev/null 2>&1
 
   echo "oneflow-server stopped"
 }

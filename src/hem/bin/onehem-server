@@ -99,7 +99,7 @@ stop()
 
   # Remove pid files
   rm -f $HEM_PID > /dev/null 2>&1
-  rm -f $HEM_LOCK_FILE &> /dev/null
+  rm -f $HEM_LOCK_FILE > /dev/null 2>&1
 
   echo "onehem-server stopped"
 }

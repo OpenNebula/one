@@ -130,12 +130,10 @@ if [ -z "$ROOT" ] ; then
     ONEFORM_PROVIDERS_STATES_LOCATION="$VAR_LOCATION/oneform/drivers/.states"
     ONEFORM_EXTERNAL_PROVIDERS_LOCATION="$VAR_LOCATION/oneform/drivers"
 
-    ONEPROMETHEUS_SYSTEMD_LOCATION="/lib/systemd/system"
     ONEPROMETHEUS_VAR_ALERTMANAGER_LOCATION="/var/lib/alertmanager"
     ONEPROMETHEUS_VAR_PROMETHEUS_LOCATION="/var/lib/prometheus"
 
-    ONEPROMETHEUS_DIRS="$ONEPROMETHEUS_SYSTEMD_LOCATION \
-                        $ONEPROMETHEUS_VAR_ALERTMANAGER_LOCATION \
+    ONEPROMETHEUS_DIRS="$ONEPROMETHEUS_VAR_ALERTMANAGER_LOCATION \
                         $ONEPROMETHEUS_VAR_PROMETHEUS_LOCATION"
 
     if [ "$CLIENT" = "yes" ]; then
@@ -214,12 +212,10 @@ else
     ONEFORM_PROVIDERS_STATES_LOCATION="$VAR_LOCATION/oneform/drivers/.states"
     ONEFORM_EXTERNAL_PROVIDERS_LOCATION="$VAR_LOCATION/oneform/drivers"
 
-    ONEPROMETHEUS_SYSTEMD_LOCATION="$LIB_LOCATION/systemd"
     ONEPROMETHEUS_VAR_ALERTMANAGER_LOCATION="$ROOT/var/alertmanager"
     ONEPROMETHEUS_VAR_PROMETHEUS_LOCATION="$ROOT/var/prometheus"
 
-    ONEPROMETHEUS_DIRS="$ONEPROMETHEUS_SYSTEMD_LOCATION \
-                        $ONEPROMETHEUS_VAR_ALERTMANAGER_LOCATION \
+    ONEPROMETHEUS_DIRS="$ONEPROMETHEUS_VAR_ALERTMANAGER_LOCATION \
                         $ONEPROMETHEUS_VAR_PROMETHEUS_LOCATION"
 
     if [ "$CLIENT" = "yes" ]; then
@@ -695,25 +691,20 @@ INSTALL_FILES=(
     ONEPROMETHEUS_ALERTMANAGER_BIN_FILES:$BIN_LOCATION
     ONEPROMETHEUS_ALERTMANAGER_CONFIG_FILES:$ETC_LOCATION/alertmanager
     ONEPROMETHEUS_ALERTMANAGER_FILES:$LIB_LOCATION/alertmanager
-    ONEPROMETHEUS_ALERTMANAGER_SYSTEMD_FILES:$ONEPROMETHEUS_SYSTEMD_LOCATION
 
     ONEPROMETHEUS_GRAFANA_FILES:$SHARE_LOCATION/grafana
 
     ONEPROMETHEUS_LIBVIRT_EXPORTER_FILES:$LIB_LOCATION/libvirt_exporter
-    ONEPROMETHEUS_LIBVIRT_EXPORTER_SYSTEMD_FILES:$ONEPROMETHEUS_SYSTEMD_LOCATION
 
     ONEPROMETHEUS_NODE_EXPORTER_BIN_FILES:$BIN_LOCATION
     ONEPROMETHEUS_NODE_EXPORTER_FILES:$LIB_LOCATION/node_exporter
-    ONEPROMETHEUS_NODE_EXPORTER_SYSTEMD_FILES:$ONEPROMETHEUS_SYSTEMD_LOCATION
 
     ONEPROMETHEUS_OPENNEBULA_EXPORTER_FILES:$LIB_LOCATION/opennebula_exporter
-    ONEPROMETHEUS_OPENNEBULA_EXPORTER_SYSTEMD_FILES:$ONEPROMETHEUS_SYSTEMD_LOCATION
 
     ONEPROMETHEUS_PROMETHEUS_BIN_FILES:$BIN_LOCATION
     ONEPROMETHEUS_PROMETHEUS_CONFIG_FILES:$ETC_LOCATION/prometheus
     ONEPROMETHEUS_PROMETHEUS_FILES:$LIB_LOCATION/prometheus
     ONEPROMETHEUS_PROMETHEUS_SHARE_FILES:$SHARE_LOCATION/prometheus
-    ONEPROMETHEUS_PROMETHEUS_SYSTEMD_FILES:$ONEPROMETHEUS_SYSTEMD_LOCATION
 )
 
 INSTALL_CLIENT_FILES=(
@@ -2660,7 +2651,6 @@ ONEPROMETHEUS_ALERTMANAGER_BIN_FILES="src/oneprometheus/vendor/${ALERTMANAGER_VE
 ONEPROMETHEUS_ALERTMANAGER_CONFIG_FILES="src/oneprometheus/alertmanager/etc/alertmanager.yml"
 ONEPROMETHEUS_ALERTMANAGER_FILES="src/oneprometheus/vendor/${ALERTMANAGER_VENDOR_DIR}/LICENSE \
                                   src/oneprometheus/vendor/${ALERTMANAGER_VENDOR_DIR}/NOTICE"
-ONEPROMETHEUS_ALERTMANAGER_SYSTEMD_FILES="src/oneprometheus/alertmanager/systemd/opennebula-alertmanager.service"
 
 # GRAFANA
 ONEPROMETHEUS_GRAFANA_FILES="src/oneprometheus/grafana/share/dashboards/"
@@ -2668,13 +2658,11 @@ ONEPROMETHEUS_GRAFANA_FILES="src/oneprometheus/grafana/share/dashboards/"
 # LIBVIRT-EXPORTER
 ONEPROMETHEUS_LIBVIRT_EXPORTER_FILES="src/oneprometheus/opennebula-libvirt-exporter/src/libvirt_collector.rb \
                                       src/oneprometheus/opennebula-libvirt-exporter/src/libvirt_exporter.rb"
-ONEPROMETHEUS_LIBVIRT_EXPORTER_SYSTEMD_FILES="src/oneprometheus/opennebula-libvirt-exporter/systemd/opennebula-libvirt-exporter.service"
 
 # NODE-EXPORTER
 ONEPROMETHEUS_NODE_EXPORTER_BIN_FILES="src/oneprometheus/vendor/${NODE_EXPORTER_VENDOR_DIR}/node_exporter"
 ONEPROMETHEUS_NODE_EXPORTER_FILES="src/oneprometheus/vendor/${NODE_EXPORTER_VENDOR_DIR}/LICENSE \
                                    src/oneprometheus/vendor/${NODE_EXPORTER_VENDOR_DIR}/NOTICE"
-ONEPROMETHEUS_NODE_EXPORTER_SYSTEMD_FILES="src/oneprometheus/node_exporter/systemd/opennebula-node-exporter.service"
 
 # OPENNEBULA-EXPORTER
 ONEPROMETHEUS_OPENNEBULA_EXPORTER_FILES="src/oneprometheus/opennebula-exporter/src/opennebula_collector.rb \
@@ -2683,7 +2671,6 @@ ONEPROMETHEUS_OPENNEBULA_EXPORTER_FILES="src/oneprometheus/opennebula-exporter/s
                                          src/oneprometheus/opennebula-exporter/src/opennebula_host_collector.rb \
                                          src/oneprometheus/opennebula-exporter/src/opennebula_server_collector.rb \
                                          src/oneprometheus/opennebula-exporter/src/opennebula_vm_collector.rb"
-ONEPROMETHEUS_OPENNEBULA_EXPORTER_SYSTEMD_FILES="src/oneprometheus/opennebula-exporter/systemd/opennebula-exporter.service"
 
 # PROMETHEUS
 ONEPROMETHEUS_PROMETHEUS_BIN_FILES="src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/prometheus \
@@ -2695,7 +2682,6 @@ ONEPROMETHEUS_PROMETHEUS_FILES="src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR
                                 src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/LICENSE \
                                 src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/NOTICE"
 ONEPROMETHEUS_PROMETHEUS_SHARE_FILES="src/oneprometheus/prometheus/share/patch_datasources.rb"
-ONEPROMETHEUS_PROMETHEUS_SYSTEMD_FILES="src/oneprometheus/prometheus/systemd/opennebula-prometheus.service"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------

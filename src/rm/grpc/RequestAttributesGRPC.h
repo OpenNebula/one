@@ -67,7 +67,7 @@ private:
                     int n = reflection->FieldSize(*input, field);
                     for (int i = 0; i < n; ++i)
                     {
-                        if (i) oss << ',';  
+                        if (i) oss << ',';
                         oss << reflection->GetRepeatedInt32(*input, field, i);
                     }
                 }

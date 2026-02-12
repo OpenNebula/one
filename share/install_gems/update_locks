@@ -83,6 +83,11 @@ if command -v dpkg >/dev/null; then
     apt-get install -y ruby >/dev/null
     dpkg -r ruby-bundler
 
+elif command -v zypper >/dev/null; then
+    zypper -n refresh
+    zypper -n install ruby rubygems findutils openssl
+    rpm -e --nodeps rubygem-bundler ||:
+
 elif command -v rpm >/dev/null; then
     if grep -m1 '^Red Hat' /etc/redhat-release; then
       export SMDEV_CONTAINER_OFF=1

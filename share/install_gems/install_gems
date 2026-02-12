@@ -19,7 +19,7 @@
 set -e -o pipefail
 
 if [ $# -gt 0 ] && [ "$*" != '--yes' ]; then
-    echo "Syntax: TARGET=[debian|redhat] $(basename "$0") [--yes]" >&2
+    echo "Syntax: TARGET=[debian|redhat|suse] $(basename "$0") [--yes]" >&2
     exit 1
 fi
 
@@ -46,6 +46,8 @@ fi
 # detect target
 if command -v dpkg >/dev/null; then
     TARGET=${TARGET:-debian}
+elif command -v zypper >/dev/null; then
+    TARGET=${TARGET:-suse}
 elif command -v rpm >/dev/null; then
     TARGET=${TARGET:-redhat}
 fi
@@ -81,6 +83,18 @@ case "${TARGET}" in
             rubygems \
             >/dev/null
         dnf -y install mysql-devel || dnf -y install mariadb-devel  # el10 missing mysql-devel
+        ;;
+    'suse')
+        echo "* Install Build Dependencies for ${TARGET}"
+
+        zypper -n install \
+            ruby-devel make gcc sqlite3-devel libcurl-devel \
+            libxml2-devel libxslt-devel patch gcc-c++ \
+            libopenssl-devel augeas-devel pkgconf rpm-build \
+            >/dev/null
+
+        zypper -n install libmariadb-devel >/dev/null 2>&1 || \
+            zypper -n install mariadb-connector-c-devel >/dev/null || :
         ;;
     *)
         echo "Unknown target ${TARGET}. Skipping build dependencies" >&2
