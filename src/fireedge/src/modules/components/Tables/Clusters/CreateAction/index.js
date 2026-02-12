@@ -38,7 +38,9 @@ const CLUSTER_TYPES = {
  */
 const CreateAction = () => {
   const { data: version } = SystemAPI.useGetOneVersionQuery()
-  const { data: drivers } = DriverAPI.useGetDriversQuery()
+  const { data: drivers } = DriverAPI.useGetDriversQuery({
+    showNotification: false,
+  })
   const onpremDriver =
     drivers?.filter((driver) => driver.name === 'onprem')[0] ?? undefined
   const enabledOnpremDriver = onpremDriver?.state === 'ENABLED'

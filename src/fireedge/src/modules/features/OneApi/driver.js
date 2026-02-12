@@ -28,14 +28,16 @@ const driverApi = oneApi.injectEndpoints({
       /**
        * Retrieves information for all drivers.
        *
+       * @param {object} params - Request params
+       * @param {boolean} [params.showNotification] - Flag in order to show the notification in the snackbar
        * @returns {Driver[]} List of drivers
        * @throws Fails when response isn't code 200
        */
-      query: () => {
+      query: (params) => {
         const name = Actions.LIST
         const command = { name, ...Commands[name] }
 
-        return { command }
+        return { command, showNotification: params?.showNotification }
       },
       transformResponse: (data) =>
         data.map((driver) => ({
