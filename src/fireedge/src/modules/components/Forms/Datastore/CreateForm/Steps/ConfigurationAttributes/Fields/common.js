@@ -98,7 +98,16 @@ const LVM_THIN_ENABLE = {
   name: 'LVM_THIN_ENABLE',
   label: T.LvmThin,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().yesOrNo().default(true),
+  validation: boolean()
+    .yesOrNo()
+    .default(true)
+    .afterSubmit((value, { context }) =>
+      typeIsOneOf(context?.general?.STORAGE_BACKEND, [isLvm])
+        ? value
+          ? 'YES'
+          : 'NO'
+        : undefined
+    ),
   dependOf: '$general.STORAGE_BACKEND',
   htmlType: (type) => !typeIsOneOf(type, [isLvm]) && INPUT_TYPES.HIDDEN,
   grid: { xs: 12, md: 12 },
