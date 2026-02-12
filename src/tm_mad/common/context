@@ -104,7 +104,7 @@ done
 # and tar sparse detection algorithm could identify file as empty.
 MKCONTEXT_CMD=$(cat <<EOF
     set -e -o pipefail
-    $MKISOFS -o $ISO_PATH.tmp -V CONTEXT -J -R $ISO_DIR
+    xorriso -as mkisofs -o $ISO_PATH.tmp -V CONTEXT -J -R $ISO_DIR
     mv $ISO_PATH.tmp $ISO_PATH
 EOF
 )

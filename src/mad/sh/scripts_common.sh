@@ -37,7 +37,6 @@ LVS=${LVS:-lvs}
 LN=${LN:-ln}
 MD5SUM=${MD5SUM:-md5sum}
 MKFS=${MKFS:-mkfs}
-MKISOFS=${MKISOFS:-genisoimage}
 MKSWAP=${MKSWAP:-mkswap}
 QEMU_IMG=${QEMU_IMG:-qemu-img}
 RADOS=${RADOS:-rados}

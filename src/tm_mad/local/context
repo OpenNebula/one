@@ -116,7 +116,7 @@ end
 # (e.g,. fuse-overlayfs), cached files metadata are not consistent and
 # tar sparse detection algorithm could identify file as empty.
 iso_script = <<~SCRIPT
-    genisoimage -o #{ISO_PATH}.tmp -V CONTEXT -J -R #{ISO_DIR}
+    xorriso -as mkisofs -o #{ISO_PATH}.tmp -V CONTEXT -J -R #{ISO_DIR}
     mv #{ISO_PATH}.tmp #{ISO_PATH}
 SCRIPT
 
