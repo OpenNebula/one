@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ProvidersTable } from '@modules/components/Tables'
 import { ReactElement } from 'react'
 import { Redirect, useParams } from 'react-router-dom'
 
-import { ProviderTabs, TranslateProvider } from '@ComponentsModule'
+import {
+  ProviderTabs,
+  TranslateProvider,
+  ProvidersTable,
+} from '@ComponentsModule'
 
 /**
  * Displays the detail information about a Provider.

@@ -17,19 +17,18 @@ import { T } from '@ConstantsModule'
 import PropTypes from 'prop-types'
 import { SCHEMA } from './schema'
 import { useTheme, Alert, Grid, Stack, Typography } from '@mui/material'
-import { useMemo, useEffect } from 'react'
+import { useMemo } from 'react'
 import clsx from 'clsx'
 import { Tr } from '@modules/components/HOC'
 import { sanitizeAllowingTarget } from '@UtilsModule'
 import { useFormContext, useController } from 'react-hook-form'
 import styles from '@modules/components/Forms/Cluster/CreateCloudForm/Steps/Deployments/styles'
-import { find } from 'lodash'
 
 export const STEP_ID = 'deployments'
 
-const Content = ({ providers, groupedDrivers, deploymentConfs }) => {
+const Content = ({ providers, groupedDrivers }) => {
   // Access to the form
-  const { control, watch, register, unregister, setValue } = useFormContext()
+  const { control, watch } = useFormContext()
 
   const {
     field: { value: selectedDeployment, onChange },
@@ -56,21 +55,6 @@ const Content = ({ providers, groupedDrivers, deploymentConfs }) => {
     // Update the value in the form
     onChange(conf.deploymentAlias)
   }
-
-  // Register the user inputs that corresponds with the deployment conf
-  useEffect(() => {
-    // Get the corresponding deployment conf
-    const deploymentConf = find(deploymentConfs, {
-      deploymentAlias: selectedDeployment,
-    })
-
-    // Register the connection values for the driver
-    setValue('user_inputs', {})
-    unregister('user_inputs')
-    deploymentConf?.deploymentUserInputs.forEach((field) =>
-      register(`user_inputs.${field.name}`)
-    )
-  }, [selectedDeployment])
 
   return (
     <>
@@ -139,15 +123,14 @@ Content.propTypes = {
  * @param {object} props - Step props
  * @param {Array} props.providers - Array of providers
  * @param {Array} props.groupedDrivers - Array of drivers with deployment configurations fields
- * @param {Array} props.deploymentConfs - Array of deployment configurations
  * @returns {object} Deployment configurations with associated next steps
  */
-const Deployments = ({ providers, groupedDrivers, deploymentConfs }) => ({
+const Deployments = ({ providers, groupedDrivers }) => ({
   id: STEP_ID,
   label: T.DeploymentTypes,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: () => Content({ providers, groupedDrivers, deploymentConfs }),
+  content: () => Content({ providers, groupedDrivers }),
 })
 
 Deployments.propTypes = {

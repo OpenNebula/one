@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { schemaOdsUserInputField } from '@UtilsModule'
+import { schemaOdsUserInputField } from '@modules/utils/ods'
 
 /**
  * Create a list of fields to use in the schema and in forms from the list of ODS User Inputs.

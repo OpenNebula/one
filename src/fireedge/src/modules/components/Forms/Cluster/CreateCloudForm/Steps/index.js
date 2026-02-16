@@ -32,20 +32,16 @@ import OneformTags, {
   STEP_ID as TAGS_ID,
 } from '@modules/components/Forms/Cluster/CreateCloudForm/Steps/OneformTags'
 
-import { createFieldsFromDeploymentConfs } from '@modules/components/Forms/Oneform'
-
 import { createSteps, groupUserInputs } from '@UtilsModule'
+import { find } from 'lodash'
 
 /**
  * Create steps for Cluster using OneForm:
  * 1. General: Name of the cluster
  */
 const Steps = createSteps(
-  ({ providers = [], drivers = [], onpremiseProvider = false }) => {
+  ({ providers = [], groupedDrivers = [], onpremiseProvider = false }) => {
     const steps = []
-
-    // Group drivers to generate provider step
-    const groupedDrivers = createFieldsFromDeploymentConfs(drivers)
 
     // Generate user inputs step for each provider and deployment conf
     const groupConfs = groupedDrivers.map((driverWithDeployments) => {
@@ -128,7 +124,7 @@ const Steps = createSteps(
         return schema.default()
       }
     },
-    transformBeforeSubmit: (formData) => {
+    transformBeforeSubmit: (formData, _, stepProps) => {
       // Get data from steps
       const {
         [GENERAL_ID]: generalData,
@@ -142,9 +138,26 @@ const Steps = createSteps(
       const providerId = providerData.PROVIDER
       const [driver, deploymentType] = deploymentData.DEPLOYMENT_CONF.split('-')
 
+      // Get driver fields
+      const driverConf = find(stepProps?.groupedDrivers, { name: driver })
+      const deploymentConf = find(driverConf?.deploymentConfs, {
+        deploymentAlias: `${driver}-${deploymentType}`,
+      })
+      const deploymentFields = deploymentConf?.deploymentUserInputs
+
+      // Get allowed keys from driverFields.connection
+      const allowedKeys = deploymentFields?.map((c) => c.name)
+
+      // Sanitize the object to not send attributes that are not in the selected driver
+      const filteredUserInputsValues = Object.fromEntries(
+        Object.entries(userInputsData).filter(([key]) =>
+          allowedKeys.includes(key)
+        )
+      )
+
       // Tags will be send as user inputs
       if (tagsData) {
-        userInputsData.oneform_tags = tagsData ?? {}
+        filteredUserInputsValues.oneform_tags = tagsData ?? {}
       }
 
       // Create template to send to oneform
@@ -153,7 +166,7 @@ const Steps = createSteps(
         driver: driver,
         deployment_type: deploymentType,
         provider_id: providerId,
-        user_inputs_values: userInputsData,
+        user_inputs_values: filteredUserInputsValues,
       }
 
       return template

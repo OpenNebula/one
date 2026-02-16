@@ -22,7 +22,7 @@ import {
 } from '@ComponentsModule'
 import { ReactElement } from 'react'
 import { generatePath, useHistory, useLocation } from 'react-router'
-
+import { createFieldsFromDeploymentConfs } from '@UtilsModule'
 import { T, CLUSTER_CLOUD_OPERATIONS } from '@ConstantsModule'
 import {
   ProvisionAPI,
@@ -55,6 +55,9 @@ export function CreateClusterCloud() {
     (item) => get(item, 'TEMPLATE.PROVIDER_BODY.driver') === 'onprem'
   )
 
+  // Group drivers to generate provider step
+  const groupedDrivers = createFieldsFromDeploymentConfs(drivers)
+
   // Create cluster request
   const [allocateOneFormCluster] = ProvisionAPI.useCreateProvisionMutation()
 
@@ -86,7 +89,7 @@ export function CreateClusterCloud() {
         <SkeletonStepsForm />
       ) : (
         <Cluster.CreateCloudForm
-          stepProps={{ providers, drivers, onpremiseProvider }}
+          stepProps={{ providers, groupedDrivers, onpremiseProvider }}
           initialValues={{
             onpremiseProvider: onpremiseProvider,
             onpremProviders: onpremProviders,

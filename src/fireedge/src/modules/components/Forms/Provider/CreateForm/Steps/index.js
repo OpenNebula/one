@@ -25,9 +25,8 @@ import ConnectionValues, {
   STEP_ID as CONNECTION_VALUES_ID,
 } from '@modules/components/Forms/Provider/CreateForm/Steps/ConnectionValues'
 
-import { createFieldsFromDriversOdsUserInputs } from '@modules/components/Forms/Oneform'
-import { createSteps } from '@UtilsModule'
-import { isEmpty } from 'lodash'
+import { createSteps, createFieldsFromDriversOdsUserInputs } from '@UtilsModule'
+import { isEmpty, find } from 'lodash'
 
 const Steps = createSteps(
   ({ dataTemplate = {}, drivers = [] }) => {
@@ -75,7 +74,7 @@ const Steps = createSteps(
       // Return data
       return knownTemplate
     },
-    transformBeforeSubmit: (formData) => {
+    transformBeforeSubmit: (formData, _, stepProps) => {
       // Get data from the form
       const {
         [GENERAL_ID]: generalData,
@@ -83,12 +82,27 @@ const Steps = createSteps(
         [CONNECTION_VALUES_ID]: connectionValuesData,
       } = formData
 
+      // Get driver fields
+      const driverFields = find(stepProps?.drivers, {
+        name: driverData?.DRIVER,
+      })
+
+      // Get allowed keys from driverFields.connection
+      const allowedKeys = driverFields.connection.map((c) => c.name)
+
+      // Sanitize the object to not send attributes that are not in the selected driver
+      const filteredConnectionValues = Object.fromEntries(
+        Object.entries(connectionValuesData).filter(([key]) =>
+          allowedKeys.includes(key)
+        )
+      )
+
       // Create template to send to oneform
       const template = {
         ...generalData,
         driver: driverData.DRIVER,
-        connection_values: connectionValuesData || {}, // create
-        connection: connectionValuesData || {}, // update
+        connection_values: filteredConnectionValues || {}, // create
+        connection: filteredConnectionValues || {}, // update
       }
 
       return template

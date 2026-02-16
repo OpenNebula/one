@@ -20,13 +20,13 @@ import {
   TranslateProvider,
   SubmitButton,
   PATH,
+  Tr,
+  LogsViewer,
+  StatusChip,
 } from '@ComponentsModule'
 import { Box, Stack, Typography, useTheme, LinearProgress } from '@mui/material'
 import { ProvisionAPI } from '@FeaturesModule'
-import LogsViewer from '@modules/components/LogsViewer'
-import { Tr } from '@modules/components/HOC'
 import { T, STYLE_BUTTONS, CLUSTER_CLOUD_OPERATIONS } from '@ConstantsModule'
-import { StatusChip } from '@modules/components/Status'
 import { styles } from '@modules/containers/Clusters/styles'
 import { last, filter, find } from 'lodash'
 import {
@@ -109,12 +109,16 @@ export function CreateClusterCloudLogs() {
     [logsData]
   )
 
+  // Translations
+  const translations = {
+    description: Tr(T['cluster.create.provisioning.description']),
+    operation: Tr(T[operationText], [provision?.NAME]),
+  }
+
   return logsData ? (
     <TranslateProvider>
       <Stack direction="column">
-        <Typography variant="subtitle2">
-          {Tr(T['cluster.create.provisioning.description'])}
-        </Typography>
+        <Typography variant="subtitle2">{translations.description}</Typography>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -122,9 +126,7 @@ export function CreateClusterCloudLogs() {
           sx={{ marginTop: '10px' }}
         >
           <Typography className={classes.titleText}>
-            {operationText
-              ? Tr(T[operationText], [provision?.NAME])
-              : provision?.NAME}
+            {operationText ? translations.operation : provision?.NAME}
           </Typography>
           <Box>
             <StatusChip

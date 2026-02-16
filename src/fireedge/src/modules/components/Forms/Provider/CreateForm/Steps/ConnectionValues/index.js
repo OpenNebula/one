@@ -33,7 +33,6 @@ const Content = ({ isUpdate, groupedDrivers }) => {
 
   // Get the correspoding driver
   const driver = find(groupedDrivers, { name: value })
-
   let fields = driver?.driverFields
 
   if (isUpdate) {
