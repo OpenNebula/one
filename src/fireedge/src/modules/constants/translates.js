@@ -2691,4 +2691,19 @@ module.exports = {
   RunBackground: 'Run in background',
 
   LearnMore: 'Learn more',
+
+  /* Admin Dashboard */
+  InfrastructureUtilization: 'Infrastructure Utilization',
+  StorageCapacity: 'Storage Capacity',
+  VmStateDistribution: 'VM State Distribution',
+  QuickActions: 'Quick Actions',
+  CreateVM: 'Create VM',
+  ViewHosts: 'View Hosts',
+  ViewDatastores: 'View Datastores',
+  NRunning: '%s running',
+  NMonitored: '%s monitored',
+  ImageDatastores: 'Image Datastores',
+  SystemDatastores: 'System Datastores',
+  FileDatastores: 'File Datastores',
+  NoDataAvailableYet: 'No data available yet',
 }
