@@ -213,3 +213,42 @@ module OneForm
     end
 
 end
+
+# Expanding hash class with new methods
+class Hash
+
+    # Returns a new hash containing the contents of other_hash and the
+    # contents of self. If the value for entries with duplicate keys
+    # is a Hash, it will be merged recursively, otherwise it will be that
+    # of other_hash.
+    #
+    # @param [Hash] other_hash
+    #
+    # @return [Hash] Containing the merged values
+    #
+    # @example Merging two hashes
+    #   h1 = {:a => 3, {:b => 3, :c => 7}}
+    #   h2 = {:a => 22, c => 4, {:b => 5}}
+    #
+    #   h1.deep_merge(h2) #=> {:a => 22, c => 4, {:b => 5, :c => 7}}
+    def deep_merge(other_hash, merge_array = true)
+        target = clone
+
+        other_hash.each do |key, value|
+            current = target[key]
+
+            target[key] =
+                if value.is_a?(Hash) && current.is_a?(Hash)
+                    current.deep_merge(value, merge_array)
+                elsif value.is_a?(Array) && current.is_a?(Array) && merge_array
+                    merged = current + value
+                    merged.all? {|el| el.is_a?(Hash) } ? merged.uniq : merged
+                else
+                    value
+                end
+        end
+
+        target
+    end
+
+end

@@ -295,10 +295,28 @@ module OneForm
             json  = JSON.parse(json) if json.is_a?(String)
             nbody = @body.clone
 
-            UPDATE_ATTRS.each do |attribute|
-                next unless json[attribute]
+            return OpenNebula::Error.new(
+                'Invalid update payload: expected a JSON object'
+            ) unless json.is_a?(Hash)
 
-                nbody[attribute] = json[attribute]
+            UPDATE_ATTRS.each do |attribute|
+                next unless json.key?(attribute)
+
+                incoming = json[attribute]
+                current  = nbody[attribute]
+
+                next if incoming == REDACTED_MARK
+
+                if incoming.is_a?(Hash)
+                    incoming = incoming.reject {|_, v| v == REDACTED_MARK }
+                end
+
+                nbody[attribute] =
+                    if current.is_a?(Hash) && incoming.is_a?(Hash)
+                        current.deep_merge(incoming, false)
+                    else
+                        incoming
+                    end
             end
 
             rc = rename(nbody['name']) if nbody['name'] != name
