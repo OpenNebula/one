@@ -1592,6 +1592,23 @@ int VirtualMachineDisks::rename_snapshot(int disk_id, int snap_id, const string&
     return disk->rename_snapshot(snap_id, new_name, error_str);
 }
 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachineDisks::has_snapshots()
+{
+    for (const auto disk : *this)
+    {
+        if (disk->has_snapshots())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -70,22 +70,23 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     # vmfs
     # ceph
     # dev
-    #*******************************************************************************
+    #   name, ln_target, clone_target, shared, ds_migrate, ds_migrate_snap, driver
+    # *******************************************************************************
     */
-    set_conf_tm("dummy", "NONE", "SYSTEM", "YES", "YES", "");
+    set_conf_tm("dummy", "NONE", "SYSTEM", "YES", "YES", "YES", "");
 
-    set_conf_tm("lvm", "NONE",   "SELF",   "YES", "NO",  "");
-    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "NO",  "raw");
-    set_conf_tm("fs_lvm_ssh", "SYSTEM", "SYSTEM", "YES", "NO",  "raw");
+    set_conf_tm("lvm", "NONE",   "SELF",   "YES", "YES", "NO", "");
+    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "YES", "NO", "raw");
+    set_conf_tm("fs_lvm_ssh", "SYSTEM", "SYSTEM", "YES", "YES", "NO", "raw");
 
-    set_conf_tm("shared", "NONE", "SYSTEM", "YES", "YES", "");
-    set_conf_tm("qcow2", "NONE", "SYSTEM", "YES", "NO",  "qcow2");
+    set_conf_tm("shared", "NONE", "SYSTEM", "YES", "YES", "YES", "");
+    set_conf_tm("qcow2", "NONE", "SYSTEM", "YES", "YES", "YES", "qcow2");
 
-    set_conf_tm("ssh", "SYSTEM", "SYSTEM", "NO", "YES", "");
-    set_conf_tm("local", "SYSTEM", "SYSTEM", "NO", "YES", "");
+    set_conf_tm("ssh", "SYSTEM", "SYSTEM", "NO", "YES", "YES", "");
+    set_conf_tm("local", "SYSTEM", "SYSTEM", "NO", "YES", "YES", "");
 
-    set_conf_tm("ceph", "NONE", "SELF", "YES", "NO", "raw");
-    set_conf_tm("dev", "NONE", "NONE", "YES", "NO",  "");
+    set_conf_tm("ceph", "NONE", "SELF", "YES", "NO", "NO", "raw");
+    set_conf_tm("dev", "NONE", "NONE", "YES", "NO",  "NO", "");
 
 
     register_multiple_conf_default("TM_MAD_CONF");
@@ -273,6 +274,7 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
                                      const std::string& clone_target,
                                      const std::string& shared,
                                      const std::string& ds_migrate,
+                                     const std::string& ds_migrate_snap,
                                      const std::string& driver)
 {
     VectorAttribute *   vattribute;
@@ -283,6 +285,7 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
     vvalue.insert(make_pair("CLONE_TARGET", clone_target));
     vvalue.insert(make_pair("SHARED", shared));
     vvalue.insert(make_pair("DS_MIGRATE", ds_migrate));
+    vvalue.insert(make_pair("DS_MIGRATE_SNAP", ds_migrate_snap));
     vvalue.insert(make_pair("DRIVER", driver));
 
     vattribute = new VectorAttribute("TM_MAD_CONF", vvalue);

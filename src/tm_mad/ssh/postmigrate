@@ -42,9 +42,20 @@ fi
 
 source $TMCOMMON
 
-#--------------------------------------------------------------------------------
+# Obtain original system directory (srcpath) for system DS migrations
+DRIVER_PATH=$(dirname $0)
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
-if [ "$SRC_HOST" == "$DST_HOST" ]; then
+unset i j XPATH_ELEMENTS
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VM_ID | $XPATH \
+    /VM/HISTORY_RECORDS/HISTORY[last\(\)-1]/DS_ID)
+
+ORIG_DS_ID="${XPATH_ELEMENTS[j++]}"
+SRC_PATH="${DST_PATH}/../../${ORIG_DS_ID}/${VM_ID}"
+
+if [ "$ORIG_DS_ID" == "$DS_ID" ] && [ "$SRC_HOST" == "$DST_HOST" ]; then
     log "Not moving $SRC_HOST to $DST_HOST, they are the same host"
     exit 0
 fi
@@ -53,4 +64,4 @@ fi
 
 migrate_other "$@"
 
-exec_and_log "$SSH $SRC_HOST rm -rf $DST_PATH"
+exec_and_log "$SSH $SRC_HOST rm -rf $SRC_PATH"

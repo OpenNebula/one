@@ -736,6 +736,11 @@ public:
     }
 
     /**
+     *  @return true if any of the disks has snapshots
+     */
+    bool has_snapshots();
+
+    /**
      *  Set the snapshots for a disk
      *    @param id of disk
      *    @param snapshots of disk;

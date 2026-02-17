@@ -18,10 +18,9 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-# postmigrate: It is executed after a livemigration operation. Note that only the postmigrate script
-# from the system datastore will be used. Any customization must be done for the postmigrate script
-# of the system datastore, although you will probably add operations for other backends than that
-# used by the system datastore.
+# postmigrate: It is executed after a livemigration operation. Only postmigrate
+# from the system datastore will be used.
+#
 # ARGUMENTS: source_host dst_host remote_system_dir vmid dsid
 #   - src_host is the host the VM is in.
 #   - dst_host is the target host to migrate the VM to
@@ -34,27 +33,34 @@ arg_srchost = ARGV[0]
 arg_dsthost = ARGV[1]
 arg_dstpath = ARGV[2]
 arg_vmid    = ARGV[3]
-_arg_dsid   = ARGV[4]
+arg_dsid    = ARGV[4]
 template64  = STDIN.read
 
 postmg = TransferManager::Action.new(:vm_id => arg_vmid,
                                      :action_name => 'premigrate')
-
-dst = TransferManager::Action::Location.new([arg_dsthost, arg_dstpath])
+dst    = TransferManager::Action::Location.new([arg_dsthost, arg_dstpath])
 
 #--------------------------------------------------------------------------------
 
-if arg_srchost == dst.host
+# Obtain original system directory (srcpath) for system DS migrations
+orig_dsid = postmg.vm['/VM/HISTORY_RECORDS/HISTORY[last()-1]/DS_ID']
+srcpath   = "#{arg_dstpath}/../../#{orig_dsid}/#{arg_vmid}"
+
+#--------------------------------------------------------------------------------
+
+if orig_dsid == arg_dsid && arg_srchost == dst.host
     OpenNebula::DriverLogger.log_info <<~EOF
         Not moving #{arg_srchost} to #{dst.host}, they are the same host
     EOF
+
     exit 0
 end
 
 postmg.migrate_other(template64)
 
-rc = postmg.ssh(:host => arg_srchost,
-                :cmds => "rm -rf '#{dst.path}'",
+rc = postmg.ssh(:host     => arg_srchost,
+                :cmds     => "rm -rf '#{srcpath}'",
                 :nostdout => false,
                 :nostderr => false)
+
 exit(rc.code) if rc.code != 0

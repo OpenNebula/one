@@ -406,33 +406,24 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
         bool shared_type;
         bool ds_migrate;
 
+        bool ds_migrate_snap = false;
+
         if (vatt->vector_value("SHARED", shared_type) == -1)
         {
             goto error;
         }
 
-        if (shared_type)
-        {
-            replace_template_attribute("SHARED", "YES");
-        }
-        else
-        {
-            replace_template_attribute("SHARED", "NO");
-        }
+        replace_template_attribute("SHARED", shared_type);
 
         if (vatt->vector_value("DS_MIGRATE", ds_migrate) == -1)
         {
             ds_migrate = true;
         }
 
-        if (ds_migrate)
-        {
-            replace_template_attribute("DS_MIGRATE", "YES");
-        }
-        else
-        {
-            replace_template_attribute("DS_MIGRATE", "NO");
-        }
+        vatt->vector_value("DS_MIGRATE_SNAP", ds_migrate_snap);
+
+        replace_template_attribute("DS_MIGRATE", ds_migrate);
+        replace_template_attribute("DS_MIGRATE_SNAP", ds_migrate_snap);
 
         remove_template_attribute("LN_TARGET");
         remove_template_attribute("CLONE_TARGET");

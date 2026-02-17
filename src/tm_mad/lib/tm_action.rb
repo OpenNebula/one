@@ -84,8 +84,6 @@ module TransferManager
         attr_reader :vm, :one
 
         # ----------------------------------------------------------------------
-
-        # ----------------------------------------------------------------------
         # Represents a path in a host in the form <hostname>[:<path>]
         # ----------------------------------------------------------------------
         class Location
@@ -117,7 +115,7 @@ module TransferManager
                     raise NotALocation, 'Invalid location format'
                 end
 
-                # # FIXME: convert ^ to pattern matching once we've dropped Ruby<2.7:
+                # FIXME: convert ^ to pattern matching once we've dropped Ruby<2.7:
                 # case location
                 # in [path]
                 #     @host      = nil
@@ -403,6 +401,10 @@ module TransferManager
         #  @return[String] VM_MAD name for this host
         def vm_mad
             @vm['/VM/HISTORY_RECORDS/HISTORY[last()]/VM_MAD']
+        end
+
+        def sys_dsid
+            @vm['/VM/HISTORY_RECORDS/HISTORY[last()]/DS_ID']
         end
 
         def kvm?

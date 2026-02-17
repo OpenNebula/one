@@ -45,33 +45,82 @@ fi
 POOL_NAME="lv-one-$VMID-pool"
 VG_NAME="vg-one-$DSID"
 
-CMD=$(cat <<EOF
-    set -ex -o pipefail
-    $SYNC
-    $SUDO $LVSCAN
+#--------------------------------------------------------------------------------
+# Obtain original system directory (srcpath) for system DS migrations
+DRIVER_PATH=$(dirname $0)
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+unset i j XPATH_ELEMENTS
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+    /VM/HISTORY_RECORDS/HISTORY[last\(\)-1]/DS_ID)
 
-    for disk in \$(ls ${DST_PATH}/disk.*); do
-        if [ -L "\$disk" ]; then
-            DEVICE=\$(readlink "\$disk")
+ORIG_DS_ID="${XPATH_ELEMENTS[j++]}"
+#--------------------------------------------------------------------------------
 
-            if echo "\$DEVICE" | grep -q '^/dev/vg-one'; then
-                # Deactivate LV on origin host
-                $SUDO $LVCHANGE -an \$DEVICE
+if [ "$ORIG_DS_ID" != "$DSID" ]; then
+    SRC_PATH="${DST_PATH}/../../${ORIG_DS_ID}/${VMID}"
+
+    CMD=$(cat <<EOF
+        set -ex -o pipefail
+        $SYNC
+        $SUDO $LVSCAN
+
+        for disk in \$(ls ${SRC_PATH}/disk.*); do
+            if [ -L "\$disk" ]; then
+                DEVICE=\$(readlink "\$disk")
+
+                if echo "\$DEVICE" | grep -q '^/dev/vg-one'; then
+                    FDS_RAW=\$($SUDO $LVS --noheadings -o vg_name,pool_lv \$DEVICE)
+                    FDS=(\$FDS_RAW)
+                    OLD_VG_NAME="\${FDS[0]}"
+                    POOL_NAME="\${FDS[1]}"
+
+                    # Remove LV on origin host
+                    $SUDO $LVREMOVE -y \$DEVICE
+
+                    # Remove pool on origin host (if it exists and is empty)
+                    if [ -n "\$($SUDO $LVS --noheading -S "vg_name = \$OLD_VG_NAME && lv_name = \$POOL_NAME")" ] &&
+                        [ -z "\$($SUDO $LVS --noheading -S "vg_name = \$OLD_VG_NAME && pool_lv = \$POOL_NAME")" ]; then
+                        $SUDO $LVREMOVE -y "\$OLD_VG_NAME/\$POOL_NAME"
+                    fi
+                fi
             fi
-        fi
-    done
+        done
 
-    # Deactivate pool on origin host (if it exists)
-    if [ -n "\$($SUDO $LVS --noheading -S "vg_name = $VG_NAME && lv_name = $POOL_NAME")" ]; then
-        $SUDO $LVCHANGE -an "$VG_NAME/${POOL_NAME}"
-        $SUDO $LVCHANGE -an "$VG_NAME/${POOL_NAME}_tmeta"
-        $SUDO $LVCHANGE -an "$VG_NAME/${POOL_NAME}_tdata"
-    fi
-
-    # Remove VM folder from origin host
-    rm -rf "${DST_PATH}"
+        # Remove origin VM folder
+        rm -rf "${SRC_PATH}"
 EOF
 )
+else
+    CMD=$(cat <<EOF
+        set -ex -o pipefail
+        $SYNC
+        $SUDO $LVSCAN
+
+        for disk in \$(ls ${DST_PATH}/disk.*); do
+            if [ -L "\$disk" ]; then
+                DEVICE=\$(readlink "\$disk")
+
+                if echo "\$DEVICE" | grep -q '^/dev/vg-one'; then
+                    # Deactivate LV on origin host
+                    $SUDO $LVCHANGE -an \$DEVICE
+                fi
+            fi
+        done
+
+        # Deactivate pool on origin host (if it exists)
+        if [ -n "\$($SUDO $LVS --noheading -S "vg_name = $VG_NAME && lv_name = $POOL_NAME")" ]; then
+            $SUDO $LVCHANGE -an "$VG_NAME/${POOL_NAME}"
+            $SUDO $LVCHANGE -an "$VG_NAME/${POOL_NAME}_tmeta"
+            $SUDO $LVCHANGE -an "$VG_NAME/${POOL_NAME}_tdata"
+        fi
+
+        # Remove VM folder from origin host
+        rm -rf "${DST_PATH}"
+EOF
+)
+fi
 
 ssh_exec_and_log "$SRC_HOST" "$CMD" \
     "Error running fs_lvm postmigrate"

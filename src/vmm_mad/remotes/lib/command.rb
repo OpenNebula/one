@@ -107,6 +107,8 @@ module Command
             :emsg     => ''
         }.merge!(options)
 
+        emsg = opt[:emsg]
+
         script = <<~EOS
             export LANG=C
             export LC_ALL=C

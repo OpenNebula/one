@@ -31,7 +31,6 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     Driver(),
     driver_conf(true),
     keep_snapshots(false),
-    ds_live_migration(false),
     cold_nic_attach(false),
     live_resize(false),
     support_shareable_(false)
@@ -91,11 +90,6 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     // Parse KEEP_SNAPSHOTS
     // -------------------------------------------------------------------------
     driver_conf.get("KEEP_SNAPSHOTS", keep_snapshots);
-
-    // -------------------------------------------------------------------------
-    // Parse DS_LIVE_MIGRATION
-    // -------------------------------------------------------------------------
-    driver_conf.get("DS_LIVE_MIGRATION", ds_live_migration);
 
     // -------------------------------------------------------------------------
     // Parse COLD_NIC_ATTACH

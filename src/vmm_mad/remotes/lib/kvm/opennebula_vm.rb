@@ -18,6 +18,7 @@ require_relative '../lib/command'
 require_relative '../lib/opennebula_vm'
 
 require 'json'
+require 'tempfile'
 
 # rubocop:disable Style/ClassAndModuleChildren
 # rubocop:disable Style/ClassVars
@@ -168,6 +169,8 @@ module VirtualMachineManagerKVM
     #
     class KvmDomain
 
+        attr_reader :domain
+
         def initialize(domain)
             @domain = domain
             @xml    = nil
@@ -272,8 +275,13 @@ module VirtualMachineManagerKVM
                     raise StandardError, "Error getting domain snapshots #{e}"
                 end
 
-                @disks = o.lines[2..o.lines.length].map {|l| l.split }
-                @disks.reject! {|s| s.empty? }
+                @disks =
+                    o.lines[2..o.lines.length]
+                     .reject {|l| l.chomp.empty? }
+                     .map do |l|
+                         (dev, path) = l.split
+                         [dev, Pathname.new(path)]
+                     end
             end
 
             @disks
@@ -309,6 +317,65 @@ module VirtualMachineManagerKVM
             end
 
             virsh_retry(cmd, 'active block job', virsh_tries)
+        end
+
+        # Live migrate the given disks between the given VM directories.
+        # This only works within the same host.
+        #
+        #   @param disks[Array] disks (as (dev,path) tuples) to be moved
+        #          Example: [['vda', '/var/lib/one/datastores/0/12/disk.0']]
+        #   @param rodisks[Array] read-only disks (as (dev,path) tuples) to be redefined
+        #          Example: [['hda', '/var/lib/one/datastores/0/12/disk.1']]
+        #   @param src_dir[Pathname] source VM dir
+        #          Example: /var/lib/one/datastores/0/12
+        #   @param dst_dir[Pathname] destination VM dir
+        #          Example: /var/lib/one/datastores/100/12
+        def live_blockcopy_disks(disks, rodisks, src_dir, dst_dir)
+            disks.each do |(dev, path)|
+                new_path = dst_dir + path.relative_path_from(src_dir)
+
+                `mkdir -p #{new_path.dirname}; touch #{new_path}`
+
+                qimg = QemuImg.new(path.to_s)
+                has_backing = qimg['backing-filename'] && !qimg['backing-filename'].empty?
+
+                # --pivot: Pivot the VM to use the new disk after copy.
+                # --reuse-external: Reuse existing backing files on the destination.
+                # --shallow: Only copy the top layer of a disk with backing files.
+                # --blockdev: Destination file is a block device (e.g., LV)
+                cmd =  "blockcopy #{@domain} #{dev} #{new_path} " \
+                       '--wait --verbose --pivot --reuse-external'
+                cmd << ' --shallow' if has_backing
+                cmd << ' --blockdev' if path.symlink? && path.readlink.blockdev?
+
+                rc, out, err = virsh_retry(cmd, 'active block job', virsh_tries)
+                return [rc, out, err] if rc != 0
+            end
+
+            rodisks.each do |(dev, path)|
+                new_path = dst_dir + path.relative_path_from(src_dir)
+                cmd      = "change-media #{@domain} #{dev} #{new_path} --update"
+
+                rc, out, err = virsh_retry(cmd, 'active block job', virsh_tries)
+                return [rc, out, err] if rc != 0
+            end
+
+            # Update one:system_datastore metadata tag in running VM
+            tmpf = Tempfile.new([@domain, '.xml'])
+
+            virsh_retry("dumpxml #{@domain} > '#{tmpf.path}'", 'active block job', virsh_tries)
+
+            `sed -i '/one:system_datastore/s:CDATA\\[[^]]*\\]:CDATA[#{dst_dir}]:' '#{tmpf.path}'`
+
+            virsh_retry("define '#{tmpf.path}'", 'active block job', virsh_tries)
+
+            tmpf.unlink
+
+            # `define` makes the VM persistent. We immediately `undefine` it to
+            # keep it transient.
+            undefine
+
+            [0, nil, nil]
         end
 
         #  Basic domain operations (does not require additional parameters)

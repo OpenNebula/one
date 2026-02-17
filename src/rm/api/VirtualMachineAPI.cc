@@ -399,9 +399,9 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
     else //Get information from user selected system DS
     {
         set<int> ds_cluster_ids;
-        bool     ds_migr;
+        bool     ds_migr, ds_migr_snap;
 
-        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
+        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_migr_snap);
 
         if (ec != Request::SUCCESS)
         {
@@ -813,7 +813,7 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
     set<int> cluster_ids;
     string   error_str;
 
-    bool ds_migr;
+    bool ds_migr, ds_migr_snap;
 
     auto ec = get_host_information(hid,
                                    hostname,
@@ -914,6 +914,13 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
         return Request::ACTION;
     }
 
+    if (live && c_hid != hid && ds_id != -1 && ds_id != c_ds_id)
+    {
+        att.resp_msg = "Cannot live migrate host and datastore at the same time.";
+
+        return Request::ACTION;
+    }
+
     // Check the host has enough capacity
     if (check_host(hid, enforce, vm.get(), att.resp_msg) == false)
     {
@@ -986,15 +993,7 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
             return Request::ACTION;
         }
 
-        if (live && !vmmd->is_ds_live_migration())
-        {
-            att.resp_msg = "A migration to a different system datastore "
-                           "cannot be performed live.";
-
-            return Request::ACTION;
-        }
-
-        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
+        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_migr_snap);
 
         if (ec != Request::SUCCESS)
         {
@@ -1004,6 +1003,13 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
         if (!ds_migr)
         {
             att.resp_msg = "System datastore migration not supported by driver";
+
+            return Request::ACTION;
+        }
+
+        if (!ds_migr_snap && vm->has_disk_snapshots())
+        {
+            att.resp_msg = "System datastore migration with disk snapshots not supported by driver";
 
             return Request::ACTION;
         }
@@ -1019,7 +1025,7 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
     {
         ds_id  = c_ds_id;
 
-        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
+        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_migr_snap);
 
         if (ec != Request::SUCCESS)
         {
@@ -3983,7 +3989,8 @@ Request::ErrorCode VirtualMachineAPI::get_ds_information(int ds_id,
                                                          set<int>& ds_cluster_ids,
                                                          string& tm_mad,
                                                          RequestAttributes& att,
-                                                         bool& ds_migr)
+                                                         bool& ds_migr,
+                                                         bool& ds_migr_snap)
 {
     auto ds = Nebula::instance().get_dspool()->get_ro(ds_id);
 
@@ -4016,6 +4023,8 @@ Request::ErrorCode VirtualMachineAPI::get_ds_information(int ds_id,
 
     ds->get_template_attribute("DS_MIGRATE", ds_migr);
 
+    ds->get_template_attribute("DS_MIGRATE_SNAP", ds_migr_snap);
+
     return Request::SUCCESS;
 }
 
@@ -4029,7 +4038,7 @@ Request::ErrorCode VirtualMachineAPI::get_default_ds_information(int cluster_id,
 {
     ClusterPool* clpool = Nebula::instance().get_clpool();
 
-    bool ds_migr;
+    bool ds_migr, ds_migr_snap;
 
     set<int> ds_ids;
 
@@ -4065,7 +4074,7 @@ Request::ErrorCode VirtualMachineAPI::get_default_ds_information(int cluster_id,
 
     set<int> ds_cluster_ids;
 
-    return get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
+    return get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_migr_snap);
 }
 
 /* -------------------------------------------------------------------------- */

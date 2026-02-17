@@ -1662,6 +1662,14 @@ public:
     // Disk Snapshot related functions
     // ------------------------------------------------------------------------
     /**
+     * @return true if the VM has disk with snapshots
+     */
+    bool has_disk_snapshots()
+    {
+        return disks.has_snapshots();
+    }
+
+    /**
      *  Return the snapshot list for the disk
      *    @param disk_id of the disk
      *    @param error if any

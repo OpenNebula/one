@@ -89,14 +89,6 @@ public:
     }
 
     /**
-     *  @return true if datastore live migration
-     */
-    bool is_ds_live_migration() const
-    {
-        return ds_live_migration;
-    }
-
-    /**
      *  @return true if cold nic attach
      */
     bool is_cold_nic_attach() const
@@ -264,11 +256,6 @@ private:
      * create/delete cycles and live migrations.
      */
     bool keep_snapshots;
-
-    /**
-     * Set to true if live migration between datastores is allowed.
-     */
-    bool ds_live_migration;
 
     /**
     * Set to true if cold nic attach/detach calls (pre, post, clean scripts)

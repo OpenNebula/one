@@ -262,7 +262,8 @@ protected:
             std::set<int>& ds_cluster_ids,
             std::string& tm_mad,
             RequestAttributes& att,
-            bool& ds_migr);
+            bool& ds_migr,
+            bool& ds_migr_snap);
 
     Request::ErrorCode get_default_ds_information(
             int cluster_id,

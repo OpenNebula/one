@@ -15,25 +15,10 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-ONE_LOCATION = ENV['ONE_LOCATION']
-
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    GEMS_LOCATION     = '/usr/share/one/gems'
-    VMDIR             = '/var/lib/one'
-    CONFIG_FILE       = '/var/lib/one/config'
-else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
-    VMDIR             = ONE_LOCATION + '/var'
-    CONFIG_FILE       = ONE_LOCATION + '/var/config'
-end
 
 # %%RUBYGEMS_SETUP_BEGIN%%
 require 'load_opennebula_paths'
 # %%RUBYGEMS_SETUP_END%%
-
-$LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'pathname'
 
@@ -51,20 +36,21 @@ load_remote_env
 #   Note input parameters are defined as instance variables
 #     - @deploy_id
 #     - @dst_host
-#     - @vm_dir
+#     - @src_vm_dir
+#     - @dst_vm_dir
 #     - @shared
 # ------------------------------------------------------------------------------
 
-# sync paths to the destination VM folder
+# Synchronizes a list of files and directories to the destination host using rsync.
 #
-# @param paths [Array/String] Array of paths to sync
-#
+# @param paths [Array/String] A list of paths to synchronize.
+# @param raise_error [Boolean] If true, raises an exception if rsync fails.
 def rsync_paths(paths, raise_error = true)
     return if paths.empty?
 
     opts  = '-az'
     paths = paths.join(' ') if paths.class == Array
-    dpath = "#{@dst_host}:#{@vm_dir}/"
+    dpath = "#{@dst_host}:#{@dst_vm_dir}/"
 
     tini = Time.now
 
@@ -75,30 +61,39 @@ def rsync_paths(paths, raise_error = true)
     raise StandardError, "Cannot rsync files: #{e}" if rc != 0 && raise_error
 end
 
-# In case of error this function is used to remove migration leftovers. For non
-# shared storage configuration it will remove the destination VM folder
+# Cleans up migration artifacts on failure.
+# For non-shared storage, it removes the destination VM directory.
+# For host migrations, it destroys and undefines the transient VM on the destination.
 #
-# @param kvm_vm [KvmDomain] libvirt domain class
-# @param error[String] message for the StandardError raised by the function
-#
-def cleanup_host(kvm_vm, error)
-    kvm_vm.destroy @dst_host
-
-    kvm_vm.undefine @dst_host
+# @param kvm_vm [KvmDomain] The libvirt domain object.
+# @param error [String] The error message to raise.
+# @param type [Symbol] The type of migration that failed (:host, :ds).
+def cleanup_host(kvm_vm, error, type)
+    if type == :host
+        kvm_vm.destroy @dst_host
+        kvm_vm.undefine @dst_host
+    end
 
     if !@shared
-        Command.ssh(:host => @dst_host, :cmds => "rm -rf #{@vm_dir}")
+        Command.ssh(:host => @dst_host, :cmds => "rm -rf #{@dst_vm_dir}")
     end
 
     raise StandardError, error
 end
 
-# Migrate VMs running on local storage, using the copy-storage feature of libvirt
+# Analyzes the VM's disks and prepares them for migration.
+#
+# It creates placeholder disks on the destination for local storage migrations
+# and determines which files need to be synchronized before and after the migration.
+#
 # Disks are scanned and classified as:
-#   - Regular disks are copied during migration (devs array). A place holder needs
+#   - Regular disks are copied during migration (disks array). A place holder needs
 #     to be created in the destination host
 #
-#   - Readonly disks are copied before starting the migration (pre_sync array)
+#   - Readonly disks are copied before starting the migration (pre_sync array).
+#     Read-only files can't be `blockcopy`ed by libvirt. These files are rsync'ed
+#     them and then do a `virsh change-media` to update its path on the
+#     VM's definition.
 #
 #   - Snapshots and other ancialliary files are also copied in the pre_sync phase
 #
@@ -109,18 +104,21 @@ end
 #
 # To allow this post sync phase the VM is paused after migration (--suspend)
 #
-# @param kvm_vm [KvmDomain] libvirt domain class
-def local_migration(kvm_vm)
-    devs = []
-
-    pre_sync  = ["#{@vm_dir}/*.xml"]
+# @param kvm_vm [KvmDomain] The libvirt domain object.
+# @param type [Symbol] The type of migration being performed.
+# @return [Array] An array containing [disks_to_migrate, pre_sync_paths, post_sync_paths, rodisks].
+def prepare_disks(kvm_vm, type)
+    disks     = []
+    rodisks   = []
+    pre_sync  = ["#{@src_vm_dir}/*.xml"]
     post_sync = []
 
-    kvm_vm.disks.each do |disk|
-        dev  = disk[0]
+    symlink_cmds = ["set -e; mkdir -p #{@dst_vm_dir}; cd #{@dst_vm_dir};"]
+
+    kvm_vm.disks.each_with_index do |disk, disk_id|
         path = disk[1]
 
-        if !File.symlink? path # qcow2 & raw disks, regular files
+        if !path.symlink? # qcow2 & raw disks, regular files
             qimg = QemuImg.new path
 
             format = qimg['format']
@@ -129,90 +127,195 @@ def local_migration(kvm_vm)
 
             if format == 'raw' && kvm_vm.readonly?(path)
                 pre_sync << path
+                rodisks  << disk
             else
-                devs << dev
+                disks     << disk
                 post_sync << path if format == 'qcow2' && snaps
 
-                cmds =<<~EOS
-                    mkdir -p #{File.dirname(path)}
-                    qemu-img create -f #{format} #{path} #{size}
-                EOS
+                create_params = {
+                    :host => @dst_host,
+                    :cmds => <<~EOS,
+                        mkdir -p #{path.dirname}
+                        qemu-img create -f #{format} #{path} #{size}
+                    EOS
+                    :emsg => 'Cannot create disk'
+                }
 
-                Command.ssh(:host => @dst_host, :cmds => cmds,
-                            :emsg => 'Cannot create disk')
+                Command.ssh(create_params) if type == :host
             end
-        elsif path.match(%r{disk.[0-9]*.snap/}) # qcow2-symlink, replica
-            devs << dev
+        elsif path.to_s.match(%r{disk.[0-9]*.snap/}) # qcow2-symlink
+            disks << disk
+        elsif path.readlink.to_s.match(%r{^/dev/vg-one}) # LVM disk
+            disks << disk
             # else
-            # network-disk, symlinks are assumed to be network disks
+            # network-disk, other symlinks are assumed to be network disks
         end
 
-        # Add disk snapshots dir to the list of paths to sync
-        if File.directory? "#{path}.snap"
+        # Add disk snapshots dir to the list of paths to sync.
+        if (m = path.to_s.match(%r{(disk.[0-9]*.snap)/}))
+            if type == :host
+                pre_sync << Pathname.new("#{@src_vm_dir}/#{m[1]}").cleanpath
+            else # :ds
+                pre_sync << Pathname.new(path.dirname).cleanpath
+            end
+        elsif File.directory?("#{path}.snap") # raw disks with snapshots
             pre_sync << Pathname.new("#{path}.snap").cleanpath
-        elsif (m = path.match(%r{(disk.[0-9]*.snap)/})) # replica
-            pre_sync << Pathname.new("#{@vm_dir}/#{m[1]}").cleanpath
         end
 
-        # recreate disk symlinks
-        if File.symlink? path
-            target = File.readlink(path)
+        # Recreate disk symlinks
+        if path.symlink?
+            target = path.readlink
             lname  = path
-        elsif (m = path.match(%r{(disk.([0-9]*).snap/.*)}))
+
+            if target.to_s.match(%r{^/dev/vg-one})
+                # LVM disks
+                target = "/dev/vg-one-#{@dst_vm_dir.dirname.basename}/#{target.basename}"
+                lname  = @dst_vm_dir + lname.relative_path_from(@src_vm_dir)
+
+                symlink_cmds << <<~EOS.chomp
+                    rm #{lname}
+                EOS
+            end
+        elsif (m = path.to_s.match(%r{(/([0-9a-z]*).snap/.*)}))
+            # Persistent disks @ shared DS pointing to image datastore
+            target = path
+            lname = "disk.#{disk_id}"
+        elsif (m = path.to_s.match(%r{(disk.([0-9]*).snap/.*)}))
+            # Disk snapshots
             target = m[1]
             lname  = "disk.#{m[2]}"
         else
             next
         end
 
-        cmds =<<~EOS
-            cd #{@vm_dir}
+        symlink_cmds << <<~EOS.chomp
             [ -L "#{lname}" ] || ln -s "#{target}" "#{lname}"
         EOS
-
-        Command.ssh(:host => @dst_host, :cmds => cmds,
-                    :emsg => 'Cannot symlink disk')
     end
 
-    rsync_paths(pre_sync)
+    Command.ssh(:host => @dst_host, :cmds => symlink_cmds.join("\n"),
+                :emsg => 'Cannot symlink disks')
 
-    rc, _out, err = kvm_vm.live_migrate_disks(@dst_host, devs)
+    [disks, pre_sync, post_sync, rodisks]
+end
 
-    cleanup_host(err) if rc != 0
+# Creates placeholder disk images on the destination datastore.
+#
+# For storage-only migrations, this function creates empty disk images or
+# qcow2 images linked to their backing files on the destination datastore.
+#
+# This allows to control the backing file paths during the migration (--shallow + --reuse-external).
+# If not, blockcopy will create the images with backing files pointing to absolute paths.
+#
+# @param disks [Array] An array of disk information, each element being [dev, path].
+def disk_placeholders(disks)
+    disks.each do |(_dev, path)|
+        next if File.symlink? path
 
-    rsync_paths(post_sync)
+        qimg = QemuImg.new(path.to_s)
 
-    kvm_vm.resume(@dst_host)
+        format    = qimg['format']
+        size      = qimg['virtual-size']
+
+        dest_path = (@dst_vm_dir + path.relative_path_from(@src_vm_dir)).cleanpath
+
+        cmds = [
+            'set -e',
+            "mkdir -p #{dest_path.dirname}",
+            "rm -f #{dest_path}"
+        ]
+
+        backing = qimg['backing-filename']
+
+        if format == 'qcow2' && backing && !backing.empty?
+            backing_fmt    = qimg['backing-filename-format']
+            backing_target =
+                if backing.start_with?(@src_vm_dir.to_s)
+                    backing.sub(@src_vm_dir.to_s, @dst_vm_dir.to_s)
+                else
+                    backing
+                end
+
+            create_cmd =  "qemu-img create -f #{format}"
+            create_cmd << " -F #{backing_fmt}" if backing_fmt && !backing_fmt.empty?
+            create_cmd << " -b #{backing_target} #{dest_path}"
+        else
+            create_cmd = "qemu-img create -f #{format} #{dest_path} #{size}"
+        end
+
+        cmds << create_cmd
+
+        Command.ssh(:host => @src_host,
+                    :cmds => cmds.join("\n"),
+                    :emsg => 'Cannot create destination disk')
+    end
 end
 
 # ------------------------------------------------------------------------------
+# Main execution logic
 # ------------------------------------------------------------------------------
 
 begin
     @deploy_id = ARGV[0]
     @dst_host  = ARGV[1]
+    @src_host  = ARGV[2]
+    vmid       = ARGV[3]
 
-    action_xml = XMLElement.new_s(STDIN.read)
+    action_xml  = XMLElement.new_s(STDIN.read)
 
-    @vm_dir = Pathname.new(action_xml['/VMM_DRIVER_ACTION_DATA/DISK_TARGET_PATH']).cleanpath
-    @shared = action_xml['/VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SHARED'].casecmp('YES') == 0
+    @src_vm_dir = Pathname.new(action_xml['/VMM_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH'])
+                          .cleanpath + vmid
+    @dst_vm_dir = Pathname.new(action_xml['/VMM_DRIVER_ACTION_DATA/DISK_TARGET_PATH']).cleanpath
+    @shared = action_xml['/VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SHARED']
+              .casecmp('YES') == 0
 
-    kvm_vm  = KvmDomain.new(@deploy_id)
+    src_path = @src_vm_dir.parent.basename.to_s
+    dst_path = @dst_vm_dir.parent.basename.to_s
+
+    kvm_vm = KvmDomain.new(@deploy_id)
 
     # Migration can't be done with domain snapshots, drop them first
     kvm_vm.snapshots_delete
 
-    # Migrate VMs using shared/local storage
-    if @shared
-        rc, _out, err = kvm_vm.live_migrate(@dst_host)
+    if @src_host != @dst_host
+        if @shared
+            rc, _out, err = kvm_vm.live_migrate(@dst_host)
 
-        cleanup_host(kvm_vm, err) if rc != 0
+            cleanup_host(kvm_vm, err, :host) if rc != 0
+        else
+            disks, pre_sync, post_sync, _rodisks = prepare_disks(kvm_vm, :host)
+
+            rsync_paths(pre_sync)
+
+            rc, _out, err = kvm_vm.live_migrate_disks(@dst_host, disks.map {|(dev, _path)| dev })
+
+            cleanup_host(kvm_vm, err, :host) if rc != 0
+
+            rsync_paths(post_sync)
+
+            kvm_vm.resume(@dst_host)
+        end
+    elsif src_path != dst_path
+        disks, pre_sync, post_sync, rodisks = prepare_disks(kvm_vm, :ds)
+
+        rsync_paths(pre_sync)
+
+        disk_placeholders(disks)
+
+        rc, _out, err = kvm_vm.live_blockcopy_disks(disks, rodisks, @src_vm_dir, @dst_vm_dir)
+
+        cleanup_host(kvm_vm, err, :ds) if rc != 0
+
+        rsync_paths(post_sync)
     else
-        local_migration(kvm_vm)
+        STDERR.puts 'Unsupported migration type'
+        exit(1)
     end
 
     # Redefine system snapshots on the destination libvirtd
-    kvm_vm.snapshots_redefine(@dst_host, @vm_dir)
+    kvm_vm.snapshots_redefine(@dst_host, @dst_vm_dir)
+
+    exit(0) if src_path != dst_path
 
     # Sync guest time
     if ENV['SYNC_TIME'].to_s.upcase == 'YES'
@@ -241,7 +344,7 @@ begin
     end
     # rubocop:enable Layout/LineLength
 rescue StandardError => e
-    STDERR.puts "Error mirgating VM #{@deploy_id} to host #{@dst_host}: #{e.message}"
+    STDERR.puts "Error migrating VM #{@deploy_id}: #{e.message}"
     STDERR.puts e.backtrace.to_s
     exit(1)
 end

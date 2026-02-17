@@ -43,43 +43,104 @@ fi
 . $TMCOMMON
 
 #--------------------------------------------------------------------------------
-
-if [ "$SRC_HOST" == "$DST_HOST" ]; then
-    log "Not moving $SRC_HOST to $DST_HOST, they are the same host"
-    exit 0
-fi
-
 # Remove target path to prevent overwrite errors
 ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH' && mkdir -p '$DST_PATH'" \
     "Error preparing destination folder."
 
+# Obtain original system directory (srcpath) for system DS migrations
+DRIVER_PATH=$(dirname $0)
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+unset i j XPATH_ELEMENTS
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+    /VM/HISTORY_RECORDS/HISTORY[last\(\)-1]/DS_ID)
+
+ORIG_DS_ID="${XPATH_ELEMENTS[j++]}"
 #--------------------------------------------------------------------------------
 
-PRE_CMD=$(cat <<EOF
-    set -e -o pipefail
-    $SYNC
-    $SUDO $LVSCAN
+if [ "$ORIG_DS_ID" != "$DSID" ]; then
+    SRC_PATH="$(realpath -m "${DST_PATH}/../../${ORIG_DS_ID}/${VMID}")"
 
-    # Get LVM disks devices
-    for disk in \$(ls ${DST_PATH}/disk.*); do
-        if [ -L "\$disk" ]; then
-            DEVICE=\$(readlink "\$disk")
+    PRE_CMD=$(cat <<EOF
+        set -e -o pipefail
+        $SYNC
+        $SUDO $LVSCAN
 
-            if [[ "\$DEVICE" =~ ^/dev/vg-one.* ]]; then
-                # TODO, improve number of ssh connections
-                DEVICES="\$DEVICES \$DEVICE"
+        # Get LVM disks devices
+        for disk in \$(ls ${SRC_PATH}/disk.*); do
+            if [ -L "\$disk" ]; then
+                DEVICE=\$(readlink "\$disk")
+
+                if [[ "\$DEVICE" =~ ^/dev/vg-one.* ]]; then
+                    # TODO, improve number of ssh connections
+                    DEVICES="\$DEVICES \$DEVICE"
+                fi
             fi
+        done
+
+        if [ -n "\$DEVICES" ]; then
+            NEW_VG_NAME=vg-one-$DSID
+
+            # Create destination LVs
+            $SSH -n "$DST_HOST" "
+                $SYNC
+                $SUDO $LVSCAN
+                for dev in \$DEVICES; do
+                    FDS_RAW=\\\$($SUDO $LVS --noheadings -o lv_name,vg_name,lv_size,pool_lv \\\$dev)
+                    FDS=(\\\$FDS_RAW)
+                    NAME=\"\\\${FDS[0]}\"
+                    OLD_VG_NAME=\"\\\${FDS[1]}\"
+                    SIZE=\"\\\${FDS[2]}\"
+                    POOL_NAME=\"\\\${FDS[3]}\"
+                    # If the device has a pool, assume thin mode
+                    if [ -n \"\\\$POOL_NAME\" ]; then
+                        # Create pool if it does not exist yet
+                        if [ -z \"\\\$($SUDO $LVS --noheading \$NEW_VG_NAME/\\\$POOL_NAME)\" ]; then
+                            POOL_SIZE=\\\$($SUDO $LVS --noheadings -o lv_size \\\${OLD_VG_NAME}/\\\${POOL_NAME})
+                            $SUDO $LVCREATE -ky -Zy -an -L \\\${POOL_SIZE} --type thin-pool --thinpool \\\$POOL_NAME \$NEW_VG_NAME
+                        fi
+                        $SUDO $LVCREATE -ky -K -ay --thin \$NEW_VG_NAME/\\\$POOL_NAME -V \\\${SIZE} -n \\\$NAME
+                    else
+                        $SUDO $LVCREATE -ay --wipesignatures n -L \\\${SIZE} -n \\\$NAME \$NEW_VG_NAME
+                    fi
+                done
+                $SYNC
+            "
         fi
-    done
 
-    if [ -n "\$DEVICES" ]; then
-        # Activate LVs in the destination hosts
-        $SSH -n "$DST_HOST" "$SUDO $LVCHANGE -ay -K \$DEVICES"
-    fi
+        $SYNC
 
-    $TAR -C $DST_PATH -cSf - . | $SSH "$DST_HOST" "$TAR -xSf - -C $DST_PATH"
+        $TAR -C $SRC_PATH -cSf - . | $SSH "$DST_HOST" "$TAR -xSf - -C $DST_PATH"
 EOF
 )
+else
+    PRE_CMD=$(cat <<EOF
+        set -e -o pipefail
+        $SYNC
+        $SUDO $LVSCAN
+
+        # Get LVM disks devices
+        for disk in \$(ls ${DST_PATH}/disk.*); do
+            if [ -L "\$disk" ]; then
+                DEVICE=\$(readlink "\$disk")
+
+                if [[ "\$DEVICE" =~ ^/dev/vg-one.* ]]; then
+                    # TODO, improve number of ssh connections
+                    DEVICES="\$DEVICES \$DEVICE"
+                fi
+            fi
+        done
+
+        if [ -n "\$DEVICES" ]; then
+            # Activate LVs in the destination hosts
+            $SSH -n "$DST_HOST" "$SUDO $LVCHANGE -ay -K \$DEVICES"
+        fi
+
+        $TAR -C $DST_PATH -cSf - . | $SSH "$DST_HOST" "$TAR -xSf - -C $DST_PATH"
+EOF
+)
+fi
 
 ssh_forward ssh_exec_and_log "$SRC_HOST" "$PRE_CMD" "Error running fs_lvm premigrate"
 

@@ -112,6 +112,7 @@ private:
                      const std::string& clone_target,
                      const std::string& shared,
                      const std::string& ds_migrate,
+                     const std::string& ds_migrate_snap,
                      const std::string& driver);
 
     /**
