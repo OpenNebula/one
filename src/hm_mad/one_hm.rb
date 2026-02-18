@@ -70,10 +70,28 @@ class HookManagerDriver < OpenNebulaDriver
 
         @publisher = context.socket(ZMQ::PUB)
         @publisher.setsockopt(ZMQ::SNDHWM, @options[:hwm]) if @options[:hwm]
-        @publisher.bind("tcp://#{@options[:bind]}:#{@options[:publisher_port]}")
+
+        pub_endpoint = "tcp://#{@options[:bind]}:#{@options[:publisher_port]}"
+        rc = @publisher.bind(pub_endpoint)
+
+        if rc < 0
+            STDERR.puts "ERROR: Failed to bind publisher socket to " \
+                        "#{pub_endpoint}: #{ZMQ::Util.error_string} " \
+                        "(#{ZMQ::Util.errno})"
+            exit(-1)
+        end
 
         @replier = context.socket(ZMQ::REP)
-        @replier.bind("tcp://#{@options[:bind]}:#{@options[:logger_port]}")
+
+        rep_endpoint = "tcp://#{@options[:bind]}:#{@options[:logger_port]}"
+        rc = @replier.bind(rep_endpoint)
+
+        if rc < 0
+            STDERR.puts "ERROR: Failed to bind replier socket to " \
+                        "#{rep_endpoint}: #{ZMQ::Util.error_string} " \
+                        "(#{ZMQ::Util.errno})"
+            exit(-1)
+        end
 
         # Lock to sync access to @publisher
         @publisher_lock = Mutex.new
