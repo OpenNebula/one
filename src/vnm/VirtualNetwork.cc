@@ -23,12 +23,7 @@
 #include "LifeCycleManager.h"
 
 #include "NebulaLog.h"
-
-#include "AuthManager.h"
-#include "ClusterPool.h"
-
 #include "NebulaUtil.h"
-
 #include "Nebula.h"
 
 using namespace std;
@@ -289,9 +284,9 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         goto error_parse;
     }
 
-    erase_template_attribute("BRIDGE_TYPE", bridge_type);
+    erase_template_attribute("BRIDGE_TYPE", value);
 
-    rc = parse_bridge_type(vn_mad, error_str);
+    rc = parse_bridge_type(vn_mad, value, error_str);
 
     if (rc != 0)
     {
@@ -432,7 +427,7 @@ int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
 
     erase_template_attribute("BRIDGE_TYPE", new_br_type);
 
-    auto rc = parse_bridge_type(vn_mad, error);
+    auto rc = parse_bridge_type(vn_mad, "", error);
 
     if (rc != 0)
     {
@@ -1815,10 +1810,15 @@ void VirtualNetwork::get_security_groups(set<int> & sgs)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::parse_bridge_type(const string &vn_mad, string &error_str)
+int VirtualNetwork::parse_bridge_type(const string& vn_mad,
+                                      const string& user_br_type,
+                                      string& error_str)
 {
     const VectorAttribute* vatt;
-    std::string br_type;
+    std::vector<std::string> valid_br_types;
+
+    std::string br_types;
+    std::string req_br_type = one_util::trim(user_br_type);
 
     ostringstream oss;
 
@@ -1827,21 +1827,49 @@ int VirtualNetwork::parse_bridge_type(const string &vn_mad, string &error_str)
         goto error_conf;
     }
 
-    if ( vatt->vector_value("BRIDGE_TYPE", br_type) == -1)
+    if ( vatt->vector_value("BRIDGE_TYPE", br_types) == -1)
     {
         goto error;
     }
-    else
+
+    for (const auto& raw_type : one_util::split(br_types, ','))
     {
+        auto br_type = one_util::trim(raw_type);
+
         if (str_to_bridge_type(br_type) == UNDEFINED)
         {
             goto error;
         }
 
-        bridge_type = br_type;
+        valid_br_types.push_back(br_type);
     }
 
-    return 0;
+    if (valid_br_types.empty())
+    {
+        goto error;
+    }
+
+    if (req_br_type.empty())
+    {
+        bridge_type = valid_br_types.front();
+        return 0;
+    }
+
+    for (const auto& br_type : valid_br_types)
+    {
+        if (br_type == req_br_type)
+        {
+            bridge_type = br_type;
+            return 0;
+        }
+    }
+
+    oss << "Attribute BRIDGE_TYPE has wrong value \"" << req_br_type
+        << "\" for VN_MAD_CONF " << vn_mad << " in oned.conf";
+
+    error_str = oss.str();
+
+    return -1;
 
 error_conf:
     oss << "VN_MAD named \"" << vn_mad << "\" is not defined in oned.conf";

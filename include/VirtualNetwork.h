@@ -931,7 +931,9 @@ private:
      *
      *    @param br_type the bridge type associated to the nic
      */
-    int parse_bridge_type(const std::string &vn_mad, std::string &error_str);
+    int parse_bridge_type(const std::string& vn_mad,
+                          const std::string& requested_br_type,
+                          std::string& error_str);
 
     // *************************************************************************
     // DataBase implementation (Private)
