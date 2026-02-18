@@ -129,6 +129,8 @@ module OpenNebula
             rc = offline
             return rc if OpenNebula.is_error?(rc)
 
+            sleep 0.5
+
             enable
         end
 
