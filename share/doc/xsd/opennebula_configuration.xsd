@@ -324,6 +324,7 @@
               <xs:element name="DISK_TYPE_SSH" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DRIVER" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DS_MIGRATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="DS_MIGRATE_SNAP" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="LN_TARGET" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="LN_TARGET_SHARED" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="LN_TARGET_SSH" type="xs:string" minOccurs="0" maxOccurs="1"/>
