@@ -1827,7 +1827,7 @@ int LibVirtDriver::deployment_description_kvm(
 
             file <<"/>\n"
                  << "\t\t\t<readonly/>\n"
-                 << "\t\t\t<driver name='qemu' type='raw'/>\n"
+                 << "\t\t\t<driver name='qemu' type='raw' cache='none'/>\n"
                  << "\t\t</disk>\n";
         }
         else
