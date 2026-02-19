@@ -65,6 +65,7 @@ type AR struct {
 	GlobalPrefix      string        `xml:"GLOBAL_PREFIX,omitempty"` // minOccurs=0
 	IP                string        `xml:"IP"`                      // minOccurs=0
 	MAC               string        `xml:"MAC,omitempty"`
+	Shared            string        `xml:"SHARED,omitempty"`
 	ParentNetworkARID string        `xml:"PARENT_NETWORK_AR_ID,omitempty"` // minOccurs=0
 	Size              int           `xml:"SIZE"`
 	Type              string        `xml:"TYPE"`

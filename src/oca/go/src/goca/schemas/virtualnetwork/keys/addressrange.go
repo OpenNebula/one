@@ -28,6 +28,7 @@ const (
 	Size         AddressRange = "SIZE"
 	Type         AddressRange = "TYPE"
 	Mac          AddressRange = "MAC"
+	Shared       AddressRange = "SHARED"
 	GlobalPrefix AddressRange = "GLOBAL_PREFIX"
 	UlaPrefix    AddressRange = "ULA_PREFIX"
 	PrefixLength AddressRange = "PREFIX_LENGTH"
