@@ -2582,6 +2582,7 @@ module.exports = {
   SuccessBackupJobCreated: 'BackupJob created - #%s',
   SuccessClusterCreated: 'Cluster created - #%s',
   SuccessClusterUpdated: 'Cluster updated - #%s',
+  SuccessClusterDeleted: 'Cluster(s) deleted',
   SuccessDatastoreCreated: 'Datastore created - #%s',
   SuccessDatastoreUpdated: 'Datastore updated - #%s',
   SuccessFileCreated: 'File created - #%s',
@@ -2594,7 +2595,10 @@ module.exports = {
   SuccessMarketplaceUpdated: 'Marketplace updated - #%s',
   SuccessProviderCreated: 'Provider created - #%s',
   SuccessProviderUpdated: 'Provider updated - #%s',
-  SuccessProviderDeleted: 'Provider deleted - #%s',
+  SuccessProviderDeleted: 'Provider(s) deleted',
+  SuccessProvisionCreated: 'Provision created - #%s',
+  SuccessProvisionDeleted: 'Provision(s) deleted',
+  SuccessProvisionRetried: 'Provision(s) retried',
   SuccessDatastoreDeleted: 'Datastore deleted - #%s',
   SuccessIPAdded: 'IP added %s',
   SuccessNetworkDeleted: 'Network deleted - #%s',
@@ -2643,6 +2647,7 @@ module.exports = {
   ErrorSupportCredentials: 'Error with support credentials',
   ErrorVMGroupFetch: 'Failed to fetch VM Group data: %s',
   ErrorServiceActionRole: 'Action %s failed on role: %s. Error: %s',
+  ErrorProvisionRetried: 'Error retrying Provision',
 
   /* Info messages */
   InfoDisconnected: 'Disconnected',

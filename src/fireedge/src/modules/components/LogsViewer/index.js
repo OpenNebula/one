@@ -39,7 +39,7 @@ import {
   RedoCircle,
 } from 'iconoir-react'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
-import { ProvisionAPI } from '@FeaturesModule'
+import { useGeneralApi, ProvisionAPI } from '@FeaturesModule'
 import { Tr, Translate, SubmitButton } from '@modules/components'
 import { styles } from '@modules/components/LogsViewer/styles'
 import HeaderPopover from '@modules/components/Header/Popover'
@@ -91,6 +91,8 @@ const LogsViewer = ({
   const [level, setLevel] = useState()
   const [filterValue, setFilterValue] = useState('')
   const [filteredLogs, setFilteredLogs] = useState(logs?.lines || [])
+
+  const { enqueueSuccess, enqueueError } = useGeneralApi()
 
   const [retry] = ProvisionAPI.useRetryProvisionMutation()
 
@@ -170,6 +172,19 @@ const LogsViewer = ({
       )
     )
   }
+
+  const retryProvision = async (id) => {
+    try {
+      const result = await retry({ id: id })
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+      enqueueSuccess(T.SuccessProvisionRetried)
+    } catch (error) {
+      enqueueError(T.ErrorProvisionRetried)
+    }
+  }
+
   const Row = ({ index, key, style, parent }) => {
     const log = filteredLogs[index]
     const regexDate = /^(.+?\[\w\])\s*(.*)/
@@ -329,7 +344,7 @@ const LogsViewer = ({
               icon={<RedoCircle />}
               tooltip={Tr(T.Retry)}
               isSubmitting={isFetching}
-              onClick={() => retry({ id: provisionId })}
+              onClick={() => retryProvision(provisionId)}
             />
           )}
         </Stack>

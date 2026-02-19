@@ -38,7 +38,7 @@ const HOSTS = ({ formType = '', filter }) => {
       name: 'hosts',
       label: T.SelectNewHostsToAdd,
       type: INPUT_TYPES.AUTOCOMPLETE,
-      tooltip: [T.PressKeysToAddAValue, ['ENTER']],
+      tooltip: [T.PressKeysToAddAHost, ['ENTER']],
       multiple: true,
       fieldProps: {
         freeSolo: true,

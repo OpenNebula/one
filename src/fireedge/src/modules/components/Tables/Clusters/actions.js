@@ -18,7 +18,12 @@ import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { ClusterAPI, ProvisionAPI, useViews } from '@FeaturesModule'
+import {
+  ClusterAPI,
+  ProvisionAPI,
+  useGeneralApi,
+  useViews,
+} from '@FeaturesModule'
 
 import {
   createActions,
@@ -132,6 +137,7 @@ MessageToConfirmActions.displayName = 'MessageToConfirmActions'
 const Actions = (props = {}) => {
   const { setSelectedRows } = props
   const history = useHistory()
+  const { enqueueSuccess } = useGeneralApi()
   const { view, getResourceView } = useViews()
   const [remove] = ClusterAPI.useRemoveClusterMutation()
   const [removeProvision] = ProvisionAPI.useRemoveProvisionMutation()
@@ -205,6 +211,7 @@ const Actions = (props = {}) => {
                     ({ original }) => original?.TEMPLATE?.ONEFORM?.PROVISION_ID
                   )
                   await Promise.all(ids.map((id) => deprovision({ id })))
+                  enqueueSuccess(T.SuccessProvisionDeleted)
                   setSelectedRows && setSelectedRows([])
                 },
               },
@@ -232,6 +239,7 @@ const Actions = (props = {}) => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => retry({ id })))
+                  enqueueSuccess(T.SuccessProvisionRetried)
                   setSelectedRows && setSelectedRows([])
                 },
               },
@@ -272,6 +280,7 @@ const Actions = (props = {}) => {
                       return remove({ id })
                     })
                   )
+                  enqueueSuccess(T.SuccessClusterDeleted)
                   setSelectedRows && setSelectedRows([])
                 },
               },

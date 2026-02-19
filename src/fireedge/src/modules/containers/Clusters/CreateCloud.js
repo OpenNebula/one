@@ -77,7 +77,7 @@ export function CreateClusterCloud() {
           operation: CLUSTER_CLOUD_OPERATIONS.CREATE.name,
         }
       )
-      enqueueSuccess(T.SuccessProviderCreated, [newProvisionId])
+      enqueueSuccess(T.SuccessProvisionCreated, [newProvisionId])
     } catch {
       enqueueError(T.ErrorProviderCreated)
     }

@@ -79,7 +79,7 @@ const Actions = (props = {}) => {
   const { setSelectedRows } = props
   const history = useHistory()
   const { view, getResourceView } = useViews()
-  const { setSecondTitle } = useGeneralApi()
+  const { enqueueSuccess, setSecondTitle } = useGeneralApi()
 
   const [remove] = ProviderAPI.useRemoveProviderMutation()
   const [changeOwnership] = ProviderAPI.useChangeProviderOwnershipMutation()
@@ -180,6 +180,7 @@ const Actions = (props = {}) => {
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id })))
+                  enqueueSuccess(T.SuccessProviderDeleted)
                   setSelectedRows && setSelectedRows([])
                 },
               },
