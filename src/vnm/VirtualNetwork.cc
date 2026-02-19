@@ -372,7 +372,7 @@ error_common:
 
 int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
 {
-    string new_bridge, new_br_type;
+    string new_bridge, new_br_type, new_vn_mad;
     string sg_str;
 
     /* ---------------------------------------------------------------------- */
@@ -384,9 +384,41 @@ int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
     /*  - BRIDGE_TYPE                                                         */
     /*  - SECURITY_GROUPS                                                     */
     /* ---------------------------------------------------------------------- */
-    erase_template_attribute("VN_MAD", vn_mad);
+    erase_template_attribute("VN_MAD", new_vn_mad);
+
+    if (new_vn_mad.empty())
+    {
+        add_template_attribute("VN_MAD", vn_mad);
+        error = "No VN_MAD in template for Virtual Network.";
+
+        return -1;
+    }
+
+    erase_template_attribute("BRIDGE_TYPE", new_br_type);
+
+    if (new_vn_mad != vn_mad)
+    {
+        if (new_br_type == bridge_type)
+        {
+           new_br_type = "";
+        }
+    }
+
+    auto rc = parse_bridge_type(new_vn_mad, new_br_type, error);
+
+    if (rc != 0)
+    {
+        add_template_attribute("VN_MAD", vn_mad);
+        add_template_attribute("BRIDGE_TYPE", bridge_type);
+
+        return rc;
+    }
+
+    vn_mad = new_vn_mad;
 
     add_template_attribute("VN_MAD", vn_mad);
+
+    add_template_attribute("BRIDGE_TYPE", bridge_type);
 
     erase_template_attribute("PHYDEV", phydev);
 
@@ -424,17 +456,6 @@ int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
     }
 
     add_template_attribute("BRIDGE", bridge);
-
-    erase_template_attribute("BRIDGE_TYPE", new_br_type);
-
-    auto rc = parse_bridge_type(vn_mad, "", error);
-
-    if (rc != 0)
-    {
-        return rc;
-    }
-
-    add_template_attribute("BRIDGE_TYPE", bridge_type);
 
     security_groups.clear();
 
