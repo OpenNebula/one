@@ -163,7 +163,11 @@ def prepare_disks(kvm_vm, type)
         end
 
         # Recreate disk symlinks
-        if path.symlink?
+        if (m = path.to_s.match(%r{(/([0-9a-z]*).snap/.*)}))
+            # Persistent disks @ shared DS pointing to image datastore
+            target = path
+            lname = "disk.#{disk_id}"
+        elsif path.symlink?
             target = path.readlink
             lname  = path
 
@@ -176,10 +180,6 @@ def prepare_disks(kvm_vm, type)
                     rm #{lname}
                 EOS
             end
-        elsif (m = path.to_s.match(%r{(/([0-9a-z]*).snap/.*)}))
-            # Persistent disks @ shared DS pointing to image datastore
-            target = path
-            lname = "disk.#{disk_id}"
         elsif (m = path.to_s.match(%r{(disk.([0-9]*).snap/.*)}))
             # Disk snapshots
             target = m[1]
