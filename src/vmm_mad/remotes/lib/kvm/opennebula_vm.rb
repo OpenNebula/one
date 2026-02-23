@@ -354,7 +354,7 @@ module VirtualMachineManagerKVM
 
             rodisks.each do |(dev, path)|
                 new_path = dst_dir + path.relative_path_from(src_dir)
-                cmd      = "change-media #{@domain} #{dev} #{new_path} --update"
+                cmd      = "change-media #{@domain} #{dev} #{new_path} --update --force"
 
                 rc, out, err = virsh_retry(cmd, 'active block job', virsh_tries)
                 return [rc, out, err] if rc != 0
