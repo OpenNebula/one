@@ -618,6 +618,22 @@ module OneForm
             resources.each do |resource|
                 next unless resource['id']
 
+                # Double check if the resource exists before trying to delete it
+                resource_id_exists = send(
+                    "#{resource_type}_id_exists?",
+                    client,
+                    resource['id']
+                )
+
+                unless resource_id_exists
+                    log.warn(
+                        "Skipping deletion of #{resource_type.capitalize} '#{resource['name']}' " \
+                        "with ID '#{resource['id']}' because it already deleted or does not exist"
+                    )
+                    resource['id'] = nil
+                    next
+                end
+
                 # Check if the resource has associated objects
                 associated_objects = send(
                     "#{resource_type}_associated_objects",
