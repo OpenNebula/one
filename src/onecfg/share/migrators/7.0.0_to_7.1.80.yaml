@@ -1565,7 +1565,7 @@ patches:
         change:
         -   path: []
             key: oneform_server
-            value: http://localhost:13013
+            value: http://localhost:13013/api/v1
             state: ins
             extra: {}
         content: |+
@@ -1592,7 +1592,7 @@ patches:
             oneflow_server: 'http://localhost:2474'
 
             # Form Server: use it if you have form-server and fireedge on different servers
-            oneform_server: 'http://localhost:13013'
+            oneform_server: 'http://localhost:13013/api/v1'
 
             # JWT expiration time (minutes)
             session_expiration: 180
@@ -1662,6 +1662,11 @@ patches:
             state: rm
             extra: {}
         -   path: *1
+            key: enforce_2fa
+            value: false
+            state: ins
+            extra: {}
+        -   path: *1
             key: fullViewMode
             value: 'false'
             state: ins
@@ -1675,12 +1680,13 @@ patches:
             \"\"\n\n################################################################################\n# Check Official support
             - Support enterprise token\n################################################################################\n\n#token_remote_support:
             \"\"\n\n################################################################################\n# UI Settings\n################################################################################\n\n#
-            True to display 'Keep me logged in' option\nkeep_me_logged: true\n\n# This automatically adds scheduling actions\n#\n#
-            Allowed periods: years, months, weeks, days, hours, minutes\n# eg: execute_after_minutes: 30\n#\n# edit:                allows
-            to edit the form\n# execute_after_weeks: days to execute the action\n# warn_before_days:    alert a time before
-            the action (in days)\nleases:\n  terminate:\n    edit: false\n    execute_after_weeks: 2\n    warn_before_days:
-            1\n\n# Support filesystem\n# You may want to update SUPPORTED_FS in datastore.conf\nsupported_fs:\n    - ext4\n
-            \   - ext3\n    - ext2\n    - xfs\n\n# Use the extended VM pool \n# By default this value is true\n# https://docs.opennebula.io/6.8/integration_and_development/system_interfaces/api.html#one-vmpool-infoextended\n#use_extended_vmpool:
+            Enforces 2FA authentication for ALL users.\nenforce_2fa: false\n\n# True to display 'Keep me logged in' option\nkeep_me_logged:
+            true\n\n# This automatically adds scheduling actions\n#\n# Allowed periods: years, months, weeks, days, hours,
+            minutes\n# eg: execute_after_minutes: 30\n#\n# edit:                allows to edit the form\n# execute_after_weeks:
+            days to execute the action\n# warn_before_days:    alert a time before the action (in days)\nleases:\n  terminate:\n
+            \   edit: false\n    execute_after_weeks: 2\n    warn_before_days: 1\n\n# Support filesystem\n# You may want to
+            update SUPPORTED_FS in datastore.conf\nsupported_fs:\n    - ext4\n    - ext3\n    - ext2\n    - xfs\n\n# Use the
+            extended VM pool \n# By default this value is true\n# https://docs.opennebula.io/6.8/integration_and_development/system_interfaces/api.html#one-vmpool-infoextended\n#use_extended_vmpool:
             true\n\n# Currency formatting\n# Possible values are the ISO 4217 currency codes\n# https://www.six-group.com/en/products-services/financial-information/data-standards.html\ncurrency:
             EUR\n\n# Default language setting\ndefault_lang: en\n\n# Translations: use it if you want to use certain languages
             on the client\n# Check that the language exists in client/assets/languages\nlangs:\n  # bg_BG: 'Bulgarian (Bulgaria)'\n
@@ -1694,7 +1700,7 @@ patches:
             'Chinese (China)'\n  # zh_TW: 'Chinese (Taiwan)'\n\n# Time Zone\n# You may use it to change the time zone.\n#
             https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n# currentTimeZone: \"Europe/Madrid\"\n\n# Type of
             rows of data tables.\n# Styles can be \"card\" or \"list\", default is card.                                         \nrowStyle:
-            'card'\n\n# Show resources info in full mode\nfullViewMode: 'false'"
+            'card'\n\n# Show resources info in full mode\nfullViewMode: 'false'\n"
     "/etc/one/fireedge/sunstone/profiles/base.template":
         class: Yaml
         owner: root
@@ -2005,55 +2011,74 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        content: |
-            ---
-            # This file describes the information and actions available in the CLUSTER tab
-
-            # Resource
-
-            resource_name: "CLUSTER"
-
-            # Actions - Which buttons are visible to operate over the resources
-
-            actions:
-              create_dialog: true
-              update_dialog: true
-              delete: true
-
-            # Filters - List of criteria to filter the resources
-
-            filters:
-
-            # Info Tabs - Which info tabs are used to show extended information
-
-            info-tabs:
-              info:
-                enabled: true
-                information_panel:
-                  enabled: true
-                  actions:
-                    rename: true
-                overcommitment:
-                  enabled: true
-                  actions:
-                    update_cpu: true
-                    update_memory: true
-                attributes_panel:
-                  enabled: true
-                  actions:
-                    copy: true
+        action: apply
+        change:
+        -   path: &2
+            - actions
+            key: create_cloud_dialog
+            value: true
+            state: ins
+            extra: {}
+        -   path: *2
+            key: create_cloud_dialog_logs
+            value: true
+            state: ins
+            extra: {}
+        -   path: *2
+            key: deprovision
+            value: true
+            state: ins
+            extra: {}
+        -   path: *2
+            key: retry
+            value: true
+            state: ins
+            extra: {}
+        -   path:
+            - info-tabs
+            - host
+            key: provision
+            value:
+                actions:
                     add: true
-                    edit: true
                     delete: true
-
-              host:
+            state: ins
+            extra: {}
+        -   path:
+            - info-tabs
+            - vnet
+            key: provision
+            value:
+                actions:
+                    add: true
+                    delete: true
+                    delete_ar: true
+            state: ins
+            extra: {}
+        -   path: &3
+            - info-tabs
+            key: events
+            value:
                 enabled: true
-              vnet:
+            state: ins
+            extra: {}
+        -   path: *3
+            key: logs
+            value:
                 enabled: true
-              datastore:
-                enabled: true
-              drs:
-                enabled: true
+            state: ins
+            extra: {}
+        content: "---\n# This file describes the information and actions available in the CLUSTER tab\n\n# Resource\n\nresource_name:
+            \"CLUSTER\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog:
+            true\n  create_cloud_dialog: true\n  create_cloud_dialog_logs: true\n  update_dialog: true\n  deprovision: true\n
+            \ retry: true\n  delete: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n\n# Info Tabs
+            - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
+            \     enabled: true\n      actions:\n        rename: true\n    overcommitment:\n      enabled: true\n      actions:\n
+            \       update_cpu: true\n        update_memory: true\n    attributes_panel:\n      enabled: true\n      actions:\n
+            \       copy: true\n        add: true\n        edit: true\n        delete: true\n\n  host:\n    enabled: true\n
+            \   provision:\n      actions:\n        add: true\n        delete: true\n  vnet:\n    enabled: true\n    provision:\n
+            \     actions:\n        add: true\n        delete: true\n        delete_ar: true\n        \n  datastore:\n    enabled:
+            true\n  drs:\n    enabled: true\n  events:\n    enabled: true  \n  logs:\n    enabled: true  \n"
     "/etc/one/fireedge/sunstone/views/admin/datastore-tab.yaml":
         class: Yaml
         owner: root
@@ -5294,7 +5319,7 @@ patches:
         mode: '0640'
         action: apply
         change:
-        -   path: &2 []
+        -   path: &4 []
             key:
             old:
                 title: Storage
@@ -5367,7 +5392,7 @@ patches:
                     Component: BackupJobDetail
             state: rm
             extra: {}
-        -   path: *2
+        -   path: *4
             key:
             old:
                 title: Infrastructure
@@ -5402,7 +5427,7 @@ patches:
                     Component: Zones
             state: rm
             extra: {}
-        -   path: *2
+        -   path: *4
             key:
             value:
                 title: Storage
@@ -5478,7 +5503,7 @@ patches:
                     Component: BackupJobDetail
             state: ins
             extra: {}
-        -   path: *2
+        -   path: *4
             key:
             value:
                 title: Infrastructure
@@ -5486,9 +5511,17 @@ patches:
                 routes:
                 -   title: Drivers
                     path: "/driver"
-                    sidebar: true
-                    icon: HardDrive
+                    sidebar: false
+                    icon: DataTransferUp
                     Component: Drivers
+                -   title: Providers
+                    path: "/provider"
+                    sidebar: true
+                    icon: SettingsProfiles
+                    Component: Providers
+                -   title: Create Provider
+                    path: "/provider/create"
+                    Component: CreateProvider
                 -   title: Clusters
                     path: "/cluster"
                     sidebar: true
@@ -5497,6 +5530,12 @@ patches:
                 -   title: Create Cluster
                     path: "/cluster/create"
                     Component: CreateCluster
+                -   title: Create Cluster
+                    path: "/cluster/create_cloud"
+                    Component: CreateClusterCloud
+                -   title: Cluster Logs
+                    path: "/cluster/create_cloud_logs/:id"
+                    Component: CreateClusterCloudLogs
                 -   title: Cluster
                     path: "/cluster/:id"
                     Component: ClusterDetail
@@ -5518,72 +5557,303 @@ patches:
                     Component: Zones
             state: ins
             extra: {}
-        content: "- title: Instances\n  icon: Cell2X2\n  routes:\n    - title: VMs\n      path: /vm\n      sidebar: true\n
-            \     icon: ModernTv\n      Component: VirtualMachines\n    - title: VMs\n      path: /vm/:id\n      Component:
-            VirtualMachineDetail\n    - title: Virtual Routers\n      path: /vrouter\n      sidebar: true\n      icon: Shuffle\n
-            \     Component: VirtualRouters\n    - title: Instantiate Virtual Router\n      path: /vrouter/instantiate\n      Component:
-            InstantiateVrTemplate\n    - title: Virtual Routers\n      path: /vrouter/:id\n      Component: VirtualRouterDetail\n
-            \   - title: Services\n      path: /service\n      sidebar: true\n      icon: Packages\n      Component: Services\n
-            \   - title: Instantiate Service Template\n      path: /service/instantiate/\n      Component: InstantiateServiceTemplate\n
-            \   - title: Service\n      path: /service/:id\n      Component: ServiceDetail\n- title: Templates\n  icon: Archive\n
-            \ routes:\n    - title: VM Templates\n      path: /vm-template\n      sidebar: true\n      icon: EmptyPage\n      Component:
-            VmTemplates\n    - title: Instantiate VM Template\n      path: /vm-template/instantiate\n      Component: InstantiateVmTemplate\n
-            \   - title: Create VM Template\n      path: /vm-template/create\n      Component: CreateVmTemplate\n    - title:
-            Update VM Template\n      path: /vm-template/update\n      Component: CreateVmTemplate\n    - title: VM Template\n
-            \     path: /vm-template/:id\n      Component: VmTemplateDetail\n    - title: Instantiate Service Template\n      path:
-            /service-template/instantiate/\n      Component: InstantiateServiceTemplate\n    - title: Service Templates\n
-            \     path: /service-template\n      sidebar: true\n      icon: MultiplePagesEmpty\n      Component: ServiceTemplates\n
-            \   - title: Create Service Template\n      path: /service-template/create\n      Component: CreateServiceTemplate\n
-            \   - title: Service Template\n      path: /service-template/:id\n      Component: ServiceTemplateDetail\n    -
-            title: Instantiate Virtual Router Template\n      path: /vrouter-template/instantiate/\n      Component: InstantiateVrTemplate\n
-            \   - title: Virtual Routers\n      path: /vrouter-template\n      sidebar: true\n      icon: Shuffle\n      Component:
-            VrTemplates\n    - title: Create Virtual Router Template\n      path: /vrouter-template/create\n      Component:
-            CreateVrTemplate\n    - title: Virtual Router Template\n      path: /vrouter-template/:id\n      Component: VrTemplateDetail\n
-            \   - title: Create VM group\n      path: /vm-group/create\n      Component: CreateVmGroup\n    - title: VM Groups\n
-            \     path: /vm-group\n      icon: Folder\n      sidebar: true\n      Component: VmGroups\n- title: Storage\n
-            \ icon: Box\n  routes:\n    - title: Datastores\n      path: /datastore\n      sidebar: true\n      icon: Db\n
-            \     Component: Datastores\n    - title: Create Datastore\n      path: /datastore/create\n      Component: CreateDatastore\n
-            \   - title: Update Datastore\n      path: /datastore/update\n      Component: CreateDatastore\n    - title: Datastore\n
-            \     path: /datastore/:id\n      Component: DatastoreDetail\n    - title: Images\n      path: /image\n      sidebar:
-            true\n      icon: BoxIso\n      Component: Images\n    - title: Create Image\n      path: /image/create\n      Component:
-            CreateImage\n    - title: Files\n      path: /file\n      sidebar: true\n      icon: Archive\n      Component:
-            Files\n    - title: Create File\n      path: /file/create\n      Component: CreateFile\n    - title: Backups\n
-            \     path: /backup\n      sidebar: true\n      icon: RefreshDouble\n      Component: Backups\n    - title: Backup\n
-            \     path: /backup/:id\n      Component: BackupDetail\n    - title: Marketplaces\n      path: /marketplace\n
-            \     sidebar: true\n      icon: SimpleCart\n      Component: Marketplaces\n    - title: Create Marketplace\n
-            \     path: /marketplace/create\n      Component: CreateMarketplace\n    - title: Apps\n      path: /marketplace-app\n
-            \     sidebar: true\n      icon: CloudDownload\n      Component: MarketplaceApps\n    - title: Create Marketplace
-            App\n      path: /marketplace-app/create\n      Component: CreateMarketplaceApp\n    - title: App\n      path:
-            /marketplace-app/:id\n      Component: MarketplaceAppDetail\n    - title: Create BackupJob\n      path: /backupjobs/create\n
-            \     Component: CreateBackupJob\n    - title: BackupJobs\n      path: /backupjobs\n      sidebar: true\n      icon:
-            Clock\n      Component: BackupJobs\n    - title: BackupJob\n      path: /backupjobs/:id\n      Component: BackupJobDetail\n-
-            title: Networks\n  icon: ServerConnection\n  routes:\n    - title: Virtual networks\n      path: /virtual-network\n
-            \     sidebar: true\n      icon: NetworkAlt\n      Component: VirtualNetworks\n    - title: Instantiate Network
-            Template\n      path: /network-template/instantiate\n      Component: InstantiateVnTemplate\n    - title: Create
-            Virtual Network\n      path: /virtual-network/create\n      Component: CreateVirtualNetwork\n    - path: /virtual-network/update\n
-            \     Component: CreateVirtualNetwork\n    - title: Virtual networks\n      path: /virtual-network/:id\n      Component:
-            VirtualNetworkDetail\n    - title: Network Templates\n      path: /network-template\n      sidebar: true\n      icon:
-            KeyframesCouple\n      Component: VnTemplates\n    - title: Create Virtual Network Template\n      path: /network-template/create\n
-            \     Component: CreateVnTemplate\n    - title: Security groups\n      path: /security-group\n      sidebar: true\n
-            \     icon: HistoricShield\n      Component: SecurityGroups\n    - title: Create Security Group\n      path: /security-group/create\n
-            \     Component: CreateSecurityGroup\n- title: Infrastructure\n  icon: CloudSync\n  routes:\n    - title: Drivers\n
-            \     path: /driver\n      sidebar: true\n      icon: HardDrive\n      Component: Drivers  \n    - title: Clusters\n
-            \     path: /cluster\n      sidebar: true\n      icon: Server\n      Component: Clusters\n    - title: Create
-            Cluster\n      path: /cluster/create\n      Component: CreateCluster\n    - title: Cluster\n      path: /cluster/:id\n
-            \     Component: ClusterDetail\n    - title: Hosts\n      path: /host\n      sidebar: true\n      icon: HardDrive\n
-            \     Component: Hosts\n    - title: Create Host\n      path: /host/create\n      Component: CreateHost\n    -
-            title: Host\n      path: /host/:id\n      Component: HostDetail\n    - title: Zones\n      path: /zone\n      sidebar:
-            true\n      icon: MinusPinAlt\n      Component: Zones\n- title: System\n  icon: Home\n  routes:\n    - title:
-            Create User\n      path: /user/create\n      Component: CreateUser\n    - title: Users\n      path: /user\n      sidebar:
-            true\n      icon: User\n      Component: Users\n    - title: User\n      path: /user/:id\n      Component: UserDetail\n
-            \   - title: Create Group\n      path: /group/create\n      Component: CreateGroup\n    - title: Groups\n      path:
-            /group\n      sidebar: true\n      icon: Group\n      Component: Groups\n    - title: Group\n      path: /group/:id\n
-            \     Component: GroupDetail\n    - path: /virtual-data-center/create\n      Component: CreateVDC\n    - title:
-            VDCs\n      path: /virtual-data-center\n      sidebar: true\n      icon: List\n      Component: VDCs\n    - title:
-            VDC\n      path: /virtual-data-center/:id\n      Component: VDCDetail\n    - title: Create ACL\n      path: /acl/create\n
-            \     Component: CreateACL\n    - title: ACLs\n      path: /acl\n      sidebar: true\n      icon: KeyAlt\n      Component:
-            ACLs\n- title: Support\n  path: /support\n  sidebar: true\n  icon: HeadsetHelp\n  Component: Support\n- title:
-            Guacamole\n  path: /guacamole/:id/:type\n  sidebar: false\n  Component: Guacamole\n"
+        content: |
+            - title: Instances
+              icon: Cell2X2
+              routes:
+                - title: VMs
+                  path: /vm
+                  sidebar: true
+                  icon: ModernTv
+                  Component: VirtualMachines
+                - title: VMs
+                  path: /vm/:id
+                  Component: VirtualMachineDetail
+                - title: Virtual Routers
+                  path: /vrouter
+                  sidebar: true
+                  icon: Shuffle
+                  Component: VirtualRouters
+                - title: Instantiate Virtual Router
+                  path: /vrouter/instantiate
+                  Component: InstantiateVrTemplate
+                - title: Virtual Routers
+                  path: /vrouter/:id
+                  Component: VirtualRouterDetail
+                - title: Services
+                  path: /service
+                  sidebar: true
+                  icon: Packages
+                  Component: Services
+                - title: Instantiate Service Template
+                  path: /service/instantiate/
+                  Component: InstantiateServiceTemplate
+                - title: Service
+                  path: /service/:id
+                  Component: ServiceDetail
+            - title: Templates
+              icon: Archive
+              routes:
+                - title: VM Templates
+                  path: /vm-template
+                  sidebar: true
+                  icon: EmptyPage
+                  Component: VmTemplates
+                - title: Instantiate VM Template
+                  path: /vm-template/instantiate
+                  Component: InstantiateVmTemplate
+                - title: Create VM Template
+                  path: /vm-template/create
+                  Component: CreateVmTemplate
+                - title: Update VM Template
+                  path: /vm-template/update
+                  Component: CreateVmTemplate
+                - title: VM Template
+                  path: /vm-template/:id
+                  Component: VmTemplateDetail
+                - title: Instantiate Service Template
+                  path: /service-template/instantiate/
+                  Component: InstantiateServiceTemplate
+                - title: Service Templates
+                  path: /service-template
+                  sidebar: true
+                  icon: MultiplePagesEmpty
+                  Component: ServiceTemplates
+                - title: Create Service Template
+                  path: /service-template/create
+                  Component: CreateServiceTemplate
+                - title: Service Template
+                  path: /service-template/:id
+                  Component: ServiceTemplateDetail
+                - title: Instantiate Virtual Router Template
+                  path: /vrouter-template/instantiate/
+                  Component: InstantiateVrTemplate
+                - title: Virtual Routers
+                  path: /vrouter-template
+                  sidebar: true
+                  icon: Shuffle
+                  Component: VrTemplates
+                - title: Create Virtual Router Template
+                  path: /vrouter-template/create
+                  Component: CreateVrTemplate
+                - title: Virtual Router Template
+                  path: /vrouter-template/:id
+                  Component: VrTemplateDetail
+                - title: Create VM group
+                  path: /vm-group/create
+                  Component: CreateVmGroup
+                - title: VM Groups
+                  path: /vm-group
+                  icon: Folder
+                  sidebar: true
+                  Component: VmGroups
+            - title: Storage
+              icon: Box
+              routes:
+                - title: Datastores
+                  path: /datastore
+                  sidebar: true
+                  icon: Db
+                  Component: Datastores
+                - title: Create Datastore
+                  path: /datastore/create
+                  Component: CreateDatastore
+                - title: Update Datastore
+                  path: /datastore/update
+                  Component: CreateDatastore
+                - title: Datastore
+                  path: /datastore/:id
+                  Component: DatastoreDetail
+                - title: Images
+                  path: /image
+                  sidebar: true
+                  icon: BoxIso
+                  Component: Images
+                - title: Create Image
+                  path: /image/create
+                  Component: CreateImage
+                - title: Files
+                  path: /file
+                  sidebar: true
+                  icon: Archive
+                  Component: Files
+                - title: Create File
+                  path: /file/create
+                  Component: CreateFile
+                - title: Backups
+                  path: /backup
+                  sidebar: true
+                  icon: RefreshDouble
+                  Component: Backups
+                - title: Backup
+                  path: /backup/:id
+                  Component: BackupDetail
+                - title: Marketplaces
+                  path: /marketplace
+                  sidebar: true
+                  icon: SimpleCart
+                  Component: Marketplaces
+                - title: Create Marketplace
+                  path: /marketplace/create
+                  Component: CreateMarketplace
+                - title: Apps
+                  path: /marketplace-app
+                  sidebar: true
+                  icon: CloudDownload
+                  Component: MarketplaceApps
+                - title: Create Marketplace App
+                  path: /marketplace-app/create
+                  Component: CreateMarketplaceApp
+                - title: App
+                  path: /marketplace-app/:id
+                  Component: MarketplaceAppDetail
+                - title: Create BackupJob
+                  path: /backupjobs/create
+                  Component: CreateBackupJob
+                - title: BackupJobs
+                  path: /backupjobs
+                  sidebar: true
+                  icon: Clock
+                  Component: BackupJobs
+                - title: BackupJob
+                  path: /backupjobs/:id
+                  Component: BackupJobDetail
+            - title: Networks
+              icon: ServerConnection
+              routes:
+                - title: Virtual networks
+                  path: /virtual-network
+                  sidebar: true
+                  icon: NetworkAlt
+                  Component: VirtualNetworks
+                - title: Instantiate Network Template
+                  path: /network-template/instantiate
+                  Component: InstantiateVnTemplate
+                - title: Create Virtual Network
+                  path: /virtual-network/create
+                  Component: CreateVirtualNetwork
+                - path: /virtual-network/update
+                  Component: CreateVirtualNetwork
+                - title: Virtual networks
+                  path: /virtual-network/:id
+                  Component: VirtualNetworkDetail
+                - title: Network Templates
+                  path: /network-template
+                  sidebar: true
+                  icon: KeyframesCouple
+                  Component: VnTemplates
+                - title: Create Virtual Network Template
+                  path: /network-template/create
+                  Component: CreateVnTemplate
+                - title: Security groups
+                  path: /security-group
+                  sidebar: true
+                  icon: HistoricShield
+                  Component: SecurityGroups
+                - title: Create Security Group
+                  path: /security-group/create
+                  Component: CreateSecurityGroup
+            - title: Infrastructure
+              icon: CloudSync
+              routes:
+                - title: Drivers
+                  path: /driver
+                  sidebar: false
+                  icon: DataTransferUp
+                  Component: Drivers
+                - title: Providers
+                  path: /provider
+                  sidebar: true
+                  icon: SettingsProfiles
+                  Component: Providers
+                - title: Create Provider
+                  path: /provider/create
+                  Component: CreateProvider
+                - title: Clusters
+                  path: /cluster
+                  sidebar: true
+                  icon: Server
+                  Component: Clusters
+                - title: Create Cluster
+                  path: /cluster/create
+                  Component: CreateCluster
+                - title: Create Cluster
+                  path: /cluster/create_cloud
+                  Component: CreateClusterCloud
+                - title: Cluster Logs
+                  path: /cluster/create_cloud_logs/:id
+                  Component: CreateClusterCloudLogs
+                - title: Cluster
+                  path: /cluster/:id
+                  Component: ClusterDetail
+                - title: Hosts
+                  path: /host
+                  sidebar: true
+                  icon: HardDrive
+                  Component: Hosts
+                - title: Create Host
+                  path: /host/create
+                  Component: CreateHost
+                - title: Host
+                  path: /host/:id
+                  Component: HostDetail
+                - title: Zones
+                  path: /zone
+                  sidebar: true
+                  icon: MinusPinAlt
+                  Component: Zones
+            - title: System
+              icon: Home
+              routes:
+                - title: Create User
+                  path: /user/create
+                  Component: CreateUser
+                - title: Users
+                  path: /user
+                  sidebar: true
+                  icon: User
+                  Component: Users
+                - title: User
+                  path: /user/:id
+                  Component: UserDetail
+                - title: Create Group
+                  path: /group/create
+                  Component: CreateGroup
+                - title: Groups
+                  path: /group
+                  sidebar: true
+                  icon: Group
+                  Component: Groups
+                - title: Group
+                  path: /group/:id
+                  Component: GroupDetail
+                - path: /virtual-data-center/create
+                  Component: CreateVDC
+                - title: VDCs
+                  path: /virtual-data-center
+                  sidebar: true
+                  icon: List
+                  Component: VDCs
+                - title: VDC
+                  path: /virtual-data-center/:id
+                  Component: VDCDetail
+                - title: Create ACL
+                  path: /acl/create
+                  Component: CreateACL
+                - title: ACLs
+                  path: /acl
+                  sidebar: true
+                  icon: KeyAlt
+                  Component: ACLs
+            - title: Support
+              path: /support
+              sidebar: true
+              icon: HeadsetHelp
+              Component: Support
+            - title: Guacamole
+              path: /guacamole/:id/:type
+              sidebar: false
+              Component: Guacamole
     "/etc/one/monitord.conf":
         class: Augeas::ONE
         owner: root
@@ -5774,7 +6044,7 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        content: ''
+        content: "# hmrc configuration\n"
     "/etc/one/oned.conf":
         class: Augeas::ONE
         owner: root
@@ -5783,9 +6053,22 @@ patches:
         action: apply
         change:
         -   path:
+            - FEDERATION
+            key: MASTER_ONED_GRPC
+            value: '""'
+            state: ins
+            extra:
+                multiple: false
+        -   path: []
+            key: DEFAULT_CDROM_DEVICE_PREFIX
+            old: '"hd"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
             - TM_MAD
             key: ARGUMENTS
-            value: '"-t 15 -d dummy,shared,lvm,fs_lvm,fs_lvm_ssh,qcow2,ssh,local,ceph,dev,iscsi_libvirt,netapp"'
+            value: '"-t 15 -d dummy,lvm,shared,fs_lvm,fs_lvm_ssh,qcow2,ssh,local,ceph,dev,iscsi_libvirt,netapp,purefa"'
             old: '"-t 15 -d dummy,lvm,shared,fs_lvm,fs_lvm_ssh,qcow2,ssh,local,ceph,dev,iscsi_libvirt,netapp"'
             state: set
             extra: {}
@@ -5793,7 +6076,7 @@ patches:
             - DATASTORE_MAD
             key: ARGUMENTS
             value: >-
-                "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp -s dummy,shared,ssh,local,ceph,lvm,fs_lvm,fs_lvm_ssh,qcow2,netapp"
+                "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp,purefa -s dummy,lvm,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp,purefa"
             old: >-
                 "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp -s dummy,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp"
             state: set
@@ -5831,6 +6114,20 @@ patches:
             state: ins
             extra:
                 multiple: true
+        -   path: []
+            key: DATASTORE_ENCRYPTED_ATTR
+            value: '"PUREFA_API_TOKEN"'
+            state: ins
+            extra:
+                multiple: true
+        -   path:
+            - TM_MAD_CONF
+            - '"dummy"'
+            key: DS_MIGRATE_SNAP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
         -   path:
             - TM_MAD_CONF
             - '"lvm"'
@@ -5864,6 +6161,206 @@ patches:
             extra:
                 multiple: false
         -   path:
+            - TM_MAD_CONF
+            - '"lvm"'
+            key: DS_MIGRATE
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"lvm"'
+            key: DS_MIGRATE_SNAP
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"shared"'
+            key: DS_MIGRATE_SNAP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"fs_lvm"'
+            key: DS_MIGRATE
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"fs_lvm"'
+            key: DS_MIGRATE_SNAP
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"fs_lvm_ssh"'
+            key: DS_MIGRATE
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"fs_lvm_ssh"'
+            key: DS_MIGRATE_SNAP
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"qcow2"'
+            key: DS_MIGRATE_SNAP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"ssh"'
+            key: DS_MIGRATE_SNAP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"local"'
+            key: DS_MIGRATE_SNAP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"ceph"'
+            key: DS_MIGRATE_SNAP
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"iscsi_libvirt"'
+            key: DS_MIGRATE_SNAP
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"dev"'
+            key: DS_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"dev"'
+            key: DS_MIGRATE_SNAP
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"netapp"'
+            key: DS_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"netapp"'
+            key: DS_MIGRATE_SNAP
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"purefa"'
+            key: NAME
+            value: '"purefa"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"purefa"'
+            key: LN_TARGET
+            value: '"NONE"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"purefa"'
+            key: CLONE_TARGET
+            value: '"SELF"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"purefa"'
+            key: SHARED
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"purefa"'
+            key: DRIVER
+            value: '"raw"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"purefa"'
+            key: DISK_TYPE
+            value: '"BLOCK"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"purefa"'
+            key: ALLOW_ORPHANS
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"purefa"'
+            key: DS_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"purefa"'
+            key: DS_MIGRATE_SNAP
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
             - DS_MAD_CONF
             - '"lvm"'
             key: REQUIRED_ATTRS
@@ -5871,6 +6368,38 @@ patches:
             old: '"DISK_TYPE,BRIDGE_LIST"'
             state: set
             extra: {}
+        -   path:
+            - DS_MAD_CONF
+            - '"purefa"'
+            key: NAME
+            value: '"purefa"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - DS_MAD_CONF
+            - '"purefa"'
+            key: PERSISTENT_ONLY
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - DS_MAD_CONF
+            - '"purefa"'
+            key: MARKETPLACE_ACTIONS
+            value: '"export"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - DS_MAD_CONF
+            - '"purefa"'
+            key: REQUIRED_ATTRS
+            value: '"PUREFA_HOST,PUREFA_API_TOKEN,PUREFA_TARGET"'
+            state: ins
+            extra:
+                multiple: false
         -   path:
             - AUTH_MAD_CONF
             - '"saml"'
@@ -5916,6 +6445,26 @@ patches:
             - '"saml"'
             key: MAX_TOKEN_TIME
             value: '"86400"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - VN_MAD_CONF
+            - '"ovswitch"'
+            key: BRIDGE_TYPE
+            value: '"openvswitch,openvswitch_dpdk"'
+            old: '"openvswitch"'
+            state: set
+            extra: {}
+        -   path: []
+            key: GRPC_PORT
+            value: '2634'
+            state: ins
+            extra:
+                multiple: false
+        -   path: []
+            key: GRPC_LISTEN_ADDRESS
+            value: '"0.0.0.0"'
             state: ins
             extra:
                 multiple: false
@@ -6024,9 +6573,9 @@ patches:
             #*******************************************************************************
             # Server network and connection
             #-------------------------------------------------------------------------------
-            #  PORT: Port where oned will listen for xmlrpc calls.
+            #  PORT, GRPC_PORT: Port where oned will listen for xmlrpc/grpc calls.
             #
-            #  LISTEN_ADDRESS: Host IP to listen on for xmlrpc calls (default: all IPs).
+            #  LISTEN_ADDRESS, GRPC_LISTEN_ADDRESS: Host IP to listen on for xmlrpc/grpc calls
             #
             #  HOSTNAME: This Hostname is used by OpenNebula daemon to connect to the
             #  frontend during drivers operations. If this variable is not set, OpenNebula
@@ -6035,6 +6584,10 @@ patches:
             PORT = 2633
 
             LISTEN_ADDRESS = "0.0.0.0"
+
+            GRPC_PORT = 2634
+
+            GRPC_LISTEN_ADDRESS = "0.0.0.0"
 
             # HOSTNAME = "one-hostname"
 
@@ -6068,8 +6621,9 @@ patches:
             #     -1 (default) OpenNebula will operate in "solo" mode no HA
             #     <id> Operate in HA (leader election and state replication)
             #   MASTER_ONED: The xml-rpc endpoint of the master oned, e.g.
-            #   http://master.one.org:2633/RPC2
-            #
+            #       http://master.one.org:2633/RPC2
+            #   MASTER_ONED_GRPC: The GRPC endpoint of the master oned, e.g.
+            #       master.one.org:2634
             #
             #   RAFT: Algorithm attributes
             #     LIMIT_PURGE: Number of logs that will be deleted on each purge.
@@ -6102,10 +6656,11 @@ patches:
             #*******************************************************************************
 
             FEDERATION = [
-                MODE          = "STANDALONE",
-                ZONE_ID       = 0,
-                SERVER_ID     = -1,
-                MASTER_ONED   = ""
+                MODE             = "STANDALONE",
+                ZONE_ID          = 0,
+                SERVER_ID        = -1,
+                MASTER_ONED      = "",
+                MASTER_ONED_GRPC = ""
             ]
 
             RAFT = [
@@ -6284,8 +6839,6 @@ patches:
             #       sd        SCSI
             #       vd        KVM virtual disk
             #
-            #  DEFAULT_CDROM_DEVICE_PREFIX: Same as above but for CDROM devices.
-            #
             #  DEFAULT_IMAGE_PERSISTENT: Control the default value for the PERSISTENT
             #  attribute on image creation (oneimage clone, onevm disk-saveas). If blank
             #  images will inherit the persistent attribute from the base image.
@@ -6302,8 +6855,7 @@ patches:
 
             DATASTORE_CAPACITY_CHECK = "yes"
 
-            DEFAULT_DEVICE_PREFIX       = "sd"
-            DEFAULT_CDROM_DEVICE_PREFIX = "hd"
+            DEFAULT_DEVICE_PREFIX    = "sd"
 
             DEFAULT_IMAGE_TYPE           = "OS"
             #DEFAULT_IMAGE_PERSISTENT     = ""
@@ -6457,7 +7009,7 @@ patches:
 
             TM_MAD = [
                 EXECUTABLE = "one_tm",
-                ARGUMENTS = "-t 15 -d dummy,shared,lvm,fs_lvm,fs_lvm_ssh,qcow2,ssh,local,ceph,dev,iscsi_libvirt,netapp"
+                ARGUMENTS = "-t 15 -d dummy,lvm,shared,fs_lvm,fs_lvm_ssh,qcow2,ssh,local,ceph,dev,iscsi_libvirt,netapp,purefa"
             ]
 
             #*******************************************************************************
@@ -6477,7 +7029,7 @@ patches:
 
             DATASTORE_MAD = [
                 EXECUTABLE = "one_datastore",
-                ARGUMENTS  = "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp -s dummy,shared,ssh,local,ceph,lvm,fs_lvm,fs_lvm_ssh,qcow2,netapp"
+                ARGUMENTS  = "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp,purefa -s dummy,lvm,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp,purefa"
             ]
 
             #*******************************************************************************
@@ -6905,6 +7457,7 @@ patches:
 
             DATASTORE_ENCRYPTED_ATTR = "RESTIC_PASSWORD"
             DATASTORE_ENCRYPTED_ATTR = "NETAPP_PASS"
+            DATASTORE_ENCRYPTED_ATTR = "PUREFA_API_TOKEN"
 
             #*******************************************************************************
             # Inherited Attributes Configuration
@@ -7039,72 +7592,82 @@ patches:
 
             TM_MAD_CONF = [
                 NAME = "dummy", LN_TARGET = "NONE", CLONE_TARGET = "SYSTEM", SHARED = "YES",
-                DS_MIGRATE = "YES"
+                DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "shared", LN_TARGET = "NONE", CLONE_TARGET = "SYSTEM", SHARED = "YES",
-                DS_MIGRATE = "YES", TM_MAD_SYSTEM = "ssh", LN_TARGET_SSH = "SYSTEM",
-                CLONE_TARGET_SSH = "SYSTEM", DISK_TYPE_SSH = "FILE", ALLOW_ORPHANS="FORMAT"
+                TM_MAD_SYSTEM = "ssh", LN_TARGET_SSH = "SYSTEM", CLONE_TARGET_SSH = "SYSTEM",
+                DISK_TYPE_SSH = "FILE", ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES",
+                DS_MIGRATE_SNAP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "lvm", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED = "YES",
-                DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "YES"
+                DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "YES", DS_MIGRATE = "YES",
+                DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "fs_lvm", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED="YES",
-                DRIVER = "raw", DISK_TYPE = "BLOCK"
+                DRIVER = "raw", DISK_TYPE = "BLOCK", DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "fs_lvm_ssh", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED="YES",
-                DRIVER = "raw", DISK_TYPE = "BLOCK", PERSISTENT_SNAPSHOTS = "NO", ALLOW_ORPHANS = "YES"
+                DRIVER = "raw", DISK_TYPE = "BLOCK", PERSISTENT_SNAPSHOTS = "NO", ALLOW_ORPHANS = "YES",
+                DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "qcow2", LN_TARGET = "NONE", CLONE_TARGET = "SYSTEM", SHARED = "YES",
-                DS_MIGRATE = "YES", TM_MAD_SYSTEM = "ssh", LN_TARGET_SSH = "SYSTEM",
+                TM_MAD_SYSTEM = "ssh", LN_TARGET_SSH = "SYSTEM",
                 CLONE_TARGET_SSH = "SYSTEM", DISK_TYPE_SSH = "FILE", DRIVER = "qcow2",
-                ALLOW_ORPHANS="FORMAT"
+                ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "ssh", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED = "NO",
-                DS_MIGRATE = "YES", ALLOW_ORPHANS="YES"
+                ALLOW_ORPHANS="YES", DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "local", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED = "NO",
-                DS_MIGRATE = "YES", ALLOW_ORPHANS="FORMAT"
+                ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "ceph", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
-                DS_MIGRATE = "NO", DRIVER = "raw", ALLOW_ORPHANS="mixed",
-                TM_MAD_SYSTEM = "ssh,shared", LN_TARGET_SSH = "SYSTEM", CLONE_TARGET_SSH = "SYSTEM",
+                DRIVER = "raw", ALLOW_ORPHANS="mixed", TM_MAD_SYSTEM = "ssh,shared",
+                LN_TARGET_SSH = "SYSTEM", CLONE_TARGET_SSH = "SYSTEM",
                 DISK_TYPE_SSH = "FILE", LN_TARGET_SHARED = "NONE",
-                CLONE_TARGET_SHARED = "SELF", DISK_TYPE_SHARED = "RBD"
+                CLONE_TARGET_SHARED = "SELF", DISK_TYPE_SHARED = "RBD", DS_MIGRATE = "NO",
+                DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "iscsi_libvirt", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
-                DS_MIGRATE = "NO", DRIVER = "raw"
+                DRIVER = "raw", DS_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "dev", LN_TARGET = "NONE", CLONE_TARGET = "NONE", SHARED = "YES",
-                TM_MAD_SYSTEM = "ssh,shared",
-                LN_TARGET_SSH = "SYSTEM", LN_TARGET_SHARED = "NONE",
+                TM_MAD_SYSTEM = "ssh,shared", LN_TARGET_SSH = "SYSTEM", LN_TARGET_SHARED = "NONE",
                 DISK_TYPE_SSH = "FILE", DISK_TYPE_SHARED = "FILE",
                 CLONE_TARGET_SSH = "SYSTEM", CLONE_TARGET_SHARED =  "SELF",
-                DRIVER = "raw"
+                DRIVER = "raw", DS_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "netapp", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
-                DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "LINEAR"
+                DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "LINEAR",
+                DS_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
+            ]
+
+            TM_MAD_CONF = [
+                NAME = "purefa", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
+                DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "YES",
+                DS_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
             ]
 
             #*******************************************************************************
@@ -7162,6 +7725,11 @@ patches:
             DS_MAD_CONF = [
                 NAME = "netapp", PERSISTENT_ONLY = "NO", MARKETPLACE_ACTIONS = "export",
                 REQUIRED_ATTRS = "NETAPP_HOST,NETAPP_USER,NETAPP_PASS,NETAPP_AGGREGATES,NETAPP_SVM,NETAPP_IGROUP,NETAPP_TARGET"
+            ]
+
+            DS_MAD_CONF = [
+                NAME = "purefa", PERSISTENT_ONLY = "NO", MARKETPLACE_ACTIONS = "export",
+                REQUIRED_ATTRS = "PUREFA_HOST,PUREFA_API_TOKEN,PUREFA_TARGET"
             ]
 
             #*******************************************************************************
@@ -7327,8 +7895,7 @@ patches:
 
             VN_MAD_CONF = [
                 NAME = "ovswitch",
-                BRIDGE_TYPE = "openvswitch"
-                #openvswitch or openvswitch_dpdk
+                BRIDGE_TYPE = "openvswitch,openvswitch_dpdk"
             ]
 
             VN_MAD_CONF = [
@@ -7785,6 +8352,12 @@ patches:
             state: ins
             extra:
                 multiple: false
+        -   path: []
+            key: MEMORY_TUNE_OFFSET
+            value: '256'
+            state: ins
+            extra:
+                multiple: false
         content: |+
             # -----------------------------------------------------------------------------
             # Default configuration attributes for the KVM driver
@@ -7864,6 +8437,7 @@ patches:
             #  * HYPERV_OPTIONS: options used for FEATURES = [ HYPERV = yes ]
             #  * HYPERV_TIMERS: timers added when HYPERV is set to yes in FEATURES
             #  * SPICE_OPTIONS
+            #  * MEMORY_TUNE_OFFSET: Offset in MiB to add to VM memory for memory encryption
             #
             #  The following attributes can be overridden at Cluster and Host level,
             #  but not within individual VM configuration:
@@ -7962,6 +8536,8 @@ patches:
                 <redirdev bus='usb' type='spicevmc'/>
                 <redirdev bus='usb' type='spicevmc'/>"
 
+            MEMORY_TUNE_OFFSET = 256
+
             Q35_ROOT_PORTS = 16
 
             Q35_NUMA_PCIE  = "YES"
@@ -7982,15 +8558,15 @@ patches:
             state: set
             extra: {}
             value: >-
-                "kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-lvm kvm-netapp qemu-qcow2 qemu-shared qemu-ceph
-                qemu-ssh qemu-local qemu-netapp"
+                "kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-lvm kvm-netapp kvm-purefa qemu-qcow2 qemu-shared
+                qemu-ceph qemu-ssh qemu-local qemu-netapp kvm-purefa"
             old: >-
                 "kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-netapp qemu-qcow2 qemu-shared qemu-ceph
                 qemu-ssh qemu-local qemu-netapp"
         content: |
             # Space separated list of VMM-TM pairs that support live disk snapshots. VMM
             # and TM must be separated by '-'
-            LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-lvm kvm-netapp qemu-qcow2 qemu-shared qemu-ceph qemu-ssh qemu-local qemu-netapp"
+            LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-lvm kvm-netapp kvm-purefa qemu-qcow2 qemu-shared qemu-ceph qemu-ssh qemu-local qemu-netapp kvm-purefa"
 
             # Space separated list VNM_MAD-ACTION pairs that run locally
             VNMAD_LOCAL_ACTIONS="elastic-post elastic-clean"
@@ -9008,6 +9584,95 @@ patches:
             - :STATE
             - :REGTIME
 
+    "/etc/one/fireedge/sunstone/views/admin/driver-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |-
+            ---
+            # This file describes the information and actions available in the DRIVER tab
+
+            # Resource
+
+            resource_name: "DRIVER"
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              enable: true
+              disable: true
+              sync: true
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+              connection:
+                enabled: false
+              deployment_confs:
+                enabled: false
+              user_inputs:
+                enabled: false
+    "/etc/one/fireedge/sunstone/views/admin/provider-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |-
+            ---
+            # This file describes the information and actions available in the PROVIDER tab
+
+            # Resource
+
+            resource_name: "PROVIDER"
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              create_dialog: true
+              update_dialog: false
+              delete: true
+              chown: true
+              chgrp: true
+
+            # Filters - List of criteria to filter the resources
+
+            filters:
+              owner: true
+              group: true
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+                  actions:
+                    rename: true
+                permissions_panel:
+                  enabled: true
+                  actions:
+                    chmod: true
+                ownership_panel:
+                  enabled: true
+                  actions:
+                    chown: true
+                    chgrp: true
+
+              template:
+                enabled: true
+
+            # Dialogs
+
+            dialogs:
+              create_dialog:
     "/etc/one/fireedge/sunstone/views/groupadmin/backup-tab.yaml":
         class: Yaml
         owner: root
