@@ -65,7 +65,7 @@ class OneInternalException(OneException):
 DATASTORE_TYPES = IntEnum('DATASTORE_TYPES', 'IMAGE SYSTEM FILE', start=0)
 DATASTORE_STATES = IntEnum('DATASTORE_STATES', 'READY DISABLED', start=0)
 
-DISK_TYPES = IntEnum('DISK_TYPES', 'FILE CD_ROM BLOCK RBD', start=0)
+DISK_TYPES = IntEnum('DISK_TYPES', 'FILE CD_ROM BLOCK RBD FILE_SYSTEM', start=0)
 
 HISTORY_ACTION = IntEnum('HISTORY_ACTION', '''none migrate live-migrate
         shutdown shutdown-hard undeploy undeploy-hard hold release stop
@@ -86,7 +86,7 @@ IMAGE_STATES = IntEnum('IMAGE_STATES', '''INIT READY USED DISABLED LOCKED ERROR
         CLONE DELETE USED_PERS LOCKED_USED LOCKED_USED_PERS''', start=0)
 
 IMAGE_TYPES = IntEnum('IMAGE_TYPES', '''OS CDROM DATABLOCK KERNEL RAMDISK
-        CONTEXT''', start=0)
+        CONTEXT FILESYSTEM''', start=0)
 
 LCM_STATE = IntEnum('LCM_STATE', '''
             LCM_INIT

@@ -1148,11 +1148,6 @@ int LibVirtDriver::deployment_description_kvm(
         file << numa_tune;
     }
 
-    if (!mbacking.empty())
-    {
-        file << mbacking;
-    }
-
     get_attribute(vm, host, cluster, "FEATURES", "IOTHREADS", iothreads);
 
     if ( iothreads > 0 )
@@ -1522,6 +1517,39 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<disk type='" << cd_type << "' device='cdrom'>\n"
                  << "\t\t\t<source " << cd_source << "="
                  << one_util::escape_xml_attr(cd_name.str())<< "/>\n";
+        }
+        else if ( type == "FILESYSTEM" )
+        {
+            // SharedFS filesystem - generate <filesystem> XML instead of <disk>
+            file << "\t\t<filesystem type='mount' accessmode='passthrough'>\n"
+                 << "\t\t\t<driver type='virtiofs' cache='always' queue='1024'/>\n"
+                 << "\t\t\t<source dir=" << one_util::escape_xml_attr(source) << "/>\n"
+                 << "\t\t\t<target dir=" << one_util::escape_xml_attr(target) << "/>\n"
+                 << "\t\t</filesystem>\n";
+
+            // Ensure memoryBacking with memfd and shared access for virtiofs
+            if (mbacking.empty())
+            {
+                std::ostringstream mboss;
+                mboss << "\t<memoryBacking>\n";
+                mboss << "\t\t<source type='memfd'/>\n";
+                mboss << "\t\t<access mode='shared'/>\n";
+                mboss << "\t</memoryBacking>\n";
+                mbacking = mboss.str();
+            }
+            else
+            {
+                // mbacking already exists (e.g., from hugepages), add virtiofs elements
+                // Insert before the closing </memoryBacking> tag
+                size_t pos = mbacking.rfind("\t</memoryBacking>\n");
+                if (pos != std::string::npos)
+                {
+                    mbacking.insert(pos, "\t\t<source type='memfd'/>\n\t\t<access mode='shared'/>\n");
+                }
+            }
+
+            // Skip the rest of disk processing for SharedFS
+            continue;
         }
         else
         {
@@ -2575,6 +2603,15 @@ int LibVirtDriver::deployment_description_kvm(
     }
 
     file << "\t</devices>" << endl;
+
+    // ------------------------------------------------------------------------
+    // Write memory backing (may have been updated by disk processing, e.g. virtiofs)
+    // Must be at domain level, not inside <devices>
+    // ------------------------------------------------------------------------
+    if (!mbacking.empty())
+    {
+        file << mbacking;
+    }
 
     // ------------------------------------------------------------------------
     // Features

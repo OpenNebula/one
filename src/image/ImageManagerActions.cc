@@ -99,6 +99,7 @@ int ImageManager::acquire_image(int vm_id, Image *img, bool attach, string& erro
         case Image::OS:
         case Image::DATABLOCK:
         case Image::CDROM:
+        case Image::FILESYSTEM:
             break;
 
         case Image::KERNEL:
@@ -238,6 +239,7 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
         case Image::OS:
         case Image::DATABLOCK:
         case Image::CDROM:
+        case Image::FILESYSTEM:
             break;
 
         case Image::KERNEL:
@@ -352,8 +354,9 @@ void ImageManager::release_cloning_resource(
         case Image::RAMDISK:
         case Image::CONTEXT:
         case Image::BACKUP:
-            NebulaLog::log("ImM", Log::ERROR, "Trying to release a cloning "
-                           "KERNEL, RAMDISK, BACKUP or CONTEXT image");
+        case Image::FILESYSTEM:
+            NebulaLog::log("ImM", Log::ERROR, "Trying to release a cloning " +
+                           img->type_to_str(img->get_type()) + " image");
             return;
     }
 
@@ -915,6 +918,11 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
     switch (Image::str_to_type(type_att))
     {
+        case Image::FILESYSTEM:
+            res = "0";
+
+            return 0;
+
         case Image::BACKUP:
             if ( img_tmpl->get("SIZE", res) )
             {
@@ -1078,6 +1086,7 @@ void ImageManager::set_image_snapshots(int iid, const Snapshots& s)
         case Image::CONTEXT:
         case Image::CDROM:
         case Image::BACKUP:
+        case Image::FILESYSTEM:
             return;
     }
 
@@ -1131,6 +1140,7 @@ void ImageManager::set_image_size(int iid, long long size)
         case Image::CONTEXT:
         case Image::CDROM:
         case Image::BACKUP:
+        case Image::FILESYSTEM:
             return;
     }
 
@@ -1200,8 +1210,8 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
 
     if ( img->get_type() != Image::OS && img->get_type() != Image::DATABLOCK )
     {
-        error = "IMAGES of type KERNEL, RAMDISK, BACKUP and CONTEXT does not "
-                "have snapshots.";
+        error = "IMAGES of type KERNEL, RAMDISK, BACKUP, FILESYSTEM and "
+                "CONTEXT does not have snapshots.";
         return -1;
     }
 
@@ -1294,8 +1304,8 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
 
     if ( img->get_type() != Image::OS && img->get_type() != Image::DATABLOCK )
     {
-        error = "IMAGES of type KERNEL, RAMDISK, BACKUP and CONTEXT does not "
-                "have snapshots.";
+        error = "IMAGES of type KERNEL, RAMDISK, BACKUP, FILESYSTEM and "
+                "CONTEXT does not have snapshots.";
         return -1;
     }
 
@@ -1390,8 +1400,8 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
 
     if ( img->get_type() != Image::OS && img->get_type() != Image::DATABLOCK )
     {
-        error = "IMAGES of type KERNEL, RAMDISK, BACKUP and CONTEXT does not "
-                "have snapshots.";
+        error = "IMAGES of type KERNEL, RAMDISK, BACKUP, FILESYSTEM and "
+                "CONTEXT does not have snapshots.";
         return -1;
     }
 

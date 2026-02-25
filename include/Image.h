@@ -36,13 +36,14 @@ public:
      */
     enum ImageType
     {
-        OS        = 0, /** < Base OS image */
-        CDROM     = 1, /** < An ISO9660 image */
-        DATABLOCK = 2, /** < User persistent data device */
-        KERNEL    = 3, /** < Kernel files */
-        RAMDISK   = 4, /** < Initrd files */
-        CONTEXT   = 5, /** < Context files */
-        BACKUP    = 6, /** < VM Backup reference */
+        OS         = 0, /** < Base OS image */
+        CDROM      = 1, /** < An ISO9660 image */
+        DATABLOCK  = 2, /** < User persistent data device */
+        KERNEL     = 3, /** < Kernel files */
+        RAMDISK    = 4, /** < Initrd files */
+        CONTEXT    = 5, /** < Context files */
+        BACKUP     = 6, /** < VM Backup reference */
+        FILESYSTEM = 7, /** < Filesystem */
     };
 
     /**
@@ -54,14 +55,15 @@ public:
     {
         switch (ob)
         {
-            case OS:        return "OS" ; break;
-            case CDROM:     return "CDROM" ; break;
-            case DATABLOCK: return "DATABLOCK" ; break;
-            case KERNEL:    return "KERNEL" ; break;
-            case RAMDISK:   return "RAMDISK" ; break;
-            case CONTEXT:   return "CONTEXT" ; break;
-            case BACKUP:    return "BACKUP" ; break;
-            default:        return "";
+            case OS:         return "OS" ; break;
+            case CDROM:      return "CDROM" ; break;
+            case DATABLOCK:  return "DATABLOCK" ; break;
+            case KERNEL:     return "KERNEL" ; break;
+            case RAMDISK:    return "RAMDISK" ; break;
+            case CONTEXT:    return "CONTEXT" ; break;
+            case BACKUP:     return "BACKUP" ; break;
+            case FILESYSTEM: return "FILESYSTEM" ; break;
+            default:         return "";
         }
     };
 
@@ -88,6 +90,7 @@ public:
         SHEEPDOG       = 7, /** < Sheepdog Block Device */
         SHEEPDOG_CDROM = 8, /** < Sheepdog CDROM Device Device */
         ISCSI          = 9, /** < iSCSI Volume (Devices Datastore) */
+        FILE_SYSTEM    = 10, /** < Filesystem */
         NONE           = 255 /** < No disk type, error situation */
     };
 
@@ -110,6 +113,7 @@ public:
             case SHEEPDOG:       return "SHEEPDOG" ; break;
             case SHEEPDOG_CDROM: return "SHEEPDOG_CDROM" ; break;
             case ISCSI:          return "ISCSI" ; break;
+            case FILE_SYSTEM:    return "FILESYSTEM" ; break;
             default:             return "";
         }
     };

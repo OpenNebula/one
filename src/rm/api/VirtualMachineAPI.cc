@@ -1249,6 +1249,7 @@ Request::ErrorCode VirtualMachineAPI::disk_save_as(int vid,
         case Image::RAMDISK:
         case Image::CONTEXT:
         case Image::BACKUP:
+        case Image::FILESYSTEM:
             goto error_image_type;
     }
 
@@ -1458,6 +1459,14 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_create(int vid,
             return Request::ACTION;
         }
 
+        if (disk->skip_disk())
+        {
+            att.resp_msg = "Action \"disk-snapshot-create\" is not compatible with "
+                           "disks " + disk->vector_value("TYPE");
+
+            return Request::ACTION;
+        }
+
         /* ---------------------------------------------------------------------- */
         /*  Get disk information and quota usage deltas                           */
         /* ---------------------------------------------------------------------- */
@@ -1627,6 +1636,14 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_delete(int vid,
             return Request::ACTION;
         }
 
+        if (disk->skip_disk())
+        {
+            att.resp_msg = "Action \"disk-snapshot-delete\" is not compatible with "
+                           "disks " + disk->vector_value("TYPE");
+
+            return Request::ACTION;
+        }
+
         persistent = disk->is_persistent();
 
         disk->vector_value("IMAGE_ID", img_id);
@@ -1695,6 +1712,28 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_revert(int vid,
                                                            int snap_id,
                                                            RequestAttributes& att)
 {
+    const VirtualMachineDisk * disk;
+
+    if (auto vm = vmpool->get_ro(vid))
+    {
+        disk = vm->get_disk(disk_id);
+
+        if (disk == nullptr)
+        {
+            att.resp_msg = "VM disk does not exist";
+
+            return Request::ACTION;
+        }
+
+        if (disk->skip_disk())
+        {
+            att.resp_msg = "Action \"disk-snapshot-revert\" is not compatible with "
+                           "disks " + disk->vector_value("TYPE");
+
+            return Request::ACTION;
+        }
+    }
+
     // Authorize the request
     att.set_auth_op(VMActions::DISK_SNAPSHOT_REVERT_ACTION);
 
@@ -1747,6 +1786,14 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_rename(int vid,
     if ( !disk )
     {
         att.resp_msg = "VM disk does not exist";
+
+        return Request::ACTION;
+    }
+
+    if (disk->skip_disk())
+    {
+        att.resp_msg = "Action \"disk-snapshot-rename\" is not compatible with "
+                       "disks " + disk->vector_value("TYPE");
 
         return Request::ACTION;
     }
@@ -1958,6 +2005,27 @@ Request::ErrorCode VirtualMachineAPI::disk_detach(int vid,
         att.resp_id = vid;
 
         return Request::NO_EXISTS;
+    }
+
+    const VirtualMachineDisk * disk;
+
+    if (auto vm = vmpool->get_ro(vid))
+    {
+        disk = vm->get_disk(disk_id);
+
+        if (disk == nullptr)
+        {
+            att.resp_msg = "VM disk does not exist";
+
+            return Request::ACTION;
+        }
+
+        if (disk->skip_disk())
+        {
+            att.resp_msg = "Can not detach disks " + disk->vector_value("TYPE");
+
+            return Request::ACTION;
+        }
     }
 
     auto dm = Nebula::instance().get_dm();

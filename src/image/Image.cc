@@ -135,6 +135,11 @@ int Image::insert(SqlDB *db, string& error_str)
             }
             break;
 
+        case FILESYSTEM:
+            persistent_img = one_util::icasecmp(persistent_attr, "YES");
+            erase_template_attribute("DEV_PREFIX", dev_prefix);
+            break;
+
         case CDROM: // dev_prefix set based on VM chipset and use custom SAVE,CLONE
         case KERNEL: // Files are always non-persistent with no dev_prefix
         case RAMDISK:
@@ -223,6 +228,19 @@ int Image::insert(SqlDB *db, string& error_str)
                 format = "raw"; //Default
             }
             // else format in the IMAGE template
+        }
+        else if (type == Image::FILESYSTEM)
+        {
+            // FILESYSTEM image must use dir format
+            if (format.empty())
+            {
+                format = "dir"; // default
+            }
+            else if (one_util::icasecmp(format, "dir") != 0)
+            {
+                error_str = "FORMAT for FILESYSTEM images must be 'dir'.";
+                goto error_common;
+            }
         }
         else //CDROM, KERNEL, RAMDISK, CONTEXT
         {
@@ -573,7 +591,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     //                       DEV_PREFIX ATTRIBUTE
     // Note: CD's dev_prefix is set on target assigment based on VM chipset
     //--------------------------------------------------------------------------
-    if ( dev_prefix.empty() && type != CDROM )
+    if ( dev_prefix.empty() && !(type == CDROM || type == FILESYSTEM) )
     {
         get_template_attribute("DEV_PREFIX", dev_prefix);
 
@@ -646,7 +664,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
             disk->replace("CLONE", "NO");
             disk->replace("SAVE", "YES");
 
-            if (template_ptype == "SHAREABLE" && format == "raw")
+            if (template_ptype == "SHAREABLE" && (format == "raw" || format == "dir"))
             {
                 disk->replace("SHAREABLE", "YES");
             }
@@ -701,6 +719,10 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
             }
 
             disk_attr_type = disk_type_to_str(new_disk_type);
+            break;
+
+        case FILESYSTEM:
+            disk_attr_type = disk_type_to_str(FILE_SYSTEM);
             break;
 
         default: //Other file types should not be never a DISK
@@ -792,6 +814,10 @@ int Image::set_type(string& _type, string& error)
     {
         type = BACKUP;
     }
+    else if ( _type == "FILESYSTEM" )
+    {
+        type = FILESYSTEM;
+    }
     else
     {
         error = "Unknown type " + type;
@@ -868,6 +894,10 @@ Image::ImageType Image::str_to_type(string& str_type)
     else if ( str_type == "BACKUP" )
     {
         it = BACKUP;
+    }
+    else if ( str_type == "FILESYSTEM" )
+    {
+        it = FILESYSTEM;
     }
 
     return it;
@@ -978,6 +1008,10 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
     else if (s_disk_type == "ISCSI")
     {
         type = Image::ISCSI;
+    }
+    else if (s_disk_type == "FILESYSTEM")
+    {
+        type = Image::FILE_SYSTEM;
     }
 
     return type;

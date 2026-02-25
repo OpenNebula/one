@@ -580,6 +580,7 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
                 case Image::RBD:
                 case Image::GLUSTER:
                 case Image::SHEEPDOG:
+                case Image::FILE_SYSTEM:
                     break;
 
                 case Image::CD_ROM:
@@ -602,6 +603,7 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
                 case Image::FILE:
                 case Image::RBD:
                 case Image::BLOCK:
+                case Image::FILE_SYSTEM:
                     break;
 
                 case Image::GLUSTER:
@@ -1271,6 +1273,7 @@ Image::DiskType Datastore::context_disk_type() const
         case Image::RBD_CDROM:
         case Image::SHEEPDOG_CDROM:
         case Image::GLUSTER_CDROM:
+        case Image::FILE_SYSTEM:
             break;
     }
 

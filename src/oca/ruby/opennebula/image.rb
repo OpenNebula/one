@@ -62,19 +62,20 @@ module OpenNebula
             "LOCKED_USED_PERS" => "lock"
         }
 
-        IMAGE_TYPES=%w{OS CDROM DATABLOCK KERNEL RAMDISK CONTEXT BACKUP}
+        IMAGE_TYPES=%w{OS CDROM DATABLOCK KERNEL RAMDISK CONTEXT BACKUP FILESYSTEM}
 
         SHORT_IMAGE_TYPES={
-            "OS"        => "OS",
-            "CDROM"     => "CD",
-            "DATABLOCK" => "DB",
-            "KERNEL"    => "KL",
-            "RAMDISK"   => "RD",
-            "CONTEXT"   => "CX",
-            "BACKUP"    => "BK"
+            "OS"         => "OS",
+            "CDROM"      => "CD",
+            "DATABLOCK"  => "DB",
+            "KERNEL"     => "KL",
+            "RAMDISK"    => "RD",
+            "CONTEXT"    => "CX",
+            "BACKUP"     => "BK",
+            "FILESYSTEM" => "FS"
         }
 
-        DISK_TYPES=%w{FILE CD_ROM BLOCK RBD}
+        DISK_TYPES=%w{FILE CD_ROM BLOCK RBD FILE_SYSTEM}
 
         # Creates an Image description with just its identifier
         # this method should be used to create plain Image objects.

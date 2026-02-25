@@ -974,6 +974,11 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
         return;
     }
 
+    if (disk->skip_disk())
+    {
+        vm->clear_disk_context(disk->get_disk_id());
+    }
+
     // skip image release if there is other disk using the same image
     int      image_id;
     set<int> image_ids;
