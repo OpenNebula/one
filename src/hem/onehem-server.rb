@@ -45,6 +45,14 @@ require 'load_opennebula_paths'
 $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'ffi-rzmq'
+# Prevent ZMQ context finalizer deadlock during shutdown.
+# Remove context finalizers so zmq_ctx_term (which blocks until all sockets
+# are closed) never runs from GC. Socket finalizers can then run zmq_close
+# freely, and the OS cleans up remaining resources on process exit.
+at_exit do
+    ObjectSpace.each_object(ZMQ::Context) {|c| ObjectSpace.undefine_finalizer(c) }
+end
+
 require 'nokogiri'
 require 'yaml'
 require 'logger'

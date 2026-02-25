@@ -45,6 +45,15 @@ $LOAD_PATH << RUBY_LIB_LOCATION + '/cloud'
 $LOAD_PATH << LIB_LOCATION + '/oneflow/lib'
 
 require 'rubygems'
+require 'ffi-rzmq'
+# Prevent ZMQ context finalizer deadlock during shutdown.
+# Remove context finalizers so zmq_ctx_term (which blocks until all sockets
+# are closed) never runs from GC. Socket finalizers can then run zmq_close
+# freely, and the OS cleans up remaining resources on process exit.
+at_exit do
+    ObjectSpace.each_object(ZMQ::Context) {|c| ObjectSpace.undefine_finalizer(c) }
+end
+
 require 'sinatra'
 require 'yaml'
 
