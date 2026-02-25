@@ -68,6 +68,7 @@ type AR struct {
 	Shared            string        `xml:"SHARED,omitempty"`
 	ParentNetworkARID string        `xml:"PARENT_NETWORK_AR_ID,omitempty"` // minOccurs=0
 	Size              int           `xml:"SIZE"`
+        NextIndex         int           `xml:"NEXT_INDEX,omitempty"`
 	Type              string        `xml:"TYPE"`
 	ULAPrefix         string        `xml:"ULA_PREFIX,omitempty"` // minOccurs=0
 	VNMAD             string        `xml:"VN_MAD,omitempty"`     // minOccurs=0

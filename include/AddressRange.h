@@ -120,6 +120,7 @@ public:
      *    - IP
      *    - ULA_PREFIX
      *    - GLOBAL_PREFIX
+     *    - NEXT_INDEX*
      *
      *  The following can be defined to override VNET values:
      *    - BRIDGE
@@ -440,7 +441,7 @@ protected:
      *  Base constructor it cannot be called directly but from the
      *  AddressRange factory constructor.
      */
-    AddressRange(unsigned int _id):id(_id) {};
+    AddressRange(unsigned int _id):id(_id), next(0) {};
 
     /* ---------------------------------------------------------------------- */
     /* Address/AR helper functions to build/parse driver messages             */
@@ -559,6 +560,11 @@ protected:
      *  Address = First Address + index
      */
     std::map<unsigned int, std::set<long long>> allocated;
+
+    /**
+     *  Lookup index for the next free address lease
+     */
+    unsigned int next;
 
 private:
     /* ---------------------------------------------------------------------- */
