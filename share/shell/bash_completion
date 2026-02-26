@@ -440,7 +440,7 @@ _oneimage() {
     fi
     opts="create clone delete persistent nonpersistent update enable chtype
             disable chgrp chown chmod rename snapshot-delete snapshot-revert
-            snapshot-flatten list show top lock unlock orphans restore"
+            snapshot-flatten resize list show top lock unlock orphans restore"
     cmd=oneimage
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

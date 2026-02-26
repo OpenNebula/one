@@ -693,6 +693,10 @@ func (c *Client) ImageSnapshotFlatten(ctx context.Context, id, snap_id int) (*Re
 	return c.CallContext(ctx, "one.image.snapshotflatten", id, snap_id)
 }
 
+func (c *Client) ImageResize(ctx context.Context, id int, newSize string) (*Response, error) {
+	return c.CallContext(ctx, "one.image.resize", id, newSize)
+}
+
 func (c *Client) ImageRestore(ctx context.Context, id, dsid int, opt_tmpl string) (*Response, error) {
 	return c.CallContext(ctx, "one.image.restore", id, dsid, opt_tmpl)
 }
