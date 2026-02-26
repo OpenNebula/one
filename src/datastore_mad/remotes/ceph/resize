@@ -82,9 +82,7 @@ if [ -n "$CEPH_CONF" ]; then
 fi
 
 RESIZE_CMD=$(cat <<EOF
-    RBD="${RBD}"
-
-    $RBD resize --size ${SIZE}M "$RBD_SRC"
+    $RBD resize --size "${SIZE}M" "$RBD_SRC"
 EOF
 )
 

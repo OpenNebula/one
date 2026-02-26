@@ -439,7 +439,7 @@ CommandParser::CmdParser.new(ARGV) do
             - T: TiB
             - G: GiB
             - M: MiB
-            By default is MiB.
+        Default unit is MiB.
     EOT
 
     command :resize, resize_desc, :imageid, :size do

@@ -18,7 +18,8 @@
 DRV_ACTION=`cat -`
 ID=$1
 
-XPATH="/var/lib/one/remotes/datastore/xpath.rb -b $DRV_ACTION"
+DRIVER_PATH=$(dirname $0)
+XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
 unset i XPATH_ELEMENTS
 
