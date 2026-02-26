@@ -872,7 +872,7 @@ void ImageManager::_resize(unique_ptr<image_msg_t> msg)
         istringstream iss(msg->payload());
         iss >> new_size;
 
-        if (new_size > 0)
+        if (!iss.fail() && iss.eof() && new_size > 0)
         {
             image->set_size(new_size);
             success = true;
