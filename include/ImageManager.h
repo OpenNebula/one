@@ -309,6 +309,15 @@ public:
     int flatten_snapshot(int iid, int sid, std::string& error);
 
     /**
+     *  Resizes an image to a new size (only upsize supported).
+     *    @param iid id of image
+     *    @param size new size in MB (as string)
+     *    @param error_str Error reason, if any
+     *    @return 0 on success
+     */
+    int resize_image(int iid, const std::string& size, std::string& error);
+
+    /**
      *  Flattens the backup chain by commiting changes to first (full) backup
      *    @param iid id of image
      *    @param ds_id id of the datastore
@@ -422,6 +431,8 @@ private:
     void _increment_flatten(std::unique_ptr<image_msg_t> msg);
 
     void _restore(std::unique_ptr<image_msg_t> msg);
+
+    void _resize(std::unique_ptr<image_msg_t> msg);
 
     static void _log(std::unique_ptr<image_msg_t> msg);
 

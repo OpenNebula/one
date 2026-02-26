@@ -17,6 +17,7 @@
 #include "ImageManager.h"
 #include "NebulaLog.h"
 #include "ImagePool.h"
+#include "Quotas.h"
 #include "SyncRequest.h"
 #include "Template.h"
 #include "Nebula.h"
@@ -1586,4 +1587,128 @@ int ImageManager::restore_image(int iid, int dst_ds_id, const std::string& txml,
     result = sr.message;
 
     return sr.result ? 0 : -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::resize_image(int iid, const string& size, string& error)
+{
+    const auto* imd = get();
+
+    if ( imd == nullptr )
+    {
+        error = "Could not get datastore driver";
+        NebulaLog::log("ImM", Log::ERROR, error);
+
+        return -1;
+    }
+
+    int ds_id;
+
+    if ( auto img = ipool->get_ro(iid) )
+    {
+        ds_id = img->get_ds_id();
+    }
+    else
+    {
+        error = "Image does not exist";
+        return -1;
+    }
+
+    string ds_data;
+
+    if (auto ds = dspool->get_ro(ds_id))
+    {
+        ds->decrypt();
+
+        ds->to_xml(ds_data);
+    }
+    else
+    {
+        error = "Datastore no longer exists";
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Check action consistency:                                             */
+    /*    type is OS or DATABLOCK                                             */
+    /*    state is READY                                                      */
+    /*    new size > current size                                             */
+    /* ---------------------------------------------------------------------- */
+
+    auto img = ipool->get(iid);
+
+    if ( img == nullptr )
+    {
+        error = "Image does not exist";
+        return -1;
+    }
+
+    if ( img->get_type() != Image::OS && img->get_type() != Image::DATABLOCK )
+    {
+        error = "Only images of type OS and DATABLOCK can be resized";
+        return -1;
+    }
+
+    if (img->get_state() != Image::READY)
+    {
+        error = "Cannot resize image in state " + Image::state_to_str(img->get_state());
+        return -1;
+    }
+
+    long long new_size = 0;
+    long long cur_size = img->get_size();
+
+    istringstream iss(size);
+    iss >> new_size;
+
+    if (new_size <= cur_size)
+    {
+        ostringstream oss;
+        oss << "New size (" << new_size
+            << " MB) must be greater than current size (" << cur_size << " MB)";
+        error = oss.str();
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Check datastore quota for the size delta                              */
+    /* ---------------------------------------------------------------------- */
+
+    long long delta = new_size - cur_size;
+
+    int uid = img->get_uid();
+    int gid = img->get_gid();
+
+    Template quota_tmpl;
+
+    quota_tmpl.add("DATASTORE", ds_id);
+    quota_tmpl.add("SIZE", delta);
+    quota_tmpl.add("IMAGES", 0);
+
+    if ( !Quotas::quota_check(Quotas::DATASTORE, uid, gid, &quota_tmpl, error) )
+    {
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Format message and send action to driver                              */
+    /* ---------------------------------------------------------------------- */
+
+    img->replace_template_attribute("RESIZE_DELTA", delta);
+
+    string   img_tmpl;
+    string   extra_data = "<SIZE>" + size + "</SIZE>";
+    string   drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
+
+    image_msg_t msg(ImageManagerMessages::RESIZE, "", iid, drv_msg);
+
+    imd->write(msg);
+
+    img->set_state(Image::LOCKED);
+
+    ipool->update(img.get());
+
+    return 0;
 }
