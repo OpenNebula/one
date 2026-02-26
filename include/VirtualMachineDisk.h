@@ -22,7 +22,6 @@
 #include <memory>
 
 #include "VirtualMachineAttribute.h"
-#include "Image.h"
 #include "Snapshots.h"
 #include "NebulaUtil.h"
 
@@ -377,16 +376,6 @@ public:
      *    @param stream to write the disk XML description
      */
     void to_xml_short(std::ostringstream& oss) const;
-
-    /* ---------------------------------------------------------------------- */
-    /* Disk requirements helpers                                              */
-    /* ---------------------------------------------------------------------- */
-    /**
-     *  Checks if the disk should be skipped when computing VM requirements
-     *
-     *  @return true if the disk should be skipped
-     */
-    bool skip_disk() const;
 
 private:
 

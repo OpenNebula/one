@@ -682,23 +682,6 @@ void VirtualMachineDisk::to_xml_short(std::ostringstream& oss) const
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-bool VirtualMachineDisk::skip_disk() const
-{
-    std::string type = vector_value("TYPE");
-    Image::DiskType dtype = Image::str_to_disk_type(type);
-
-    switch (dtype)
-    {
-        case Image::FILE_SYSTEM:
-            return true;
-        default:
-            return false;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1313,14 +1296,6 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
         return 0;
     }
 
-    if ( disk->skip_disk() )
-    {
-        error = "Can not attach disks " +  disk->vector_value("TYPE");
-
-        delete disk;
-        return 0;
-    }
-
     disk->set_snapshots(snap);
 
     string target = disk->vector_value("TARGET");
@@ -1734,9 +1709,7 @@ bool VirtualMachineDisks::backup_increment(bool do_volatile)
 
         one_util::toupper(type);
 
-        if ((type == "SWAP") ||
-            ((type == "FS") && !do_volatile) ||
-            disk->skip_disk())
+        if ((type == "SWAP") || ((type == "FS") && !do_volatile))
         {
             continue;
         }
@@ -1782,7 +1755,6 @@ void VirtualMachineDisks::backup_disk_ids(bool do_volatile, std::vector<int>& id
         if ((type == "SWAP") ||
             (type == "CDROM") ||
             (type == "RBD_CDROM") ||
-            (disk->skip_disk()) ||
             ((type == "FS") && !do_volatile))
         {
             continue;
@@ -1944,11 +1916,6 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad, string& error)
         one_util::toupper(tm_mad_disk);
 
         if ( _tm_mad == tm_mad_disk)
-        {
-            continue;
-        }
-
-        if (disk->skip_disk())
         {
             continue;
         }

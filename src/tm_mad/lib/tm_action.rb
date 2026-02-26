@@ -461,7 +461,7 @@ module TransferManager
             disk_format = disk_attribute(disk_id, 'FORMAT')
 
             case disk_format
-            when 'raw', 'qcow2', 'dir'
+            when 'raw', 'qcow2'
                 disk_format.to_sym
             end
         end

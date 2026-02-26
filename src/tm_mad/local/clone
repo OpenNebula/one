@@ -204,13 +204,6 @@ script, host =
 
             popd
         SCRIPT
-    when :dir
-        [<<~SCRIPT, src.host]
-            set -e -o pipefail
-
-            tar -C #{src.path} -cf - . \$SRC_SNAP | \
-                ssh #{dst.host} "mkdir -p #{dst.path} && tar -x#{tar_opt} - -C #{dst.path}"
-        SCRIPT
     end
 
 rc = clone.ssh(:cmds => script,

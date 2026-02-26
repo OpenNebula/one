@@ -132,19 +132,6 @@ int TransferManager::prolog_transfer_command(
             << vm->get_ds_id()
             << endl;
     }
-    else if ( type == "FILESYSTEM" )
-    {
-        const string& target = disk->vector_value("TARGET");
-
-        if ( target.empty() )
-        {
-            os << "No target in FILESYSTEM disk";
-
-            return -1;
-        }
-
-        return 0;
-    }
     else
     {
         // -----------------------------------------------------------------

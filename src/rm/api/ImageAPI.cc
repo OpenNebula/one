@@ -107,10 +107,7 @@ Request::ErrorCode ImageAPI::clone(int source_id,
             case Image::RAMDISK:
             case Image::CONTEXT:
             case Image::BACKUP:
-            case Image::FILESYSTEM:
-                string type = img->type_to_str(img->get_type());
-                att.resp_msg = type + " images cannot be cloned.";
-
+                att.resp_msg = "KERNEL, RAMDISK, BACKUP and CONTEXT cannot be cloned.";
                 return Request::ACTION;
         }
 
@@ -398,7 +395,6 @@ Request::ErrorCode ImageAPI::persistent(int oid,
         case Image::OS:
         case Image::DATABLOCK:
         case Image::CDROM:
-        case Image::FILESYSTEM:
             break;
 
         case Image::KERNEL:
@@ -496,9 +492,7 @@ Request::ErrorCode ImageAPI::change_type(int oid,
             }
             break;
         case Image::BACKUP:
-        case Image::FILESYSTEM:
-            string ctype = image->type_to_str(image->get_type());
-            att.resp_msg = "Cannot change type for" + ctype + " images.";
+            att.resp_msg = "Cannot change type for BACKUP images.";
 
             return Request::ACTION;
     }

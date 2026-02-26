@@ -446,7 +446,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
           $VAR_LOCATION/remotes/datastore/rsync \
           $VAR_LOCATION/remotes/datastore/restic \
-          $VAR_LOCATION/remotes/datastore/virtiofs \
           $VAR_LOCATION/remotes/market \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
@@ -629,7 +628,6 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi_libvirt
     DATASTORE_DRIVER_RSYNC_SCRIPTS:$VAR_LOCATION/remotes/datastore/rsync
     DATASTORE_DRIVER_RESTIC_SCRIPTS:$VAR_LOCATION/remotes/datastore/restic
-    DATASTORE_DRIVER_VIRTIOFS_SCRIPTS:$VAR_LOCATION/remotes/datastore/virtiofs
     DATASTORE_DRIVER_ETC_SCRIPTS:$VAR_LOCATION/remotes/etc/datastore
 
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
@@ -1703,16 +1701,6 @@ DATASTORE_DRIVER_RESTIC_SCRIPTS="src/datastore_mad/remotes/restic/cp \
                                  src/datastore_mad/remotes/restic/backup \
                                  src/datastore_mad/remotes/restic/backup_cancel \
                                  src/datastore_mad/remotes/restic/ls"
-
-DATASTORE_DRIVER_VIRTIOFS_SCRIPTS="src/datastore_mad/remotes/virtiofs/clone \
-                                   src/datastore_mad/remotes/virtiofs/cp \
-                                   src/datastore_mad/remotes/virtiofs/mkfs \
-                                   src/datastore_mad/remotes/virtiofs/monitor \
-                                   src/datastore_mad/remotes/virtiofs/rm \
-                                   src/datastore_mad/remotes/virtiofs/snap_delete \
-                                   src/datastore_mad/remotes/virtiofs/snap_flatten \
-                                   src/datastore_mad/remotes/virtiofs/snap_revert \
-                                   src/datastore_mad/remotes/virtiofs/stat"
 
 DATASTORE_DRIVER_ETC_SCRIPTS="src/datastore_mad/remotes/datastore.conf"
 

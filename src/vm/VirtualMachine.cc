@@ -1669,12 +1669,6 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
 
     for (int i=0; i<num_vatts; i++, csystem_ds.clear())
     {
-        // TODO: use VirtualMachineDisk::skip_disk()
-        if ( vatts[i]->vector_value("TYPE") == "FILESYSTEM" )
-        {
-            continue;
-        }
-
         bool is_shareable;
         vatts[i]->vector_value("SHAREABLE", is_shareable);
         shareable = shareable || is_shareable;
