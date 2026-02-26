@@ -172,7 +172,8 @@
     - title: Create Virtual Network
       path: /virtual-network/create
       Component: CreateVirtualNetwork
-    - path: /virtual-network/update
+    - title: Update Virtual Network
+      path: /virtual-network/update
       Component: CreateVirtualNetwork
     - title: Virtual networks
       path: /virtual-network/:id

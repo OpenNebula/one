@@ -21,7 +21,7 @@ import General, {
 import ExtraConfiguration, {
   STEP_ID as EXTRA_ID,
 } from '@modules/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration'
-
+import { VN_DRIVERS } from '@ConstantsModule'
 import { jsonToXml } from '@ModelsModule'
 import { createSteps } from '@UtilsModule'
 
@@ -79,6 +79,7 @@ const Steps = createSteps([General, ExtraConfiguration], {
           VLAN_TAGGED_ID: TEMPLATE?.VLAN_TAGGED_ID?.split(','),
           CVLANS: TEMPLATE?.CVLANS?.split(','),
           IP_LINK_CONF: TEMPLATE?.IP_LINK_CONF?.split(','),
+          ENABLE_DPDK: TEMPLATE?.BRIDGE_TYPE === 'openvswitch_dpdk',
         },
       },
       { stripUnknown: true, context: vnet }
@@ -95,6 +96,15 @@ const Steps = createSteps([General, ExtraConfiguration], {
     const { [GENERAL_ID]: general = {}, [EXTRA_ID]: extra = {} } =
       formData ?? {}
 
+    // If ENABLE_DPDK is true, send BRIDGE_TYPE='openvswitch_dpdk'
+    if ([VN_DRIVERS.ovswitch].includes(formData?.extra?.VN_MAD)) {
+      if (formData?.extra?.ENABLE_DPDK) {
+        extra.BRIDGE_TYPE = 'openvswitch_dpdk'
+      } else {
+        extra.BRIDGE_TYPE = 'openvswitch'
+      }
+    }
+
     const cluster = general.CLUSTER || -1
     delete general.CLUSTER
 
@@ -102,6 +112,7 @@ const Steps = createSteps([General, ExtraConfiguration], {
     delete extra.BRIDGE_SWITCH
     delete extra.VLAN_TAGGED_ID_SWITCH
     delete extra.Q_IN_Q_SWITCH
+    delete extra.ENABLE_DPDK
 
     return {
       template: jsonToXml({ ...extra, ...general }),

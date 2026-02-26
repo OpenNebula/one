@@ -1903,6 +1903,9 @@ module.exports = {
     'Type a VLAN ID (e.g. 100) or a VLAN range (e.g. 101-104) and press ENTER',
   VLANTaggedSwitch: 'Perform VLAN filtering and trunking',
   VLANTaggedSwitchConcept: 'Limit the allowed VLAN to trunk in the VM ports',
+  DPDK: 'Enable DPDK datapath',
+  DPDKConcept:
+    'Use the Open vSwitch DPDK datapath. Requires host support and a preconfigured DPDK-enabled OVS bridge.',
   MacSpoofingFilter: ' MAC spoofing filter',
   IpSpoofingFilter: ' IP spoofing filter',
   MTU: 'MTU of the interface',
