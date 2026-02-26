@@ -1681,7 +1681,7 @@ int ImageManager::resize_image(int iid, const string& size, string& error)
     long long delta = new_size - cur_size;
 
     string   img_tmpl;
-    string   extra_data = "<SIZE>" + to_string(new_size) + "</SIZE>";
+    string   extra_data = "<EXTRA_DATA><SIZE>" + to_string(new_size) + "</SIZE></EXTRA_DATA>";
     string   drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
 
     /* ---------------------------------------------------------------------- */
