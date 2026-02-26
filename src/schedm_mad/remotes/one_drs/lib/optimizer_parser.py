@@ -488,11 +488,12 @@ class OptimizerParser:
         ]
 
     def _parse_current_placement(self) -> dict[int, int]:
-        return {
-            int(vm_id): int(host.id)
-            for host in self.scheduler_driver_action.host_pool.host
-            for vm_id in host.vms.id
-        }
+        alloc: dict[int, int] = {}
+        for vm in self.scheduler_driver_action.vm_pool.vm:
+            if vm_hist := vm.history_records.history:
+                last_rec = max(vm_hist, key=lambda item: item.seq)
+                alloc[int(vm.id)] = int(last_rec.hid)
+        return alloc
 
     def _parse_cluster(self) -> dict:
         one_drs = next(
