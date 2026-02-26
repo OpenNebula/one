@@ -872,7 +872,9 @@ void ImageManager::_resize(unique_ptr<image_msg_t> msg)
         istringstream iss(msg->payload());
         iss >> new_size;
 
-        if (!iss.fail() && iss.eof() && new_size > 0)
+        long long cur_size = image->get_size();
+
+        if (!iss.fail() && iss.eof() && new_size > 0 && new_size >= cur_size)
         {
             image->set_size(new_size);
             success = true;
@@ -880,7 +882,17 @@ void ImageManager::_resize(unique_ptr<image_msg_t> msg)
         else
         {
             ostringstream oss;
-            oss << "Error resizing image: driver returned invalid size";
+
+            if (new_size > 0 && new_size < cur_size)
+            {
+                oss << "Error resizing image: driver returned size ("
+                    << new_size << " MiB) smaller than current ("
+                    << cur_size << " MiB)";
+            }
+            else
+            {
+                oss << "Error resizing image: driver returned invalid size";
+            }
 
             image->set_template_error_message(oss.str());
 
