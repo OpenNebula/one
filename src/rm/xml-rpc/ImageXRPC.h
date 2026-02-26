@@ -296,6 +296,23 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class ImageResizeXRPC: public RequestXRPC, public ImageAPI
+{
+public:
+    ImageResizeXRPC()
+        : RequestXRPC("one.image.resize",
+                      "Resizes an Image",
+                      "A:sis")
+        , ImageAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributesXRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class ImageRestoreXRPC: public RequestXRPC, public ImageAPI
 {
 public:

@@ -145,6 +145,13 @@ message SnapshotFlattenRequest
   int32 snapshot_id = 3;
 }
 
+message ResizeRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string size       = 3;
+}
+
 message RestoreRequest
 {
   string session_id = 1;
@@ -194,6 +201,8 @@ service ImageService
   rpc SnapshotRevert (one.image.SnapshotRevertRequest) returns (one.ResponseID);
 
   rpc SnapshotFlatten (one.image.SnapshotFlattenRequest) returns (one.ResponseID);
+
+  rpc Resize (one.image.ResizeRequest) returns (one.ResponseID);
 
   rpc Restore (one.image.RestoreRequest) returns (one.ResponseXML);
 

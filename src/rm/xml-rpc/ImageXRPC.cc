@@ -276,6 +276,21 @@ void ImageSnapshotFlattenXRPC::request_execute(xmlrpc_c::paramList const& paramL
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void ImageResizeXRPC::request_execute(xmlrpc_c::paramList const& paramList,
+                                      RequestAttributesXRPC& att)
+{
+    int oid = paramList.getInt(1);
+
+    auto ec = resize(oid,
+                     paramList.getString(2), // size in MB
+                     att);
+
+    response(ec, oid, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void ImageRestoreXRPC::request_execute(xmlrpc_c::paramList const& paramList,
                                        RequestAttributesXRPC& att)
 {
