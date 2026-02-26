@@ -282,7 +282,7 @@ void ImageResizeXRPC::request_execute(xmlrpc_c::paramList const& paramList,
     int oid = paramList.getInt(1);
 
     auto ec = resize(oid,
-                     paramList.getString(2), // size in MB
+                     paramList.getString(2), // size in MiB
                      att);
 
     response(ec, oid, att);
