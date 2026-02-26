@@ -237,6 +237,18 @@ func (s *ImageSuite) TestSnapshots(c *C) {
 	c.Assert(err.Error(), Matches, ".*does not exist.*")
 }
 
+func (s *ImageSuite) TestResize(c *C) {
+	// Wait Image is ready
+	imageC := testCtrl.Image(s.ID)
+	wait := WaitResource(ImageExpectState(imageC, "READY"))
+	c.Assert(wait, Equals, true)
+
+	// Resize should fail with "smaller" error when requesting smaller size
+	err := imageC.Resize("1")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*greater than current.*")
+}
+
 func (s *ImageSuite) TestRestore(c *C) {
 	imageC := testCtrl.Image(s.ID)
 	err := imageC.Restore(1, "")
