@@ -399,9 +399,9 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
     else //Get information from user selected system DS
     {
         set<int> ds_cluster_ids;
-        bool     ds_migr, ds_migr_snap;
+        bool     ds_migr, ds_live_migr, ds_migr_snap;
 
-        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_migr_snap);
+        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_live_migr, ds_migr_snap);
 
         if (ec != Request::SUCCESS)
         {
@@ -813,7 +813,7 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
     set<int> cluster_ids;
     string   error_str;
 
-    bool ds_migr, ds_migr_snap;
+    bool ds_migr, ds_live_migr, ds_migr_snap;
 
     auto ec = get_host_information(hid,
                                    hostname,
@@ -993,7 +993,7 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
             return Request::ACTION;
         }
 
-        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_migr_snap);
+        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_live_migr, ds_migr_snap);
 
         if (ec != Request::SUCCESS)
         {
@@ -1003,6 +1003,13 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
         if (!ds_migr)
         {
             att.resp_msg = "System datastore migration not supported by driver";
+
+            return Request::ACTION;
+        }
+
+        if (live && !ds_live_migr)
+        {
+            att.resp_msg = "Live system datastore migration not supported by driver";
 
             return Request::ACTION;
         }
@@ -1025,7 +1032,7 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
     {
         ds_id  = c_ds_id;
 
-        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_migr_snap);
+        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_live_migr, ds_migr_snap);
 
         if (ec != Request::SUCCESS)
         {
@@ -4058,6 +4065,7 @@ Request::ErrorCode VirtualMachineAPI::get_ds_information(int ds_id,
                                                          string& tm_mad,
                                                          RequestAttributes& att,
                                                          bool& ds_migr,
+                                                         bool& ds_live_migr,
                                                          bool& ds_migr_snap)
 {
     auto ds = Nebula::instance().get_dspool()->get_ro(ds_id);
@@ -4090,7 +4098,7 @@ Request::ErrorCode VirtualMachineAPI::get_ds_information(int ds_id,
     tm_mad = ds->get_tm_mad();
 
     ds->get_template_attribute("DS_MIGRATE", ds_migr);
-
+    ds->get_template_attribute("DS_LIVE_MIGRATE", ds_live_migr);
     ds->get_template_attribute("DS_MIGRATE_SNAP", ds_migr_snap);
 
     return Request::SUCCESS;
@@ -4106,7 +4114,7 @@ Request::ErrorCode VirtualMachineAPI::get_default_ds_information(int cluster_id,
 {
     ClusterPool* clpool = Nebula::instance().get_clpool();
 
-    bool ds_migr, ds_migr_snap;
+    bool ds_migr, ds_live_migr, ds_migr_snap;
 
     set<int> ds_ids;
 
@@ -4142,7 +4150,7 @@ Request::ErrorCode VirtualMachineAPI::get_default_ds_information(int cluster_id,
 
     set<int> ds_cluster_ids;
 
-    return get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_migr_snap);
+    return get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, ds_live_migr, ds_migr_snap);
 }
 
 /* -------------------------------------------------------------------------- */

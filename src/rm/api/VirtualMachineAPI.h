@@ -263,6 +263,7 @@ protected:
             std::string& tm_mad,
             RequestAttributes& att,
             bool& ds_migr,
+            bool& ds_live_migr,
             bool& ds_migr_snap);
 
     Request::ErrorCode get_default_ds_information(

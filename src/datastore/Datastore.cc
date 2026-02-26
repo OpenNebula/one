@@ -406,6 +406,7 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
         bool shared_type;
         bool ds_migrate;
 
+        bool ds_live_migrate = false;
         bool ds_migrate_snap = false;
 
         if (vatt->vector_value("SHARED", shared_type) == -1)
@@ -420,9 +421,11 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
             ds_migrate = true;
         }
 
+        vatt->vector_value("DS_LIVE_MIGRATE", ds_live_migrate);
         vatt->vector_value("DS_MIGRATE_SNAP", ds_migrate_snap);
 
         replace_template_attribute("DS_MIGRATE", ds_migrate);
+        replace_template_attribute("DS_LIVE_MIGRATE", ds_live_migrate);
         replace_template_attribute("DS_MIGRATE_SNAP", ds_migrate_snap);
 
         remove_template_attribute("LN_TARGET");

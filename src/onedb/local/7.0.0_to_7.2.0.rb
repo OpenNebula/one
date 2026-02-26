@@ -24,6 +24,74 @@ $: << File.dirname(__FILE__)
 include OpenNebula
 
 module Migrator
+    TM_MIGRATE_CONF = {
+        'dummy' => {
+            :ds_migrate      => true,
+            :ds_live_migrate => true,
+            :ds_migrate_snap => true
+        },
+        'shared' => {
+            :ds_migrate      => true,
+            :ds_live_migrate => true,
+            :ds_migrate_snap => true
+        },
+        'lvm' => {
+            :ds_migrate      => true,
+            :ds_live_migrate => false,
+            :ds_migrate_snap => false
+        },
+        'fs_lvm' => {
+            :ds_migrate      => true,
+            :ds_live_migrate => false,
+            :ds_migrate_snap => false
+        },
+        'fs_lvm_ssh' => {
+            :ds_migrate      => true,
+            :ds_live_migrate => true,
+            :ds_migrate_snap => false
+        },
+        'qcow2' => {
+            :ds_migrate      => true,
+            :ds_live_migrate => true,
+            :ds_migrate_snap => true
+        },
+        'ssh' => {
+            :ds_migrate      => true,
+            :ds_live_migrate => true,
+            :ds_migrate_snap => true
+        },
+        'local' => {
+            :ds_migrate      => true,
+            :ds_live_migrate => true,
+            :ds_migrate_snap => true
+        },
+        'ceph' => {
+            :ds_migrate      => false,
+            :ds_live_migrate => false,
+            :ds_migrate_snap => false
+        },
+        'iscsi_libvirt' => {
+            :ds_migrate      => false,
+            :ds_live_migrate => false,
+            :ds_migrate_snap => false
+        },
+        'dev' => {
+            :ds_migrate      => false,
+            :ds_live_migrate => false,
+            :ds_migrate_snap => false
+        },
+        'netapp' => {
+            :ds_migrate      => false,
+            :ds_live_migrate => false,
+            :ds_migrate_snap => false
+        },
+        'purefa' => {
+            :ds_migrate      => false,
+            :ds_live_migrate => false,
+            :ds_migrate_snap => false
+        }
+    }.freeze
+
     def db_version
         "7.2.0"
     end
@@ -36,6 +104,7 @@ module Migrator
         init_log_time
 
         feature_951
+        feature_ds_live_migrate
 
         log_time
 
@@ -106,6 +175,59 @@ module Migrator
                 update_quota(doc, -2)
 
                 @db[:system_attributes].filter(name: row[:name]).update(body: doc.root.to_s)
+            end
+        end
+    end
+
+    def xml_bool(xpath_node, name)
+        xpath_node.at_xpath(name)&.text.to_s.strip.upcase == 'YES'
+    end
+
+    def add_missing_bool(xpath_node, name, value, doc)
+        return unless xpath_node.at_xpath(name).nil?
+
+        xpath_node.add_child(doc.create_element(name)).content = value ? 'YES' : 'NO'
+    end
+
+    # Backfill missing DS_MIGRATE/DS_LIVE_MIGRATE/DS_MIGRATE_SNAP
+    # in existing SYSTEM datastores.
+    def feature_ds_live_migrate
+        @db.transaction do
+            @db[:datastore_pool].each do |row|
+                doc = nokogiri_doc(row[:body], 'datastore_pool')
+
+                next unless doc.at_xpath('/DATASTORE/TYPE')&.text.to_i == 1
+
+                ds_template = doc.at_xpath('/DATASTORE/TEMPLATE')
+
+                next if ds_template.nil?
+
+                tm_mad = doc.at_xpath('/DATASTORE/TM_MAD')&.text.to_s.strip.downcase
+
+                conf = TM_MIGRATE_CONF[tm_mad]
+
+                if conf.nil?
+                    # Fallback for custom/unknown TMs:
+                    # DS_MIGRATE default in core is YES when undefined.
+                    # DS_LIVE_MIGRATE default in core is NO when undefined.
+                    # DS_MIGRATE_SNAP default in core is NO when undefined.
+                    ds_migrate = ds_template.at_xpath('DS_MIGRATE').nil? ? true :
+                        xml_bool(ds_template, 'DS_MIGRATE')
+                    ds_live_migrate = ds_template.at_xpath('DS_LIVE_MIGRATE').nil? ?
+                        false : xml_bool(ds_template, 'DS_LIVE_MIGRATE')
+                    ds_migrate_snap = ds_template.at_xpath('DS_MIGRATE_SNAP').nil? ?
+                        false : xml_bool(ds_template, 'DS_MIGRATE_SNAP')
+                else
+                    ds_migrate = conf[:ds_migrate]
+                    ds_live_migrate = conf[:ds_live_migrate]
+                    ds_migrate_snap = conf[:ds_migrate_snap]
+                end
+
+                add_missing_bool(ds_template, 'DS_MIGRATE', ds_migrate, doc)
+                add_missing_bool(ds_template, 'DS_LIVE_MIGRATE', ds_live_migrate, doc)
+                add_missing_bool(ds_template, 'DS_MIGRATE_SNAP', ds_migrate_snap, doc)
+
+                @db[:datastore_pool].where(oid: row[:oid]).update(body: doc.root.to_s)
             end
         end
     end
