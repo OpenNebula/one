@@ -14,9 +14,11 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7
+          ruby-version: 3.4
       - name: Install rubocop
         run: gem install rubocop
+      - name: Update apt packages
+        run: sudo apt update
       - name: Install CppCheck
         run: sudo apt install -y cppcheck
       - name: Install AStyle
