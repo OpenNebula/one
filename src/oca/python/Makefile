@@ -18,10 +18,12 @@ PYTHON = $(shell which python3)
 GDS = $(shell which generateDS)
 PWD = $(shell pwd)
 
-PROTO_DIR = ../../../src/rm/grpc/proto
+GRPC_DIR = ../../../src/rm/grpc
+PROTO_DIR = $(GRPC_DIR)/proto
 PROTOS = $(shell find $(PROTO_DIR) -name "*.proto")
 GRPC_OUT = $(patsubst $(PROTO_DIR)/%.proto, pyone/grpc/%_pb2.py, $(PROTOS)) \
            $(patsubst $(PROTO_DIR)/%.proto, pyone/grpc/%_pb2_grpc.py, $(PROTOS))
+GRPC_HEADERS = $(shell find $(GRPC_DIR) -name '*ServiceGRPC.h')
 
 schemas = index.xsd
 
@@ -41,13 +43,16 @@ pyone/bindings/__init__.py pyone/bindings/supbind.py: $(schemas)
 	sed -i "s/import sys/import sys\nfrom pyone.util import TemplatedType/" pyone/bindings/__init__.py
 	sed -i "s/(supermod\./(TemplatedType, supermod\./g" pyone/bindings/__init__.py
 
-grpc: $(GRPC_OUT)
+grpc: $(GRPC_OUT) pyone/grpc/grpc_api_registry.py
 
 $(GRPC_OUT): $(PROTOS)
 	mkdir -p pyone/grpc
 	${PYTHON} -m grpc_tools.protoc -I$(PROTO_DIR) --python_out=pyone/grpc --grpc_python_out=pyone/grpc $(PROTOS)
 	@echo "Fixing Python gRPC imports..."
 	sed -i 's/^import .*_pb2/from . &/' pyone/grpc/*_pb2*.py
+
+pyone/grpc/grpc_api_registry.py: $(GRPC_HEADERS)
+	$(PYTHON) tools/generate_grpc_registry.py --grpc-dir $(GRPC_DIR) --output pyone/grpc/grpc_api_registry.py
 
 .PHONY: clean dist
 clean:

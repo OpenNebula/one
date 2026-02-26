@@ -26,9 +26,9 @@ install_requires = [
     'lxml',
     'dict2xml',
     'xmltodict',
-    'six',
     'tblib',
-    'requests'
+    'requests',
+    'grpcio>=1.72.0',
 ]
 
 # include future in python2
@@ -52,6 +52,7 @@ setup(
     name='pyone',
     version=pyone_version,
     description='Python Bindings for OpenNebula XML-RPC API',
+    python_requires='>=3.9',
     long_description='''PyOne is an implementation of OpenNebula XML-RPC
         bindings in Python. It works as a proxy over the XML-RPC api and
         utilizes generateDS (https://www.davekuhlman.org/generateDS.html)
@@ -65,7 +66,8 @@ setup(
     author_email='rvalle@privaz.io',
 
     # Choose your license
-    license='http://www.apache.org/licenses/LICENSE-2.0',
+    license='Apache-2.0',
+    license_files=['LICENSE'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -75,11 +77,15 @@ setup(
     ],
 
     keywords='cloud opennebula xmlrpc bindings',
-    packages=find_packages(),
+    packages=find_packages(where='.', include=['pyone*']),
     install_requires=install_requires,
     extras_require={
         'dev': ['check-manifest'],
         'test': ['coverage'],
+        'build': [
+            'generateDS',
+            'grpcio-tools',
+        ],
     },
     test_suite="tests"
 )

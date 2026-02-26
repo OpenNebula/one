@@ -18,13 +18,16 @@ from json import load, dumps as json_dumps
 from base64 import b64decode, b64encode
 from pickle import dumps, loads
 from os import path
-from . import OneServer
 from tblib import pickling_support
 from sys import exc_info
-from six import reraise
 from collections import OrderedDict
 from gzip import open
 from os import environ
+
+from . import OneException
+from .server_grpc import OneServerGRPC
+from .server_xrpc import OneServerXRPC
+from .util import cast2one
 
 pickling_support.install()
 
@@ -41,16 +44,8 @@ def write_fixture_file(fixture_file, obj):
     f.write(json_dumps(obj).encode())
     f.close()
 
-class OneServerTester(OneServer):
-    '''
-    This class extends the OneServer to facilitate unit testing
-    The idea is to be able to "record" fixtures while testing with a live OpenNebula platform.
-    Those recordings can later be use in "replay" mode to simulate an OpenNebula platform.
-    XMLAPI method calls are recorded as test_base/unit_test/method_signature_instance
-    The signature is generated as the md5 of the parameters
-    if several calls with the same signature are doing during the same unit test, instance is incremented.
-    The order in which calls happen within the same unit_test must be deterministic.
-    '''
+
+class _OneServerTesterBase:
     def __init__(self, uri, session, fixture_file=None, fixture_unit=None, timeout=None, fixture_replay=None, **options):
 
         # Environment driven initialization required for capturing fixtures during ansible integration tests
@@ -75,7 +70,7 @@ class OneServerTester(OneServer):
         self._fixture_file = fixture_file
         self.set_fixture_unit_test(fixture_unit)
 
-        OneServer.__init__(self, uri, session, timeout, **options)
+        super().__init__(uri, session, timeout=timeout, **options)
 
     def set_fixture_unit_test(self,name):
         """
@@ -141,10 +136,11 @@ class OneServerTester(OneServer):
         if self._fixture_replay:
             ret = self._get_fixture(method,params)
             if 'exception' in ret:
-                reraise(*loads(b64decode(ret['exception'])))
+                _, exc_value, exc_tb = loads(b64decode(ret['exception']))
+                raise exc_value.with_traceback(exc_tb)
         else:
             try:
-                ret = OneServer._do_request(self, method, params)
+                ret = super()._do_request(method, params)
             except Exception as exception:
                 ret = {
                     "exception": b64encode(dumps(exc_info(), 2)).decode(),
@@ -171,7 +167,7 @@ class OneServerTester(OneServer):
             if isinstance(param, dict):
                 lparams[i] = self._to_ordered_dict(param)
 
-        return  OneServer._cast_parms(self, lparams)
+        return super()._cast_parms(tuple(lparams))
 
     def _to_ordered_dict(self, param):
         """
@@ -199,3 +195,73 @@ class OneServerTester(OneServer):
         """
         if not self._fixture_replay:
             write_fixture_file(self._fixture_file, self._fixtures)
+        super().server_close()
+
+
+class _OneServerGRPC(OneServerGRPC):
+    """Adds _do_request and _cast_parms (same interface as OneServerXRPC) for tester compatibility."""
+
+    def _do_request(self, method, params):
+        if not method.startswith("one."):
+            raise OneException(
+                "gRPC _do_request expects method like one.namespace.method, got: {}".format(method)
+            )
+        rest = method[len("one.") :]
+        parts = rest.split(".", 1)
+        if len(parts) != 2:
+            raise OneException(
+                "gRPC _do_request expects method like one.namespace.method, got: {}".format(method)
+            )
+        namespace, method_name = parts
+        args = params[1:] if len(params) > 1 else ()
+        return self._call(namespace, method_name, *args)
+
+    def _cast_parms(self, params):
+        lparams = list(params)
+        for i, param in enumerate(lparams):
+            lparams[i] = cast2one(param)
+        return (self._session,) + tuple(lparams)
+
+
+class OneServerTesterGRPC(_OneServerTesterBase, _OneServerGRPC):
+    pass
+
+
+class OneServerTesterXRPC(_OneServerTesterBase, OneServerXRPC):
+    pass
+
+
+class OneServerTester:
+    '''
+    This class extends the OneServer to facilitate unit testing
+    The idea is to be able to "record" fixtures while testing with a live OpenNebula platform.
+    Those recordings can later be use in "replay" mode to simulate an OpenNebula platform.
+    XMLAPI method calls are recorded as test_base/unit_test/method_signature_instance
+    The signature is generated as the md5 of the parameters
+    if several calls with the same signature are doing during the same unit test, instance is incremented.
+    The order in which calls happen within the same unit_test must be deterministic.
+    '''
+
+    def __new__(
+        cls,
+        uri,
+        session,
+        fixture_file=None,
+        fixture_unit=None,
+        timeout=None,
+        fixture_replay=None,
+        protocol=None,
+        **options
+    ):
+        tester_class = (
+            OneServerTesterGRPC if protocol == "grpc" else OneServerTesterXRPC
+        )
+        return tester_class(
+            uri,
+            session,
+            fixture_file=fixture_file,
+            fixture_unit=fixture_unit,
+            timeout=timeout,
+            fixture_replay=fixture_replay,
+            **options
+        )

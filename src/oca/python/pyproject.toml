@@ -1,0 +1,24 @@
+[project]
+name = "pyone"
+version = "7.1.80"
+description = "Python Bindings for OpenNebula XML-RPC API"
+readme = "LICENSE"
+requires-python = ">=3.9"
+dependencies = [
+    "lxml",
+    "dict2xml",
+    "xmltodict",
+    "tblib",
+    "requests",
+    "grpcio>=1.72.0",
+]
+
+[project.optional-dependencies]
+build = [
+    "generateDS",
+    "grpcio-tools",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pyone*"]

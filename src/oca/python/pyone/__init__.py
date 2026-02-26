@@ -16,16 +16,9 @@
 PyONE is an implementation of Open Nebula XML-RPC bindings.
 '''
 
-import xmlrpc.client
-import socket
-import requests
-import requests.utils
-
-from six import string_types
 from enum import IntEnum
-from pyone import bindings
-from .util import cast2one
-
+from os import environ
+from typing import Optional, Union
 
 #
 # Exceptions as defined in the XML-API reference
@@ -178,183 +171,65 @@ VM_STATE = IntEnum('VM_STATE', '''INIT PENDING HOLD ACTIVE STOPPED SUSPENDED
 #
 # Import helper methods after definitions they are likely to refer to.
 #
-from .helpers import marketapp_export
+
+def _resolve_uri_and_protocol(uri: Optional[str], protocol: Optional[str]) -> tuple[Optional[str], str]:
+    """Resolve uri/protocol using optional environment variables."""
+
+    if uri is None:
+        env_xmlrpc_endpoint = environ.get("ONE_XMLRPC")
+        env_grpc_endpoint = environ.get("ONE_GRPC")
+
+        uri = env_xmlrpc_endpoint or env_grpc_endpoint
+
+        if not uri:
+            raise OneException("Missing endpoint. Pass uri or set ONE_XMLRPC / ONE_GRPC.")
+
+    if protocol is None:
+        protocol = environ.get("ONEAPI_PROTOCOL")
+        if protocol is None:
+            if not isinstance(uri, str):
+                raise OneException("Invalid endpoint")
+            uri_str = uri.strip()
+            if uri_str.startswith(('http://', 'https://')):
+                protocol = "xmlrpc"
+            else:
+                protocol = "grpc"
+    
+    return protocol.lower(), uri
 
 
-class OneServer(xmlrpc.client.ServerProxy):
+from . import server_grpc
+from . import server_xrpc
+
+
+class OneServer:
     """
-    XML-RPC OpenNebula Server
-    Slightly tuned ServerProxy
-    """
+    OpenNebula API client factory. Creates an XML-RPC or gRPC client based on
+    protocol and endpoint. Call as OneServer(uri, session, ...).
 
-    def __init__(self, uri, session, timeout=None, https_verify=True,
-                 **options):
-        """
-        Override the constructor to take the authentication or session
-        Will also configure the socket timeout
-        :param uri: OpenNebula endpoint
-        :param session: OpenNebula authentication session
-        :param timeout: Socket timetout
-        :param https_verify: if https cert should be verified
-        :param options: additional options for ServerProxy
-        """
-
-        self.__session = session
-        if timeout:
-            # note that this will affect other classes using sockets too.
-            socket.setdefaulttimeout(timeout)
-
-        # register helpers:
-        self.__helpers = {
-            "marketapp.export": marketapp_export
-        }
-
-        transport = RequestsTransport()
-        transport.set_https(uri.startswith('https'))
-        transport.set_https_verify(https_verify)
-
-        xmlrpc.client.ServerProxy.__init__(
-            self,
-            uri,
-            transport=transport,
-            **options)
-
-    #
-    def _ServerProxy__request(self, methodname, params):
-        """
-        Override/patch the (private) request method to:
-          - structured parameters will be casted to attribute=value or XML
-          - automatically prefix all methodnames with "one."
-          - automatically add the authentication info as first parameter
-          - process the response
-
-        :param methodname: XMLRPC method name
-        :param params: XMLRPC parameters
-        :return: opennebula object or XMLRPC returned value
-        """
-
-        # check if this is a helper or a XMLPRC method call
-
-        if methodname in self.__helpers:
-            return self.__helpers[methodname](self, *params)
-
-        ret = self._do_request("one."+methodname, self._cast_parms(params))
-        return self.__response(ret)
-
-    def _do_request(self, method, params):
-        try:
-            return xmlrpc.client.ServerProxy._ServerProxy__request(
-                self, method, params)
-        except xmlrpc.client.Fault as e:
-            raise OneException(str(e))
-
-    def _cast_parms(self, params):
-        """
-        cast parameters, make them one-friendly
-        :param params:
-        :return:
-        """
-        lparams = list(params)
-        for i, param in enumerate(lparams):
-            lparams[i] = cast2one(param)
-        params = tuple(lparams)
-        # and session a prefix
-        params = (self.__session,) + params
-        return params
-
-    # Process the response from one XML-RPC server
-    # will throw exceptions for each error condition
-    # will bind returned xml to objects generated from xsd schemas
-    def __response(self, raw_response):
-        sucess = raw_response[0]
-        code = raw_response[2]
-
-        if sucess:
-            ret = raw_response[1]
-            if isinstance(ret, string_types):
-                # detect xml
-                if ret[0] == '<':
-                    return bindings.parseString(ret.encode("utf-8"))
-            return ret
-
-        message = raw_response[1]
-        if code == 0x0100:
-            raise OneAuthenticationException(message)
-        if code == 0x0200:
-            raise OneAuthorizationException(message)
-        if code == 0x0400:
-            raise OneNoExistsException(message)
-        if code == 0x0800:
-            raise OneActionException(message)
-        if code == 0x1000:
-            raise OneApiException(message)
-        if code == 0x2000:
-            raise OneInternalException(message)
-        raise OneException(message)
-
-    def server_retry_interval(self):
-        '''returns the recommended wait time between attempts to check if
-        the opennebula platform has reached a desired state, in seconds'''
-        return 1
-
-    def server_close(self):
-        pass
-
-
-class RequestsTransport(xmlrpc.client.Transport):
-    """
-    Drop in Transport for xmlrpclib that uses Requests instead of httplib
+    :param uri: Endpoint - XML-RPC: "http://host:2633/RPC2", gRPC: "host:2634"
+    :param session: Authentication (user:password)
+    :param protocol: "grpc" to force gRPC, None for auto-detect from uri
+    :param timeout: Request timeout
+    :param https_verify: For XML-RPC HTTPS, whether to verify certificates
     """
 
-    user_agent = "Python XMLRPC with Requests (python-requests.org)"
-    use_https = False
-
-    def set_https(self, https=False):
-        self.use_https = https
-
-    def set_https_verify(self, https_verify):
-        self.https_verify = https_verify
-
-    def request(self, host, handler, request_body, verbose=False):
-        """
-        Make an xmlrpc request.
-        """
-        headers = {'User-Agent': self.user_agent,
-                   'Content-Type': 'text/xml',
-                   'Accept': '*/*'
-                   }
-
-        url = self._build_url(host, handler)
-
-        kwargs = {'verify': self.https_verify }
-
-        resp = requests.post(url, data=request_body, headers=headers,
-                             **kwargs)
-        try:
-            resp.raise_for_status()
-        except requests.RequestException as e:
-            raise xmlrpc.client.ProtocolError(url, resp.status_code,
-                                              str(e), resp.headers)
-        else:
-            return self.parse_response(resp)
-
-    def parse_response(self, response):
-        """
-        Parse the xmlrpc response.
-        """
-        p, u = self.getparser()
-
-        p.feed(response.content)
-        p.close()
-
-        return u.close()
-
-    def _build_url(self, host, handler):
-        """
-        Build a url for our request based on the host, handler and use_http
-        property
-        """
-        scheme = 'https' if self.use_https else 'http'
-        handler = handler.lstrip('/')
-
-        return '%s://%s/%s' % (scheme, host, handler)
+    def __new__(
+        cls,
+        uri=None,
+        session=None,
+        timeout=None,
+        https_verify=True,
+        protocol: Optional[str] = None,
+        **options
+    ) -> Union[server_grpc.OneServerGRPC, server_xrpc.OneServerXRPC]:
+        if session is None:
+            raise OneException("Missing session")
+        protocol, uri = _resolve_uri_and_protocol(uri, protocol)
+        if protocol == "grpc":
+            return server_grpc.OneServerGRPC(
+                uri, session, timeout=timeout, **options
+            )
+        return server_xrpc.OneServerXRPC(
+            uri, session, timeout=timeout, https_verify=https_verify, **options
+        )
