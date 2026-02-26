@@ -874,7 +874,7 @@ void ImageManager::_resize(unique_ptr<image_msg_t> msg)
 
         long long cur_size = image->get_size();
 
-        if (!iss.fail() && iss.eof() && new_size > 0 && new_size >= cur_size)
+        if (!iss.fail() && iss.eof() && new_size > 0 && new_size > cur_size)
         {
             image->set_size(new_size);
             success = true;
@@ -883,10 +883,10 @@ void ImageManager::_resize(unique_ptr<image_msg_t> msg)
         {
             ostringstream oss;
 
-            if (new_size > 0 && new_size < cur_size)
+            if (new_size > 0 && new_size <= cur_size)
             {
                 oss << "Error resizing image: driver returned size ("
-                    << new_size << " MiB) smaller than current ("
+                    << new_size << " MiB) not greater than current ("
                     << cur_size << " MiB)";
             }
             else

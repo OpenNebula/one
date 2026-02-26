@@ -48,7 +48,7 @@ SPARSE="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
 
 RESIZE_OPTS=""
-if [[ "${SPARSE}" =~ ^(no|NO)$ ]]; then
+if [ "$(echo "$SPARSE" | tr A-Z a-z)" = "no" ]; then
     RESIZE_OPTS="--preallocation=falloc"
 fi
 
