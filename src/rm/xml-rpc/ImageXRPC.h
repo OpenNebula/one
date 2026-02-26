@@ -301,7 +301,7 @@ class ImageResizeXRPC: public RequestXRPC, public ImageAPI
 public:
     ImageResizeXRPC()
         : RequestXRPC("one.image.resize",
-                      "Resizes an Image",
+                      "Resizes an Image. Size is an integer string in MiB",
                       "A:sis")
         , ImageAPI(static_cast<Request&>(*this))
     {}

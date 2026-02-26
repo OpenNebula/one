@@ -1609,6 +1609,14 @@ int ImageManager::resize_image(int iid, const string& size, string& error)
     /*    type is OS or DATABLOCK                                             */
     /*    state is READY                                                      */
     /*    new size > current size                                             */
+    /*                                                                        */
+    /*  The write lock (ipool->get) is held through quota reservation, driver */
+    /*  message send, and state update to LOCKED.  This prevents concurrent   */
+    /*  resize requests from passing the READY check simultaneously.          */
+    /*                                                                        */
+    /*  The code between quota_check and imd->write is deterministic (no I/O  */
+    /*  or allocation that could throw), so quota rollback is not needed for  */
+    /*  early returns in this section.                                        */
     /* ---------------------------------------------------------------------- */
 
     auto img = ipool->get(iid);

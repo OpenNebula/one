@@ -149,7 +149,7 @@ message ResizeRequest
 {
   string session_id = 1;
   int32 oid         = 2;
-  string size       = 3;
+  string size       = 3; // New size in MiB as integer string, must be > current size
 }
 
 message RestoreRequest
