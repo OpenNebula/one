@@ -135,6 +135,9 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
             # IP-spoofing
             ip_spoofing if nic[:filter_ip_spoofing] =~ /yes/i
+
+            # NAT for DPDK
+            nat if nic[:nat_dpdk] =~ /yes/i
         end
 
         # MAC-spoofing & IP-spoofing for NIC ALIAS
@@ -422,6 +425,30 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         add_flow("#{base},dl_src=#{@nic[:mac]}", pass, 45000)
         add_flow(base, :drop, 40000)
     end
+
+    # For OVS-DPDK iptables isn't available, so we have to do NAT in OpenFlow
+    # Before NAT: VMx (one-x-0) -- Internal (int0)
+    # After NAT: External (onebr) -- Remote Server
+    #
+    # Have to set both source and destination MACs, as well as output to desired interfaces
+    def nat
+        nic_br = "onebr"
+        nic_int = "int0"
+        nic_ext = "dpdk0"
+        int_ip_range = "192.168.0.0/16"
+
+        gw_ip = `ip route`.each_line.find { |line| line.start_with?("default") }&.split&.[](2)
+        gw_mac = `ip neigh show`.each_line.find { |line| line.include?(gw_ip)}&.split&.[](4)
+        br_ip = `ip addr show #{nic_br}`.each_line.find { |line| line =~ /inet (\S+)?\/\d+/ }&.match(/inet (\S+?)\/\d+/)&.[](1)
+        br_mac = `ip link show #{nic_br}`.each_line.find { |line| line =~ /ether (\S+)/ }&.match(/ether (\S+)/)&.[](1)
+        int_mac = `ip link show #{nic_int}`.each_line.find { |line| line =~ /ether (\S+)/ }&.match(/ether (\S+)/)&.[](1)
+
+        add_flow("table=0, in_port=#{port}, ip, nw_dst=#{int_ip_range}", "resubmit(,10)", 120)
+        add_flow("table=0, in_port=#{port}, ip", "ct(commit, nat(src=#{br_ip})), mod_dl_src:#{br_mac}, mod_dl_dst:#{gw_mac}, output:#{nic_ext}", 110)
+        add_flow("table=0, in_port=#{nic_ext}, ip, nw_dst=#{br_ip}", "ct(table=1, nat), NORMAL", 110)
+        add_flow("table=1, ip, nw_dst=#{@nic[:ip]}", "mod_dl_src:#{int_mac}, mod_dl_dst:#{@nic[:mac]}, output:#{port}", 110)
+    end
+
 
     def del_flows
         the_ports = ports
