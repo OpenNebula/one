@@ -39,21 +39,26 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/FORMAT \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SPARSE \
                     /DS_DRIVER_ACTION_DATA/EXTRA_DATA/SIZE)
 
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
-FORMAT="${XPATH_ELEMENTS[j++]}"
+SPARSE="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
+
+RESIZE_OPTS=""
+if [[ "${SPARSE}" =~ ^(no|NO)$ ]]; then
+    RESIZE_OPTS="--preallocation=falloc"
+fi
 
 if [ -n "$BRIDGE_LIST" ]; then
     DST_HOST=$(get_destination_host $ID)
 
-    ssh_exec_and_log "$DST_HOST" "qemu-img resize ${DISK_SRC} ${SIZE}M" \
+    ssh_exec_and_log "$DST_HOST" "qemu-img resize ${RESIZE_OPTS} \"${DISK_SRC}\" ${SIZE}M" \
         "Error resizing ${DISK_SRC} to ${SIZE}M"
 else
-    exec_and_log "qemu-img resize ${DISK_SRC} ${SIZE}M" \
+    exec_and_log "qemu-img resize ${RESIZE_OPTS} \"${DISK_SRC}\" ${SIZE}M" \
         "Error resizing ${DISK_SRC} to ${SIZE}M"
 fi
 

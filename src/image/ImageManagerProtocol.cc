@@ -863,6 +863,8 @@ void ImageManager::_resize(unique_ptr<image_msg_t> msg)
     image->get_template_attribute("RESIZE_DELTA", resize_delta);
     image->remove_template_attribute("RESIZE_DELTA");
 
+    bool success = false;
+
     if (msg->status() == "SUCCESS")
     {
         long long new_size = 0;
@@ -873,6 +875,16 @@ void ImageManager::_resize(unique_ptr<image_msg_t> msg)
         if (new_size > 0)
         {
             image->set_size(new_size);
+            success = true;
+        }
+        else
+        {
+            ostringstream oss;
+            oss << "Error resizing image: driver returned invalid size";
+
+            image->set_template_error_message(oss.str());
+
+            NebulaLog::log("ImM", Log::ERROR, oss);
         }
     }
     else
@@ -898,7 +910,7 @@ void ImageManager::_resize(unique_ptr<image_msg_t> msg)
 
     image.reset();
 
-    if (msg->status() == "SUCCESS")
+    if (success)
     {
         monitor_datastore(ds_id);
     }

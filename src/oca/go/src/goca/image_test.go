@@ -243,10 +243,33 @@ func (s *ImageSuite) TestResize(c *C) {
 	wait := WaitResource(ImageExpectState(imageC, "READY"))
 	c.Assert(wait, Equals, true)
 
-	// Resize should fail with "smaller" error when requesting smaller size
+	// Resize to smaller size should fail
 	err := imageC.Resize("1")
 	c.Assert(err, NotNil)
 	c.Assert(err.Error(), Matches, ".*greater than current.*")
+
+	// Resize with invalid input should fail
+	err = imageC.Resize("abc")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Invalid size.*")
+
+	// Resize with empty string should fail
+	err = imageC.Resize("")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Invalid size.*")
+
+	// Successful resize to larger size
+	err = imageC.Resize("2")
+	c.Assert(err, IsNil)
+
+	// Wait for image to return to READY state after async resize
+	wait = WaitResource(ImageExpectState(imageC, "READY"))
+	c.Assert(wait, Equals, true)
+
+	// Verify the new size
+	image, err := imageC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(image.Size, Equals, 2)
 }
 
 func (s *ImageSuite) TestRestore(c *C) {

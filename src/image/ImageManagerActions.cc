@@ -1604,17 +1604,22 @@ int ImageManager::resize_image(int iid, const string& size, string& error)
         return -1;
     }
 
-    int ds_id;
+    /* ---------------------------------------------------------------------- */
+    /*  Get image with write lock and check action consistency:               */
+    /*    type is OS or DATABLOCK                                             */
+    /*    state is READY                                                      */
+    /*    new size > current size                                             */
+    /* ---------------------------------------------------------------------- */
 
-    if ( auto img = ipool->get_ro(iid) )
-    {
-        ds_id = img->get_ds_id();
-    }
-    else
+    auto img = ipool->get(iid);
+
+    if ( img == nullptr )
     {
         error = "Image does not exist";
         return -1;
     }
+
+    int ds_id = img->get_ds_id();
 
     string ds_data;
 
@@ -1627,21 +1632,6 @@ int ImageManager::resize_image(int iid, const string& size, string& error)
     else
     {
         error = "Datastore no longer exists";
-        return -1;
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /*  Check action consistency:                                             */
-    /*    type is OS or DATABLOCK                                             */
-    /*    state is READY                                                      */
-    /*    new size > current size                                             */
-    /* ---------------------------------------------------------------------- */
-
-    auto img = ipool->get(iid);
-
-    if ( img == nullptr )
-    {
-        error = "Image does not exist";
         return -1;
     }
 
