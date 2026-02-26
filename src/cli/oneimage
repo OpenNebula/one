@@ -160,6 +160,10 @@ CommandParser::CmdParser.new(ARGV) do
         helper.retrieve_snapshot_id(@current_image, arg)
     end
 
+    set :format, :size, 'Image size in MiB' do |arg|
+        OpenNebulaHelper.size_in_mb(arg)
+    end
+
     ########################################################################
     # Commands
     ########################################################################
@@ -423,6 +427,24 @@ CommandParser::CmdParser.new(ARGV) do
             :snapshot_id do
         helper.perform_action(args[0], options, 'flattening snapshot') do |o|
             o.snapshot_flatten(args[1].to_i)
+        end
+    end
+
+    resize_desc = <<-EOT.unindent
+        Resizes an image. The image must be in READY state and only
+        upsizing is supported (the new size must be greater than the
+        current size).
+
+        The size can be specified with the following suffixes:
+            - T: TiB
+            - G: GiB
+            - M: MiB
+            By default is MiB.
+    EOT
+
+    command :resize, resize_desc, :imageid, :size do
+        helper.perform_action(args[0], options, 'resizing image') do |o|
+            o.resize(args[1].to_s)
         end
     end
 
