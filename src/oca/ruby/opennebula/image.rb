@@ -266,7 +266,7 @@ module OpenNebula
 
         # Resizes an image to a new size (only upsize supported)
         #
-        # @param size [String] New size in MB
+        # @param size [String] New size in MiB
         #
         # @return [nil, OpenNebula::Error] nil in case of success or Error
         def resize(size)

@@ -268,6 +268,16 @@ func (s *ImageSuite) TestResize(c *C) {
 	c.Assert(err, NotNil)
 	c.Assert(err.Error(), Matches, ".*Invalid size.*")
 
+	// Resize with zero should fail
+	err = imageC.Resize("0")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Invalid size.*")
+
+	// Resize with negative number should fail
+	err = imageC.Resize("-1")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Invalid size.*")
+
 	// Successful resize to larger size
 	newSize := curSize + 1
 	err = imageC.Resize(fmt.Sprintf("%d", newSize))

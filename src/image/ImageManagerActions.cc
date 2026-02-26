@@ -1613,10 +1613,6 @@ int ImageManager::resize_image(int iid, const string& size, string& error)
     /*  The write lock (ipool->get) is held through quota reservation, driver */
     /*  message send, and state update to LOCKED.  This prevents concurrent   */
     /*  resize requests from passing the READY check simultaneously.          */
-    /*                                                                        */
-    /*  The code between quota_check and imd->write is deterministic (no I/O  */
-    /*  or allocation that could throw), so quota rollback is not needed for  */
-    /*  early returns in this section.                                        */
     /* ---------------------------------------------------------------------- */
 
     auto img = ipool->get(iid);
@@ -1677,10 +1673,20 @@ int ImageManager::resize_image(int iid, const string& size, string& error)
     }
 
     /* ---------------------------------------------------------------------- */
-    /*  Check datastore quota for the size delta                              */
+    /*  Prepare driver message before quota check so that all allocations     */
+    /*  happen before quota is reserved.  After quota_check, only             */
+    /*  non-throwing operations remain (template update, write, state set).   */
     /* ---------------------------------------------------------------------- */
 
     long long delta = new_size - cur_size;
+
+    string   img_tmpl;
+    string   extra_data = "<SIZE>" + to_string(new_size) + "</SIZE>";
+    string   drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
+
+    /* ---------------------------------------------------------------------- */
+    /*  Check datastore quota for the size delta                              */
+    /* ---------------------------------------------------------------------- */
 
     int uid = img->get_uid();
     int gid = img->get_gid();
@@ -1697,14 +1703,10 @@ int ImageManager::resize_image(int iid, const string& size, string& error)
     }
 
     /* ---------------------------------------------------------------------- */
-    /*  Format message and send action to driver                              */
+    /*  Send action to driver and lock the image                              */
     /* ---------------------------------------------------------------------- */
 
     img->replace_template_attribute("RESIZE_DELTA", delta);
-
-    string   img_tmpl;
-    string   extra_data = "<SIZE>" + to_string(new_size) + "</SIZE>";
-    string   drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
 
     image_msg_t msg(ImageManagerMessages::RESIZE, "", iid, drv_msg);
 

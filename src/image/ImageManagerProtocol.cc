@@ -870,7 +870,7 @@ void ImageManager::_resize(unique_ptr<image_msg_t> msg)
         long long new_size = 0;
 
         istringstream iss(msg->payload());
-        iss >> new_size;
+        iss >> new_size >> std::ws;
 
         long long cur_size = image->get_size();
 

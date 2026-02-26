@@ -62,6 +62,11 @@ CEPH_KEY="${XPATH_ELEMENTS[i++]}"
 CEPH_CONF="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
 
+if [ -z "$SIZE" ]; then
+    error_message "Missing SIZE in driver message."
+    exit -1
+fi
+
 DST_HOST=`get_destination_host $ID`
 
 if [ -z "$DST_HOST" ]; then

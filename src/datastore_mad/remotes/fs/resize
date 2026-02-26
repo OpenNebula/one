@@ -47,6 +47,11 @@ DISK_SRC="${XPATH_ELEMENTS[j++]}"
 SPARSE="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
 
+if [ -z "$SIZE" ]; then
+    error_message "Missing SIZE in driver message."
+    exit -1
+fi
+
 RESIZE_OPTS=""
 if [ "$(echo "$SPARSE" | tr A-Z a-z)" = "no" ]; then
     RESIZE_OPTS="--preallocation=falloc"
