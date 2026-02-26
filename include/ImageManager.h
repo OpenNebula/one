@@ -311,8 +311,8 @@ public:
     /**
      *  Resizes an image to a new size (only upsize supported).
      *    @param iid id of image
-     *    @param size new size in MB (as string)
-     *    @param error_str Error reason, if any
+     *    @param size new size in MiB (as string)
+     *    @param error Error reason, if any
      *    @return 0 on success
      */
     int resize_image(int iid, const std::string& size, std::string& error);

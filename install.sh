@@ -1620,6 +1620,7 @@ DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
                          src/datastore_mad/remotes/dummy/snap_delete \
                          src/datastore_mad/remotes/dummy/snap_revert \
                          src/datastore_mad/remotes/dummy/snap_flatten \
+                         src/datastore_mad/remotes/dummy/resize \
                          src/datastore_mad/remotes/dummy/rm \
                          src/datastore_mad/remotes/dummy/restore \
                          src/datastore_mad/remotes/dummy/export"
@@ -1632,6 +1633,7 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/snap_delete \
                          src/datastore_mad/remotes/fs/snap_revert \
                          src/datastore_mad/remotes/fs/snap_flatten \
+                         src/datastore_mad/remotes/fs/resize \
                          src/datastore_mad/remotes/fs/rm \
                          src/datastore_mad/remotes/fs/export"
 
@@ -1646,6 +1648,7 @@ DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/snap_delete \
                          src/datastore_mad/remotes/ceph/snap_revert \
                          src/datastore_mad/remotes/ceph/snap_flatten \
+                         src/datastore_mad/remotes/ceph/resize \
                          src/datastore_mad/remotes/ceph/ceph_utils.sh \
                          src/datastore_mad/remotes/ceph/export"
 
@@ -1659,6 +1662,7 @@ DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
                          src/datastore_mad/remotes/dev/snap_delete \
                          src/datastore_mad/remotes/dev/snap_revert \
                          src/datastore_mad/remotes/dev/snap_flatten \
+                         src/datastore_mad/remotes/dev/resize \
                          src/datastore_mad/remotes/dev/clone"
 
 DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi_libvirt/cp \
@@ -1669,6 +1673,7 @@ DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi_libvirt/cp \
                          src/datastore_mad/remotes/iscsi_libvirt/snap_delete \
                          src/datastore_mad/remotes/iscsi_libvirt/snap_revert \
                          src/datastore_mad/remotes/iscsi_libvirt/snap_flatten \
+                         src/datastore_mad/remotes/iscsi_libvirt/resize \
                          src/datastore_mad/remotes/iscsi_libvirt/clone"
 
 DATASTORE_DRIVER_RSYNC_SCRIPTS="src/datastore_mad/remotes/rsync/cp \
@@ -1679,6 +1684,7 @@ DATASTORE_DRIVER_RSYNC_SCRIPTS="src/datastore_mad/remotes/rsync/cp \
                          src/datastore_mad/remotes/rsync/snap_delete \
                          src/datastore_mad/remotes/rsync/snap_revert \
                          src/datastore_mad/remotes/rsync/snap_flatten \
+                         src/datastore_mad/remotes/rsync/resize \
                          src/datastore_mad/remotes/rsync/rm \
                          src/datastore_mad/remotes/rsync/backup \
                          src/datastore_mad/remotes/rsync/backup_cancel \
@@ -1695,6 +1701,7 @@ DATASTORE_DRIVER_RESTIC_SCRIPTS="src/datastore_mad/remotes/restic/cp \
                                  src/datastore_mad/remotes/restic/snap_delete \
                                  src/datastore_mad/remotes/restic/snap_revert \
                                  src/datastore_mad/remotes/restic/snap_flatten \
+                                 src/datastore_mad/remotes/restic/resize \
                                  src/datastore_mad/remotes/restic/clone \
                                  src/datastore_mad/remotes/restic/restore \
                                  src/datastore_mad/remotes/restic/restic.rb \
@@ -1712,6 +1719,7 @@ DATASTORE_DRIVER_VIRTIOFS_SCRIPTS="src/datastore_mad/remotes/virtiofs/clone \
                                    src/datastore_mad/remotes/virtiofs/snap_delete \
                                    src/datastore_mad/remotes/virtiofs/snap_flatten \
                                    src/datastore_mad/remotes/virtiofs/snap_revert \
+                                   src/datastore_mad/remotes/virtiofs/resize \
                                    src/datastore_mad/remotes/virtiofs/stat"
 
 DATASTORE_DRIVER_ETC_SCRIPTS="src/datastore_mad/remotes/datastore.conf"

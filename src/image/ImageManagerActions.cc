@@ -1663,11 +1663,17 @@ int ImageManager::resize_image(int iid, const string& size, string& error)
     istringstream iss(size);
     iss >> new_size;
 
+    if (iss.fail() || new_size <= 0)
+    {
+        error = "Invalid size value: " + size;
+        return -1;
+    }
+
     if (new_size <= cur_size)
     {
         ostringstream oss;
         oss << "New size (" << new_size
-            << " MB) must be greater than current size (" << cur_size << " MB)";
+            << " MiB) must be greater than current size (" << cur_size << " MiB)";
         error = oss.str();
         return -1;
     }
@@ -1699,7 +1705,7 @@ int ImageManager::resize_image(int iid, const string& size, string& error)
     img->replace_template_attribute("RESIZE_DELTA", delta);
 
     string   img_tmpl;
-    string   extra_data = "<SIZE>" + size + "</SIZE>";
+    string   extra_data = "<SIZE>" + to_string(new_size) + "</SIZE>";
     string   drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
 
     image_msg_t msg(ImageManagerMessages::RESIZE, "", iid, drv_msg);
