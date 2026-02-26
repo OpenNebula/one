@@ -267,7 +267,8 @@
     - title: Group
       path: /group/:id
       Component: GroupDetail
-    - path: /virtual-data-center/create
+    - title: Create VDC
+      path: /virtual-data-center/create
       Component: CreateVDC
     - title: VDCs
       path: /virtual-data-center
