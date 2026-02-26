@@ -936,7 +936,7 @@ void ImageManager::_resize(unique_ptr<image_msg_t> msg)
 
         Quotas::ds_del(uid, gid, &quotas);
     }
-    else if (!success)
+    else
     {
         NebulaLog::log("ImM", Log::WARNING,
             "Cannot rollback resize quota: RESIZE_DELTA attribute missing");

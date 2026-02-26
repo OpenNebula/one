@@ -70,15 +70,15 @@ if [ -z "$DST_HOST" ]; then
 fi
 
 if [ -n "$CEPH_USER" ]; then
-    RBD="$RBD --id '${CEPH_USER}'"
+    RBD="$RBD --id ${CEPH_USER}"
 fi
 
 if [ -n "$CEPH_KEY" ]; then
-    RBD="$RBD --keyfile '${CEPH_KEY}'"
+    RBD="$RBD --keyfile ${CEPH_KEY}"
 fi
 
 if [ -n "$CEPH_CONF" ]; then
-    RBD="$RBD --conf '${CEPH_CONF}'"
+    RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
 RESIZE_CMD=$(cat <<EOF

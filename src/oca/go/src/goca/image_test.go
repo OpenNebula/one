@@ -243,8 +243,13 @@ func (s *ImageSuite) TestResize(c *C) {
 	wait := WaitResource(ImageExpectState(imageC, "READY"))
 	c.Assert(wait, Equals, true)
 
-	// Resize to smaller size should fail
-	err := imageC.Resize("1")
+	// Get initial size to make test independent of fixture
+	image, err := imageC.Info(false)
+	c.Assert(err, IsNil)
+	curSize := image.Size
+
+	// Resize to same size should fail (must be strictly greater)
+	err = imageC.Resize(fmt.Sprintf("%d", curSize))
 	c.Assert(err, NotNil)
 	c.Assert(err.Error(), Matches, ".*greater than current.*")
 
@@ -264,7 +269,8 @@ func (s *ImageSuite) TestResize(c *C) {
 	c.Assert(err.Error(), Matches, ".*Invalid size.*")
 
 	// Successful resize to larger size
-	err = imageC.Resize("2")
+	newSize := curSize + 1
+	err = imageC.Resize(fmt.Sprintf("%d", newSize))
 	c.Assert(err, IsNil)
 
 	// Wait for image to return to READY state after async resize
@@ -272,9 +278,9 @@ func (s *ImageSuite) TestResize(c *C) {
 	c.Assert(wait, Equals, true)
 
 	// Verify the new size
-	image, err := imageC.Info(false)
+	image, err = imageC.Info(false)
 	c.Assert(err, IsNil)
-	c.Assert(image.Size, Equals, 2)
+	c.Assert(image.Size, Equals, newSize)
 }
 
 func (s *ImageSuite) TestRestore(c *C) {
