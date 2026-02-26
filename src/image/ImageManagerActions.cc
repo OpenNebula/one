@@ -1653,7 +1653,7 @@ int ImageManager::resize_image(int iid, const string& size, string& error)
     istringstream iss(size);
     iss >> new_size;
 
-    if (iss.fail() || new_size <= 0)
+    if (iss.fail() || !iss.eof() || new_size <= 0)
     {
         error = "Invalid size value: " + size;
         return -1;

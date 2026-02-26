@@ -258,6 +258,11 @@ func (s *ImageSuite) TestResize(c *C) {
 	c.Assert(err, NotNil)
 	c.Assert(err.Error(), Matches, ".*Invalid size.*")
 
+	// Resize with trailing garbage should fail (not silently truncate)
+	err = imageC.Resize("100abc")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Invalid size.*")
+
 	// Successful resize to larger size
 	err = imageC.Resize("2")
 	c.Assert(err, IsNil)
