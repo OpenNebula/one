@@ -3,6 +3,7 @@ name = "pyone"
 version = "7.1.80"
 description = "Python Bindings for OpenNebula XML-RPC API"
 readme = "LICENSE"
+license = {text = "Apache-2.0"}
 requires-python = ">=3.9"
 dependencies = [
     "lxml",
