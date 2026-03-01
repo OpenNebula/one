@@ -79,7 +79,6 @@
         </xs:element>
 
         <xs:element name="DEFAULT_AUTH" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element name="DEFAULT_CDROM_DEVICE_PREFIX" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
         <xs:element name="DEFAULT_COST" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
@@ -390,7 +389,6 @@
         </xs:element>
 
         <xs:element name="VM_MANAGE_OPERATIONS" type="xs:string" minOccurs="0" maxOccurs="1"/>
-        <xs:element name="VM_MONITORING_EXPIRATION_TIME" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="VM_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="VM_SNAPSHOT_FACTOR" type="xs:string" minOccurs="0" maxOccurs="1"/>
 

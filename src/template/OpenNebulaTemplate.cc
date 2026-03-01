@@ -381,7 +381,6 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("MONITORING_INTERVAL_MARKET", "600");
     set_conf_single("MONITORING_INTERVAL_DATASTORE", "300");
     set_conf_single("DS_MONITOR_VM_DISK", "10");
-    set_conf_single("VM_MONITORING_EXPIRATION_TIME", "14400");
     set_conf_single("PORT", "2633");
     set_conf_single("LISTEN_ADDRESS", "0.0.0.0");
 #ifdef GRPC
