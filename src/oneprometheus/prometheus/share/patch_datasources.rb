@@ -118,15 +118,20 @@ def is_local?(srv)
 
     if srv.match(ip_regex)
         return LOCAL_IPS.include?(srv) || IPAddr.new('127.0.0.0/8').include?(srv)
-    else
-        begin
-            ip = Resolv.getaddress(srv)
-        rescue
-            return Socket.gethostname == srv
-        end
-
-        return LOCAL_IPS.include?(ip) || IPAddr.new('127.0.0.0/8').include?(ip)
     end
+
+    begin
+        resolved_ip = Addrinfo.getaddrinfo(srv, nil).first.ip_address
+
+        if resolved_ip.match(ip_regex)
+            return LOCAL_IPS.include?(resolved_ip) ||
+                IPAddr.new('127.0.0.0/8').include?(resolved_ip)
+        end
+    rescue StandardError
+        return Socket.gethostname == srv
+    end
+
+    false
 end
 
 def patch_datasources(document, zone_name_or_id = 'OpenNebula')
