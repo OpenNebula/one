@@ -43,7 +43,7 @@ string VectorAttribute::marshall(const char * _sep) const
 
     if ( attribute_value.size() == 0 )
     {
-        return 0;
+        return {};
     }
 
     auto it = attribute_value.begin();
