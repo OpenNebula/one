@@ -606,6 +606,16 @@ Style/MapIntoArray:
 Style/SuperArguments:
   Enabled: false
 
+# Added in Rubocop 1.85
+Style/OneClassPerFile:
+    Enabled: false
+
+Style/FileOpen:
+    Enabled: false
+
+Style/PredicateWithKind:
+    Enabled: false
+
 ######
 # LINT
 ######
