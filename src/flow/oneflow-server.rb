@@ -46,17 +46,20 @@ $LOAD_PATH << LIB_LOCATION + '/oneflow/lib'
 
 require 'rubygems'
 require 'ffi-rzmq'
-# Shut down ZMQ cleanly during Ruby exit to avoid two problems:
-#   1) Finalizer deadlock: zmq_ctx_term blocks if sockets are still open
-#   2) Use-after-unmap crash: if zmq_ctx_term is skipped, ZMQ I/O threads
-#      keep running and SIGSEGV when FFI's dlclose unmaps libzmq
-# Fix: close all sockets first (unblocks zmq_ctx_term), then terminate
-# contexts (stops I/O threads), then suppress GC finalizers (no double-free).
+# Prevent crashes during Ruby shutdown caused by GC finalizer ordering:
+#   1) ZMQ::Context finalizer calls zmq_ctx_term which deadlocks if sockets
+#      are still open (GC order is undefined).
+#   2) FFI::DynamicLibrary finalizer calls dlclose() on libzmq, unmapping its
+#      code while ZMQ I/O threads are still running — causing SIGSEGV.
+# We cannot close sockets here because they may be in use by other threads
+# (ZMQ sockets are not thread-safe — cross-thread close causes SIGABRT).
+# Instead, suppress all ZMQ-related finalizers and let the OS clean up on exit.
 at_exit do
-    ObjectSpace.each_object(ZMQ::Socket) {|s| s.close }
     ObjectSpace.each_object(ZMQ::Context) do |c|
-        c.terminate
         ObjectSpace.undefine_finalizer(c)
+    end
+    ObjectSpace.each_object(FFI::DynamicLibrary) do |lib|
+        ObjectSpace.undefine_finalizer(lib)
     end
 end
 
