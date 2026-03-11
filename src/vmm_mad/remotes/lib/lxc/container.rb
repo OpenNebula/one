@@ -179,6 +179,14 @@ class Container
         wait_deploy(5)
     end
 
+    def freeze
+        !@client.freeze(@name).nil?
+    end
+
+    def unfreeze
+        !@client.unfreeze(@name).nil?
+    end
+
     #---------------------------------------------------------------------------
     # Storage
     #---------------------------------------------------------------------------

@@ -62,6 +62,7 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/DEPLOY_ID \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/VM_MAD \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
@@ -70,6 +71,7 @@ done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE )
 
 DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
+VMM_MAD="${XPATH_ELEMENTS[j++]}"
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
@@ -104,12 +106,29 @@ if [ "${TYPE}" != 'RBD' ]; then
     exit 1
 fi
 
-SNAP_CREATE_CMD=$(cat <<EOF
-    set -e -o pipefail
-
+if [[ $VMM_MAD == 'lxc' ]]; then
+    FREEZE_CMD=$(cat <<EOT
+    if sudo lxc-freeze -n $DEPLOY_ID ; then
+        trap "sudo lxc-unfreeze -n $DEPLOY_ID" EXIT
+    else
+        echo "Could not freeze container $DEPLOY_ID" >&2
+        exit 1
+    fi
+EOT
+)
+else
+    FREEZE_CMD=$(cat <<EOT
     if timeout ${VIRSH_TIMEOUT:-60} virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
         trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID || true" EXIT
     fi
+EOT
+)
+fi
+
+SNAP_CREATE_CMD=$(cat <<EOF
+    set -e -o pipefail
+
+    $FREEZE_CMD
 
     RBD="${RBD}"
 

@@ -54,9 +54,11 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/DEPLOY_ID \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/VM_MAD \
                     /VM/HISTORY_RECORDS/HISTORY[last\(\)]/DS_ID)
 
 DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
+VMM_MAD="${XPATH_ELEMENTS[j++]}"
 DS_ID="${XPATH_ELEMENTS[j++]}"
 
 VM_DIR="$(dirname ${SRC_PATH})"
@@ -65,6 +67,26 @@ SNAP_DIR="${SRC_PATH}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 
 REPLICA_HOST=$(get_replica_host $DS_ID)
+
+if [[ $VMM_MAD == 'lxc' ]]; then
+    HYPERVISOR_CMD=$(cat <<EOT
+    if sudo lxc-freeze -n $DEPLOY_ID ; then
+        trap "sudo lxc-unfreeze -n $DEPLOY_ID" EXIT
+    else
+        echo "Could not freeze container $DEPLOY_ID" >&2
+        exit 1
+    fi
+
+    cp \${REAL_DISK} $SNAP_PATH
+EOT
+)
+else
+    HYPERVISOR_CMD=$(cat <<EOT
+    retry_if_no_error "active block job" 3 5  virsh -q -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} \
+    --path \${REAL_DISK} --dest $SNAP_PATH --wait --finish
+EOT
+)
+fi
 
 CMD=$(cat <<EOT
 set -ex -o pipefail
@@ -79,8 +101,7 @@ else
     REAL_DISK="${SRC_PATH}"
 fi
 
-retry_if_no_error "active block job" 3 5  virsh -q -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} \
-    --path \${REAL_DISK} --dest $SNAP_PATH --wait --finish
+$HYPERVISOR_CMD
 
 if [ -n "$REPLICA_HOST" ]; then
     ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID"

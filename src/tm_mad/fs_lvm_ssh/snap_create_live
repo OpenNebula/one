@@ -61,10 +61,12 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/DEPLOY_ID \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/VM_MAD \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE )
 
 DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
+VMM_MAD="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 
@@ -77,11 +79,7 @@ LV_NAME="lv-one-$VM_ID-$DISK_ID"
 VG_NAME="vg-one-$DS_SYS_ID"
 SNAP_NAME="${LV_NAME}_s$SNAP_ID"
 
-SNAP_CREATE_CMD=$(cat <<EOF
-    set -e -o pipefail
-
-    if timeout ${VIRSH_TIMEOUT:-60} virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
-        trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID || true" EXIT
+LVM_SNAP_CMD=$(cat <<EOF
         ${SYNC}
         ${SUDO} ${LVSCAN}
 
@@ -99,12 +97,36 @@ SNAP_CREATE_CMD=$(cat <<EOF
         fi
 
         ${SYNC}
+EOF
+)
+
+if [[ $VMM_MAD == 'lxc' ]]; then
+    SNAP_CREATE_CMD=$(cat <<EOT
+    set -e -o pipefail
+
+    if sudo lxc-freeze -n $DEPLOY_ID ; then
+        trap "sudo lxc-unfreeze -n $DEPLOY_ID" EXIT
+        $LVM_SNAP_CMD
+    else
+        echo "Could not freeze container $DEPLOY_ID" >&2
+        exit 1
+    fi
+EOT
+)
+else
+    SNAP_CREATE_CMD=$(cat <<EOF
+    set -e -o pipefail
+
+    if timeout ${VIRSH_TIMEOUT:-60} virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
+        trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID || true" EXIT
+        $LVM_SNAP_CMD
     else
         echo "Unable to freeze VM; aborting"
         exit 1
     fi
 EOF
 )
+fi
 
 ssh_exec_and_log "$SRC_HOST" "$SNAP_CREATE_CMD" \
                  "Error creating snapshot $SNAP_NAME"

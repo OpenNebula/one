@@ -73,7 +73,8 @@ class Sudoers
             :LXC => [
                 'mount', 'umount', 'bindfs', 'losetup', 'qemu-nbd', 'lxc-attach', 'lxc-config',
                 'lxc-create', 'lxc-destroy', 'lxc-info', 'lxc-ls', 'lxc-start', 'lxc-stop',
-                'lxc-console', 'e2fsck', 'resize2fs', 'xfs_growfs', 'rbd-nbd', 'lxc-device'
+                'lxc-console', 'e2fsck', 'resize2fs', 'xfs_growfs', 'rbd-nbd', 'lxc-device',
+                'lxc-freeze', 'lxc-unfreeze'
             ],
             :MARKET => ["#{lib_location}/sh/create_container_image.sh"],
             :MEM => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],

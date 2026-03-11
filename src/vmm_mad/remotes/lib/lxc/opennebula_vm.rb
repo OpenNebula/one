@@ -606,9 +606,9 @@ class Disk
     end
 
     # Returns the associated linux device for the mountpoint
-    def find_device
-        sys_parts = Storage.lsblk('')
-        device    = ''
+    def find_device(sys_parts = nil)
+        sys_parts ||= Storage.lsblk('')
+        device = ''
 
         sys_parts.each do |d|
             if d['mountpoint'] == @mountpoint
@@ -622,6 +622,12 @@ class Disk
 
                     device = d['path']
                     break
+                end
+
+                if device.empty? &&
+                   @xml['LVM_THIN_ENABLE'] == 'YES' &&
+                   d['children'].any? { |child| child.key?('children') }
+                    device = find_device(d['children'])
                 end
             end
 

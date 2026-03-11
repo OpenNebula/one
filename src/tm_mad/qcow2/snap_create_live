@@ -54,6 +54,7 @@ done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/TARGET \
                     /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/FORMAT \
                     /VM/DEPLOY_ID \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/VM_MAD \
                     '%m%/VM/TEMPLATE/DISK/TARGET')
 
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
@@ -61,6 +62,7 @@ CLONE="${XPATH_ELEMENTS[j++]}"
 TARGET="${XPATH_ELEMENTS[j++]}"
 FORMAT="${XPATH_ELEMENTS[j++]}"
 DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
+VMM_MAD="${XPATH_ELEMENTS[j++]}"
 ALL_DISKS="${XPATH_ELEMENTS[j++]}"
 
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
@@ -78,6 +80,10 @@ SNAP_DIR="${DISK_PATH}.snap"
 SNAP_DIR_SHORT="${DISK_PATH_SHORT}.snap"
 
 if [ "$FORMAT" = "qcow2" ]; then
+    if [[ $VMM_MAD == 'lxc' ]]; then
+        echo "LXC driver does not support live qcow2 snapshots" >&2
+        exit 1
+    fi
     NEXT_SNAP_ID=$((SNAP_ID+1))
     SNAP_PATH="${SNAP_DIR}/${NEXT_SNAP_ID}"
     SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${NEXT_SNAP_ID}"
@@ -153,10 +159,18 @@ else
     CREATE_CMD="cp \"$DISK_PATH\" \"$SNAP_PATH\""
 fi
 
-CMD=$(cat <<EOT
-    set -ex -o pipefail
-    mkdir -p "$SNAP_DIR"
-
+if [[ $VMM_MAD == 'lxc' ]]; then
+    FREEZE_CMD=$(cat <<EOT
+    if sudo lxc-freeze -n $DEPLOY_ID ; then
+        trap "sudo lxc-unfreeze -n $DEPLOY_ID" EXIT
+    else
+        echo "Could not freeze container $DEPLOY_ID" >&2
+        exit 1
+    fi
+EOT
+)
+else
+    FREEZE_CMD=$(cat <<EOT
     if timeout ${VIRSH_TIMEOUT:-60} virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
         trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT
     elif virsh -c $LIBVIRT_URI suspend $DEPLOY_ID; then
@@ -165,7 +179,15 @@ CMD=$(cat <<EOT
         echo "Could not domfsfreeze or suspend domain" >&2
         exit 1
     fi
+EOT
+)
+fi
 
+CMD=$(cat <<EOT
+    set -ex -o pipefail
+    mkdir -p "$SNAP_DIR"
+
+    $FREEZE_CMD
     $CREATE_CMD
 EOT
 )

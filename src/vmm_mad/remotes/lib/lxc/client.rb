@@ -31,6 +31,8 @@ class LXCClient
         :destroy    => 'lxc-destroy',
         :info       => 'lxc-info',
         :device     => 'lxc-device',
+        :freeze     => 'lxc-freeze',
+        :unfreeze   => 'lxc-unfreeze',
         :ls         => 'lxc-ls',
         :start      => 'lxc-start',
         :stop       => 'lxc-stop'
@@ -69,6 +71,16 @@ class LXCClient
 
     def destroy(name, options = {})
         cmd = append_options("#{COMMANDS[:destroy]} -n '#{name}'", options)
+        Command.container_cmd(name, cmd)
+    end
+
+    def freeze(name, options = {})
+        cmd = append_options("#{COMMANDS[:freeze]} -n '#{name}'", options)
+        Command.container_cmd(name, cmd)
+    end
+
+    def unfreeze(name, options = {})
+        cmd = append_options("#{COMMANDS[:unfreeze]} -n '#{name}'", options)
         Command.container_cmd(name, cmd)
     end
 
