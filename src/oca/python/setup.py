@@ -28,7 +28,7 @@ install_requires = [
     'xmltodict',
     'tblib',
     'requests',
-    'grpcio>=1.72.0',
+    'grpcio',
 ]
 
 # include future in python2

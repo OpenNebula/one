@@ -65,6 +65,7 @@ src/rm/grpc/src/
 src/oca/ruby/opennebula/grpc/*_pb.rb
 src/oca/ruby/opennebula/grpc/.proto_built
 src/oca/python/pyone/grpc/
+!src/oca/python/pyone/grpc/__init__.py
 
 # editors temporary/swap files
 *.swp

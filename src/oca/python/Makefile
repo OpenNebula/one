@@ -33,7 +33,7 @@ ifneq ("${ROOT}","")
   root="--root=${ROOT}"
 endif
 
-all: pyone/bindings/__init__.py pyone/bindings/supbind.py grpc
+all: pyone/bindings/__init__.py pyone/bindings/supbind.py
 
 pyone/bindings/__init__.py pyone/bindings/supbind.py: $(schemas)
 	$(if $(GDS),,$(error generateDS not found. Please install it with: pip install generateDS))
@@ -56,7 +56,7 @@ pyone/grpc/grpc_api_registry.py: $(GRPC_HEADERS)
 
 .PHONY: clean dist
 clean:
-	rm -rf build dist pyone/bindings pyone/grpc *.egg-info doc
+	rm -rf build dist pyone/bindings pyone/grpc/*pb2*.py pyone/grpc/grpc_api_registry.py *.egg-info doc
 
 dist:
 	${PYTHON} setup.py sdist bdist_wheel

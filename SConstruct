@@ -197,6 +197,9 @@ grpcproto = ARGUMENTS.get('grpcproto', 'no')
 
 if grpcproto == 'yes':
     main_env.Append(proto='yes')
+
+    # Generate Python grpc bindings
+    main_env.Command('src/oca/python/pyone/grpc/grpc_api_registry.py', [], "make -C src/oca/python grpc")
 else:
     main_env.Append(proto='no')
 

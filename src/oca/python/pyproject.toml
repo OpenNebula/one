@@ -11,7 +11,7 @@ dependencies = [
     "xmltodict",
     "tblib",
     "requests",
-    "grpcio>=1.72.0",
+    "grpcio",
 ]
 
 [project.optional-dependencies]
