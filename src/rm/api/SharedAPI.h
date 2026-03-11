@@ -69,6 +69,11 @@ protected:
                                         int& oid,
                                         RequestAttributes& att);
 
+    Request::ErrorCode allocate(std::unique_ptr<Template> tmpl,
+                                int cluster_id,
+                                int& oid,
+                                RequestAttributes& att);
+
     Request::ErrorCode del(int oid,
                            bool recursive,
                            RequestAttributes& att);

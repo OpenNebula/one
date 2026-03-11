@@ -112,6 +112,11 @@ protected:
                                      int cluster_id,
                                      const std::string& cluster_name) override;
 
+    std::unique_ptr<Template> get_object_template() const override
+    {
+        return std::make_unique<Template>();
+    }
+
     int add_to_cluster(
             Cluster* cluster,
             int id,
@@ -121,11 +126,6 @@ protected:
 
         return clpool->add_to_cluster(PoolObjectSQL::HOST, cluster, id, error_msg);
     }
-
-private:
-    std::string _host_name;
-    std::string _im_mad;
-    std::string _vmm_mad;
 };
 
 /* -------------------------------------------------------------------------- */

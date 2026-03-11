@@ -72,24 +72,35 @@ Request::ErrorCode SharedAPI::allocate(const std::string& str_tmpl,
 {
     unique_ptr<Template> tmpl;
 
-    int rc;
-
-    string          cluster_name = ClusterPool::NONE_CLUSTER_NAME;
-    PoolObjectAuth  cluster_perms;
-
-    auto clpool = Nebula::instance().get_clpool();
-
     if ( !str_tmpl.empty() )
     {
         tmpl = get_object_template();
 
-        rc   = tmpl->parse_str_or_xml(str_tmpl, att.resp_msg);
+        int rc = tmpl->parse_str_or_xml(str_tmpl, att.resp_msg);
 
         if ( rc != 0 )
         {
             return Request::INTERNAL;
         }
     }
+
+    return allocate(std::move(tmpl), cluster_id, oid, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode SharedAPI::allocate(unique_ptr<Template> tmpl,
+                                       int cluster_id,
+                                       int& oid,
+                                       RequestAttributes& att)
+{
+    int rc;
+
+    string          cluster_name = ClusterPool::NONE_CLUSTER_NAME;
+    PoolObjectAuth  cluster_perms;
+
+    auto clpool = Nebula::instance().get_clpool();
 
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {

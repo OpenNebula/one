@@ -129,16 +129,23 @@ Request::ErrorCode HostAllocateAPI::allocate(const std::string& name,
                                              int& oid,
                                              RequestAttributes& att)
 {
-    _host_name = name;
-    _im_mad = im_mad;
-    _vmm_mad = vmm_mad;
-
     if ( cluster_id == ClusterPool::NONE_CLUSTER_ID )
     {
         cluster_id = ClusterPool::DEFAULT_CLUSTER_ID;
     }
 
-    return SharedAPI::allocate("", cluster_id, oid, att);
+    // Pack host-specific parameters into a template so they are passed
+    // through the per-request allocation chain (SharedAPI::allocate ->
+    // pool_allocate) instead of stored in member variables.  The XML-RPC
+    // server reuses a single HostAllocateXRPC instance across threads, so
+    // member variables are subject to race conditions.
+    auto tmpl = std::make_unique<Template>();
+
+    tmpl->add("HOST_NAME", name);
+    tmpl->add("IM_MAD", im_mad);
+    tmpl->add("VM_MAD", vmm_mad);
+
+    return SharedAPI::allocate(std::move(tmpl), cluster_id, oid, att);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -151,10 +158,18 @@ Request::ErrorCode HostAllocateAPI::pool_allocate(
         int                    cluster_id,
         const string&          cluster_name)
 {
+    string host_name;
+    string im_mad;
+    string vmm_mad;
+
+    tmpl->get("HOST_NAME", host_name);
+    tmpl->get("IM_MAD", im_mad);
+    tmpl->get("VM_MAD", vmm_mad);
+
     int rc = hpool->allocate(&id,
-                             _host_name,
-                             _im_mad,
-                             _vmm_mad,
+                             host_name,
+                             im_mad,
+                             vmm_mad,
                              cluster_id,
                              cluster_name,
                              att.resp_msg);
