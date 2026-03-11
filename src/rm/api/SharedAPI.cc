@@ -1512,7 +1512,7 @@ SharedAPI::QuotaResult SharedAPI::get_and_quota(int                       oid,
     int old_uid;
     int old_gid;
 
-    auto object = pool->get_ro<PoolObjectSQL>(oid);
+    auto object = pool->get<PoolObjectSQL>(oid);
 
     if ( object == nullptr )
     {
