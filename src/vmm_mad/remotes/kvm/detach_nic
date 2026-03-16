@@ -70,9 +70,7 @@ def detach_nic(dom, mac)
     end
 end
 
-def detach_pci(dom, vm)
-    dev_xml = vm.hostdev_xml(:force_hostdev => true)
-
+def detach_device(dom, dev_xml)
     cmd =<<~EOS
         #{virsh} detach-device #{dom} <(
         cat <<EOT
@@ -83,9 +81,7 @@ def detach_pci(dom, vm)
 
     rc, _o, e = Command.execute('bash -s', false, 0, :stdin_data => cmd)
 
-    if rc != 0
-        STDERR.puts "Could not attach NIC to #{dom}: #{e}"
-    end
+    STDERR.puts "Could not detach device from #{dom}: #{e}" if rc != 0
 
     rc
 end
@@ -101,7 +97,9 @@ mac    = ARGV[1]
 vm = KvmVM.new(STDIN.read)
 
 if vm.pci_attach?
-    rc = detach_pci(domain, vm)
+    rc = detach_device(domain, vm.hostdev_xml(:force_hostdev => true))
+elsif vm.dpdk_interface?(mac)
+    rc = detach_device(domain, vm.dpdk_interface_xml(mac))
 else
     rc = detach_nic(domain, mac)
 end

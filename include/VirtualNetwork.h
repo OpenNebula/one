@@ -18,7 +18,6 @@
 #define VIRTUAL_NETWORK_H_
 
 
-#include "PoolSQL.h"
 #include "VirtualNetworkTemplate.h"
 #include "Clusterable.h"
 #include "AddressRangePool.h"
@@ -26,8 +25,6 @@
 
 #include <vector>
 #include <string>
-
-#include "NebulaLog.h"
 
 class VirtualMachineNic;
 
@@ -42,6 +39,11 @@ class VirtualMachineNic;
 class VirtualNetwork : public PoolObjectSQL, public Clusterable
 {
 public:
+
+    /**
+     *  Default folder for DPDK vhost sockets
+     */
+    static constexpr const char * VHOST_DIR = "/var/lib/one/vhost-sockets";
 
     /**
      *  Defines the Virtual Network type based on its associated driver

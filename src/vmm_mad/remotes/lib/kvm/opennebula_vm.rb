@@ -468,6 +468,9 @@ module VirtualMachineManagerKVM
     # It provides some helper functions to implement KVM driver actions
     class KvmVM < OpenNebulaVM
 
+        # Default folder for DPDK vhost sockets, same as in VirtualNetwork.h
+        VHOST_DIR = '/var/lib/one/vhost-sockets'
+
         def initialize(xml_action)
             super(xml_action, {})
 
@@ -509,13 +512,24 @@ module VirtualMachineManagerKVM
             filter.encode!(:xml => :attr) unless filter.empty?
 
             if exist? 'BRIDGE'
-                dev = '<interface type="bridge">'
+                bridge_type = @xml["#{@xpath_prefix}BRIDGE_TYPE"]
 
-                if @xml["#{@xpath_prefix}BRIDGE_TYPE"] =~ /openvswitch/
+                case bridge_type
+                when 'openvswitch'
+                    dev = '<interface type="bridge">'
                     dev << '<virtualport type="openvswitch"/>'
+                    dev << xputs('<source bridge=%s/>', 'BRIDGE')
+                when 'openvswitch_dpdk'
+                    socket_path = vhost_socket_path(@xpath_prefix)
+                    socket_path.encode!(:xml => :attr)
+
+                    dev = '<interface type="vhostuser">'
+                    dev << "<source type='unix' mode='server' path=#{socket_path}/>"
+                else
+                    dev = '<interface type="bridge">'
+                    dev << xputs('<source bridge=%s/>', 'BRIDGE')
                 end
 
-                dev << xputs('<source bridge=%s/>', 'BRIDGE')
             else
                 dev = '<interface type="ethernet">'
             end
@@ -674,7 +688,21 @@ module VirtualMachineManagerKVM
             dev
         end
 
+        def dpdk_interface_xml(mac)
+            socket_path = vhost_socket_path("TEMPLATE/NIC[MAC='#{mac}']/")
+            socket_path.encode!(:xml => :attr)
+
+            '<interface type="vhostuser">' \
+            "<source type='unix' mode='server' path='#{socket_path}'/>" \
+            "<mac address='#{mac}'/>" \
+            '</interface>'
+        end
+
         private
+
+        def vhost_socket_path(xpath_prefix)
+            "#{VHOST_DIR}/#{@xml["#{xpath_prefix}TARGET"]}"
+        end
 
         # @return the string printing an XML VM attribute following the provided
         # format.

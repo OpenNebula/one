@@ -16,6 +16,7 @@
 ################################################################################
 # OpenNebula Configuration Options
 ################################################################################
+
 #
 # Default path for the datastores. This only need to be change if the
 # corresponding value in oned.conf has been modified.

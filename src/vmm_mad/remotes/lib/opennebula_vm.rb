@@ -80,10 +80,9 @@ class OpenNebulaVM
         @vm_name = @xml['//DEPLOY_ID']
         @vm_name = "one-#{@vm_id}" if @vm_name.empty?
 
-        if mad_conf[:datastore_location]
-            sysds_id    = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
-            @sysds_path = "#{mad_conf[:datastore_location]}/#{sysds_id}"
-        end
+        @sysds_id   = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
+        dslocation  = mad_conf[:datastore_location] || '/var/lib/one/datastores'
+        @sysds_path = "#{dslocation}/#{@sysds_id}"
 
         return if wild?
 
@@ -214,6 +213,16 @@ class OpenNebulaVM
 
     def numa_nodes
         @xml.elements('//TEMPLATE/NUMA_NODE')
+    end
+
+    def dpdk_interface?(mac = nil)
+        xpath = if mac
+                    "TEMPLATE/NIC[MAC='#{mac}']"
+                else
+                    "TEMPLATE/NIC[ATTACH='YES']"
+                end
+
+        @xml["#{xpath}/BRIDGE_TYPE"] == 'openvswitch_dpdk'
     end
 
     def swap_limitable?

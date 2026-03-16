@@ -25,8 +25,6 @@
 #include "DatastorePool.h"
 #include "NebulaUtil.h"
 
-#include <regex>
-#include <exception>
 #include <sstream>
 #include <fstream>
 #include <libgen.h>
@@ -1926,7 +1924,7 @@ int LibVirtDriver::deployment_description_kvm(
                 case VirtualNetwork::OPENVSWITCH_DPDK:
                     file << "\t\t<interface type='vhostuser'>\n"
                          << "\t\t\t<source type='unix' mode='server' path='"
-                         << vm->get_system_dir() << "/" << target << "' />\n";
+                         << VirtualNetwork::VHOST_DIR << "/" << target << "' />\n";
                     break;
             }
         }

@@ -15,12 +15,16 @@
 #--------------------------------------------------------------------------- #
 
 require 'vnmmad'
+require 'fileutils'
 
 # Implementation of the Open vSwitch driver
 class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
     DRIVER       = 'ovswitch'
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ovswitch']"
+
+    # Default folder for DPDK vhost sockets, same as in VirtualNetwork.h
+    VHOST_DIR = '/var/lib/one/vhost-sockets'
 
     SUPPORTED_UPDATE = [
         :vlan_id,
@@ -72,7 +76,16 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                 add_bridge_port(@nic[:phydev], nil)
             end
 
-            add_bridge_port(nic[:target], dpdk_vm(@nic[:target])) if dpdk?
+            if dpdk?
+                add_bridge_port(nic[:target], dpdk_vm(@nic[:target]))
+
+                begin
+                    FileUtils.mkdir_p(VHOST_DIR) unless Dir.exist?(VHOST_DIR)
+                rescue StandardError
+                    msg = "Could not create vhost socket directory at #{vhost_dir}"
+                    OpenNebula::DriverLogger.log_error msg
+                end
+            end
 
             if @nic[:tap].nil?
                 # In net/pre action, we just need to ensure the bridge is
@@ -519,14 +532,9 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         @nic[:bridge_type] == 'openvswitch_dpdk'
     end
 
-    # Path to the vm port socket /var/lib/one/datastores/0/23/one-23-0
+    # Path to the vm port socket options:vhost-server-path
     def dpdk_vm(port)
-        "#{@vm.system_dir(@nic[:conf][:datastore_location])}/#{port}"
-    end
-
-    # Path to  bridge folder for non VM links
-    def dpdk_br
-        "#{@nic[:conf][:datastore_location]}/ovs-#{@nic[:bridge]}"
+        "#{VHOST_DIR}/#{port}"
     end
 
     # Creates an OvS bridge if it does not exists, and brings it up.
