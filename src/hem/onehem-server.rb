@@ -46,19 +46,34 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'ffi-rzmq'
 # Prevent crashes during Ruby shutdown caused by GC finalizer ordering:
-#   1) ZMQ::Context finalizer calls zmq_ctx_term which deadlocks if sockets
-#      are still open (GC order is undefined).
-#   2) FFI::DynamicLibrary finalizer calls dlclose() on libzmq, unmapping its
-#      code while ZMQ I/O threads are still running — causing SIGSEGV.
-# We cannot close sockets here because they may be in use by other threads
-# (ZMQ sockets are not thread-safe — cross-thread close causes SIGABRT).
-# Instead, suppress all ZMQ-related finalizers and let the OS clean up on exit.
+#
+#   1) SIGSEGV: FFI::DynamicLibrary's C-level destructor calls dlclose() on
+#      libzmq, unmapping its code while ZMQ I/O threads still execute it.
+#      On Ruby 3.4+, FFI objects are frozen (Ractor-safety), so
+#      ObjectSpace.undefine_finalizer raises FrozenError — cannot suppress.
+#      Fix: pin libzmq via Fiddle.dlopen with close disabled, adding a dlopen
+#      refcount that is never decremented (leaked; OS reclaims on exit).
+#
+#   2) Deadlock: ZMQ::Context finalizer calls zmq_ctx_term which blocks if
+#      sockets are still open (GC order is undefined).
+#      Fix: suppress the ZMQ::Context finalizer (not frozen, works on all Rubies).
 at_exit do
+    # Suppress ZMQ::Context finalizer to prevent zmq_ctx_term deadlock.
     ObjectSpace.each_object(ZMQ::Context) do |c|
-        ObjectSpace.undefine_finalizer(c)
+        ObjectSpace.undefine_finalizer(c) rescue nil
     end
-    ObjectSpace.each_object(FFI::DynamicLibrary) do |lib|
-        ObjectSpace.undefine_finalizer(lib)
+
+    # Pin libzmq in memory to prevent SIGSEGV from dlclose.
+    begin
+        require 'fiddle'
+        zmq_handle = Fiddle.dlopen('libzmq.so.5')
+        zmq_handle.disable_close
+    rescue StandardError
+        # Fallback for systems without Fiddle or different soname;
+        # works on Ruby < 3.4 where FFI objects are not frozen.
+        ObjectSpace.each_object(FFI::DynamicLibrary) do |lib|
+            ObjectSpace.undefine_finalizer(lib) rescue nil
+        end
     end
 end
 
