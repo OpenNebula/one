@@ -32,6 +32,7 @@ SYNOPSIS
   IMPORTANT: Requires working Docker or Podman (with podman-docker wrapper)!
 
   IMPORTANT: Requires following vars to be exported: RHEL_USER, RHEL_PASSWORD and RHEL_POOL_ID
+  IMPORTANT: Requires following vars to be exported: SUSE_REGCODE and SUSE_EMAIL (for SLE targets)
 
 EXAMPLES
   $(basename "$0")                       - updates all distributions
@@ -84,6 +85,10 @@ if command -v dpkg >/dev/null; then
     dpkg -r ruby-bundler
 
 elif command -v zypper >/dev/null; then
+    if [ -x /usr/bin/SUSEConnect ] && [ -n "${SUSE_REGCODE}" ]; then
+        SUSEConnect -r ${SUSE_REGCODE} -e ${SUSE_EMAIL} ||:
+    fi
+
     zypper -n refresh
     zypper -n install ruby rubygems findutils openssl
     rpm -e --nodeps rubygem-bundler ||:
@@ -113,10 +118,18 @@ fi
 
 # install Bundler
 find /usr -name 'bundler*.gemspec' -delete
-export PATH=\$PATH:/usr/local/bin
+export PATH=\$PATH:/usr/local/bin:\$(ruby -e 'puts Gem.bindir')
 
-# use latest bundler
-gem install bundler --no-document --quiet
+# use latest compatible bundler
+gem install bundler --no-document --quiet 2>/dev/null || \
+gem install bundler --no-document --quiet --version '2.3.27' 2>/dev/null || \
+gem install bundler --no-document --quiet --version '<2'
+
+# SUSE update-alternatives creates bundler.ruby* instead of bundler
+if ! command -v bundler >/dev/null; then
+    ln -sf \$(ls /usr/bin/bundler.ruby* 2>/dev/null | head -1) /usr/bin/bundler ||:
+    ln -sf \$(ls /usr/bin/bundle.ruby* 2>/dev/null | head -1) /usr/bin/bundle ||:
+fi
 
 # install OpenNebula
 mkdir -p /run/lock
@@ -137,6 +150,7 @@ mkdir -p /git/share/install_gems/${DIR}/
 
 # unsubscribe
 subscription-manager remove --all ||:
+SUSEConnect -d ||:
 
 exit 0
 EOF

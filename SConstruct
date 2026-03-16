@@ -18,6 +18,7 @@
 import os
 import sys
 import shutil
+import importlib
 from subprocess import Popen, PIPE
 
 import SCons
@@ -199,7 +200,10 @@ if grpcproto == 'yes':
     main_env.Append(proto='yes')
 
     # Generate Python grpc bindings
-    main_env.Command('src/oca/python/pyone/grpc/grpc_api_registry.py', [], "make -C src/oca/python grpc")
+    if importlib.util.find_spec('grpc_tools'):
+        main_env.Command('src/oca/python/pyone/grpc/grpc_api_registry.py', [], "make -C src/oca/python grpc")
+    else:
+        print("Warning: 'grpc_tools' (python3-grpcio-tools) not found. Skipping Python grpc bindings generation.")
 else:
     main_env.Append(proto='no')
 

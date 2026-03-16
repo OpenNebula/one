@@ -90,8 +90,11 @@ case "${TARGET}" in
         zypper -n install \
             ruby-devel make gcc sqlite3-devel libcurl-devel \
             libxml2-devel libxslt-devel patch gcc-c++ \
-            libopenssl-devel augeas-devel pkgconf rpm-build \
+            libopenssl-devel augeas-devel rpm-build \
             >/dev/null
+
+        zypper -n install pkgconf >/dev/null 2>&1 || \
+            zypper -n install pkg-config >/dev/null 2>&1 || :
 
         zypper -n install libmariadb-devel >/dev/null 2>&1 || \
             zypper -n install mariadb-connector-c-devel >/dev/null || :
@@ -105,7 +108,7 @@ esac
 if ! command -v bundler >/dev/null; then
     echo '* Install Bundler'
 
-    for VERSION in '' '~>2' '<2'; do
+    for VERSION in '' '2.3.27' '<2'; do
         if [ -z "$VERSION" ]; then
             if gem install bundler >/dev/null 2>&1; then
                 break
@@ -116,6 +119,12 @@ if ! command -v bundler >/dev/null; then
             fi
         fi
     done
+
+    # SUSE update-alternatives creates bundler.ruby* instead of bundler
+    if ! command -v bundler >/dev/null; then
+        ln -sf $(ls /usr/bin/bundler.ruby* 2>/dev/null | head -1) /usr/bin/bundler 2>/dev/null ||:
+        ln -sf $(ls /usr/bin/bundle.ruby* 2>/dev/null | head -1) /usr/bin/bundle 2>/dev/null ||:
+    fi
 
     if ! command -v bundler >/dev/null; then
         echo "ERROR: Failed to install Bundler" >&2
