@@ -73,8 +73,6 @@ Request::ErrorCode SharedAPI::allocate(const std::string& str_tmpl,
                                        int& oid,
                                        RequestAttributes& att)
 {
-    unique_ptr<Template> tmpl;
-
     int rc;
 
     string          cluster_name = ClusterPool::NONE_CLUSTER_NAME;
@@ -82,11 +80,11 @@ Request::ErrorCode SharedAPI::allocate(const std::string& str_tmpl,
 
     auto clpool = Nebula::instance().get_clpool();
 
-    if ( !str_tmpl.empty() )
-    {
-        tmpl = get_object_template();
+    unique_ptr<Template> tmpl = get_object_template();
 
-        rc   = tmpl->parse_str_or_xml(str_tmpl, att.resp_msg);
+    if (tmpl)
+    {
+        rc = tmpl->parse_str_or_xml(str_tmpl, att.resp_msg);
 
         if ( rc != 0 )
         {
