@@ -24,14 +24,13 @@
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class UserAllocateXRPC : public RequestXRPC, public UserAllocateAPI
+class UserAllocateXRPC : public RequestXRPC
 {
 public:
     UserAllocateXRPC() :
         RequestXRPC("one.user.allocate",
                     "Allocates a new user",
-                    "A:ssssA"),
-        UserAllocateAPI(static_cast<Request&>(*this))
+                    "A:ssssA")
     {}
 
     void request_execute(xmlrpc_c::paramList const& _paramList,

@@ -294,7 +294,7 @@ protected:
 
 class VirtualMachineAllocateAPI : public VirtualMachineAPI
 {
-protected:
+public:
     VirtualMachineAllocateAPI(Request &r)
         : VirtualMachineAPI(r)
     {
@@ -306,6 +306,7 @@ protected:
                                 int& oid,
                                 RequestAttributes& att);
 
+private:
     std::unique_ptr<Template> get_object_template() const override
     {
         return std::make_unique<VirtualMachineTemplate>();
@@ -319,7 +320,6 @@ protected:
                                               RequestAttributes&  att,
                                               PoolObjectAuth *cluster_perms) override;
 
-private:
     bool on_hold = false;
 };
 

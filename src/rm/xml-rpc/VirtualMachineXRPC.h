@@ -24,14 +24,13 @@
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualMachineAllocateXRPC : public RequestXRPC, public VirtualMachineAllocateAPI
+class VirtualMachineAllocateXRPC : public RequestXRPC
 {
 public:
     VirtualMachineAllocateXRPC() :
         RequestXRPC("one.vm.allocate",
                     "Allocates a new Virtual Machine",
-                    "A:ss"),
-        VirtualMachineAllocateAPI(static_cast<Request&>(*this))
+                    "A:ss")
     {}
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -772,14 +771,13 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualMachinePoolInfoSetXRPC : public RequestXRPC, public VirtualMachinePoolAPI
+class VirtualMachinePoolInfoSetXRPC : public RequestXRPC
 {
 public:
     VirtualMachinePoolInfoSetXRPC()
         : RequestXRPC("one.vmpool.infoset",
                       "Returns the Virtual Machine pool",
                       "A:ssb")
-        , VirtualMachinePoolAPI(static_cast<Request&>(*this))
     {}
 
     void request_execute(xmlrpc_c::paramList const& _paramList,

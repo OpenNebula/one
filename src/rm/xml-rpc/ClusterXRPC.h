@@ -24,14 +24,13 @@
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ClusterAllocateXRPC : public RequestXRPC, public ClusterAllocateAPI
+class ClusterAllocateXRPC : public RequestXRPC
 {
 public:
     ClusterAllocateXRPC() :
         RequestXRPC("one.cluster.allocate",
                     "Allocates a new Cluster",
-                    "A:ssssi"),
-        ClusterAllocateAPI(static_cast<Request&>(*this))
+                    "A:ssssi")
     {}
 
     void request_execute(xmlrpc_c::paramList const& _paramList,

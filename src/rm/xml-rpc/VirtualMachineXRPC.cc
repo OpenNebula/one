@@ -26,10 +26,12 @@ void VirtualMachineAllocateXRPC::request_execute(xmlrpc_c::paramList const& para
 {
     int oid;
 
-    auto ec = allocate(paramList.getString(1),  // Template
-                       paramList.size() > 2 ? paramList.getBoolean(2) : false, // Hold
-                       oid,
-                       att);
+    VirtualMachineAllocateAPI api(static_cast<Request&>(*this));
+
+    auto ec = api.allocate(paramList.getString(1),  // Template
+                           paramList.size() > 2 ? paramList.getBoolean(2) : false, // Hold
+                           oid,
+                           att);
 
     response(ec, oid, att);
 }
@@ -689,10 +691,13 @@ void VirtualMachinePoolInfoSetXRPC::request_execute(xmlrpc_c::paramList const& p
 {
     string xml;
 
-    auto ec = info_set(paramList.getString(1),  // ids
-                       paramList.getBoolean(2), // extended
-                       xml,
-                       att);
+    // Use new API instance for each call to prevent race condition issues
+    VirtualMachinePoolAPI api(static_cast<Request&>(*this));
+
+    auto ec = api.info_set(paramList.getString(1),  // ids
+                           paramList.getBoolean(2), // extended
+                           xml,
+                           att);
 
     response(ec, xml, att);
 }

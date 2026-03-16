@@ -24,14 +24,13 @@
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class GroupAllocateXRPC : public RequestXRPC, public GroupAllocateAPI
+class GroupAllocateXRPC : public RequestXRPC
 {
 public:
     GroupAllocateXRPC() :
         RequestXRPC("one.group.allocate",
                     "Allocates a new group",
-                    "A:ss"),
-        GroupAllocateAPI(static_cast<Request&>(*this))
+                    "A:ss")
     {}
 
     void request_execute(xmlrpc_c::paramList const& _paramList,

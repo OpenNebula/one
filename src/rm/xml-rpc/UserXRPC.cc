@@ -38,13 +38,16 @@ void UserAllocateXRPC::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    auto ec = allocate(paramList.getString(1),       // username
-                       paramList.getString(2),       // password
-                       paramList.getString(3),       // driver
-                       group_ids,                    // group IDs
-                       ClusterPool::NONE_CLUSTER_ID, // cluster ID
-                       oid,
-                       att);
+    // Use new API instance for each call to prevent race condition issues
+    UserAllocateAPI api(static_cast<Request&>(*this));
+
+    auto ec = api.allocate(paramList.getString(1),       // username
+                           paramList.getString(2),       // password
+                           paramList.getString(3),       // driver
+                           group_ids,                    // group IDs
+                           ClusterPool::NONE_CLUSTER_ID, // cluster ID
+                           oid,
+                           att);
 
     response(ec, oid, att);
 }

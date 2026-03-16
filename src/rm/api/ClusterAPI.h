@@ -93,7 +93,7 @@ protected:
 
 class ClusterAllocateAPI : public ClusterAPI
 {
-protected:
+public:
     ClusterAllocateAPI(Request &r)
         : ClusterAPI(r)
     {
@@ -104,6 +104,7 @@ protected:
                                 int& oid,
                                 RequestAttributes& att);
 
+private:
     Request::ErrorCode pool_allocate(std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;

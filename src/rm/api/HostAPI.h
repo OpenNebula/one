@@ -92,7 +92,7 @@ protected:
 
 class HostAllocateAPI : public HostAPI
 {
-protected:
+public:
     HostAllocateAPI(Request &r)
         : HostAPI(r)
     {
@@ -106,6 +106,7 @@ protected:
                                 int& oid,
                                 RequestAttributes& att);
 
+private:
     Request::ErrorCode pool_allocate(std::unique_ptr<Template> tmpl,
                                      int& id,
                                      RequestAttributes& att,
@@ -122,7 +123,6 @@ protected:
         return clpool->add_to_cluster(PoolObjectSQL::HOST, cluster, id, error_msg);
     }
 
-private:
     std::string _host_name;
     std::string _im_mad;
     std::string _vmm_mad;

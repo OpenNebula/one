@@ -27,10 +27,13 @@ void GroupAllocateXRPC::request_execute(xmlrpc_c::paramList const& paramList,
 {
     int oid;
 
-    auto ec = allocate(paramList.getString(1),       // gname
-                       ClusterPool::NONE_CLUSTER_ID, // cluster ID
-                       oid,
-                       att);
+    // Use new API instance for each call to prevent race condition issues
+    GroupAllocateAPI api(static_cast<Request&>(*this));
+
+    auto ec = api.allocate(paramList.getString(1),       // gname
+                           ClusterPool::NONE_CLUSTER_ID, // cluster ID
+                           oid,
+                           att);
 
     response(ec, oid, att);
 }

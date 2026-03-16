@@ -337,7 +337,7 @@ protected:
     {
         std::lock_guard<std::mutex> lock(_mutex);
 
-        auto rc = rename_ids.insert(oid);
+        auto rc = rename_ids[request.auth_object()].insert(oid);
 
         return rc.second == true;
     }
@@ -349,7 +349,7 @@ protected:
     {
         std::lock_guard<std::mutex> lock(_mutex);
 
-        rename_ids.erase(oid);
+        rename_ids[request.auth_object()].erase(oid);
     }
 
     /**
@@ -462,12 +462,12 @@ private:
     /**
      *  Mutex for locking the rename_ids set
      */
-    std::mutex _mutex;
+    static std::mutex _mutex;
 
     /**
      *  Set of ids of objects that are being renamed
      */
-    std::set<int> rename_ids;
+    static std::map<PoolObjectSQL::ObjectType, std::set<int>> rename_ids;
 };
 
 #endif

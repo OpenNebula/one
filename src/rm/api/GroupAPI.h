@@ -88,7 +88,7 @@ protected:
 
 class GroupAllocateAPI : public GroupAPI
 {
-protected:
+public:
     GroupAllocateAPI(Request &r) : GroupAPI(r)
     {
         request.auth_op(AuthRequest::CREATE);
@@ -99,11 +99,11 @@ protected:
                                 int&               oid,
                                 RequestAttributes& att) override;
 
+private:
     Request::ErrorCode pool_allocate(std::unique_ptr<Template> tmpl,
                                      int&                       id,
                                      RequestAttributes&         att) override;
 
-private:
     std::string _gname;
 };
 

@@ -27,11 +27,14 @@ void DocumentAllocateXRPC::request_execute(xmlrpc_c::paramList const& paramList,
 {
     int oid;
 
-    auto ec = allocate(paramList.getString(1),       // template
-                       paramList.getInt(2),          // type
-                       ClusterPool::NONE_CLUSTER_ID, // cluster ID
-                       oid,
-                       att);
+    // Use new API instance for each call to prevent race condition issues
+    DocumentAllocateAPI api(static_cast<Request&>(*this));
+
+    auto ec = api.allocate(paramList.getString(1),       // template
+                           paramList.getInt(2),          // type
+                           ClusterPool::NONE_CLUSTER_ID, // cluster ID
+                           oid,
+                           att);
 
     response(ec, oid, att);
 }

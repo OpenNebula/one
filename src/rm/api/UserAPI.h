@@ -201,7 +201,7 @@ protected:
 
 class UserAllocateAPI : public UserAPI
 {
-protected:
+public:
     UserAllocateAPI(Request &r) : UserAPI(r)
     {
         request.auth_op(AuthRequest::CREATE);
@@ -216,6 +216,7 @@ protected:
                                 int&               oid,
                                 RequestAttributes& att);
 
+private:
     Request::ErrorCode allocate_authorization(Template *obj_template,
                                               RequestAttributes&  att,
                                               PoolObjectAuth *cluster_perms) override;
@@ -224,7 +225,6 @@ protected:
                                      int&                       id,
                                      RequestAttributes&         att) override;
 
-private:
     std::string _uname;
     std::string _passwd;
     std::string _driver;

@@ -24,14 +24,13 @@
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class DocumentAllocateXRPC : public RequestXRPC, public DocumentAllocateAPI
+class DocumentAllocateXRPC : public RequestXRPC
 {
 public:
     DocumentAllocateXRPC() :
         RequestXRPC("one.document.allocate",
                     "Allocates a new generic document",
-                    "A:ssi"),
-        DocumentAllocateAPI(static_cast<Request&>(*this))
+                    "A:ssi")
     {}
 
     void request_execute(xmlrpc_c::paramList const& _paramList,

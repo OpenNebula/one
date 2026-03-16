@@ -26,12 +26,14 @@ void HostAllocateXRPC::request_execute(xmlrpc_c::paramList const& paramList,
 {
     int oid;
 
-    auto ec = allocate(paramList.getString(1), // name
-                       paramList.getString(2), // IM mad
-                       paramList.getString(3), // VM mad
-                       paramList.getInt(4),    // cluster id
-                       oid,
-                       att);
+    HostAllocateAPI host(static_cast<Request&>(*this));
+
+    auto ec = host.allocate(paramList.getString(1), // name
+                            paramList.getString(2), // IM mad
+                            paramList.getString(3), // VM mad
+                            paramList.getInt(4),    // cluster id
+                            oid,
+                            att);
 
     response(ec, oid, att);
 }

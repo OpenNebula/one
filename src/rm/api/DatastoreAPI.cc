@@ -99,13 +99,13 @@ int DatastoreAPI::drop(std::unique_ptr<PoolObjectSQL> object,
 void DatastoreAPI::batch_rename(int oid)
 {
     set<int> images;
-    string image_name;
+    string ds_name;
 
     if ( auto datastore = dspool->get_ro(oid) )
     {
         images = datastore->get_image_ids();
 
-        image_name = datastore->get_name();
+        ds_name = datastore->get_name();
     }
     else
     {
@@ -120,7 +120,7 @@ void DatastoreAPI::batch_rename(int oid)
         {
             if (image->get_ds_id() == oid)
             {
-                image->set_ds_name(image_name);
+                image->set_ds_name(ds_name);
                 ipool->update(image.get());
             }
         }

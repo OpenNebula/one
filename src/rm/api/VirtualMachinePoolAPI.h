@@ -26,7 +26,7 @@
 
 class VirtualMachinePoolAPI : public PoolSharedAPI
 {
-protected:
+public:
 
     VirtualMachinePoolAPI(Request &r)
         : PoolSharedAPI(r)
@@ -38,6 +38,12 @@ protected:
     }
 
     /* API calls */
+    Request::ErrorCode info_set(const std::string& ids_str,
+                                bool extended,
+                                std::string& xml,
+                                RequestAttributes& att);
+
+protected:
     Request::ErrorCode info(int filter_flag,
                             int start_id,
                             int end_id,
@@ -53,11 +59,6 @@ protected:
                                      const std::string& json_query,
                                      std::string& xml,
                                      RequestAttributes& att);
-
-    Request::ErrorCode info_set(const std::string& ids_str,
-                                bool extended,
-                                std::string& xml,
-                                RequestAttributes& att);
 
     Request::ErrorCode monitoring(int filter_flag,
                                   int seconds,

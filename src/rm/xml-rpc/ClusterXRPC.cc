@@ -26,9 +26,12 @@ void ClusterAllocateXRPC::request_execute(xmlrpc_c::paramList const& paramList,
 {
     int oid;
 
-    auto ec = allocate(paramList.getString(1), // name
-                       oid,
-                       att);
+    // Use new API instance for each call to prevent race condition issues
+    ClusterAllocateAPI api(static_cast<Request&>(*this));
+
+    auto ec = api.allocate(paramList.getString(1), // name
+                           oid,
+                           att);
 
     response(ec, oid, att);
 }

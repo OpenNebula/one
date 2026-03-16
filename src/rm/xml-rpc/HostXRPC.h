@@ -24,14 +24,13 @@
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class HostAllocateXRPC : public RequestXRPC, public HostAllocateAPI
+class HostAllocateXRPC : public RequestXRPC
 {
 public:
     HostAllocateXRPC() :
         RequestXRPC("one.host.allocate",
                     "Allocates a new host",
-                    "A:ssssi"),
-        HostAllocateAPI(static_cast<Request&>(*this))
+                    "A:ssssi")
     {}
 
     void request_execute(xmlrpc_c::paramList const& _paramList,

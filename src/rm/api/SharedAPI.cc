@@ -33,6 +33,9 @@ using namespace std;
 /* Static methods ----------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+map<PoolObjectSQL::ObjectType, set<int>> SharedAPI::rename_ids;
+mutex SharedAPI::_mutex;
+
 static Request::ErrorCode delete_authorization(PoolSQL* pool, int oid,
                                                RequestAttributes& att)
 {

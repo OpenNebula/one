@@ -24,14 +24,13 @@
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class MarketPlaceAppAllocateXRPC : public RequestXRPC, public MarketPlaceAppAllocateAPI
+class MarketPlaceAppAllocateXRPC : public RequestXRPC
 {
 public:
     MarketPlaceAppAllocateXRPC() :
         RequestXRPC("one.marketapp.allocate",
                     "Allocates a new MarketPlaceApp",
-                    "A:ss"),
-        MarketPlaceAppAllocateAPI(static_cast<Request&>(*this))
+                    "A:ss")
     {}
 
     void request_execute(xmlrpc_c::paramList const& _paramList,

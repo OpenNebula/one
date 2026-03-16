@@ -70,7 +70,7 @@ protected:
 
 class DocumentAllocateAPI : public DocumentAPI
 {
-protected:
+public:
     DocumentAllocateAPI(Request &r) : DocumentAPI(r)
     {
         request.auth_op(AuthRequest::CREATE);
@@ -82,7 +82,7 @@ protected:
                                 int&               oid,
                                 RequestAttributes& att);
 
-
+private:
     std::unique_ptr<Template> get_object_template() const override
     {
         return std::make_unique<DocumentTemplate>();
@@ -91,7 +91,7 @@ protected:
     Request::ErrorCode pool_allocate(std::unique_ptr<Template> tmpl,
                                      int&                       id,
                                      RequestAttributes&         att) override;
-private:
+
     int _type  = -1;
 };
 

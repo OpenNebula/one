@@ -61,7 +61,7 @@ protected:
 
 class MarketPlaceAppAllocateAPI : public MarketPlaceAppAPI
 {
-protected:
+public:
     MarketPlaceAppAllocateAPI(Request &r)
         : MarketPlaceAppAPI(r)
     {
@@ -73,6 +73,7 @@ protected:
                                 int& oid,
                                 RequestAttributes& att) override;
 
+private:
     std::unique_ptr<Template> get_object_template() const override
     {
         return std::make_unique<MarketPlaceAppTemplate>();

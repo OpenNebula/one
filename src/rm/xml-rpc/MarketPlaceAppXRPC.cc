@@ -26,10 +26,13 @@ void MarketPlaceAppAllocateXRPC::request_execute(xmlrpc_c::paramList const& para
 {
     int oid;
 
-    auto ec = allocate(paramList.getString(1), // template
-                       paramList.getInt(2),    // MarketPlace ID
-                       oid,
-                       att);
+    // Use new API instance for each call to prevent race condition issues
+    MarketPlaceAppAllocateAPI api(static_cast<Request&>(*this));
+
+    auto ec = api.allocate(paramList.getString(1), // template
+                           paramList.getInt(2),    // MarketPlace ID
+                           oid,
+                           att);
 
     response(ec, oid, att);
 }
