@@ -25,6 +25,7 @@ else
     ONEPROMETHEUS_ETC_LOCATION = ONE_LOCATION + '/etc/'
 end
 
+require 'English'
 require 'optparse'
 require 'fileutils'
 require 'socket'
@@ -33,7 +34,7 @@ require 'yaml'
 require 'resolv'
 require 'ipaddr'
 
-LOCAL_IPS = Socket.ip_address_list.map { |ip| ip.ip_address }
+LOCAL_ADDRS = Socket.ip_address_list.map(&:ip_address) + [Socket.gethostname]
 
 def list_to_dict(list, key: 'job_name')
     list.each_with_object({}) do |item, dict|
@@ -72,66 +73,72 @@ end
 
 def onezone_show(zone_name_or_id = 'OpenNebula')
     output = `onezone show '#{zone_name_or_id}' --yaml`
-    result = $?.to_i
+    result = $CHILD_STATUS.to_i
 
     exit(-1) if result != 0
 
     YAML.safe_load output
 end
 
-def detect_servers(zone_name_or_id = 'OpenNebula')
-    servers = onezone_show(zone_name_or_id)&.dig('ZONE', 'SERVER_POOL', 'SERVER')
-
-    if servers.is_a?(Hash)
-        servers = [servers]
-    end
-
-    addresses = servers&.map do |server|
-        hostname = URI(server['ENDPOINT']).host
-        Addrinfo.ip(hostname).ip_address
-    end
-
-    interface_addresses = Socket.ip_address_list.map do |address|
-        address.ip_address
-    end
-
-    address = addresses&.find do |addr|
-        interface_addresses.include? addr
-    end
-
-    index = addresses&.index address
-    addresses&.delete_at index
-
-    [addresses || [], address || Socket.gethostname]
-end
-
 def onehost_list
-    hosts = YAML.safe_load `onehost list --yaml`
-    hosts = hosts.dig('HOST_POOL', 'HOST') || []
-    hosts = [hosts] if hosts.is_a? Hash
+    output = `onehost list --yaml`
+    result = $CHILD_STATUS.to_i
 
-    hosts.select { |h| h['TEMPLATE']['HOSTNAME'] }
+    exit(-1) if result != 0
+
+    hosts = YAML.safe_load(output)&.dig('HOST_POOL', 'HOST') || []
+
+    [hosts].flatten.select {|v| v['TEMPLATE']['HOSTNAME'] }
 end
 
-def is_local?(srv)
-    ip_regex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
-
-    if srv.match(ip_regex)
-        return LOCAL_IPS.include?(srv) || IPAddr.new('127.0.0.0/8').include?(srv)
-    end
-
-    begin
-        resolved_ip = Addrinfo.getaddrinfo(srv, nil).first.ip_address
-
-        if resolved_ip.match(ip_regex)
-            return LOCAL_IPS.include?(resolved_ip) ||
-                IPAddr.new('127.0.0.0/8').include?(resolved_ip)
+def is_local?(host)
+    case host.to_s.strip
+    when Resolv::AddressRegex # IPv4 or IPv6
+        v = Regexp.last_match(0)
+        LOCAL_ADDRS.include?(v) || IPAddr.new(v).loopback?
+    when /^.+$/ # hostname
+        v = Regexp.last_match(0)
+        begin
+            Addrinfo.getaddrinfo(v, nil, nil, :STREAM).map do |addr|
+                ip = addr.ip_address
+                LOCAL_ADDRS.include?(ip) || IPAddr.new(ip).loopback?
+            end.any?
+        rescue Socket::ResolutionError
+            Socket.gethostname == v
         end
-    rescue StandardError
-        return Socket.gethostname == srv
+    else
+        false
     end
+end
 
-    false
+def detect_servers(zone_name_or_id = 'OpenNebula')
+    servers = onezone_show(zone_name_or_id)&.dig('ZONE', 'SERVER_POOL', 'SERVER') || []
+
+    # NOTE: OpenNebula strictly requires that all FEs have resolvable
+    #       hostnames, otherwise some datastore related operations fail.
+    #       Hence we can safely assume hostnames can be always used
+    #       here instead of IP addresses.
+    addresses = [servers].flatten.map {|v| URI(v['ENDPOINT']).host }
+
+    myself = addresses.find {|v| is_local?(v) } || Socket.gethostname
+
+    addresses.reject! {|v| v == myself }
+
+    [addresses, myself].tap do |result|
+        # assert addresses are resolvable (raises Socket::ResolutionError)
+        result.flatten.each {|v| Addrinfo.ip(v) }
+    end
+end
+
+def format_host(host)
+    case host.to_s.strip
+    when Resolv::IPv6::Regex
+        "[#{Regexp.last_match(0)}]"
+    when /^.+$/ # IPv4 or hostname
+        Regexp.last_match(0)
+    else
+        raise ArgumentError, 'Invalid host'
+    end
 end
 
 def patch_datasources(document, zone_name_or_id = 'OpenNebula')
@@ -142,9 +149,7 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     # Alertmanager
     document['alerting']['alertmanagers'] = [{
         'static_configs' => [{
-            'targets' => (servers + [myself]).map do |server|
-                "#{format_address(server)}:9093"
-            end
+            'targets' => (servers + [myself]).map {|server| "#{format_host(server)}:9093" }
         }]
     }]
 
@@ -154,7 +159,7 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     scrape_configs << {
         'job_name' => 'opennebula_exporter',
         'static_configs' => [{
-            'targets' => ["#{format_address(myself)}:9925"]
+            'targets' => ["#{format_host(myself)}:9925"]
         }]
     }
 
@@ -162,7 +167,7 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     node_exporters = []
 
     node_exporters += [{
-        'targets' => servers.map { |server| "#{format_address(server)}:9100" }
+        'targets' => servers.map {|server| "#{format_host(server)}:9100" }
     }] unless servers.empty?
 
     node_exporters += hosts.map do |host|
@@ -171,8 +176,8 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     end unless hosts.empty?
 
     # if localhost is not included in hosts already
-    node_exporters += [{ 'targets' => ["#{format_address(myself)}:9100"] }] \
-        unless hosts.map { |h| h['TEMPLATE']['HOSTNAME'] }.any? { |h| is_local?(h) }
+    node_exporters += [{ 'targets' => ["#{format_host(myself)}:9100"] }] \
+        unless hosts.map {|v| v['TEMPLATE']['HOSTNAME'] }.any? {|v| is_local?(v) }
 
     scrape_configs << {
         'job_name' => 'node_exporter',
@@ -195,27 +200,6 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     document
 end
 
-def format_address(address)
-    addr = address.to_s.strip
-    raise ArgumentError, "Invalid address" if addr.empty?
-
-    begin
-        ip = IPAddr.new(addr)
-        return ip.ipv6? ? "[#{ip}]" : ip.to_s
-    rescue IPAddr::InvalidAddressError
-    end
-
-    ip_str = Addrinfo.getaddrinfo(addr, nil)
-                   .map(&:ip_address)
-                   .find { |ip| IPAddr.new(ip).ipv4? } ||
-             Addrinfo.getaddrinfo(addr, nil).first&.ip_address
-
-    raise ArgumentError, "Cannot resolve '#{addr}' to IP" unless ip_str
-
-    ip = IPAddr.new(ip_str)
-    ip.ipv6? ? "[#{ip}]" : ip.to_s
-end
-
 if caller.empty?
     options = { :zone_name_or_id => 'OpenNebula' }
 
@@ -229,8 +213,8 @@ if caller.empty?
         end
 
         opts.on_tail '-h', '--help', 'Show this message' do
-          puts opts
-          exit
+            puts opts
+            exit
         end
     end.parse!
 

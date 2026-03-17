@@ -41,10 +41,7 @@ RSpec.describe 'detect_servers' do
           SERVER_POOL: {}
         DOCUMENT
 
-        allow(Socket).to receive(:ip_address_list).and_return [
-            Addrinfo.ip('127.0.0.1'),
-            Addrinfo.ip('192.168.150.1')
-        ]
+        stub_const 'LOCAL_ADDRS', ['127.0.0.1', '192.168.150.1']
 
         expect(detect_servers).to eq [
             [], Socket.gethostname
@@ -90,14 +87,55 @@ RSpec.describe 'detect_servers' do
               FEDLOG_INDEX: "-1"
         DOCUMENT
 
-        allow(Socket).to receive(:ip_address_list).and_return [
-            Addrinfo.ip('127.0.0.1'),
-            Addrinfo.ip('192.168.150.2')
-        ]
+        stub_const 'LOCAL_ADDRS', ['127.0.0.1', '192.168.150.2']
 
         expect(detect_servers).to eq [
             ['192.168.150.1', '192.168.150.3'], '192.168.150.2'
         ]
+    end
+    it 'should fail for unresolvable endpoints' do
+        allow(self).to receive(:onezone_show).and_return YAML.safe_load(<<~DOCUMENT)
+        ---
+        ZONE:
+          ID: '0'
+          NAME: OpenNebula
+          STATE: '0'
+          TEMPLATE:
+            ENDPOINT: http://localhost:2633/RPC2
+          SERVER_POOL:
+            SERVER:
+            - ENDPOINT: http://asd.omg.wth.1:2633/RPC2
+              ID: '0'
+              NAME: Node-1
+              STATE: '2'
+              TERM: '22'
+              VOTEDFOR: '1'
+              COMMIT: '97912'
+              LOG_INDEX: '97912'
+              FEDLOG_INDEX: "-1"
+            - ENDPOINT: http://asd.omg.wth.2:2633/RPC2
+              ID: '1'
+              NAME: Node-2
+              STATE: '3'
+              TERM: '22'
+              VOTEDFOR: '1'
+              COMMIT: '97912'
+              LOG_INDEX: '97912'
+              FEDLOG_INDEX: "-1"
+            - ENDPOINT: http://asd.omg.wth.3:2633/RPC2
+              ID: '2'
+              NAME: Node-3
+              STATE: '2'
+              TERM: '22'
+              VOTEDFOR: "-1"
+              COMMIT: '97912'
+              LOG_INDEX: '97912'
+              FEDLOG_INDEX: "-1"
+        DOCUMENT
+
+        stub_const 'LOCAL_ADDRS', ['127.0.0.1']
+
+        expect { detect_servers }.to raise_error(Socket::ResolutionError)
     end
 end
 
@@ -314,7 +352,6 @@ RSpec.describe 'patch_datasources' do
               VM_MAD: kvm
             MONITORING: {}
         DOCUMENT
-
         @provided = YAML.safe_load(<<~DOCUMENT)
         global:
           scrape_interval:     15s
@@ -330,7 +367,6 @@ RSpec.describe 'patch_datasources' do
           - targets: ['localhost:9090']
         DOCUMENT
     end
-
     it 'should patch prometheus datasources for 1 peer' do
         allow(self).to receive(:onehost_list).and_return @onehost_list
 
@@ -385,7 +421,6 @@ RSpec.describe 'patch_datasources' do
 
         expect(patch_datasources(@provided)).to eq expected
     end
-
     it 'should patch prometheus datasources for 3 peers' do
         allow(self).to receive(:onehost_list).and_return @onehost_list
 
@@ -445,7 +480,6 @@ RSpec.describe 'patch_datasources' do
 
         expect(patch_datasources(@provided)).to eq expected
     end
-
     it 'should patch prometheus datasources for 3 ipv6 peers' do
         allow(self).to receive(:onehost_list).and_return @onehost_list
 
@@ -505,14 +539,63 @@ RSpec.describe 'patch_datasources' do
 
         expect(patch_datasources(@provided)).to eq expected
     end
-
-    it 'should fail patching prometheus datasources for invalid address' do
+    it 'should patch prometheus datasources for 3 peers with mixed hostname/ip types' do
         allow(self).to receive(:onehost_list).and_return @onehost_list
 
         allow(self).to receive(:detect_servers).and_return [
-            ['not', '172.an'], '00:address'
+            ['2001:db8::12', 'some.valid.hostname'], '10.11.12.13'
         ]
 
-        expect { patch_datasources(@provided) }.to raise_error(ArgumentError)
+        expected = YAML.safe_load(<<~DOCUMENT)
+        ---
+        global:
+          scrape_interval: 15s
+          evaluation_interval: 15s
+        alerting:
+          alertmanagers:
+          - static_configs:
+            - targets:
+              - '[2001:db8::12]:9093'
+              - 'some.valid.hostname:9093'
+              - '10.11.12.13:9093'
+        rule_files:
+        - rules.yml
+        scrape_configs:
+        - job_name: prometheus
+          static_configs:
+          - targets:
+            - localhost:9090
+        - job_name: opennebula_exporter
+          static_configs:
+          - targets:
+            - '10.11.12.13:9925'
+        - job_name: node_exporter
+          static_configs:
+          - targets:
+            - '[2001:db8::12]:9100'
+            - 'some.valid.hostname:9100'
+          - targets:
+            - omicron:9100
+            labels:
+              one_host_id: '1'
+          - targets:
+            - epsilon:9100
+            labels:
+              one_host_id: '0'
+          - targets:
+            - '10.11.12.13:9100'
+        - job_name: libvirt_exporter
+          static_configs:
+          - targets:
+            - omicron:9926
+            labels:
+              one_host_id: '1'
+          - targets:
+            - epsilon:9926
+            labels:
+              one_host_id: '0'
+        DOCUMENT
+
+        expect(patch_datasources(@provided)).to eq expected
     end
 end
