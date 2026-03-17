@@ -18,21 +18,15 @@ import { ObjectSchema, boolean, lazy, number, string } from 'yup'
 import {
   HYPERVISORS,
   INPUT_TYPES,
-  NUMA_MEMORY_ACCESS,
   NUMA_PIN_POLICIES,
   T,
-  UNITS,
 } from '@ConstantsModule'
-import { HostAPI } from '@FeaturesModule'
-import { getHugepageSizes } from '@ModelsModule'
 import {
   Field,
   arrayToOptions,
   filterFieldsByHypervisor,
   getObjectSchemaFromFields,
-  prettyBytes,
   sentenceCase,
-  convertToMB,
 } from '@UtilsModule'
 
 import { VIRTUAL_CPU as GENERAL_VIRTUAL_CPU } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/General/capacitySchema'
@@ -40,19 +34,18 @@ import { VIRTUAL_CPU as GENERAL_VIRTUAL_CPU } from '@modules/components/Forms/Vm
 const { kvm, dummy, lxc } = HYPERVISORS
 const numaPinPolicies = Object.keys(NUMA_PIN_POLICIES)
 
-const VIRTUAL_CPU = {
-  ...GENERAL_VIRTUAL_CPU,
-  dependOf: '$general.VCPU',
-  watcher: (vcpu) => vcpu,
-}
-
 const ENABLE_NUMA = {
   name: 'TOPOLOGY.ENABLE_NUMA',
   label: T.NumaTopology,
   type: INPUT_TYPES.CHECKBOX,
   tooltip: T.NumaTopologyConcept,
   validation: lazy((_, { context }) =>
-    boolean().default(() => !!context?.TEMPLATE?.TOPOLOGY)
+    boolean().default(
+      () =>
+        !!Object.keys(context?.TEMPLATE?.TOPOLOGY ?? {})?.filter(
+          (k) => !['MEMORY_ACCESS', 'HUGEPAGE_SIZE']?.includes(k)
+        )?.length
+    )
   ),
   grid: { md: 12 },
 }
@@ -68,8 +61,8 @@ const PIN_POLICY = {
     addEmpty: false,
     getText: sentenceCase,
   }),
-  dependOf: ENABLE_NUMA.name,
-  htmlType: (enableNuma) => !enableNuma && INPUT_TYPES.HIDDEN,
+  dependOf: [ENABLE_NUMA.name],
+  htmlType: ([enabledNuma = false] = []) => !enabledNuma && INPUT_TYPES.HIDDEN,
   validation: lazy((_, { context }) =>
     string()
       .trim()
@@ -89,10 +82,9 @@ const NODE_AFFINITY = {
   name: 'TOPOLOGY.NODE_AFFINITY',
   label: T.NodeAffinity,
   tooltip: T.NodeAffinityConcept,
-  dependOf: [PIN_POLICY.name, ENABLE_NUMA.name],
-  htmlType: ([pinPolicy, enableNuma] = []) =>
-    (!enableNuma || pinPolicy !== NUMA_PIN_POLICIES.NODE_AFFINITY) &&
-    INPUT_TYPES.HIDDEN,
+  dependOf: [PIN_POLICY.name],
+  htmlType: ([pinPolicy] = []) =>
+    pinPolicy !== NUMA_PIN_POLICIES.NODE_AFFINITY && INPUT_TYPES.HIDDEN,
   type: INPUT_TYPES.TEXT,
   validation: lazy((_, { context }) => {
     const { extra } = context || {}
@@ -108,14 +100,17 @@ const CORES = {
   name: 'TOPOLOGY.CORES',
   label: T.Cores,
   tooltip: T.NumaCoresConcept,
-  dependOf: ['$general.VCPU', '$general.HYPERVISOR', ENABLE_NUMA.name],
+  dependOf: [ENABLE_NUMA.name],
   type: INPUT_TYPES.TEXT,
-  htmlType: ([, , enableNuma] = []) =>
-    !enableNuma ? INPUT_TYPES.HIDDEN : 'number',
+  htmlType: () => 'number',
+  fieldProps: ([enabledNuma = false] = []) => ({
+    disabled: !enabledNuma,
+  }),
   validation: number()
     .notRequired()
     .integer()
-    .default(() => undefined),
+    .positive()
+    .default(() => 1),
 }
 
 /** @type {Field} Sockets field */
@@ -124,23 +119,16 @@ const SOCKETS = {
   label: T.Sockets,
   tooltip: T.NumaSocketsConcept,
   type: INPUT_TYPES.TEXT,
-  dependOf: [
-    '$general.HYPERVISOR',
-    '$general.VCPU',
-    'TOPOLOGY.CORES',
-    ENABLE_NUMA.name,
-  ],
-  htmlType: ([, , , enableNuma] = []) =>
-    !enableNuma ? INPUT_TYPES.HIDDEN : 'number',
+  dependOf: [ENABLE_NUMA.name],
+  htmlType: () => 'number',
+  fieldProps: ([enabledNuma = false] = []) => ({
+    disabled: !enabledNuma,
+  }),
   validation: number()
     .notRequired()
     .integer()
+    .positive()
     .default(() => 1),
-  watcher: ([hypervisor, vcpu, cores] = []) => {
-    if (!isNaN(+vcpu) && !isNaN(+cores) && +cores !== 0) {
-      return vcpu / cores
-    }
-  },
 }
 
 const emptyStringToNull = (value, originalValue) =>
@@ -149,61 +137,23 @@ const emptyStringToNull = (value, originalValue) =>
 const threadsValidation = number()
   .nullable()
   .integer()
+  .positive()
   .transform(emptyStringToNull)
+  .default(() => 1)
 
 /** @type {Field} Threads field */
 const THREADS = {
   name: 'TOPOLOGY.THREADS',
   label: T.Threads,
+  dependOf: [ENABLE_NUMA.name],
   tooltip: T.ThreadsConcept,
-  htmlType: ([, enableNuma] = []) =>
-    !enableNuma ? INPUT_TYPES.HIDDEN : 'number',
-  dependOf: ['$general.HYPERVISOR', ENABLE_NUMA.name],
+  htmlType: () => 'number',
   optionsOnly: true,
   type: INPUT_TYPES.TEXT,
-  validation: lazy((_, { context }) => threadsValidation),
-}
-
-/** @type {Field} Hugepage size field */
-const HUGEPAGES = {
-  name: 'TOPOLOGY.HUGEPAGE_SIZE',
-  label: T.HugepagesSize,
-  tooltip: T.HugepagesSizeConcept,
-  dependOf: ENABLE_NUMA.name,
-  htmlType: (enableNuma) => !enableNuma && INPUT_TYPES.HIDDEN,
-  type: INPUT_TYPES.AUTOCOMPLETE,
-  optionsOnly: true,
-  values: () => {
-    const { data: hosts = [] } = HostAPI.useGetHostsQuery()
-    const sizes = hosts
-      .reduce((res, host) => res.concat(getHugepageSizes(host)), [])
-      .flat()
-
-    return arrayToOptions([...new Set(sizes)], {
-      getText: (size) => prettyBytes(+size),
-      getValue: (size) => size && convertToMB(size, UNITS.KB),
-    })
-  },
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
-}
-
-/** @returns {Field} Memory access field */
-const MEMORY_ACCESS = {
-  name: 'TOPOLOGY.MEMORY_ACCESS',
-  label: T.MemoryAccess,
-  tooltip: [T.MemoryAccessConcept, NUMA_MEMORY_ACCESS.join(', ')],
-  type: INPUT_TYPES.AUTOCOMPLETE,
-  optionsOnly: true,
-  dependOf: ENABLE_NUMA.name,
-  htmlType: (enableNuma) => !enableNuma && INPUT_TYPES.HIDDEN,
-  values: arrayToOptions(NUMA_MEMORY_ACCESS, { getText: sentenceCase }),
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
+  validation: lazy((_) => threadsValidation),
+  fieldProps: ([enabledNuma = false] = []) => ({
+    disabled: !enabledNuma,
+  }),
 }
 
 /**
@@ -212,16 +162,7 @@ const MEMORY_ACCESS = {
  */
 const NUMA_FIELDS = (hypervisor) =>
   filterFieldsByHypervisor(
-    [
-      ENABLE_NUMA,
-      PIN_POLICY,
-      NODE_AFFINITY,
-      CORES,
-      SOCKETS,
-      THREADS,
-      HUGEPAGES,
-      MEMORY_ACCESS,
-    ],
+    [ENABLE_NUMA, PIN_POLICY, NODE_AFFINITY, CORES, SOCKETS, THREADS],
     hypervisor
   )
 
@@ -257,6 +198,23 @@ const NUMA_SCHEMA = (hypervisor) =>
       return { ...ensuredResult }
     }
   )
+
+const VIRTUAL_CPU = {
+  ...GENERAL_VIRTUAL_CPU,
+  name: 'TOPOLOGY.NUMA_VCPU',
+  dependOf: [
+    SOCKETS.name,
+    THREADS.name,
+    CORES.name,
+    '$general.VCPU',
+    ENABLE_NUMA.name,
+  ],
+  watcher: ([s = 1, t = 1, c = 1, vcpu, numaEnabled]) =>
+    numaEnabled ? s * t * c : vcpu,
+  fieldProps: {
+    disabled: true,
+  },
+}
 
 const VCPU_SCHEMA = getObjectSchemaFromFields([VIRTUAL_CPU])
 

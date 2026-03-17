@@ -27,6 +27,7 @@ import {
   VCPU_FIELDS,
   SHOWBACK_FIELDS,
   MEMORY_RESIZE_FIELDS,
+  MEMORY_ATTRIBUTE_FIELDS,
 } from './capacitySchema'
 import { FIELDS as VM_GROUP_FIELDS } from './vmGroupSchema'
 import { FIELDS as OWNERSHIP_FIELDS } from './ownershipSchema'
@@ -97,7 +98,11 @@ const SECTIONS = (
       legend: T.Memory,
       fields: disableFields(
         filterFieldsByHypervisor(
-          [...MEMORY_FIELDS, ...MEMORY_RESIZE_FIELDS],
+          [
+            ...MEMORY_FIELDS,
+            ...MEMORY_RESIZE_FIELDS,
+            ...MEMORY_ATTRIBUTE_FIELDS,
+          ],
           hypervisor
         ),
         '',

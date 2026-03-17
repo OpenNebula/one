@@ -90,6 +90,7 @@ const Content = ({
     getValues,
     reset,
   } = useFormContext()
+
   const { useLoadOsProfile } = useGeneralApi()
   const [fetchProfile] = SystemAPI.useLazyGetOsProfilesQuery()
   const { view, getResourceView } = useViews()

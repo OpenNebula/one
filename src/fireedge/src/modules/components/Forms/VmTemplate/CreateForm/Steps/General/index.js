@@ -66,6 +66,7 @@ const Content = ({
 
   const { getValues, setValue, watch, reset } = useFormContext()
   const osProfile = watch('general.OS_PROFILE')
+
   const currentProfile = useRef(osProfile)
 
   // Prefill current step based on profile

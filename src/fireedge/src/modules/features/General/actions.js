@@ -41,7 +41,10 @@ export const setModifiedFields = createAction(
   'Set modified fields',
   (fields, options = {}) => ({
     payload: fields,
-    meta: { batch: options.batch || false },
+    meta: {
+      batch: options.batch || false,
+      direct: options.direct || false,
+    },
   })
 )
 export const resetModifiedFields = createAction('Reset modified fields')

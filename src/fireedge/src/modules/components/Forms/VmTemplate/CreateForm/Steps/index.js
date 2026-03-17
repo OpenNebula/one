@@ -35,12 +35,20 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     const userInputs = userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS, {
       order: vmTemplate?.TEMPLATE?.INPUTS_ORDER,
     })
+    const { HUGEPAGE_SIZE, MEMORY_ACCESS, ...extraTopology } =
+      vmTemplate?.TEMPLATE?.TOPOLOGY ?? {}
+    const memoryTopology = { HUGEPAGE_SIZE, MEMORY_ACCESS }
 
     const objectSchema = {
-      [GENERAL_ID]: { ...vmTemplate, ...vmTemplate?.TEMPLATE },
+      [GENERAL_ID]: {
+        ...vmTemplate,
+        ...vmTemplate?.TEMPLATE,
+        TOPOLOGY: memoryTopology,
+      },
       [EXTRA_ID]: {
         ...vmTemplate?.TEMPLATE,
         USER_INPUTS: userInputs,
+        TOPOLOGY: extraTopology,
       },
     }
 
@@ -198,7 +206,19 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
           initialValues.TEMPLATE.CONTEXT.START_SCRIPT
       }
     }
+
+    formData.extra.TOPOLOGY = {
+      ...formData.extra.TOPOLOGY,
+      HUGEPAGE_SIZE: formData?.general?.TOPOLOGY?.HUGEPAGE_SIZE,
+      MEMORY_ACCESS: formData?.general?.TOPOLOGY?.MEMORY_ACCESS,
+    }
+
+    formData.general.VCPU =
+      formData?.extra?.TOPOLOGY?.NUMA_VCPU ?? formData.general.VCPU
+
     delete formData.extra.CONTEXT.ENCODE_START_SCRIPT
+    delete formData.general.TOPOLOGY
+    delete formData.extra.TOPOLOGY.NUMA_VCPU
 
     return formData
   },

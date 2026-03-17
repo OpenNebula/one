@@ -1140,7 +1140,7 @@ module.exports = {
   MemoryWithUnit: 'Memory %s',
   MemoryUnit: 'Unit memory',
   Cost: 'Cost',
-  CostEachMonth: '%s GB/month',
+  CostEachMonth: '%s /month',
   CostCpu: 'Cost / CPU',
   CostCpuConcept: 'Cost of each CPU per hour',
   CostMemory: 'Cost / Memory',

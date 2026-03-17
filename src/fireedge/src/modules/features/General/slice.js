@@ -164,6 +164,15 @@ const slice = createSlice({
         set(state.modifiedFields, targetPath, targetArray)
       })
       .addCase(actions.setModifiedFields, (state, { payload, meta }) => {
+        if (meta.direct) {
+          state.modifiedFields = merge(
+            {},
+            state.modifiedFields,
+            cloneDeep(payload)
+          )
+
+          return
+        }
         // Get field path
         const fieldPath = state?.fieldPath || ''
 

@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { lazy, number, string } from 'yup'
-
 import {
   HYPERVISORS,
   INPUT_TYPES,
@@ -23,8 +22,10 @@ import {
   UNITS,
   MAXIMUM_CPU_SHARES,
   VmTemplateFeatures,
+  NUMA_MEMORY_ACCESS,
 } from '@ConstantsModule'
-import { formatNumberByCurrency } from '@ModelsModule'
+import { HostAPI } from '@FeaturesModule'
+import { formatNumberByCurrency, getHugepageSizes } from '@ModelsModule'
 import {
   generateCapacityInput,
   generateCostCapacityInput,
@@ -32,7 +33,13 @@ import {
   generateModificationInputs,
 } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/General/capacityUtils'
 import { Translate } from '@modules/components/HOC'
-import { Field, arrayToOptions } from '@UtilsModule'
+import {
+  Field,
+  arrayToOptions,
+  prettyBytes,
+  convertToMB,
+  sentenceCase,
+} from '@UtilsModule'
 import { useFormContext, useWatch } from 'react-hook-form'
 
 const commonValidation = number()
@@ -45,7 +52,11 @@ const HelperDiskCost = () => {
   const { control } = useFormContext()
   const cost = useWatch({ control, name: 'general.DISK_COST' })
 
-  if (cost === undefined || cost === null || isNaN(cost)) return null
+  if (cost === undefined || cost === null || isNaN(cost)) {
+    return (
+      <Translate word={T.CostEachMonth} values={[formatNumberByCurrency(0)]} />
+    )
+  }
 
   // Get cost of GB per hour. Sunstone template form stores this in MB/hour but core template in GB/hor so is needed a transformation
   const costinGbPerHour = +cost / 1024
@@ -61,6 +72,48 @@ const HelperDiskCost = () => {
 // --------------------------------------------------------
 // MEMORY fields
 // --------------------------------------------------------
+
+/** @type {Field} Hugepage size field */
+const HUGEPAGES = {
+  name: 'TOPOLOGY.HUGEPAGE_SIZE',
+  fieldPath: 'extra.NUMA.TOPOLOGY.HUGEPAGE_SIZE',
+  label: T.HugepagesSize,
+  tooltip: T.HugepagesSizeConcept,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  values: () => {
+    const { data: hosts = [] } = HostAPI.useGetHostsQuery()
+    const sizes = hosts
+      .reduce((res, host) => res.concat(getHugepageSizes(host)), [])
+      .flat()
+
+    return arrayToOptions([...new Set(sizes)], {
+      getText: (size) => prettyBytes(+size),
+      getValue: (size) => size && convertToMB(size, UNITS.KB),
+    })
+  },
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined),
+}
+
+/** @returns {Field} Memory access field */
+const MEMORY_ACCESS = {
+  name: 'TOPOLOGY.MEMORY_ACCESS',
+  fieldPath: 'extra.NUMA.TOPOLOGY.MEMORY_ACCESS',
+  label: T.MemoryAccess,
+  tooltip: [T.MemoryAccessConcept, NUMA_MEMORY_ACCESS.join(', ')],
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  values: arrayToOptions(NUMA_MEMORY_ACCESS, { getText: sentenceCase }),
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined),
+}
+
+export const MEMORY_ATTRIBUTE_FIELDS = [HUGEPAGES, MEMORY_ACCESS]
 
 /** @type {Field} Memory field */
 export const MEMORY = generateCapacityInput({
@@ -211,7 +264,7 @@ export const CPU_COST = generateCostCapacityInput({
 /** @type {Field} Disk cost field */
 export const DISK_COST = generateCostCapacityInput({
   name: 'DISK_COST',
-  label: T.Disk + ' (GB/hour)',
+  label: T.Disk,
   tooltip: T.CostDiskConcept,
   validation: lazy((_, { context }) =>
     commonValidation

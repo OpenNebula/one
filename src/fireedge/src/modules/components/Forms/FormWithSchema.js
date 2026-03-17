@@ -211,23 +211,28 @@ const FormWithSchema = ({
           })
 
         const fieldsToMergeinSchema = {}
+        const fieldPathOverrides = {}
 
-        // Add only the fields of the FormWithSchema component that is being checking
-        fields.forEach(
-          (field) =>
-            get(fieldsToMerge, `${id}.${field.name}`) &&
-            set(
-              fieldsToMergeinSchema,
-              `${id}.${field.name}`,
-              get(fieldsToMerge, `${id}.${field.name}`)
-            )
-        )
+        fields.forEach((field) => {
+          const value = get(fieldsToMerge, `${id}.${field.name}`)
+          if (value) {
+            if (field?.fieldPath) {
+              set(fieldPathOverrides, field.fieldPath, value)
+            } else {
+              set(fieldsToMergeinSchema, `${id}.${field.name}`, value)
+            }
+          }
+        })
 
-        // Set modified fields
         const mix = merge({}, fieldsToMergeinSchema, fieldsHiddenMerge)
-        setModifiedFields(mix)
+        if (!isDeeplyEmpty(mix)) {
+          setModifiedFields(mix)
+        }
 
-        // If fieldPath exists, set in the store
+        if (!isDeeplyEmpty(fieldPathOverrides)) {
+          setModifiedFields(fieldPathOverrides, { direct: true })
+        }
+
         if (fieldPath) {
           setFieldPath(fieldPath)
         }
