@@ -58,6 +58,9 @@ end
 set :bind, '::'
 set :port, 9926
 
+# Disable Rack::Protection::HostAuthorization middleware
+set :host_authorization, { :permitted_hosts => [] }
+
 # Run the Sinatra application
 set :run, false
 Sinatra::Application.run!

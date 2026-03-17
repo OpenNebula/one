@@ -33,7 +33,6 @@ else
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end
 
-
 if File.directory?(GEMS_LOCATION)
     $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
     require 'rubygems'
@@ -53,7 +52,6 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 $:.unshift File.dirname(__FILE__)
 
-
 ##############################################################################
 # Required libraries
 ##############################################################################
@@ -64,11 +62,9 @@ require 'prometheus/middleware/exporter'
 require 'prometheus/middleware/collector'
 require 'opennebula_collector'
 
-
 use Rack::Deflater
 use Prometheus::Middleware::OpenNebulaCollector
 use Prometheus::Middleware::Exporter
-
 
 get '/' do
     body = '<html>'\
@@ -81,10 +77,12 @@ get '/' do
     [200, {'Content-Type' => 'text/html'}, body]
 end
 
-
 # Default Options
 set :port, 9925
 set :bind, '::'
+
+# Disable Rack::Protection::HostAuthorization middleware
+set :host_authorization, { :permitted_hosts => [] }
 
 # Run the Sinatra application
 set :run, false
