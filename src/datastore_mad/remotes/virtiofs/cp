@@ -62,6 +62,12 @@ SRC="${XPATH_ELEMENTS[i++]}"
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
+if [ ! -d "$SRC" ]; then
+    log_error "Filesystem image is not a directory: $SRC"
+    error_message "The provided path '$SRC' is not a directory"
+    exit -1
+fi
+
 if [ `check_restricted $SRC` -eq 1 ]; then
     log_error "Not allowed to use directories from $RESTRICTED_DIRS"
     error_message "Not allowed to use directory '$SRC', check RESTRICTED_DIRS in your datastore"
