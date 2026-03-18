@@ -3,10 +3,14 @@ name: On-Prem SSH Cluster
 description: |
   <p>Creates a cluster on your on-prem (local) infrastructure.</p>
   <ul>
-    <li><strong>Requirements</strong>: Hosts must have the OS installed and be reachable via SSH.</li>
-    <li><strong>Storage</strong>: VM images are copied to each host over SSH and stored on local disk.</li>
-    <li><strong>Network</strong>: VMs use a flat bridged network via a physical NIC on every host.</li>
+    <li><strong>Requirements</strong>: Hosts must have the operating system installed and be reachable via SSH from the OpenNebula frontend.
+    Checkout documentation for the <a target="_blank" href="https://docs.opennebula.io/7.2/software/release_information/release_notes_72/platform_notes/">supported Operating Systems</a>.</li>
+    <li><strong>Storage</strong>: VM images are copied to each host over SSH and stored on local disk.
+    Checkout documentation for <a target="_blank" href="https://docs.opennebula.io/7.2/product/cluster_configuration/storage_system/local_ds/"> Local Storage Datastore</a>.</li>
+    <li><strong>Network</strong>: VMs use a flat bridged network via a physical NIC on every host.
+    Checkout documentation for <a target="_blank" href="https://docs.opennebula.io/7.2/product/cluster_configuration/networking_system/bridged/"> Bridged Networking</a>.</li>
   </ul>
+  <p>For more details please check the <a target="_blank" href="https://docs.opennebula.io/7.2/product/cloud_cluster_provisioning/cloud_cluster_provisions/onprem_ssh_cluster/">On-premises SSH cluster documentation</a>.</p>
 
 user_inputs:
   - name: phydev_name
