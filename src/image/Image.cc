@@ -144,6 +144,7 @@ int Image::insert(SqlDB *db, string& error_str)
             break;
 
         case BACKUP:
+        case FILESYSTEM:
             persistent_img = true;
             erase_template_attribute("DEV_PREFIX", dev_prefix);
             break;
@@ -223,6 +224,11 @@ int Image::insert(SqlDB *db, string& error_str)
                 format = "raw"; //Default
             }
             // else format in the IMAGE template
+        }
+        else if (type == Image::FILESYSTEM)
+        {
+            // FILESYSTEM image must use dir format
+            format = "dir";
         }
         else //CDROM, KERNEL, RAMDISK, CONTEXT
         {
@@ -573,7 +579,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     //                       DEV_PREFIX ATTRIBUTE
     // Note: CD's dev_prefix is set on target assigment based on VM chipset
     //--------------------------------------------------------------------------
-    if ( dev_prefix.empty() && type != CDROM )
+    if ( dev_prefix.empty() && !(type == CDROM || type == FILESYSTEM) )
     {
         get_template_attribute("DEV_PREFIX", dev_prefix);
 
@@ -646,7 +652,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
             disk->replace("CLONE", "NO");
             disk->replace("SAVE", "YES");
 
-            if (template_ptype == "SHAREABLE" && format == "raw")
+            if (template_ptype == "SHAREABLE" && (format == "raw" || format == "dir"))
             {
                 disk->replace("SHAREABLE", "YES");
             }
@@ -676,6 +682,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     {
         case OS:
         case DATABLOCK:
+        case FILESYSTEM:
             disk_attr_type = disk_type_to_str(disk_type);
             break;
 
@@ -716,6 +723,46 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     if ( target.empty() && !template_target.empty() )
     {
         disk->replace("TARGET", template_target);
+    }
+
+    //--------------------------------------------------------------------------
+    //   MOUNT_POINT & MOUNT_TAG attributes
+    //--------------------------------------------------------------------------
+    if (disk->is_filesystem())
+    {
+        ostringstream oss;
+
+        string _mount_s = disk->vector_value("MOUNT_POINT");
+
+        if (_mount_s.empty())
+        {
+            get_template_attribute("MOUNT_POINT", _mount_s);
+
+            if (_mount_s.empty())
+            {
+                oss << "/mnt/one-fs-" << oid;
+                _mount_s = oss.str();
+            }
+
+            disk->replace("MOUNT_POINT", _mount_s);
+        }
+
+        _mount_s = disk->vector_value("MOUNT_TAG");
+
+        if (_mount_s.empty())
+        {
+            get_template_attribute("MOUNT_TAG", _mount_s);
+
+            if (_mount_s.empty())
+            {
+                oss.str("");
+                oss << "one-tag-" << oid;
+
+                _mount_s = oss.str();
+            }
+
+            disk->replace("MOUNT_TAG", _mount_s);
+        }
     }
 
     for (const auto& inherit : inherit_attrs)
@@ -791,6 +838,10 @@ int Image::set_type(string& _type, string& error)
     else if ( _type == "BACKUP" )
     {
         type = BACKUP;
+    }
+    else if ( _type == "FILESYSTEM" )
+    {
+        type = FILESYSTEM;
     }
     else
     {
@@ -868,6 +919,10 @@ Image::ImageType Image::str_to_type(string& str_type)
     else if ( str_type == "BACKUP" )
     {
         it = BACKUP;
+    }
+    else if ( str_type == "FILESYSTEM" )
+    {
+        it = FILESYSTEM;
     }
 
     return it;
@@ -978,6 +1033,10 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
     else if (s_disk_type == "ISCSI")
     {
         type = Image::ISCSI;
+    }
+    else if (s_disk_type == "FILESYSTEM")
+    {
+        type = Image::FILE_SYSTEM;
     }
 
     return type;

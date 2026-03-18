@@ -1330,12 +1330,8 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
         return -1;
     }
 
-    if ( vm->set_attach_disk(disk_id) == -1 )
+    if ( vm->set_attach_disk(disk_id, error_str) == -1 )
     {
-        oss << "Could not detach disk with DISK_ID " << disk_id
-            << ", it does not exist.";
-        error_str = oss.str();
-
         NebulaLog::log("DiM", Log::ERROR, error_str);
 
         return -1;

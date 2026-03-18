@@ -303,10 +303,9 @@ static void numa_distances(std::ofstream& file,
 
 static void vtopol(ofstream& file, const VectorAttribute * topology,
                    std::vector<const VectorAttribute *> &nodes,  std::string &numatune,
-                   std::string &membacking)
+                   std::string &membacking, int &hpsz_kb)
 {
     std::string ma;
-    int hpsz_kb = 0;
 
     if ( topology != 0 )
     {
@@ -411,21 +410,6 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
     oss << "\t</numatune>\n";
 
     numatune = oss.str();
-
-    if ( hpsz_kb != 0 )
-    {
-        std::ostringstream mboss;
-
-        mboss << "\t<memoryBacking>\n";
-        mboss << "\t\t<hugepages>\n";
-
-        mboss << "\t\t\t<page size=" << one_util::escape_xml_attr(hpsz_kb) << "/>\n";
-
-        mboss << "\t\t</hugepages>\n";
-        mboss << "\t</memoryBacking>\n";
-
-        membacking = mboss.str();
-    }
 }
 
 /**
@@ -645,6 +629,7 @@ int LibVirtDriver::deployment_description_kvm(
     string gluster_host;
     string gluster_volume;
     string luks_secret;
+    string mount_tag;
 
     string total_bytes_sec;
     string total_bytes_sec_max_length;
@@ -742,6 +727,7 @@ int LibVirtDriver::deployment_description_kvm(
     string vm_func;
     string vm_index;
 
+    bool is_fs       = false;
     bool pae         = false;
     bool acpi        = false;
     bool apic        = false;
@@ -1073,6 +1059,8 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // CPU SECTION
     // ------------------------------------------------------------------------
+    int hpsz_kb = 0;
+
     get_attribute(vm, host, cluster, "CPU_MODEL", "MODEL", cpu_model);
     get_attribute(vm, host, cluster, "CPU_MODEL", "FEATURES", cpu_feature);
     get_attribute(nullptr, nullptr, cluster, "EVC_MODE", cpu_evc_mode);
@@ -1136,7 +1124,7 @@ int LibVirtDriver::deployment_description_kvm(
                  << " unit='KiB'/>\n\t\t</numa>" << endl;
         }
 
-        vtopol(file, topology, nodes, numa_tune, mbacking);
+        vtopol(file, topology, nodes, numa_tune, mbacking, hpsz_kb);
 
         file << "\t</cpu>\n";
     }
@@ -1144,11 +1132,6 @@ int LibVirtDriver::deployment_description_kvm(
     if (!numa_tune.empty())
     {
         file << numa_tune;
-    }
-
-    if (!mbacking.empty())
-    {
-        file << mbacking;
     }
 
     get_attribute(vm, host, cluster, "FEATURES", "IOTHREADS", iothreads);
@@ -1267,6 +1250,8 @@ int LibVirtDriver::deployment_description_kvm(
 
         luks_secret = disk[i]->vector_value("LUKS_SECRET");
 
+        mount_tag = disk[i]->vector_value("MOUNT_TAG");
+
         sheepdog_host   = disk[i]->vector_value("SHEEPDOG_HOST");
         total_bytes_sec = disk[i]->vector_value("TOTAL_BYTES_SEC");
 
@@ -1325,7 +1310,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         disk[i]->vector_value_str("DISK_ID", disk_id);
 
-        if (target.empty())
+        if (target.empty() && type != "FILESYSTEM")
         {
             vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
             return -1;
@@ -1520,6 +1505,45 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<disk type='" << cd_type << "' device='cdrom'>\n"
                  << "\t\t\t<source " << cd_source << "="
                  << one_util::escape_xml_attr(cd_name.str())<< "/>\n";
+        }
+        else if ( type == "FILESYSTEM" )
+        {
+            string uid_map, gid_map;
+
+            is_fs = true;
+
+            file << "\t\t<filesystem type='mount' accessmode='passthrough'>\n"
+                 << "\t\t\t<driver type='virtiofs' cache='always' queue='1024'/>\n"
+                 << "\t\t\t<source dir=" << one_util::escape_xml_attr(source) << "/>\n"
+                 << "\t\t\t<target dir=" << one_util::escape_xml_attr(mount_tag) << "/>\n";
+
+            if (readonly)
+            {
+                file << "\t\t\t<readonly/>" << endl;
+            }
+
+            get_attribute(nullptr, host, cluster, "DISK", "UID_MAP", uid_map);
+            get_attribute(nullptr, host, cluster, "DISK", "GID_MAP", gid_map);
+
+            if (uid_map.empty())
+            {
+                uid_map = "9869";
+            }
+
+            if (gid_map.empty())
+            {
+                gid_map = "9869";
+            }
+
+            file << "\t\t\t<idmap>\n"
+                 << "\t\t\t\t<uid start='0' target='" << uid_map << "' count='65536'/>\n"
+                 << "\t\t\t\t<gid start='0' target='" << gid_map << "' count='65536'/>\n"
+                 << "\t\t\t</idmap>\n";
+
+            file << "\t\t</filesystem>\n";
+
+            // Skip the rest of disk processing for SharedFS
+            continue;
         }
         else
         {
@@ -2573,6 +2597,40 @@ int LibVirtDriver::deployment_description_kvm(
     }
 
     file << "\t</devices>" << endl;
+
+    // ------------------------------------------------------------------------
+    // Write memory backing (may have been updated by disk processing, e.g. virtiofs)
+    // Must be at domain level, not inside <devices>
+    // ------------------------------------------------------------------------
+    if (hpsz_kb != 0 || is_fs)
+    {
+        std::ostringstream mboss;
+
+        mboss << "\t<memoryBacking>\n";
+
+        if (hpsz_kb != 0)
+        {
+            mboss << "\t\t<hugepages>\n";
+            mboss << "\t\t\t<page size=" << one_util::escape_xml_attr(hpsz_kb) << "/>\n";
+            mboss << "\t\t</hugepages>\n";
+        }
+        else
+        {
+            mboss << "\t\t<source type='memfd'/>\n";
+        }
+
+        // Note: When a FileSystem disk is present MEMROY_ACCESS (if set) needs
+        // to be shared (set in memAccess in each NUMA node). Default to shared
+        // when a FileSystem disk is present.
+        if (is_fs)
+        {
+            mboss << "\t\t<access mode='shared'/>\n";
+        }
+
+        mboss << "\t</memoryBacking>\n";
+
+        file << mboss.str();
+    }
 
     // ------------------------------------------------------------------------
     // Features

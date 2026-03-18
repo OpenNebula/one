@@ -14,6 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+#include <algorithm>
+
 #include "VirtualMachineDisk.h"
 #include "NebulaUtil.h"
 #include "Nebula.h"
@@ -682,6 +684,14 @@ void VirtualMachineDisk::to_xml_short(std::ostringstream& oss) const
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+bool VirtualMachineDisk::is_filesystem() const
+{
+    return vector_value("TYPE") == "FILESYSTEM";
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -873,6 +883,8 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
 
     std::string cdrom_dev_prefix;
 
+    std::set<std::string> mount_tags;
+
     if ( is_q35 )
     {
         cdrom_dev_prefix = "sd";
@@ -910,6 +922,34 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
             delete disk;
 
             goto error_common;
+        }
+
+        if (image_type == Image::FILESYSTEM)
+        {
+            if(std::find(acquired_images.begin(), acquired_images.end(), image_id) != acquired_images.end())
+            {
+                error_str = "File system image can only be added once to the same VM";
+
+                delete disk;
+
+                goto error_common;
+            }
+
+            string mount_tag = disk->vector_value("MOUNT_TAG");
+
+            if (!mount_tag.empty())
+            {
+                if (mount_tags.find(mount_tag) != mount_tags.end())
+                {
+                    error_str = "MOUNT_TAG '" + mount_tag + "' is duplicated across disks";
+
+                    delete disk;
+
+                    goto error_common;
+                }
+
+                mount_tags.insert(mount_tag);
+            }
         }
 
         add_attribute(disk, disk_id);
@@ -1199,12 +1239,19 @@ void VirtualMachineDisks::clear_cloning_image_id(int iid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineDisks::set_attach(int id)
+int VirtualMachineDisks::set_attach(int id, string& error)
 {
     VirtualMachineDisk * disk = get_disk(id);
 
     if ( disk == 0 )
     {
+        error = "Disk " + to_string(id) + " does not exist";
+        return -1;
+    }
+
+    if ( disk->is_filesystem() )
+    {
+        error = "FILESYSTEM disks can not be detached";
         return -1;
     }
 
@@ -1292,6 +1339,14 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
                                  dev_prefix, uid, image_id, &snap, true, error);
     if ( rc != 0 )
     {
+        delete disk;
+        return 0;
+    }
+
+    if ( disk->is_filesystem() )
+    {
+        error = "Can not attach disks " +  disk->vector_value("TYPE");
+
         delete disk;
         return 0;
     }
@@ -1388,6 +1443,12 @@ int VirtualMachineDisks::set_up_resize(int disk_id, long size, string& err)
     if ( disk == 0 )
     {
         err = "Disk not found";
+        return -1;
+    }
+
+    if (disk->is_filesystem())
+    {
+        err = "FILESYSTEM disks can not be resized";
         return -1;
     }
 
@@ -1709,7 +1770,9 @@ bool VirtualMachineDisks::backup_increment(bool do_volatile)
 
         one_util::toupper(type);
 
-        if ((type == "SWAP") || ((type == "FS") && !do_volatile))
+        if ((type == "SWAP") ||
+            ((type == "FS") && !do_volatile) ||
+            (type == "FILESYSTEM"))
         {
             continue;
         }
@@ -1755,6 +1818,7 @@ void VirtualMachineDisks::backup_disk_ids(bool do_volatile, std::vector<int>& id
         if ((type == "SWAP") ||
             (type == "CDROM") ||
             (type == "RBD_CDROM") ||
+            (type == "FILESYSTEM") ||
             ((type == "FS") && !do_volatile))
         {
             continue;
@@ -1920,6 +1984,11 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad, string& error)
             continue;
         }
 
+        if (disk->is_filesystem())
+        {
+            continue;
+        }
+
         if ( disk->vector_value("DATASTORE_ID", ds_img_id) == 0 )
         {
             std::string ln_target, clone_target, disk_type;
@@ -1948,4 +2017,3 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad, string& error)
     }
     return 0;
 }
-

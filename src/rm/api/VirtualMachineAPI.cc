@@ -889,11 +889,24 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
         return Request::ACTION;
     }
 
-    if (live && vm->is_pinned())
+    if (live)
     {
-        att.resp_msg = "VM with a pinned NUMA topology cannot be live-migrated";
+        if (vm->is_pinned())
+        {
+            att.resp_msg = "VM with a pinned NUMA topology cannot be live-migrated";
 
-        return Request::ACTION;
+            return Request::ACTION;
+        }
+
+        for (auto *disk : vm->get_disks())
+        {
+            if (disk->is_filesystem())
+            {
+                att.resp_msg = "VM with Filesytem disks cannot be live-migrated";
+
+                return Request::ACTION;
+            }
+        }
     }
 
     // Get System DS information from current History record
@@ -1256,6 +1269,7 @@ Request::ErrorCode VirtualMachineAPI::disk_save_as(int vid,
         case Image::RAMDISK:
         case Image::CONTEXT:
         case Image::BACKUP:
+        case Image::FILESYSTEM:
             goto error_image_type;
     }
 
@@ -1383,7 +1397,7 @@ error_image:
     goto error_common;
 
 error_image_type:
-    att.resp_msg = "Cannot save_as image of type " + Image::type_to_str(type);
+    att.resp_msg = "Cannot save an image of type " + Image::type_to_str(type);
     ec = Request::INTERNAL;
     goto error_common;
 
@@ -1441,7 +1455,6 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_create(int vid,
     // Check request consistency (VM & disk exists, no volatile)
     // ------------------------------------------------------------------------
     bool img_ds_quota, vm_ds_quota;
-    bool is_volatile;
     int img_id = -1;
 
     if (auto vm = vmpool->get_ro(vid))
@@ -1465,6 +1478,14 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_create(int vid,
             return Request::ACTION;
         }
 
+        if (!disk->snapshot_support())
+        {
+            att.resp_msg = "Cannot make snapshots on disks of type: " +
+                           disk->vector_value("TYPE");
+
+            return Request::ACTION;
+        }
+
         /* ---------------------------------------------------------------------- */
         /*  Get disk information and quota usage deltas                           */
         /* ---------------------------------------------------------------------- */
@@ -1473,12 +1494,11 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_create(int vid,
 
         // Snapshot accounts as another disk of same size
         disk->resize_quotas(ssize, ds_deltas, vm_deltas, img_ds_quota, vm_ds_quota);
+
         if (vm->hasHistory() && !vm_deltas.empty())
         {
             vm_deltas.add("CLUSTER_ID", vm->get_cid());
         }
-
-        is_volatile = disk->is_volatile();
 
         disk->vector_value("IMAGE_ID", img_id);
 
@@ -1489,13 +1509,6 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_create(int vid,
         att.resp_id = vid;
 
         return Request::NO_EXISTS;
-    }
-
-    if (is_volatile)
-    {
-        att.resp_msg = "Cannot make snapshots on volatile disks";
-
-        return Request::ACTION;
     }
 
     /* ---------- Authorization and quota update requests ---------------------- */
@@ -1634,6 +1647,14 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_delete(int vid,
             return Request::ACTION;
         }
 
+        if (!disk->snapshot_support())
+        {
+            att.resp_msg = "Snapshots are not supported on disks of type: " +
+                           disk->vector_value("TYPE");
+
+            return Request::ACTION;
+        }
+
         persistent = disk->is_persistent();
 
         disk->vector_value("IMAGE_ID", img_id);
@@ -1702,6 +1723,28 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_revert(int vid,
                                                            int snap_id,
                                                            RequestAttributes& att)
 {
+    const VirtualMachineDisk * disk;
+
+    if (auto vm = vmpool->get_ro(vid))
+    {
+        disk = vm->get_disk(disk_id);
+
+        if (disk == nullptr)
+        {
+            att.resp_msg = "VM disk does not exist";
+
+            return Request::ACTION;
+        }
+
+        if (!disk->snapshot_support())
+        {
+            att.resp_msg = "Snapshots are not supported on disks of type: " +
+                           disk->vector_value("TYPE");
+
+            return Request::ACTION;
+        }
+    }
+
     // Authorize the request
     att.set_auth_op(VMActions::DISK_SNAPSHOT_REVERT_ACTION);
 
@@ -1754,6 +1797,14 @@ Request::ErrorCode VirtualMachineAPI::disk_snapshot_rename(int vid,
     if ( !disk )
     {
         att.resp_msg = "VM disk does not exist";
+
+        return Request::ACTION;
+    }
+
+    if (!disk->snapshot_support())
+    {
+        att.resp_msg = "Snapshots are not supported on disks of type: " +
+                       disk->vector_value("TYPE");
 
         return Request::ACTION;
     }
@@ -1967,6 +2018,20 @@ Request::ErrorCode VirtualMachineAPI::disk_detach(int vid,
         return Request::NO_EXISTS;
     }
 
+    const VirtualMachineDisk * disk;
+
+    if (auto vm = vmpool->get_ro(vid))
+    {
+        disk = vm->get_disk(disk_id);
+
+        if (disk == nullptr)
+        {
+            att.resp_msg = "VM disk does not exist";
+
+            return Request::ACTION;
+        }
+    }
+
     auto dm = Nebula::instance().get_dm();
 
     int rc = dm->detach(vid, disk_id, att, att.resp_msg);
@@ -2041,6 +2106,7 @@ Request::ErrorCode VirtualMachineAPI::disk_resize(int vid,
 
         /* ------------- Get information about the disk and image --------------- */
         disk->resize_quotas(size - current_size, ds_deltas, vm_deltas, img_ds_quota, vm_ds_quota);
+
         if (vm->hasHistory() && !vm_deltas.empty())
         {
             vm_deltas.add("CLUSTER_ID", vm->get_cid());

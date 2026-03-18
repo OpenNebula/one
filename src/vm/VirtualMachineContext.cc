@@ -72,6 +72,18 @@ const std::vector<ContextVariable> NETWORK6_CONTEXT =
     {"EXTERNAL", "EXTERNAL", "", false},
 };
 
+struct DiskContextVariable
+{
+    std::string context_name;
+    std::string disk_name;
+};
+
+const std::vector<DiskContextVariable> DISK_CONTEXT =
+{
+    {"MOUNT_TAG", "MOUNT_TAG"},
+    {"MOUNT_POINT", "MOUNT_POINT"}
+};
+
 bool is_restricted(const string& path,
                    const set<string>& restricted,
                    const set<string>& safe)
@@ -136,6 +148,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     // -------------------------------------------------------------------------
     // Generate dynamic context attributes
     //   - Network
+    //   - Disk FS
     //   - PCI guest address
     //--------------------------------------------------------------------------
     int rc = generate_network_context(context, error_str, false); //no AUTO mode
@@ -151,6 +164,18 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
 
         oss << "Cannot parse network context:: " << error_str;
         log("VM", Log::ERROR, oss);
+        return -1;
+    }
+
+    rc = generate_disk_context(context, error_str);
+
+    if ( rc != 0 )
+    {
+        ostringstream oss;
+
+        oss << "Cannot parse disk context:: " << error_str;
+        log("VM", Log::ERROR, oss);
+
         return -1;
     }
 
@@ -506,6 +531,56 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
     tmp_context.unmarshall(parsed);
 
     context->merge(&tmp_context, true);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+
+static void parse_context_disk(const std::vector<DiskContextVariable>& cvars,
+                               VectorAttribute * _context, VectorAttribute * disk)
+{
+    const string& disk_id = disk->vector_value("DISK_ID");
+
+    if (disk_id.empty())
+    {
+        return;
+    }
+
+    for (const auto& con : cvars)
+    {
+        ostringstream cvar;
+        string cval;
+
+        cvar << "DISK" << disk_id << "_" << con.context_name;
+
+        cval = disk->vector_value(con.disk_name);
+
+        _context->replace(cvar.str(), cval);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::generate_disk_context(VectorAttribute* context,
+                                          string& error_str)
+{
+    vector<VectorAttribute *> disks;
+    VectorAttribute tmp_context("TMP_CONTEXT");
+
+    int num = obj_template->get("DISK", disks);
+
+    for (int i = 0; i < num; i++)
+    {
+        if ( disks[i]->vector_value("TYPE") != "FILESYSTEM" )
+        {
+            continue;
+        }
+
+        parse_context_disk(DISK_CONTEXT, context, disks[i]);
+    }
 
     return 0;
 }
@@ -871,6 +946,29 @@ void VirtualMachine::clear_nic_alias_context(int nicid, int aliasidx)
 
     clear_context_alias_network(NETWORK_CONTEXT, context, nicid, aliasidx);
     clear_context_alias_network(NETWORK6_CONTEXT, context, nicid, aliasidx);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_disk_context(int disk_id)
+{
+    VectorAttribute * context = obj_template->get("CONTEXT");
+
+    if (context == 0)
+    {
+        return;
+    }
+
+    ostringstream att_name;
+
+    for (const auto& con : DISK_CONTEXT)
+    {
+        att_name.str("");
+
+        att_name << "DISK" << disk_id << "_" << con.context_name;
+
+        context->remove(att_name.str());
+    }
 }
 
 /* ------------------------------------------------------------------------ */

@@ -55,10 +55,10 @@ public class Image extends PoolElement
         "lock", "lock"};
 
     private static final String[] IMAGE_TYPES =
-        {"OS", "CDROM", "DATABLOCK", "KERNEL", "RAMDISK", "CONTEXT"};
+        {"OS", "CDROM", "DATABLOCK", "KERNEL", "RAMDISK", "CONTEXT", "FILESYSTEM"};
 
     private static final String[] SHORT_IMAGE_TYPES =
-        {"OS", "CD", "DB", "KL", "RD", "CX"};
+        {"OS", "CD", "DB", "KL", "RD", "CX", "FS"};
 
     /**
      * Creates a new Image representation.

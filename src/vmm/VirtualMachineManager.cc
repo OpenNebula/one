@@ -525,6 +525,15 @@ void VirtualMachineManager::trigger_save(int vid)
             goto error_driver;
         }
 
+        // Check for unsopported disks
+        for (auto *disk : vm->get_disks())
+        {
+            if (disk->is_filesystem())
+            {
+                goto error_unsupported;
+            }
+        }
+
         // Use previous host if it is a migration
         if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
         {
@@ -569,6 +578,10 @@ error_history:
 
 error_driver:
         os << "save_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
+
+error_unsupported:
+        os << "save_action, Filesystem disks are not supported";
         goto error_common;
 
 error_previous_history:

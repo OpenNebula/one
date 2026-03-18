@@ -1521,9 +1521,9 @@ public:
      *    @param disk_id of the DISK
      *    @return 0 if the disk_id was found -1 otherwise
      */
-    int set_attach_disk(int disk_id)
+    int set_attach_disk(int disk_id, std::string& error)
     {
-        return disks.set_attach(disk_id);
+        return disks.set_attach(disk_id, error);
     }
 
     // -------------------------------------------------------------------------
@@ -2292,6 +2292,22 @@ private:
      *    @param pci device to add context for
      */
     void add_pci_context(VectorAttribute * pci);
+
+    /**
+     * Generate the DISK related CONTEXT setions, i.e. DISK_*. This function is
+     * used only for disks skipped during requirements process(i.e. FILESYSTEM)
+     *    @param context attribute of the VM
+     *    @param error string if any
+     *    @return 0 on success
+     */
+    int generate_disk_context(VectorAttribute* context, std::string& error_str);
+
+    /**
+     *  Deletes the DISK related CONTEXT section for the given disk, i.e.
+     *  DISK<id>_TAG
+     *    @param disk_id the id of the DISK
+     */
+    void clear_disk_context(int disk_id);
 
     /**
      *  Generate the ONE_GATE token & url

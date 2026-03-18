@@ -22,6 +22,7 @@
 #include <memory>
 
 #include "VirtualMachineAttribute.h"
+#include "Image.h"
 #include "Snapshots.h"
 #include "NebulaUtil.h"
 
@@ -318,6 +319,15 @@ public:
     void delete_younger_snapshots(int snap_id, Template& ds_quota, Template& vm_quota,
         bool& io, bool& vo);
 
+    /**
+     *  Check if the disk supports snapshots
+     *
+     *  @return true if the disk supports snapshots
+     */
+    bool snapshot_support() const
+    {
+        return !is_volatile() && !is_filesystem();
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Disk resize functions                                                  */
@@ -376,6 +386,16 @@ public:
      *    @param stream to write the disk XML description
      */
     void to_xml_short(std::ostringstream& oss) const;
+
+    /* ---------------------------------------------------------------------- */
+    /* Disk requirements helpers                                              */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Checks if the disk is a file system
+     *
+     *  @return true if the disk should be skipped
+     */
+    bool is_filesystem() const;
 
 private:
 
@@ -615,9 +635,10 @@ public:
     /**
      *  Sets the attach attribute to the given disk
      *    @param disk_id of the DISK
+     *    @param error reason
      *    @return 0 if the disk_id was found -1 otherwise
      */
-    int set_attach(int disk_id);
+    int set_attach(int disk_id, std::string& error);
 
     /**
      *  Cleans the attach attribute from the disk

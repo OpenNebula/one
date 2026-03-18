@@ -342,6 +342,15 @@ int Datastore::set_ds_mad(const std::string &mad, std::string &error_str)
         goto error_conf;
     }
 
+    bool capacity_check;
+
+    rc = vatt->vector_value("DATASTORE_CAPACITY_CHECK", capacity_check);
+
+    if ( rc != -1 )
+    {
+        replace_template_attribute("DATASTORE_CAPACITY_CHECK", capacity_check);
+    }
+
     rc = vatt->vector_value("REQUIRED_ATTRS", required_attrs);
 
     if ( rc == -1 ) //No required attributes
@@ -583,6 +592,7 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
                 case Image::RBD:
                 case Image::GLUSTER:
                 case Image::SHEEPDOG:
+                case Image::FILE_SYSTEM:
                     break;
 
                 case Image::CD_ROM:
@@ -605,6 +615,7 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
                 case Image::FILE:
                 case Image::RBD:
                 case Image::BLOCK:
+                case Image::FILE_SYSTEM:
                     break;
 
                 case Image::GLUSTER:
@@ -1118,7 +1129,7 @@ int Datastore::post_update_template(string& error_str, Template *old_tmpl)
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Verify that the template has the required attributees                  */
+    /* Verify that the template has the required attributes                   */
     /* ---------------------------------------------------------------------- */
 
     if ( set_ds_mad(ds_mad, error_str) !=  0 )
@@ -1274,6 +1285,7 @@ Image::DiskType Datastore::context_disk_type() const
         case Image::RBD_CDROM:
         case Image::SHEEPDOG_CDROM:
         case Image::GLUSTER_CDROM:
+        case Image::FILE_SYSTEM:
             break;
     }
 

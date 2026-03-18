@@ -117,6 +117,7 @@ int ImagePool::allocate (
         case Image::OS:
         case Image::DATABLOCK:
         case Image::CDROM:
+        case Image::FILESYSTEM:
             if ( ds_type != Datastore::IMAGE_DS  )
             {
                 error_str = "Only IMAGES of type KERNEL, RAMDISK and CONTEXT can be"

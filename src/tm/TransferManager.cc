@@ -132,6 +132,10 @@ int TransferManager::prolog_transfer_command(
             << vm->get_ds_id()
             << endl;
     }
+    else if ( type == "FILESYSTEM" )
+    {
+        return 0;
+    }
     else
     {
         // -----------------------------------------------------------------
@@ -562,7 +566,11 @@ void TransferManager::trigger_prolog_migr(VirtualMachine * vm)
         {
             disk_id = disk->get_disk_id();
 
-            if ( disk->is_volatile() == true )
+            if (disk->is_filesystem())
+            {
+                continue;
+            }
+            else if (disk->is_volatile())
             {
                 tm_mad = vm_tm_mad;
                 ds_id  = vm->get_ds_id();
@@ -718,7 +726,7 @@ void TransferManager::trigger_prolog_resume(VirtualMachine * vm)
         {
             disk_id = disk->get_disk_id();
 
-            if ( disk->is_volatile() == true )
+            if ( disk->is_volatile() || disk->is_filesystem() )
             {
                 tm_mad = vm_tm_mad;
                 ds_id  = vm->get_ds_id();
@@ -938,6 +946,11 @@ void TransferManager::epilog_transfer_command(
     int    disk_id = disk->get_disk_id();
     string tm_mad_system;
 
+    if (disk->is_filesystem())
+    {
+        return;
+    }
+
     if ( one_util::toupper(save) == "YES" )
     {
         const string& source = disk->vector_value("SOURCE");
@@ -978,7 +991,7 @@ void TransferManager::epilog_transfer_command(
         int ds_id_i;
         int vv_rc = 0;
 
-        if ( disk->is_volatile() == true )
+        if (disk->is_volatile())
         {
             tm_mad = vm->get_tm_mad();
             ds_id_i = vm->get_ds_id();
@@ -1203,7 +1216,11 @@ void TransferManager::trigger_epilog_stop(VirtualMachine * vm)
         {
             disk_id = disk->get_disk_id();
 
-            if ( disk->is_volatile() == true )
+            if (disk->is_filesystem())
+            {
+                continue;
+            }
+            else if (disk->is_volatile())
             {
                 tm_mad = vm_tm_mad;
                 ds_id  = vm->get_ds_id();
@@ -1353,7 +1370,11 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
     {
         disk_id = disk->get_disk_id();
 
-        if ( disk->is_volatile() == true )
+        if (disk->is_filesystem())
+        {
+            continue;
+        }
+        else if (disk->is_volatile())
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;
@@ -2133,7 +2154,11 @@ void TransferManager::resize_command(VirtualMachine * vm,
     string tm_mad_system;
     string ds_id;
 
-    if ( disk->is_volatile() )
+    if (disk->is_filesystem())
+    {
+        return;
+    }
+    else if (disk->is_volatile())
     {
         tm_mad = vm->get_tm_mad();
         ds_id  = std::to_string(vm->get_ds_id());
