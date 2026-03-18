@@ -82,9 +82,9 @@ const NODE_AFFINITY = {
   name: 'TOPOLOGY.NODE_AFFINITY',
   label: T.NodeAffinity,
   tooltip: T.NodeAffinityConcept,
-  dependOf: [PIN_POLICY.name],
-  htmlType: ([pinPolicy] = []) =>
-    pinPolicy !== NUMA_PIN_POLICIES.NODE_AFFINITY && INPUT_TYPES.HIDDEN,
+  dependOf: [PIN_POLICY.name, ENABLE_NUMA.name],
+  htmlType: ([pinPolicy, enabledNuma = false] = []) =>
+    (!enabledNuma || pinPolicy !== NUMA_PIN_POLICIES.NODE_AFFINITY) && INPUT_TYPES.HIDDEN,
   type: INPUT_TYPES.TEXT,
   validation: lazy((_, { context }) => {
     const { extra } = context || {}
