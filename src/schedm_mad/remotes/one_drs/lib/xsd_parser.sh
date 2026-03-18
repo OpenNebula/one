@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/usr/bin/env python3
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -22,7 +21,7 @@ SCHEDULER_DRIVER_ACTION="scheduler_driver_action.xsd"
 SCHEDULER_DRIVER_OUTPUT="plan.xsd"
 
 echo "Generating Python models from XSData..."
-xsdata generate -p lib.${PACKAGE} ${OPENNEBULA_XSD_DIR}/${SCHEDULER_DRIVER_OUTPUT} 
+xsdata generate -p lib.${PACKAGE} ${OPENNEBULA_XSD_DIR}/${SCHEDULER_DRIVER_OUTPUT}
 xsdata generate -p lib.${PACKAGE} ${OPENNEBULA_XSD_DIR}/${SCHEDULER_DRIVER_ACTION}
 
 echo "Moving generated models..."

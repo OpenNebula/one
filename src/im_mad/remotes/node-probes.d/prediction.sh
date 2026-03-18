@@ -26,7 +26,9 @@ MAJOR=$(echo "$PYTHON_VERSION" | cut -d. -f1)
 MINOR=$(echo "$PYTHON_VERSION" | cut -d. -f2)
 
 if [[ "$MAJOR" -lt 3 ]] || [[ "$MAJOR" -eq 3 && "$MINOR" -lt 9 ]]; then
-    if command -v python3.9 &>/dev/null; then
+    if command -v python3.11 &>/dev/null; then
+        PYTHON=python3.11
+    elif command -v python3.9 &>/dev/null; then
         PYTHON=python3.9
     else
         exit 0
