@@ -109,6 +109,7 @@
         <xs:element name="DS_MAD_CONF" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:all>
+              <xs:element name="DATASTORE_CAPACITY_CHECK" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="MARKETPLACE_ACTIONS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="PERSISTENT_ONLY" minOccurs="0" maxOccurs="1">
