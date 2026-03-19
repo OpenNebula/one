@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Scheduler.h"
+#include "SchedulerFailure.h"
 #include "SchedulerTemplate.h"
 #include "RankPolicy.h"
 #include "NebulaLog.h"
@@ -23,7 +24,6 @@
 
 #include <stdexcept>
 #include <stdlib.h>
-#include <iomanip>
 #include <iostream>
 #include <string>
 
@@ -92,26 +92,6 @@ namespace
         log_message(message_type, std::to_string(vm_id) + " " + msg);
     }
 
-    /* ---------------------------------------------------------------------- */
-
-    std::string ids_to_string(const std::vector<int>& ids)
-    {
-        if (ids.empty())
-        {
-            return "";
-        }
-
-        std::ostringstream oss;
-
-        oss << ids[0];
-
-        for (size_t i = 1; i < ids.size(); ++i)
-        {
-            oss << "," << ids[i];
-        }
-
-        return oss.str();
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -296,15 +276,18 @@ void Scheduler::start(const std::string& xml_input)
  *  @param host to evaluate vm assgiment
  *  @param n_fits number of hosts with capacity that fits the VM requirements
  *  @param n_matched number of hosts that fullfil VM sched_requirements
+ *  @param error returns the error reason, if any
+ *  @param ft failure type
  *  @return true for a positive match
  */
 static bool match_host(VirtualMachineXML* vm, HostShareCapacity &sr, HostXML * host,
-                       int& n_match, int& n_fits, std::string& error)
+                       int& n_match, int& n_fits, std::string& error,
+                       SchedulerFailure::FailureType& ft)
 {
     // -------------------------------------------------------------------------
     // Check host capacity
     // -------------------------------------------------------------------------
-    if (host->test_capacity(sr, error) != true)
+    if (host->test_capacity(sr, error, ft) != true)
     {
         return false;
     }
@@ -331,6 +314,8 @@ static bool match_host(VirtualMachineXML* vm, HostShareCapacity &sr, HostXML * h
         {
             error = "Host does not fulfill affinity constraints: "
                     + vm->get_requirements();
+            ft = SchedulerFailure::HOST_AFFINITY;
+
             return false;
         }
     }
@@ -355,7 +340,7 @@ static bool match_host(VirtualMachineXML* vm, HostShareCapacity &sr, HostXML * h
  *  @return true for a positive match
  */
 static bool match_system_ds(VirtualMachineXML* vm, long long vdisk, DatastoreXML * ds,
-                            string &error)
+                            string &error, SchedulerFailure::FailureType &ft)
 {
     // -------------------------------------------------------------------------
     // Check datastore capacity for shared systems DS (non-shared will be
@@ -367,11 +352,15 @@ static bool match_system_ds(VirtualMachineXML* vm, long long vdisk, DatastoreXML
         if (!ds->is_monitored())
         {
             error = "Not monitored.";
+            ft = SchedulerFailure::DS_MONITOR;
+
             return false;
         }
         else if (!ds->test_capacity(vdisk, error))
         {
             error = "Not enough capacity.";
+            ft = SchedulerFailure::DS_CAPACITY;
+
             return false;
         }
     }
@@ -446,6 +435,10 @@ void Scheduler::match_schedule()
         int n_match = 0;
         int n_fits  = 0;
 
+        std::map<SchedulerFailure::FailureType, std::set<int>> host_failures;
+
+        SchedulerFailure::FailureType ft = SchedulerFailure::NONE;
+
         for (auto req_id : prereq_host_ids)
         {
             auto iter = hosts.find(req_id);
@@ -461,18 +454,23 @@ void Scheduler::match_schedule()
 
             std::string error;
 
-            if (match_host(vm, sr, host, n_match, n_fits, error))
+            if (match_host(vm, sr, host, n_match, n_fits, error, ft))
             {
                 vm->add_match_host(host->get_hid());
             }
-            else if (NebulaLog::log_level() >= Log::DDEBUG)
+            else
             {
-                ostringstream oss;
+                host_failures[ft].insert(host->get_hid());
 
-                oss << "Host " << host->get_hid() << " discarded for VM "
-                    << vm->get_oid() << ". " << error;
+                if (NebulaLog::log_level() >= Log::DDDEBUG)
+                {
+                    ostringstream oss;
 
-                NebulaLog::log("SCHED", Log::DDEBUG, oss.str());
+                    oss << "Host " << host->get_hid() << " discarded for VM "
+                        << vm->get_oid() << ". " << error;
+
+                    NebulaLog::log("SCHED", Log::DDEBUG, oss.str());
+                }
             }
         }
 
@@ -481,22 +479,9 @@ void Scheduler::match_schedule()
         // ---------------------------------------------------------------------
         // Log scheduling errors to VM user if any
         // ---------------------------------------------------------------------
-        if (n_fits == 0 || n_match == 0) //No hosts assigned, log reason
+        if (n_fits == 0 || n_match == 0) //No hosts assigned
         {
-            std::ostringstream oss;
-
-            oss << "Cannot allocate VM. ";
-
-            if (n_fits == 0)
-            {
-                oss << "Not enough capacity in hosts ";
-            }
-            else
-            {
-                oss << "Affinity constraints cannot be met in hosts ";
-            }
-
-            oss << ids_to_string(prereq_host_ids);
+            std::ostringstream oss = SchedulerFailure::log_failures(host_failures);
 
             log_message(vm->get_oid(), Log::ERROR, oss.str());
 
@@ -504,6 +489,8 @@ void Scheduler::match_schedule()
 
             continue;
         }
+
+        host_failures.clear();
 
         // ---------------------------------------------------------------------
         // Schedule matched hosts
@@ -541,8 +528,7 @@ void Scheduler::match_schedule()
 
             if (iter == datastores.end())
             {
-                NebulaLog::log("SCHED", Log::ERROR,
-                               "Required datastore is not present in datastore pool");
+                NebulaLog::log("SCHED", Log::ERROR, "Datastore not found");
                 continue;
             }
 
@@ -550,20 +536,25 @@ void Scheduler::match_schedule()
 
             std::string error;
 
-            if (match_system_ds(vm, sr.disk, ds, error))
+            if (match_system_ds(vm, sr.disk, ds, error, ft))
             {
                 vm->add_match_datastore(ds->get_oid());
 
                 matched_ds = true;
             }
-            else if (NebulaLog::log_level() >= Log::DDEBUG)
+            else
             {
-                ostringstream oss;
+                host_failures[ft].insert(ds->get_oid());
 
-                oss << "System DS " << ds->get_oid() << " discarded for VM "
-                    << vm->get_oid() << ". " << error;
+                if (NebulaLog::log_level() >= Log::DDDEBUG)
+                {
+                    ostringstream oss;
 
-                NebulaLog::log("SCHED", Log::DDEBUG, oss.str());
+                    oss << "System DS " << ds->get_oid() << " discarded for VM "
+                        << vm->get_oid() << ". " << error;
+
+                    NebulaLog::log("SCHED", Log::DDEBUG, oss.str());
+                }
             }
         }
 
@@ -574,9 +565,9 @@ void Scheduler::match_schedule()
         // ---------------------------------------------------------------------
         if (!matched_ds)
         {
-            log_message(vm->get_oid(), Log::ERROR,
-                        "Cannot allocate VM. Not enough enough space in datastores "
-                        + ids_to_string(prereq_ds_ids));
+            std::ostringstream oss = SchedulerFailure::log_failures(host_failures);
+
+            log_message(vm->get_oid(), Log::ERROR, oss.str());
 
             vm->clear_match_hosts();
 
@@ -584,6 +575,8 @@ void Scheduler::match_schedule()
 
             continue;
         }
+
+        host_failures.clear();
 
         // ---------------------------------------------------------------------
         // Schedule matched datastores
@@ -611,7 +604,6 @@ void Scheduler::match_schedule()
         {
             if (nics_ids.find(nic_id) == nics_ids.end())
             {
-                NebulaLog::log("SCHED", Log::ERROR, "Required nic is not present");
                 continue;
             }
 
@@ -623,7 +615,7 @@ void Scheduler::match_schedule()
 
                 if (iter == nets.end())
                 {
-                    NebulaLog::log("SCHED", Log::ERROR, "Required virtual network is not present");
+                    host_failures[SchedulerFailure::NET_NULL].insert(vnet_id);
                     continue;
                 }
 
@@ -637,22 +629,30 @@ void Scheduler::match_schedule()
 
                     matched_vnet = true;
                 }
-                else if (NebulaLog::log_level() >= Log::DDEBUG)
+                else
                 {
-                    ostringstream oss;
+                    host_failures[SchedulerFailure::NET_LEASES].insert(vnet_id);
 
-                    oss << "Network " << net->get_oid() << " discarded for VM "
-                        << vm->get_oid() << " and NIC " << nic_id << ". " << error;
+                    if (NebulaLog::log_level() >= Log::DDDEBUG)
+                    {
+                        ostringstream oss;
 
-                    NebulaLog::log("SCHED", Log::DDEBUG, oss.str());
+                        oss << "Network " << net->get_oid() << " discarded for VM "
+                            << vm->get_oid() << " and NIC " << nic_id << ". " << error;
+
+                        NebulaLog::log("SCHED", Log::DDEBUG, oss.str());
+                    }
                 }
             }
 
+            // -----------------------------------------------------------------
+            // Log scheduling errors to VM user if any
+            // -----------------------------------------------------------------
             if (!matched_vnet)
             {
-                log_message(vm->get_oid(), Log::MessageType::ERROR,
-                            "Cannot schedule VM, no leases available in network "
-                            + ids_to_string(vnet_ids));
+                std::ostringstream oss = SchedulerFailure::log_failures(host_failures);
+
+                log_message(vm->get_oid(), Log::ERROR, oss.str());
 
                 vm->clear_match_hosts();
                 vm->clear_match_datastores();
@@ -662,6 +662,8 @@ void Scheduler::match_schedule()
 
                 break;
             }
+
+            host_failures.clear();
 
             Profiler p_net_rank;
 
@@ -732,6 +734,8 @@ void Scheduler::dispatch()
 {
     PlanXML plan;
 
+    std::map<SchedulerFailure::FailureType, std::set<int>> host_failures;
+
     //--------------------------------------------------------------------------
     // Schedule pending VMs according to the VM policies (e.g. User priority)
     //--------------------------------------------------------------------------
@@ -756,6 +760,8 @@ void Scheduler::dispatch()
     //--------------------------------------------------------------------------
     for (auto k = vm_rs.rbegin(); k != vm_rs.rend(); ++k)
     {
+        host_failures.clear();
+
         bool dispatched = false;
 
         auto vm = vmpool->get((*k)->oid);
@@ -765,10 +771,10 @@ void Scheduler::dispatch()
         //----------------------------------------------------------------------
         // Test Image Datastore capacity, but not for migrations or resume
         //----------------------------------------------------------------------
+        std::string error;
+
         if (!resources.empty() && !vm->is_resched() && !vm->is_resume())
         {
-            std::string error;
-
             if (vm->test_image_datastore_capacity(img_dspool, error) == false)
             {
                 log_message(vm->get_oid(), Log::ERROR, "Cannot dispatch VM. " + error);
@@ -790,6 +796,7 @@ void Scheduler::dispatch()
 
             if ( host == nullptr )
             {
+                host_failures[SchedulerFailure::HOST_NULL].insert(hid);
                 continue;
             }
 
@@ -806,18 +813,14 @@ void Scheduler::dispatch()
 
                 if (host->eval_bool(vm->get_requirements(), matched, &estr)!=0)
                 {
+                    host_failures[SchedulerFailure::HOST_REQUIREMENTS].insert(hid);
                     free(estr);
                     continue;
                 }
 
                 if (matched == false)
                 {
-                    std::ostringstream oss;
-
-                    oss << "Host " << hid << " no longer meets requirements for VM "
-                        << vm->get_oid();
-
-                    NebulaLog::log("SCHED", Log::DDEBUG, oss.str());
+                    host_failures[SchedulerFailure::HOST_REQUIREMENTS].insert(hid);
                     continue;
                 }
             }
@@ -825,10 +828,11 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             // Test host capacity
             //------------------------------------------------------------------
-            std::string error;
+            SchedulerFailure::FailureType ft;
 
-            if (host->test_capacity(sr, error) != true)
+            if (host->test_capacity(sr, error, ft) != true)
             {
+                host_failures[ft].insert(hid);
                 continue;
             }
 
@@ -837,6 +841,7 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             if (host_dispatch_limit > 0 && host->dispatched() >= host_dispatch_limit)
             {
+                host_failures[SchedulerFailure::HOST_DISPATCH].insert(hid);
                 continue;
             }
 
@@ -855,6 +860,7 @@ void Scheduler::dispatch()
 
                 if ( ds == nullptr )
                 {
+                    host_failures[SchedulerFailure::DS_NULL].insert((*j)->oid);
                     continue;
                 }
 
@@ -863,6 +869,7 @@ void Scheduler::dispatch()
                 //--------------------------------------------------------------
                 if (!ds->is_in_cluster(cid))
                 {
+                    host_failures[SchedulerFailure::DS_CLUSTER].insert((*j)->oid);
                     continue;
                 }
 
@@ -896,6 +903,7 @@ void Scheduler::dispatch()
 
                 if (!ds_capacity)
                 {
+                    host_failures[SchedulerFailure::DS_CAPACITY].insert((*j)->oid);
                     continue;
                 }
 
@@ -909,6 +917,7 @@ void Scheduler::dispatch()
 
             if (dsid == -1)
             {
+                host_failures[SchedulerFailure::DS_NONE].insert(dsid);
                 continue;
             }
 
@@ -947,6 +956,7 @@ void Scheduler::dispatch()
                     //--------------------------------------------------------------
                     if (! net->is_in_cluster(cid))
                     {
+                        host_failures[SchedulerFailure::NET_CLUSTER].insert((*n)->oid);
                         continue;
                     }
 
@@ -955,6 +965,7 @@ void Scheduler::dispatch()
                     //--------------------------------------------------------------
                     if ( !net->test_leases() )
                     {
+                        host_failures[SchedulerFailure::NET_LEASES].insert((*n)->oid);
                         continue;
                     }
 
@@ -994,6 +1005,8 @@ void Scheduler::dispatch()
                     auto net = vnetpool->get(it->first);
 
                     net->rollback_leases(it->second);
+
+                    host_failures[SchedulerFailure::NET_ROLLBACK].insert(it->first);
                 }
 
                 continue;
@@ -1074,9 +1087,14 @@ void Scheduler::dispatch()
         if (!dispatched)
         {
             log_message(vm->get_oid(), Log::MessageType::ERROR,
-                        "Cannot dispatch VM to any Host. Possible reasons: Not "
-                        "enough capacity in Host or System DS, dispatch limit "
-                        "reached, or limit of free leases reached.");
+                        "Cannot dispatch VM to any Host. Check VM log for detailed reasons.");
+
+
+            if (!host_failures.empty())
+            {
+                std::ostringstream oss = SchedulerFailure::log_failures(host_failures);
+                log_message(vm->get_oid(), Log::ERROR, oss.str());
+            }
         }
     }
 

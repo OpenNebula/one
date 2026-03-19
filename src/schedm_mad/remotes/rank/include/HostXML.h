@@ -23,6 +23,7 @@
 #include "ObjectXML.h"
 #include "HostShare.h"
 #include "PoolObjectAuth.h"
+#include "SchedulerFailure.h"
 
 /**
  *  This class represents the needed information HostShare for a Host to
@@ -38,9 +39,11 @@ public:
     /**
      *  Tests whether a new VM can be hosted by the host or not
      *    @param sr the share request including CPU, memory, PCI and NUMA nodes
+     *    @param error error reason
+     *    @param ft failure type
      *    @return true if the share can host the VM
      */
-    bool test_capacity(HostShareCapacity& sr, std::string & error);
+    bool test_capacity(HostShareCapacity& sr, std::string & error, SchedulerFailure::FailureType & ft);
 
     /**
      *  Adds a new VM to the given share by incrementing the cpu,mem and disk
@@ -178,11 +181,12 @@ public:
      *    @param sr, the host share capacity request including cpu, mem, pci
      *    devices and numa topology
      *    @param error error message
+     *    @param ft FailureType
      *    @return true if the share can host the VM
      */
-    bool test_capacity(HostShareCapacity &sr, std::string & error)
+    bool test_capacity(HostShareCapacity &sr, std::string & error, SchedulerFailure::FailureType & ft)
     {
-        return share.test_capacity(sr, error);
+        return share.test_capacity(sr, error, ft);
     }
 
     /**

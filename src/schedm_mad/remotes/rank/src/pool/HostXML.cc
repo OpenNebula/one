@@ -84,7 +84,9 @@ void HostShareXML::init_attributes(ObjectXML * host)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool HostShareXML::test_capacity(HostShareCapacity &sr, string & error)
+bool HostShareXML::test_capacity(HostShareCapacity &sr,
+                                string & error,
+                                SchedulerFailure::FailureType & ft)
 {
     bool pci_fit  = pci.test(sr.pci);
     bool numa_fit = numa.test(sr);
@@ -102,18 +104,22 @@ bool HostShareXML::test_capacity(HostShareCapacity &sr, string & error)
 
     if (!cpu_fit)
     {
+        ft = SchedulerFailure::HOST_CPU;
         oss << "Not enough CPU capacity: " << sr.cpu << "/" << max_cpu  - cpu_usage;
     }
     else if (!mem_fit)
     {
+        ft = SchedulerFailure::HOST_MEMORY;
         oss << "Not enough memory: " << sr.mem << "/" << max_mem  - mem_usage;
     }
     else if (!numa_fit)
     {
+        ft = SchedulerFailure::HOST_NUMA;
         oss << "Cannot allocate NUMA topology";
     }
     else if (!pci_fit)
     {
+        ft = SchedulerFailure::HOST_PCI;
         oss <<  "Unavailable PCI device.";
     }
 
