@@ -69,7 +69,6 @@ string SchedulerFailure::failure_to_string(FailureType ft)
         case NET_CLUSTER:       return "NETWORK_UNAVAILABLE_IN_CLUSTER";
         case NET_LEASES:        return "NETWORK_LEASES";
         case NET_ROLLBACK:      return "NETWORK_ROLLBACK";
-        case NIC_NULL:          return "NIC_NULL";
         default:                return "";
     }
 };
@@ -160,10 +159,6 @@ SchedulerFailure::FailureType SchedulerFailure::str_to_failure_type(string& str_
     else if (str_type == "NETWORK_ROLLBACK")
     {
         ft = NET_ROLLBACK;
-    }
-    else if (str_type == "NIC_NULL")
-    {
-        ft = NIC_NULL;
     }
 
     return ft;
