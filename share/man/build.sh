@@ -50,11 +50,10 @@ COMMANDS=(
 
     'bin/oneflow'           'Manage oneFlow Services'
     'bin/oneflow-template'  'Manage oneFlow Templates'
-
-    'bin/oneprovider-template'   'Manage OpenNebula Provider Templates'
-    'bin/oneprovider'            'Manage OpenNebula Providers'
-    'bin/oneprovision-template'  'Manage OpenNebula Provision Templates'
-    'bin/oneprovision'           'Manage OpenNebula Provisions'
+    
+    'bin/oneform'           'Manage OpenNebula Form Drivers'
+    'bin/oneprovider'       'Manage OpenNebula Providers'
+    'bin/oneprovision'      'Manage OpenNebula Provisions'
 
     'lib/onegate/onegate'   'Manage communication between VMs and OpenNebula'
 
