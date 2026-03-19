@@ -1513,7 +1513,11 @@ int LibVirtDriver::deployment_description_kvm(
             is_fs = true;
 
             file << "\t\t<filesystem type='mount' accessmode='passthrough'>\n"
-                 << "\t\t\t<driver type='virtiofs' cache='always' queue='1024'/>\n"
+                 << "\t\t\t<driver type='virtiofs' queue='1024'/>\n"
+                 << "\t\t\t<binary xattr='on'>\n"
+                 << "\t\t\t\t<cache mode='always'/>\n"
+                 << "\t\t\t\t<sandbox mode='namespace'/>\n"
+                 << "\t\t\t</binary>\n"
                  << "\t\t\t<source dir=" << one_util::escape_xml_attr(source) << "/>\n"
                  << "\t\t\t<target dir=" << one_util::escape_xml_attr(mount_tag) << "/>\n";
 
@@ -1527,12 +1531,12 @@ int LibVirtDriver::deployment_description_kvm(
 
             if (uid_map.empty())
             {
-                uid_map = "9869";
+                uid_map = "100000";
             }
 
             if (gid_map.empty())
             {
-                gid_map = "9869";
+                gid_map = "100000";
             }
 
             file << "\t\t\t<idmap>\n"
