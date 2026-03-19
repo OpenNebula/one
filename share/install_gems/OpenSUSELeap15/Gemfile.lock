@@ -232,7 +232,7 @@ DEPENDENCIES
   ox
   parse-cron
   prometheus-client
-  public_suffix
+  public_suffix (< 5.0.0)
   rack
   rbvmomi2
   rexml

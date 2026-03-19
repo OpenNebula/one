@@ -55,7 +55,13 @@ else
     end
 end
 
-ps = '< 3.0.0' if ruby_version < Gem::Version.new('2.1.0')
+if ruby_version < Gem::Version.new('2.1.0')
+    ps = '< 3.0.0'
+elsif ruby_version < Gem::Version.new('2.6.0')
+    ps = '< 5.0.0'
+elsif ruby_version < Gem::Version.new('3.0.0')
+    ps = '< 6.0.0'
+end
 
 if ruby_version < Gem::Version.new('2.2.0')
     rack     = '< 2.0.0'
