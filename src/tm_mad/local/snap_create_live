@@ -180,7 +180,7 @@ freeze, thaw = if vm_mad == 'lxc'
                        #{freeze} && export FROZEN="TRUE"
                        trap '[ -n "${FROZEN}" ] && #{thaw}' EXIT
                    EOS
-                   thaw   = "#{thaw} && unset FROZEN"
+                   thaw = "#{thaw} && unset FROZEN"
 
                    [freeze, thaw]
                else

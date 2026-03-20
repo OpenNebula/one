@@ -625,9 +625,9 @@ class Disk
                 end
 
                 lvm_thin = @xml['LVM_THIN_ENABLE'].casecmp?('yes')
-                
+
                 if device.empty? && lvm_thin &&
-                   d['children'].any? { |child| child.key?('children') }
+                   d['children'].any? {|child| child.key?('children') }
                     device = find_device(d['children'])
                 end
             end
