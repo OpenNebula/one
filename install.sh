@@ -1023,7 +1023,8 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/resize \
                     src/vmm_mad/remotes/kvm/resize_disk \
                     src/vmm_mad/remotes/kvm/exec \
-                    src/vmm_mad/remotes/kvm/exec_cancel"
+                    src/vmm_mad/remotes/kvm/exec_cancel \
+                    src/vmm_mad/remotes/kvm/virtiofsd.sh"
 
 VMM_EXEC_KVM_LIB="src/vmm_mad/remotes/lib/kvm/opennebula_vm.rb"
 
