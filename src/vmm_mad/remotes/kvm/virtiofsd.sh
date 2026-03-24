@@ -43,4 +43,10 @@ fi
 # Execute with dropped privileges
 # ------------------------------------------------------------------------------
 
-exec runuser -u "$USER" -- "$VIRTIOFSD_BINARY" "$@"
+# Virtiofsd from non rust version (qemu from) calls setgroups() and gets
+# permission denied
+if [[ $VIRTIOFSD_BINARY =~ qemu ]]; then
+    exec "$VIRTIOFSD_BINARY" "$@"
+else
+    exec su -s /bin/bash "$USER" -c "$VIRTIOFSD_BINARY $*"
+fi

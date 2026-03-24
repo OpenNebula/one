@@ -144,8 +144,12 @@ int Image::insert(SqlDB *db, string& error_str)
             break;
 
         case BACKUP:
-        case FILESYSTEM:
             persistent_img = true;
+            erase_template_attribute("DEV_PREFIX", dev_prefix);
+            break;
+
+        case FILESYSTEM:
+            persistent_img = one_util::icasecmp(persistent_attr, "YES");
             erase_template_attribute("DEV_PREFIX", dev_prefix);
             break;
     }

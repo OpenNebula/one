@@ -902,7 +902,7 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
         {
             if (disk->is_filesystem())
             {
-                att.resp_msg = "VM with Filesytem disks cannot be live-migrated";
+                att.resp_msg = "VM with FILESYSTEM disks cannot be live-migrated";
 
                 return Request::ACTION;
             }
@@ -2744,6 +2744,16 @@ Request::ErrorCode VirtualMachineAPI::snapshot_create(int vid,
             return Request::ACTION;
         }
 
+        for (auto *disk : vm->get_disks())
+        {
+            if (disk->is_filesystem())
+            {
+                att.resp_msg = "Cannot create snapshot for VM with FILESYSTEM disks";
+
+                return Request::ACTION;
+            }
+        }
+
         // get quota deltas
         snap = vm->new_snapshot(name, snap_id);
         snap = snap->clone();
@@ -3526,6 +3536,16 @@ Request::ErrorCode VirtualMachineAPI::backup(int vid,
                            ", it is part of Backup Job ID " + to_string(bj_id);
 
             return Request::INTERNAL;
+        }
+
+        for (auto *disk : vm->get_disks())
+        {
+            if (disk->is_filesystem())
+            {
+                att.resp_msg = "Cannot backup VM with FILESYSTEM disks";
+
+                return Request::ACTION;
+            }
         }
     }
     else

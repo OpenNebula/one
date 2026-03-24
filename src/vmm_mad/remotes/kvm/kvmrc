@@ -84,7 +84,7 @@ DEFAULT_ATTACH_NIC_MODEL=virtio
 
 # Path to the virtiofsd binary. Can provide a single path or a
 # space-separated list of potential locations.
-VIRTIOFSD_BINARY_PATH="/usr/libexec/virtiofsd /usr/lib/qemu/virtiofsd"
+VIRTIOFSD_BINARY_PATH="/usr/libexec/virtiofsd /usr/lib/qemu/virtiofsd /usr/lib/virtiofsd/virtiofsd"
 
 # Virtual Machine Firmware path to the NVRAM file
 # OVMF_NVRAM="/usr/share/AAVMF/AAVMF_VARS.fd" for aarch64 guests
