@@ -2298,9 +2298,8 @@ private:
      * used only for disks skipped during requirements process(i.e. FILESYSTEM)
      *    @param context attribute of the VM
      *    @param error string if any
-     *    @return 0 on success
      */
-    int generate_disk_context(VectorAttribute* context, std::string& error_str);
+    void generate_disk_context(VectorAttribute* context, std::string& error_str);
 
     /**
      *  Deletes the DISK related CONTEXT section for the given disk, i.e.

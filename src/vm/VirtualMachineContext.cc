@@ -167,17 +167,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         return -1;
     }
 
-    rc = generate_disk_context(context, error_str);
-
-    if ( rc != 0 )
-    {
-        ostringstream oss;
-
-        oss << "Cannot parse disk context:: " << error_str;
-        log("VM", Log::ERROR, oss);
-
-        return -1;
-    }
+    generate_disk_context(context, error_str);
 
     vector<VectorAttribute *> vatts;
 
@@ -564,25 +554,22 @@ static void parse_context_disk(const std::vector<DiskContextVariable>& cvars,
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::generate_disk_context(VectorAttribute* context,
-                                          string& error_str)
+void VirtualMachine::generate_disk_context(VectorAttribute* context,
+                                           string& error_str)
 {
-    vector<VectorAttribute *> disks;
-    VectorAttribute tmp_context("TMP_CONTEXT");
+    vector<VectorAttribute *> _disks;
 
-    int num = obj_template->get("DISK", disks);
+    obj_template->get("DISK", _disks);
 
-    for (int i = 0; i < num; i++)
+    for (auto disk : _disks)
     {
-        if ( disks[i]->vector_value("TYPE") != "FILESYSTEM" )
+        if ( disk->vector_value("TYPE") != "FILESYSTEM" )
         {
             continue;
         }
 
-        parse_context_disk(DISK_CONTEXT, context, disks[i]);
+        parse_context_disk(DISK_CONTEXT, context, disk);
     }
-
-    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
