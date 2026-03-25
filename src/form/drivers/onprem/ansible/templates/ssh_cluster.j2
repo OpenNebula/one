@@ -89,8 +89,10 @@ all:
               safe_dirs: /var/tmp /tmp
 
 frontend:
+  vars:
+    repos_enabled: []
   hosts:
-    f1: { ansible_user: root, ansible_host: "{{ one.frontend_ip }}" }
+    f1: { ansible_user: oneadmin, ansible_become: false, ansible_host: "{{ one.frontend_ip }}" }
 
 node:
   hosts:
