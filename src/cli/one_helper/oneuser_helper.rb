@@ -410,7 +410,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                     # In case of multiple quotas, use the global quota or the first
                     if q.is_a?(Array)
-                        global_q = q.find {|h| h['CLUSTER_IDS'].nil? || hash['CLUSTER_IDS'].empty? }
+                        global_q = q.find {|h| h['CLUSTER_IDS'].nil? || h['CLUSTER_IDS'].empty? }
                         q = global_q || q[0]
                     end
 
