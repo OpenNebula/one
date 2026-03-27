@@ -5395,6 +5395,46 @@ patches:
         -   path: *4
             key:
             old:
+                title: Networks
+                icon: ServerConnection
+                routes:
+                -   title: Virtual networks
+                    path: "/virtual-network"
+                    sidebar: true
+                    icon: NetworkAlt
+                    Component: VirtualNetworks
+                -   title: Instantiate Network Template
+                    path: "/network-template/instantiate"
+                    Component: InstantiateVnTemplate
+                -   title: Create Virtual Network
+                    path: "/virtual-network/create"
+                    Component: CreateVirtualNetwork
+                -   path: "/virtual-network/update"
+                    Component: CreateVirtualNetwork
+                -   title: Virtual networks
+                    path: "/virtual-network/:id"
+                    Component: VirtualNetworkDetail
+                -   title: Network Templates
+                    path: "/network-template"
+                    sidebar: true
+                    icon: KeyframesCouple
+                    Component: VnTemplates
+                -   title: Create Virtual Network Template
+                    path: "/network-template/create"
+                    Component: CreateVnTemplate
+                -   title: Security groups
+                    path: "/security-group"
+                    sidebar: true
+                    icon: HistoricShield
+                    Component: SecurityGroups
+                -   title: Create Security Group
+                    path: "/security-group/create"
+                    Component: CreateSecurityGroup
+            state: rm
+            extra: {}
+        -   path: *4
+            key:
+            old:
                 title: Infrastructure
                 icon: CloudSync
                 routes:
@@ -5425,6 +5465,54 @@ patches:
                     sidebar: true
                     icon: MinusPinAlt
                     Component: Zones
+            state: rm
+            extra: {}
+        -   path: *4
+            key:
+            old:
+                title: System
+                icon: Home
+                routes:
+                -   title: Create User
+                    path: "/user/create"
+                    Component: CreateUser
+                -   title: Users
+                    path: "/user"
+                    sidebar: true
+                    icon: User
+                    Component: Users
+                -   title: User
+                    path: "/user/:id"
+                    Component: UserDetail
+                -   title: Create Group
+                    path: "/group/create"
+                    Component: CreateGroup
+                -   title: Groups
+                    path: "/group"
+                    sidebar: true
+                    icon: Group
+                    Component: Groups
+                -   title: Group
+                    path: "/group/:id"
+                    Component: GroupDetail
+                -   path: "/virtual-data-center/create"
+                    Component: CreateVDC
+                -   title: VDCs
+                    path: "/virtual-data-center"
+                    sidebar: true
+                    icon: List
+                    Component: VDCs
+                -   title: VDC
+                    path: "/virtual-data-center/:id"
+                    Component: VDCDetail
+                -   title: Create ACL
+                    path: "/acl/create"
+                    Component: CreateACL
+                -   title: ACLs
+                    path: "/acl"
+                    sidebar: true
+                    icon: KeyAlt
+                    Component: ACLs
             state: rm
             extra: {}
         -   path: *4
@@ -5506,6 +5594,47 @@ patches:
         -   path: *4
             key:
             value:
+                title: Networks
+                icon: ServerConnection
+                routes:
+                -   title: Virtual networks
+                    path: "/virtual-network"
+                    sidebar: true
+                    icon: NetworkAlt
+                    Component: VirtualNetworks
+                -   title: Instantiate Network Template
+                    path: "/network-template/instantiate"
+                    Component: InstantiateVnTemplate
+                -   title: Create Virtual Network
+                    path: "/virtual-network/create"
+                    Component: CreateVirtualNetwork
+                -   title: Update Virtual Network
+                    path: "/virtual-network/update"
+                    Component: CreateVirtualNetwork
+                -   title: Virtual networks
+                    path: "/virtual-network/:id"
+                    Component: VirtualNetworkDetail
+                -   title: Network Templates
+                    path: "/network-template"
+                    sidebar: true
+                    icon: KeyframesCouple
+                    Component: VnTemplates
+                -   title: Create Virtual Network Template
+                    path: "/network-template/create"
+                    Component: CreateVnTemplate
+                -   title: Security groups
+                    path: "/security-group"
+                    sidebar: true
+                    icon: HistoricShield
+                    Component: SecurityGroups
+                -   title: Create Security Group
+                    path: "/security-group/create"
+                    Component: CreateSecurityGroup
+            state: ins
+            extra: {}
+        -   path: *4
+            key:
+            value:
                 title: Infrastructure
                 icon: CloudSync
                 routes:
@@ -5555,6 +5684,55 @@ patches:
                     sidebar: true
                     icon: MinusPinAlt
                     Component: Zones
+            state: ins
+            extra: {}
+        -   path: *4
+            key:
+            value:
+                title: System
+                icon: Home
+                routes:
+                -   title: Create User
+                    path: "/user/create"
+                    Component: CreateUser
+                -   title: Users
+                    path: "/user"
+                    sidebar: true
+                    icon: User
+                    Component: Users
+                -   title: User
+                    path: "/user/:id"
+                    Component: UserDetail
+                -   title: Create Group
+                    path: "/group/create"
+                    Component: CreateGroup
+                -   title: Groups
+                    path: "/group"
+                    sidebar: true
+                    icon: Group
+                    Component: Groups
+                -   title: Group
+                    path: "/group/:id"
+                    Component: GroupDetail
+                -   title: Create VDC
+                    path: "/virtual-data-center/create"
+                    Component: CreateVDC
+                -   title: VDCs
+                    path: "/virtual-data-center"
+                    sidebar: true
+                    icon: List
+                    Component: VDCs
+                -   title: VDC
+                    path: "/virtual-data-center/:id"
+                    Component: VDCDetail
+                -   title: Create ACL
+                    path: "/acl/create"
+                    Component: CreateACL
+                -   title: ACLs
+                    path: "/acl"
+                    sidebar: true
+                    icon: KeyAlt
+                    Component: ACLs
             state: ins
             extra: {}
         content: |
@@ -5732,7 +5910,8 @@ patches:
                 - title: Create Virtual Network
                   path: /virtual-network/create
                   Component: CreateVirtualNetwork
-                - path: /virtual-network/update
+                - title: Update Virtual Network
+                  path: /virtual-network/update
                   Component: CreateVirtualNetwork
                 - title: Virtual networks
                   path: /virtual-network/:id
@@ -5827,7 +6006,8 @@ patches:
                 - title: Group
                   path: /group/:id
                   Component: GroupDetail
-                - path: /virtual-data-center/create
+                - title: Create VDC
+                  path: /virtual-data-center/create
                   Component: CreateVDC
                 - title: VDCs
                   path: /virtual-data-center
@@ -6076,7 +6256,7 @@ patches:
             - DATASTORE_MAD
             key: ARGUMENTS
             value: >-
-                "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp,purefa -s dummy,lvm,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp,purefa"
+                "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp,purefa,virtiofs -s dummy,lvm,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp,purefa"
             old: >-
                 "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp -s dummy,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp"
             state: set
@@ -6120,6 +6300,26 @@ patches:
             state: ins
             extra:
                 multiple: true
+        -   path: []
+            key: INHERIT_IMAGE_ATTR
+            value: '"MOUNT_POINT"'
+            state: ins
+            extra:
+                multiple: true
+        -   path: []
+            key: INHERIT_IMAGE_ATTR
+            value: '"MOUNT_TAG"'
+            state: ins
+            extra:
+                multiple: true
+        -   path:
+            - TM_MAD_CONF
+            - '"dummy"'
+            key: DS_LIVE_MIGRATE
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
         -   path:
             - TM_MAD_CONF
             - '"dummy"'
@@ -6171,8 +6371,24 @@ patches:
         -   path:
             - TM_MAD_CONF
             - '"lvm"'
+            key: DS_LIVE_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"lvm"'
             key: DS_MIGRATE_SNAP
             value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"shared"'
+            key: DS_LIVE_MIGRATE
+            value: '"YES"'
             state: ins
             extra:
                 multiple: false
@@ -6195,6 +6411,14 @@ patches:
         -   path:
             - TM_MAD_CONF
             - '"fs_lvm"'
+            key: DS_LIVE_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"fs_lvm"'
             key: DS_MIGRATE_SNAP
             value: '"NO"'
             state: ins
@@ -6204,6 +6428,14 @@ patches:
             - TM_MAD_CONF
             - '"fs_lvm_ssh"'
             key: DS_MIGRATE
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"fs_lvm_ssh"'
+            key: DS_LIVE_MIGRATE
             value: '"YES"'
             state: ins
             extra:
@@ -6219,7 +6451,23 @@ patches:
         -   path:
             - TM_MAD_CONF
             - '"qcow2"'
+            key: DS_LIVE_MIGRATE
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"qcow2"'
             key: DS_MIGRATE_SNAP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"ssh"'
+            key: DS_LIVE_MIGRATE
             value: '"YES"'
             state: ins
             extra:
@@ -6235,6 +6483,14 @@ patches:
         -   path:
             - TM_MAD_CONF
             - '"local"'
+            key: DS_LIVE_MIGRATE
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"local"'
             key: DS_MIGRATE_SNAP
             value: '"YES"'
             state: ins
@@ -6243,7 +6499,55 @@ patches:
         -   path:
             - TM_MAD_CONF
             - '"ceph"'
+            key: TM_MAD_SYSTEM
+            value: '"ssh"'
+            old: '"ssh,shared"'
+            state: set
+            extra: {}
+        -   path:
+            - TM_MAD_CONF
+            - '"ceph"'
+            key: LN_TARGET_SHARED
+            old: '"NONE"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"ceph"'
+            key: CLONE_TARGET_SHARED
+            old: '"SELF"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"ceph"'
+            key: DISK_TYPE_SHARED
+            old: '"RBD"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"ceph"'
+            key: DS_LIVE_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"ceph"'
             key: DS_MIGRATE_SNAP
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"iscsi_libvirt"'
+            key: DS_LIVE_MIGRATE
             value: '"NO"'
             state: ins
             extra:
@@ -6259,7 +6563,71 @@ patches:
         -   path:
             - TM_MAD_CONF
             - '"dev"'
+            key: TM_MAD_SYSTEM
+            old: '"ssh,shared"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"dev"'
+            key: LN_TARGET_SSH
+            old: '"SYSTEM"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"dev"'
+            key: LN_TARGET_SHARED
+            old: '"NONE"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"dev"'
+            key: DISK_TYPE_SSH
+            old: '"FILE"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"dev"'
+            key: DISK_TYPE_SHARED
+            old: '"FILE"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"dev"'
+            key: CLONE_TARGET_SSH
+            old: '"SYSTEM"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"dev"'
+            key: CLONE_TARGET_SHARED
+            old: '"SELF"'
+            state: rm
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"dev"'
             key: DS_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"dev"'
+            key: DS_LIVE_MIGRATE
             value: '"NO"'
             state: ins
             extra:
@@ -6276,6 +6644,14 @@ patches:
             - TM_MAD_CONF
             - '"netapp"'
             key: DS_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"netapp"'
+            key: DS_LIVE_MIGRATE
             value: '"NO"'
             state: ins
             extra:
@@ -6355,6 +6731,86 @@ patches:
         -   path:
             - TM_MAD_CONF
             - '"purefa"'
+            key: DS_LIVE_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"purefa"'
+            key: DS_MIGRATE_SNAP
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"virtiofs"'
+            key: NAME
+            value: '"virtiofs"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"virtiofs"'
+            key: LN_TARGET
+            value: '"NONE"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"virtiofs"'
+            key: CLONE_TARGET
+            value: '"NONE"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"virtiofs"'
+            key: SHARED
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"virtiofs"'
+            key: DRIVER
+            value: '"virtiofs"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"virtiofs"'
+            key: DISK_TYPE
+            value: '"filesystem"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"virtiofs"'
+            key: DS_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"virtiofs"'
+            key: DS_LIVE_MIGRATE
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"virtiofs"'
             key: DS_MIGRATE_SNAP
             value: '"NO"'
             state: ins
@@ -6368,6 +6824,14 @@ patches:
             old: '"DISK_TYPE,BRIDGE_LIST"'
             state: set
             extra: {}
+        -   path:
+            - DS_MAD_CONF
+            - '"netapp"'
+            key: MARKETPLACE_ACTIONS
+            old: '"export"'
+            state: rm
+            extra:
+                multiple: false
         -   path:
             - DS_MAD_CONF
             - '"purefa"'
@@ -6387,16 +6851,40 @@ patches:
         -   path:
             - DS_MAD_CONF
             - '"purefa"'
-            key: MARKETPLACE_ACTIONS
-            value: '"export"'
+            key: REQUIRED_ATTRS
+            value: '"PUREFA_HOST,PUREFA_API_TOKEN,PUREFA_TARGET"'
             state: ins
             extra:
                 multiple: false
         -   path:
             - DS_MAD_CONF
-            - '"purefa"'
+            - '"virtiofs"'
+            key: NAME
+            value: '"virtiofs"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - DS_MAD_CONF
+            - '"virtiofs"'
             key: REQUIRED_ATTRS
-            value: '"PUREFA_HOST,PUREFA_API_TOKEN,PUREFA_TARGET"'
+            value: '""'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - DS_MAD_CONF
+            - '"virtiofs"'
+            key: PERSISTENT_ONLY
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - DS_MAD_CONF
+            - '"virtiofs"'
+            key: DATASTORE_CAPACITY_CHECK
+            value: '"NO"'
             state: ins
             extra:
                 multiple: false
@@ -7029,7 +7517,7 @@ patches:
 
             DATASTORE_MAD = [
                 EXECUTABLE = "one_datastore",
-                ARGUMENTS  = "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp,purefa -s dummy,lvm,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp,purefa"
+                ARGUMENTS  = "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp,purefa,virtiofs -s dummy,lvm,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp,purefa"
             ]
 
             #*******************************************************************************
@@ -7510,6 +7998,8 @@ patches:
 
             INHERIT_IMAGE_ATTR      = "DISK_TYPE"
             INHERIT_IMAGE_ATTR      = "SERIAL"
+            INHERIT_IMAGE_ATTR      = "MOUNT_POINT"
+            INHERIT_IMAGE_ATTR      = "MOUNT_TAG"
 
             INHERIT_VNET_ATTR       = "VLAN_TAGGED_ID"
             INHERIT_VNET_ATTR       = "FILTER"
@@ -7565,6 +8055,8 @@ patches:
             #            among the different hosts or not. Valid values: "yes" or "no"
             #   ds_migrate : The driver allows migrations across datastores. Valid values:
             #               "yes" or "no". Note: THIS ONLY APPLIES TO SYSTEM DS.
+            #   ds_live_migrate : The driver allows live migrations across datastores. Valid values:
+            #               "yes" or "no". Note: THIS ONLY APPLIES TO SYSTEM DS.
             #   allow_orphans: Snapshots can live without parents. Suported values:
             #        YES: Children can be orphan (no parent snapshot)
             #         |- snap_1
@@ -7592,82 +8084,87 @@ patches:
 
             TM_MAD_CONF = [
                 NAME = "dummy", LN_TARGET = "NONE", CLONE_TARGET = "SYSTEM", SHARED = "YES",
-                DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
+                DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "shared", LN_TARGET = "NONE", CLONE_TARGET = "SYSTEM", SHARED = "YES",
                 TM_MAD_SYSTEM = "ssh", LN_TARGET_SSH = "SYSTEM", CLONE_TARGET_SSH = "SYSTEM",
                 DISK_TYPE_SSH = "FILE", ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES",
-                DS_MIGRATE_SNAP = "YES"
+                DS_LIVE_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "lvm", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED = "YES",
                 DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "YES", DS_MIGRATE = "YES",
-                DS_MIGRATE_SNAP = "NO"
+                DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "fs_lvm", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED="YES",
-                DRIVER = "raw", DISK_TYPE = "BLOCK", DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "NO"
+                DRIVER = "raw", DISK_TYPE = "BLOCK", DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "NO",
+                DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "fs_lvm_ssh", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED="YES",
                 DRIVER = "raw", DISK_TYPE = "BLOCK", PERSISTENT_SNAPSHOTS = "NO", ALLOW_ORPHANS = "YES",
-                DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "NO"
+                DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "YES", DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "qcow2", LN_TARGET = "NONE", CLONE_TARGET = "SYSTEM", SHARED = "YES",
                 TM_MAD_SYSTEM = "ssh", LN_TARGET_SSH = "SYSTEM",
                 CLONE_TARGET_SSH = "SYSTEM", DISK_TYPE_SSH = "FILE", DRIVER = "qcow2",
-                ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
+                ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "YES",
+                DS_MIGRATE_SNAP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "ssh", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED = "NO",
-                ALLOW_ORPHANS="YES", DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
+                ALLOW_ORPHANS="YES", DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "YES",
+                DS_MIGRATE_SNAP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "local", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED = "NO",
-                ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
+                ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "YES",
+                DS_MIGRATE_SNAP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "ceph", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
-                DRIVER = "raw", ALLOW_ORPHANS="mixed", TM_MAD_SYSTEM = "ssh,shared",
+                DRIVER = "raw", ALLOW_ORPHANS="mixed", TM_MAD_SYSTEM = "ssh",
                 LN_TARGET_SSH = "SYSTEM", CLONE_TARGET_SSH = "SYSTEM",
-                DISK_TYPE_SSH = "FILE", LN_TARGET_SHARED = "NONE",
-                CLONE_TARGET_SHARED = "SELF", DISK_TYPE_SHARED = "RBD", DS_MIGRATE = "NO",
-                DS_MIGRATE_SNAP = "NO"
+                DISK_TYPE_SSH = "FILE", DS_MIGRATE = "NO", DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "iscsi_libvirt", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
-                DRIVER = "raw", DS_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
+                DRIVER = "raw", DS_MIGRATE = "NO", DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "dev", LN_TARGET = "NONE", CLONE_TARGET = "NONE", SHARED = "YES",
-                TM_MAD_SYSTEM = "ssh,shared", LN_TARGET_SSH = "SYSTEM", LN_TARGET_SHARED = "NONE",
-                DISK_TYPE_SSH = "FILE", DISK_TYPE_SHARED = "FILE",
-                CLONE_TARGET_SSH = "SYSTEM", CLONE_TARGET_SHARED =  "SELF",
-                DRIVER = "raw", DS_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
+                DRIVER = "raw", DS_MIGRATE = "NO", DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "netapp", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
                 DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "LINEAR",
-                DS_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
+                DS_MIGRATE = "NO", DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
             ]
 
             TM_MAD_CONF = [
                 NAME = "purefa", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
                 DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "YES",
-                DS_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
+                DS_MIGRATE = "NO", DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
+            ]
+
+            TM_MAD_CONF = [
+                NAME = "virtiofs", LN_TARGET = "NONE", CLONE_TARGET = "NONE", SHARED = "YES",
+                DRIVER = "virtiofs", DISK_TYPE = "filesystem",
+                DS_MIGRATE = "NO", DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
             ]
 
             #*******************************************************************************
@@ -7723,13 +8220,16 @@ patches:
             ]
 
             DS_MAD_CONF = [
-                NAME = "netapp", PERSISTENT_ONLY = "NO", MARKETPLACE_ACTIONS = "export",
+                NAME = "netapp", PERSISTENT_ONLY = "NO",
                 REQUIRED_ATTRS = "NETAPP_HOST,NETAPP_USER,NETAPP_PASS,NETAPP_AGGREGATES,NETAPP_SVM,NETAPP_IGROUP,NETAPP_TARGET"
             ]
 
             DS_MAD_CONF = [
-                NAME = "purefa", PERSISTENT_ONLY = "NO", MARKETPLACE_ACTIONS = "export",
+                NAME = "purefa", PERSISTENT_ONLY = "NO",
                 REQUIRED_ATTRS = "PUREFA_HOST,PUREFA_API_TOKEN,PUREFA_TARGET"
+            ]
+            DS_MAD_CONF = [
+                NAME = "virtiofs", REQUIRED_ATTRS = "", PERSISTENT_ONLY = "NO", DATASTORE_CAPACITY_CHECK = "NO"
             ]
 
             #*******************************************************************************
@@ -8352,6 +8852,20 @@ patches:
             state: ins
             extra:
                 multiple: false
+        -   path:
+            - DISK
+            key: UID_MAP
+            value: '"100000"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - DISK
+            key: GID_MAP
+            value: '"100000"'
+            state: ins
+            extra:
+                multiple: false
         -   path: []
             key: MEMORY_TUNE_OFFSET
             value: '256'
@@ -8429,6 +8943,8 @@ patches:
             #      - WRITE_IOPS_SEC_MAX
             #      - WRITE_IOPS_SEC_MAX_LENGTH
             #      - SIZE_IOPS_SEC
+            #      - UID_MAP
+            #      - GID_MAP
             #  * NIC:
             #      - FILTER
             #      - MODEL
@@ -8476,7 +8992,9 @@ patches:
             DISK = [
                 DRIVER  = "raw",
                 CACHE   = "none",
-                DISCARD = "unmap"
+                DISCARD = "unmap",
+                UID_MAP = "100000",
+                GID_MAP = "100000"
             ]
 
             NIC = [
@@ -8558,15 +9076,15 @@ patches:
             state: set
             extra: {}
             value: >-
-                "kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-lvm kvm-netapp kvm-purefa qemu-qcow2 qemu-shared
-                qemu-ceph qemu-ssh qemu-local qemu-netapp kvm-purefa"
+                "kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-lvm kvm-netapp qemu-qcow2 qemu-shared qemu-ceph
+                qemu-ssh qemu-local qemu-netapp kvm-purefa lxc-qcow2 lxc-shared lxc-ceph lxc-ssh lxc-local lxc-lvm_thin lxc-lvm"
             old: >-
                 "kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-netapp qemu-qcow2 qemu-shared qemu-ceph
                 qemu-ssh qemu-local qemu-netapp"
         content: |
             # Space separated list of VMM-TM pairs that support live disk snapshots. VMM
             # and TM must be separated by '-'
-            LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-lvm kvm-netapp kvm-purefa qemu-qcow2 qemu-shared qemu-ceph qemu-ssh qemu-local qemu-netapp kvm-purefa"
+            LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-shared kvm-ceph kvm-ssh kvm-local kvm-lvm_thin kvm-lvm kvm-netapp qemu-qcow2 qemu-shared qemu-ceph qemu-ssh qemu-local qemu-netapp kvm-purefa lxc-qcow2 lxc-shared lxc-ceph lxc-ssh lxc-local lxc-lvm_thin lxc-lvm"
 
             # Space separated list VNM_MAD-ACTION pairs that run locally
             VNMAD_LOCAL_ACTIONS="elastic-post elastic-clean"
@@ -9066,6 +9584,14 @@ patches:
         owner: oneadmin
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: []
+            key: VIRTIOFSD_BINARY_PATH
+            value: '"/usr/libexec/virtiofsd /usr/lib/qemu/virtiofsd /usr/lib/virtiofsd/virtiofsd"'
+            state: ins
+            extra:
+                export: false
         content: |
             export LANG=C
 
@@ -9151,6 +9677,10 @@ patches:
             DEFAULT_ATTACH_NIC_MODEL=virtio
             #DEFAULT_ATTACH_NIC_FILTER=clean-traffic
 
+            # Path to the virtiofsd binary. Can provide a single path or a
+            # space-separated list of potential locations.
+            VIRTIOFSD_BINARY_PATH="/usr/libexec/virtiofsd /usr/lib/qemu/virtiofsd /usr/lib/virtiofsd/virtiofsd"
+
             # Virtual Machine Firmware path to the NVRAM file
             # OVMF_NVRAM="/usr/share/AAVMF/AAVMF_VARS.fd" for aarch64 guests
             OVMF_NVRAM="/usr/share/OVMF/OVMF_VARS.fd"
@@ -9178,6 +9708,7 @@ patches:
             ################################################################################
             # OpenNebula Configuration Options
             ################################################################################
+
             #
             # Default path for the datastores. This only need to be change if the
             # corresponding value in oned.conf has been modified.
@@ -9251,8 +9782,7 @@ patches:
             # Enable ARP Cache Poisoning Prevention Rules
             :arp_cache_poisoning: true
 
-            # Default path to create DPDK sockets. This needs to be change only if
-            # DATASTORE_LOCATION in oned.conf has been changed
+            # This needs to be change only if DATASTORE_LOCATION in oned.conf has been changed
             :datastore_location: /var/lib/one/datastores
 
             ################################################################################
