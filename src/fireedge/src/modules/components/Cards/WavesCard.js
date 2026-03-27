@@ -89,7 +89,7 @@ const Wave = styled('span')(({ theme, bgcolor, duration = 1 }) => {
 })
 
 const WavesCard = memo(
-  ({ text, value, bgColor, icon: Icon, onClick }) => (
+  ({ text, value, subtitle, bgColor, icon: Icon, onClick }) => (
     <Card title={Tr(text)} bgcolor={bgColor} onClick={onClick || undefined}>
       <Typography variant="h6" zIndex={2} noWrap>
         <Translate word={text} />
@@ -97,6 +97,11 @@ const WavesCard = memo(
       <Typography variant="h4" zIndex={2}>
         {value}
       </Typography>
+      {subtitle && (
+        <Typography variant="body2" zIndex={2} sx={{ opacity: 0.85 }}>
+          {subtitle}
+        </Typography>
+      )}
       <Wave bgcolor={bgColor} duration={7} />
       <Wave bgcolor={bgColor} duration={5} />
       {Icon && (
@@ -106,7 +111,7 @@ const WavesCard = memo(
       )}
     </Card>
   ),
-  (prev, next) => prev.value === next.value
+  (prev, next) => prev.value === next.value && prev.subtitle === next.subtitle
 )
 
 WavesCard.propTypes = {
@@ -116,6 +121,7 @@ WavesCard.propTypes = {
     PropTypes.number,
     PropTypes.element,
   ]),
+  subtitle: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   bgColor: PropTypes.string,
   icon: PropTypes.any,
   onClick: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
@@ -124,6 +130,7 @@ WavesCard.propTypes = {
 WavesCard.defaultProps = {
   text: undefined,
   value: undefined,
+  subtitle: undefined,
   bgColor: '#ffffff00',
   icon: undefined,
   onClick: undefined,
