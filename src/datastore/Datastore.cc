@@ -1313,7 +1313,7 @@ string Datastore::bridge(int vm_id) const
         return "";
     }
 
-    auto bridges = one_util::split(bridges_str, ',', true);
+    auto bridges = one_util::split(bridges_str, ' ', true);
 
     if (bridges.empty())
     {
