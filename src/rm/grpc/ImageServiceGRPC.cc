@@ -132,6 +132,13 @@ grpc::Status ImageService::SnapshotFlatten(grpc::ServerContext* context,
     return ImageSnapshotFlattenGRPC().execute(context, request, response);
 }
 
+grpc::Status ImageService::Resize(grpc::ServerContext* context,
+                                  const one::image::ResizeRequest* request,
+                                  one::ResponseID* response)
+{
+    return ImageResizeGRPC().execute(context, request, response);
+}
+
 grpc::Status ImageService::Restore(grpc::ServerContext* context,
                                    const one::image::RestoreRequest* request,
                                    one::ResponseXML* response)
@@ -431,6 +438,23 @@ void ImageSnapshotFlattenGRPC::request_execute(const google::protobuf::Message* 
     auto ec = snapshot_flatten(oid,
                                request->snapshot_id(),
                                att);
+
+    response(ec, oid, att);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void ImageResizeGRPC::request_execute(const google::protobuf::Message* _request,
+                                      google::protobuf::Message*       _response,
+                                      RequestAttributesGRPC& att)
+{
+    auto request = static_cast<const one::image::ResizeRequest*>(_request);
+
+    int oid = request->oid();
+
+    auto ec = resize(oid,
+                     request->size(),
+                     att);
 
     response(ec, oid, att);
 }

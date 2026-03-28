@@ -134,6 +134,7 @@ type RPCCaller interface {
 	ImageSnapshotDelete(ctx context.Context, id, snap_id int) (*Response, error)
 	ImageSnapshotRevert(ctx context.Context, id, snap_id int) (*Response, error)
 	ImageSnapshotFlatten(ctx context.Context, id, snap_id int) (*Response, error)
+	ImageResize(ctx context.Context, id int, newSize string) (*Response, error)
 	ImageRestore(ctx context.Context, id, dsid int, opt_tmpl string) (*Response, error)
 	ImagePoolInfo(ctx context.Context, filter, start, end int) (*Response, error)
 
