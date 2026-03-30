@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2026, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -18,11 +18,9 @@ require 'opennebula'
 require 'prometheus/client'
 
 require_relative 'opennebula_server_collector'
-require_relative 'opennebula_ha_collector'
 require_relative 'opennebula_host_collector'
 require_relative 'opennebula_datastore_collector'
 require_relative 'opennebula_vm_collector'
-require_relative 'opennebula_ar_collector'
 
 
 module Prometheus
@@ -84,10 +82,6 @@ module Prometheus
                 @collectors << OpenNebulaDatastoreCollector.new(
                                       @registry, @client, NAMESPACE)
                 @collectors << OpenNebulaVMCollector.new(
-                                      @registry, @client, NAMESPACE)
-                @collectors << OpenNebulaARCollector.new(
-                                      @registry, @client, NAMESPACE)
-                @collectors << OpenNebulaHACollector.new(
                                       @registry, @client, NAMESPACE)
             end
 
