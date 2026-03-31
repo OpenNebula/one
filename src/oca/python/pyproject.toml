@@ -1,6 +1,6 @@
 [project]
 name = "pyone"
-version = "7.1.80"
+version = "7.2.0"
 description = "Python Bindings for OpenNebula XML-RPC API"
 readme = "LICENSE"
 license = {text = "Apache-2.0"}
