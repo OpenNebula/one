@@ -527,9 +527,11 @@ class HookExecutionManager
         if call != 'one.hook.allocate'
             hook = @hooks.get_hook_by_id(id)
 
-            @hooks.delete(id)
-            is_static = STATIC_FILTERS.include? hook.key
-            unsubscribe(hook.filter(hook.key)) unless is_static
+            if hook
+                @hooks.delete(id)
+                is_static = STATIC_FILTERS.include? hook.key
+                unsubscribe(hook.filter(hook.key)) unless is_static
+            end
         end
 
         return if call == 'one.hook.delete'
