@@ -608,6 +608,7 @@ void RequestManagerXRPC::register_xml_methods()
     xmlrpc_c::methodPtr image_snap_delete(new ImageSnapshotDeleteXRPC());
     xmlrpc_c::methodPtr image_snap_revert(new ImageSnapshotRevertXRPC());
     xmlrpc_c::methodPtr image_snap_flatten(new ImageSnapshotFlattenXRPC());
+    xmlrpc_c::methodPtr image_resize(new ImageResizeXRPC());
     xmlrpc_c::methodPtr image_restore(new ImageRestoreXRPC());
 
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfoXRPC());
@@ -628,6 +629,7 @@ void RequestManagerXRPC::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.snapshotdelete", image_snap_delete);
     RequestManagerRegistry.addMethod("one.image.snapshotrevert", image_snap_revert);
     RequestManagerRegistry.addMethod("one.image.snapshotflatten", image_snap_flatten);
+    RequestManagerRegistry.addMethod("one.image.resize", image_resize);
     RequestManagerRegistry.addMethod("one.image.restore", image_restore);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
