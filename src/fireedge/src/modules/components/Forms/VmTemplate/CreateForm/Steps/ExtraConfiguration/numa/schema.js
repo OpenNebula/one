@@ -84,7 +84,8 @@ const NODE_AFFINITY = {
   tooltip: T.NodeAffinityConcept,
   dependOf: [PIN_POLICY.name, ENABLE_NUMA.name],
   htmlType: ([pinPolicy, enabledNuma = false] = []) =>
-    (!enabledNuma || pinPolicy !== NUMA_PIN_POLICIES.NODE_AFFINITY) && INPUT_TYPES.HIDDEN,
+    (!enabledNuma || pinPolicy !== NUMA_PIN_POLICIES.NODE_AFFINITY) &&
+    INPUT_TYPES.HIDDEN,
   type: INPUT_TYPES.TEXT,
   validation: lazy((_, { context }) => {
     const { extra } = context || {}
