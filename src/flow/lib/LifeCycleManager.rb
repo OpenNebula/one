@@ -92,6 +92,13 @@ class ServiceLCM
         end
     end
 
+    def cancel_service_actions(service)
+        service.roles.each do |name, _|
+            @event_manager.cancel_action("#{service.id}_#{name}")
+        end
+        @event_manager.cancel_action(service.id)
+    end
+
     # Change service ownership
     #
     # @param external_user [String]  External user to impersonate
@@ -510,7 +517,13 @@ class ServiceLCM
     #
     # @return [OpenNebula::Error] Error if any
     def recover_action(external_user, service_id, delete = false)
-        @event_manager.cancel_action(service_id.to_i)
+        serv = OpenNebula::Service.new_with_id(service_id, @cloud_auth.client(external_user))
+
+        if !OpenNebula.is_error?(serv.info)
+            cancel_service_actions(serv)
+        else
+            @event_manager.cancel_action(service_id.to_i)
+        end
 
         return undeploy_action(external_user, service_id, true) if delete
 
@@ -751,7 +764,7 @@ class ServiceLCM
     def deploy_failure_cb(external_user, service_id, role_name)
         rc = @srv_pool.get(service_id, external_user) do |service|
             # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+            cancel_service_actions(service)
 
             service.state = Service::STATE['FAILED_DEPLOYING']
             service.roles[role_name].state = Role::STATE['FAILED_DEPLOYING']
@@ -769,7 +782,7 @@ class ServiceLCM
     def deploy_nets_failure_cb(external_user, service_id)
         rc = @srv_pool.get(service_id, external_user) do |service|
             # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+            cancel_service_actions(service)
 
             service.state = Service::STATE['FAILED_DEPLOYING_NETS']
             service.update
@@ -829,7 +842,7 @@ class ServiceLCM
     def undeploy_nets_failure_cb(external_user, service_id)
         rc = @srv_pool.get(service_id, external_user) do |service|
             # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+            cancel_service_actions(service)
 
             service.state = Service::STATE['FAILED_UNDEPLOYING_NETS']
             service.update
@@ -841,7 +854,7 @@ class ServiceLCM
     def undeploy_failure_cb(external_user, service_id, role_name, nodes)
         rc = @srv_pool.get(service_id, external_user) do |service|
             # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+            cancel_service_actions(service)
 
             service.state                  = Service::STATE['FAILED_UNDEPLOYING']
             service.roles[role_name].state = Role::STATE['FAILED_UNDEPLOYING']
@@ -872,7 +885,7 @@ class ServiceLCM
 
             @event_manager.trigger_action(
                 :wait_cooldown_action,
-                service.id,
+                "#{service.id}_#{role_name}",
                 external_user,
                 service.id,
                 role_name,
@@ -899,7 +912,7 @@ class ServiceLCM
 
             @event_manager.trigger_action(
                 :wait_cooldown_action,
-                service.id,
+                "#{service.id}_#{role_name}",
                 external_user,
                 service.id,
                 role_name,
@@ -917,7 +930,7 @@ class ServiceLCM
     def scaleup_failure_cb(external_user, service_id, role_name)
         rc = @srv_pool.get(service_id, external_user) do |service|
             # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+            cancel_service_actions(service)
 
             service.state                  = Service::STATE['FAILED_SCALING']
             service.roles[role_name].state = Role::STATE['FAILED_SCALING']
@@ -931,7 +944,7 @@ class ServiceLCM
     def scaledown_failure_cb(external_user, service_id, role_name, nodes)
         rc = @srv_pool.get(service_id, external_user) do |service|
             # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+            cancel_service_actions(service)
 
             role = service.roles[role_name]
 
@@ -991,7 +1004,7 @@ class ServiceLCM
     def add_failure_cb(external_user, service_id, role_name)
         rc = @srv_pool.get(service_id, external_user) do |service|
             # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+            cancel_service_actions(service)
 
             service.state                  = Service::STATE['FAILED_DEPLOYING']
             service.roles[role_name].state = Role::STATE['FAILED_DEPLOYING']
@@ -1032,7 +1045,7 @@ class ServiceLCM
     def remove_failure_cb(external_user, service_id, role_name, nodes)
         rc = @srv_pool.get(service_id, external_user) do |service|
             # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+            cancel_service_actions(service)
 
             service.state                  = Service::STATE['FAILED_UNDEPLOYING']
             service.roles[role_name].state = Role::STATE['FAILED_UNDEPLOYING']
@@ -1281,7 +1294,7 @@ class ServiceLCM
             if role.on_hold? && role.state == Role::STATE['PENDING']
                 role.state = Role::STATE['HOLD']
                 @event_manager.trigger_action(:wait_hold_action,
-                                              role.service.id,
+                                              "#{role.service.id}_#{role.name}",
                                               external_user,
                                               role.service.id,
                                               role.name,
@@ -1289,7 +1302,7 @@ class ServiceLCM
             else
                 role.state = Role::STATE[success_state]
                 @event_manager.trigger_action(action,
-                                              role.service.id,
+                                              "#{role.service.id}_#{role.name}",
                                               external_user,
                                               role.service.id,
                                               role.name,
@@ -1320,7 +1333,7 @@ class ServiceLCM
             # TODO, take only subset of nodes which needs to
             # be undeployed (new role.nodes_undeployed_ids ?)
             @event_manager.trigger_action(action,
-                                          role.service.id,
+                                          "#{role.service.id}_#{role.name}",
                                           external_user,
                                           role.service.id,
                                           role.name,
@@ -1345,7 +1358,7 @@ class ServiceLCM
             role.state = Role::STATE[success_state]
 
             @event_manager.trigger_action(action,
-                                          role.service.id,
+                                          "#{role.service.id}_#{role.name}",
                                           external_user,
                                           role.service.id,
                                           role.name,
@@ -1373,7 +1386,7 @@ class ServiceLCM
             nodes = role.recover_deploy(service.report_ready?)
 
             @event_manager.trigger_action(:wait_deploy_action,
-                                          service.id,
+                                          "#{service.id}_#{name}",
                                           external_user,
                                           service.id,
                                           name,
@@ -1393,7 +1406,7 @@ class ServiceLCM
             ) unless nodes
 
             @event_manager.trigger_action(:wait_undeploy_action,
-                                          service.id,
+                                          "#{service.id}_#{name}",
                                           external_user,
                                           service.id,
                                           name,
@@ -1409,7 +1422,7 @@ class ServiceLCM
 
             if up
                 @event_manager.trigger_action(:wait_scaleup_action,
-                                              service.id,
+                                              "#{service.id}_#{name}",
                                               external_user,
                                               service.id,
                                               name,
@@ -1417,7 +1430,7 @@ class ServiceLCM
                                               service.report_ready?)
             else
                 @event_manager.trigger_action(:wait_scaledown_action,
-                                              service.id,
+                                              "#{service.id}_#{name}",
                                               external_user,
                                               service.id,
                                               name,
