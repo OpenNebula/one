@@ -12,20 +12,8 @@
                 <xs:element name="ID" type="xs:integer"/>
                 <xs:element name="NAME" type="xs:string"/>
                 <xs:element name="TEMPLATE" type="xs:anyType"/>
-                <xs:element name="USERS">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
-                <xs:element name="ADMINS">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
+                <xs:element name="USERS" type="IDS"/>
+                <xs:element name="ADMINS" type="IDS"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>

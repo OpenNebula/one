@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:include schemaLocation="shared.xsd"/>
   <xs:element name="HOOK">
     <xs:complexType>
       <xs:sequence>
         <xs:element name="ID" type="xs:integer"/>
         <xs:element name="NAME" type="xs:string"/>
         <xs:element name="TYPE" type="xs:string"/>
+        <xs:element name="LOCK" type="LOCK" minOccurs="0" maxOccurs="1"/>
         <xs:element name="TEMPLATE">
           <xs:complexType>
             <xs:sequence>

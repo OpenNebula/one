@@ -14,28 +14,9 @@
               <xs:element name="UNAME" type="xs:string"/>
               <xs:element name="GNAME" type="xs:string"/>
               <xs:element name="NAME" type="xs:string"/>
-              <xs:element name="PERMISSIONS" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="OWNER_U" type="xs:integer"/>
-                    <xs:element name="OWNER_M" type="xs:integer"/>
-                    <xs:element name="OWNER_A" type="xs:integer"/>
-                    <xs:element name="GROUP_U" type="xs:integer"/>
-                    <xs:element name="GROUP_M" type="xs:integer"/>
-                    <xs:element name="GROUP_A" type="xs:integer"/>
-                    <xs:element name="OTHER_U" type="xs:integer"/>
-                    <xs:element name="OTHER_M" type="xs:integer"/>
-                    <xs:element name="OTHER_A" type="xs:integer"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-              <xs:element name="CLUSTERS">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+              <xs:element name="LOCK" type="LOCK" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="PERMISSIONS" type="PERMISSIONS"/>
+              <xs:element name="CLUSTERS" type="IDS"/>
               <xs:element name="BRIDGE" type="xs:string"/>
               <xs:element name="BRIDGE_TYPE" type="xs:string" minOccurs="0"/>
               <xs:element name="STATE" type="xs:integer"/>
@@ -48,41 +29,11 @@
               <xs:element name="VLAN_ID_AUTOMATIC" type="xs:string"/>
               <xs:element name="OUTER_VLAN_ID_AUTOMATIC" type="xs:string"/>
               <xs:element name="USED_LEASES" type="xs:integer"/>
-              <xs:element name="VROUTERS">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-              <xs:element name="UPDATED_VMS">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-              <xs:element name="OUTDATED_VMS">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-              <xs:element name="UPDATING_VMS">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-              <xs:element name="ERROR_VMS">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+              <xs:element name="VROUTERS" type="IDS"/>
+              <xs:element name="UPDATED_VMS" type="IDS"/>
+              <xs:element name="OUTDATED_VMS" type="IDS"/>
+              <xs:element name="UPDATING_VMS" type="IDS"/>
+              <xs:element name="ERROR_VMS" type="IDS"/>
               <xs:element name="TEMPLATE" type="xs:anyType"/>
               <xs:element name="AR_POOL">
                 <xs:complexType>

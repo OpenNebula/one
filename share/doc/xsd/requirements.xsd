@@ -8,34 +8,16 @@
           <xs:complexType>
             <xs:sequence>
               <xs:element name="ID" type="xs:integer" minOccurs="1" maxOccurs="1"/>
-              <xs:element name="HOSTS" minOccurs="1" maxOccurs="1">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ID" type="xs:integer" maxOccurs="unbounded"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+              <xs:element name="HOSTS" type="IDS"/>
               <xs:element name="NIC" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="ID" type="xs:integer" maxOccurs="1"/>
-                    <xs:element name="VNETS" minOccurs="1" maxOccurs="1">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="ID" type="xs:integer" maxOccurs="unbounded"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
+                    <xs:element name="VNETS" type="IDS"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-              <xs:element name="DATASTORES" minOccurs="1" maxOccurs="1">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ID" type="xs:integer" maxOccurs="unbounded"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+              <xs:element name="DATASTORES" type="IDS"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

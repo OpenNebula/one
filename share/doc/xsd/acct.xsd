@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
   targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
+  <xs:include schemaLocation="shared.xsd"/>
+  <xs:include schemaLocation="vm.xsd"/>
 
   <xs:element name="HISTORY_RECORDS">
     <xs:complexType>
@@ -84,110 +86,7 @@
         <xs:element name="UID" type="xs:integer"/>
         <xs:element name="GID" type="xs:integer"/>
         <xs:element name="REQUEST_ID" type="xs:string"/>
-        <xs:element name="VM">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="ID" type="xs:integer"/>
-              <xs:element name="UID" type="xs:integer"/>
-              <xs:element name="GID" type="xs:integer"/>
-              <xs:element name="UNAME" type="xs:string"/>
-              <xs:element name="GNAME" type="xs:string"/>
-              <xs:element name="NAME" type="xs:string"/>
-              <xs:element name="PERMISSIONS" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="OWNER_U" type="xs:integer"/>
-                    <xs:element name="OWNER_M" type="xs:integer"/>
-                    <xs:element name="OWNER_A" type="xs:integer"/>
-                    <xs:element name="GROUP_U" type="xs:integer"/>
-                    <xs:element name="GROUP_M" type="xs:integer"/>
-                    <xs:element name="GROUP_A" type="xs:integer"/>
-                    <xs:element name="OTHER_U" type="xs:integer"/>
-                    <xs:element name="OTHER_M" type="xs:integer"/>
-                    <xs:element name="OTHER_A" type="xs:integer"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-              <xs:element name="LAST_POLL" type="xs:integer"/>
-
-              <!-- STATE values,
-              see http://docs.opennebula.org/stable/user/references/vm_states.html
-              -->
-              <xs:element name="STATE" type="xs:integer"/>
-
-              <!-- LCM_STATE values, this sub-state is relevant only when STATE is
-                   ACTIVE (4)
-              see http://docs.opennebula.org/stable/user/references/vm_states.html
-              -->
-              <xs:element name="LCM_STATE" type="xs:integer"/>
-              <xs:element name="PREV_STATE" type="xs:integer"/>
-              <xs:element name="PREV_LCM_STATE" type="xs:integer"/>
-              <xs:element name="RESCHED" type="xs:integer"/>
-              <xs:element name="STIME" type="xs:integer"/>
-              <xs:element name="ETIME" type="xs:integer"/>
-              <xs:element name="DEPLOY_ID" type="xs:string"/>
-              <xs:element name="MONITORING"/>
-              <xs:element name="SCHED_ACTIONS" type="xs:anyType"/>
-              <xs:element name="TEMPLATE" type="xs:anyType"/>
-              <xs:element name="USER_TEMPLATE" type="xs:anyType"/>
-              <xs:element name="HISTORY_RECORDS">
-              </xs:element>
-              <xs:element name="SNAPSHOTS" minOccurs="0" maxOccurs="unbounded">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ALLOW_ORPHANS" type="xs:string"/>
-                    <xs:element name="CURRENT_BASE" type="xs:integer"/>
-                    <xs:element name="DISK_ID" type="xs:integer"/>
-                    <xs:element name="NEXT_SNAPSHOT" type="xs:integer"/>
-                    <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="ACTIVE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                          <xs:element name="CHILDREN" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                          <xs:element name="DATE" type="xs:integer"/>
-                          <xs:element name="ID" type="xs:integer"/>
-                          <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                          <xs:element name="PARENT" type="xs:integer"/>
-                          <xs:element name="SIZE" type="xs:integer"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-              <xs:element name="BACKUPS">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="BACKUP_CONFIG" minOccurs="1" maxOccurs="1">
-                      <xs:complexType>
-                        <xs:sequence>
-                        <xs:element name="BACKUP_VOLATILE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="FS_FREEZE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="INCREMENTAL_BACKUP_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="INCREMENT_MODE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="KEEP_LAST" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="LAST_BACKUP_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="LAST_BACKUP_SIZE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="LAST_BRIDGE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="LAST_DATASTORE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="LAST_INCREMENT_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="MODE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-                    <xs:element name="BACKUP_IDS" minOccurs="1" maxOccurs="1">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="ID" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element ref="VM"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

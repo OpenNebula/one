@@ -4,9 +4,9 @@
   <xs:complexType name="LOCK">
     <xs:sequence>
       <xs:element name="LOCKED" type="xs:integer"/>
-      <xs:element name="OWNER" type="xs:integer"/>
-      <xs:element name="TIME" type="xs:integer"/>
-      <xs:element name="REQ_ID" type="xs:integer"/>
+      <xs:element name="OWNER" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="TIME" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="REQ_ID" type="xs:integer" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="PERMISSIONS">
