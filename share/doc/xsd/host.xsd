@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:include schemaLocation="shared.xsd"/>
   <xs:element name="HOST">
     <xs:complexType>
       <xs:sequence>
@@ -136,13 +137,7 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="VMS">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                </xs:sequence>
-              </xs:complexType>
-        </xs:element>
+        <xs:element name="VMS" type="IDS"/>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
         <xs:element name="MONITORING">
           <xs:complexType>
