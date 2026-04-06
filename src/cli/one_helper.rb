@@ -219,7 +219,7 @@ Bash symbols must be escaped on STDIN passing'
             :description =>
                 'Which resources can be created by group users '<<
                 '(VM+NET+IMAGE+TEMPLATE by default)',
-            :format => String
+            :format => Object
         }
     ]
 
