@@ -13,6 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-export * from '@modules/containers/Marketplaces/Create'
-export * from '@modules/containers/Marketplaces/Marketplaces'
-export * from '@modules/containers/Marketplaces/Detail'
+import { ReactElement, useEffect } from 'react'
+import { useParams, Redirect } from 'react-router-dom'
+import { useGeneralApi } from '@FeaturesModule'
+import { TranslateProvider, MarketplaceTabs } from '@ComponentsModule'
+
+/**
+ * Displays the detail information about a Marketplace.
+ *
+ * @returns {ReactElement} Marketplace detail component.
+ */
+export function MarketplaceDetail() {
+  const { setSecondTitle } = useGeneralApi()
+  useEffect(() => setSecondTitle({}), [])
+
+  const { id } = useParams()
+
+  if (Number.isNaN(+id)) {
+    return <Redirect to="/" />
+  }
+
+  return (
+    <TranslateProvider>
+      <MarketplaceTabs id={id} />
+    </TranslateProvider>
+  )
+}
