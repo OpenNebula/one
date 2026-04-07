@@ -2685,6 +2685,8 @@ ONEPROMETHEUS_OPENNEBULA_EXPORTER_FILES="src/oneprometheus/opennebula-exporter/s
                                          src/oneprometheus/opennebula-exporter/src/opennebula_exporter.rb \
                                          src/oneprometheus/opennebula-exporter/src/opennebula_host_collector.rb \
                                          src/oneprometheus/opennebula-exporter/src/opennebula_server_collector.rb \
+                                         src/oneprometheus/opennebula-exporter/src/opennebula_ar_collector.rb \
+                                         src/oneprometheus/opennebula-exporter/src/opennebula_ha_collector.rb \
                                          src/oneprometheus/opennebula-exporter/src/opennebula_vm_collector.rb"
 
 # PROMETHEUS
