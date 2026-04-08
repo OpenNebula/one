@@ -126,6 +126,7 @@ conf[:retries]             ||= 5
 
 set :bind, conf[:host]
 set :port, conf[:port]
+set :host_authorization, { :permitted_hosts => [] }
 set :config, conf
 
 set :dump_errors, true

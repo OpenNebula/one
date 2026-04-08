@@ -26,6 +26,7 @@ module OneFormServer
         # Sinatra configuration
         set :bind, conf[:host]
         set :port, conf[:port]
+        set :host_authorization, { :permitted_hosts => [] }
         set :config, conf
         set :dump_errors, true
         set :raise_errors, false
