@@ -15,4 +15,3 @@
  * ------------------------------------------------------------------------- */
 export * from '@modules/containers/Marketplaces/Create'
 export * from '@modules/containers/Marketplaces/Marketplaces'
-export * from '@modules/containers/Marketplaces/Detail'
