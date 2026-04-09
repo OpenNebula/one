@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { INPUT_TYPES, T, MARKET_TYPES } from '@ConstantsModule'
 import { string, boolean, number } from 'yup'
-import { Field } from '@UtilsModule'
+import { Field, arrayToOptions } from '@UtilsModule'
 
 /** @type {Field} AWS field */
 const AWS = {
@@ -121,14 +121,28 @@ const REGION = {
 /** @type {Field} SIGNATURE_VERSION field */
 const SIGNATURE_VERSION = {
   name: 'SIGNATURE_VERSION',
-  type: INPUT_TYPES.TEXT,
-  htmlType: INPUT_TYPES.HIDDEN,
+  label: T.SignatureVersion,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  dependOf: [AWS.name, '$general.MARKET_MAD'],
+  htmlType: ([aws, marketMad] = []) =>
+    marketMad !== MARKET_TYPES.S3.value
+      ? INPUT_TYPES.HIDDEN
+      : aws
+      ? INPUT_TYPES.HIDDEN
+      : INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  values: arrayToOptions(['s3', 'v2', 'v4']),
   validation: string()
     .trim()
+    .default(() => 's3')
+    .when([AWS.name], {
+      is: (aws) => aws,
+      then: (schema) => schema.required(),
+    })
     .afterSubmit((value, { context }) =>
       context?.general?.MARKET_MAD === MARKET_TYPES.S3.value &&
       !context?.configuration?.AWS
-        ? 's3'
+        ? value
         : undefined
     )
     .default(() => undefined),
