@@ -66,7 +66,7 @@ const ProviderCard = memo(
     }, [fireedge])
 
     return (
-      <div {...rootProps} data-cy={`provider-${NAME}`}>
+      <div {...rootProps} data-cy={`provider-${ID}`}>
         <div
           className={classes.figure}
           style={{
