@@ -99,6 +99,7 @@ const DeleteIps = ({ vnet, oneConfig, adminGroup, actions = [], submit }) => {
     <>
       <SubmitButton
         id={'del-ip'}
+        data-cy={'del-ip'}
         aria-describedby={'del-ip'}
         label={T['cluster.vnet.del.ip']}
         importance={STYLE_BUTTONS.IMPORTANCE.DANGER}

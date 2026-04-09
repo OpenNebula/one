@@ -79,7 +79,7 @@ const Content = ({ providers, groupedDrivers }) => {
       )}
       <Grid container spacing={2} className={classes.container}>
         {selectedDriver?.deploymentConfs?.map((conf) => (
-          <Grid item xs={6} key={conf.deploymentName}>
+          <Grid item xs={6} key={conf.deploymentName} data-cy={`${conf.deploymentInventory}`} >
             <Stack
               direction="column"
               className={clsx(

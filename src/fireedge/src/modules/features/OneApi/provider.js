@@ -215,30 +215,6 @@ const basicEndpoints = (builder) => ({
       return { params, command }
     },
     invalidatesTags: (_, __, { id }) => [{ type: PROVIDER, id }],
-    async onQueryStarted(params, { dispatch, queryFulfilled }) {
-      try {
-        const patchProvider = dispatch(
-          providerApi.util.updateQueryData(
-            'getProvider',
-            { id: params.id },
-            updateResourceOnPool(params)
-          )
-        )
-
-        const patchProviders = dispatch(
-          providerApi.util.updateQueryData(
-            'getProviders',
-            undefined,
-            updateResourceOnPool(params)
-          )
-        )
-
-        queryFulfilled.catch(() => {
-          patchProvider.undo()
-          patchProviders.undo()
-        })
-      } catch {}
-    },
   }),
   changeProviderOwnership: builder.mutation({
     /**
