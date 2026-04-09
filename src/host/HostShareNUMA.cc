@@ -878,7 +878,7 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
 
 // -----------------------------------------------------------------------------
 
-HostShareNode& HostShareNUMA::get_node(unsigned int idx)
+HostShareNode& HostShareNUMA::get_node(int idx)
 {
     auto it = nodes.find(idx);
 
@@ -942,7 +942,7 @@ bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
                                    int pci_idx, bool do_alloc)
 {
     std::vector<std::tuple<float, int> > cpu_fits;
-    std::set<unsigned int> mem_fits;
+    std::set<int> mem_fits;
 
     for (auto it = nodes.begin(); it != nodes.end(); ++it)
     {
@@ -1024,11 +1024,11 @@ bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
     {
         for (auto it = cpu_fits.rbegin(); it != cpu_fits.rend() ; ++it)
         {
-            unsigned int snode = std::get<1>(*it);
+            int snode = std::get<1>(*it);
 
             HostShareNode &n = get_node(snode);
 
-            unsigned int mem_snode = n.distance[hop];
+            int mem_snode = n.distance[hop];
 
             if ( mem_fits.find(mem_snode) != mem_fits.end() )
             {
@@ -1607,8 +1607,8 @@ void HostShareNUMA::del(HostShareCapacity &sr)
 
     for (auto it = sr.nodes.begin() ; it != sr.nodes.end(); ++it)
     {
-        unsigned int node_id;
-        unsigned int mem_node_id;
+        int node_id;
+        int mem_node_id;
 
         std::string cpu_ids;
         long long   memory;

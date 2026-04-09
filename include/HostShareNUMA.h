@@ -52,10 +52,10 @@ class HostShareNode : public Template
 public:
     HostShareNode()
         : Template(false, '=', "NODE")
-        , node_id(std::numeric_limits<unsigned int>::max())
+        , node_id(-1)
     {}
 
-    HostShareNode(unsigned int i)
+    HostShareNode(int i)
         : Template(false, '=', "NODE")
         , node_id(i)
     {
@@ -223,7 +223,7 @@ private:
     /**
      *  ID of this node as reported by the Host
      */
-    unsigned int node_id;
+    int node_id;
 
     /**
      *  CPU Cores in this node
@@ -245,7 +245,7 @@ private:
 
     long long mem_usage = 0;
 
-    std::vector<unsigned int> distance;
+    std::vector<int> distance;
 
     /**
      *  Temporal allocation on the node. This is used by the scheduling
@@ -359,7 +359,7 @@ public:
      *  @return the NUMA node for the the fiven index. If the node does not
      *  exit it is created
      */
-    HostShareNode& get_node(unsigned int idx);
+    HostShareNode& get_node(int idx);
 
     /**
      * Function to print the HostShare object into a string in
@@ -439,7 +439,7 @@ private:
      */
     unsigned int threads_core;
 
-    std::map<unsigned int, HostShareNode *> nodes;
+    std::map<int, HostShareNode *> nodes;
 
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */
