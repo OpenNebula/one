@@ -205,7 +205,7 @@ int NUMAMonitoring::from_template(const Template &tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void NUMAMonitoring::set_huge_page(unsigned int node_id, unsigned long size, unsigned long fr)
+void NUMAMonitoring::set_huge_page(int node_id, unsigned long size, unsigned long fr)
 {
     NUMAMonitoringNode* node;
 
@@ -231,7 +231,7 @@ void NUMAMonitoring::set_huge_page(unsigned int node_id, unsigned long size, uns
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void NUMAMonitoring::set_memory(unsigned int node_id, unsigned long used, unsigned long fr)
+void NUMAMonitoring::set_memory(int node_id, unsigned long used, unsigned long fr)
 {
     NUMAMonitoringNode* node;
 

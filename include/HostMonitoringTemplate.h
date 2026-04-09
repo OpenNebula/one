@@ -85,11 +85,11 @@ public:
     int from_template(const Template &tmpl);
 
 private:
-    void set_huge_page(unsigned int node_id, unsigned long size, unsigned long fr);
+    void set_huge_page(int node_id, unsigned long size, unsigned long fr);
 
-    void set_memory(unsigned int node_id, unsigned long used, unsigned long fr);
+    void set_memory(int node_id, unsigned long used, unsigned long fr);
 
-    std::map<unsigned int, NUMAMonitoringNode> nodes;
+    std::map<int, NUMAMonitoringNode> nodes;
 };
 
 /**

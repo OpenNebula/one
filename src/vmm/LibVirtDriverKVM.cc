@@ -231,7 +231,7 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
 /* -------------------------------------------------------------------------- */
 
 static void numa_distances(std::ofstream& file,
-                           unsigned int node_id,
+                           int node_id,
                            unsigned int total_nodes,
                            const std::string& dist_str)
 {
@@ -344,7 +344,7 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
     std::ostringstream oss, mnodes;
 
     unsigned int cpuid = 0;
-    unsigned int cid   = 0;
+    int          cid   = 0;
 
     const unsigned int total_nodes = static_cast<unsigned int>(nodes.size());
 
