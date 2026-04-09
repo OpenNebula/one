@@ -1914,6 +1914,7 @@ module.exports = {
   CVLANS: 'Customer VLAN IDs',
   CVLANSConcept:
     'Type a Customer VLAN ID (e.g. 100) or a Customer VLAN range (e.g. 101-104) and press ENTER',
+  SignatureVersion: 'Signature version',
   QinQType: 'Tag Protocol Identifier (TPID)',
   QinQTypeConcept:
     'Tag Protocol Identifier (TPID) for the service VLAN tag. Use 802.1ad for TPID 0x88a8 or 802.1q for TPID 0x8100',
