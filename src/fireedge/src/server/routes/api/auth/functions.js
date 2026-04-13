@@ -240,6 +240,7 @@ const selectTypeAuth = async (...args) => {
     remote: () => auth({ protocol: AUTH_TYPES.REMOTE }, ...args),
     x509: () => auth({ protocol: AUTH_TYPES.x509 }, ...args),
     opennebula: () => auth({ protocol: AUTH_TYPES.CORE }, ...args),
+    saml: () => auth({ protocol: AUTH_TYPES.SAML }, ...args),
   }
 
   const selected = getFireedgeConfig()?.auth ?? 'opennebula'
