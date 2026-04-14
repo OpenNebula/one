@@ -19,6 +19,7 @@ const { global } = require('window-or-global')
 const { writeInLogger } = require('server/utils/logger')
 const { defaults } = require('server/utils/constants')
 const { defaultRemoteModules } = defaults
+const path = require('path')
 
 /**
  * Reads the tab-manifest.yaml file from disk.
@@ -28,14 +29,38 @@ const { defaultRemoteModules } = defaults
  */
 const getTabManifest = async () => {
   try {
+    const tabManifestConfigDirectory = global?.paths?.TAB_MANIFEST_DIR
     const tabManifestConfigPath = global?.paths?.TAB_MANIFEST_CONFIG
+
     if (!(await fs.pathExists(tabManifestConfigPath))) {
       throw new Error(`Configuration file not found: ${tabManifestConfigPath}`)
     }
 
-    const fileContent = await fs.readFile(tabManifestConfigPath, 'utf8')
+    const yamlExtNames = ['.yaml', '.yml']
+    const overlayFiles = (
+      await fs.readdir(tabManifestConfigDirectory, {
+        encoding: 'utf8',
+        withFileTypes: true,
+        recursive: true,
+      })
+    )
+      ?.filter(
+        (file) =>
+          file.isFile() &&
+          yamlExtNames.includes(path.extname(file.name).toLowerCase())
+      )
+      ?.map((file) => path.join(file.path, file.name))
+      ?.sort()
 
-    return yamlToJson(fileContent)
+    const manifest = (
+      await Promise.all(
+        [tabManifestConfigPath, ...overlayFiles]?.map(async (p) =>
+          yamlToJson(await fs.readFile(p, 'utf8'))
+        )
+      )
+    )?.flat()
+
+    return manifest
   } catch (error) {
     throw new Error('Failed to load tab-manifest.yaml')
   }

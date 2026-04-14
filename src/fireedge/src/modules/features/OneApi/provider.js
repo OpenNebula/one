@@ -17,7 +17,6 @@ import { Actions, Commands } from 'server/routes/api/oneform/provider/routes'
 import { oneApi } from '@modules/features/OneApi/oneApi'
 import { FORM, FORM_POOL } from '@modules/features/OneApi/resources'
 import {
-  updateResourceOnPool,
   updateNameOnResource,
   updateOwnershipOnResource,
 } from '@modules/features/OneApi/common'
