@@ -608,6 +608,9 @@ const genPathResources = () => {
     if (!global.paths.TAB_MANIFEST_CONFIG) {
       global.paths.TAB_MANIFEST_CONFIG = `${MODULES_LOCATION}/${defaultTabManifestFilename}`
     }
+    if (!global.paths.TAB_MANIFEST_DIR) {
+      global.paths.TAB_MANIFEST_DIR = `${MODULES_LOCATION}/tabs`
+    }
     if (!global.paths.REMOTE_MODULES_CONFIG) {
       global.paths.REMOTE_MODULES_CONFIG = `${MODULES_LOCATION}/${defaultRemoteModulesConfigFilename}`
     }
