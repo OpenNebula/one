@@ -439,6 +439,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/hooks/autostart \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/hooks/raft \
+          $VAR_LOCATION/remotes/hooks/metrics \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
@@ -683,6 +684,7 @@ INSTALL_FILES=(
     HOOK_AUTOSTART_FILES:$VAR_LOCATION/remotes/hooks/autostart
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
+    HOOK_METRICS_FILES:$VAR_LOCATION/remotes/hooks/metrics
 
     LIBVIRT_RNG_SHARE_MODULE_FILES:$SHARE_LOCATION/schemas/libvirt
     XSD_FILES:$SHARE_LOCATION/schemas/xsd
@@ -1946,6 +1948,12 @@ HOOK_FT_FILES="share/hooks/ft/host_error.rb \
 HOOK_RAFT_FILES="share/hooks/raft/vip.sh"
 
 #-------------------------------------------------------------------------------
+# HOOK metrics scripts, to be installed under $VAR_LOCATION/remotes/hooks/metrics
+#-------------------------------------------------------------------------------
+
+HOOK_METRICS_FILES="share/hooks/metrics/backup_restore_metrics.rb"
+
+#-------------------------------------------------------------------------------
 # Installation scripts, to be installed under $SHARE_LOCATION
 #-------------------------------------------------------------------------------
 
@@ -2686,6 +2694,7 @@ ONEPROMETHEUS_OPENNEBULA_EXPORTER_FILES="src/oneprometheus/opennebula-exporter/s
                                          src/oneprometheus/opennebula-exporter/src/opennebula_server_collector.rb \
                                          src/oneprometheus/opennebula-exporter/src/opennebula_ar_collector.rb \
                                          src/oneprometheus/opennebula-exporter/src/opennebula_ha_collector.rb \
+                                         src/oneprometheus/opennebula-exporter/src/opennebula_backup_restore_collector.rb \
                                          src/oneprometheus/opennebula-exporter/src/opennebula_vm_collector.rb"
 
 # PROMETHEUS

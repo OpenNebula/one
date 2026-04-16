@@ -23,6 +23,7 @@ require_relative 'opennebula_host_collector'
 require_relative 'opennebula_datastore_collector'
 require_relative 'opennebula_vm_collector'
 require_relative 'opennebula_ar_collector'
+require_relative 'opennebula_backup_restore_collector'
 
 
 module Prometheus
@@ -89,6 +90,8 @@ module Prometheus
                                       @registry, @client, NAMESPACE)
                 @collectors << OpenNebulaHACollector.new(
                                       @registry, @client, NAMESPACE)
+                @collectors << OpenNebulaBackupRestoreCollector.new(
+                                      @registry, @client, NAMESPACE)                                      
             end
 
             def call(env)
