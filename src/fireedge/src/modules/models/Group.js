@@ -24,47 +24,47 @@
  * percentLabel: string
  * }} - Quota used percentage and label.
  */
-export const getGroupQuotaUsage = (type, quota) => {
+export const getGroupQuotaUsage = (type, quota = {}) => {
   let quotas = {}
 
   switch (type) {
     case 'DATASTORE':
       quotas = {
-        images: computeQuotaUsageDetails(quota.IMAGES_USED, quota.IMAGES),
-        size: computeQuotaUsageDetails(quota.SIZE_USED, quota.SIZE),
+        images: computeQuotaUsageDetails(quota?.IMAGES_USED, quota?.IMAGES),
+        size: computeQuotaUsageDetails(quota?.SIZE_USED, quota?.SIZE),
       }
       break
     case 'VM':
       quotas = {
-        vms: computeQuotaUsageDetails(quota.VMS_USED, quota.VMS),
+        vms: computeQuotaUsageDetails(quota?.VMS_USED, quota?.VMS),
         runningVms: computeQuotaUsageDetails(
-          quota.RUNNING_VMS_USED,
-          quota.RUNNING_VMS
+          quota?.RUNNING_VMS_USED,
+          quota?.RUNNING_VMS
         ),
-        memory: computeQuotaUsageDetails(quota.MEMORY_USED, quota.MEMORY),
+        memory: computeQuotaUsageDetails(quota?.MEMORY_USED, quota?.MEMORY),
         runningMemory: computeQuotaUsageDetails(
-          quota.RUNNING_MEMORY_USED,
-          quota.RUNNING_MEMORY
+          quota?.RUNNING_MEMORY_USED,
+          quota?.RUNNING_MEMORY
         ),
-        cpu: computeQuotaUsageDetails(quota.CPU_USED, quota.CPU),
+        cpu: computeQuotaUsageDetails(quota?.CPU_USED, quota?.CPU),
         runningCpu: computeQuotaUsageDetails(
-          quota.RUNNING_CPU_USED,
-          quota.RUNNING_CPU
+          quota?.RUNNING_CPU_USED,
+          quota?.RUNNING_CPU
         ),
         systemDiskSize: computeQuotaUsageDetails(
-          quota.SYSTEM_DISK_SIZE_USED,
-          quota.SYSTEM_DISK_SIZE
+          quota?.SYSTEM_DISK_SIZE_USED,
+          quota?.SYSTEM_DISK_SIZE
         ),
       }
       break
     case 'NETWORK':
       quotas = {
-        leases: computeQuotaUsageDetails(quota.LEASES_USED, quota.LEASES),
+        leases: computeQuotaUsageDetails(quota?.LEASES_USED, quota?.LEASES),
       }
       break
     case 'IMAGE':
       quotas = {
-        rvms: computeQuotaUsageDetails(quota.RVMS_USED, quota.RVMS),
+        rvms: computeQuotaUsageDetails(quota?.RVMS_USED, quota?.RVMS),
       }
       break
     default:
