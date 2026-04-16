@@ -284,6 +284,7 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/fireedge \
           $ETC_LOCATION/fireedge/sunstone \
           $ETC_LOCATION/fireedge/sunstone/profiles \
+          $ETC_LOCATION/fireedge/sunstone/tabs \
           $ETC_LOCATION/fireedge/sunstone/views/admin \
           $ETC_LOCATION/fireedge/sunstone/views/user \
           $ETC_LOCATION/fireedge/sunstone/views/groupadmin \
