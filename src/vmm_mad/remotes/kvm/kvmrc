@@ -55,6 +55,9 @@ DEFAULT_ATTACH_DISCARD=unmap
 # The default number of queues for virtio-blk driver.
 #DEFAULT_ATTACH_VIRTIO_BLK_QUEUES=
 
+# The default iothread id to assign on virtio-blk hotplug.
+#DEFAULT_ATTACH_VIRTIO_BLK_IOTHREAD=
+
 # These parameters set the default DISK I/O throttling attributes
 # for the new attached disk in case they aren't set.
 #DEFAULT_ATTACH_TOTAL_BYTES_SEC=

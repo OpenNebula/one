@@ -83,6 +83,37 @@ if [ "${VIRTIO_BLK_QUEUES}" = "auto" ]; then
     VIRTIO_BLK_QUEUES="$VCPU"
 fi
 
+if [[ "${TARGET:0:2}" == "vd" ]]; then
+    # get the defined iothreads for the domain
+    read -r DOMAIN_IOTHREADS <<<"$(virsh --connect "${LIBVIRT_URI}" dumpxml "${DOMAIN}" | \
+                                     xmllint --xpath '/domain/iothreads/text()' - 2>/dev/null)"
+    if [[ -n "${DOMAIN_IOTHREADS}" ]] && [[ ${DOMAIN_IOTHREADS} -gt 0 ]]; then
+        if [[ -z "${IOTHREAD}" ]] ; then
+            # There is no explicit iothread id defined.
+            # Apply the default one from the kvmrc file
+            _DEFAULT_IOTHREAD="${DEFAULT_ATTACH_VIRTIO_BLK_IOTHREAD//[^[:digit:]]}"
+            if [[ -n "${_DEFAULT_IOTHREAD}" ]]; then
+                if [[ ${_DEFAULT_IOTHREAD} -gt ${DOMAIN_IOTHREADS} ]]; then
+                    # Ceil when the default iothread id is bigger than
+                    # the defined number of threads
+                    IOTHREAD="${DOMAIN_IOTHREAD}"
+                elif [[ ${_DEFAULT_IOTHREAD} -gt 0 ]]; then
+                    IOTHREAD="${_DEFAULT_IOTHREAD}"
+               fi
+            fi
+        elif [[ -z "${IOTHREAD//[[:digit:]-]}" ]]; then
+            if [[ ${IOTHREAD} -gt ${DOMAIN_IOTHREADS} ]]; then
+                IOTHREAD="${DOMAIN_IOTHREADS}"
+            elif [[ ${IOTHREAD} -lt 1 ]]; then
+                IOTHREAD=""
+            fi
+        else
+            # The value is not numeric
+            IOTHREAD=""
+        fi
+    fi
+fi
+
 # disk XML
 XML=''
 
