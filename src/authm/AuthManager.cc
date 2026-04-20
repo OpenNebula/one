@@ -192,7 +192,7 @@ void AuthManager::trigger_authenticate(AuthRequest& ar)
         oss << ar.uid << " "
             << ar.driver << " "
             << ar.username << " "
-            << ar.password << " "
+            << (ar.password.empty() ? "-" : ar.password) << " "
             << session64 << " " << endl;
 
         auth_msg_t msg(AuthManagerMessages::AUTHENTICATE, "", ar.id, oss.str());
