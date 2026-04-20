@@ -105,9 +105,10 @@ class AuthDriver < OpenNebulaDriver
     # @param [String] id of the user, "-1" if not in defined in OpenNebula
     # @param [String] driver to be used
     # @param [Strgin] user filed of the auth string
-    # @param [String] password of the user registered in OpenNebula "-" if none
+    # @param [String] password of the user registered in OpenNebula, "-" if none
     # @param [String] secret filed of the auth string
     def authN(request_id, user_id, driver, user, password, secret)
+        password = "" if password == "-"
 
         #OpenNebula::DriverLogger.log_debug("authN: #{request_id} #{user_id} #{driver} #{password} #{secret}")
 
