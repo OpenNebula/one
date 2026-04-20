@@ -348,7 +348,6 @@ module OpenNebula
         #
         # @return [String] the xml representing the accounting data
         def accounting_xml(filter_flag=INFO_ALL, options={})
-            acct_hash = Hash.new
             xml_str = "<HISTORY_RECORDS>\n"
 
             rc = build_accounting(filter_flag, options) do |history|

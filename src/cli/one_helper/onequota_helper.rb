@@ -17,34 +17,35 @@
 require 'cli_helper'
 require 'opennebula/system'
 
+# Helper class for Quota commands
 class OneQuotaHelper
 
-    LIMIT_DEFAULT   = "-1"
-    LIMIT_UNLIMITED = "-2"
+    LIMIT_DEFAULT   = '-1'
+    LIMIT_UNLIMITED = '-2'
     DEFAULT_VM_QUOTA = {
-                            "VMS"                   => LIMIT_DEFAULT,
-                            "VMS_USED"              => "0",
-                            "CPU"                   => LIMIT_DEFAULT,
-                            "CPU_USED"              => "0",
-                            "PCI_DEV"               => LIMIT_DEFAULT,
-                            "PCI_DEV_USED"          => "0",
-                            "PCI_NIC"               => LIMIT_DEFAULT,
-                            "PCI_NIC_USED"          => "0",
-                            "MEMORY"                => LIMIT_DEFAULT,
-                            "MEMORY_USED"           => "0",
-                            "RUNNING_VMS"           => LIMIT_DEFAULT,
-                            "RUNNING_VMS_USED"      => "0",
-                            "RUNNING_CPU"           => LIMIT_DEFAULT,
-                            "RUNNING_CPU_USED"      => "0",
-                            "RUNNING_MEMORY"        => LIMIT_DEFAULT,
-                            "RUNNING_MEMORY_USED"   => "0",
-                            "RUNNING_PCI_DEV"       => LIMIT_DEFAULT,
-                            "RUNNING_PCI_DEV_USED"  => "0",
-                            "RUNNING_PCI_NIC"       => LIMIT_DEFAULT,
-                            "RUNNING_PCI_NIC_USED"  => "0",
-                            "SYSTEM_DISK_SIZE"      => LIMIT_DEFAULT,
-                            "SYSTEM_DISK_SIZE_USED" => "0"
-                        }
+        'VMS'                   => LIMIT_DEFAULT,
+                            'VMS_USED'              => '0',
+                            'CPU'                   => LIMIT_DEFAULT,
+                            'CPU_USED'              => '0',
+                            'PCI_DEV'               => LIMIT_DEFAULT,
+                            'PCI_DEV_USED'          => '0',
+                            'PCI_NIC'               => LIMIT_DEFAULT,
+                            'PCI_NIC_USED'          => '0',
+                            'MEMORY'                => LIMIT_DEFAULT,
+                            'MEMORY_USED'           => '0',
+                            'RUNNING_VMS'           => LIMIT_DEFAULT,
+                            'RUNNING_VMS_USED'      => '0',
+                            'RUNNING_CPU'           => LIMIT_DEFAULT,
+                            'RUNNING_CPU_USED'      => '0',
+                            'RUNNING_MEMORY'        => LIMIT_DEFAULT,
+                            'RUNNING_MEMORY_USED'   => '0',
+                            'RUNNING_PCI_DEV'       => LIMIT_DEFAULT,
+                            'RUNNING_PCI_DEV_USED'  => '0',
+                            'RUNNING_PCI_NIC'       => LIMIT_DEFAULT,
+                            'RUNNING_PCI_NIC_USED'  => '0',
+                            'SYSTEM_DISK_SIZE'      => LIMIT_DEFAULT,
+                            'SYSTEM_DISK_SIZE_USED' => '0'
+    }
 
     EDITOR_PATH='/usr/bin/vi'
 
@@ -114,8 +115,8 @@ class OneQuotaHelper
     #         used
     #  @param [True|False] is_default To change the help text
     #  @return [String] contents of the new quotas
-    def self.set_quota(resource, path, is_default=false)
-        str = ""
+    def self.set_quota(resource, path, is_default = false)
+        str = ''
 
         if path.nil?
             require 'tempfile'
@@ -125,25 +126,25 @@ class OneQuotaHelper
 
             tmp << HELP_QUOTA
 
-            if (is_default)
+            if is_default
                 tmp << HELP_DEFAULT_QUOTA_FOOTER
             else
                 tmp << HELP_QUOTA_FOOTER
             end
 
-            tmp << resource.template_like_str("DATASTORE_QUOTA") << "\n"
-            tmp << resource.template_like_str("VM_QUOTA") << "\n"
-            tmp << resource.template_like_str("NETWORK_QUOTA") << "\n"
-            tmp << resource.template_like_str("IMAGE_QUOTA") << "\n"
+            tmp << resource.template_like_str('DATASTORE_QUOTA') << "\n"
+            tmp << resource.template_like_str('VM_QUOTA') << "\n"
+            tmp << resource.template_like_str('NETWORK_QUOTA') << "\n"
+            tmp << resource.template_like_str('IMAGE_QUOTA') << "\n"
 
             tmp.close
 
-            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+            editor_path = ENV['EDITOR'] ? ENV['EDITOR'] : EDITOR_PATH
             system("#{editor_path} #{path}")
 
-            unless $?.exitstatus == 0
-                puts "Editor not defined"
-                exit -1
+            unless $CHILD_STATUS.exitstatus == 0
+                puts 'Editor not defined'
+                exit(-1)
             end
 
             str = File.read(path)
@@ -162,7 +163,7 @@ class OneQuotaHelper
     #         used
     #  @return [String] contents of the new quotas
     def self.get_batch_quota(path)
-        str = ""
+        str = ''
 
         if path.nil?
             require 'tempfile'
@@ -174,12 +175,12 @@ class OneQuotaHelper
 
             tmp.close
 
-            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+            editor_path = ENV['EDITOR'] ? ENV['EDITOR'] : EDITOR_PATH
             system("#{editor_path} #{path}")
 
-            unless $?.exitstatus == 0
-                puts "Editor not defined"
-                exit -1
+            unless $CHILD_STATUS.exitstatus == 0
+                puts 'Editor not defined'
+                exit(-1)
             end
 
             str = File.read(path)
@@ -210,12 +211,12 @@ class OneQuotaHelper
         # reading them in order and replacing the quotas with each new
         # appearance
 
-        tmp_str = ""
+        tmp_str = ''
 
-        tmp_str << resource.template_like_str("DATASTORE_QUOTA") << "\n"
-        tmp_str << resource.template_like_str("VM_QUOTA") << "\n"
-        tmp_str << resource.template_like_str("NETWORK_QUOTA") << "\n"
-        tmp_str << resource.template_like_str("IMAGE_QUOTA") << "\n"
+        tmp_str << resource.template_like_str('DATASTORE_QUOTA') << "\n"
+        tmp_str << resource.template_like_str('VM_QUOTA') << "\n"
+        tmp_str << resource.template_like_str('NETWORK_QUOTA') << "\n"
+        tmp_str << resource.template_like_str('IMAGE_QUOTA') << "\n"
 
         tmp_str << str
 
@@ -228,11 +229,11 @@ class OneQuotaHelper
     #  @param resource_id [Integer] user/group ID
     #
     def format_quota(qh, default_quotas, resource_id)
-        str_h1="%-80s"
+        str_h1='%-80s'
 
         puts
 
-        CLIHelper.print_header(str_h1 % "VMS USAGE & QUOTAS",false)
+        CLIHelper.print_header(str_h1 % 'VMS USAGE & QUOTAS', false)
 
         puts
 
@@ -240,7 +241,7 @@ class OneQuotaHelper
 
         vm_quotas = [qh['VM_QUOTA']['VM']].flatten
 
-        generic_quotas = get_generic_quotas
+        generic_q = generic_quotas
 
         # This initializes the VM quotas for users/groups that don't have any
         # resource usage yet. It not applied to oneadmin
@@ -248,142 +249,156 @@ class OneQuotaHelper
             limit = LIMIT_DEFAULT
 
             vm_quotas = [{
-                "VMS"                   => limit,
-                "VMS_USED"              => "0",
-                "CPU"                   => limit,
-                "CPU_USED"              => "0",
-                "MEMORY"                => limit,
-                "MEMORY_USED"           => "0",
-                "PCI_DEV"               => limit,
-                "PCI_DEV_USED"          => "0",
-                "PCI_NIC"               => limit,
-                "PCI_NIC_USED"          => "0",
-                "RUNNING_VMS"           => limit,
-                "RUNNING_VMS_USED"      => "0",
-                "RUNNING_CPU"           => limit,
-                "RUNNING_CPU_USED"      => "0",
-                "RUNNING_MEMORY"        => limit,
-                "RUNNING_MEMORY_USED"   => "0",
-                "RUNNING_PCI_DEV"       => limit,
-                "RUNNING_PCI_DEV_USED"  => "0",
-                "RUNNING_PCI_NIC"       => limit,
-                "RUNNING_PCI_NIC_USED"  => "0",
-                "SYSTEM_DISK_SIZE"      => limit,
-                "SYSTEM_DISK_SIZE_USED" => "0"
+                'VMS'                   => limit,
+                'VMS_USED'              => '0',
+                'CPU'                   => limit,
+                'CPU_USED'              => '0',
+                'MEMORY'                => limit,
+                'MEMORY_USED'           => '0',
+                'PCI_DEV'               => limit,
+                'PCI_DEV_USED'          => '0',
+                'PCI_NIC'               => limit,
+                'PCI_NIC_USED'          => '0',
+                'RUNNING_VMS'           => limit,
+                'RUNNING_VMS_USED'      => '0',
+                'RUNNING_CPU'           => limit,
+                'RUNNING_CPU_USED'      => '0',
+                'RUNNING_MEMORY'        => limit,
+                'RUNNING_MEMORY_USED'   => '0',
+                'RUNNING_PCI_DEV'       => limit,
+                'RUNNING_PCI_DEV_USED'  => '0',
+                'RUNNING_PCI_NIC'       => limit,
+                'RUNNING_PCI_NIC_USED'  => '0',
+                'SYSTEM_DISK_SIZE'      => limit,
+                'SYSTEM_DISK_SIZE_USED' => '0'
             }]
 
-            generic_quotas.each do |q|
+            generic_q.each do |q|
                 vm_quotas[0][q] = limit
-                vm_quotas[0]["#{q}_USED"] = "0"
+                vm_quotas[0]["#{q}_USED"] = '0'
                 vm_quotas[0]["RUNNING_#{q}"] = limit
-                vm_quotas[0]["RUNNING_#{q}_USED"] = "0"
+                vm_quotas[0]["RUNNING_#{q}_USED"] = '0'
             end
         end
 
         if !vm_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"CLUSTERS", "", :right, :size=>8 do |d|
+                column :CLUSTERS, '', :right, :size=>8 do |d|
                     if !d.nil?
                         d['CLUSTER_IDS']
                     end
                 end
 
-                column :"VMS", "", :right, :size=>9 do |d|
+                column :VMS, '', :right, :size=>9 do |d|
                     if !d.nil?
                         elem = 'VMS'
                         limit = d[elem]
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
 
                         if limit == LIMIT_UNLIMITED
-                            "%3d /   -" % [d["VMS_USED"]]
+                            format('%<used>3d /   -', :used => d['VMS_USED'])
                         else
-                            "%3d / %3d" % [d["VMS_USED"], limit]
+                            format('%<used>3d / %<limit>3d',
+                                   :used => d['VMS_USED'], :limit => limit)
                         end
                     end
                 end
 
-                column :"MEMORY", "", :right, :size=>15 do |d|
+                column :MEMORY, '', :right, :size=>15 do |d|
                     if !d.nil?
                         elem = 'MEMORY'
                         limit = d[elem]
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
 
                         if limit == LIMIT_UNLIMITED
-                            "%6s /      -" % [
-                                OpenNebulaHelper.unit_to_str(d["MEMORY_USED"].to_i,{},"M")
-                            ]
+                            format('%<used>6s /      -',
+                                   :used => OpenNebulaHelper.unit_to_str(d['MEMORY_USED'].to_i, {},
+                                                                         'M'))
                         else
-                            "%6s / %6s" % [
-                                OpenNebulaHelper.unit_to_str(d["MEMORY_USED"].to_i,{},"M"),
-                                OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
-                            ]
+                            format('%<used>6s / %<limit>6s',
+                                   :used => OpenNebulaHelper.unit_to_str(d['MEMORY_USED'].to_i, {},
+                                                                         'M'),
+                                   :limit => OpenNebulaHelper.unit_to_str(limit.to_i, {}, 'M'))
                         end
                     end
                 end
 
-                column :"CPU", "", :right, :size=>15 do |d|
+                column :CPU, '', :right, :size=>15 do |d|
                     if !d.nil?
                         elem = 'CPU'
                         limit = d[elem]
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
 
                         if limit == LIMIT_UNLIMITED
-                            "%6.1f /      -" % [d["CPU_USED"]]
+                            format('%<used>6.1f /      -', :used => d['CPU_USED'])
                         else
-                            "%6.1f / %6.2f" % [d["CPU_USED"], limit]
+                            format('%<used>6.1f / %<limit>6.2f',
+                                   :used => d['CPU_USED'], :limit => limit)
                         end
                     end
                 end
 
-                column :"PCI DEV", "", :right, :size=>9 do |d|
+                column :"PCI DEV", '', :right, :size=>9 do |d|
                     if !d.nil?
                         elem = 'PCI_DEV'
                         limit = d[elem]
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
 
                         if limit == LIMIT_UNLIMITED
-                            "%3d /   -" % [d["PCI_DEV_USED"]]
+                            format('%<used>3d /   -', :used => d['PCI_DEV_USED'])
                         else
-                            "%3d / %3d" % [d["PCI_DEV_USED"], limit]
+                            format('%<used>3d / %<limit>3d',
+                                   :used => d['PCI_DEV_USED'], :limit => limit)
                         end
                     end
                 end
 
-                column :"PCI NIC", "", :right, :size=>9 do |d|
+                column :"PCI NIC", '', :right, :size=>9 do |d|
                     if !d.nil?
                         elem = 'PCI_NIC'
                         limit = d[elem]
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
 
                         if limit == LIMIT_UNLIMITED
-                            "%3d /   -" % [d["PCI_NIC_USED"]]
+                            format('%<used>3d /   -', :used => d['PCI_NIC_USED'])
                         else
-                            "%3d / %3d" % [d["PCI_NIC_USED"], limit]
+                            format('%<used>3d / %<limit>3d',
+                                   :used => d['PCI_NIC_USED'], :limit => limit)
                         end
                     end
                 end
 
-                column :"DISK SIZE", "", :right, :size=>15 do |d|
+                column :"DISK SIZE", '', :right, :size=>15 do |d|
                     if !d.nil?
                         elem = 'SYSTEM_DISK_SIZE'
                         limit = d[elem]
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
 
                         if limit == LIMIT_UNLIMITED
-                            "%6s /      -" % [
-                                OpenNebulaHelper.unit_to_str(d["SYSTEM_DISK_SIZE_USED"].to_i,{},"M")
-                            ]
+                            format('%<used>6s /      -',
+                                   :used => OpenNebulaHelper.unit_to_str(
+                                       d['SYSTEM_DISK_SIZE_USED'].to_i, {}, 'M'
+                                   ))
                         else
-                            "%6s / %6s" % [
-                                OpenNebulaHelper.unit_to_str(d["SYSTEM_DISK_SIZE_USED"].to_i,{},"M"),
-                                OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
-                            ]
+                            format('%<used>6s / %<limit>6s',
+                                   :used => OpenNebulaHelper.unit_to_str(
+                                       d['SYSTEM_DISK_SIZE_USED'].to_i, {}, 'M'
+                                   ),
+                                   :limit => OpenNebulaHelper.unit_to_str(
+                                       limit.to_i, {}, 'M'
+                                   ))
                         end
                     end
                 end
@@ -392,107 +407,123 @@ class OneQuotaHelper
             puts
         end
 
-        CLIHelper.print_header(str_h1 % "VMS USAGE & QUOTAS - RUNNING",false)
+        CLIHelper.print_header(str_h1 % 'VMS USAGE & QUOTAS - RUNNING', false)
 
         puts
 
         if !vm_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"CLUSTERS", "", :right, :size=>8 do |d|
+                column :CLUSTERS, '', :right, :size=>8 do |d|
                     if !d.nil?
                         d['CLUSTER_IDS']
                     end
                 end
-                column :"RUN VMS", "", :right, :size=>9 do |d|
+                column :"RUN VMS", '', :right, :size=>9 do |d|
                     if !d.nil?
                         elem = 'RUNNING_VMS'
                         limit = d[elem] || LIMIT_UNLIMITED
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
 
-                        if d["RUNNING_VMS_USED"].nil?
-                            d["RUNNING_VMS_USED"] = 0
+                        if d['RUNNING_VMS_USED'].nil?
+                            d['RUNNING_VMS_USED'] = 0
                         end
 
                         if limit == LIMIT_UNLIMITED
-                            "%3d /   -" % [d["RUNNING_VMS_USED"]]
+                            format('%<used>3d /   -', :used => d['RUNNING_VMS_USED'])
                         else
-                            "%3d / %3d" % [d["RUNNING_VMS_USED"], limit]
+                            format('%<used>3d / %<limit>3d',
+                                   :used => d['RUNNING_VMS_USED'],
+                                   :limit => limit)
                         end
                     end
                 end
 
-                column :"RUN MEMORY", "", :right, :size=>15 do |d|
+                column :"RUN MEMORY", '', :right, :size=>15 do |d|
                     if !d.nil?
                         elem = 'RUNNING_MEMORY'
                         limit = d[elem] || LIMIT_UNLIMITED
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
 
-                        if d["RUNNING_MEMORY_USED"].nil?
-                            d["RUNNING_MEMORY_USED"] = 0
+                        if d['RUNNING_MEMORY_USED'].nil?
+                            d['RUNNING_MEMORY_USED'] = 0
                         end
 
                         if limit == LIMIT_UNLIMITED
-                            "%6s /      -" % [
-                                OpenNebulaHelper.unit_to_str(d["RUNNING_MEMORY_USED"].to_i,{},"M")
-                            ]
+                            format('%<used>6s /      -',
+                                   :used => OpenNebulaHelper.unit_to_str(
+                                       d['RUNNING_MEMORY_USED'].to_i, {}, 'M'
+                                   ))
                         else
-                            "%6s / %6s" % [
-                                OpenNebulaHelper.unit_to_str(d["RUNNING_MEMORY_USED"].to_i,{},"M"),
-                                OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
-                            ]
+                            format('%<used>6s / %<limit>6s',
+                                   :used => OpenNebulaHelper.unit_to_str(
+                                       d['RUNNING_MEMORY_USED'].to_i, {}, 'M'
+                                   ),
+                                   :limit => OpenNebulaHelper.unit_to_str(
+                                       limit.to_i, {}, 'M'
+                                   ))
                         end
                     end
                 end
 
-                column :"RUN CPU", "", :right, :size=>15 do |d|
+                column :"RUN CPU", '', :right, :size=>15 do |d|
                     if !d.nil?
                         elem = 'RUNNING_CPU'
                         limit = d[elem] || LIMIT_UNLIMITED
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
 
-                        if d["RUNNING_CPU_USED"].nil?
-                            d["RUNNING_CPU_USED"] = 0
+                        if d['RUNNING_CPU_USED'].nil?
+                            d['RUNNING_CPU_USED'] = 0
                         end
 
                         if limit == LIMIT_UNLIMITED
-                            "%6.1f /      -" % [d["RUNNING_CPU_USED"]]
+                            format('%<used>6.1f /      -',
+                                   :used => d['RUNNING_CPU_USED'])
                         else
-                            "%6.1f / %6.1f" % [d["RUNNING_CPU_USED"], limit]
+                            format('%<used>6.1f / %<limit>6.1f',
+                                   :used => d['RUNNING_CPU_USED'],
+                                   :limit => limit)
                         end
                     end
                 end
 
-                column :"RUN PCI", "", :right, :size=>12 do |d|
+                column :"RUN PCI", '', :right, :size=>12 do |d|
                     if !d.nil?
                         elem = 'RUNNING_PCI_DEV'
                         limit = d[elem] || LIMIT_UNLIMITED
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
                         value = d['RUNNING_PCI_DEV_USED'] || 0
 
                         if limit == LIMIT_UNLIMITED
-                            "%3s /   -" % [value]
+                            format('%<used>3s /   -', :used => value)
                         else
-                            "%3s / %3s" % [value, limit]
+                            format('%<used>3s / %<limit>3s',
+                                   :used => value, :limit => limit)
                         end
                     end
                 end
 
-                column :"RUN PCI NIC", "", :right, :size=>12 do |d|
+                column :"RUN PCI NIC", '', :right, :size=>12 do |d|
                     if !d.nil?
                         elem = 'RUNNING_PCI_NIC'
                         limit = d[elem] || LIMIT_UNLIMITED
                         limit = helper.get_default_limit(
-                            limit, "VM_QUOTA/VM/#{elem}")
+                            limit, "VM_QUOTA/VM/#{elem}"
+                        )
                         value = d['RUNNING_PCI_NIC_USED'] || 0
 
                         if limit == LIMIT_UNLIMITED
-                            "%3s /   -" % [value]
+                            format('%<used>3s /   -', :used => value)
                         else
-                            "%3s / %3s" % [value, limit]
+                            format('%<used>3s / %<limit>3s',
+                                   :used => value, :limit => limit)
                         end
                     end
                 end
@@ -501,22 +532,26 @@ class OneQuotaHelper
             puts
         end
 
-        if !generic_quotas.empty? && !vm_quotas[0].nil?
-            CLIHelper.print_header(str_h1 % "VMS GENERIC QUOTAS",false)
-            size = [80 / generic_quotas.length - 1, 18].min
+        if !generic_q.empty? && !vm_quotas[0].nil?
+            CLIHelper.print_header(str_h1 % 'VMS GENERIC QUOTAS', false)
+            size = [80 / generic_q.length - 1, 18].min
 
             CLIHelper::ShowTable.new(nil, self) do
-                generic_quotas.each do |elem|
-                    column elem.to_sym, "", :right, :size=>size do |d|
+                generic_q.each do |elem|
+                    column elem.to_sym, '', :right, :size=>size do |d|
                         if !d.nil?
                             limit = d[elem]
                             limit = helper.get_default_limit(
-                                limit, "VM_QUOTA/VM/#{elem}")
+                                limit, "VM_QUOTA/VM/#{elem}"
+                            )
 
                             if limit == LIMIT_UNLIMITED
-                                "%6s /      -" % [d["#{elem}_USED"]]
+                                format('%<used>6s /      -',
+                                       :used => d["#{elem}_USED"])
                             else
-                                "%6s / %6s" % [d["#{elem}_USED"], limit]
+                                format('%<used>6s / %<limit>6s',
+                                       :used => d["#{elem}_USED"],
+                                       :limit => limit)
                             end
                         end
                     end
@@ -525,22 +560,26 @@ class OneQuotaHelper
 
             puts
 
-            CLIHelper.print_header(str_h1 % "VMS GENERIC RUNNING QUOTAS",false)
-            size = [80 / generic_quotas.length - 1, 18].min
+            CLIHelper.print_header(str_h1 % 'VMS GENERIC RUNNING QUOTAS', false)
+            size = [80 / generic_q.length - 1, 18].min
 
             CLIHelper::ShowTable.new(nil, self) do
-                generic_quotas.each do |q|
+                generic_q.each do |q|
                     elem = "RUNNING_#{q}"
-                    column elem.to_sym, "", :right, :size=>size do |d|
+                    column elem.to_sym, '', :right, :size=>size do |d|
                         if !d.nil?
                             limit = d[elem]
                             limit = helper.get_default_limit(
-                                limit, "VM_QUOTA/VM/#{elem}")
+                                limit, "VM_QUOTA/VM/#{elem}"
+                            )
 
                             if limit == LIMIT_UNLIMITED
-                                "%6s /      -" % [d["#{elem}_USED"]]
+                                format('%<used>6s /      -',
+                                       :used => d["#{elem}_USED"])
                             else
-                                "%6s / %6s" % [d["#{elem}_USED"], limit]
+                                format('%<used>6s / %<limit>6s',
+                                       :used => d["#{elem}_USED"],
+                                       :limit => limit)
                             end
                         end
                     end
@@ -550,7 +589,7 @@ class OneQuotaHelper
             puts
         end
 
-        CLIHelper.print_header(str_h1 % "DATASTORE USAGE & QUOTAS",false)
+        CLIHelper.print_header(str_h1 % 'DATASTORE USAGE & QUOTAS', false)
 
         puts
 
@@ -558,41 +597,48 @@ class OneQuotaHelper
 
         if !ds_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"ID", "", :size=>12 do |d|
-                    d["ID"] if !d.nil?
+                column :ID, '', :size=>12 do |d|
+                    d['ID'] unless d.nil?
                 end
 
-                column :"IMAGES", "", :right, :size=>20 do |d|
+                column :IMAGES, '', :right, :size=>20 do |d|
                     if !d.nil?
                         elem = 'IMAGES'
                         limit = d[elem]
                         limit = helper.get_default_limit(
-                            limit, "DATASTORE_QUOTA/DATASTORE[ID=#{d['ID']}]/#{elem}")
+                            limit, "DATASTORE_QUOTA/DATASTORE[ID=#{d['ID']}]/#{elem}"
+                        )
 
                         if limit == LIMIT_UNLIMITED
-                            "%8d /        -" % [d["IMAGES_USED"]]
+                            format('%<used>8d /        -', :used => d['IMAGES_USED'])
                         else
-                            "%8d / %8d" % [d["IMAGES_USED"], limit]
+                            format('%<used>8d / %<limit>8d',
+                                   :used => d['IMAGES_USED'], :limit => limit)
                         end
                     end
                 end
 
-                column :"SIZE", "", :right, :size=>19 do |d|
+                column :SIZE, '', :right, :size=>19 do |d|
                     if !d.nil?
                         elem = 'SIZE'
                         limit = d[elem]
                         limit = helper.get_default_limit(
-                            limit, "DATASTORE_QUOTA/DATASTORE[ID=#{d['ID']}]/#{elem}")
+                            limit, "DATASTORE_QUOTA/DATASTORE[ID=#{d['ID']}]/#{elem}"
+                        )
 
                         if limit == LIMIT_UNLIMITED
-                            "%8s /        -" % [
-                                OpenNebulaHelper.unit_to_str(d["SIZE_USED"].to_i,{},"M")
-                            ]
+                            format('%<used>8s /        -',
+                                   :used => OpenNebulaHelper.unit_to_str(
+                                       d['SIZE_USED'].to_i, {}, 'M'
+                                   ))
                         else
-                            "%8s / %8s" % [
-                                OpenNebulaHelper.unit_to_str(d["SIZE_USED"].to_i,{},"M"),
-                                OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
-                            ]
+                            format('%<used>8s / %<limit>8s',
+                                   :used => OpenNebulaHelper.unit_to_str(
+                                       d['SIZE_USED'].to_i, {}, 'M'
+                                   ),
+                                   :limit => OpenNebulaHelper.unit_to_str(
+                                       limit.to_i, {}, 'M'
+                                   ))
                         end
                     end
                 end
@@ -601,7 +647,7 @@ class OneQuotaHelper
             puts
         end
 
-        CLIHelper.print_header(str_h1 % "NETWORK USAGE & QUOTAS",false)
+        CLIHelper.print_header(str_h1 % 'NETWORK USAGE & QUOTAS', false)
 
         puts
 
@@ -609,21 +655,23 @@ class OneQuotaHelper
 
         if !net_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"ID", "", :size=>12 do |d|
-                    d["ID"] if !d.nil?
+                column :ID, '', :size=>12 do |d|
+                    d['ID'] unless d.nil?
                 end
 
-                column :"LEASES", "", :right, :size=>20 do |d|
+                column :LEASES, '', :right, :size=>20 do |d|
                     if !d.nil?
                         elem = 'LEASES'
                         limit = d[elem]
                         limit = helper.get_default_limit(
-                            limit, "NETWORK_QUOTA/NETWORK[ID=#{d['ID']}]/#{elem}")
+                            limit, "NETWORK_QUOTA/NETWORK[ID=#{d['ID']}]/#{elem}"
+                        )
 
                         if limit == LIMIT_UNLIMITED
-                            "%8d /        -" % [d["LEASES_USED"]]
+                            format('%<used>8d /        -', :used => d['LEASES_USED'])
                         else
-                            "%8d / %8d" % [d["LEASES_USED"], limit]
+                            format('%<used>8d / %<limit>8d',
+                                   :used => d['LEASES_USED'], :limit => limit)
                         end
                     end
                 end
@@ -632,7 +680,7 @@ class OneQuotaHelper
             puts
         end
 
-        CLIHelper.print_header(str_h1 % "IMAGE USAGE & QUOTAS",false)
+        CLIHelper.print_header(str_h1 % 'IMAGE USAGE & QUOTAS', false)
 
         puts
 
@@ -640,21 +688,23 @@ class OneQuotaHelper
 
         if !image_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"ID", "", :size=>12 do |d|
-                    d["ID"] if !d.nil?
+                column :ID, '', :size=>12 do |d|
+                    d['ID'] unless d.nil?
                 end
 
-                column :"RUNNING VMS", "", :right, :size=>20 do |d|
+                column :"RUNNING VMS", '', :right, :size=>20 do |d|
                     if !d.nil?
                         elem = 'RVMS'
                         limit = d[elem]
                         limit = helper.get_default_limit(
-                            limit, "IMAGE_QUOTA/IMAGE[ID=#{d['ID']}]/RVMS")
+                            limit, "IMAGE_QUOTA/IMAGE[ID=#{d['ID']}]/RVMS"
+                        )
 
                         if limit == LIMIT_UNLIMITED
-                            "%8d /        -" % [d["RVMS_USED"]]
+                            format('%<used>8d /        -', :used => d['RVMS_USED'])
                         else
-                            "%8d / %8d" % [d["RVMS_USED"], limit]
+                            format('%<used>8d / %<limit>8d',
+                                   :used => d['RVMS_USED'], :limit => limit)
                         end
                     end
                 end
@@ -667,7 +717,7 @@ class OneQuotaHelper
             if !@default_quotas.nil?
                 limit = @default_quotas[xpath]
 
-                limit = LIMIT_UNLIMITED if limit.nil? || limit == ""
+                limit = LIMIT_UNLIMITED if limit.nil? || limit == ''
             else
                 limit = LIMIT_UNLIMITED
             end
@@ -678,7 +728,7 @@ class OneQuotaHelper
 
     private
 
-    def get_generic_quotas
+    def generic_quotas
         conf = OpenNebula::System.new(@client).get_configuration
 
         return [] if OpenNebula.is_error?(conf)

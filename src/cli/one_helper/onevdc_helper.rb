@@ -18,14 +18,15 @@ require 'one_helper'
 require 'opennebula/vdc'
 require 'opennebula/vdc_pool'
 
+# Helper class for VDC commands
 class OneVdcHelper < OpenNebulaHelper::OneHelper
 
     def self.rname
-        "VDC"
+        'VDC'
     end
 
     def self.conf_file
-        "onevdc.yaml"
+        'onevdc.yaml'
     end
 
     def id_list_size(list, resource)
@@ -39,20 +40,20 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def format_pool(options)
+    def format_pool(_options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for the VDC", :size=>5 do |d|
-                d["ID"]
+        CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, 'ONE identifier for the VDC', :size=>5 do |d|
+                d['ID']
             end
 
-            column :NAME, "Name of the VDC", :left, :size=>30 do |d|
-                d["NAME"]
+            column :NAME, 'Name of the VDC', :left, :size=>30 do |d|
+                d['NAME']
             end
 
-            column :GROUPS, "Number of Groups", :size=>6 do |d|
-                ids = d["GROUPS"]["ID"]
+            column :GROUPS, 'Number of Groups', :size=>6 do |d|
+                ids = d['GROUPS']['ID']
                 case ids
                 when String
                     1
@@ -63,31 +64,29 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :CLUSTERS, "Number of Clusters", :size=>8 do |d|
-                @ext.id_list_size(d["CLUSTERS"]["CLUSTER"], "CLUSTER") rescue "-"
+            column :CLUSTERS, 'Number of Clusters', :size=>8 do |d|
+                @ext.id_list_size(d['CLUSTERS']['CLUSTER'], 'CLUSTER') rescue '-'
             end
 
-            column :HOSTS, "Number of Hosts", :size=>5 do |d|
-                @ext.id_list_size(d["HOSTS"]["HOST"], "HOST") rescue "-"
+            column :HOSTS, 'Number of Hosts', :size=>5 do |d|
+                @ext.id_list_size(d['HOSTS']['HOST'], 'HOST') rescue '-'
             end
 
-            column :VNETS, "Number of Networks", :size=>5 do |d|
-                @ext.id_list_size(d["VNETS"]["VNET"], "VNET") rescue "-"
+            column :VNETS, 'Number of Networks', :size=>5 do |d|
+                @ext.id_list_size(d['VNETS']['VNET'], 'VNET') rescue '-'
             end
 
-            column :DATASTORES, "Number of Datastores", :size=>10 do |d|
-                @ext.id_list_size(d["DATASTORES"]["DATASTORE"], "DATASTORE") rescue "-"
+            column :DATASTORES, 'Number of Datastores', :size=>10 do |d|
+                @ext.id_list_size(d['DATASTORES']['DATASTORE'], 'DATASTORE') rescue '-'
             end
 
             default :ID, :NAME, :GROUPS, :CLUSTERS, :HOSTS, :VNETS, :DATASTORES
         end
-
-        table
     end
 
     private
 
-    def factory(id=nil)
+    def factory(id = nil)
         if id
             OpenNebula::Vdc.new_with_id(id, @client)
         else
@@ -96,26 +95,26 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def factory_pool(user_flag=-2)
+    def factory_pool(_user_flag = -2)
         OpenNebula::VdcPool.new(@client)
     end
 
-    def format_resource(vdc, options = {})
-        str="%-18s: %-20s"
-        str_h1="%-80s"
+    def format_resource(vdc, _options = {})
+        str='%-18s: %-20s'
+        str_h1='%-80s'
 
         CLIHelper.print_header(str_h1 % "VDC #{vdc['ID']} INFORMATION")
-        puts str % ["ID",   vdc.id.to_s]
-        puts str % ["NAME", vdc.name]
+        puts format(str, 'ID', vdc.id.to_s)
+        puts format(str, 'NAME', vdc.name)
 
         vdc_hash = vdc.to_hash
 
         groups = vdc_hash['VDC']['GROUPS']['ID']
-        if(groups != nil)
+        if(!groups.nil?)
             puts
 
             CLIHelper::ShowTable.new(nil, self) do
-                column :"GROUPS", "", :right, :size=>7 do |d|
+                column :GROUPS, '', :right, :size=>7 do |d|
                     d
                 end
             end.show([groups].flatten, {})
@@ -123,24 +122,25 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
 
         ['CLUSTER', 'HOST', 'DATASTORE', 'VNET'].each do |resource|
             res_array = vdc_hash['VDC']["#{resource}S"][resource]
-            if(res_array != nil)
-                puts
-                CLIHelper.print_header(str_h1 % "#{resource}S", false)
+            next if res_array.nil?
 
-                CLIHelper::ShowTable.new(nil, self) do
-                    column :"ZONE", "", :right, :size=>7 do |d|
-                        d['ZONE_ID']
-                    end
+            puts
+            CLIHelper.print_header(str_h1 % "#{resource}S", false)
 
-                    column :"#{resource}", "", :right, :size=>9 do |d|
-                        d["#{resource}_ID"] == Vdc::ALL_RESOURCES ? 'ALL' : d["#{resource}_ID"]
-                    end
-                end.show([res_array].flatten, {})
-            end
+            CLIHelper::ShowTable.new(nil, self) do
+                column :ZONE, '', :right, :size=>7 do |d|
+                    d['ZONE_ID']
+                end
+
+                column :"#{resource}", '', :right, :size=>9 do |d|
+                    d["#{resource}_ID"] == Vdc::ALL_RESOURCES ? 'ALL' : d["#{resource}_ID"]
+                end
+            end.show([res_array].flatten, {})
         end
 
         puts
-        CLIHelper.print_header(str_h1 % "VDC TEMPLATE", false)
+        CLIHelper.print_header(str_h1 % 'VDC TEMPLATE', false)
         puts vdc.template_str
     end
+
 end

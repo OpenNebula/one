@@ -19,39 +19,41 @@ require 'one_helper/onetemplate_helper'
 require 'opennebula/vntemplate'
 require 'opennebula/vntemplate_pool'
 
+# Helper class for VNTemplate commands
 class OneVNTemplateHelper < OneTemplateHelper
+
     VN_NAME={
-        :name  => "name",
-        :large => "--name name",
+        :name  => 'name',
+        :large => '--name name',
         :format => String,
-        :description =>  <<-EOT.strip
-Name of the new VN TEMPLATE. When instantiating
-                               multiple VNs you can use the \"%i\" wildcard to produce
-                               different names such as vm-0, vm-1...
-EOT
+        :description =>  <<~EOT.strip
+            Name of the new VN TEMPLATE. When instantiating
+                                           multiple VNs you can use the \"%i\" wildcard to produce
+                                           different names such as vm-0, vm-1...
+        EOT
     }
 
     MULTIPLE={
-        :name  => "multiple",
-        :short => "-m x",
-        :large => "--multiple x",
+        :name  => 'multiple',
+        :short => '-m x',
+        :large => '--multiple x',
         :format => Integer,
-        :description => "Instance multiple VNs"
+        :description => 'Instance multiple VNs'
     }
 
     EXTENDED={
-        :name => "extended",
-        :large => "--extended",
-        :description => "Process the template and included extended "+
-                        "information"
+        :name => 'extended',
+        :large => '--extended',
+        :description => 'Process the template and included extended '+
+                        'information'
     }
 
     def self.rname
-        "VNTEMPLATE"
+        'VNTEMPLATE'
     end
 
     def self.conf_file
-        "onevntemplate.yaml"
+        'onevntemplate.yaml'
     end
 
     INT_EXP = /^-?\d+$/
@@ -59,7 +61,7 @@ EOT
 
     private
 
-    def factory(id=nil)
+    def factory(id = nil)
         if id
             OpenNebula::VNTemplate.new_with_id(id, @client)
         else
@@ -68,38 +70,39 @@ EOT
         end
     end
 
-    def factory_pool(user_flag=-2)
+    def factory_pool(user_flag = -2)
         OpenNebula::VNTemplatePool.new(@client, user_flag)
     end
 
-    def format_resource(template, options = {})
-        str="%-15s: %-20s"
-        str_h1="%-80s"
+    def format_resource(template, _options = {})
+        str='%-15s: %-20s'
+        str_h1='%-80s'
 
         CLIHelper.print_header(
-            str_h1 % "TEMPLATE #{template['ID']} INFORMATION")
-        puts str % ["ID", template.id.to_s]
-        puts str % ["NAME", template.name]
-        puts str % ["USER", template['UNAME']]
-        puts str % ["GROUP", template['GNAME']]
-        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(template['LOCK/LOCKED'])]
-        puts str % ["REGISTER TIME",
-            OpenNebulaHelper.time_to_str(template['REGTIME'])]
+            str_h1 % "TEMPLATE #{template['ID']} INFORMATION"
+        )
+        puts format(str, 'ID', template.id.to_s)
+        puts format(str, 'NAME', template.name)
+        puts format(str, 'USER', template['UNAME'])
+        puts format(str, 'GROUP', template['GNAME'])
+        puts format(str, 'LOCK', OpenNebulaHelper.level_lock_to_str(template['LOCK/LOCKED']))
+        puts format(str, 'REGISTER TIME', OpenNebulaHelper.time_to_str(template['REGTIME']))
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
-        ["OWNER", "GROUP", "OTHER"].each { |e|
-            mask = "---"
-            mask[0] = "u" if template["PERMISSIONS/#{e}_U"] == "1"
-            mask[1] = "m" if template["PERMISSIONS/#{e}_M"] == "1"
-            mask[2] = "a" if template["PERMISSIONS/#{e}_A"] == "1"
+        ['OWNER', 'GROUP', 'OTHER'].each do |e|
+            mask = '---'
+            mask[0] = 'u' if template["PERMISSIONS/#{e}_U"] == '1'
+            mask[1] = 'm' if template["PERMISSIONS/#{e}_M"] == '1'
+            mask[2] = 'a' if template["PERMISSIONS/#{e}_A"] == '1'
 
-            puts str % [e,  mask]
-        }
+            puts format(str, e, mask)
+        end
         puts
 
-        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
+        CLIHelper.print_header(str_h1 % 'TEMPLATE CONTENTS', false)
         puts template.template_str
     end
+
 end

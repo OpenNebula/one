@@ -17,54 +17,63 @@
 require 'optparse'
 require 'pp'
 
+# String class extension to include unindent method
 class String
-    def unindent(spaces=nil)
+
+    # Unindent the string by removing leading spaces.
+    # @param [Integer] spaces to remove, if nil the size of the first match
+    #                  of leading spaces is used.
+    def unindent(spaces = nil)
         unless spaces
-            m = self.match(/^(\s*)/)
+            m = match(/^(\s*)/)
             spaces = m[1].size
         end
 
-        self.gsub!(/^ {#{spaces}}/, '')
+        gsub!(/^ {#{spaces}}/, '')
     end
+
 end
 
 module CommandParser
+
     OPTIONS = [
         VERBOSE={
-            :name  => "verbose",
-            :short => "-v",
-            :large => "--verbose",
-            :description => "Verbose mode"
+            :name  => 'verbose',
+            :short => '-v',
+            :large => '--verbose',
+            :description => 'Verbose mode'
         },
         HELP={
-            :name => "help",
-            :short => "-h",
-            :large => "--help",
-            :description => "Show this message"
+            :name => 'help',
+            :short => '-h',
+            :large => '--help',
+            :description => 'Show this message'
         },
         VERSION={
-            :name => "version",
-            :short => "-V",
-            :large => "--version",
-            :description => "Show version and copyright information",
+            :name => 'version',
+            :short => '-V',
+            :large => '--version',
+            :description => 'Show version and copyright information'
         }
     ]
 
+    # CmdParser class to handle command line arguments and options
     class CmdParser
+
         attr_reader :options, :args
 
-        def initialize(args=[], &block)
-            @available_options = Array.new
-            @commands = Hash.new
-            @command_list = Array.new
-            @formats = Hash.new
+        def initialize(args = [], &block)
+            @available_options = []
+            @commands = {}
+            @command_list = []
+            @formats = {}
 
             @main = nil
 
             @exit_code = nil
 
             @args = args
-            @options = Hash.new
+            @options = {}
 
             @before_proc=nil
             @comm_name=nil
@@ -73,22 +82,24 @@ module CommandParser
 
             instance_eval(&block)
 
-            addons = Dir["#{OpenNebulaHelper::CLI_ADDONS_LOCATION}/#{File.basename($0)}/*"]
-            if defined?(addons) and !addons.nil?
-                    addons.each do |addon_path|
-                        addon_code = File.read(addon_path)
-                        instance_eval(addon_code)
-                    end
+            addons = Dir["#{OpenNebulaHelper::CLI_ADDONS_LOCATION}/#{File.basename($PROGRAM_NAME)}/*"]
+            if defined?(addons) && !addons.nil?
+                addons.each do |addon_path|
+                    addon_code = File.read(addon_path)
+                    instance_eval(addon_code)
+                end
             end
 
-            self.run
+            run
         end
 
         # Defines the usage information of the command
         # @param [String] str
         def usage(str)
             @usage = str
+            # rubocop:disable Naming/MemoizedInstanceVariableName
             @name ||= @usage.split(' ').first
+            # rubocop:enable Naming/MemoizedInstanceVariableName
         end
 
         # Defines the version the command
@@ -180,7 +191,7 @@ module CommandParser
         #
         def option(options)
             if options.instance_of?(Array)
-                options.each { |o| @available_options << o }
+                options.each {|o| @available_options << o }
             elsif options.instance_of?(Hash)
                 @available_options << options
             end
@@ -192,7 +203,7 @@ module CommandParser
             @exit_code = code
         end
 
-        def exit_with_code(code, output=nil)
+        def exit_with_code(code, output = nil)
             puts output if output
             exit code
         end
@@ -281,16 +292,16 @@ module CommandParser
         #   end
         #
         def command(name, desc, *args_format, &block)
-            if name.is_a? (Array)
-                name = name.join(" ").to_sym
+            if name.is_a?(Array)
+                name = name.join(' ').to_sym
             end
 
-            cmd = Hash.new
+            cmd = {}
             cmd[:desc] = desc
             cmd[:arity] = 0
             cmd[:options] = []
-            cmd[:args_format] = Array.new
-            args_format.each {|args|
+            cmd[:args_format] = []
+            args_format.each do |args|
                 if args.instance_of?(Array)
                     cmd[:arity]+=1 unless args.include?(nil)
                     cmd[:args_format] << args
@@ -305,14 +316,14 @@ module CommandParser
                     cmd[:arity]+=1
                     cmd[:args_format] << [args]
                 end
-            }
+            end
             cmd[:proc] = block
             @command_list << name.to_sym
             @commands[name.to_sym] = cmd
         end
 
         def deprecated_command(name, new_command)
-            cmd = @commands[name.to_sym] || Hash.new
+            cmd = @commands[name.to_sym] || {}
             cmd[:desc] += "\nDeprecated, use #{new_command} instead"
             cmd[:deprecated] = new_command
 
@@ -399,10 +410,10 @@ module CommandParser
         #   end
         #
         def main(*args_format, &block)
-            @main=Hash.new
+            @main={}
             @main[:arity] = 0
-            @main[:args_format] = Array.new
-            args_format.collect {|args|
+            @main[:args_format] = []
+            args_format.collect do |args|
                 if args.instance_of?(Array)
                     @main[:arity]+=1 unless args.include?(nil)
                     @main[:args_format] << args
@@ -412,7 +423,7 @@ module CommandParser
                     @main[:arity]+=1
                     @main[:args_format] << [args]
                 end
-            }
+            end
 
             @main[:proc] = block
         end
@@ -427,26 +438,23 @@ module CommandParser
             end
         end
 
-
         def run
-            comm_name=""
+            comm_name=''
 
             if @main
                 comm_name = @name
                 comm      = @main
-            elsif
-                if @args[0] && !@args[0].match(/^-/)
-                    while comm.nil? and @args.size > 0 do
-                        current = @args.shift
+            elsif @args[0] && !@args[0].match(/^-/)
+                while comm.nil? && !@args.empty?
+                    current = @args.shift
 
-                        if comm_name.empty?
-                            @comm_name = comm_name = "#{current}".to_sym
-                        else
-                            @comm_name = comm_name = "#{comm_name} #{current}".to_sym
-                        end
-
-                        comm      = @commands[comm_name]
+                    if comm_name.empty?
+                        (@comm_name = (comm_name = current.to_s.to_sym))
+                    else
+                        (@comm_name = (comm_name = "#{comm_name} #{current}".to_sym))
                     end
+
+                    comm = @commands[comm_name]
                 end
             end
 
@@ -494,7 +502,7 @@ module CommandParser
         private
 
         def parse(extra_options)
-            with_proc=Array.new
+            with_proc=[]
 
             @cmdparse=OptionParser.new do |opts|
                 merge = @available_options
@@ -512,10 +520,10 @@ module CommandParser
                         if e[:proc] && !e[:multiple]
                             @options[e[:name].to_sym]=o
                             with_proc<<e
-                        elsif e[:name]=="help"
+                        elsif e[:name]=='help'
                             print_help
                             exit 0
-                        elsif e[:name]=="version"
+                        elsif e[:name]=='version'
                             puts @version
                             exit 0
                         elsif !e[:multiple]
@@ -533,20 +541,20 @@ module CommandParser
 
             begin
                 @cmdparse.parse!(@args)
-            rescue => e
+            rescue StandardError => e
                 STDERR.puts e.message
-                exit -1
+                exit(-1)
             end
 
-            with_proc.each do |e|
-                rc = e[:proc].call(@options[e[:name].to_sym], @options)
+            with_proc.each do |proc_opt|
+                rc = proc_opt[:proc].call(@options[proc_opt[:name].to_sym], @options)
                 if rc.instance_of?(Array)
                     if rc[0] == 0
-                        @options[e[:name].to_sym] = rc[1]
+                        @options[proc_opt[:name].to_sym] = rc[1]
                     else
                         STDERR.puts rc[1]
-                        STDERR.puts "option #{e[:name]}: Parsing error"
-                        exit -1
+                        STDERR.puts "option #{proc_opt[:name]}: Parsing error"
+                        exit(-1)
                     end
                 end
             end
@@ -558,37 +566,37 @@ module CommandParser
                 if arity>1
                     STDERR.puts "#{args_format.length} parameters to run."
                 else
-                    STDERR.puts "one parameter to run"
+                    STDERR.puts 'one parameter to run'
                 end
 
                 print_command_help(name)
 
-                exit -1
+                exit(-1)
             else
                 id=0
-                @args.collect!{|arg|
-                    unless format=args_format[id]
-                        args_str=args_format.collect{ |a|
+                @args.collect! do |arg|
+                    unless args_format[id]
+                        args_str=args_format.collect do |a|
                             if a.include?(nil)
-                                "[#{a.compact.join("|")}]"
+                                "[#{a.compact.join('|')}]"
                             else
-                                "<#{a.join("|")}>"
+                                "<#{a.join('|')}>"
                             end
-                        }.join(' ')
+                        end.join(' ')
 
-                        STDERR.puts "Wrong number of arguments"
+                        STDERR.puts 'Wrong number of arguments'
                         if args_str.empty?
-                            STDERR.puts "No argument is required"
+                            STDERR.puts 'No argument is required'
                         else
                             STDERR.puts "The arguments should be: #{args_str}"
                         end
-                        exit -1
+                        exit(-1)
                     end
 
                     format = args_format[id]
                     argument = nil
                     error_msg = nil
-                    format.each { |f|
+                    format.each do |f|
                         if @formats[f]
                             format_hash = @formats[f]
                         elsif f.nil?
@@ -606,20 +614,21 @@ module CommandParser
                             error_msg=rc[1]
                             next
                         end
-                    }
+                    end
 
                     unless argument
                         if error_msg
                             STDERR.puts error_msg
                         else
-                            STDERR.puts "command #{name}: argument #{id} must be one of #{format.join(', ')}"
+                            STDERR.puts "command #{name}: argument #{id} must " \
+                                        "be one of #{format.join(', ')}"
                         end
-                        exit -1
+                        exit(-1)
                     end
 
                     id+=1
                     argument
-                }
+                end
             end
         end
 
@@ -637,7 +646,7 @@ module CommandParser
 
         def print_all_commands_help
             if @usage
-                puts "## SYNOPSIS"
+                puts '## SYNOPSIS'
                 puts
                 puts @usage
                 puts
@@ -651,7 +660,7 @@ module CommandParser
             print_formatters
             puts
             if @version
-                puts "## VERSION"
+                puts '## VERSION'
                 puts @version
             end
         end
@@ -664,11 +673,11 @@ module CommandParser
                 return print_all_commands_help
             end
 
-            puts "## USAGE"
+            puts '## USAGE'
             print "#{name} "
             print_command(@commands[name])
 
-            puts "## OPTIONS"
+            puts '## OPTIONS'
             command[:options].flatten.each do |o|
                 print_option(o)
             end
@@ -679,7 +688,7 @@ module CommandParser
         end
 
         def print_options
-            puts "## OPTIONS"
+            puts '## OPTIONS'
 
             shown_opts = []
             options    = []
@@ -709,27 +718,27 @@ module CommandParser
         def print_option(o)
             opt_format = "#{' '*5}%-25s"
 
-            str = ""
+            str = ''
             str << o[:short].split(' ').first << ', ' if o[:short]
             str << o[:large]
 
-            params=sprintf(opt_format, str)
+            params = Kernel.format(opt_format, str)
 
             first_line=80-params.length
 
-            description=word_wrap(80-32, o[:description], first_line).
-                join(("\n"+" "*31))
+            description=word_wrap(80-32, o[:description], first_line)
+                        .join("\n"+' '*31)
 
             puts "#{params} #{description}"
         end
 
         def print_commands
-            cmd_format5 =  "#{' '*3}%s"
+            cmd_format5 = "#{' '*3}%s"
 
             if @main
                 print_command(@main)
             else
-                puts "## COMMANDS"
+                puts '## COMMANDS'
 
                 @command_list.sort! if @command_list
 
@@ -743,27 +752,27 @@ module CommandParser
         end
 
         def print_command(command)
-            cmd_format10 =  "#{' '*8}%s"
+            cmd_format10 = "#{' '*8}%s"
 
-            args_str=command[:args_format].collect{ |a|
+            args_str=command[:args_format].collect do |a|
                 if a.include?(nil)
-                    "[<#{a.compact.join("|")}>]"
+                    "[<#{a.compact.join('|')}>]"
                 else
-                    "<#{a.join("|")}>"
+                    "<#{a.join('|')}>"
                 end
-            }.join(' ')
-            printf "#{args_str}"
+            end.join(' ')
+            printf args_str.to_s
             puts
 
-            command[:desc].split("\n").each { |l|
+            command[:desc].split("\n").each do |l|
                 printf cmd_format10, l
                 puts
-            } if command[:desc]
+            end if command[:desc]
 
             if command[:options] && !command[:options].empty?
-                opts_str=command[:options].flatten.collect{|o|
+                opts_str=command[:options].flatten.collect do |o|
                     o[:name]
-                }.join(', ')
+                end.join(', ')
                 printf cmd_format10, "valid options: #{opts_str}"
                 puts
             end
@@ -771,34 +780,34 @@ module CommandParser
         end
 
         def print_formatters
-            puts "## ARGUMENT FORMATS"
+            puts '## ARGUMENT FORMATS'
 
-            cmd_format5 =  "#{' '*3}%s"
-            cmd_format10 =  "#{' '*8}%s"
+            cmd_format5 = "#{' '*3}%s"
+            cmd_format10 = "#{' '*8}%s"
 
             @formats = @formats.sort_by {|key, _| key } if @formats
 
-            @formats.each{ |key,value|
+            @formats.each do |key, value|
                 printf cmd_format5, "* #{key}"
                 puts
 
-                value[:desc].split("\n").each { |l|
+                value[:desc].split("\n").each do |l|
                     printf cmd_format10, l
                     puts
-                }
+                end
 
                 puts
-            }
+            end
         end
 
         def print_deprecated(new_command)
-            puts "This command is deprecated, use instead:"
-            puts "  $ #{File.basename $0} #{new_command}"
+            puts 'This command is deprecated, use instead:'
+            puts "  $ #{File.basename $PROGRAM_NAME} #{new_command}"
         end
 
-        def word_wrap(size, text, first_size=nil)
+        def word_wrap(size, text, first_size = nil)
             output=[]
-            line=""
+            line=''
             if first_size
                 line_size=first_size
             else
@@ -824,39 +833,39 @@ module CommandParser
         # Default Formatters for arguments
         ########################################################################
         def format_text(arg)
-            arg.instance_of?(String) ? [0,arg] : [-1]
+            arg.instance_of?(String) ? [0, arg] : [-1]
         end
 
         def format_int(arg)
-            arg.match(/^\d+$/) ? [0,arg] : [-1, "Argument '#{arg}' is not a valid ID"]
+            arg.match(/^\d+$/) ? [0, arg] : [-1, "Argument '#{arg}' is not a valid ID"]
         end
 
         def format_file(arg)
-            File.file?(arg) ? [0,arg] : [-1]
+            File.file?(arg) ? [0, arg] : [-1]
         end
 
         REG_RANGE=/^(?:(?:\d+\.\.\d+|\d+),)*(?:\d+\.\.\d+|\d+)$/
 
         def format_range(arg)
-            arg_s = arg.gsub(" ","").to_s
+            arg_s = arg.gsub(' ', '').to_s
             return [-1] unless arg_s.match(REG_RANGE)
 
-            ids = Array.new
-            arg_s.split(',').each { |e|
+            ids = []
+            arg_s.split(',').each do |e|
                 if e.match(/^\d+$/)
                     ids << e.to_i
-                elsif m = e.match(/^(\d+)\.\.(\d+)$/)
+                elsif (m = e.match(/^(\d+)\.\.(\d+)$/))
                     ids += (m[1].to_i..m[2].to_i).to_a
                 else
                     return [-1]
                 end
-            }
+            end
 
-            return 0,ids.uniq
+            return 0, ids.uniq
         end
 
         def define_default_formats
-            format :file, "Path to a file" do |arg|
+            format :file, 'Path to a file' do |arg|
                 format_file(arg)
             end
 
@@ -864,11 +873,11 @@ module CommandParser
                 format_range(arg)
             end
 
-            format :text, "String" do |arg|
+            format :text, 'String' do |arg|
                 format_text(arg)
             end
         end
+
     end
+
 end
-
-

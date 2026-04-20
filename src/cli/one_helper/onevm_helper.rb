@@ -644,9 +644,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
         end
 
-        # rubocop:disable Style/SpecialGlobalVars
-        $?.exitstatus
-        # rubocop:enable Style/SpecialGlobalVars
+        $CHILD_STATUS.exitstatus
     end
 
     def get_backup_mode(vm_id)
