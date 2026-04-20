@@ -36,21 +36,26 @@ const getTabManifest = async () => {
       throw new Error(`Configuration file not found: ${tabManifestConfigPath}`)
     }
 
-    const yamlExtNames = ['.yaml', '.yml']
-    const overlayFiles = (
-      await fs.readdir(tabManifestConfigDirectory, {
-        encoding: 'utf8',
-        withFileTypes: true,
-        recursive: true,
-      })
-    )
-      ?.filter(
-        (file) =>
-          file.isFile() &&
-          yamlExtNames.includes(path.extname(file.name).toLowerCase())
+    let overlayFiles = []
+    try {
+      const yamlExtNames = ['.yaml', '.yml']
+      overlayFiles = (
+        await fs.readdir(tabManifestConfigDirectory, {
+          encoding: 'utf8',
+          withFileTypes: true,
+          recursive: true,
+        })
       )
-      ?.map((file) => path.join(file.path, file.name))
-      ?.sort()
+        ?.filter(
+          (file) =>
+            file.isFile() &&
+            yamlExtNames.includes(path.extname(file.name).toLowerCase())
+        )
+        ?.map((file) => path.join(file.path, file.name))
+        ?.sort()
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err
+    }
 
     const manifest = (
       await Promise.all(
