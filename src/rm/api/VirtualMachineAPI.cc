@@ -21,10 +21,92 @@
 #include "HostPool.h"
 #include "ImagePool.h"
 #include "ScheduledActionPool.h"
+#include "VirtualNetworkPool.h"
 #include "DispatchManager.h"
 #include "VirtualMachineManager.h"
+#include "ScopeGuard.h"
+#include <functional>
 
 using namespace std;
+
+/**
+ * Helper class for deploy rollbacks
+ */
+struct VirtualMachineAPI::DeployGuard
+{
+    DeployGuard(VirtualMachineTemplate& _tmpl,
+                RequestAttributes&      _att_quota,
+                std::unique_ptr<VirtualMachine>& _vm,
+                VirtualMachineTemplate& _quota_tmpl_running,
+                VirtualMachineTemplate& _quota_tmpl,
+                int _old_cid,
+                int _cluster_id,
+                PoolObjectAuth& _vm_perms)
+        : tmpl(_tmpl)
+        , att_quota(_att_quota)
+        , vm(_vm)
+        , quota_tmpl_running(_quota_tmpl_running)
+        , quota_tmpl(_quota_tmpl)
+        , old_cid(_old_cid)
+        , cluster_id(_cluster_id)
+        , vm_perms(_vm_perms)
+    {
+    }
+
+    void operator()()
+    {
+        if (revert_network_quota)
+        {
+            SharedAPI::quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+        }
+
+        if (revert_network_lease)
+        {
+            VirtualMachineAPI::release_auto_networks(vm.get(), tmpl);
+        }
+
+        if (revert_running_quota)
+        {
+            SharedAPI::quota_rollback(&quota_tmpl_running, Quotas::VM, att_quota);
+        }
+
+        if (revert_cluster_quota)
+        {
+            SharedAPI::quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
+        }
+        else if (revert_cluster_transfer)
+        {
+            // Remove resources back to old cluster
+            quota_tmpl.replace("CLUSTER_ID", old_cid);
+            Quotas::vm_add(vm_perms.uid, vm_perms.gid, &quota_tmpl);
+
+            // Remove resources from new cluster
+            quota_tmpl.replace("CLUSTER_ID", cluster_id);
+            SharedAPI::quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
+        }
+    }
+
+    bool revert_network_quota = false;
+    bool revert_network_lease = false;
+    bool revert_running_quota = false;
+    bool revert_cluster_quota = false;
+
+    bool revert_cluster_transfer = false;
+
+private:
+    VirtualMachineTemplate& tmpl;
+    RequestAttributes&      att_quota;
+
+    std::unique_ptr<VirtualMachine>& vm;
+
+    VirtualMachineTemplate& quota_tmpl_running;
+    VirtualMachineTemplate& quota_tmpl;
+
+    int old_cid;
+    int cluster_id;
+
+    PoolObjectAuth& vm_perms;
+};
 
 /* -------------------------------------------------------------------------- */
 /* Static methods                                                             */
@@ -478,6 +560,17 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
         ec = vm_authorization(vid, 0, 0, att, &host_perms, auth_ds_perms, 0);
     }
 
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
+    std::unique_ptr<VirtualMachine> vm;
+
+    DeployGuard deploy_guard(tmpl, att_quota, vm, quota_tmpl_running, quota_tmpl,
+                             old_cid, cluster_id, vm_perms);
+
+    deploy_guard.revert_network_quota = check_nic_auto;
+
+    one_util::ScopeGuard scope_guard(std::ref(deploy_guard));
+
     if (ec != Request::SUCCESS)
     {
         return ec;
@@ -488,7 +581,7 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
     // - VM States are right
     // - Host capacity if required
     // ------------------------------------------------------------------------
-    auto vm = vmpool->get(vid);
+    vm = vmpool->get(vid);
 
     if ( !vm )
     {
@@ -517,6 +610,8 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
         return Request::ACTION;
     }
 
+    deploy_guard.revert_network_lease = check_nic_auto;
+
     if ( vm->check_tm_mad_disks(tm_mad, att.resp_msg) != 0)
     {
         return Request::ACTION;
@@ -532,8 +627,6 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
         return Request::ACTION;
     }
 
-    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
-
     bool do_running_quota = vm->get_state() == VirtualMachine::STOPPED ||
                             vm->get_state() == VirtualMachine::UNDEPLOYED;
 
@@ -548,6 +641,8 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
 
             return Request::AUTHORIZATION;
         }
+
+        deploy_guard.revert_running_quota = true;
     }
 
     // Cluster quotas
@@ -561,13 +656,10 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
         {
             att.resp_msg = att_quota.resp_msg;
 
-            if (do_running_quota)
-            {
-                quota_rollback(&quota_tmpl_running, Quotas::VM, att_quota);
-            }
-
             return Request::AUTHORIZATION;
         }
+
+        deploy_guard.revert_cluster_quota = true;
     }
     else if (old_cid != cluster_id)
     {
@@ -576,17 +668,14 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
         {
             att.resp_msg = att_quota.resp_msg;
 
-            if (do_running_quota)
-            {
-                quota_rollback(&quota_tmpl_running, Quotas::VM, att_quota);
-            }
-
             return Request::AUTHORIZATION;
         }
 
         // Remove resources from old cluster
         quota_tmpl.replace("CLUSTER_ID", old_cid);
         Quotas::vm_del(vm_perms.uid, vm_perms.gid, &quota_tmpl);
+
+        deploy_guard.revert_cluster_transfer = true;
     }
 
     // ------------------------------------------------------------------------
@@ -598,26 +687,6 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
 
     if (set_vnc_port(vm.get(), cluster_id, att) != 0)
     {
-        if (do_running_quota)
-        {
-            quota_rollback(&quota_tmpl_running, Quotas::VM, att_quota);
-        }
-
-        if (old_cid == -1)
-        {
-            quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
-        }
-        else if (old_cid != cluster_id)
-        {
-            // Remove resources back to old cluster
-            quota_tmpl.replace("CLUSTER_ID", old_cid);
-            Quotas::vm_add(vm_perms.uid, vm_perms.gid, &quota_tmpl);
-
-            // Remove resources from new cluster
-            quota_tmpl.replace("CLUSTER_ID", cluster_id);
-            quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
-        }
-
         return Request::ACTION;
     }
 
@@ -633,8 +702,12 @@ Request::ErrorCode VirtualMachineAPI::deploy(int vid,
                     ds_id,
                     att) != 0)
     {
+        vm->release_vnc_port();
+
         return Request::INTERNAL;
     }
+
+    scope_guard.release(); // Success! Disarm the guard.
 
     // ------------------------------------------------------------------------
     // deploy the VM (unlocks the vm object)
@@ -4249,6 +4322,58 @@ int VirtualMachineAPI::add_history(VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineAPI::release_auto_networks(VirtualMachine* vm, VirtualMachineTemplate& tmpl)
+{
+    if (!vm)
+    {
+        return;
+    }
+
+    vector<VectorAttribute *> nics;
+    tmpl.get("NIC", nics);
+
+    int vid = vm->get_oid();
+    auto vnpool = Nebula::instance().get_vnpool();
+
+    for (auto nic : nics)
+    {
+        const string& mode = nic->vector_value("NETWORK_MODE");
+
+        int net_id = -1;
+        if (one_util::icasecmp(mode, "AUTO") && nic->vector_value("NETWORK_ID", net_id) == 0 && net_id >= 0)
+        {
+            if (auto vnet = vnpool->get(net_id))
+            {
+                int nic_id = 0;
+                nic->vector_value("NIC_ID", nic_id);
+
+                auto vm_nic = vm->get_nic(nic_id);
+
+                if (!vm_nic)
+                {
+                    continue;
+                }
+
+                int ar_id;
+
+                if (nic->vector_value("AR_ID", ar_id) == 0)
+                {
+                    vnet->free_addr(ar_id, PoolObjectSQL::VM, vid, vm_nic);
+                }
+                else
+                {
+                    vnet->free_addr(PoolObjectSQL::VM, vid, vm_nic);
+                }
+
+                vnpool->update(vnet.get());
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 Request::ErrorCode VirtualMachineAllocateAPI::allocate(const std::string& str_tmpl,
                                                        bool hold,
                                                        int& oid,
@@ -4457,4 +4582,3 @@ Request::ErrorCode VirtualMachineAllocateAPI::allocate_authorization(Template *t
 
     return ds_quota_auth ? Request::SUCCESS : Request::AUTHORIZATION;
 }
-

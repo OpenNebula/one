@@ -286,6 +286,10 @@ protected:
                     int                ds_id,
                     RequestAttributes& att);
 
+    static void release_auto_networks(VirtualMachine* vm, VirtualMachineTemplate& tmpl);
+
+    struct DeployGuard;
+
     VirtualMachinePool* vmpool;
 };
 
