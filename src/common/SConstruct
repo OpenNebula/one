@@ -26,6 +26,7 @@ source_files=[
     'ExtendedAttribute.cc',
     'NebulaService.cc',
     'NebulaUtil.cc',
+    'ScopeGuard.cc',
     'SSLUtil.cc'
 ]
 
