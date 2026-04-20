@@ -20,18 +20,20 @@ require 'io/console'
 require 'time'
 require 'io/wait'
 require 'logger'
+require 'English'
 
 begin
     require 'opennebula/version'
     require 'opennebula/lib/client'
     require 'opennebula/pool'
-rescue Exception => e
-    puts 'Error: '+e.message.to_s
+rescue StandardError => e
+    puts 'Error: ' + e.message.to_s
     exit(-1)
 end
 
 include OpenNebula
 
+# OpenNebulaHelper module provides common methods for CLI helpers
 module OpenNebulaHelper
 
     ONE_VERSION=<<~EOT
@@ -175,7 +177,7 @@ Bash symbols must be escaped on STDIN passing'
         {
             :name   => 'grpc',
             :large  => '--grpc',
-            :description => 'Use gRPC protocol to connect to OpenNebula',
+            :description => 'Use gRPC protocol to connect to OpenNebula'
         }
     ]
 
@@ -431,7 +433,7 @@ Bash symbols must be escaped on STDIN passing'
                 options[:user_inputs_keys] = keys
 
                 options[:user_inputs] = keys.zip(values).map do |k, v|
-                    %[#{k}="#{v}"]
+                    %(#{k}="#{v}")
                 end.join("\n")
             end
         },
@@ -591,6 +593,8 @@ Bash symbols must be escaped on STDIN passing'
 
     BACKUP_MODES = ['FULL', 'INCREMENT']
 
+    # rubocop:disable Style/ClassVars
+    # Base class for all OpenNebula CLI helper classes
     class OneHelper
 
         attr_accessor :client
@@ -642,6 +646,7 @@ Bash symbols must be escaped on STDIN passing'
             end
         end
 
+        # rubocop:disable Naming/AccessorMethodName
         def self.set_user(user)
             @@user=user
         end
@@ -680,6 +685,8 @@ Bash symbols must be escaped on STDIN passing'
                 end
             end
         end
+        # rubocop:enable Naming/AccessorMethodName
+        # rubocop:enable Style/ClassVars
 
         def self.list_layout_help
             "The default columns and their layout can be configured in #{conf_file}"
@@ -805,12 +812,11 @@ Bash symbols must be escaped on STDIN passing'
         # output
         #-----------------------------------------------------------------------
         def list_pool_table(table, pool, options, _filter_flag)
-            if $stdout.isatty and (!options.key? :no_pager)
+            if $stdout.isatty && (!options.key? :no_pager)
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
                 rc = pool.get_page(size, 0, false, options[:state])
-                ps = ''
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
 
@@ -868,8 +874,8 @@ Bash symbols must be escaped on STDIN passing'
 
                 if options[:ids] && elements
                     hash = [hash[pool.pool_name][pool.element_name]].flatten
-                    hash.reject! do |element|
-                        !options[:ids].include?(element['ID'].to_i)
+                    hash.select! do |element|
+                        options[:ids].include?(element['ID'].to_i)
                     end
                 end
 
@@ -885,12 +891,11 @@ Bash symbols must be escaped on STDIN passing'
         def list_pool_xml(pool, options, _filter_flag)
             extended = options.include?(:extended) && options[:extended]
 
-            if $stdout.isatty and (!options.key? :no_pager)
+            if $stdout.isatty && (!options.key? :no_pager)
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
                 rc = pool.get_page(size, 0, extended, options[:state])
-                ps = ''
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
 
@@ -966,12 +971,11 @@ Bash symbols must be escaped on STDIN passing'
         def list_pool_format(pool, options, _filter_flag)
             extended = options.include?(:extended) && options[:extended]
 
-            if $stdout.isatty and (!options.key? :no_pager)
+            if $stdout.isatty && (!options.key? :no_pager)
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
                 rc = pool.get_page(size, 0, extended, options[:state])
-                ps = ''
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
 
@@ -1067,27 +1071,24 @@ Bash symbols must be escaped on STDIN passing'
 
             pool  = factory_pool(filter_flag)
             pname = pool.pool_name
-            ename = pool.element_name
 
             if top
                 return list_pool_top(table, pool, options)
             elsif options[:xml]
                 return list_pool_xml(pool, options, filter_flag)
             elsif options[:json]
-                return list_pool_format(pool, options, filter_flag) do |pool|
-                    hash = check_resource_xsd(pool, pname)
+                return list_pool_format(pool, options, filter_flag) do |p|
+                    hash = check_resource_xsd(p, pname)
                     puts ::JSON.pretty_generate(hash)
                 end
             elsif options[:yaml]
-                return list_pool_format(pool, options, filter_flag) do |pool|
-                    hash = check_resource_xsd(pool, pname)
+                return list_pool_format(pool, options, filter_flag) do |p|
+                    hash = check_resource_xsd(p, pname)
                     puts hash.to_yaml(:indent => 4)
                 end
             else
                 return list_pool_table(table, pool, options, filter_flag)
             end
-
-            0
         rescue SystemExit, Interrupt
             # Rescue ctrl + c when paginated
             0
@@ -1241,14 +1242,14 @@ Bash symbols must be escaped on STDIN passing'
         end
 
         def self.name_to_id(name, pool, ename)
-            if ename=='CLUSTER' and name.upcase=='ALL'
+            if ename == 'CLUSTER' && name.upcase == 'ALL'
                 return 0, 'ALL'
             end
 
-            objects=pool.select {|object| object.name==name }
+            objects = pool.select {|object| object.name == name }
 
-            return -1, "#{ename} named #{name} not found." unless objects.length>0
-            return -1, "There are multiple #{ename}s with name #{name}." if objects.length>1
+            return -1, "#{ename} named #{name} not found." if objects.empty?
+            return -1, "There are multiple #{ename}s with name #{name}." if objects.length > 1
 
             result = objects.first.id
 
@@ -1277,7 +1278,7 @@ Bash symbols must be escaped on STDIN passing'
         end
 
         def self.filterflag_to_i_desc
-            desc=<<~EOT
+            <<~EOT
                 a, all            all the known #{rname}s
                 m, mine           the #{rname} belonging to the user in ONE_AUTH
                 g, group          'mine' plus the #{rname} belonging to the groups
@@ -1289,7 +1290,7 @@ Bash symbols must be escaped on STDIN passing'
         end
 
         def self.table_conf(conf_file = self.conf_file)
-            path = "#{ENV['HOME']}/.one/cli/#{conf_file}"
+            path = "#{Dir.home}/.one/cli/#{conf_file}"
 
             if File.exist?(path)
                 path
@@ -1314,11 +1315,11 @@ Bash symbols must be escaped on STDIN passing'
             rname = self.class.rname
 
             if phash["#{rname}_POOL"] &&
-                    phash["#{rname}_POOL"]["#{rname}"]
-                if phash["#{rname}_POOL"]["#{rname}"].instance_of?(Array)
-                    phash = phash["#{rname}_POOL"]["#{rname}"]
+                    phash["#{rname}_POOL"][rname]
+                if phash["#{rname}_POOL"][rname].instance_of?(Array)
+                    phash = phash["#{rname}_POOL"][rname]
                 else
-                    phash = [phash["#{rname}_POOL"]["#{rname}"]]
+                    phash = [phash["#{rname}_POOL"][rname]]
                 end
             else
                 phash = []
@@ -1327,7 +1328,9 @@ Bash symbols must be escaped on STDIN passing'
             phash
         end
 
+        # rubocop:disable Naming/AccessorMethodName
         def get_pool
+            # rubocop:enable Naming/AccessorMethodName
             user_flag = OpenNebula::Pool::INFO_ALL
             pool = factory_pool(user_flag)
 
@@ -1377,7 +1380,9 @@ Bash symbols must be escaped on STDIN passing'
                 xsd = xsd['element']
             end
 
+            # rubocop:disable Style/ArrayCoercion
             xsd = [xsd] unless xsd.is_a? Array
+            # rubocop:enable Style/ArrayCoercion
 
             check_xsd(hash[ename], xsd)
 
@@ -1483,7 +1488,7 @@ Bash symbols must be escaped on STDIN passing'
         # @param xsd      [Hash]   XSD of the resource, transformed into hash
         #
         def check_xsd(hash, xsd)
-            return unless hash or hash.empty?
+            return unless hash || hash.empty?
 
             hash.each do |k, v|
                 # find the elem definition in xsd array
@@ -1615,7 +1620,6 @@ Bash symbols must be escaped on STDIN passing'
 
     def self.time_to_str(time, print_seconds = true,
                          print_hours = true, print_years = false)
-
         value = time.to_i
 
         if value==0
@@ -1654,9 +1658,11 @@ Bash symbols must be escaped on STDIN passing'
         days, hours=hours.divmod(24)
 
         if print_seconds
-            format('%3dd %02dh%02dm%02ds', days, hours, minutes, seconds)
+            format('%<days>3dd %<hours>02dh%<minutes>02dm%<seconds>02ds',
+                   :days => days, :hours => hours, :minutes => minutes, :seconds => seconds)
         else
-            format('%3dd %02dh%02dm', days, hours, minutes)
+            format('%<days>3dd %<hours>02dh%<minutes>02dm',
+                   :days => days, :hours => hours, :minutes => minutes)
         end
     end
 
@@ -1666,35 +1672,36 @@ Bash symbols must be escaped on STDIN passing'
         hours, minutes=minutes.divmod(60)
 
         if print_seconds
-            format('%3dh%02dm%02ds', hours, minutes, seconds)
+            format('%<hours>3dh%<minutes>02dm%<seconds>02ds',
+                   :hours => hours, :minutes => minutes, :seconds => seconds)
         else
-            format('%3dh%02dm', hours, minutes)
+            format('%<hours>3dh%<minutes>02dm', :hours => hours, :minutes => minutes)
         end
     end
 
-    BinarySufix = ['K', 'M', 'G', 'T']
+    BINARY_SUFFIX = ['K', 'M', 'G', 'T']
 
     def self.unit_to_str(value, options, unit = 'K')
         if options[:kilobytes]
             value
         else
-            i=BinarySufix.index(unit).to_i
+            i = BINARY_SUFFIX.index(unit).to_i
 
             while value > 1024 && i < 3
                 value /= 1024.0
-                i+=1
+                i += 1
             end
 
             value = (value * 10).round / 10.0
 
             value = value.to_i if value - value.round == 0
-            st = value.to_s + BinarySufix[i]
+            value.to_s + BINARY_SUFFIX[i]
         end
     end
 
     def self.bytes_to_unit(value, unit = 'K')
         j = 0
-        i = BinarySufix.index(unit).to_i
+        i = BINARY_SUFFIX.index(unit).to_i
 
         while j < i
             value /= 1024.0
@@ -1732,10 +1739,12 @@ Bash symbols must be escaped on STDIN passing'
         update_template_helper(true, id, resource, path, xpath)
     end
 
+    # rubocop:disable Metrics/ParameterLists
     def self.update_template_helper(append, _id, resource, path, xpath, update = true)
+        # rubocop:enable Metrics/ParameterLists
         if path
             File.read(path)
-        elsif !(stdin = self.read_stdin).empty?
+        elsif !(stdin = read_stdin).empty?
             stdin
         elsif append
             editor_input
@@ -1803,7 +1812,7 @@ Bash symbols must be escaped on STDIN passing'
         editor_path = ENV['EDITOR'] ? ENV['EDITOR'] : EDITOR_PATH
         system("#{editor_path} #{tmp.path}")
 
-        unless $?.exitstatus == 0
+        unless $CHILD_STATUS.exitstatus == 0
             puts 'Editor not defined'
             exit(-1)
         end
@@ -1889,11 +1898,11 @@ Bash symbols must be escaped on STDIN passing'
         if !(options.keys & context_options).empty?
             if options[:ssh]
                 if options[:ssh]==true
-                    context_hash['SSH_PUBLIC_KEY'] = "$USER[SSH_PUBLIC_KEY]"
+                    context_hash['SSH_PUBLIC_KEY'] = '$USER[SSH_PUBLIC_KEY]'
                 else
                     begin
                         key=File.read(options[:ssh]).strip
-                    rescue Exception => e
+                    rescue StandardError => e
                         STDERR.puts e.message
                         exit(-1)
                     end
@@ -1902,24 +1911,24 @@ Bash symbols must be escaped on STDIN passing'
             end
 
             if options[:net_context]
-                context_hash['NETWORK'] = "YES"
+                context_hash['NETWORK'] = 'YES'
             end
 
             if options[:files_ds]
-                files = options[:files_ds].map { |file| %($FILE[IMAGE=\\"#{file}\\"]) }.join(" ")
+                files = options[:files_ds].map {|file| %($FILE[IMAGE=\\"#{file}\\"]) }.join(' ')
 
                 context_hash['FILES_DS'] = files
             end
 
             if options[:init]
-                context_hash['INIT_SCRIPTS'] = options[:init].join(" ")
+                context_hash['INIT_SCRIPTS'] = options[:init].join(' ')
             end
 
             if options[:startscript]
                 script = nil
                 begin
                     script = File.read(options[:startscript]).strip
-                rescue Exception => e
+                rescue StandardError => e
                     STDERR.puts e.message
                     exit(-1)
                 end
@@ -1929,15 +1938,17 @@ Bash symbols must be escaped on STDIN passing'
             end
 
             if options[:report_ready]
-                context_hash['REPORT_READY'] = "YES"
+                context_hash['REPORT_READY'] = 'YES'
             end
 
             if context_hash.any? || options[:context]
                 formatted_context = "CONTEXT=[\n"
-                formatted_context << options[:context].map {|l| ' ' << l }.join(",\n") if options[:context]
+                formatted_context << options[:context].map {|l|
+                    ' ' << l
+                }.join(",\n") if options[:context]
                 if context_hash.any?
                     formatted_context << ",\n" if options[:context]
-                    formatted_context << context_hash.map { |k, v| "  #{k}=\"#{v}\"" }.join(",\n")
+                    formatted_context << context_hash.map {|k, v| "  #{k}=\"#{v}\"" }.join(",\n")
                 end
                 formatted_context << "\n]\n"
                 formatted_context
@@ -2023,7 +2034,7 @@ Bash symbols must be escaped on STDIN passing'
 
         context_hash = {}
         if !template_obj.nil? && template_obj.has_elements?('TEMPLATE/CONTEXT')
-            context_hash = template_obj.to_hash["VMTEMPLATE"]["TEMPLATE"]["CONTEXT"]
+            context_hash = template_obj.to_hash['VMTEMPLATE']['TEMPLATE']['CONTEXT']
         end
         context_str=create_context_str(options, context_hash)
         template<<context_str if context_str
@@ -2124,15 +2135,16 @@ Bash symbols must be escaped on STDIN passing'
 
     def self.level_lock_to_str(str)
         level = str.to_i
-        if level == 0
+        case level
+        when 0
             'None'
-        elsif level == 1
+        when 1
             'Use'
-        elsif level == 2
+        when 2
             'Manage'
-        elsif level == 3
+        when 3
             'Admin'
-        elsif level == 4
+        when 4
             'All'
         else
             '-'
@@ -2232,13 +2244,15 @@ Bash symbols must be escaped on STDIN passing'
                     exp = OneTemplateHelper::FLOAT_EXP
                 end
 
-                begin
+                loop do
                     print header
                     answer = STDIN.readline.chop
 
                     answer = initial if answer == ''
                     noanswer = (answer == '') && optional
-                end while !noanswer && (answer =~ exp).nil?
+
+                    break if noanswer || !(answer =~ exp).nil?
+                end
 
                 if noanswer
                     next
@@ -2268,15 +2282,17 @@ Bash symbols must be escaped on STDIN passing'
                     header += "Float in the range [#{min}..#{max}]: "
                 end
 
-                begin
+                loop do
                     print header
                     answer = STDIN.readline.chop
 
                     answer = initial if answer == ''
 
                     noanswer = (answer == '') && optional
-                end while !noanswer && ((answer =~ exp).nil? ||
-                          answer.to_f < min || answer.to_f > max)
+
+                    break if noanswer || (!(answer =~ exp).nil? &&
+                              answer.to_f >= min && answer.to_f <= max)
+                end
 
                 if noanswer
                     next
@@ -2293,7 +2309,7 @@ Bash symbols must be escaped on STDIN passing'
 
                 header += 'Please type the selection number: '
 
-                begin
+                loop do
                     print header
                     answer = STDIN.readline.chop
 
@@ -2304,7 +2320,9 @@ Bash symbols must be escaped on STDIN passing'
                     end
 
                     noanswer = (answer == '') && optional
-                end while !noanswer && !options.include?(answer)
+
+                    break if noanswer || options.include?(answer)
+                end
 
                 if noanswer
                     next
@@ -2338,7 +2356,7 @@ Bash symbols must be escaped on STDIN passing'
         # Require gnuplot gem only here
         begin
             require 'gnuplot'
-        rescue LoadError, Gem::LoadError
+        rescue LoadError
             STDERR.puts(
                 'Gnuplot gem is not installed, run `gem install gnuplot` '\
                 'to install it'
@@ -2581,9 +2599,10 @@ Bash symbols must be escaped on STDIN passing'
 
     def self.read_stdin
         if STDIN.wait_readable(0)
-            STDIN.read()
+            STDIN.read
         else
-           ''
+            ''
         end
     end
+
 end

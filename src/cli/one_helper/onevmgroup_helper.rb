@@ -18,69 +18,69 @@ require 'one_helper'
 require 'opennebula/vm_group'
 require 'opennebula/vm_group_pool'
 
+# Helper class for VMGroup commands
 class OneVMGroupHelper < OpenNebulaHelper::OneHelper
+
     def self.rname
-        "VM_GROUP"
+        'VM_GROUP'
     end
 
     def self.conf_file
-        "onevmgroup.yaml"
+        'onevmgroup.yaml'
     end
 
     def format_pool(options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for the VM Group", :size=>4 do |d|
-                d["ID"]
+        CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, 'ONE identifier for the VM Group', :size=>4 do |d|
+                d['ID']
             end
 
-            column :NAME, "Name of the VM Group", :left, :size=>15 do |d|
-                d["NAME"]
+            column :NAME, 'Name of the VM Group', :left, :size=>15 do |d|
+                d['NAME']
             end
 
-            column :USER, "Username of the VM Group owner", :left,
-                    :size=>8 do |d|
+            column :USER, 'Username of the VM Group owner', :left,
+                   :size=>8 do |d|
                 helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the VM Group", :left, :size=>8 do |d|
+            column :GROUP, 'Group of the VM Group', :left, :size=>8 do |d|
                 helper.group_name(d, options)
             end
 
-            column :VMS, "Number of VMs in the VM Group", :left, :size=>4 do |d|
-                vms   = 0
+            column :VMS, 'Number of VMs in the VM Group', :left, :size=>4 do |d|
+                vms = 0
 
-                if !d["ROLES"]["ROLE"].nil?
-	        	roles = [d["ROLES"]["ROLE"]].flatten
-                    roles.each { |r|
-                        vms += r["VMS"].split(',').size if !r["VMS"].nil?
-                    }
+                if !d['ROLES']['ROLE'].nil?
+                    roles = [d['ROLES']['ROLE']].flatten
+                    roles.each do |r|
+                        vms += r['VMS'].split(',').size unless r['VMS'].nil?
+                    end
                 end
 
                 vms
             end
 
-            column :ROLES, "Roles in the VM Group", :left, :size=>36 do |d|
+            column :ROLES, 'Roles in the VM Group', :left, :size=>36 do |d|
                 begin
-                    roles = [d["ROLES"]["ROLE"]].flatten
-                    roles_names = ""
+                    roles = [d['ROLES']['ROLE']].flatten
+                    roles_names = ''
 
                     if !roles.nil?
-                        rnames = roles.collect { |i| i["NAME"] }
-                        roles_names = rnames.join(", ") if !rnames.empty?
+                        rnames = roles.collect {|i| i['NAME'] }
+                        roles_names = rnames.join(', ') unless rnames.empty?
                     end
 
                     roles_names
-                rescue
-                    "-"
+                rescue StandardError
+                    '-'
                 end
             end
 
             default :ID, :USER, :GROUP, :NAME, :VMS, :ROLES
         end
-
-        table
     end
 
     def retrieve_role_id(vmg_id, id)
@@ -100,7 +100,7 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
 
     private
 
-    def factory(id=nil)
+    def factory(id = nil)
         if id
             OpenNebula::VMGroup.new_with_id(id, @client)
         else
@@ -109,84 +109,86 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def factory_pool(user_flag=-2)
+    def factory_pool(user_flag = -2)
         OpenNebula::VMGroupPool.new(@client, user_flag)
     end
 
-    def format_resource(vmgroup, options = {})
-        str="%-15s: %-20s"
-        str_h1="%-80s"
+    def format_resource(vmgroup, _options = {})
+        str='%-15s: %-20s'
+        str_h1='%-80s'
 
         CLIHelper.print_header(
-            str_h1 % "VM GROUP #{vmgroup['ID']} INFORMATION")
-        puts str % ["ID", vmgroup.id.to_s]
-        puts str % ["NAME", vmgroup.name]
-        puts str % ["USER", vmgroup['UNAME']]
-        puts str % ["GROUP", vmgroup['GNAME']]
-        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(vmgroup['LOCK/LOCKED'])]
+            str_h1 % "VM GROUP #{vmgroup['ID']} INFORMATION"
+        )
+        puts format(str, 'ID', vmgroup.id.to_s)
+        puts format(str, 'NAME', vmgroup.name)
+        puts format(str, 'USER', vmgroup['UNAME'])
+        puts format(str, 'GROUP', vmgroup['GNAME'])
+        puts format(str, 'LOCK', OpenNebulaHelper.level_lock_to_str(vmgroup['LOCK/LOCKED']))
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
-
-        puts
-
-        ["OWNER", "GROUP", "OTHER"].each { |e|
-            mask = "---"
-            mask[0] = "u" if vmgroup["PERMISSIONS/#{e}_U"] == "1"
-            mask[1] = "m" if vmgroup["PERMISSIONS/#{e}_M"] == "1"
-            mask[2] = "a" if vmgroup["PERMISSIONS/#{e}_A"] == "1"
-
-            puts str % [e,  mask]
-        }
+        CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
         puts
 
-        CLIHelper.print_header(str_h1 % "ROLES", false)
+        ['OWNER', 'GROUP', 'OTHER'].each do |e|
+            mask = '---'
+            mask[0] = 'u' if vmgroup["PERMISSIONS/#{e}_U"] == '1'
+            mask[1] = 'm' if vmgroup["PERMISSIONS/#{e}_M"] == '1'
+            mask[2] = 'a' if vmgroup["PERMISSIONS/#{e}_A"] == '1'
+
+            puts format(str, e, mask)
+        end
+
+        puts
+
+        CLIHelper.print_header(str_h1 % 'ROLES', false)
 
         if !vmgroup.to_hash['VM_GROUP']['ROLES']['ROLE'].nil?
             roles = [vmgroup.to_hash['VM_GROUP']['ROLES']['ROLE']].flatten
         end
 
         CLIHelper::ShowTable.new(nil, self) do
-            column :ID, "", :left, :size=>4 do |d|
-                d["ID"]
+            column :ID, '', :left, :size=>4 do |d|
+                d['ID']
             end
 
-            column :NAME, "", :left, :size=>8 do |d|
-                d["NAME"]
+            column :NAME, '', :left, :size=>8 do |d|
+                d['NAME']
             end
 
-            column :POLICY, "", :left, :size=>12 do |d|
-                if d["POLICY"].nil?
+            column :POLICY, '', :left, :size=>12 do |d|
+                if d['POLICY'].nil?
                     '-'
                 else
-                    d["POLICY"]
+                    d['POLICY']
                 end
             end
 
-            column :AFFINED_HOSTS, "", :left, :size=>18 do |d|
-                if d["HOST_AFFINED"].nil?
+            column :AFFINED_HOSTS, '', :left, :size=>18 do |d|
+                if d['HOST_AFFINED'].nil?
                     '-'
                 else
-                    d["HOST_AFFINED"]
+                    d['HOST_AFFINED']
                 end
             end
 
-            column :ANTI_AFFINED_HOST, "", :left, :size=>18 do |d|
-                if d["HOST_ANTI_AFFINED"].nil?
+            column :ANTI_AFFINED_HOST, '', :left, :size=>18 do |d|
+                if d['HOST_ANTI_AFFINED'].nil?
                     '-'
                 else
-                    d["HOST_ANTI_AFFINED"]
+                    d['HOST_ANTI_AFFINED']
                 end
             end
 
-            column :VIRTUAL_MACHINES, "", :left, :size=>20 do |d|
-                d["VMS"]
+            column :VIRTUAL_MACHINES, '', :left, :size=>20 do |d|
+                d['VMS']
             end
         end.show(roles, {})
 
         puts
 
-        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
+        CLIHelper.print_header(str_h1 % 'TEMPLATE CONTENTS', false)
         puts vmgroup.template_str
     end
+
 end

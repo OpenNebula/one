@@ -18,56 +18,57 @@ require 'one_helper'
 require 'opennebula/template'
 require 'opennebula/template_pool'
 
+# Helper class for Template commands
 class OneTemplateHelper < OpenNebulaHelper::OneHelper
+
     VM_NAME={
-        :name  => "name",
-        :large => "--name name",
+        :name  => 'name',
+        :large => '--name name',
         :format => String,
-        :description =>  <<-EOT.strip
-Name of the new VM or TEMPLATE. When instantiating
-                               multiple VMs you can use the \"%i\" wildcard to produce
-                               different names such as vm-0, vm-1...
-EOT
+        :description =>  <<~EOT.strip
+            Name of the new VM or TEMPLATE. When instantiating
+                                           multiple VMs you can use the \"%i\" wildcard to produce
+                                           different names such as vm-0, vm-1...
+        EOT
     }
 
     MULTIPLE={
-        :name  => "multiple",
-        :short => "-m x",
-        :large => "--multiple x",
+        :name  => 'multiple',
+        :short => '-m x',
+        :large => '--multiple x',
         :format => Integer,
-        :description => "Instance multiple VMs"
+        :description => 'Instance multiple VMs'
     }
 
     EXTENDED={
-        :name => "extended",
-        :large => "--extended",
-        :description => "Process the template and included extended "+
-                        "information, such as the SIZE for each DISK"
+        :name => 'extended',
+        :large => '--extended',
+        :description => 'Process the template and included extended '+
+                        'information, such as the SIZE for each DISK'
     }
 
     RECURSIVE={
-        :name => "recursive",
-        :short => "-R",
-        :large => "--recursive",
-        :description => "Applies the action to the template plus any "+
-        "image defined in DISK"
+        :name => 'recursive',
+        :short => '-R',
+        :large => '--recursive',
+        :description => 'Applies the action to the template plus any '+
+        'image defined in DISK'
     }
 
     PERSISTENT={
-        :name => "persistent",
-        :large => "--persistent",
-        :description => "Creates a private persistent copy of the template "+
-        "plus any image defined in DISK, and instantiates that copy"
+        :name => 'persistent',
+        :large => '--persistent',
+        :description => 'Creates a private persistent copy of the template '+
+        'plus any image defined in DISK, and instantiates that copy'
     }
 
     def self.rname
-        "VMTEMPLATE"
+        'VMTEMPLATE'
     end
 
     def self.conf_file
-        "onetemplate.yaml"
+        'onetemplate.yaml'
     end
-
 
     def show_resource(id, options)
         resource = retrieve_resource(id)
@@ -102,33 +103,31 @@ EOT
     def format_pool(options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for the Template", :size=>4 do |d|
-                d["ID"]
+        CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, 'ONE identifier for the Template', :size=>4 do |d|
+                d['ID']
             end
 
-            column :NAME, "Name of the Template", :left, :size=>27 do |d|
-                d["NAME"]
+            column :NAME, 'Name of the Template', :left, :size=>27 do |d|
+                d['NAME']
             end
 
-            column :USER, "Username of the Template owner", :left,
-                    :size=>15 do |d|
+            column :USER, 'Username of the Template owner', :left,
+                   :size=>15 do |d|
                 helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the Template", :left, :size=>15 do |d|
+            column :GROUP, 'Group of the Template', :left, :size=>15 do |d|
                 helper.group_name(d, options)
             end
 
-            column :REGTIME, "Registration time of the Template",
-                    :size=>15 do |d|
-                OpenNebulaHelper.time_to_str(d["REGTIME"])
+            column :REGTIME, 'Registration time of the Template',
+                   :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d['REGTIME'])
             end
 
             default :ID, :USER, :GROUP, :NAME, :REGTIME
         end
-
-        table
     end
 
     INT_EXP = /^-?\d+$/
@@ -153,7 +152,7 @@ EOT
             # template. Useful for cpu, mem, vcpu
             if key != template['VMTEMPLATE']['TEMPLATE'][key]
                 answers_s << "#{key} = \""
-                answers_s << val.gsub('"', "\\\"") << "\"\n"
+                answers_s << val.gsub('"', '\"') << "\"\n"
             end
         end
 
@@ -162,7 +161,7 @@ EOT
 
     private
 
-    def factory(id=nil)
+    def factory(id = nil)
         if id
             OpenNebula::Template.new_with_id(id, @client)
         else
@@ -171,38 +170,39 @@ EOT
         end
     end
 
-    def factory_pool(user_flag=-2)
+    def factory_pool(user_flag = -2)
         OpenNebula::TemplatePool.new(@client, user_flag)
     end
 
-    def format_resource(template, options = {})
-        str="%-15s: %-20s"
-        str_h1="%-80s"
+    def format_resource(template, _options = {})
+        str='%-15s: %-20s'
+        str_h1='%-80s'
 
         CLIHelper.print_header(
-            str_h1 % "TEMPLATE #{template['ID']} INFORMATION")
-        puts str % ["ID", template.id.to_s]
-        puts str % ["NAME", template.name]
-        puts str % ["USER", template['UNAME']]
-        puts str % ["GROUP", template['GNAME']]
-        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(template['LOCK/LOCKED'])]
-        puts str % ["REGISTER TIME",
-            OpenNebulaHelper.time_to_str(template['REGTIME'])]
+            str_h1 % "TEMPLATE #{template['ID']} INFORMATION"
+        )
+        puts format(str, 'ID', template.id.to_s)
+        puts format(str, 'NAME', template.name)
+        puts format(str, 'USER', template['UNAME'])
+        puts format(str, 'GROUP', template['GNAME'])
+        puts format(str, 'LOCK', OpenNebulaHelper.level_lock_to_str(template['LOCK/LOCKED']))
+        puts format(str, 'REGISTER TIME', OpenNebulaHelper.time_to_str(template['REGTIME']))
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
-        ["OWNER", "GROUP", "OTHER"].each { |e|
-            mask = "---"
-            mask[0] = "u" if template["PERMISSIONS/#{e}_U"] == "1"
-            mask[1] = "m" if template["PERMISSIONS/#{e}_M"] == "1"
-            mask[2] = "a" if template["PERMISSIONS/#{e}_A"] == "1"
+        ['OWNER', 'GROUP', 'OTHER'].each do |e|
+            mask = '---'
+            mask[0] = 'u' if template["PERMISSIONS/#{e}_U"] == '1'
+            mask[1] = 'm' if template["PERMISSIONS/#{e}_M"] == '1'
+            mask[2] = 'a' if template["PERMISSIONS/#{e}_A"] == '1'
 
-            puts str % [e,  mask]
-        }
+            puts format(str, e, mask)
+        end
         puts
 
-        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
+        CLIHelper.print_header(str_h1 % 'TEMPLATE CONTENTS', false)
         puts template.template_str
     end
+
 end

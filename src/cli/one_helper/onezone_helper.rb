@@ -28,7 +28,7 @@ class Replicator
 
     SSH_OPTIONS = '-o stricthostkeychecking=no -o passwordauthentication=no'
     ONE_AUTH    = '/var/lib/one/.one/one_auth'
-    FED_ATTRS   = %w[MODE ZONE_ID SERVER_ID MASTER_ONED]
+    FED_ATTRS   = ['MODE', 'ZONE_ID', 'SERVER_ID', 'MASTER_ONED']
 
     FILES = [
         { :name    => 'monitord.conf',
@@ -185,14 +185,12 @@ class Replicator
             "/etc/one/#{folder}/"
         )
 
-        unless rc
-            rc = run_command(
-                "rsync -ai\
+        rc ||= run_command(
+            "rsync -ai\
                 -e \"ssh #{SSH_OPTIONS} -i #{@oneadmin_identity_file}\" " \
-                "oneadmin@#{@remote_server}:/etc/one/#{folder}/ " \
-                "/etc/one/#{folder}/"
-            )
-        end
+            "oneadmin@#{@remote_server}:/etc/one/#{folder}/ " \
+            "/etc/one/#{folder}/"
+        )
 
         unless rc
             STDERR.puts 'ERROR'
@@ -361,13 +359,11 @@ class Replicator
         )
 
         # if default users doesn't work, try with oneadmin
-        unless rc
-            rc = run_command(
-                "ssh -i #{@oneadmin_identity_file} " \
-                "#{SSH_OPTIONS} oneadmin@#{@remote_server} " \
-                "#{cmd}"
-            )
-        end
+        rc ||= run_command(
+            "ssh -i #{@oneadmin_identity_file} " \
+            "#{SSH_OPTIONS} oneadmin@#{@remote_server} " \
+            "#{cmd}"
+        )
 
         # if oneadmin doesn't work neither, fail
         unless rc
@@ -390,12 +386,10 @@ class Replicator
         )
 
         # if default users doesn't work, try with oneadmin
-        unless rc
-            rc = run_command(
-                "scp -i #{@oneadmin_identity_file} " \
-                "#{SSH_OPTIONS} oneadmin@#{@remote_server}:#{src} #{dest}"
-            )
-        end
+        rc ||= run_command(
+            "scp -i #{@oneadmin_identity_file} " \
+            "#{SSH_OPTIONS} oneadmin@#{@remote_server}:#{src} #{dest}"
+        )
 
         # if oneadmin doesn't work neither, fail
         unless rc
@@ -438,30 +432,31 @@ class Replicator
 
 end
 
+# Helper class for Zone commands
 class OneZoneHelper < OpenNebulaHelper::OneHelper
 
     SERVER_NAME={
-        :name => "server_name",
-        :short => "-n server_name",
-        :large => "--name",
+        :name => 'server_name',
+        :short => '-n server_name',
+        :large => '--name',
         :format => String,
-        :description => "Zone server name"
+        :description => 'Zone server name'
     }
 
     SERVER_ENDPOINT={
-        :name => "server_rpc",
-        :short => "-r xml-rpc endpoint",
-        :large => "--rpc",
+        :name => 'server_rpc',
+        :short => '-r xml-rpc endpoint',
+        :large => '--rpc',
         :format => String,
-        :description => "Zone server XML-RPC endpoint"
+        :description => 'Zone server XML-RPC endpoint'
     }
 
     SERVER_ENDPOINT_GRPC={
-        :name => "server_grpc",
-        :short => "-g gRPC endpoint",
-        :large => "--grpc-endpoint",
+        :name => 'server_grpc',
+        :short => '-g gRPC endpoint',
+        :large => '--grpc-endpoint',
         :format => String,
-        :description => "Zone server gRPC endpoint"
+        :description => 'Zone server gRPC endpoint'
     }
 
     def show_resource(id, options)
@@ -490,11 +485,11 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
     end
 
     def self.rname
-        "ZONE"
+        'ZONE'
     end
 
     def self.conf_file
-        "onezone.yaml"
+        'onezone.yaml'
     end
 
     def self.state_to_str(id)
@@ -520,29 +515,29 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         [0, ids[0].to_i]
     end
 
-    def format_pool(options)
+    def format_pool(_options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :CURRENT, "Active Zone", :size=>1 do |d|
-                "*" if helper.client.one_endpoint.strip ==
-                       d["TEMPLATE"]['ENDPOINT'].strip
+        CLIHelper::ShowTable.new(config_file, self) do
+            column :CURRENT, 'Active Zone', :size=>1 do |d|
+                '*' if helper.client.one_endpoint.strip ==
+                       d['TEMPLATE']['ENDPOINT'].strip
             end
 
-            column :ID, "ONE identifier for the Zone", :size=>5 do |d|
-                d["ID"]
+            column :ID, 'ONE identifier for the Zone', :size=>5 do |d|
+                d['ID']
             end
 
-            column :NAME, "Name of the Zone", :left, :size=>25 do |d|
-                d["NAME"]
+            column :NAME, 'Name of the Zone', :left, :size=>25 do |d|
+                d['NAME']
             end
 
-            column :ENDPOINT, "Endpoint of the Zone", :left, :size=>45 do |d|
-                d["TEMPLATE"]['ENDPOINT']
+            column :ENDPOINT, 'Endpoint of the Zone', :left, :size=>45 do |d|
+                d['TEMPLATE']['ENDPOINT']
             end
 
-            column :FED_INDEX, "Federation index", :left, :size=>10 do |d|
-                helper.get_fed_index(d["TEMPLATE"]['ENDPOINT'])
+            column :FED_INDEX, 'Federation index', :left, :size=>10 do |d|
+                helper.get_fed_index(d['TEMPLATE']['ENDPOINT'])
             end
 
             column :STAT, 'Zone status', :left, :size => 6 do |d|
@@ -551,8 +546,6 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
 
             default :CURRENT, :ID, :NAME, :ENDPOINT, :FED_INDEX, :STAT
         end
-
-        table
     end
 
     def get_fed_index(endpoint)
@@ -585,11 +578,11 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         if temporary_zone
             puts "Type: export ONE_XMLRPC=#{zone['TEMPLATE/ENDPOINT']}"
         else
-            File.open(ENV['HOME']+"/.one/one_endpoint", 'w'){|f|
+            File.open(Dir.home+'/.one/one_endpoint', 'w') do |f|
                 f.puts zone['TEMPLATE/ENDPOINT']
-            }
+            end
             puts "Endpoint changed to \"#{zone['TEMPLATE/ENDPOINT']}\" in " <<
-                "#{ENV['HOME']}/.one/one_endpoint"
+                "#{Dir.home}/.one/one_endpoint"
         end
 
         return 0 unless zone['TEMPLATE/ONEFLOW_ENDPOINT']
@@ -598,13 +591,13 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         if temporary_zone
             puts "Type: export ONEFLOW_URL=#{zone['TEMPLATE/ONEFLOW_ENDPOINT']}"
         else
-            File.open(ENV['HOME'] + '/.one/oneflow_endpoint', 'w') do |f|
+            File.open(Dir.home + '/.one/oneflow_endpoint', 'w') do |f|
                 f.puts zone['TEMPLATE/ONEFLOW_ENDPOINT']
             end
 
             puts 'OneFlow Endpoint changed to ' \
                  "\"#{zone['TEMPLATE/ONEFLOW_ENDPOINT']}\" in " <<
-                 "#{ENV['HOME']}/.one/oneflow_endpoint"
+                 "#{Dir.home}/.one/oneflow_endpoint"
         end
 
         0
@@ -612,7 +605,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
 
     private
 
-    def factory(id=nil)
+    def factory(id = nil)
         if id
             OpenNebula::Zone.new_with_id(id, @client)
         else
@@ -621,92 +614,90 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def factory_pool(user_flag=-2)
+    def factory_pool(_user_flag = -2)
         OpenNebula::ZonePool.new(@client)
     end
 
-    def format_resource(zone, options = {})
-        str="%-18s: %-20s"
-        str_h1="%-80s"
+    def format_resource(zone, _options = {})
+        str='%-18s: %-20s'
+        str_h1='%-80s'
 
         CLIHelper.print_header(str_h1 % "ZONE #{zone['ID']} INFORMATION")
-        puts str % ["ID",   zone.id.to_s]
-        puts str % ["NAME", zone.name]
-        puts str % ["STATE",zone.state_str]
+        puts format(str, 'ID', zone.id.to_s)
+        puts format(str, 'NAME', zone.name)
+        puts format(str, 'STATE', zone.state_str)
         puts
 
         zone_hash=zone.to_hash
 
-        if zone.has_elements?("/ZONE/SERVER_POOL/SERVER")
+        if zone.has_elements?('/ZONE/SERVER_POOL/SERVER')
 
             puts
-            CLIHelper.print_header(str_h1 % "ZONE SERVERS",false)
+            CLIHelper.print_header(str_h1 % 'ZONE SERVERS', false)
 
             CLIHelper::ShowTable.new(nil, self) do
-
-                column :"ID", "", :size=>2 do |d|
-                    d["ID"] if !d.nil?
+                column :ID, '', :size=>2 do |d|
+                    d['ID'] unless d.nil?
                 end
 
-                column :"NAME", "", :left, :size=>15 do |d|
-                    d["NAME"] if !d.nil?
+                column :NAME, '', :left, :size=>15 do |d|
+                    d['NAME'] unless d.nil?
                 end
 
-                column :"ENDPOINT", "", :left, :size=>63 do |d|
-                    d["ENDPOINT"] if !d.nil?
+                column :ENDPOINT, '', :left, :size=>63 do |d|
+                    d['ENDPOINT'] unless d.nil?
                 end
             end.show([zone_hash['ZONE']['SERVER_POOL']['SERVER']].flatten, {})
 
             puts
-            CLIHelper.print_header(str_h1 % "HA & FEDERATION SYNC STATUS",false)
+            CLIHelper.print_header(str_h1 % 'HA & FEDERATION SYNC STATUS', false)
 
             CLIHelper::ShowTable.new(nil, self) do
-
-                column :"ID", "", :size=>2 do |d|
-                    d["ID"] if !d.nil?
+                column :ID, '', :size=>2 do |d|
+                    d['ID'] unless d.nil?
                 end
 
-                column :"NAME", "", :left, :size=>15 do |d|
-                    d["NAME"] if !d.nil?
+                column :NAME, '', :left, :size=>15 do |d|
+                    d['NAME'] unless d.nil?
                 end
 
-                column :"STATE", "", :left, :size=>10 do |d|
-                    d["STATE"] = case d["STATE"]
-                        when "0" then "solo"
-                        when "1" then "candidate"
-                        when "2" then "follower"
-                        when "3" then "leader"
-                        else "error"
-                    end
-                    d["STATE"] if !d.nil?
+                column :STATE, '', :left, :size=>10 do |d|
+                    d['STATE'] = case d['STATE']
+                                 when '0' then 'solo'
+                                 when '1' then 'candidate'
+                                 when '2' then 'follower'
+                                 when '3' then 'leader'
+                                 else 'error'
+                                 end
+                    d['STATE'] unless d.nil?
                 end
 
-                column :"TERM", "", :left, :size=>10 do |d|
-                    d["TERM"] if !d.nil?
+                column :TERM, '', :left, :size=>10 do |d|
+                    d['TERM'] unless d.nil?
                 end
 
-                column :"INDEX", "", :left, :size=>10 do |d|
-                    d["LOG_INDEX"] if !d.nil?
+                column :INDEX, '', :left, :size=>10 do |d|
+                    d['LOG_INDEX'] unless d.nil?
                 end
 
-                column :"COMMIT", "", :left, :size=>10 do |d|
-                    d["COMMIT"] if !d.nil?
+                column :COMMIT, '', :left, :size=>10 do |d|
+                    d['COMMIT'] unless d.nil?
                 end
 
-                column :"VOTE", "", :left, :size=>5 do |d|
-                    d["VOTEDFOR"] if !d.nil?
+                column :VOTE, '', :left, :size=>5 do |d|
+                    d['VOTEDFOR'] unless d.nil?
                 end
 
-                column :"FED_INDEX", "", :left, :size=>10 do |d|
-                    d["FEDLOG_INDEX"] if !d.nil?
+                column :FED_INDEX, '', :left, :size=>10 do |d|
+                    d['FEDLOG_INDEX'] unless d.nil?
                 end
-
             end.show([zone_hash['ZONE']['SERVER_POOL']['SERVER']].flatten, {})
         end
 
         puts
 
-        CLIHelper.print_header(str_h1 % "ZONE TEMPLATE", false)
+        CLIHelper.print_header(str_h1 % 'ZONE TEMPLATE', false)
         puts zone.template_str
     end
+
 end
