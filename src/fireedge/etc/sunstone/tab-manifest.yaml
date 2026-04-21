@@ -133,12 +133,12 @@
       sidebar: true
       icon: SimpleCart
       Component: Marketplaces
-    - title: Marketplace
-      path: /marketplace/:id
-      Component: MarketplaceDetail
     - title: Create Marketplace
       path: /marketplace/create
       Component: CreateMarketplace
+    - title: Marketplace
+      path: /marketplace/:id
+      Component: MarketplaceDetail
     - title: Apps
       path: /marketplace-app
       sidebar: true
