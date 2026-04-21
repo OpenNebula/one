@@ -29,6 +29,7 @@
 #include "vm_var_syntax.h"
 #include "vm_var_parser.h"
 
+#include <array>
 #include <sstream>
 
 using namespace std;
@@ -262,6 +263,130 @@ int VirtualMachine::parse_os(string& error_str)
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_features(Template * tmpl, string& err)
+{
+    VectorAttribute * features;
+
+    if (tmpl == nullptr)
+    {
+        features = user_obj_template->get("FEATURES");
+    }
+    else
+    {
+        features = tmpl->get("FEATURES");
+    }
+
+    string value;
+    bool   bvalue;
+
+    if ( features == 0 )
+    {
+        return 0;
+    }
+
+    static constexpr std::array<const char *, 8> bool_features = {
+        "PAE",
+        "ACPI",
+        "APIC",
+        "HYPERV",
+        "LOCALTIME",
+        "GUEST_AGENT",
+        "RAS",
+        "MIGRATE_COMPRESSED"
+    };
+
+    for (const auto& name : bool_features)
+    {
+        if ( features->vector_value(name, bvalue) == 0 )
+        {
+            features->replace(name, bvalue);
+        }
+    }
+
+    value = one_util::trim(features->vector_value("GIC"));
+
+    if ( !value.empty() )
+    {
+        if ( value != "2" && value != "3" )
+        {
+            one_util::tolower(value);
+
+            if ( value != "host" )
+            {
+                value = "host";
+            }
+        }
+
+        features->replace("GIC", value);
+    }
+
+    value = one_util::trim(features->vector_value("MIGRATE_AUTO_CONVERGE"));
+
+    if ( !value.empty() )
+    {
+        string normalized;
+
+        auto parts = one_util::split(value, ',', false);
+
+        if ( parts.empty() || parts.size() > 2 )
+        {
+            err = "Wrong FEATURES/MIGRATE_AUTO_CONVERGE value: \"" + value +
+                  "\". Expected initial[,increment]";
+            return -1;
+        }
+
+        for (const auto& raw_part : parts)
+        {
+            auto part = one_util::trim(raw_part);
+
+            if ( part.empty() || one_util::regex_match("^[0-9]+$", part.c_str()) != 0 )
+            {
+                err = "Wrong FEATURES/MIGRATE_AUTO_CONVERGE value: \"" + value +
+                      "\". Expected initial[,increment]";
+
+                return -1;
+            }
+
+            auto rate = one_util::string_to_unsigned<unsigned int>(part);
+
+            if ( rate > 100 )
+            {
+                err = "Wrong FEATURES/MIGRATE_AUTO_CONVERGE value: \"" + value +
+                      "\". Initial and increment values must be between 0 and 100";
+
+                return -1;
+            }
+
+            if ( !normalized.empty() )
+            {
+                normalized += ",";
+            }
+
+            normalized += part;
+        }
+
+        features->replace("MIGRATE_AUTO_CONVERGE", normalized);
+    }
+
+    if ( tmpl == nullptr )
+    {
+        vector<Attribute *> features_attr;
+
+        user_obj_template->remove("FEATURES", features_attr);
+
+        for (auto it = features_attr.begin(); it != features_attr.end(); ++it)
+        {
+            obj_template->set(*it);
+        }
+    }
+
+    return 0;
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -701,7 +826,6 @@ void VirtualMachine::parse_well_known_attributes()
      * VIDEO
      *
      * INPUT
-     * FEATURES
      * RAW
      * CLONING_TEMPLATE_ID
      * TOPOLOGY
@@ -709,7 +833,6 @@ void VirtualMachine::parse_well_known_attributes()
      */
     std::vector<std::string> names = {
         "INPUT",
-        "FEATURES",
         "RAW",
         "CLONING_TEMPLATE_ID",
         "TOPOLOGY",

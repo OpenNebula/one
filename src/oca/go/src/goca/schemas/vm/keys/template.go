@@ -83,14 +83,16 @@ type Feature string
 const (
 	FeaturesVec string = "FEATURES"
 
-	PAE              Feature = "PAE"
-	ACPI             Feature = "ACPI"
-	APIC             Feature = "APIC"
-	LocalTime        Feature = "LOCAL_TIME"
-	HyperV           Feature = "HYPERV"
-	GuestAgent       Feature = "GUEST_AGENT"
-	VirtIOScsiQueues Feature = "VIRTIO_SCSI_QUEUES"
-	IOThreads        Feature = "IOTHREADS"
+	PAE                 Feature = "PAE"
+	ACPI                Feature = "ACPI"
+	APIC                Feature = "APIC"
+	LocalTime           Feature = "LOCAL_TIME"
+	HyperV              Feature = "HYPERV"
+	GuestAgent          Feature = "GUEST_AGENT"
+	VirtIOScsiQueues    Feature = "VIRTIO_SCSI_QUEUES"
+	IOThreads           Feature = "IOTHREADS"
+	MigrateAutoConverge Feature = "MIGRATE_AUTO_CONVERGE"
+	MigrateCompressed   Feature = "MIGRATE_COMPRESSED"
 )
 
 // IOGraphics define keys for the VM IO graphics

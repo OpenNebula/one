@@ -160,7 +160,11 @@ std::map<std::string, std::vector<std::string>> VirtualMachineTemplate::UPDATECO
             "GUEST_AGENT",
             "VIRTIO_SCSI_QUEUES",
             "VIRTIO_BLK_QUEUES",
-            "IOTHREADS"
+            "IOTHREADS",
+            "GIC",
+            "RAS",
+            "MIGRATE_AUTO_CONVERGE",
+            "MIGRATE_COMPRESSED"
         }
     },
     {

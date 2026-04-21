@@ -1056,6 +1056,13 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // Parse VM attributes
     // ------------------------------------------------------------------------
+    rc = parse_features(nullptr, error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_common;
+    }
+
     rc = parse_os(error_str);
 
     if ( rc != 0 )
@@ -3187,6 +3194,11 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     // Validates RAW data section
     // -------------------------------------------------------------------------
     if (Nebula::instance().get_vmm()->validate_raw(tmpl, err) != 0)
+    {
+        return -1;
+    }
+
+    if ( parse_features(tmpl, err) != 0 )
     {
         return -1;
     }
