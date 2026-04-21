@@ -67,6 +67,15 @@ public:
     }
 
     /**
+     *  Sets the default number of characters to show in the log for API results.
+     *    @param limit number of characters
+     */
+    static void set_result_log_limit(unsigned int limit)
+    {
+        result_log_length = limit;
+    }
+
+    /**
      * Logs the method invocation, including the arguments
      * @param att the specific request attributes
      * @param paramList list of XML parameters
@@ -87,7 +96,10 @@ public:
 
 protected:
     // Default number of character to show in the log. Option %l<number>
-    const static inline int DEFAULT_LOG_LIMIT = 20;
+    const static inline unsigned int DEFAULT_LOG_LIMIT = 20;
+
+    // Max number of character to show in the log for API results.
+    static inline unsigned int result_log_length = DEFAULT_LOG_LIMIT;
 
     static inline std::string format_str;
 

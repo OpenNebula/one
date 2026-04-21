@@ -1276,6 +1276,7 @@ void Nebula::start(bool bootstrap_only)
         int  timeout;
         bool rpc_log;
         string log_call_format;
+        unsigned int log_result_length;
         string rpc_filename = "";
         int  message_size;
         string rm_listen_address = "0.0.0.0";
@@ -1289,6 +1290,7 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("TIMEOUT", timeout);
         nebula_configuration->get("RPC_LOG", rpc_log);
         nebula_configuration->get("LOG_CALL_FORMAT", log_call_format);
+        nebula_configuration->get("LOG_RESULT_LENGTH", log_result_length);
         nebula_configuration->get("MESSAGE_SIZE", message_size);
 
         if (rpc_log)
@@ -1297,6 +1299,7 @@ void Nebula::start(bool bootstrap_only)
         }
 
         RequestLogger::set_call_log_format(log_call_format);
+        RequestLogger::set_result_log_limit(log_result_length);
 
         rm_xrpc = new RequestManagerXRPC(rm_port,
                                          max_conn,
