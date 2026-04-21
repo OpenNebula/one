@@ -4,7 +4,8 @@ name: OpenNebula Smoke Tests
 on: [push, pull_request, workflow_dispatch]
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
   smoke-tests:
@@ -24,8 +25,38 @@ jobs:
       - name: Install AStyle
         run: sudo apt install -y astyle
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Runs a single command using the runners shell
       - name: Run Smoke Tests
         run: $GITHUB_WORKSPACE/share/smoke_tests/smoke_tests.sh
+
+      - name: Create PR for new RuboCop rules
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ -z $(git status --porcelain share/linters/.rubocop.yml) ]]; then
+            echo "No RuboCop config changes detected."
+            exit 0
+          fi
+
+          if git ls-remote --exit-code --heads origin ai/rubocop >/dev/null 2>&1; then
+            echo "Branch ai/rubocop already exists. A PR should already exist, please close it and delete the branch to generate a new one."
+            exit 0
+          fi
+
+          echo "New rules detected. Creating PR..."
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b ai/rubocop
+          git add share/linters/.rubocop.yml
+          git commit -m "M #-: Disable new rubocop cops"
+          git push origin ai/rubocop
+
+          gh pr create \
+            --title "M #-: Disable RuboCop new cops" \
+            --body "This automated PR disables RuboCop rules that were introduced in the latest version and broke the CI." \
+            --base master \
+            --head ai/rubocop

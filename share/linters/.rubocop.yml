@@ -790,6 +790,10 @@ Metrics/AbcSize:
 Metrics/MethodLength:
   Enabled: false
 
+######
+# NAMING
+######
+
 Naming/PredicatePrefix:
     Enabled: false
 
