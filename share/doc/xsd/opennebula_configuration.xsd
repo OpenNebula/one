@@ -222,6 +222,7 @@
         </xs:element>
 
         <xs:element name="LOG_CALL_FORMAT" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="LOG_RESULT_LENGTH" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="MAC_PREFIX" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="MANAGER_TIMER" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
 
