@@ -20,9 +20,26 @@
 ln -s  $GITHUB_WORKSPACE/share/linters/.rubocop.yml $HOME
 cd $GITHUB_WORKSPACE
 
-rubocop
+RUBOCOP_VER=$(rubocop --version | cut -d. -f1,2)
 
-rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+rubocop
+rc=$?
+
+if [[ $rc != 0 ]]; then
+    COPS=$(rubocop --format json | jq -r '.files[].offenses[].cop_name' | sort -u)
+
+    for COP in $COPS; do
+        ADDED_VER=$(rubocop --show-cops "$COP" | awk '/VersionAdded:/ {print $2}' | tr -d "'\"" | cut -d. -f1,2)
+
+        if [[ "$ADDED_VER" == "$RUBOCOP_VER" ]]; then
+            CATEGORY=$(echo "$COP" | cut -d/ -f1 | tr 'a-z' 'A-Z')
+
+            sed -i "/# $CATEGORY/!b;n;a \\n$COP:\n  Enabled: false\n" share/linters/.rubocop.yml
+        fi
+    done
+
+    exit $rc
+fi
 
 # check for require 'pry'
 find . -name "*.rb"|xargs grep 'require'|grep "pry\|pry-byebug"
