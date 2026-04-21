@@ -45,7 +45,7 @@ protected:
      */
      void log_xmlrpc_value(const xmlrpc_c::value& v,
                            std::ostringstream& oss,
-                           const int limit);
+                           const unsigned int limit);
 };
 
 #endif //REQUEST_LOGGER_XRPC_H_

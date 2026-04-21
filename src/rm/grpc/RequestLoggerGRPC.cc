@@ -115,9 +115,9 @@ bool RequestLoggerGRPC::log_return_value(std::ostringstream& oss,
         ParamListGRPC pl(att.response, std::set<int>());
         std::string msg = pl.param_value(0);
 
-        if (msg.length() > DEFAULT_LOG_LIMIT)
+        if (msg.length() > result_log_length)
         {
-            msg.replace(msg.begin(), msg.end(), msg.substr(0, DEFAULT_LOG_LIMIT) + "...");
+            msg.replace(msg.begin(), msg.end(), msg.substr(0, result_log_length) + "...");
         }
 
         oss << ", " << msg;

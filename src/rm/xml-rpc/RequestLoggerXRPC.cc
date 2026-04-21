@@ -84,7 +84,7 @@ bool RequestLoggerXRPC::log_return_value(std::ostringstream& oss,
 
         for (unsigned int i=1; i<vvalue.size()-1; i++)
         {
-            log_xmlrpc_value(vvalue[i], oss, DEFAULT_LOG_LIMIT);
+            log_xmlrpc_value(vvalue[i], oss, result_log_length);
         }
     }
     else
@@ -101,7 +101,7 @@ bool RequestLoggerXRPC::log_return_value(std::ostringstream& oss,
 
 void RequestLoggerXRPC::log_xmlrpc_value(const xmlrpc_c::value& v,
                                          std::ostringstream& oss,
-                                         const int limit)
+                                         const unsigned int limit)
 {
    size_t st_limit = limit;
    size_t st_newline;
