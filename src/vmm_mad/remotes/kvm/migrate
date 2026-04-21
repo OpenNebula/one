@@ -41,6 +41,28 @@ load_remote_env
 #     - @shared
 # ------------------------------------------------------------------------------
 
+# Builds per-VM migration options string from VM template attributes
+#
+# @param action_xml [XMLElement] the OpenNebula action XML containing VM template
+# @return [String] migration options string for per-VM settings
+def build_migrate_opts(action_xml)
+    opts = ''
+
+    mac = action_xml['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/FEATURES/MIGRATE_AUTO_CONVERGE'].strip
+
+    if !mac.empty?
+        parts = mac.split(',')
+
+        opts = "#{opts} --auto-converge --auto-converge-initial #{parts[0]}"
+        opts = "#{opts} --auto-converge-increment #{parts[1]}" if parts[1]
+    end
+
+    comp = action_xml['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/FEATURES/MIGRATE_COMPRESSED'].strip
+    opts = "#{opts} --compressed" if comp == 'YES'
+
+    opts
+end
+
 # Synchronizes a list of files and directories to the destination host using rsync.
 #
 # @param paths [Array/String] A list of paths to synchronize.
@@ -278,8 +300,10 @@ begin
     kvm_vm.snapshots_delete
 
     if @src_host != @dst_host
+        migrate_opts = build_migrate_opts(action_xml)
+
         if @shared
-            rc, _out, err = kvm_vm.live_migrate(@dst_host)
+            rc, _out, err = kvm_vm.live_migrate(@dst_host, migrate_opts)
 
             cleanup_host(kvm_vm, err, :host) if rc != 0
         else
@@ -287,7 +311,11 @@ begin
 
             rsync_paths(pre_sync)
 
-            rc, _out, err = kvm_vm.live_migrate_disks(@dst_host, disks.map {|(dev, _path)| dev })
+            rc, _out, err = kvm_vm.live_migrate_disks(
+                @dst_host,
+                disks.map {|(dev, _path)| dev },
+                migrate_opts
+            )
 
             cleanup_host(kvm_vm, err, :host) if rc != 0
 

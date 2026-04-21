@@ -2684,11 +2684,6 @@ int LibVirtDriver::deployment_description_kvm(
 
         if (!gic.empty())
         {
-            if ( gic != "2" && gic != "3" )
-            {
-                gic = "host";
-            }
-
             file << "\t\t<gic version=\"" << gic << "\"/>" << endl;
         }
 

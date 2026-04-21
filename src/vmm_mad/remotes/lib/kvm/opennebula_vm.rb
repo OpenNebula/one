@@ -298,8 +298,9 @@ module VirtualMachineManagerKVM
 
         # Live migrate the domain to the target host (SHARED STORAGE variant)
         #   @param host[String] name of the target host
-        def live_migrate(host)
-            cmd =  "migrate --live #{ENV['MIGRATE_OPTIONS']} #{@domain}"
+        #   @param per_vm_opts[String] optional per-VM migration options
+        def live_migrate(host, per_vm_opts = '')
+            cmd = "migrate --live #{ENV.fetch('MIGRATE_OPTIONS', '')} #{per_vm_opts} #{@domain}"
             cmd << " #{virsh_uri(host)}"
 
             virsh_retry(cmd, 'active block job', virsh_tries)
@@ -308,8 +309,9 @@ module VirtualMachineManagerKVM
         # Live migrate the domain to the target host (LOCAL STORAGE variant)
         #   @param host[String] name of the target host
         #   @param devs[Array] of the disks that will be copied
-        def live_migrate_disks(host, devs)
-            cmd =  "migrate --live #{ENV['MIGRATE_OPTIONS']} --suspend"
+        #   @param per_vm_opts[String] optional per-VM migration options
+        def live_migrate_disks(host, devs, per_vm_opts = '')
+            cmd = "migrate --live #{ENV.fetch('MIGRATE_OPTIONS', '')} #{per_vm_opts} --suspend"
             cmd << " #{@domain} #{virsh_uri(host)}"
 
             if !devs.empty?

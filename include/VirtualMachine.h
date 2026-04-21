@@ -2216,6 +2216,12 @@ private:
     void parse_well_known_attributes();
 
     /**
+     * Parse supported FEATURES attributes, normalizing boolean values. Checks
+     * GIC, and MIGRATE options
+     */
+    int parse_features(Template * tmpl, std::string& error_str);
+
+    /**
      *  Parse a vector attribute with one or more required keys
      *    @param name Name of the attribute to parse
      *    @param required_keys List of required keys that must be present and non-empty
