@@ -1145,6 +1145,16 @@ func (c *GRPCClient) ImageSnapshotFlatten(ctx context.Context, id, snapID int) (
 	return &Response{status: true, bodyInt: int(res.Oid)}, nil
 }
 
+func (c *GRPCClient) ImageResize(ctx context.Context, id int, newSize string) (*Response, error) {
+	client := image.NewImageServiceClient(c.conn)
+	req := &image.ResizeRequest{SessionId: c.token, Oid: int32(id), Size: newSize}
+	res, err := client.Resize(ctx, req)
+	if err != nil {
+		return MakeErrorResponse(err)
+	}
+	return &Response{status: true, bodyInt: int(res.Oid)}, nil
+}
+
 func (c *GRPCClient) ImageRestore(ctx context.Context, id, dsid int, optTmpl string) (*Response, error) {
 	client := image.NewImageServiceClient(c.conn)
 	req := &image.RestoreRequest{SessionId: c.token, Oid: int32(id), DsId: int32(dsid), OptTmpl: optTmpl}
