@@ -99,6 +99,11 @@ public:
         return va->to_xml(s, hidden);
     }
 
+    void trim() override
+    {
+        va->trim();
+    }
+
 protected:
     /**
      *  Creates the attribute with a reference to a VectorAttribute. The object

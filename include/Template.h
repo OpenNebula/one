@@ -444,20 +444,9 @@ public:
     virtual bool get(const std::string& name, std::string& value) const;
 
     /**
-     *  Trims the trailing spaces in the attribute
-     *    @param name of the attribute
-     *    @return True if the attribute was found and trimmed
-     */
-    virtual bool trim(const std::string& name);
-
-    /**
-     *  Trims the trailing spaces in the NAME attribute
-     *    @return True if the attribute was found and trimmed
-     */
-    inline virtual bool trim_name()
-    {
-        return trim("NAME");
-    };
+    *  Trims starting and trailing whitespaces for all attribute values
+    */
+    void trim_attributes();
 
     /**
      *  Merges another Template, adding the new attributes and

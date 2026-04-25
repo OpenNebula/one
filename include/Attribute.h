@@ -98,6 +98,11 @@ public:
     virtual Attribute* clone() const = 0;
 
     /**
+     *  Trims the starting and trailing whitespaces of the attribute value(s)
+     */
+    virtual void trim() = 0;
+
+    /**
      *  Encrypt all secret attributes
      */
     virtual void encrypt(const std::string& one_key, const std::set<std::string>& eas) {};
@@ -232,6 +237,14 @@ public:
     {
         return new SingleAttribute(*this);
     };
+
+    /**
+     *  Trims the starting and trailing whitespaces of the attribute value
+     */
+    void trim() override
+    {
+        attribute_value = one_util::trim(attribute_value);
+    }
 
     /**
      *  Encrypt all secret attributes
@@ -508,6 +521,17 @@ public:
     {
         return new VectorAttribute(*this);
     };
+
+    /**
+     *  Trims the starting and trailing whitespaces of the attribute values
+     */
+    void trim() override
+    {
+        for (auto& it : attribute_value)
+        {
+            it.second = one_util::trim(it.second);
+        }
+    }
 
     /**
      *  Clear the vector attribute values

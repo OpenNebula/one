@@ -154,7 +154,7 @@ int Template::parse_str_or_xml(const string &parse_str, string& error_msg)
 
     if(rc == 0)
     {
-        trim_name();
+        trim_attributes();
     }
 
     return rc;
@@ -490,21 +490,13 @@ string& Template::to_str(string& str) const
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-bool Template::trim(const string& name)
+void Template::trim_attributes()
 {
-    string st;
-    get(name, st);
-
-    if(st.empty())
+    for (auto& it : attributes)
     {
-        return false;
+        it.second->trim();
     }
-
-    replace(name, st.substr( 0, st.find_last_not_of(" \f\n\r\t\v") + 1 ) );
-
-    return true;
 }
 
 /* -------------------------------------------------------------------------- */
