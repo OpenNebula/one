@@ -313,12 +313,7 @@ int VirtualMachine::parse_features(Template * tmpl, string& err)
     {
         if ( value != "2" && value != "3" )
         {
-            one_util::tolower(value);
-
-            if ( value != "host" )
-            {
-                value = "host";
-            }
+            value = "host";
         }
 
         features->replace("GIC", value);
