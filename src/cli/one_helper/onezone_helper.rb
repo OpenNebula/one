@@ -64,7 +64,7 @@ class Replicator
         @l_fed_elements    = { :raw => @l_config }
 
         if OpenNebula.is_error?(@l_config)
-            STDERR.puts 'Unable to read OpenNebula configuration. ' \
+            STDERR.puts 'Unable to read local OpenNebula configuration. ' \
                         'Is OpenNebula running?'
             exit(-1)
         end
@@ -80,6 +80,12 @@ class Replicator
         @r_config = System.new(remote_client).get_configuration
         @r_config_elements = { :raw => @r_config }
         @r_fed_elements    = { :raw => @r_config }
+
+        if OpenNebula.is_error?(@r_config)
+            STDERR.puts 'Unable to read remote OpenNebula configuration. ' \
+                        "Is OpenNebula running on #{@remote_server}?"
+            exit(-1)
+        end
 
         fetch_db_config(@r_config_elements)
         fetch_fed_config(@r_fed_elements)
