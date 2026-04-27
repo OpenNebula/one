@@ -62,7 +62,7 @@ rhost    = xml_data.elements['VM/BACKUPS/BACKUP_CONFIG/LAST_BRIDGE']&.text || di
 script = vm.backup_disks_sh(:disks       => disks,
                             :backup_dir  => backup_dir,
                             :ds          => ds,
-                            :live        => false,
+                            :live        => true,
                             :deploy_id   => deploy_id,
                             :bridge_host => rhost)
 
