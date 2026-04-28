@@ -1607,7 +1607,7 @@ Bash symbols must be escaped on STDIN passing'
     end
 
     def self.rname_to_id_desc(poolname)
-        "OpenNebula #{poolname} name or id"
+        "OpenNebula #{poolname} id"
     end
 
     def self.boolean_to_str(str)

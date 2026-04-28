@@ -111,6 +111,7 @@ if [ -z "$ROOT" ] ; then
     LOG_LOCATION="/var/log/one"
     VAR_LOCATION="/var/lib/one"
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
+    ODS_LOCATION="$LIB_LOCATION/ods"
     FIREEDGE_LOCATION="$LIB_LOCATION/fireedge"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
     ONEFORM_LOCATION="$LIB_LOCATION/oneform"
@@ -177,8 +178,9 @@ if [ -z "$ROOT" ] ; then
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $ONEFORM_LOCATION \
-                   $ONEHEM_LOCATION $ONEPROMETHEUS_DIRS $ONEFORM_PROVIDERS_LOCATION $ONEFORM_EXTERNAL_PROVIDERS_LOCATION \
-                   $ONEFORM_PROVIDERS_STATES_LOCATION $ANS_LOCATION"
+                   $ONEHEM_LOCATION $ONEPROMETHEUS_DIRS $ODS_LOCATION $ANS_LOCATION \
+                   $ONEFORM_PROVIDERS_LOCATION $ONEFORM_EXTERNAL_PROVIDERS_LOCATION \
+                   $ONEFORM_PROVIDERS_STATES_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -195,6 +197,7 @@ else
     RUN_LOCATION="$VAR_LOCATION/run"
     LOCK_LOCATION="$VAR_LOCATION/lock"
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
+    ODS_LOCATION="$LIB_LOCATION/ods"
     FIREEDGE_LOCATION="$LIB_LOCATION/fireedge"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
     ONEFORM_LOCATION="$LIB_LOCATION/oneform"
@@ -251,8 +254,9 @@ else
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $ONEFORM_LOCATION \
                    $ONEHEM_LOCATION $LOCK_LOCATION $RUN_LOCATION \
-                   $ONEPROMETHEUS_DIRS $ONEFORM_PROVIDERS_LOCATION $ONEFORM_EXTERNAL_PROVIDERS_LOCATION \
-                   $ONEFORM_PROVIDERS_STATES_LOCATION $ANS_LOCATION"
+                   $ONEPROMETHEUS_DIRS $ODS_LOCATION $ANS_LOCATION \
+                   $ONEFORM_PROVIDERS_LOCATION $ONEFORM_EXTERNAL_PROVIDERS_LOCATION \
+                   $ONEFORM_PROVIDERS_STATES_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -300,6 +304,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/opennebula/grpc \
           $LIB_LOCATION/ruby/opennebula/grpc/lib \
           $LIB_LOCATION/ruby/opennebula/form \
+          $LIB_LOCATION/ruby/opennebula/ods \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
@@ -490,11 +495,19 @@ ANS_DIRS="$ANS_LOCATION/plugins \
           $ANS_LOCATION/plugins/lib \
           $ANS_LOCATION/plugins/inventory"
 
+ODS_DIRS="$ODS_LOCATION/app \
+            $ODS_LOCATION/app/controllers \
+            $ODS_LOCATION/app/models \
+            $ODS_LOCATION/config \
+            $ODS_LOCATION/lib \
+            $ODS_LOCATION/lib/helpers"
+
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/opennebula/flow \
                  $LIB_LOCATION/ruby/opennebula/lib \
-                 $LIB_LOCATION/ruby/opennebula/form"
+                 $LIB_LOCATION/ruby/opennebula/form \
+                 $LIB_LOCATION/ruby/opennebula/ods"
 
 LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
                      $LIB_LOCATION/ruby/cli/one_helper"
@@ -513,7 +526,7 @@ elif [ "$ONEFORM" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $ONEFORM_DIRS $ANS_DIRS $LIB_OCA_CLIENT_DIRS"
 else
     MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS \
-                $FIREEDGE_DIRS $ONEFLOW_DIRS $ONEFORM_DIRS $ANS_DIRS"
+                $FIREEDGE_DIRS $ONEFLOW_DIRS $ONEFORM_DIRS $ODS_DIRS $ANS_DIRS"
 fi
 
 #-------------------------------------------------------------------------------
@@ -538,6 +551,7 @@ INSTALL_FILES=(
     RUBY_OPENNEBULA_LIB_FLOW_FILES:$LIB_LOCATION/ruby/opennebula/flow
     RUBY_OPENNEBULA_LIB_FORM_FILES:$LIB_LOCATION/ruby/opennebula/form
 
+    RUBY_OPENNEBULA_LIB_ODS_FILES:$LIB_LOCATION/ruby/opennebula/ods
     MAD_RUBY_LIB_FILES:$LIB_LOCATION/ruby
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
@@ -724,6 +738,7 @@ INSTALL_CLIENT_FILES=(
     RUBY_OPENNEBULA_LIB_FLOW_FILES:$LIB_LOCATION/ruby/opennebula/flow
     RUBY_OPENNEBULA_CLIENT_FILES:$LIB_LOCATION/ruby/opennebula/lib
     RUBY_OPENNEBULA_LIB_FORM_FILES:$LIB_LOCATION/ruby/opennebula/form
+    RUBY_OPENNEBULA_LIB_ODS_FILES:$LIB_LOCATION/ruby/opennebula/ods
     RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
 
@@ -805,6 +820,16 @@ INSTALL_ONEFORM_FILES=(
 
 INSTALL_ONEFORM_ETC_FILES=(
     ONEFORM_ETC_FILES:$ETC_LOCATION
+)
+
+INSTALL_ODS_FILES=(
+    ODS_FILES:$ODS_LOCATION
+    ODS_CONFIG_FILES:$ODS_LOCATION/config
+    ODS_APP_FILES:$ODS_LOCATION/app
+    ODS_APP_CONTROLLERS_FILES:$ODS_LOCATION/app/controllers
+    ODS_APP_MODELS_FILES:$ODS_LOCATION/app/models
+    ODS_LIB_FILES:$ODS_LOCATION/lib
+    ODS_LIB_HELPERS_FILES:$ODS_LOCATION/lib/helpers
 )
 
 INSTALL_ONEHEM_FILES=(
@@ -2115,6 +2140,9 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/flow.rb \
                             src/oca/ruby/opennebula/version.rb"
 
+RUBY_OPENNEBULA_LIB_ODS_FILES="src/oca/ruby/opennebula/ods/helpers.rb \
+                               src/oca/ruby/opennebula/ods/client.rb"
+
 RUBY_OPENNEBULA_LIB_FLOW_FILES="src/oca/ruby/opennebula/flow/grammar.rb \
                                  src/oca/ruby/opennebula/flow/service_pool.rb \
                                  src/oca/ruby/opennebula/flow/service_template_pool.rb \
@@ -2148,7 +2176,8 @@ CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/X509CloudAuth.rb \
 
 CLI_LIB_FILES="src/cli/cli_helper.rb \
                src/cli/command_parser.rb \
-               src/cli/one_helper.rb"
+               src/cli/one_helper.rb \
+               src/cli/ods_helper.rb"
 
 ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onehost_helper.rb \
@@ -2413,6 +2442,25 @@ ONEFORM_ANSIBLE_INVENTORY="share/ansible/plugins/inventory/opennebula_form.py"
 
 ONEFORM_ANSIBLE_LIB="share/ansible/plugins/lib/deployment_template.py \
                      share/ansible/plugins/lib/oneform_client.py"
+
+#-----------------------------------------------------------------------------
+# ODS files
+#-----------------------------------------------------------------------------
+
+ODS_FILES="src/ods/ods-server.rb"
+
+ODS_CONFIG_FILES="src/ods/config/environment.rb \
+                  src/ods/config/validator.rb"
+
+ODS_APP_FILES="src/ods/app/*.rb"
+
+ODS_APP_CONTROLLERS_FILES="src/ods/app/controllers/*"
+
+ODS_APP_MODELS_FILES="src/ods/app/models/*"
+
+ODS_LIB_FILES="src/ods/lib/*"
+
+ODS_LIB_HELPERS_FILES="src/ods/lib/helpers/*"
 
 #-----------------------------------------------------------------------------
 # Onecfg files
@@ -2757,6 +2805,7 @@ elif [ "$FIREEDGE_DEV" = "no" ]; then
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
                  ${INSTALL_ONEFORM_FILES[@]} \
+                 ${INSTALL_ODS_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
                  ${INSTALL_ONEPROVISION_FILES[@]} \
                  ${INSTALL_ONECFG_FILES[@]}"
@@ -2766,6 +2815,7 @@ else
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
                  ${INSTALL_ONEFORM_FILES[@]} \
+                 ${INSTALL_ODS_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
                  ${INSTALL_ONEPROVISION_FILES[@]} \
                  ${INSTALL_ONECFG_FILES[@]}"

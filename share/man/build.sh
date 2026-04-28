@@ -50,7 +50,7 @@ COMMANDS=(
 
     'bin/oneflow'           'Manage oneFlow Services'
     'bin/oneflow-template'  'Manage oneFlow Templates'
-    
+
     'bin/oneform'           'Manage OpenNebula Form Drivers'
     'bin/oneprovider'       'Manage OpenNebula Providers'
     'bin/oneprovision'      'Manage OpenNebula Provisions'

@@ -63,7 +63,7 @@ module OpenNebula
     # Returns true if the object returned by a method of the OpenNebula
     # library is an Error
     def self.is_error?(value)
-        value.class==OpenNebula::Error
+        value.is_a?(OpenNebula::Error)
     end
 
 end

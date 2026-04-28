@@ -612,6 +612,40 @@ _oneprovider() {
     fi
 }
 
+_oneks()
+{
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+
+    cmd=oneks
+    opts="list top show create update rename chgrp chown chmod retry delete logs"
+
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        show|update|rename|chgrp|chown|chmod|retry|delete|logs)
+            _complete $cmd ID
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        case "$pprev" in
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        *)
+            _one_owner_update "$pprev"
+        esac
+    fi
+}
+
 _onesecgroup() {
     local cur prev opts cmd
     COMPREPLY=()
@@ -943,6 +977,7 @@ complete -F _onemarketapp onemarketapp
 complete -F _oneform oneform
 complete -F _oneprovision oneprovision
 complete -F _oneprovider oneprovider
+complete -F _oneks oneks
 complete -F _onesecgroup onesecgroup
 complete -F _oneshowback oneshowback
 complete -F _onetemplate onetemplate

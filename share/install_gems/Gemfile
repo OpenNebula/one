@@ -23,6 +23,17 @@ source 'https://rubygems.org'
 ruby_version = Gem::Version.new(RUBY_VERSION)
 rubygems_version = Gem::Version.new(`gem -v`)
 
+debian_version_file = '/etc/debian_version'
+is_lower_than_debian_13 = true
+if File.exist?(debian_version_file)
+    begin
+        debian_version = Gem::Version.new(File.read(debian_version_file).strip)
+        is_lower_than_debian_13 = debian_version < Gem::Version.new('13')
+    rescue ArgumentError
+        # Keep the default value of true if the version is not numeric (ubuntu)
+    end
+end
+
 ################################################################################
 # Gems only in one ruby version
 ################################################################################
@@ -136,7 +147,7 @@ group :packethost do
     gem 'i18n', '~> 0.9'
 end
 
-group :cloud, :oneflow, :oneform do
+group :cloud, :oneflow, :oneform, :oneks, :ods do
     gem 'rack', rack
     if ruby_version >= Gem::Version.new('3.0.0')
         gem 'sinatra'
@@ -157,13 +168,13 @@ group :cloud do
     gem 'curb'
 end
 
-group :oneflow do
+group :oneflow, :oneks, :ods do
     gem 'ipaddress', '~> 0.8.3'
     gem 'treetop', '>= 1.6.3'
     gem 'parse-cron'
 end
 
-group :oneform do
+group :oneform, :oneks, :ods do
     if ruby_version >= Gem::Version.new('2.7.0')
         gem 'dry-validation', '~> 1.10'
     else

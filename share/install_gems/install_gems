@@ -135,6 +135,12 @@ fi
 # Find Gemfile location and pass to Bundler
 echo '* Install Gem Dependencies'
 
+bundler_version=$(bundler --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+bundle_higher_or_eq_4_0_0=$(ruby -e "require 'rubygems'; puts Gem::Version.new('$bundler_version') >= Gem::Version.new('4.0.0') ? 1 : 0")
+if [ "$bundle_higher_or_eq_4_0_0" -eq 1 ]; then
+    bundle config set --global path.system true
+fi
+
 for GEMFILE in \
     "${PWD}/Gemfile" \
     "${ONE_LOCATION}/share/Gemfile" \
