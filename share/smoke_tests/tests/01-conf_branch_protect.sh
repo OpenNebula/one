@@ -1,5 +1,28 @@
 #!/bin/bash -xv
 
+diff_existing_paths() {
+    local previous_path="$1"
+    local current_path="$2"
+    local diff_output=""
+    local filtered_output=""
+    local rc=0
+
+    # Stable branches must not change or remove existing config content,
+    # but additions in the current install are allowed.
+    diff_output=$(diff -r "$previous_path" "$current_path") || rc=$?
+
+    if [[ ${rc:-0} -gt 1 ]]; then
+        return $rc
+    fi
+
+    filtered_output=$(printf '%s\n' "$diff_output" | grep -vE "^Only in ${current_path}(/.*)?:") || true
+
+    if [[ -n "$filtered_output" ]]; then
+        printf '%s\n' "$filtered_output"
+        return 1
+    fi
+}
+
 # GITHUB_BASE_REF refers to the target branch from the PR
 BRANCH="$GITHUB_BASE_REF"
 
@@ -46,9 +69,9 @@ if [[ $BRANCH =~ (^one-[0-9]*\.[0-9]*$) ]]; then
         ./install.sh -d $CURRENT_ONE_INSTALL &>/dev/null
 
         echo "Testing conf changes:"
-        diff -r $PREVIOUS_ONE_INSTALL/etc $CURRENT_ONE_INSTALL/etc
+        diff_existing_paths $PREVIOUS_ONE_INSTALL/etc $CURRENT_ONE_INSTALL/etc
         rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
-        diff -r $PREVIOUS_ONE_INSTALL/var/remotes/etc $CURRENT_ONE_INSTALL/var/remotes/etc
+        diff_existing_paths $PREVIOUS_ONE_INSTALL/var/remotes/etc $CURRENT_ONE_INSTALL/var/remotes/etc
         rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 
     else
