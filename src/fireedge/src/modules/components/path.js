@@ -161,6 +161,12 @@ export const PATH = {
       CREATE: `/${RESOURCE_NAMES.ACL}/create`,
     },
   },
+  ONEKS: {
+    LIST: `/${RESOURCE_NAMES.ONEKS}`,
+    DETAIL: `/${RESOURCE_NAMES.ONEKS}/:id`,
+    CREATE: `/${RESOURCE_NAMES.ONEKS}/create`,
+    CREATE_CLOUD_LOGS: `/${RESOURCE_NAMES.ONEKS}/create_kubernetes_logs/:id`,
+  },
   SUPPORT: `/${RESOURCE_NAMES.SUPPORT}`,
   GUACAMOLE: `/${SOCKETS.GUACAMOLE}/:id/:type`,
   SETTINGS: '/settings',

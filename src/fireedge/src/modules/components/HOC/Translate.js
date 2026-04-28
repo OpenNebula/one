@@ -97,7 +97,7 @@ const translateString = (word = '', values) => {
 const TranslateProvider = ({ children = [] }) => {
   const [hash, setHash] = useState({})
   const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
-  const { LANG: lang } = fireedge
+  const { LANG: lang = 'en' } = fireedge
 
   useEffect(() => {
     if (!lang || !LANGUAGES[lang]) return

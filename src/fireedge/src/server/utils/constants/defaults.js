@@ -111,6 +111,7 @@ const defaults = {
   defaultHideCredentialReplacer: '****',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
   defaultOneFormServer: `${protocol}://${defaultIp}:13013`,
+  defaultOneKsServer: `${protocol}://${defaultIp}:10780/api/v1`,
   defaultSunstonePath: internalSunstonePath,
   defaultLogsLevels: ['error', 'warm', 'info', 'http', 'verbose', 'debug'],
   defaultLogMessageLength: 100,

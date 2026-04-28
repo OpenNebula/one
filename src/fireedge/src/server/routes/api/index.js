@@ -53,6 +53,7 @@ const routes = [
   'marketapp',
   'oneflow',
   'oneform',
+  'oneks',
   'vm',
   'vmpool',
   'zendesk',

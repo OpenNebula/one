@@ -39,7 +39,7 @@ import {
   RedoCircle,
 } from 'iconoir-react'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
-import { useGeneralApi, ProvisionAPI } from '@FeaturesModule'
+import { useGeneralApi } from '@FeaturesModule'
 import { Tr, Translate, SubmitButton } from '@modules/components'
 import { styles } from '@modules/components/LogsViewer/styles'
 import HeaderPopover from '@modules/components/Header/Popover'
@@ -64,6 +64,11 @@ const cache = new CellMeasurerCache({
  * @param {boolean} props.isFetching - If the request to get logs to the API is in progress
  * @param {object} props.options - Component options
  * @param {number} props.provisionId - Provision ID
+ * @param {Function} props.onRetry - Function to retry the provision
+ * @param {string} props.messageSuccessRetry - Message to show when the provision is successfully retried
+ * @param {string} props.messageErrorRetry - Message to show when there is an error retrying the provision
+ * @param {boolean} props.showShimmer - Whether to show shimmer effect when loading logs
+ * @param {boolean} props.state - State of the provision (to determine if shimmer should be shown)
  * @returns {object} - The Log Viewer component
  */
 const LogsViewer = ({
@@ -72,6 +77,11 @@ const LogsViewer = ({
   isFetching,
   provisionId,
   options = {},
+  onRetry,
+  messageSuccessRetry,
+  messageErrorRetry,
+  showShimmer = false,
+  state,
 }) => {
   // Get options
   const { followLogs = false } = options
@@ -93,8 +103,6 @@ const LogsViewer = ({
   const [filteredLogs, setFilteredLogs] = useState(logs?.lines || [])
 
   const { enqueueSuccess, enqueueError } = useGeneralApi()
-
-  const [retry] = ProvisionAPI.useRetryProvisionMutation()
 
   // Follow logs
   useEffect(() => {
@@ -174,14 +182,16 @@ const LogsViewer = ({
   }
 
   const retryProvision = async (id) => {
+    if (typeof onRetry !== 'function') return
+
     try {
-      const result = await retry({ id: id })
+      const result = await onRetry({ id: id })
       if (result.error) {
         throw new Error(result.error.message)
       }
-      enqueueSuccess(T.SuccessProvisionRetried)
+      enqueueSuccess(messageSuccessRetry || T.SuccessProvisionRetried)
     } catch (error) {
-      enqueueError(T.ErrorProvisionRetried)
+      enqueueError(messageErrorRetry || T.ErrorProvisionRetried)
     }
   }
 
@@ -338,7 +348,7 @@ const LogsViewer = ({
             isSubmitting={isFetching}
             onClick={() => getLogs()}
           />
-          {provisionId && (
+          {provisionId && typeof onRetry === 'function' && (
             <SubmitButton
               data-cy="detail-retry"
               icon={<RedoCircle />}
@@ -352,22 +362,37 @@ const LogsViewer = ({
 
       {/* Virtualized log list */}
       <Box
-        style={{ height: 600 }}
+        style={{ height: 600, position: 'relative' }}
         className={classes.logsContainer}
         data-cy="logs-viewer"
       >
         <AutoSizer>
           {({ height, width }) => (
-            <VirtualizedList
-              ref={listRef}
-              width={width}
-              height={height}
-              deferredMeasurementCache={cache}
-              rowHeight={cache.rowHeight}
-              rowCount={filteredLogs?.length || 0}
-              rowRenderer={Row}
-              overscanRowCount={10}
-            />
+            <>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  overflow: 'hidden',
+                  pointerEvents: 'none',
+                  height,
+                  width,
+                }}
+              >
+                {showShimmer && state && (
+                  <div className={classes.shimmerOverlay} />
+                )}
+              </Box>
+              <VirtualizedList
+                ref={listRef}
+                width={width}
+                height={height}
+                deferredMeasurementCache={cache}
+                rowHeight={cache.rowHeight}
+                rowCount={filteredLogs?.length || 0}
+                rowRenderer={Row}
+                overscanRowCount={10}
+              />
+            </>
           )}
         </AutoSizer>
       </Box>
@@ -381,6 +406,11 @@ LogsViewer.propTypes = {
   isFetching: PropTypes.bool,
   options: PropTypes.object,
   provisionId: PropTypes.string,
+  onRetry: PropTypes.func,
+  messageSuccessRetry: PropTypes.string,
+  messageErrorRetry: PropTypes.string,
+  showShimmer: PropTypes.bool,
+  state: PropTypes.bool,
 }
 
 export default LogsViewer

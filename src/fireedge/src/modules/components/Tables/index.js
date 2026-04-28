@@ -28,6 +28,7 @@ import ImagesTable from '@modules/components/Tables/Images'
 import IncrementsTable from '@modules/components/Tables/Increments'
 import MarketplaceAppsTable from '@modules/components/Tables/MarketplaceApps'
 import MarketplacesTable from '@modules/components/Tables/Marketplaces'
+import OneKSTable from '@modules/components/Tables/Oneks'
 import PcisTable from '@modules/components/Tables/Pcis'
 import ProvidersTable from '@modules/components/Tables/Providers'
 import SecurityGroupsTable from '@modules/components/Tables/SecurityGroups'
@@ -66,6 +67,7 @@ export {
   IncrementsTable,
   MarketplaceAppsTable,
   MarketplacesTable,
+  OneKSTable,
   PcisTable,
   ProvidersTable,
   SecurityGroupsTable,

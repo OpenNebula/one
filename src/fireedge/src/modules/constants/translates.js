@@ -2700,4 +2700,87 @@ module.exports = {
   RunBackground: 'Run in background',
 
   LearnMore: 'Learn more',
+
+  /* Kubernetes */
+  Tags: 'Tags',
+  ControlPlane: 'Control Plane',
+  Nodes: 'Nodes',
+  Family: 'Family',
+  Flavour: 'Flavour',
+  Flavours: 'Flavours',
+  PublicNetwork: 'Public Network',
+  PrivateNetwork: 'Private Network',
+  WorkerNodes: 'Worker Nodes',
+  NodeGroups: 'Node Groups',
+  Events: 'Events',
+  Replicas: 'Replicas',
+  KubernetesVersion: 'Kubernetes Version',
+  CreationTime: 'Creation Time',
+  WarningDeleteOneKsCluster:
+    'Deleting this cluster will permanently destroy all associated resources including node groups, workloads, persistent volumes, and configurations. This action is irreversible.',
+  WarningScalingOneKsCluster:
+    'Changes will trigger a rolling update. Existing pods will be rescheduled to new nodes.',
+  AddNodeGroup: 'Add Node Group',
+  DeleteNodeGroup: 'Delete Node Group',
+  ResizeNodeGroup: 'Resize Node Group',
+  EditNodeGroup: 'Edit Node Group',
+  RecoverNodeGroup: 'Recover Node Group',
+  SelectPublicVirtualNetworks: 'Select a public virtual network',
+  SelectPrivateVirtualNetworks: 'Select a private virtual network',
+  'oneks.form.create.general.help.paragraph':
+    'Please, provide the general information for the Kubernetes cluster. Define a name and optionally add a description.',
+  'oneks.form.create.public.help.paragraph':
+    'Please, select one virtual network in the virtual networks table. The public network acts as a gateway to the Internet and provides external connectivity for the cluster.',
+  'oneks.form.create.private.help.paragraph':
+    'Please, select one virtual network in the virtual networks table. This network provides isolation from the public Internet and is used for internal communication between cluster nodes.',
+  'oneks.form.create.family.help.paragraph':
+    'Please, select a cluster family. The family defines the purpose of the control plane and its overall configuration for this Kubernetes cluster.',
+  'oneks.form.create.family.error':
+    'Select one family configuration to continue.',
+  'oneks.form.create.flavour.help.parapraph':
+    'Please, select a flavour. The flavour defines the specific configuration that will be used to deploy the control plane nodes for this cluster.',
+  'oneks.form.create.flavours.error':
+    'Select one flavour configuration to continue.',
+  'oneks.form.create.userinputs.help.paragraph':
+    'This section shows the resources and settings used to deploy the control plane nodes in the Kubernetes cluster.',
+  'oneks.form.create.kubernetes_version.info':
+    'Select one kubernetes version to continue.',
+  'oneks.logs.create.logs':
+    'Your cluster will appear in the clusters list with "Creating" status. The control plane nodes will be provisioned according to the selected flavour. This process typically takes 5–10 minutes.',
+  'oneks.form.create_nodegroup.general.help.paragraph':
+    'Please, provide the general information for the NodeGroup. Define a name and optionally add a description to help identify and manage this group of worker nodes later.',
+  'oneks.form.create_nodegroup.userinputs.help.paragraph':
+    'This section shows the resources and settings used to deploy the worker nodes in this NodeGroup.',
+  'oneks.form.create_nodegroup.family.help.paragraph':
+    'Please, select a NodeGroup family. The family defines the purpose of the worker nodes and their configuration for this NodeGroup.',
+  'oneks.form.create_nodegroup.flavour.help.paragraph':
+    'Please, select a flavour. The flavour defines the specific configuration that will be used to deploy the worker nodes in this NodeGroup.',
+  'oneks.tab.info.kubeconfig.help.paragraph':
+    'The K8S cluster must be running to display the kubeconfig.',
+  'oneks.tab.info.nodegroups.help.paragraph':
+    'The K8S cluster must be running to display the Node Groups.',
+  SuccessNodeGroupCreated: 'Node group created',
+  ErrorNodeGroupCreation: 'Error creating node group: %s',
+  SuccessNodeGroupDeleted: 'Node group deleted',
+  ErrorNodeGroupDeletion: 'Error deleting node group',
+  SuccessNodeGroupScaled: 'Node group scaled',
+  ErrorNodeGroupScaling: 'Error scaling node group',
+  CreatingNodeGroupCluster: 'Creating node group cluster',
+  AddingNodeGroupCluster: 'Adding node group cluster',
+  ScalingNodeGroupCluster: 'Scaling node group cluster',
+  RecoverOneKsCluster: 'Recover OneKs Cluster',
+  RecoverSeveralOneKsClusters: 'Recover several OneKs Clusters',
+  SuccessOneKsRetried: 'OneKs cluster retried',
+  ErrorOneKsRetried: 'Error retrying OneKs cluster',
+  SuccessNodeGroupRecovered: 'Node group recovered',
+  ErrorNodeGroupRecovery: 'Error recovering node group',
+  SuccessUpdateNodeGroup: 'Node group updated',
+  ErrorUpdateNodeGroup: 'Error updating node group',
+
+  /* User Inputs kubernetes */
+  count: 'Count',
+  cpu: 'CPU',
+  vcpu: 'Virtual CPU',
+  memory: 'Memory',
+  disk_size: 'Disk Size',
 }

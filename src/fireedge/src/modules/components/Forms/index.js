@@ -31,6 +31,7 @@ import * as Labels from '@modules/components/Forms/Labels'
 import * as Marketplace from '@modules/components/Forms/Marketplace'
 import * as MarketplaceApp from '@modules/components/Forms/MarketplaceApp'
 import * as Provider from '@modules/components/Forms/Provider'
+import * as OneKsApp from '@modules/components/Forms/OneKs'
 import * as SecurityGroup from '@modules/components/Forms/SecurityGroups'
 import * as Service from '@modules/components/Forms/Service'
 import * as ServiceTemplate from '@modules/components/Forms/ServiceTemplate'
@@ -68,6 +69,7 @@ export const Form = {
   Marketplace,
   MarketplaceApp,
   Provider,
+  OneKsApp,
   SecurityGroup,
   Service,
   ServiceTemplate,

@@ -91,7 +91,6 @@ const GroupsInfoTab = ({ tabProps: { actions } = {}, id: userId }) => {
         USER_GROUPS.some((userGroup) => userGroup === group.ID) &&
         group.ID !== primaryGroupId
     )
-    console.log('revi', x)
 
     return x
   }

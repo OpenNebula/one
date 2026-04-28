@@ -204,6 +204,7 @@ export const RESOURCE_NAMES = {
   BACKUPJOBS: 'backupjobs',
   SUPPORT: 'support',
   DASHBOARD: 'dashboard',
+  ONEKS: 'kubernetes',
 }
 
 export * as T from '@modules/constants/translates'
@@ -227,6 +228,7 @@ export * from '@modules/constants/marketplace'
 export * from '@modules/constants/marketplaceApp'
 export * from '@modules/constants/network'
 export * from '@modules/constants/networkTemplate'
+export * from '@modules/constants/oneks'
 export * from '@modules/constants/quota'
 export * from '@modules/constants/scheduler'
 export * from '@modules/constants/securityGroup'

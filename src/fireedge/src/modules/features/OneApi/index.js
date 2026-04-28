@@ -33,6 +33,7 @@ import ProvisionAPI, {
 import VnAPI from '@modules/features/OneApi/network'
 import VnTemplateAPI from '@modules/features/OneApi/networkTemplate'
 import { oneApi } from '@modules/features/OneApi/oneApi'
+import OneKsAPI from '@modules/features/OneApi/oneKs'
 import {
   DOCUMENT,
   DOCUMENT_POOL,
@@ -76,6 +77,7 @@ export {
   ProviderAPI,
   ProvisionAPI,
   provisionEndpoints,
+  OneKsAPI,
   SecurityGroupAPI,
   ServiceAPI,
   ServiceTemplateAPI,

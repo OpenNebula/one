@@ -14,7 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { css } from '@emotion/css'
+import { css, keyframes } from '@emotion/css'
+
+const shimmerTranslate = keyframes`
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+`
 
 export const styles = ({ palette }) => ({
   search: css({
@@ -101,5 +106,21 @@ export const styles = ({ palette }) => ({
   highlightText: css({
     background: palette.logsViewer.highlight,
     padding: '0 1px',
+  }),
+  shimmerOverlay: css({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 10,
+    pointerEvents: 'none',
+    backgroundImage: `linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0) 100%
+    )`,
+    animation: `${shimmerTranslate} 2.5s infinite`,
   }),
 })

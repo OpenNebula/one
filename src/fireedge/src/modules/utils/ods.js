@@ -129,7 +129,7 @@ const odsUserInputValidation = (type, odsUserInput) => {
    * Ranges ==> match
    * Map aka Objects
    */
-  const { mandatory } = odsUserInput
+  const { mandatory, disable } = odsUserInput
 
   const {
     string: tstring,
@@ -190,13 +190,16 @@ const odsUserInputValidation = (type, odsUserInput) => {
   } else if (
     odsUserInput.match &&
     odsUserInput.match.values &&
-    'min' in odsUserInput.match.values &&
-    'max' in odsUserInput.match.values
+    'min' in odsUserInput.match.values
   ) {
     const min = odsUserInput.match.values.min
-    const max = odsUserInput.match.values.max
-    yupValidator = yupValidator.min(min).max(max)
-    inputTypeValue = INPUT_TYPES.SLIDER
+    yupValidator = yupValidator.min(min)
+    inputTypeValue = INPUT_TYPES.TEXT
+    if ('max' in odsUserInput.match.values) {
+      const max = odsUserInput.match.values.max
+      yupValidator = yupValidator.max(max)
+      inputTypeValue = INPUT_TYPES.SLIDER
+    }
   }
 
   let defaultValue
@@ -224,6 +227,7 @@ const odsUserInputValidation = (type, odsUserInput) => {
     validation: yupValidator,
     inputType: inputTypeValue,
     defaultValue: defaultValue,
+    disable,
   }
 }
 
@@ -236,10 +240,8 @@ export const schemaOdsUserInputField = (odsUserInput = {}) => {
   const type = odsUserInputType(odsUserInput)
 
   // Get yup validator, input type and default value for ODS User Input
-  const { validation, inputType, defaultValue } = odsUserInputValidation(
-    type,
-    odsUserInput
-  )
+  const { validation, inputType, defaultValue, disable } =
+    odsUserInputValidation(type, odsUserInput)
 
   // Base Field config for odsUserInput
   const odsUserInputLabel = T[odsUserInput.name] ?? odsUserInput.name
@@ -305,19 +307,22 @@ export const schemaOdsUserInputField = (odsUserInput = {}) => {
     case tnumber: {
       config.type = inputType
       config.validation = validation
-
       if (
         odsUserInput.match &&
         isPlainObject(odsUserInput.match.values) &&
-        'min' in odsUserInput.match.values &&
-        'max' in odsUserInput.match.values
+        'min' in odsUserInput.match.values
       ) {
         config.grid = { xs: 12, md: 6 }
-        config.fieldProps = {
+        config.htmlType = 'number'
+        const fieldProps = {
           min: odsUserInput.match.values.min,
-          max: odsUserInput.match.values.max,
           step: 1,
         }
+        if ('max' in odsUserInput.match.values) {
+          fieldProps.max = odsUserInput.match.values.max
+        }
+        config.inputProps = fieldProps
+        config.fieldProps = fieldProps
       }
 
       break
@@ -397,6 +402,14 @@ export const schemaOdsUserInputField = (odsUserInput = {}) => {
 
   if (defaultValue) {
     config.defaultValue = defaultValue
+  }
+
+  if (disable) {
+    if (config.fieldProps) {
+      config.fieldProps.disabled = true
+    } else {
+      config.fieldProps = { disabled: true }
+    }
   }
 
   return config

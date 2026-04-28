@@ -53,6 +53,8 @@ export function CreateClusterCloudLogs() {
   const { id } = useParams()
   const { state } = useLocation()
 
+  const [retry] = ProvisionAPI.useRetryProvisionMutation()
+
   if (Number.isNaN(+id)) {
     return <Redirect to="/" />
   }
@@ -172,6 +174,7 @@ export function CreateClusterCloudLogs() {
           logs={logsData}
           options={{ followLogs: true }}
           provisionId={id}
+          onRetry={() => retry({ id })}
         />
       </Stack>
     </TranslateProvider>
