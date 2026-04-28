@@ -104,17 +104,20 @@ void PlanManager::add_plan(const string& xml)
     {
         if (plan.cid() == -1)
         {
-            NebulaLog::info("PLM", "Adding new placement plan");
-
             if (cplan->state() == PlanState::APPLYING)
             {
-                NebulaLog::info("PLM", "Cannot add plan. A placement plan is already in progress.");
-                return;
+                NebulaLog::info("PLM", "Merging new actions into running placement plan.");
+
+                cplan->merge_actions(xml);
             }
+            else
+            {
+                NebulaLog::info("PLM", "Adding new placement plan");
 
-            cplan->from_xml(xml);
+                cplan->from_xml(xml);
 
-            cplan->state(PlanState::APPLYING);
+                cplan->state(PlanState::APPLYING);
+            }
         }
         else if (auto cluster = cluster_pool->get_ro(plan.cid()))
         {

@@ -220,6 +220,73 @@ void Plan::timeout_actions(int timeout)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Plan::merge_actions(const std::string& xml)
+{
+    Plan incoming;
+
+    if (incoming.from_xml(xml) != 0)
+    {
+        NebulaLog::error("PLM", "merge_actions: failed to parse incoming plan XML");
+        return;
+    }
+
+    // Remove terminal actions to keep the plan lean. This prevents unbounded
+    // growth when many scheduling cycles merge into a long-running plan and
+    // ensures check_completed() is not blocked by already-finished actions.
+    // NOTE: do NOT touch APPLYING actions — their IDs are stored in VM history
+    // records and must remain stable so action_finished() callbacks match.
+    std::vector<PlanAction> active_actions;
+
+    for (const auto& a : _actions)
+    {
+        if (a.state() != PlanState::DONE    &&
+            a.state() != PlanState::ERROR   &&
+            a.state() != PlanState::TIMEOUT)
+        {
+            active_actions.push_back(a);
+        }
+    }
+
+    _actions = std::move(active_actions);
+
+    // Build set of VM IDs that already have an active (READY or APPLYING) action
+    std::set<int> active_vms;
+
+    // Find the highest ID in use so new actions don't collide with any
+    // in-flight APPLYING actions whose IDs are stored in VM history records.
+    int next_id = 0;
+
+    for (const auto& a : _actions)
+    {
+        active_vms.insert(a.vm_id());
+        next_id = std::max(next_id, a.id() + 1);
+    }
+
+    // Append only new VMs not already present in the plan
+    int appended = 0;
+
+    for (const auto& a : incoming.actions())
+    {
+        if (active_vms.count(a.vm_id()) != 0)
+        {
+            continue;
+        }
+
+        _actions.push_back(a);
+        _actions.back().id(next_id++);
+        appended++;
+    }
+
+    if (appended > 0)
+    {
+        NebulaLog::info("PLM", "merge_actions: appended " + std::to_string(appended)
+                        + " new actions to the running placement plan");
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Plan::count_actions(int &cluster_actions, std::map<int, int>& host_actions)
 {
     for (const auto& a : _actions)

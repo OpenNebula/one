@@ -161,7 +161,7 @@ void SchedulerManager::trigger_place()
                 return;
             }
 
-            //TODO Check a PLACE planning is not being applied
+            // New actions will be merged into the running plan if one exists
             //send place request to driver, reset window
             last_place = the_time;
             wnd_start  = 0;
@@ -288,7 +288,7 @@ void SchedulerManager::timer_action()
 
         NebulaLog::ddebug("SCMT", oss.str());
 
-        //TODO Check there is no placement plan active
+        // New actions will be merged into the running plan if one exists
 
         if (!expired && !pending)
         {
