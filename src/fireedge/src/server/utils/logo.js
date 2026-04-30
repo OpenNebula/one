@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const { getSunstoneViewConfig } = require('server/utils/yml')
-const { existsSync, readdirSync } = require('fs')
+const { existsSync, readdirSync, readFileSync } = require('fs')
 const path = require('path')
 const { global } = require('window-or-global')
 const Jimp = require('jimp')
@@ -41,6 +41,42 @@ const getLogo = () => {
 
   return { valid: false, filename: null, ...(!logo ? { NOTSET: true } : {}) }
 }
+
+/**
+ * Retrieves the favicon filename.
+ *
+ * @returns {string|null} The validated favicon filename or null if the filename is invalid or not specified.
+ */
+const getFavicon = () => {
+  const config = getSunstoneViewConfig()
+  const favicon = config?.favicon
+
+  const validFilenameRegex = /^[a-zA-Z0-9-_]+\.(ico|jpg|jpeg|png|)$/
+
+  if (
+    favicon &&
+    typeof favicon === 'string' &&
+    favicon.trim() !== '' &&
+    validFilenameRegex.test(favicon)
+  ) {
+    return { valid: true, filename: favicon }
+  }
+
+  return {
+    valid: false,
+    filename: null,
+    ...(!favicon ? { NOTSET: true } : {}),
+  }
+}
+
+/**
+ * Returns the favicon extension.
+ *
+ * @param {string} filename - Branding image filename.
+ * @returns {string} Lowercase extension without dot.
+ */
+const getFileExtension = (filename = '') =>
+  path.extname(filename).slice(1).toLowerCase()
 
 /**
  * Validates the specified logo file path.
@@ -78,6 +114,34 @@ const validateLogo = (logo, relativePaths = false) => {
 }
 
 /**
+ * Validates the specified favicon file path.
+ *
+ * @param {string} favicon - The favicon file name to validate.
+ * @returns {string|boolean} Full favicon path or false if invalid.
+ */
+const validateFavicon = (favicon) => {
+  const faviconDirectory = global?.paths?.SUNSTONE_FAVICON
+
+  if (!favicon || !faviconDirectory) {
+    return { valid: false, path: null }
+  }
+
+  const filePath = path.isAbsolute(favicon)
+    ? favicon
+    : path.join(faviconDirectory, path.normalize(favicon))
+
+  if (!filePath?.startsWith(faviconDirectory)) {
+    return { valid: false, path: null }
+  }
+
+  if (!existsSync(filePath)) {
+    return { valid: false, path: 'Not found' }
+  }
+
+  return { valid: true, path: filePath }
+}
+
+/**
  * Encodes an image file at a specified path into a base64 string.
  *
  * @param {string} filePath - The full path to the image file.
@@ -102,6 +166,12 @@ const encodeLogo = async (filePath) => {
  */
 const encodeFavicon = async (filePath) => {
   try {
+    if (getFileExtension(filePath) === 'ico') {
+      const dataFile = readFileSync(filePath)
+
+      return `data:image/x-icon;base64,${dataFile.toString('base64')}`
+    }
+
     const image = await Jimp.read(filePath)
     const resizedImage = await image.resize(32, 32)
     const data = await resizedImage.getBufferAsync(Jimp.MIME_PNG)
@@ -148,26 +218,44 @@ const getAllLogos = () => {
  * @returns {Promise<{b64: string, logoName: string} | null>} A promise that resolves to the base64 encoded image string suitable for favicon use.
  */
 const getEncodedFavicon = async () => {
-  const logo = getLogo()
-
-  if (!logo?.valid || logo?.NOTSET) {
-    return null
-  }
-
-  const validated = validateLogo(logo?.filename)
-  if (!validated?.valid || validated?.path === 'Not found') {
-    return null
-  }
+  const favicon = getFavicon()
+  const fallbackLogo = getLogo()
 
   try {
-    const encodedFavicon = await encodeFavicon(validated.path)
-    if (!encodedFavicon) {
+    if (favicon?.valid) {
+      const validatedFavicon = validateFavicon(favicon.filename)
+
+      if (validatedFavicon?.valid && validatedFavicon?.path !== 'Not found') {
+        const encodedFavicon = await encodeFavicon(validatedFavicon.path)
+
+        if (encodedFavicon) {
+          return {
+            b64: encodedFavicon,
+            logoName: favicon.filename,
+          }
+        }
+      }
+    }
+
+    if (!fallbackLogo?.valid || fallbackLogo?.NOTSET) {
+      return null
+    }
+
+    const validatedLogo = validateLogo(fallbackLogo.filename)
+
+    if (!validatedLogo?.valid || validatedLogo?.path === 'Not found') {
+      return null
+    }
+
+    const encodedFav = await encodeFavicon(validatedLogo.path)
+
+    if (!encodedFav) {
       return null
     }
 
     return {
-      b64: encodedFavicon,
-      logoName: logo.filename,
+      b64: encodedFav,
+      logoName: fallbackLogo.filename,
     }
   } catch (error) {
     return null
@@ -176,8 +264,10 @@ const getEncodedFavicon = async () => {
 
 module.exports = {
   getLogo,
+  getFavicon,
   getAllLogos,
   validateLogo,
+  validateFavicon,
   encodeLogo,
   encodeFavicon,
   getEncodedFavicon,

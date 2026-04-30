@@ -590,6 +590,9 @@ const genPathResources = () => {
     if (!global.paths.SUNSTONE_IMAGES) {
       global.paths.SUNSTONE_IMAGES = `${SYSTEM_LOCATION}/assets/images/logos`
     }
+    if (!global.paths.SUNSTONE_FAVICON) {
+      global.paths.SUNSTONE_FAVICON = `${SYSTEM_LOCATION}/assets/images/favicon`
+    }
     if (!global.paths.SUNSTONE_VIEWS) {
       global.paths.SUNSTONE_VIEWS = `${ETC_VIEWS_LOCATION}/${defaultSunstoneViews}`
     }
