@@ -250,6 +250,9 @@ main_env.Append(rubygems=ARGUMENTS.get('rubygems', 'no'))
 # Enterprise Edition
 main_env.Append(enterprise=ARGUMENTS.get('enterprise', 'no'))
 
+if main_env['enterprise'] == 'yes':
+    main_env.Append(CPPDEFINES=['ENTERPRISE'])
+
 # FireEdge minified files generation
 main_env.Append(fireedge=ARGUMENTS.get('fireedge', 'no'))
 

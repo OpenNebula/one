@@ -83,7 +83,4 @@ if not env.GetOption('clean'):
     else:
         env.ParseConfig('xmlrpc-c-config c++2 abyss-server --libs --cflags')
 
-if env['enterprise']=='yes':
-    env.Append(CPPDEFINES=['ENTERPRISE'])
-
 env.Program('oned.cc')
