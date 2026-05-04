@@ -75,6 +75,7 @@ GEM_DESCRIPTION={
             ['src/flow/lib/models/*.rb', '/lib/models'],
 
             ['src/oca/ruby/opennebula/*.rb', '/lib/opennebula'],
+            ['src/oca/ruby/opennebula/lib/*.rb', '/lib/opennebula/lib'],
             ['src/oca/ruby/opennebula/grpc/*.rb', '/lib/opennebula/grpc'],
             ['src/oca/ruby/opennebula/flow/*.rb', '/lib/opennebula/flow'],
             ['src/authm_mad/remotes/**/*.rb', '/lib/opennebula'],
@@ -105,6 +106,7 @@ GEM_DESCRIPTION={
             ['src/cli/one[a-z]*', '/bin', 'one(provider|provision)'],
             ['src/cli/*.rb', '/lib'],
             ['src/cli/one_helper/*.rb', '/lib/one_helper', 'one(provider|provision)'],
+            ['share/rubygems/load_opennebula_paths.rb', '/lib'],
             ['NOTICE', ''],
             ['LICENSE', '']
         ],
