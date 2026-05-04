@@ -33,11 +33,6 @@ module OpenNebula
                 app.before do
                     content_type :json
                 end
-
-                app.register Sinatra::Namespace
-                app.namespace '/api/v1' do
-                    # Register versioned API controllers here in downstream services.
-                end
             end
 
         end

@@ -27,6 +27,8 @@ module OpenNebula
             DOCUMENT_ATTRS    = []
             UPDATE_ATTRS      = []
             ATTRIBUTE_CLASSES = {}
+            RESOURCE_NAME     = 'document'
+            INFO_ERROR        = /\A\[([^\]]+)\] Error getting document \[(.+)\]\.\z/
 
             def initialize(client, xml: nil, id: nil)
                 @tag = self.class::TEMPLATE_TAG
@@ -108,7 +110,7 @@ module OpenNebula
             #   parsing steps. Otherwise, returns the parsed document.
             def info(skip_methods: nil, raw: false)
                 rc = super(true)
-                return rc if OpenNebula.is_error?(rc)
+                return custom_info_error(rc) if OpenNebula.is_error?(rc)
 
                 skip_methods ||= {}
 
@@ -139,6 +141,17 @@ module OpenNebula
                         @body[key] = klass.json_create(value)
                     end
                 end
+            end
+
+            def custom_info_error(rc)
+                match = rc.message.to_s.match(INFO_ERROR)
+                return rc unless match
+
+                OpenNebula::Error.new(
+                    "[#{match[1]}] Error getting #{self.class::RESOURCE_NAME} " \
+                    "[#{match[2]}].",
+                    rc.errno
+                )
             end
 
             # Allocate a new document

@@ -28,6 +28,8 @@ module OpenNebula
                 # Configure the oneadmin only flag
                 app.set(:oneadmin_only) do |access|
                     condition do
+                        next unless access
+
                         user = User.new_with_id(OpenNebula::User::SELF, @client)
                         rc   = user.info
 
@@ -39,12 +41,24 @@ module OpenNebula
                             )
                         end
 
-                        unless access && (user['GID'] == '0' || user.groups.include?('0'))
+                        unless user['GID'] == '0' || user.groups.include?('0')
                             halt 403, internal_error(
                                 'Access denied. Only users belonging to the oneadmin ' \
                                 'group are authorized to perform this action',
                                 ResponseHelper::VALIDATION_EC
                             )
+                        end
+                    end
+                end
+
+                # Configure the resource access flag
+                app.set(:ensure_resource_access) do |resource_class|
+                    condition do
+                        rc = resource_class.new_from_id(@client, params[:id], :raw => true)
+
+                        if OpenNebula.is_error?(rc)
+                            error_code = one_error_to_http(rc.errno)
+                            halt error_code, internal_error(rc.message, error_code)
                         end
                     end
                 end

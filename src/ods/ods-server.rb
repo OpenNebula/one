@@ -33,10 +33,6 @@ module OpenNebula
                 set :logger, Log.instance(SERVER_CONF[:log])
                 use Rack::CommonLogger, logger
                 use Rack::Session::Pool, :key => ODS_NAME
-
-                set :log_auth_factory, lambda {|client, id, _resource_name|
-                    Document.new_from_id(client, id, :raw => true)
-                }
             end
 
             # Environments

@@ -21,10 +21,12 @@ module OpenNebula
         # Log Controller
         module LogController
 
-            def self.registered(app)
-                app.helpers LogsHelper
-
-                # GET /:resource_name/:id/logs
+            # Registers a logs endpoint for a document backed resource
+            # @param app [Sinatra::Base] App where the route is registered
+            # @param base_path [String] Resource collection path
+            # @param resource_class [Class] Document backed resource class
+            def self.logs(app, base_path, resource_class)
+                # GET /base/:id/logs
                 # Returns the logs for the specified resource
                 #
                 # Params:
@@ -44,29 +46,23 @@ module OpenNebula
                 #       ]
                 #     }
                 #   500 Internal Server Error - If OpenNebula returns an error
-                app.get '/:resource_name/:id/logs' do
-                    auth_object = settings.log_auth_factory.call(
-                        @client,
-                        params[:id],
-                        params[:resource_name]
-                    )
-
-                    return internal_error(
-                        auth_object.message,
-                        one_error_to_http(auth_object.errno)
-                    ) if OpenNebula.is_error?(auth_object)
-
+                app.get "#{base_path}/:id/logs", :ensure_resource_access => resource_class do
                     log_file = File.join(LOG_LOCATION, APP_NAME, "#{params[:id]}.log")
-
                     return internal_error('Log file not found', 404) unless File.exist?(log_file)
 
-                    all_logs = params[:all] == 'true'
-                    page     = (params[:page] || 1).to_i
-                    per_page = (params[:per_page] || 100).to_i
+                    all_logs = params.key?(:all)
+                    page     = [params.fetch(:page, 1).to_i, 1].max
+                    per_page = [params.fetch(:per_page, 100).to_i, 1].max
                     logs     = get_logs_page(log_file, page, per_page, all_logs)
 
                     status 200
                     body process_response(logs)
+                end
+            end
+
+            def self.registered(app)
+                app.define_singleton_method(:logs) do |base_path, resource_class|
+                    LogController.logs(self, base_path, resource_class)
                 end
             end
 
