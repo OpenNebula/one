@@ -141,6 +141,23 @@ def format_host(host)
     end
 end
 
+# Hardcoded list of optional prometheus exporters shipped by OpenNebula.
+# `target` selects which set of nodes to probe:
+#   - "hosts"   -> every entry in `onehost list`
+#   - "servers" -> every entry in `onezone show ... SERVER_POOL` plus self
+EXTRA_EXPORTERS = [
+    { 'job_name' => 'ovs_exporter',      'port' => 9475, 'target' => 'hosts'   },
+    { 'job_name' => 'smartctl_exporter', 'port' => 9633, 'target' => 'hosts'   },
+    { 'job_name' => 'lvm_exporter',      'port' => 9845, 'target' => 'hosts'   },
+    { 'job_name' => 'mysql_exporter',    'port' => 9104, 'target' => 'servers' }
+].freeze
+
+def reachable?(host, port, timeout: 2)
+    Socket.tcp(host, port, connect_timeout: timeout) { true }
+rescue StandardError
+    false
+end
+
 def patch_datasources(document, zone_name_or_id = 'OpenNebula')
     hosts = onehost_list
 
@@ -192,6 +209,32 @@ def patch_datasources(document, zone_name_or_id = 'OpenNebula')
               'labels' => { 'one_host_id' => host['ID'] } }
         end
     } unless hosts.empty?
+
+    # Optional extra exporters: TCP-probe every candidate (host, port) and
+    # add a scrape config only for the ones currently reachable. Lets an
+    # admin install opennebula-prometheus-<exporter> on a node and have the
+    # next patch_datasources run pick it up automatically.
+    EXTRA_EXPORTERS.each do |ex|
+        port = ex['port']
+        static_configs = case ex['target']
+                         when 'hosts'
+                             hosts.select { |h| reachable?(h['TEMPLATE']['HOSTNAME'], port) }.map do |host|
+                                 { 'targets' => ["#{host['TEMPLATE']['HOSTNAME']}:#{port}"],
+                                   'labels'  => { 'one_host_id' => host['ID'] } }
+                             end
+                         when 'servers'
+                             present = (servers + [myself]).select { |s| reachable?(s, port) }
+                             present.empty? ? [] : [{
+                                 'targets' => present.map { |s| "#{format_host(s)}:#{port}" }
+                             }]
+                         end
+        next if static_configs.empty?
+
+        scrape_configs << {
+            'job_name' => ex['job_name'],
+            'static_configs' => static_configs
+        }
+    end
 
     document['scrape_configs'] = dict_to_list(
         list_to_dict(document['scrape_configs']).merge(list_to_dict(scrape_configs))

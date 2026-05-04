@@ -1,10 +1,16 @@
 [Unit]
 Description=OpenNebula Prometheus Node Exporter
+After=network-online.target
+Wants=network-online.target
+StartLimitInterval=60
+StartLimitBurst=3
 
 [Service]
 User=oneadmin
 Group=oneadmin
 Type=simple
+Restart=on-failure
+RestartSec=5
 
 ExecStart=/usr/bin/node_exporter
 

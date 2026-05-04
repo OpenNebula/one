@@ -140,6 +140,10 @@ RSpec.describe 'detect_servers' do
 end
 
 RSpec.describe 'patch_datasources' do
+    before(:each) do
+        # default: nothing reachable (no real TCP probes during tests)
+        allow(self).to receive(:reachable?).and_return(false)
+    end
     before(:all) do
         @onehost_list = YAML.safe_load(<<~DOCUMENT)
         ---
@@ -597,5 +601,99 @@ RSpec.describe 'patch_datasources' do
         DOCUMENT
 
         expect(patch_datasources(@provided)).to eq expected
+    end
+    it 'should append host-target extras for reachable hosts' do
+        allow(self).to receive(:onehost_list).and_return @onehost_list
+
+        allow(self).to receive(:detect_servers).and_return [
+            [], '127.0.0.1'
+        ]
+
+        allow(self).to receive(:reachable?).with('omicron', 9475).and_return(true)
+        allow(self).to receive(:reachable?).with('epsilon', 9475).and_return(true)
+
+        result = patch_datasources(@provided)
+
+        ovs = result['scrape_configs'].find { |s| s['job_name'] == 'ovs_exporter' }
+        expect(ovs).not_to be_nil
+        expect(ovs['static_configs']).to eq [
+            { 'targets' => ['omicron:9475'], 'labels' => { 'one_host_id' => '1' } },
+            { 'targets' => ['epsilon:9475'], 'labels' => { 'one_host_id' => '0' } }
+        ]
+    end
+    it 'should append server-target extras for reachable servers' do
+        allow(self).to receive(:onehost_list).and_return @onehost_list
+
+        allow(self).to receive(:detect_servers).and_return [
+            ['192.168.150.1', '192.168.150.3'], '192.168.150.2'
+        ]
+
+        allow(self).to receive(:reachable?).with('192.168.150.1', 9104).and_return(true)
+        allow(self).to receive(:reachable?).with('192.168.150.3', 9104).and_return(true)
+        allow(self).to receive(:reachable?).with('192.168.150.2', 9104).and_return(true)
+
+        result = patch_datasources(@provided)
+
+        mysql = result['scrape_configs'].find { |s| s['job_name'] == 'mysql_exporter' }
+        expect(mysql).not_to be_nil
+        expect(mysql['static_configs']).to eq [{
+            'targets' => [
+                '192.168.150.1:9104',
+                '192.168.150.3:9104',
+                '192.168.150.2:9104'
+            ]
+        }]
+    end
+    it 'should brackets IPv6 server targets' do
+        allow(self).to receive(:onehost_list).and_return @onehost_list
+
+        allow(self).to receive(:detect_servers).and_return [
+            ['2001:db8::12'], '2001:db8::11'
+        ]
+
+        allow(self).to receive(:reachable?).with('2001:db8::12', 9104).and_return(true)
+        allow(self).to receive(:reachable?).with('2001:db8::11', 9104).and_return(true)
+
+        mysql = patch_datasources(@provided)['scrape_configs']
+            .find { |s| s['job_name'] == 'mysql_exporter' }
+
+        expect(mysql['static_configs']).to eq [{
+            'targets' => ['[2001:db8::12]:9104', '[2001:db8::11]:9104']
+        }]
+    end
+    it 'should skip extras when no candidate responds' do
+        allow(self).to receive(:onehost_list).and_return @onehost_list
+
+        allow(self).to receive(:detect_servers).and_return [
+            [], '127.0.0.1'
+        ]
+
+        allow(self).to receive(:reachable?).and_return(false)
+
+        # deep-clone @provided since earlier tests mutate it
+        provided = Marshal.load(Marshal.dump(@provided))
+        provided['scrape_configs'] = [provided['scrape_configs'].first]
+
+        jobs = patch_datasources(provided)['scrape_configs'].map { |s| s['job_name'] }
+        expect(jobs).to eq ['prometheus', 'opennebula_exporter', 'node_exporter', 'libvirt_exporter']
+    end
+    it 'should add a scrape config per reachable extra' do
+        allow(self).to receive(:onehost_list).and_return @onehost_list
+
+        allow(self).to receive(:detect_servers).and_return [
+            [], '127.0.0.1'
+        ]
+
+        # smartctl on omicron only; lvm on both
+        allow(self).to receive(:reachable?).with('omicron', 9633).and_return(true)
+        allow(self).to receive(:reachable?).with('omicron', 9845).and_return(true)
+        allow(self).to receive(:reachable?).with('epsilon', 9845).and_return(true)
+
+        result = patch_datasources(@provided)['scrape_configs']
+        smartctl = result.find { |s| s['job_name'] == 'smartctl_exporter' }
+        lvm      = result.find { |s| s['job_name'] == 'lvm_exporter' }
+
+        expect(smartctl['static_configs'].map { |c| c['targets'] }).to eq [['omicron:9633']]
+        expect(lvm['static_configs'].map { |c| c['targets'] }).to eq [['omicron:9845'], ['epsilon:9845']]
     end
 end

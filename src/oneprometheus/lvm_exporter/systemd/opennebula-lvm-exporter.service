@@ -1,18 +1,17 @@
 [Unit]
-Description=OpenNebula Prometheus Exporter
+Description=OpenNebula Prometheus LVM Exporter
 After=network-online.target
 Wants=network-online.target
 StartLimitInterval=60
 StartLimitBurst=3
 
 [Service]
-User=oneadmin
-Group=oneadmin
+User=root
 Type=simple
 Restart=on-failure
 RestartSec=5
 
-ExecStart=/usr/bin/ruby /usr/lib/one/opennebula_exporter/opennebula_exporter.rb
+ExecStart=/usr/bin/lvm_exporter
 
 [Install]
 WantedBy=multi-user.target

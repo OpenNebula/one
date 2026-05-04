@@ -1,10 +1,16 @@
 [Unit]
 Description=OpenNebula Prometheus Libvirt Exporter
+After=network-online.target
+Wants=network-online.target
+StartLimitInterval=60
+StartLimitBurst=3
 
 [Service]
 User=oneadmin
 Group=oneadmin
 Type=simple
+Restart=on-failure
+RestartSec=5
 
 # Comment out the following line if you don't need VM name labels
 Environment=ONE_PROMETHEUS_VM_NAMES=

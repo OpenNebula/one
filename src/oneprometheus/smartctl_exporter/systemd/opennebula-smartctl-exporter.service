@@ -1,5 +1,5 @@
 [Unit]
-Description=OpenNebula Prometheus Exporter
+Description=OpenNebula Prometheus SMART Exporter
 After=network-online.target
 Wants=network-online.target
 StartLimitInterval=60
@@ -12,7 +12,7 @@ Type=simple
 Restart=on-failure
 RestartSec=5
 
-ExecStart=/usr/bin/ruby /usr/lib/one/opennebula_exporter/opennebula_exporter.rb
+ExecStart=/usr/bin/smartctl_exporter
 
 [Install]
 WantedBy=multi-user.target

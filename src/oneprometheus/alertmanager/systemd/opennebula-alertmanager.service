@@ -1,10 +1,16 @@
 [Unit]
 Description=OpenNebula Alertmanager
+After=network-online.target
+Wants=network-online.target
+StartLimitInterval=60
+StartLimitBurst=3
 
 [Service]
 User=oneadmin
 Group=oneadmin
 Type=simple
+Restart=on-failure
+RestartSec=5
 
 ExecStart=/usr/bin/alertmanager \
           --config.file=/etc/one/alertmanager/alertmanager.yml \

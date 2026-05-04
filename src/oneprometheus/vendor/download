@@ -17,9 +17,17 @@
 
 : "${ALERTMANAGER_VERSION:=0.27.0}"
 
+: "${LVM_EXPORTER_VERSION:=0.6.2}"
+
+: "${MYSQLD_EXPORTER_VERSION:=0.19.0}"
+
 : "${NODE_EXPORTER_VERSION:=1.8.2}"
 
+: "${OVS_EXPORTER_VERSION:=2.3.1}"
+
 : "${PROMETHEUS_VERSION:=2.53.1}"
+
+: "${SMARTCTL_EXPORTER_VERSION:=0.14.0}"
 
 set -o errexit -o nounset -o pipefail
 
@@ -30,20 +38,53 @@ readonly SELF=$(realpath "$0" | xargs dirname) && cd "$SELF/"
 readonly ALERTMANAGER_URL="https://github.com/prometheus/alertmanager/releases/download/v$ALERTMANAGER_VERSION/alertmanager-$ALERTMANAGER_VERSION.linux-amd64.tar.gz"
 readonly ALERTMANAGER_URL_ARM64="https://github.com/prometheus/alertmanager/releases/download/v$ALERTMANAGER_VERSION/alertmanager-$ALERTMANAGER_VERSION.linux-arm64.tar.gz"
 
+readonly LVM_EXPORTER_URL="https://github.com/hansmi/prometheus-lvm-exporter/releases/download/v$LVM_EXPORTER_VERSION/prometheus-lvm-exporter_${LVM_EXPORTER_VERSION}_linux_amd64.tar.gz"
+readonly LVM_EXPORTER_URL_ARM64="https://github.com/hansmi/prometheus-lvm-exporter/releases/download/v$LVM_EXPORTER_VERSION/prometheus-lvm-exporter_${LVM_EXPORTER_VERSION}_linux_arm64.tar.gz"
+
+readonly MYSQLD_EXPORTER_URL="https://github.com/prometheus/mysqld_exporter/releases/download/v$MYSQLD_EXPORTER_VERSION/mysqld_exporter-$MYSQLD_EXPORTER_VERSION.linux-amd64.tar.gz"
+readonly MYSQLD_EXPORTER_URL_ARM64="https://github.com/prometheus/mysqld_exporter/releases/download/v$MYSQLD_EXPORTER_VERSION/mysqld_exporter-$MYSQLD_EXPORTER_VERSION.linux-arm64.tar.gz"
+
 readonly NODE_EXPORTER_URL="https://github.com/prometheus/node_exporter/releases/download/v$NODE_EXPORTER_VERSION/node_exporter-$NODE_EXPORTER_VERSION.linux-amd64.tar.gz"
 readonly NODE_EXPORTER_URL_ARM64="https://github.com/prometheus/node_exporter/releases/download/v$NODE_EXPORTER_VERSION/node_exporter-$NODE_EXPORTER_VERSION.linux-arm64.tar.gz"
 
+readonly OVS_EXPORTER_URL="https://github.com/Liquescent-Development/ovs_exporter/releases/download/v$OVS_EXPORTER_VERSION/ovs-exporter-$OVS_EXPORTER_VERSION.linux-amd64.tar.gz"
+readonly OVS_EXPORTER_URL_ARM64="https://github.com/Liquescent-Development/ovs_exporter/releases/download/v$OVS_EXPORTER_VERSION/ovs-exporter-$OVS_EXPORTER_VERSION.linux-arm64.tar.gz"
+
 readonly PROMETHEUS_URL="https://github.com/prometheus/prometheus/releases/download/v$PROMETHEUS_VERSION/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz"
 readonly PROMETHEUS_URL_ARM64="https://github.com/prometheus/prometheus/releases/download/v$PROMETHEUS_VERSION/prometheus-$PROMETHEUS_VERSION.linux-arm64.tar.gz"
+
+readonly SMARTCTL_EXPORTER_URL="https://github.com/prometheus-community/smartctl_exporter/releases/download/v$SMARTCTL_EXPORTER_VERSION/smartctl_exporter-$SMARTCTL_EXPORTER_VERSION.linux-amd64.tar.gz"
+readonly SMARTCTL_EXPORTER_URL_ARM64="https://github.com/prometheus-community/smartctl_exporter/releases/download/v$SMARTCTL_EXPORTER_VERSION/smartctl_exporter-$SMARTCTL_EXPORTER_VERSION.linux-arm64.tar.gz"
 
 install -d "$SELF/alertmanager/" "$SELF/alertmanager.arm64/"
 curl -fsSL "$ALERTMANAGER_URL" | tar -xzf- --strip-components=1 -C "$SELF/alertmanager/"
 curl -fsSL "$ALERTMANAGER_URL_ARM64" | tar -xzf- --strip-components=1 -C "$SELF/alertmanager.arm64/"
 
+install -d "$SELF/lvm_exporter/" "$SELF/lvm_exporter.arm64/"
+curl -fsSL "$LVM_EXPORTER_URL" | tar -xzf- --strip-components=1 -C "$SELF/lvm_exporter/"
+mv "$SELF/lvm_exporter/prometheus-lvm-exporter" "$SELF/lvm_exporter/lvm_exporter"
+curl -fsSL "$LVM_EXPORTER_URL_ARM64" | tar -xzf- --strip-components=1 -C "$SELF/lvm_exporter.arm64/"
+mv "$SELF/lvm_exporter.arm64/prometheus-lvm-exporter" "$SELF/lvm_exporter.arm64/lvm_exporter"
+
+install -d "$SELF/mysqld_exporter/" "$SELF/mysqld_exporter.arm64/"
+curl -fsSL "$MYSQLD_EXPORTER_URL" | tar -xzf- --strip-components=1 -C "$SELF/mysqld_exporter/"
+curl -fsSL "$MYSQLD_EXPORTER_URL_ARM64" | tar -xzf- --strip-components=1 -C "$SELF/mysqld_exporter.arm64/"
+
 install -d "$SELF/node_exporter/" "$SELF/node_exporter.arm64/"
 curl -fsSL "$NODE_EXPORTER_URL" | tar -xzf- --strip-components=1 -C "$SELF/node_exporter/"
 curl -fsSL "$NODE_EXPORTER_URL_ARM64" | tar -xzf- --strip-components=1 -C "$SELF/node_exporter.arm64/"
 
+install -d "$SELF/ovs_exporter/" "$SELF/ovs_exporter.arm64/"
+# upstream tarball was packed on macOS with a leading "./", so strip 2
+curl -fsSL "$OVS_EXPORTER_URL" | tar -xzf- --strip-components=2 -C "$SELF/ovs_exporter/"
+mv "$SELF/ovs_exporter/ovs-exporter" "$SELF/ovs_exporter/ovs_exporter"
+curl -fsSL "$OVS_EXPORTER_URL_ARM64" | tar -xzf- --strip-components=2 -C "$SELF/ovs_exporter.arm64/"
+mv "$SELF/ovs_exporter.arm64/ovs-exporter" "$SELF/ovs_exporter.arm64/ovs_exporter"
+
 install -d "$SELF/prometheus/" "$SELF/prometheus.arm64/"
 curl -fsSL "$PROMETHEUS_URL" | tar -xzf- --strip-components=1 -C "$SELF/prometheus/"
 curl -fsSL "$PROMETHEUS_URL_ARM64" | tar -xzf- --strip-components=1 -C "$SELF/prometheus.arm64/"
+
+install -d "$SELF/smartctl_exporter/" "$SELF/smartctl_exporter.arm64/"
+curl -fsSL "$SMARTCTL_EXPORTER_URL" | tar -xzf- --strip-components=1 -C "$SELF/smartctl_exporter/"
+curl -fsSL "$SMARTCTL_EXPORTER_URL_ARM64" | tar -xzf- --strip-components=1 -C "$SELF/smartctl_exporter.arm64/"

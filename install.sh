@@ -333,9 +333,13 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/onecfg/lib/ee/patch \
           $LIB_LOCATION/alertmanager \
           $LIB_LOCATION/libvirt_exporter \
+          $LIB_LOCATION/lvm_exporter \
+          $LIB_LOCATION/mysqld_exporter \
           $LIB_LOCATION/node_exporter \
           $LIB_LOCATION/opennebula_exporter \
-          $LIB_LOCATION/prometheus"
+          $LIB_LOCATION/ovs_exporter \
+          $LIB_LOCATION/prometheus \
+          $LIB_LOCATION/smartctl_exporter"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
@@ -715,8 +719,17 @@ INSTALL_FILES=(
 
     ONEPROMETHEUS_LIBVIRT_EXPORTER_FILES:$LIB_LOCATION/libvirt_exporter
 
+    ONEPROMETHEUS_LVM_EXPORTER_BIN_FILES:$BIN_LOCATION
+    ONEPROMETHEUS_LVM_EXPORTER_FILES:$LIB_LOCATION/lvm_exporter
+
+    ONEPROMETHEUS_MYSQLD_EXPORTER_BIN_FILES:$BIN_LOCATION
+    ONEPROMETHEUS_MYSQLD_EXPORTER_FILES:$LIB_LOCATION/mysqld_exporter
+
     ONEPROMETHEUS_NODE_EXPORTER_BIN_FILES:$BIN_LOCATION
     ONEPROMETHEUS_NODE_EXPORTER_FILES:$LIB_LOCATION/node_exporter
+
+    ONEPROMETHEUS_OVS_EXPORTER_BIN_FILES:$BIN_LOCATION
+    ONEPROMETHEUS_OVS_EXPORTER_FILES:$LIB_LOCATION/ovs_exporter
 
     ONEPROMETHEUS_OPENNEBULA_EXPORTER_FILES:$LIB_LOCATION/opennebula_exporter
 
@@ -724,6 +737,9 @@ INSTALL_FILES=(
     ONEPROMETHEUS_PROMETHEUS_CONFIG_FILES:$ETC_LOCATION/prometheus
     ONEPROMETHEUS_PROMETHEUS_FILES:$LIB_LOCATION/prometheus
     ONEPROMETHEUS_PROMETHEUS_SHARE_FILES:$SHARE_LOCATION/prometheus
+
+    ONEPROMETHEUS_SMARTCTL_EXPORTER_BIN_FILES:$BIN_LOCATION
+    ONEPROMETHEUS_SMARTCTL_EXPORTER_FILES:$LIB_LOCATION/smartctl_exporter
 )
 
 INSTALL_CLIENT_FILES=(
@@ -2699,12 +2715,20 @@ CONTEXT_SHARE=$(find share/context/ -type f \( ! -iname "*.sh" ! -iname "SConstr
 #-------------------------------------------------------------------------------
 
 ALERTMANAGER_VENDOR_DIR='alertmanager'
+LVM_EXPORTER_VENDOR_DIR='lvm_exporter'
+MYSQLD_EXPORTER_VENDOR_DIR='mysqld_exporter'
 NODE_EXPORTER_VENDOR_DIR='node_exporter'
+OVS_EXPORTER_VENDOR_DIR='ovs_exporter'
 PROMETHEUS_VENDOR_DIR='prometheus'
+SMARTCTL_EXPORTER_VENDOR_DIR='smartctl_exporter'
 if [ $ARCH = 'arm64' ]; then
     ALERTMANAGER_VENDOR_DIR='alertmanager.arm64'
+    LVM_EXPORTER_VENDOR_DIR='lvm_exporter.arm64'
+    MYSQLD_EXPORTER_VENDOR_DIR='mysqld_exporter.arm64'
     NODE_EXPORTER_VENDOR_DIR='node_exporter.arm64'
+    OVS_EXPORTER_VENDOR_DIR='ovs_exporter.arm64'
     PROMETHEUS_VENDOR_DIR='prometheus.arm64'
+    SMARTCTL_EXPORTER_VENDOR_DIR='smartctl_exporter.arm64'
 
     # adjust restic binary symlink
     rm src/datastore_mad/remotes/restic/restic
@@ -2729,10 +2753,23 @@ ONEPROMETHEUS_GRAFANA_FILES="src/oneprometheus/grafana/share/dashboards/"
 ONEPROMETHEUS_LIBVIRT_EXPORTER_FILES="src/oneprometheus/opennebula-libvirt-exporter/src/libvirt_collector.rb \
                                       src/oneprometheus/opennebula-libvirt-exporter/src/libvirt_exporter.rb"
 
+# LVM-EXPORTER
+ONEPROMETHEUS_LVM_EXPORTER_BIN_FILES="src/oneprometheus/vendor/${LVM_EXPORTER_VENDOR_DIR}/lvm_exporter"
+ONEPROMETHEUS_LVM_EXPORTER_FILES="src/oneprometheus/vendor/${LVM_EXPORTER_VENDOR_DIR}/LICENSE"
+
+# MYSQLD-EXPORTER
+ONEPROMETHEUS_MYSQLD_EXPORTER_BIN_FILES="src/oneprometheus/vendor/${MYSQLD_EXPORTER_VENDOR_DIR}/mysqld_exporter"
+ONEPROMETHEUS_MYSQLD_EXPORTER_FILES="src/oneprometheus/vendor/${MYSQLD_EXPORTER_VENDOR_DIR}/LICENSE \
+                                     src/oneprometheus/vendor/${MYSQLD_EXPORTER_VENDOR_DIR}/NOTICE"
+
 # NODE-EXPORTER
 ONEPROMETHEUS_NODE_EXPORTER_BIN_FILES="src/oneprometheus/vendor/${NODE_EXPORTER_VENDOR_DIR}/node_exporter"
 ONEPROMETHEUS_NODE_EXPORTER_FILES="src/oneprometheus/vendor/${NODE_EXPORTER_VENDOR_DIR}/LICENSE \
                                    src/oneprometheus/vendor/${NODE_EXPORTER_VENDOR_DIR}/NOTICE"
+
+# OVS-EXPORTER
+ONEPROMETHEUS_OVS_EXPORTER_BIN_FILES="src/oneprometheus/vendor/${OVS_EXPORTER_VENDOR_DIR}/ovs_exporter"
+ONEPROMETHEUS_OVS_EXPORTER_FILES="src/oneprometheus/vendor/${OVS_EXPORTER_VENDOR_DIR}/LICENSE"
 
 # OPENNEBULA-EXPORTER
 ONEPROMETHEUS_OPENNEBULA_EXPORTER_FILES="src/oneprometheus/opennebula-exporter/src/opennebula_collector.rb \
@@ -2755,6 +2792,11 @@ ONEPROMETHEUS_PROMETHEUS_FILES="src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR
                                 src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/LICENSE \
                                 src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/NOTICE"
 ONEPROMETHEUS_PROMETHEUS_SHARE_FILES="src/oneprometheus/prometheus/share/patch_datasources.rb"
+
+# SMARTCTL-EXPORTER
+ONEPROMETHEUS_SMARTCTL_EXPORTER_BIN_FILES="src/oneprometheus/vendor/${SMARTCTL_EXPORTER_VENDOR_DIR}/smartctl_exporter"
+ONEPROMETHEUS_SMARTCTL_EXPORTER_FILES="src/oneprometheus/vendor/${SMARTCTL_EXPORTER_VENDOR_DIR}/LICENSE \
+                                       src/oneprometheus/vendor/${SMARTCTL_EXPORTER_VENDOR_DIR}/NOTICE"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------

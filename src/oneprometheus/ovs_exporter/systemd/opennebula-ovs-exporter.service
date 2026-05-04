@@ -1,6 +1,6 @@
 [Unit]
-Description=OpenNebula Prometheus Exporter
-After=network-online.target
+Description=OpenNebula Prometheus OVS Exporter
+After=network-online.target openvswitch.service
 Wants=network-online.target
 StartLimitInterval=60
 StartLimitBurst=3
@@ -12,7 +12,7 @@ Type=simple
 Restart=on-failure
 RestartSec=5
 
-ExecStart=/usr/bin/ruby /usr/lib/one/opennebula_exporter/opennebula_exporter.rb
+ExecStart=/usr/bin/ovs_exporter
 
 [Install]
 WantedBy=multi-user.target
