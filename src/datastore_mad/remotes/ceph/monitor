@@ -50,13 +50,15 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_KEY \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF \
+                    /DS_DRIVER_ACTION_DATA/MONITOR_VM_DISKS)
 
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
+MONITOR_VM_DISKS="${XPATH_ELEMENTS[j++]}"
 
 HOST=`get_destination_host`
 
@@ -67,15 +69,60 @@ fi
 
 if [ -n "$CEPH_USER" ]; then
     CEPH="$CEPH --id ${CEPH_USER}"
+    RBD="$RBD --id ${CEPH_USER}"
 fi
 
 if [ -n "$CEPH_KEY" ]; then
     CEPH="$CEPH --keyfile ${CEPH_KEY}"
+    RBD="$RBD --keyfile ${CEPH_KEY}"
 fi
 
 if [ -n "$CEPH_CONF" ]; then
     CEPH="$CEPH --conf ${CEPH_CONF}"
+    RBD="$RBD --conf ${CEPH_CONF}"
     RADOS="$RADOS --conf ${CEPH_CONF}"
+fi
+
+# ------------ Compute VM usage -------------
+
+if [ "$MONITOR_VM_DISKS" = "1" ]; then
+    MONITOR_VM_SCRIPT=$(cat <<EOF
+RBD_LIST=\$( $RBD ls -p $POOL_NAME)
+declare -A VM_MONITOR_MAP
+
+for IMG in \$RBD_LIST; do
+    VM_ID=""
+    DISK_ID=""
+
+    if [[ "\$IMG" =~ ^one-([0-9]+)-([0-9]+)-([0-9]+)\$ ]]; then
+        VM_ID="\${BASH_REMATCH[2]}"
+        DISK_ID="\${BASH_REMATCH[3]}"
+    elif [[ "\$IMG" =~ ^one-sys-([0-9]+)-([0-9]+)\$ ]]; then
+        VM_ID="\${BASH_REMATCH[1]}"
+        DISK_ID="\${BASH_REMATCH[2]}"
+    else
+        continue
+    fi
+
+    RBD_DU=\$( $RBD du $POOL_NAME/\$IMG --format json 2>/dev/null )
+    SIZE_BYTES=\$(echo "\$RBD_DU" | jq -r '.images[0].used_size // 0')
+    SIZE_MB=\$((SIZE_BYTES / 1024 / 1024))
+
+    VM_MONITOR_MAP[\$VM_ID]="\${VM_MONITOR_MAP[\$VM_ID]} DISK_SIZE = [ ID=\$DISK_ID, SIZE=\$SIZE_MB ]"
+done
+
+for VM_ID in "\${!VM_MONITOR_MAP[@]}"; do
+    VM_MONITOR="\${VM_MONITOR_MAP[\$VM_ID]}"
+    VM_MONITOR_B64=\$(echo "\$VM_MONITOR" | base64 -w 0)
+    echo "VM=[ID=\$VM_ID, MONITOR=\"\$VM_MONITOR_B64\"]"
+done
+EOF
+)
+
+    MONITOR_DATA_VMS=$(ssh_monitor_and_log "$HOST" "$MONITOR_VM_SCRIPT" "Ceph VM disk monitor script" 2>&1)
+    MONITOR_VMS_STATUS=$?
+
+    send_to_monitor MONITOR_VM $MONITOR_VMS_STATUS -1 "$MONITOR_DATA_VMS"
 fi
 
 # ------------ Compute datastore usage -------------
