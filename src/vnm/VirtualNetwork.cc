@@ -123,7 +123,7 @@ LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
 | fw             | no      | no     | no                       |                |
 | 802.1q         | yes     | no     | yes or AUTOMATIC         |                |
 | vxlan          | yes     | no     | yes or AUTOMATIC         |                |
-| ovswitch       | no      | no     | yes or AUTOMATIC         |                |
+| ovswitch       | no      | no     | no                       |                |
 | ovswitch_vxlan | yes     | no     | OUTER or AUTOMATIC_OUTER |                |
 +----------------+---------+--------+--------------------------+----------------+
 */
@@ -545,6 +545,9 @@ void VirtualNetwork::set_updated_attributes(Template* new_tmpl, bool removed)
             }
         });
     }
+
+    //Remove VNET_UPDATE from user input template
+    new_tmpl->erase("VNET_UPDATE");
 
     if (!update_attr->empty())
     {
