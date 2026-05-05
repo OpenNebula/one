@@ -74,8 +74,8 @@ ButtonView.displayName = 'ButtonView'
  * @returns {ReactElement} Returns interface views list
  */
 const View = () => {
-  const { view: currentView, views = {} } = useViews()
-  const viewNames = useMemo(() => Object.keys(views), [currentView])
+  const { views = {} } = useViews()
+  const viewNames = useMemo(() => Object.keys(views), [views])
 
   return (
     <HeaderPopover
