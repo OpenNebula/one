@@ -183,7 +183,7 @@ export const useViews = () => {
         ({ resource_name: name }) =>
           `${name}`.toLowerCase() === `${resourceName}`.toLowerCase()
       ),
-    [view]
+    [view, views]
   )
 
   /**
@@ -194,7 +194,7 @@ export const useViews = () => {
    */
   const hasAccessToResource = useCallback(
     (resourceName) => !!getResourceView(resourceName),
-    [view]
+    [getResourceView]
   )
 
   return useMemo(
@@ -211,6 +211,6 @@ export const useViews = () => {
       views,
       view,
     }),
-    [view]
+    [getResourceView, hasAccessToResource, view, views]
   )
 }

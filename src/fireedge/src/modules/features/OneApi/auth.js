@@ -16,13 +16,17 @@
 import { Actions, Commands } from 'server/routes/api/auth/routes'
 
 import { AuthSlice, logout } from '@modules/features/Auth/slice'
-import { ONE_RESOURCES_POOL } from '@modules/features/OneApi/resources'
+import {
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from '@modules/features/OneApi/resources'
 import { oneApi } from '@modules/features/OneApi/oneApi'
 
 import { jsonToXml } from '@ModelsModule'
 import { FILTER_POOL } from '@ConstantsModule'
 const { actions: authActions } = AuthSlice
 
+const { SYSTEM } = ONE_RESOURCES
 const { GROUP_POOL, ...restOfPool } = ONE_RESOURCES_POOL
 const {
   ALL_RESOURCES,
@@ -30,6 +34,7 @@ const {
   USER_RESOURCES,
   USER_GROUPS_RESOURCES,
 } = FILTER_POOL
+const SUNSTONE_VIEWS_TAG = { type: SYSTEM, id: 'sunstone-views' }
 
 const authApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -131,12 +136,29 @@ const authApi = oneApi.injectEndpoints({
           dispatch(authActions.changeFilterPool(PRIMARY_GROUP_RESOURCES))
           dispatch(authActions.changeAuthUser({ GID: `${group}` }))
 
+          const viewsRequest = dispatch(
+            oneApi.endpoints.getSunstoneViews.initiate(undefined, {
+              forceRefetch: true,
+            })
+          )
+
+          try {
+            await viewsRequest.unwrap()
+          } finally {
+            viewsRequest.unsubscribe()
+          }
+
           return { data: newGroup }
         } catch (error) {
           return { error }
         }
       },
-      invalidatesTags: [...Object.values(restOfPool)],
+      invalidatesTags: (_, __, { group } = {}) =>
+        group === ALL_RESOURCES ||
+        group === USER_GROUPS_RESOURCES ||
+        group === USER_RESOURCES
+          ? [...Object.values(restOfPool)]
+          : [...Object.values(restOfPool), SUNSTONE_VIEWS_TAG],
     }),
     addLabel: builder.mutation({
       /**

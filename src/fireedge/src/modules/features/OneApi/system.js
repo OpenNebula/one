@@ -114,10 +114,18 @@ const systemApi = oneApi.injectEndpoints({
             await queryFulfilled
 
           const currentView = getState().auth?.view
+          const viewNames = Object.keys(views)
+          let nextView = currentView
 
-          // Set to default view if exists
-          !currentView &&
-            dispatch(actions.changeView(defaultView || Object.keys(views)[0]))
+          if (!viewNames.includes(currentView)) {
+            nextView = viewNames.includes(defaultView)
+              ? defaultView
+              : viewNames[0]
+          }
+
+          nextView &&
+            nextView !== currentView &&
+            dispatch(actions.changeView(nextView))
         } catch {}
       },
       providesTags: [{ type: SYSTEM, id: 'sunstone-views' }],

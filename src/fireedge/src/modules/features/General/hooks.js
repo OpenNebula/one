@@ -18,9 +18,23 @@ import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 
 import * as actions from '@modules/features/General/actions'
 import { GeneralSlice } from '@modules/features/General/slice'
+import { oneApi } from '@modules/features/OneApi/oneApi'
+import {
+  DOCUMENT,
+  DOCUMENT_POOL,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from '@modules/features/OneApi/resources'
 import { generateKey } from '@UtilsModule'
 
 const { name: generalSlice } = GeneralSlice
+
+const ZONE_CACHE_TAGS = [
+  ...Object.values(ONE_RESOURCES),
+  ...Object.values(ONE_RESOURCES_POOL),
+  ...Object.values(DOCUMENT),
+  ...Object.values(DOCUMENT_POOL),
+]
 
 export const useGeneral = () =>
   useSelector((state) => state[generalSlice], shallowEqual)
@@ -32,7 +46,12 @@ export const useGeneralApi = () => {
     fixMenu: (isFixed) => dispatch(actions.fixMenu(isFixed)),
     changeLoading: (isLoading) => dispatch(actions.changeLoading(isLoading)),
     changeAppTitle: (appTitle) => dispatch(actions.changeAppTitle(appTitle)),
-    changeZone: (zone) => dispatch(actions.changeZone(zone)),
+    changeZone: (zone) => {
+      const result = dispatch(actions.changeZone(zone))
+      dispatch(oneApi.util.invalidateTags(ZONE_CACHE_TAGS))
+
+      return result
+    },
     uploadSnackbar: (percent) => dispatch(actions.setUploadSnackbar(percent)),
     setUpdateDialog: (updateDialog) =>
       dispatch(actions.setUpdateDialog(updateDialog)),
