@@ -173,18 +173,33 @@ class ProbeRunner
 
 end
 
+DEFAULT_PROBES_PERIOD = {
+    'BEACON_HOST'  => '30',
+    'SYSTEM_HOST'  => '600',
+    'MONITOR_HOST' => '120',
+    'STATE_VM'     => '5',
+    'EXEC_VM'      => '5',
+    'MONITOR_VM'   => '30'
+}.freeze
+
+def probe_period(config, name)
+    value = config.elements["PROBES_PERIOD/#{name}"]&.text.to_s.strip
+
+    value.empty? ? DEFAULT_PROBES_PERIOD.fetch(name) : value
+end
+
 # Generate a Template like string from the associated XML
 def to_monitord(config)
     monitor_addr = config.elements['NETWORK/MONITOR_ADDRESS']&.text.to_s
     port         = config.elements['NETWORK/PORT']&.text.to_s
     pubkey       = config.elements['NETWORK/PUBKEY']&.text.to_s
 
-    beacon_host  = config.elements['PROBES_PERIOD/BEACON_HOST']&.text.to_s
-    system_host  = config.elements['PROBES_PERIOD/SYSTEM_HOST']&.text.to_s
-    monitor_host = config.elements['PROBES_PERIOD/MONITOR_HOST']&.text.to_s
-    state_vm     = config.elements['PROBES_PERIOD/STATE_VM']&.text.to_s
-    exec_vm      = config.elements['PROBES_PERIOD/EXEC_VM']&.text.to_s
-    monitor_vm   = config.elements['PROBES_PERIOD/MONITOR_VM']&.text.to_s
+    beacon_host  = probe_period(config, 'BEACON_HOST')
+    system_host  = probe_period(config, 'SYSTEM_HOST')
+    monitor_host = probe_period(config, 'MONITOR_HOST')
+    state_vm     = probe_period(config, 'STATE_VM')
+    exec_vm      = probe_period(config, 'EXEC_VM')
+    monitor_vm   = probe_period(config, 'MONITOR_VM')
 
     <<~CONF
         NETWORK = [
@@ -255,31 +270,31 @@ begin
 
     probes = {
         :system_host_udp => {
-            :period => config.elements['PROBES_PERIOD/SYSTEM_HOST'].text.to_s,
+            :period => probe_period(config, 'SYSTEM_HOST'),
             :elem_name => 'SYSTEM_HOST',
             :path => 'host/system'
         },
 
         :monitor_host_udp => {
-            :period => config.elements['PROBES_PERIOD/MONITOR_HOST'].text.to_s,
+            :period => probe_period(config, 'MONITOR_HOST'),
             :elem_name => 'MONITOR_HOST',
             :path => 'host/monitor'
         },
 
         :state_vm_tcp => {
-            :period => config.elements['PROBES_PERIOD/STATE_VM'].text.to_s,
+            :period => probe_period(config, 'STATE_VM'),
             :elem_name => 'STATE_VM',
             :path => 'vm/status'
         },
 
         :exec_vm_udp => {
-            :period => config.elements['PROBES_PERIOD/EXEC_VM'].text.to_s,
+            :period => probe_period(config, 'EXEC_VM'),
             :elem_name => 'EXEC_VM',
             :path => 'vm/execution'
         },
 
         :monitor_vm_udp => {
-            :period => config.elements['PROBES_PERIOD/MONITOR_VM'].text.to_s,
+            :period => probe_period(config, 'MONITOR_VM'),
             :elem_name => 'MONITOR_VM',
             :path => 'vm/monitor'
         },
@@ -292,7 +307,7 @@ begin
         },
 
         :beacon_host_udp => {
-            :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
+            :period => probe_period(config, 'BEACON_HOST'),
             :elem_name => 'BEACON_HOST',
             :path => 'host/beacon'
         }
