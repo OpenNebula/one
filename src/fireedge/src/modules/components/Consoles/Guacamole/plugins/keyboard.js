@@ -40,6 +40,7 @@ const GuacamoleKeyboard = (session) => {
     keyboardRef.current.reset()
     keyboardRef.current.onkeydown = (keySym) => client?.sendKeyEvent(1, keySym)
     keyboardRef.current.onkeyup = (keySym) => client?.sendKeyEvent(0, keySym)
+    displayRef.current?.focus({ preventScroll: true })
 
     // Release all keys when window loses focus
     window?.addEventListener('blur', keyboardRef.current?.reset)
