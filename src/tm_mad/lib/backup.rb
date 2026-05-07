@@ -37,12 +37,11 @@ module TransferManager
         end
 
         def backup_disks_sh(options = {})
-            disks       = options[:disks]
-            backup_dir  = options[:backup_dir]
-            ds          = options[:ds]
-            live        = options[:live]
-            deploy_id   = options[:deploy_id]
-            bridge_host = options[:bridge_host]
+            disks      = options[:disks]
+            backup_dir = options[:backup_dir]
+            ds         = options[:ds]
+            live       = options[:live]
+            deploy_id  = options[:deploy_id]
 
             kvm = KVMDomain.new(@xml, @vm_dir, :backup_dir => backup_dir)
 
@@ -89,7 +88,7 @@ module TransferManager
                     ['', '']
                 end
 
-            eos1 = <<~EOS1
+            <<~EOS
                 set -ex -o pipefail
 
                 # ----------------------
@@ -109,10 +108,6 @@ module TransferManager
                 #{snap_cmd}
 
                 #{thaw}
-            EOS1
-
-            eos2 = <<~EOS2
-                set -ex -o pipefail
 
                 # --------------------------------------
                 # Save TPM state
@@ -129,22 +124,12 @@ module TransferManager
                 cd #{backup_dir}
 
                 #{expo_clup}
-            EOS2
-
-            eos3 = <<~EOS3
-                set -ex -o pipefail
 
                 # --------------------------
                 # Cleanup snapshots
                 # --------------------------
                 #{snap_clup}
-            EOS3
-
-            [
-                [nil, eos1],
-                [bridge_host, eos2],
-                [nil, eos3]
-            ].map {|(host, cmd)| TransferManager::Shell.sshwrap(host, cmd) }.join("\n\n")
+            EOS
         end
 
     end
