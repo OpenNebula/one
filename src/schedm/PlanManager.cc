@@ -407,16 +407,22 @@ void PlanManager::execute_plan(Plan& plan)
     // Update counter, num of running actions per host, per cluster
     map<int, int> host_actions;
     int           cluster_actions = 0;
+    std::vector<PlanAction *> ready_actions;
 
     plan.count_actions(cluster_actions, host_actions);
+    plan.get_ready_actions(ready_actions);
 
     // Execute plan actions
-    while (auto action = plan.get_next_action())
+    for (auto& action : ready_actions)
     {
-        if (host_actions[action->host_id()] >= max_actions_per_host
-            || cluster_actions >= max_actions_per_cluster)
+        if (cluster_actions >= max_actions_per_cluster)
         {
             break;
+        }
+
+        if (host_actions[action->host_id()] >= max_actions_per_host)
+        {
+            continue;
         }
 
         if (start_action(plan.cid(), *action))

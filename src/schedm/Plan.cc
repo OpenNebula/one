@@ -100,17 +100,15 @@ std::string PlanAction::to_xml() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PlanAction* Plan::get_next_action()
+void Plan::get_ready_actions(std::vector<PlanAction *>& ready_actions)
 {
     for (auto& action : _actions)
     {
         if (action.state() == PlanState::READY)
         {
-            return &action;
+            ready_actions.push_back(&action);
         }
     }
-
-    return nullptr;
 }
 
 /* -------------------------------------------------------------------------- */

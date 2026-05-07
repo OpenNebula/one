@@ -183,7 +183,7 @@ public:
         return _actions;
     }
 
-    PlanAction* get_next_action();
+    void get_ready_actions(std::vector<PlanAction *>& ready_actions);
 
     /**
      * Mark action as finished, return false if the action is not in the plan
