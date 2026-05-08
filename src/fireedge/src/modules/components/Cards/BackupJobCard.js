@@ -148,7 +148,7 @@ const BackupJobCard = memo(
       <div {...rootProps} data-cy={`backupjob-${ID}`}>
         <div className={classes.main}>
           <div className={classes.title}>
-            <StatusCircle color={status.color} tooltip={Tr(status.tooltip)} />
+            <StatusCircle color={status.color} tooltip={status.tooltip} />
             <Typography component="span">{NAME}</Typography>
             <span className={classes.labels}>
               {LOCK && <Lock data-cy="lock" />}
