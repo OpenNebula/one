@@ -32,7 +32,7 @@ const AutocompleteController = memo(
     tooltip = '',
     multiple = false,
     values = [],
-    fieldProps: { separators, ...fieldProps } = {},
+    fieldProps: { separators, parseFreeSoloValue, ...fieldProps } = {},
     readOnly = false,
     optionsOnly = false,
     clearInvalid = false,
@@ -59,7 +59,7 @@ const AutocompleteController = memo(
 
     const handleChange = useCallback(
       (_, newValue) => {
-        const newValueToChange = multiple
+        const valueToChange = multiple
           ? newValue?.map((value) =>
               typeof value === 'object' ? value.value : value
             )
@@ -67,12 +67,21 @@ const AutocompleteController = memo(
           ? newValue.value
           : newValue
 
+        const newValueToChange =
+          multiple && typeof parseFreeSoloValue === 'function'
+            ? valueToChange?.flatMap((value) => {
+                const parsedValue = parseFreeSoloValue(value)
+
+                return Array.isArray(parsedValue) ? parsedValue : [parsedValue]
+              })
+            : valueToChange
+
         onChange(newValueToChange ?? '')
         if (typeof onConditionChange === 'function') {
           onConditionChange(newValueToChange ?? '')
         }
       },
-      [onChange, onConditionChange, multiple, renderValue]
+      [onChange, onConditionChange, multiple, renderValue, parseFreeSoloValue]
     )
 
     // Add watcher to know if the dependencies fields have changes

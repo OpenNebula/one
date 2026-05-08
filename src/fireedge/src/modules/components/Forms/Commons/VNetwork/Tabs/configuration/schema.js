@@ -42,6 +42,22 @@ const {
 
 const drivers = Object.keys(VN_DRIVERS_STR)
 
+const VLAN_TAGGED_ID_RANGE_REGEXP = /^\d+(?:-\d+)?$/
+
+const parseVlanTaggedIds = (value) => {
+  if (typeof value !== 'string') return [value]
+
+  const ids = value.split(',').map((id) => id.trim().replace(/\s*-\s*/g, '-'))
+
+  return ids.every((id) => VLAN_TAGGED_ID_RANGE_REGEXP.test(id)) ? ids : [value]
+}
+
+const normalizeVlanTaggedIds = (value, originalValue) => {
+  const values = typeof originalValue === 'string' ? [originalValue] : value
+
+  return Array.isArray(values) ? values.flatMap(parseVlanTaggedIds) : value
+}
+
 /**
  *
  * Bridged: bridge
@@ -64,7 +80,7 @@ const drivers = Object.keys(VN_DRIVERS_STR)
  * FILTER_IP_SPOOFING                        O             O         O            O                     X
  * MTU                                             O       O         O                                  X
  * AUTOMATIC_VLAN_ID                               M       M         M            O                     X
- * VLAN_ID                                         M       M         M            O                     X
+ * VLAN_ID                                         M       M         O            O                     X
  * QInQSwitch                                      O                 O
  * CVLANS                                          O                 O                                  X
  * QINQ_TYPE                                                         O                                  X
@@ -186,6 +202,7 @@ const VLAN_TAGGED_ID = {
     (!vlanTaggedSwitch || ![bridge, fw, ovswitch].includes(driver)) &&
     INPUT_TYPES.HIDDEN,
   validation: array(string().trim())
+    .transform(normalizeVlanTaggedIds)
     .default(() => undefined)
     .when([DRIVER_FIELD.name, VLAN_TAGGED_ID_SWITCH.name], {
       is: (driver, vlanTaggedSwitch) =>
@@ -195,7 +212,11 @@ const VLAN_TAGGED_ID = {
       otherwise: (schema) => schema.strip(),
     }),
   grid: { md: 12 },
-  fieldProps: { freeSolo: true },
+  fieldProps: {
+    freeSolo: true,
+    autoSelect: true,
+    parseFreeSoloValue: parseVlanTaggedIds,
+  },
 }
 
 /**
@@ -316,10 +337,21 @@ const VLAN_ID_FIELD = {
     .default(() => undefined)
     .when([DRIVER_FIELD.name, AUTOMATIC_VLAN_FIELD().name], {
       is: (driver, automatic) =>
-        [dot1Q, vxlan, ovswitch, openVSwitchVXLAN].includes(driver) &&
-        (automatic === 'NO' || !automatic),
+        [dot1Q, vxlan].includes(driver) && (automatic === 'NO' || !automatic),
       then: (schema) => schema.required(),
-      otherwise: (schema) => schema.strip(),
+      otherwise: (schema) =>
+        schema
+          .nullable()
+          .notRequired()
+          .afterSubmit((value) =>
+            value === null || value === '' ? undefined : value
+          ),
+    })
+    .when([DRIVER_FIELD.name, AUTOMATIC_VLAN_FIELD().name], {
+      is: (driver, automatic) =>
+        ![dot1Q, vxlan, ovswitch, openVSwitchVXLAN].includes(driver) ||
+        (automatic && automatic !== 'NO'),
+      then: (schema) => schema.strip(),
     }),
   grid: { sm: 6 },
 }
