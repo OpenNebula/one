@@ -72,8 +72,8 @@ const translateString = (word = '', values) => {
   // Look for the key thas has the value equal to word in the T object
   const key = findKey(T, (value) => value === word)
 
-  // Using the key from the previous step, get the translated word in the language map
-  const { [key]: wordVal } = hash
+  // Try both T keys and raw text keys
+  const wordVal = hash[key] || hash[word]
 
   // If there is no word, use the original
   const ensuredWord = wordVal || word

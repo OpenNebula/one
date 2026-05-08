@@ -19,7 +19,8 @@ import { styled, Typography, alpha } from '@mui/material'
 import { Copy as CopyIcon, Check as CopiedIcon, Cancel } from 'iconoir-react'
 
 import { useClipboard } from '@HooksModule'
-import { SCHEMES } from '@ConstantsModule'
+import { SCHEMES, T } from '@ConstantsModule'
+import { Tr } from '@modules/components/HOC/Translate'
 
 const callAll =
   (...fns) =>
@@ -72,6 +73,7 @@ const StatusChip = memo(
     ...props
   }) => {
     const { copy, isCopied } = useClipboard()
+    const displayText = typeof text === 'string' ? Tr(T[text] ?? text) : text
 
     const ownerState = {
       forceWhiteColor,
@@ -118,7 +120,7 @@ const StatusChip = memo(
         sx={{ textTransform: 'none' }}
         {...props}
       >
-        {text}
+        {displayText}
         {clipboard &&
           (isCopied ? <CopiedIcon /> : <CopyIcon className="icon" />)}
         {typeof onDelete === 'function' && (

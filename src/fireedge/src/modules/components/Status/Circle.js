@@ -17,6 +17,8 @@ import { memo, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 
 import { SvgIcon, Tooltip, Typography } from '@mui/material'
+import { T } from '@ConstantsModule'
+import { Tr } from '@modules/components/HOC/Translate'
 
 // ----------------------------------------
 // Circle SVG
@@ -57,7 +59,11 @@ const StatusCircle = memo(
       <Tooltip
         arrow
         placement="right-end"
-        title={<Typography variant="subtitle2">{tooltip}</Typography>}
+        title={
+          <Typography variant="subtitle2">
+            {Tr(T[tooltip] ?? tooltip)}
+          </Typography>
+        }
       >
         <Circle color={color} size={size} />
       </Tooltip>
