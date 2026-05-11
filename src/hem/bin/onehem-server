@@ -59,7 +59,7 @@ start()
   touch $HEM_LOCK_FILE
 
   # Start the oneflow-server daemon
-  ruby $HEM_SERVER >$HEM_LOG 2>$HEM_LOG_ERROR &
+  ruby $HEM_SERVER >>$HEM_LOG 2>>$HEM_LOG_ERROR &
 
   LASTRC=$?
   LASTPID=$!
