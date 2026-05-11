@@ -1,4 +1,4 @@
-/var/log/one/fireedge.log /var/log/one/fireedge.error {
+/var/log/one/oneform.log {
     dateext
     dateformat -%Y%m%d-%s
     weekly
