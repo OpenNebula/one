@@ -1564,6 +1564,9 @@ Bash symbols must be escaped on STDIN passing'
                when 'VM'
                    require 'opennebula/virtual_machine_pool'
                    OpenNebula::VirtualMachinePool.new(client)
+               when 'VMGROUP'
+                   require 'opennebula/vm_group_pool'
+                   OpenNebula::VMGroupPool.new(client)
                when 'ZONE'
                    require 'opennebula/zone_pool'
                    OpenNebula::ZonePool.new(client)

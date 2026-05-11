@@ -152,6 +152,13 @@ public:
     static void host_requirements(std::set<int>& hosts, const std::string& op1,
                                   const std::string& op2, std::ostringstream& oss);
 
+    /**
+     *  Check if a host is compatible with the role host affinity rules
+     *    @param hid ID of the host
+     *    @return true if compatible
+     */
+    bool check_host_affinity(int hid) const;
+
 private:
     /**
      *  The set of vms in the role

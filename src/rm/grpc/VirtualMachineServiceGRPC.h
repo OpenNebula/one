@@ -198,6 +198,14 @@ class VirtualMachineService final : public one::vm::VirtualMachineService::Servi
                             const one::vm::ExecCancelRequest* request,
                             one::ResponseID* response) override;
 
+    grpc::Status VMGroupAdd(grpc::ServerContext* context,
+                            const one::vm::VMGroupAddRequest* request,
+                            one::ResponseID* response) override;
+
+    grpc::Status VMGroupDel(grpc::ServerContext* context,
+                            const one::vm::VMGroupDelRequest* request,
+                            one::ResponseID* response) override;
+
     grpc::Status PoolInfo(grpc::ServerContext* context,
                           const one::vm::PoolInfoRequest* request,
                           one::ResponseXML* response) override;
@@ -850,6 +858,36 @@ class VirtualMachineExecCancelGRPC : public RequestGRPC, public VirtualMachineAP
 public:
     VirtualMachineExecCancelGRPC()
         : RequestGRPC("one.vm.cancelexec", "/one.vm.VirtualMachineService/ExecCancel")
+        , VirtualMachineAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(const google::protobuf::Message* _request,
+                         google::protobuf::Message*       _response,
+                         RequestAttributesGRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineVMGroupAddGRPC : public RequestGRPC, public VirtualMachineAPI
+{
+public:
+    VirtualMachineVMGroupAddGRPC()
+        : RequestGRPC("one.vm.vmgroupadd", "/one.vm.VirtualMachineService/VMGroupAdd")
+        , VirtualMachineAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(const google::protobuf::Message* _request,
+                         google::protobuf::Message*       _response,
+                         RequestAttributesGRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineVMGroupDelGRPC : public RequestGRPC, public VirtualMachineAPI
+{
+public:
+    VirtualMachineVMGroupDelGRPC()
+        : RequestGRPC("one.vm.vmgroupdel", "/one.vm.VirtualMachineService/VMGroupDel")
         , VirtualMachineAPI(static_cast<Request&>(*this))
     {}
 

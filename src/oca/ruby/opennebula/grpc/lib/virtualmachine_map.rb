@@ -351,6 +351,22 @@ module GRPCMappings
             stub.restore(req, options)
         end,
 
+        'vm.vmgroupadd' => lambda do |one_auth, endpoint, *args, options|
+            stub = One::Vm::VirtualMachineService::Stub.new(endpoint, :this_channel_is_insecure)
+            req  = One::Vm::VMGroupAddRequest.new(:session_id => one_auth,
+                                                  :oid        => args[0],
+                                                  :vmg_id     => args[1],
+                                                  :role       => args[2])
+            stub.vm_group_add(req, options)
+        end,
+
+        'vm.vmgroupdel' => lambda do |one_auth, endpoint, *args, options|
+            stub = One::Vm::VirtualMachineService::Stub.new(endpoint, :this_channel_is_insecure)
+            req  = One::Vm::VMGroupDelRequest.new(:session_id => one_auth,
+                                                  :oid        => args[0])
+            stub.vm_group_del(req, options)
+        end,
+
         'vm.attachpci' => lambda do |one_auth, endpoint, *args, options|
             stub = One::Vm::VirtualMachineService::Stub.new(endpoint, :this_channel_is_insecure)
             req  = One::Vm::PciAttachRequest.new(:session_id => one_auth,

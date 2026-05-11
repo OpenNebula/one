@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "VirtualMachineAPI.h"
+#include "VMGroupPool.h"
 #include "RequestLogger.h"
 #include "ClusterPool.h"
 #include "DatastorePool.h"
@@ -4286,6 +4287,118 @@ bool VirtualMachineAPI::check_host(int hid,
     }
 
     return test;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualMachineAPI::vmgroup_add(int vid,
+                                                  int vmg_id,
+                                                  const std::string& role,
+                                                  RequestAttributes& att)
+{
+    att.set_auth_op(VMActions::VMGROUP_ADD_ACTION);
+
+    // 1. Authorize VM
+    if ( auto ec = vm_authorization(vid, 0, 0, att, 0, 0, 0); ec != Request::SUCCESS )
+    {
+        return ec;
+    }
+
+    // 2. Authorize VMGroup
+    PoolObjectAuth vmg_perms;
+    auto vmgrouppool = Nebula::instance().get_vmgrouppool();
+    auto vmg         = vmgrouppool->get_ro(vmg_id);
+
+    if ( vmg )
+    {
+        vmg->get_permissions(vmg_perms);
+    }
+    else
+    {
+        att.resp_id  = vmg_id;
+        att.resp_obj = PoolObjectSQL::VMGROUP;
+
+        return Request::NO_EXISTS;
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+    ar.add_auth(AuthRequest::USE, vmg_perms);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        return Request::AUTHORIZATION;
+    }
+
+    // 3. Check affinity
+    auto vm = vmpool->get(vid);
+
+    if ( !vm )
+    {
+        att.resp_id = vid;
+        return Request::NO_EXISTS;
+    }
+
+    if ( vm->get_state() == VirtualMachine::ACTIVE )
+    {
+        int my_hid = vm->get_hid();
+
+        if ( my_hid != -1 )
+        {
+            if ( vmg->check_affinity(vid, my_hid, role, att.resp_msg) != 0 )
+            {
+                return Request::ACTION;
+            }
+        }
+    }
+
+    // 4. Add to VMGroup
+    unique_ptr<VectorAttribute> va = make_unique<VectorAttribute>("VMGROUP");
+
+    va->replace("VMGROUP_ID", vmg_id);
+    va->replace("ROLE", role);
+
+    if ( vmgrouppool->vmgroup_attribute(va.get(), vm->get_uid(), vid, att.resp_msg) != 0 )
+    {
+        return Request::ACTION;
+    }
+
+    vm->set_template_attribute(va.release());
+
+    vmpool->update(vm.get());
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualMachineAPI::vmgroup_del(int vid,
+                                                  RequestAttributes& att)
+{
+    att.set_auth_op(VMActions::VMGROUP_DEL_ACTION);
+
+    if ( auto ec = vm_authorization(vid, 0, 0, att, 0, 0, 0); ec != Request::SUCCESS )
+    {
+        return ec;
+    }
+
+    auto vm = vmpool->get(vid);
+
+    if ( !vm )
+    {
+        att.resp_id = vid;
+        return Request::NO_EXISTS;
+    }
+
+    vm->release_vmgroup();
+
+    vm->remove_template_attribute("VMGROUP");
+
+    vmpool->update(vm.get());
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */

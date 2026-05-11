@@ -67,7 +67,9 @@ module OpenNebula
             :restore        => 'vm.restore',
             :exec           => 'vm.exec',
             :retryexec      => 'vm.retryexec',
-            :cancelexec     => 'vm.cancelexec'
+            :cancelexec     => 'vm.cancelexec',
+            :vmgroupadd     => 'vm.vmgroupadd',
+            :vmgroupdel     => 'vm.vmgroupdel'
         }
 
         VM_STATE=['INIT', 'PENDING', 'HOLD', 'ACTIVE', 'STOPPED', 'SUSPENDED', 'DONE', 'FAILED',
@@ -924,6 +926,25 @@ module OpenNebula
         #  otherwise.
         def exec_cancel
             @client.call(VM_METHODS[:cancelexec], @pe_id)
+        end
+
+        # Adds the VM to a VM group and role
+        #
+        # @param vmg_id [Integer] Id of the VM group
+        # @param role [String] Name of the role
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def vmgroup_add(vmg_id, role)
+            call(VM_METHODS[:vmgroupadd], @pe_id, vmg_id, role)
+        end
+
+        # Removes the VM from its VM group
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def vmgroup_del
+            call(VM_METHODS[:vmgroupdel], @pe_id)
         end
 
         ########################################################################

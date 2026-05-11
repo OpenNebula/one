@@ -235,6 +235,11 @@ int VMActions::set_auth_ops(const string& ops_str,
             ops_set.set(EXEC_RETRY_ACTION);
             ops_set.set(EXEC_CANCEL_ACTION);
         }
+        else if ( the_op == "vmgroup" )
+        {
+            ops_set.set(VMGROUP_ADD_ACTION);
+            ops_set.set(VMGROUP_DEL_ACTION);
+        }
         else
         {
             error = "Unknown vm operation: " + the_op;
@@ -433,6 +438,12 @@ string VMActions::action_to_str(Action action)
             break;
         case EXEC_CANCEL_ACTION:
             st = "exec-cancel";
+            break;
+        case VMGROUP_ADD_ACTION:
+            st = "vmgroup-add";
+            break;
+        case VMGROUP_DEL_ACTION:
+            st = "vmgroup-del";
             break;
         case NONE_ACTION:
             st = "none";
@@ -683,6 +694,14 @@ int VMActions::action_from_str(const string& st, Action& action)
     else if ( st == "exec-cancel")
     {
         action = EXEC_CANCEL_ACTION;
+    }
+    else if ( st == "vmgroup-add")
+    {
+        action = VMGROUP_ADD_ACTION;
+    }
+    else if ( st == "vmgroup-del")
+    {
+        action = VMGROUP_DEL_ACTION;
     }
     else
     {

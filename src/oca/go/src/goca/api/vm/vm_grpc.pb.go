@@ -60,6 +60,8 @@ type VirtualMachineServiceClient interface {
 	Exec(ctx context.Context, in *ExecRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
 	ExecRetry(ctx context.Context, in *ExecRetryRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
 	ExecCancel(ctx context.Context, in *ExecCancelRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
+	VMGroupAdd(ctx context.Context, in *VMGroupAddRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
+	VMGroupDel(ctx context.Context, in *VMGroupDelRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
 	PoolInfo(ctx context.Context, in *PoolInfoRequest, opts ...grpc.CallOption) (*shared.ResponseXML, error)
 	PoolInfoExtended(ctx context.Context, in *PoolInfoRequest, opts ...grpc.CallOption) (*shared.ResponseXML, error)
 	PoolInfoSet(ctx context.Context, in *PoolInfoSetRequest, opts ...grpc.CallOption) (*shared.ResponseXML, error)
@@ -455,6 +457,24 @@ func (c *virtualMachineServiceClient) ExecCancel(ctx context.Context, in *ExecCa
 	return out, nil
 }
 
+func (c *virtualMachineServiceClient) VMGroupAdd(ctx context.Context, in *VMGroupAddRequest, opts ...grpc.CallOption) (*shared.ResponseID, error) {
+	out := new(shared.ResponseID)
+	err := c.cc.Invoke(ctx, "/one.vm.VirtualMachineService/VMGroupAdd", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *virtualMachineServiceClient) VMGroupDel(ctx context.Context, in *VMGroupDelRequest, opts ...grpc.CallOption) (*shared.ResponseID, error) {
+	out := new(shared.ResponseID)
+	err := c.cc.Invoke(ctx, "/one.vm.VirtualMachineService/VMGroupDel", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *virtualMachineServiceClient) PoolInfo(ctx context.Context, in *PoolInfoRequest, opts ...grpc.CallOption) (*shared.ResponseXML, error) {
 	out := new(shared.ResponseXML)
 	err := c.cc.Invoke(ctx, "/one.vm.VirtualMachineService/PoolInfo", in, out, opts...)
@@ -564,6 +584,8 @@ type VirtualMachineServiceServer interface {
 	Exec(context.Context, *ExecRequest) (*shared.ResponseID, error)
 	ExecRetry(context.Context, *ExecRetryRequest) (*shared.ResponseID, error)
 	ExecCancel(context.Context, *ExecCancelRequest) (*shared.ResponseID, error)
+	VMGroupAdd(context.Context, *VMGroupAddRequest) (*shared.ResponseID, error)
+	VMGroupDel(context.Context, *VMGroupDelRequest) (*shared.ResponseID, error)
 	PoolInfo(context.Context, *PoolInfoRequest) (*shared.ResponseXML, error)
 	PoolInfoExtended(context.Context, *PoolInfoRequest) (*shared.ResponseXML, error)
 	PoolInfoSet(context.Context, *PoolInfoSetRequest) (*shared.ResponseXML, error)
@@ -703,6 +725,12 @@ func (UnimplementedVirtualMachineServiceServer) ExecRetry(context.Context, *Exec
 }
 func (UnimplementedVirtualMachineServiceServer) ExecCancel(context.Context, *ExecCancelRequest) (*shared.ResponseID, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecCancel not implemented")
+}
+func (UnimplementedVirtualMachineServiceServer) VMGroupAdd(context.Context, *VMGroupAddRequest) (*shared.ResponseID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VMGroupAdd not implemented")
+}
+func (UnimplementedVirtualMachineServiceServer) VMGroupDel(context.Context, *VMGroupDelRequest) (*shared.ResponseID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VMGroupDel not implemented")
 }
 func (UnimplementedVirtualMachineServiceServer) PoolInfo(context.Context, *PoolInfoRequest) (*shared.ResponseXML, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PoolInfo not implemented")
@@ -1494,6 +1522,42 @@ func _VirtualMachineService_ExecCancel_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VirtualMachineService_VMGroupAdd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VMGroupAddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VirtualMachineServiceServer).VMGroupAdd(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/one.vm.VirtualMachineService/VMGroupAdd",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VirtualMachineServiceServer).VMGroupAdd(ctx, req.(*VMGroupAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VirtualMachineService_VMGroupDel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VMGroupDelRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VirtualMachineServiceServer).VMGroupDel(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/one.vm.VirtualMachineService/VMGroupDel",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VirtualMachineServiceServer).VMGroupDel(ctx, req.(*VMGroupDelRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _VirtualMachineService_PoolInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PoolInfoRequest)
 	if err := dec(in); err != nil {
@@ -1791,6 +1855,14 @@ var _VirtualMachineService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExecCancel",
 			Handler:    _VirtualMachineService_ExecCancel_Handler,
+		},
+		{
+			MethodName: "VMGroupAdd",
+			Handler:    _VirtualMachineService_VMGroupAdd_Handler,
+		},
+		{
+			MethodName: "VMGroupDel",
+			Handler:    _VirtualMachineService_VMGroupDel_Handler,
 		},
 		{
 			MethodName: "PoolInfo",

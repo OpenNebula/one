@@ -345,6 +345,10 @@ CommandParser::CmdParser.new(ARGV) do
         format_int(arg)
     end
 
+    set :format, :vmgroupid, OpenNebulaHelper.rname_to_id_desc('VMGROUP') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'VMGROUP')
+    end
+
     ########################################################################
     # Commands
     ########################################################################
@@ -1899,6 +1903,26 @@ CommandParser::CmdParser.new(ARGV) do
                 STDERR.puts "Error restoring: #{rc.message}"
                 exit(-1)
             end
+        end
+    end
+
+    vmgroup_add_desc = <<-EOT.unindent
+        Adds the VM to a VM group and role.
+    EOT
+
+    command :"vmgroup-add", vmgroup_add_desc, :vmid, :vmgroupid, :role do
+        helper.perform_action(args[0], options, 'VM added to group') do |vm|
+            vm.vmgroup_add(args[1].to_i, args[2])
+        end
+    end
+
+    vmgroup_del_desc = <<-EOT.unindent
+        Removes the VM from its VM group.
+    EOT
+
+    command :"vmgroup-del", vmgroup_del_desc, :vmid do
+        helper.perform_action(args[0], options, 'VM removed from group') do |vm|
+            vm.vmgroup_del
         end
     end
 

@@ -314,6 +314,20 @@ grpc::Status VirtualMachineService::ExecCancel(grpc::ServerContext* context,
     return VirtualMachineExecCancelGRPC().execute(context, request, response);
 }
 
+grpc::Status VirtualMachineService::VMGroupAdd(grpc::ServerContext* context,
+                                               const one::vm::VMGroupAddRequest* request,
+                                               one::ResponseID* response)
+{
+    return VirtualMachineVMGroupAddGRPC().execute(context, request, response);
+}
+
+grpc::Status VirtualMachineService::VMGroupDel(grpc::ServerContext* context,
+                                               const one::vm::VMGroupDelRequest* request,
+                                               one::ResponseID* response)
+{
+    return VirtualMachineVMGroupDelGRPC().execute(context, request, response);
+}
+
 grpc::Status VirtualMachineService::PoolInfo(grpc::ServerContext* context,
                                              const one::vm::PoolInfoRequest* request,
                                              one::ResponseXML* response)
@@ -1124,6 +1138,39 @@ void VirtualMachineExecCancelGRPC::request_execute(const google::protobuf::Messa
     int oid = request->oid();
 
     auto ec = exec_cancel(oid, att);
+
+    response(ec, oid, att);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachineVMGroupAddGRPC::request_execute(const google::protobuf::Message* _request,
+                                                   google::protobuf::Message*       _response,
+                                                   RequestAttributesGRPC& att)
+{
+    auto request = static_cast<const one::vm::VMGroupAddRequest*>(_request);
+
+    int oid = request->oid();
+
+    auto ec = vmgroup_add(oid,
+                          request->vmg_id(),
+                          request->role(),
+                          att);
+
+    response(ec, oid, att);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachineVMGroupDelGRPC::request_execute(const google::protobuf::Message* _request,
+                                                   google::protobuf::Message*       _response,
+                                                   RequestAttributesGRPC& att)
+{
+    auto request = static_cast<const one::vm::VMGroupDelRequest*>(_request);
+
+    int oid = request->oid();
+
+    auto ec = vmgroup_del(oid, att);
 
     response(ec, oid, att);
 }

@@ -2349,6 +2349,31 @@ func (c *GRPCClient) VMRestore(ctx context.Context, id, image_id, inc_id, disk_i
 	return &Response{status: true, bodyInt: int(res.Oid)}, nil
 }
 
+func (c *GRPCClient) VMGroupAdd(ctx context.Context, id, vmg_id int, role string) (*Response, error) {
+	client := vm.NewVirtualMachineServiceClient(c.conn)
+	req := &vm.VMGroupAddRequest{
+		SessionId: c.token,
+		Oid:       int32(id),
+		VmgId:     int32(vmg_id),
+		Role:      role,
+	}
+	res, err := client.VMGroupAdd(ctx, req)
+	if err != nil {
+		return MakeErrorResponse(err)
+	}
+	return &Response{status: true, bodyInt: int(res.Oid)}, nil
+}
+
+func (c *GRPCClient) VMGroupDel(ctx context.Context, id int) (*Response, error) {
+	client := vm.NewVirtualMachineServiceClient(c.conn)
+	req := &vm.VMGroupDelRequest{SessionId: c.token, Oid: int32(id)}
+	res, err := client.VMGroupDel(ctx, req)
+	if err != nil {
+		return MakeErrorResponse(err)
+	}
+	return &Response{status: true, bodyInt: int(res.Oid)}, nil
+}
+
 func (c *GRPCClient) VMPciAttach(ctx context.Context, id int, tmpl string) (*Response, error) {
 	client := vm.NewVirtualMachineServiceClient(c.conn)
 	req := &vm.PciAttachRequest{SessionId: c.token, Oid: int32(id), Template: tmpl}

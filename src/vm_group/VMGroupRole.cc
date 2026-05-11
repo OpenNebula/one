@@ -459,3 +459,38 @@ int VMGroupRoles::names_to_ids(const std::string& rnames, std::set<int>&  keyi)
     return 0;
 }
 
+
+/* -------------------------------------------------------------------------- */
+
+bool VMGroupRole::check_host_affinity(int hid) const
+{
+    set<int> hosts;
+    string shosts;
+
+    shosts = va->vector_value("HOST_AFFINED");
+
+    if ( !shosts.empty() )
+    {
+        one_util::split_unique(shosts, ',', hosts);
+
+        if ( hosts.find(hid) == hosts.end() )
+        {
+            return false;
+        }
+    }
+
+    shosts = va->vector_value("HOST_ANTI_AFFINED");
+
+    if ( !shosts.empty() )
+    {
+        hosts.clear();
+        one_util::split_unique(shosts, ',', hosts);
+
+        if ( hosts.find(hid) != hosts.end() )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}

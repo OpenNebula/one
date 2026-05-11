@@ -348,6 +348,20 @@ message ExecCancelRequest
   int32 oid         = 2;
 }
 
+message VMGroupAddRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 vmg_id      = 3;
+  string role       = 4;
+}
+
+message VMGroupDelRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+}
+
 message PoolInfoRequest
 {
   string session_id  = 1;
@@ -484,6 +498,10 @@ service VirtualMachineService
   rpc ExecRetry (one.vm.ExecRetryRequest) returns (one.ResponseID);
 
   rpc ExecCancel (one.vm.ExecCancelRequest) returns (one.ResponseID);
+
+  rpc VMGroupAdd (one.vm.VMGroupAddRequest) returns (one.ResponseID);
+
+  rpc VMGroupDel (one.vm.VMGroupDelRequest) returns (one.ResponseID);
 
   rpc PoolInfo (one.vm.PoolInfoRequest) returns (one.ResponseXML);
 

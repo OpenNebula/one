@@ -1057,6 +1057,28 @@ func (vc *VMController) RestoreContext(ctx context.Context, imageID int, increme
 	return err
 }
 
+// VMGroupAdd adds the VM to a VM group and role.
+func (vc *VMController) VMGroupAdd(vmgID int, role string) error {
+	return vc.VMGroupAddContext(context.Background(), vmgID, role)
+}
+
+// VMGroupAddContext adds the VM to a VM group and role.
+func (vc *VMController) VMGroupAddContext(ctx context.Context, vmgID int, role string) error {
+	_, err := vc.c.Client.VMGroupAdd(ctx, vc.ID, vmgID, role)
+	return err
+}
+
+// VMGroupDel removes the VM from its VM group.
+func (vc *VMController) VMGroupDel() error {
+	return vc.VMGroupDelContext(context.Background())
+}
+
+// VMGroupDelContext removes the VM from its VM group.
+func (vc *VMController) VMGroupDelContext(ctx context.Context) error {
+	_, err := vc.c.Client.VMGroupDel(ctx, vc.ID)
+	return err
+}
+
 // Execute a command in the Virtual Machine
 func (vc *VMController) Exec(cmd string, cmd_stdin string) error {
 	return vc.ExecContext(context.Background(), cmd, cmd_stdin)

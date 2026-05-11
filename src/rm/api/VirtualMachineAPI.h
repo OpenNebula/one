@@ -223,6 +223,14 @@ protected:
     Request::ErrorCode exec_cancel(int vid,
                                    RequestAttributes& att);
 
+    Request::ErrorCode vmgroup_add(int vid,
+                                   int vmg_id,
+                                   const std::string& role,
+                                   RequestAttributes& att);
+
+    Request::ErrorCode vmgroup_del(int vid,
+                                   RequestAttributes& att);
+
     /* Helpers */
     int exist(const std::string& name, int uid) override
     {

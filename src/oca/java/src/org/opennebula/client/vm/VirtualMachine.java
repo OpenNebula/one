@@ -70,6 +70,8 @@ public class VirtualMachine extends PoolElement{
     private static final String EXEC                = METHOD_PREFIX + "exec";
     private static final String EXEC_RETRY          = METHOD_PREFIX + "exec_retry";
     private static final String EXEC_CANCEL         = METHOD_PREFIX + "exec_cancel";
+    private static final String VMGROUPADD          = METHOD_PREFIX + "vmgroupadd";
+    private static final String VMGROUPDEL          = METHOD_PREFIX + "vmgroupdel";
 
     private static final String[] VM_STATES =
     {
@@ -895,6 +897,34 @@ public class VirtualMachine extends PoolElement{
         return client.call(EXEC_CANCEL, id);
     }
 
+    /**
+     * Adds the VM to a VM group and role.
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param vmgId Id of the VM group.
+     * @param role Name of the role.
+     * @return If successful the message contains the associated
+     * id generated for this VM.
+     */
+    public static OneResponse vmgroupAdd(Client client, int id, int vmgId, String role)
+    {
+        return client.call(VMGROUPADD, id, vmgId, role);
+    }
+
+    /**
+     * Removes the VM from its VM group.
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @return If successful the message contains the associated
+     * id generated for this VM.
+     */
+    public static OneResponse vmgroupDel(Client client, int id)
+    {
+        return client.call(VMGROUPDEL, id);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -1552,6 +1582,28 @@ public class VirtualMachine extends PoolElement{
     public OneResponse execCancel()
     {
         return execCancel(client, id);
+    }
+
+    /**
+     * Adds the VM to a VM group and role.
+     *
+     * @param vmgId Id of the VM group.
+     * @param role Name of the role.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse vmgroupAdd(int vmgId, String role)
+    {
+        return vmgroupAdd(client, id, vmgId, role);
+    }
+
+    /**
+     * Removes the VM from its VM group.
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse vmgroupDel()
+    {
+        return vmgroupDel(client, id);
     }
 
     // =================================

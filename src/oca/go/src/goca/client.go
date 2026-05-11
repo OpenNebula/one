@@ -1163,6 +1163,14 @@ func (c *Client) VMRestore(ctx context.Context, id, image_id, inc_id, disk_id in
 	return c.CallContext(ctx, "one.vm.restore", id, image_id, inc_id, disk_id)
 }
 
+func (c *Client) VMGroupAdd(ctx context.Context, id, vmg_id int, role string) (*Response, error) {
+	return c.CallContext(ctx, "one.vm.vmgroupadd", id, vmg_id, role)
+}
+
+func (c *Client) VMGroupDel(ctx context.Context, id int) (*Response, error) {
+	return c.CallContext(ctx, "one.vm.vmgroupdel", id)
+}
+
 func (c *Client) VMPciAttach(ctx context.Context, id int, tmpl string) (*Response, error) {
 	return c.CallContext(ctx, "one.vm.attachpci", id, tmpl)
 }

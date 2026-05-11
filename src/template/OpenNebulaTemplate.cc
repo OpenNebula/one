@@ -581,7 +581,7 @@ void OpenNebulaTemplate::set_conf_default()
                     "suspend, resume, reboot, poweroff, disk-attach, nic-attach, "
                     "disk-snapshot, terminate, disk-resize, snapshot, updateconf, "
                     "rename, resize, update, disk-saveas, sched-action, sg-attach, "
-                    "pci-attach");
+                    "pci-attach, exec, vmgroup");
 
     set_conf_single("VM_USE_OPERATIONS", "");
     /*/

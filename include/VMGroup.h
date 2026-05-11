@@ -138,6 +138,17 @@ public:
 
     int check_consistency(std::string& error_str);
 
+    /**
+     *  Check if adding a VM to a role violates affinity rules.
+     *    @param vmid ID of the VM
+     *    @param hid ID of the host where the VM is running
+     *    @param role name of the role
+     *    @param error description if any
+     *
+     *    @return 0 if compatible
+     */
+    int check_affinity(int vmid, int hid, const std::string& role, std::string& error);
+
 private:
     // -------------------------------------------------------------------------
     // Friends

@@ -681,3 +681,39 @@ func (s *VMSuite) TestExec(c *C) {
 	err = vmC.ExecRetry()
 	c.Assert(err, IsNil)
 }
+
+func (s *VMSuite) TestVMGroup(c *C) {
+	vmgTmpl := fmt.Sprintf(`NAME = %s
+		ROLE = [ NAME = web ]`, GenName("vmgroup"))
+
+	vmgID, err := testCtrl.VMGroups().Create(vmgTmpl)
+	c.Assert(err, IsNil)
+
+	defer testCtrl.VMGroup(vmgID).Delete()
+
+	vmC := testCtrl.VM(s.vmID)
+
+	// Add to group
+	err = vmC.VMGroupAdd(vmgID, "web")
+	c.Assert(err, IsNil)
+
+	// Check if added
+	vmInfo, err := vmC.Info(false)
+	c.Assert(err, IsNil)
+
+	vmgIDAttr, _ := vmInfo.Template.GetStrFromVec("VMGROUP", "VMGROUP_ID")
+	c.Assert(vmgIDAttr, Equals, strconv.Itoa(vmgID))
+
+	roleAttr, _ := vmInfo.Template.GetStrFromVec("VMGROUP", "ROLE")
+	c.Assert(roleAttr, Equals, "web")
+
+	// Remove from group
+	err = vmC.VMGroupDel()
+	c.Assert(err, IsNil)
+
+	// Check if removed
+	vmInfo, err = vmC.Info(false)
+	c.Assert(err, IsNil)
+	_, err = vmInfo.Template.GetVector("VMGROUP")
+	c.Assert(err, NotNil)
+}

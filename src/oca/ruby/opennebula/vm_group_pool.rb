@@ -39,6 +39,7 @@ module OpenNebula
 
         # Factory method to create Template objects
         def factory(element_xml)
+            require 'opennebula/vm_group'
             OpenNebula::VMGroup.new(element_xml,@client)
         end
 

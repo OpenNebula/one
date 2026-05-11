@@ -253,6 +253,8 @@ type RPCCaller interface {
 	VMBackup(ctx context.Context, id, ds_id int, reset bool) (*Response, error)
 	VMBackupCancel(ctx context.Context, id int) (*Response, error)
 	VMRestore(ctx context.Context, id, image_id, inc_id, disk_id int) (*Response, error)
+	VMGroupAdd(ctx context.Context, id, vmg_id int, role string) (*Response, error)
+	VMGroupDel(ctx context.Context, id int) (*Response, error)
 	VMPciAttach(ctx context.Context, id int, tmpl string) (*Response, error)
 	VMPciDetach(ctx context.Context, id, pci_id int) (*Response, error)
 	VMPoolInfo(ctx context.Context, filter, start, end, state int, filter_str string) (*Response, error)

@@ -18,6 +18,9 @@
 #include "VMGroupRole.h"
 #include "VMGroupRule.h"
 #include "OneDB.h"
+#include "Nebula.h"
+#include "VirtualMachinePool.h"
+#include "VirtualMachine.h"
 
 using namespace std;
 
@@ -577,3 +580,184 @@ int VMGroup::post_update_template(string& error, Template *_old_tmpl)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroup::check_affinity(int vmid, int my_hid, const string& role_name,
+                            string& error)
+{
+    auto role = _roles.get(role_name);
+
+    if ( !role )
+    {
+        error = "Role does not exist in VM Group";
+        return -1;
+    }
+
+    VirtualMachinePool * vmpool = Nebula::instance().get_vmpool();
+
+    // 1. Intra-role check
+    const set<int>& role_vms = role->get_vms();
+    VMGroupPolicy pol        = role->policy();
+
+    for ( auto other_vmid : role_vms )
+    {
+        if ( other_vmid == vmid )
+        {
+            continue;
+        }
+
+        if ( auto other_vm = vmpool->get_ro(other_vmid) )
+        {
+            if ( other_vm->get_state() != VirtualMachine::ACTIVE )
+            {
+                continue;
+            }
+
+            int other_hid = other_vm->get_hid();
+
+            if ( other_hid == -1 )
+            {
+                continue;
+            }
+
+            if ( pol == VMGroupPolicy::AFFINED && my_hid != other_hid )
+            {
+                ostringstream oss;
+                oss << "VM " << vmid << " is on host " << my_hid
+                    << " but role " << role_name << " is AFFINED and VM "
+                    << other_vmid << " is on host " << other_hid;
+
+                error = oss.str();
+                return -1;
+            }
+
+            if ( pol == VMGroupPolicy::ANTI_AFFINED && my_hid == other_hid )
+            {
+                ostringstream oss;
+                oss << "VM " << vmid << " is on host " << my_hid
+                    << " but role " << role_name << " is ANTI_AFFINED and VM "
+                    << other_vmid << " is on the same host";
+
+                error = oss.str();
+                return -1;
+            }
+        }
+    }
+
+    // 2. Inter-role check
+    VMGroupRule::rule_set affined, anti;
+
+    get_rules(VMGroupPolicy::AFFINED, affined, error);
+    get_rules(VMGroupPolicy::ANTI_AFFINED, anti, error);
+
+    int my_role_id = role->id();
+
+    // Check AFFINED rules
+    for ( const auto& rule : affined )
+    {
+        const VMGroupRule::role_bitset& rs = rule.get_roles();
+
+        if ( !rs.test(my_role_id) )
+        {
+            continue;
+        }
+        for ( int i = 0; i < VMGroupRoles::MAX_ROLES; ++i )
+        {
+            if ( !rs.test(i) || i == my_role_id )
+            {
+                continue;
+            }
+
+            if ( auto other_role = _roles.get(i) )
+            {
+                for ( auto other_vmid : other_role->get_vms() )
+                {
+                    if ( auto other_vm = vmpool->get_ro(other_vmid) )
+                    {
+                        if ( other_vm->get_state() != VirtualMachine::ACTIVE )
+                        {
+                            continue;
+                        }
+
+                        int other_hid = other_vm->get_hid();
+
+                        if ( other_hid != -1 && my_hid != other_hid )
+                        {
+                            ostringstream oss;
+                            oss << "VM " << vmid << " is on host " << my_hid
+                                << " but it is AFFINED with role "
+                                << other_role->name() << " and VM " << other_vmid
+                                << " is on host " << other_hid;
+
+                            error = oss.str();
+                            return -1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Check ANTI_AFFINED rules
+    for ( const auto& rule : anti )
+    {
+        const VMGroupRule::role_bitset& rs = rule.get_roles();
+
+        if ( !rs.test(my_role_id) )
+        {
+            continue;
+        }
+
+        for ( int i = 0; i < VMGroupRoles::MAX_ROLES; ++i )
+        {
+            if ( !rs.test(i) || i == my_role_id )
+            {
+                continue;
+            }
+
+            if ( auto other_role = _roles.get(i) )
+            {
+                for ( auto other_vmid : other_role->get_vms() )
+                {
+                    if ( auto other_vm = vmpool->get_ro(other_vmid) )
+                    {
+                        if ( other_vm->get_state() != VirtualMachine::ACTIVE )
+                        {
+                            continue;
+                        }
+
+                        int other_hid = other_vm->get_hid();
+
+                        if ( other_hid != -1 && my_hid == other_hid )
+                        {
+                            ostringstream oss;
+                            oss << "VM " << vmid << " is on host " << my_hid
+                                << " but it is ANTI_AFFINED with role "
+                                << other_role->name() << " and VM " << other_vmid
+                                << " is on the same host";
+
+                            error = oss.str();
+                            return -1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 3. Host affinity check
+    if ( !role->check_host_affinity(my_hid) )
+    {
+        ostringstream oss;
+        oss << "VM " << vmid << " is on host " << my_hid
+            << " but role " << role_name << " has HOST_AFFINED/HOST_ANTI_AFFINED "
+            << "rules that are violated by this host";
+
+        error = oss.str();
+        return -1;
+    }
+
+    return 0;
+}

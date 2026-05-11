@@ -737,6 +737,40 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualMachineVMGroupAddXRPC: public RequestXRPC, public VirtualMachineAPI
+{
+public:
+    VirtualMachineVMGroupAddXRPC()
+        : RequestXRPC("one.vm.vmgroupadd",
+                      "Add a Virtual Machine to a VM Group",
+                      "A:siis")
+        , VirtualMachineAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributesXRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineVMGroupDelXRPC: public RequestXRPC, public VirtualMachineAPI
+{
+public:
+    VirtualMachineVMGroupDelXRPC()
+        : RequestXRPC("one.vm.vmgroupdel",
+                      "Delete a Virtual Machine from a VM Group",
+                      "A:si")
+        , VirtualMachineAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributesXRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class VirtualMachinePoolInfoXRPC : public RequestXRPC, public VirtualMachinePoolAPI
 {
 public:

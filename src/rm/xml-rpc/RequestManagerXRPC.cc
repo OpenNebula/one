@@ -490,6 +490,8 @@ void RequestManagerXRPC::register_xml_methods()
     xmlrpc_c::methodPtr vm_exec(new VirtualMachineExecXRPC());
     xmlrpc_c::methodPtr vm_exec_retry(new VirtualMachineExecRetryXRPC());
     xmlrpc_c::methodPtr vm_exec_cancel(new VirtualMachineExecCancelXRPC());
+    xmlrpc_c::methodPtr vm_vmgroupadd(new VirtualMachineVMGroupAddXRPC());
+    xmlrpc_c::methodPtr vm_vmgroupdel(new VirtualMachineVMGroupDelXRPC());
 
     xmlrpc_c::methodPtr vm_pool_info(new VirtualMachinePoolInfoXRPC());
     xmlrpc_c::methodPtr vm_pool_info_extended(new VirtualMachinePoolInfoExtendedXRPC());
@@ -541,6 +543,8 @@ void RequestManagerXRPC::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.exec", vm_exec);
     RequestManagerRegistry.addMethod("one.vm.retryexec", vm_exec_retry);
     RequestManagerRegistry.addMethod("one.vm.cancelexec", vm_exec_cancel);
+    RequestManagerRegistry.addMethod("one.vm.vmgroupadd", vm_vmgroupadd);
+    RequestManagerRegistry.addMethod("one.vm.vmgroupdel", vm_vmgroupdel);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.infoextended", vm_pool_info_extended);

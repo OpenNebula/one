@@ -648,6 +648,33 @@ void VirtualMachineExecCancelXRPC::request_execute(xmlrpc_c::paramList const& pa
 }
 
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachineVMGroupAddXRPC::request_execute(xmlrpc_c::paramList const& paramList,
+                                                   RequestAttributesXRPC& att)
+{
+    int oid = paramList.getInt(1);
+
+    auto ec = vmgroup_add(oid,
+                          paramList.getInt(2),    // vmg_id
+                          paramList.getString(3), // role
+                          att);
+
+    response(ec, oid, att);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineVMGroupDelXRPC::request_execute(xmlrpc_c::paramList const& paramList,
+                                                   RequestAttributesXRPC& att)
+{
+    int oid = paramList.getInt(1);
+
+    auto ec = vmgroup_del(oid, att);
+
+    response(ec, oid, att);
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachinePoolInfoXRPC::request_execute(xmlrpc_c::paramList const& paramList,

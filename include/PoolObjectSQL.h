@@ -426,6 +426,15 @@ public:
     }
 
     /**
+     *  Adds a new attribute to the template, the object's mutex SHOULD be locked
+     *    @param attr pointer to the new attribute
+     */
+    void set_template_attribute(Attribute* attr)
+    {
+        obj_template->set(attr);
+    }
+
+    /**
      *  Removes an attribute from the template. The attributes are returned, and
      *  MUST be freed by the calling funtion
      *    @param name of the attribute

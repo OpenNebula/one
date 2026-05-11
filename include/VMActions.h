@@ -92,7 +92,9 @@ public:
         RESTORE_ACTION           = 60,      // "one.vm.restore"
         EXEC_ACTION              = 61,      // "one.vm.exec"
         EXEC_RETRY_ACTION        = 62,      // "one.vm.retryexec"
-        EXEC_CANCEL_ACTION       = 63       // "one.vm.cancelexec"
+        EXEC_CANCEL_ACTION       = 63,      // "one.vm.cancelexec"
+        VMGROUP_ADD_ACTION       = 64,      // "one.vm.vmgroupadd"
+        VMGROUP_DEL_ACTION       = 65       // "one.vm.vmgroupdel"
     };
 
     static std::string action_to_str(Action action);
