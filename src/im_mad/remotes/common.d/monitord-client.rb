@@ -224,13 +224,15 @@ end
 #   DB_PATH: Folder to include metrics DB for forecasting. It also includes
 #   local additions in the hypervisor (/var/tmp/one uses rsync --delete)
 #-------------------------------------------------------------------------------
-DB_PATH  = '/var/tmp/one_db'
-ETC_PATH = "#{DB_PATH}/etc"
-PID_FILE = "#{DB_PATH}/.monitor_client.pid"
+DB_PATH   = '/var/tmp/one_db'
+ETC_PATH  = "#{DB_PATH}/etc"
+PCI_CACHE = "#{DB_PATH}/pci_net_names"
+PID_FILE  = "#{DB_PATH}/.monitor_client.pid"
 
 MONITORD_CONF = "#{ETC_PATH}/monitord.conf"
 
 FileUtils.mkdir_p(DB_PATH)
+FileUtils.rm_rf(PCI_CACHE)
 FileUtils.mkdir_p(ETC_PATH)
 
 File.write(PID_FILE, $PID.to_s)
