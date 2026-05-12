@@ -21,7 +21,14 @@ module OpenNebula
         # Request Helper module
         module RequestHelper
 
+            RFC1123_NAME  = /\A[a-z0-9]([-a-z0-9]*[a-z0-9])?\z/
+            RFC1123_ERROR = 'must be a valid RFC 1123 name'
+
             class InvalidRequestError < StandardError; end
+
+            def self.rfc1123_name?(value)
+                value.is_a?(String) && value.length <= 63 && value.match?(RFC1123_NAME)
+            end
 
             # Checks that the body contains the required keys with correct types
             #
