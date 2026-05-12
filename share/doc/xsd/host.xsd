@@ -87,6 +87,8 @@
                           <xs:element name="VENDOR" type="xs:string"/>
                           <xs:element name="VENDOR_NAME" type="xs:string"/>
                           <xs:element name="VMID" type="xs:integer"/>
+                          <xs:element name="IFNAME" type="xs:string"/>
+                          <xs:element name="PCI_ROLE" type="xs:string"/>
                         </xs:sequence>
                       </xs:complexType>
                     </xs:element>
