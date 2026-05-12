@@ -78,7 +78,12 @@ class Hash
         # @return [Hash, OpenNebula::Error] String representation in the form KEY = VALUE of
         #                                   the hash, or an OpenNebula Error if the conversion fails
         def to_raw(content_hash, nested = false)
+            return content_hash if content_hash.is_a?(String)
             return '' if content_hash.nil? || content_hash.empty?
+
+            return OpenNebula::Error.new(
+                "Error wrapping the hash: expected Hash, got #{content_hash.class}"
+            ) unless content_hash.is_a?(Hash)
 
             content = ''
             content_hash.each do |key, value|

@@ -94,6 +94,11 @@ ODS_ROOT = File.expand_path('..', __dir__)
 require_relative File.join(ODS_ROOT, 'config', 'validator')
 
 # Helpers
+ONE_HELPERS = [File.join(ODS_ROOT, 'lib', 'helpers', 'one')]
+ONE_HELPERS.each do |path|
+    Dir.glob(File.join(path, '*.rb')).sort.each {|file| require file }
+end
+
 require_relative File.join(ODS_ROOT, 'lib', 'helpers', 'request_helper')
 require_relative File.join(ODS_ROOT, 'lib', 'helpers', 'response_helper')
 require_relative File.join(ODS_ROOT, 'lib', 'helpers', 'log_helper')
@@ -121,6 +126,7 @@ require_relative File.join(ODS_ROOT, 'app', 'routes')
 # Set aliases to access ODS modules and classes
 ODS = OpenNebula::DocumentServer
 Log = ODS::Log
+OneHelper = ODS::OneHelper
 
 # -------------------------------------------------------------------------- #
 # Server configuration
