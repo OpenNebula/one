@@ -135,13 +135,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     }
 
     POFF = {
-        :name => 'poweroff',
+        :name => 'poff',
         :large => '--poff',
         :description => 'Do the migrate by poweringoff the vm'
     }
 
     POFFHARD = {
-        :name => 'poweroff_hard',
+        :name => 'poff-hard',
         :large => '--poff-hard',
         :description => 'Do the migrate by poweringoff hard the vm'
     }
@@ -558,9 +558,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     end
 
     def get_migration_type(options)
-        if options[:poweroff]
+        if options[:poff]
             1
-        elsif options[:poweroff_hard]
+        elsif options[:'poff-hard']
             2
         else
             0
