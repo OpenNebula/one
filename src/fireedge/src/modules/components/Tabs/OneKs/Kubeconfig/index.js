@@ -27,7 +27,7 @@ import { OneKsAPI } from '@FeaturesModule'
 import { Actions } from '@modules/components/Tabs/Common/Attribute'
 import { T } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
-import { getVirtualOneKsState, showDataByState } from '@ModelsModule'
+import { isEmpty } from 'lodash'
 
 const CodeBox = styled(Box)(({ theme }) => ({
   fontSize: theme.typography.pxToRem(12),
@@ -52,12 +52,12 @@ const KubernetesConfig = ({ id }) => {
     expand: true,
   })
   const { DOCUMENT = {} } = cluster
-  const stateOneKs = getVirtualOneKsState(DOCUMENT)
 
-  const { data } = OneKsAPI.useGetKubeConfigQuery({ id }, { skip: !id }) || {}
+  const { data, error } =
+    OneKsAPI.useGetKubeConfigQuery({ id }, { skip: !id }) || {}
   const kubeconf = data?.kubeconfig ?? ''
 
-  if (!showDataByState(stateOneKs.name)) {
+  if (isEmpty(DOCUMENT) || !data || error) {
     return (
       <Alert severity="error" variant="outlined">
         {Tr(T['oneks.tab.info.kubeconfig.help.paragraph'])}
