@@ -110,9 +110,9 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                     tag_qinq
                 else
                     tag_vlan
-                    tag_trunk_vlans
                 end
             end
+            tag_trunk_vlans
 
             # Delete any existing flows on port
             del_flow "in_port=#{port}"
@@ -250,7 +250,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                     run cmd
                 end
 
-                if changes[:vlan_tagged_id]
+                if changes[:vlan_tagged_id] || changes[:vlan_id]
                     tag_trunk_vlans
                 end
 
@@ -322,6 +322,12 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def tag_trunk_vlans
         return unless @nic.vlan_trunk?
 
+        vlan_mode = if @nic[:vlan_id].nil? || @nic[:vlan_id].empty?
+                        'trunk'
+                    else
+                        'native-untagged'
+                    end
+
         ovs_vsctl_cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]}"
 
         # Open vSwitch 2.7.0+ allows range intervals (x-y), but
@@ -331,7 +337,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         cmd = "#{ovs_vsctl_cmd} trunks='#{@nic.vlan_trunk_to_s}'"
         run cmd
 
-        cmd = "#{ovs_vsctl_cmd} vlan_mode=native-untagged"
+        cmd = "#{ovs_vsctl_cmd} vlan_mode=#{vlan_mode}"
         run cmd
     end
 
