@@ -73,13 +73,15 @@ def pci
                DEVICE_NAME = "C79 [GeForce 9400M]",
                DOMAIN = "0000",
                FUNCTION = "0",
+               IFNAME="-",
+               NUMA_NODE="1",
+               PCI_ROLE="-",
+               PROFILES = "1145 (NVIDIA L40S-1B),1146 (NVIDIA L40S-2B),1147 (NVIDIA L40S-1Q),1148 (NVIDIA L40S-2Q),1149 (NVIDIA L40S-3Q),1150 (NVIDIA L40S-4Q),1151 (NVIDIA L40S-6Q),1152 (NVIDIA L40S-8Q),1153 (NVIDIA L40S-12Q),1154 (NVIDIA L40S-16Q),1155 (NVIDIA L40S-24Q),1156 (NVIDIA L40S-48Q),1157 (NVIDIA L40S-1A),1158 (NVIDIA L40S-2A),1159 (NVIDIA L40S-3A),1160 (NVIDIA L40S-4A),1161 (NVIDIA L40S-6A),1162 (NVIDIA L40S-8A),1163 (NVIDIA L40S-12A),1164 (NVIDIA L40S-16A),1165 (NVIDIA L40S-24A),1166 (NVIDIA L40S-48A)",
                SHORT_ADDRESS = "02:00.0",
                SLOT = "00",
                TYPE = "10de:0863:0302",
                VENDOR = "10de",
-               VENDOR_NAME = "NVIDIA Corporation",
-               PROFILES = "1145 (NVIDIA L40S-1B),1146 (NVIDIA L40S-2B),1147 (NVIDIA L40S-1Q),1148 (NVIDIA L40S-2Q),1149 (NVIDIA L40S-3Q),1150 (NVIDIA L40S-4Q),1151 (NVIDIA L40S-6Q),1152 (NVIDIA L40S-8Q),1153 (NVIDIA L40S-12Q),1154 (NVIDIA L40S-16Q),1155 (NVIDIA L40S-24Q),1156 (NVIDIA L40S-48Q),1157 (NVIDIA L40S-1A),1158 (NVIDIA L40S-2A),1159 (NVIDIA L40S-3A),1160 (NVIDIA L40S-4A),1161 (NVIDIA L40S-6A),1162 (NVIDIA L40S-8A),1163 (NVIDIA L40S-12A),1164 (NVIDIA L40S-16A),1165 (NVIDIA L40S-24A),1166 (NVIDIA L40S-48A)",
-               NUMA_NODE="1"
+               VENDOR_NAME = "NVIDIA Corporation"
        ]
        PCI = [ ADDRESS = "0000:00:06:0",
                BUS = "00",
@@ -89,12 +91,14 @@ def pci
                DEVICE_NAME = "MCP79 OHCI USB 1.1 Controller",
                DOMAIN = "0000",
                FUNCTION = "0",
+               IFNAME="-",
+               NUMA_NODE="1",
+               PCI_ROLE="-",
                SHORT_ADDRESS = "00:06.0",
                SLOT = "06",
                TYPE = "1b21:0aa7:0c03",
                VENDOR = "1b21",
-               VENDOR_NAME = "ASMedia Technology Inc.",
-               NUMA_NODE="1"
+               VENDOR_NAME = "ASMedia Technology Inc."
        ]
        PCI = [ ADDRESS = "0000:00:06:1",
                BUS = "00",
@@ -104,12 +108,14 @@ def pci
                DEVICE_NAME = "MCP79 EHCI USB 2.0 Controller",
                DOMAIN = "0000",
                FUNCTION = "1",
+               IFNAME="-",
+               NUMA_NODE="0",
+               PCI_ROLE="-",
                SHORT_ADDRESS = "00:06.1",
                SLOT = "06",
                TYPE = "1022:0aa9:0c03",
                VENDOR = "1022",
-               VENDOR_NAME = "Advanced Micro Devices, Inc.",
-               NUMA_NODE="0"
+               VENDOR_NAME = "Advanced Micro Devices, Inc."
        ]
     EOS
 end

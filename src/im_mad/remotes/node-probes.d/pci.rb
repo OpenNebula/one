@@ -21,7 +21,7 @@ require 'yaml'
 
 def extract_pci_interfaces(file_path)
     return {} unless File.exist?(file_path)
-    
+
     # Regex for "# <PCI_SLOT> <- <IFACE_NAME>"
     pattern = /^\#\s*([0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9])\s*<-\s*(\S+)/
     result  = {}
