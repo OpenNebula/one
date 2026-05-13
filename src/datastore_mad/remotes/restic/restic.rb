@@ -298,11 +298,12 @@ class Restic
 
             return if rc.code == 0
 
-            # https://github.com/restic/restic/issues/2492#issuecomment-1126910866
-
-            break if rc.stderr.match(/unable to create lock.+locked exclusively/).nil?
-
-            sleep options[:delay].to_i
+            # For Restic >= 0.17.0, exit code 11 means "locked repository"
+            if rc.code == 11
+                sleep options[:delay].to_i
+            else
+                break
+            end
         end
 
         raise StandardError, "Unable to remove snapshots: #{rc.stdout} #{rc.stderr}" \
