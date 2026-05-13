@@ -43,7 +43,7 @@ public:
     /**
      *  Default folder for DPDK vhost sockets
      */
-    static constexpr const char * VHOST_DIR = "/var/lib/one/vhost-sockets";
+    static constexpr const char * VHOST_DIR = "/var/run/one/vhost-socks";
 
     /**
      *  Defines the Virtual Network type based on its associated driver

@@ -471,7 +471,7 @@ module VirtualMachineManagerKVM
     class KvmVM < OpenNebulaVM
 
         # Default folder for DPDK vhost sockets, same as in VirtualNetwork.h
-        VHOST_DIR = '/var/lib/one/vhost-sockets'
+        VHOST_DIR = '/var/run/one/vhost-socks'
 
         def initialize(xml_action)
             super(xml_action, {})
