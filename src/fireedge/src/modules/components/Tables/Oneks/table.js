@@ -125,7 +125,7 @@ const OneKSTable = (props) => {
               {Tr(T['oneks.info.more'])}
               <a
                 target="_blank"
-                href={generateDocLink(version, '')}
+                href={generateDocLink(version, 'platform_services/oneks')}
                 rel="noreferrer"
               >
                 {Tr(T['oneks.info.more.link'])}
