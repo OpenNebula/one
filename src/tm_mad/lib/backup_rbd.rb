@@ -201,14 +201,32 @@ def pull_changes(diff_parser, nbd_uri)
         io_script << "quit\n"
 
         # Execute qemu-io.
-        status = Open3.popen3('qemu-io', '-f', 'raw', nbd_uri) do |stdin, _stdout, stderr, wait_thr|
-            stdin.write(io_script)
-            stdin.close
+        _out = ''
+        err = ''
 
-            err_output = stderr.read
+        status = Open3.popen3('qemu-io', '-f', 'raw', nbd_uri) do |stdin, stdout, stderr, wait_thr|
+            stdin_thread = Thread.new do
+                begin
+                    stdin.write(io_script)
+                ensure
+                    stdin.close
+                end
+            end
 
-            unless err_output.empty?
-                $stderr.puts "qemu-io STDERR: #{err_output}"
+            stdout_thread = Thread.new do
+                _out = stdout.read
+            end
+
+            stderr_thread = Thread.new do
+                err = stderr.read
+            end
+
+            stdin_thread.join
+            stdout_thread.join
+            stderr_thread.join
+
+            unless err.empty?
+                $stderr.puts "qemu-io STDERR: #{err}"
             end
 
             wait_thr.value
