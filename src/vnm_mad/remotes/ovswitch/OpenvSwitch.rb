@@ -24,7 +24,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ovswitch']"
 
     # Default folder for DPDK vhost sockets, same as in VirtualNetwork.h
-    VHOST_DIR = '/var/lib/one/vhost-sockets'
+    VHOST_DIR = '/var/run/one/vhost-socks'
 
     SUPPORTED_UPDATE = [
         :vlan_id,
