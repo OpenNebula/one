@@ -152,18 +152,10 @@ function migrate_other
     while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
     done< <(echo $TEMPLATE_64 | base64 -d | "$XPATH" \
-            /VM/TEMPLATE/CONTEXT/DISK_ID \
-            %m%/VM/TEMPLATE/DISK/DISK_ID \
-            %m%/VM/TEMPLATE/DISK/CLONE \
             %m%/VM/TEMPLATE/DISK/TM_MAD)
 
     unset i
-    CONTEXT_DISK_ID="${XPATH_ELEMENTS[i++]}"
-    DISK_IDS="${XPATH_ELEMENTS[i++]}"
-    CLONES="${XPATH_ELEMENTS[i++]}"
     TM_MADS="${XPATH_ELEMENTS[i++]}"
-    DISK_ID_ARRAY=($DISK_IDS)
-    CLONE_ARRAY=($CLONES)
     TM_MAD_ARRAY=($TM_MADS)
 
     if [ -n "$6" ]; then

@@ -311,15 +311,16 @@ module TransferManager
             Open3.popen2(*cmdargs) {|i, _o, _t| i.puts opts[:stdin] if opts[:stdin] }
         end
 
-        # TODO: Add comments
+        # Triggers the current migrate operation on all TM_MADs listed in the VM
+        # template, except the current driver.
+        #
+        # @param [String] template64 base64-encoded VM template XML
+        # @return [void]
         def migrate_other(template64)
             template_xml = REXML::Document.new(Base64.decode64(template64))
-
-            context_disk_id = template_xml.elements['/VM/TEMPLATE/CONTEXT/DISK_ID'].text
-            tmmads          = template_xml.elements['/VM/TEMPLATE/DISK/TM_MAD'].text.split
-
             (driver_path, operation) = File.split($PROGRAM_NAME)
 
+            tmmads        = template_xml.elements['/VM/TEMPLATE/DISK/TM_MAD'].text.split
             current_tmmad = File.basename(driver_path)
             processed_tms = []
 
@@ -330,8 +331,6 @@ module TransferManager
 
                 processed_tms << tmmad
             end
-
-            puts context_disk_id
         end
 
         # Generates a unique host identifier bases in its unique machine ID
