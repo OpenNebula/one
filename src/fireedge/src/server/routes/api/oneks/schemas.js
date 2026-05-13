@@ -83,7 +83,7 @@ const oneKsScaleNodeGroupSchema = {
   id: '/OneKsScaleNodeGroup',
   type: 'object',
   properties: {
-    count: {
+    target: {
       type: 'integer',
       required: true,
     },

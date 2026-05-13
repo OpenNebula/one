@@ -32,7 +32,7 @@ VisualAlert.propTypes = {
 VisualAlert.displayName = 'VisualAlert'
 
 const formFieldNames = {
-  count: 'count',
+  target: 'target',
 }
 
 const ALERT_TEXT_FIELD = {
@@ -44,12 +44,12 @@ const ALERT_TEXT_FIELD = {
       <Translate word={T.WarningScalingOneKsCluster} />
     </VisualAlert>
   ),
-  dependOf: [formFieldNames.count],
+  dependOf: [formFieldNames.target],
 }
 
-const COUNT = {
-  name: formFieldNames.count,
-  label: T.Count,
+const TARGET = {
+  name: formFieldNames.target,
+  label: T.Target,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   fieldProps: { min: 1 },
@@ -60,6 +60,6 @@ const COUNT = {
     .default(() => 1),
 }
 
-export const FIELDS = [ALERT_TEXT_FIELD, COUNT]
+export const FIELDS = [ALERT_TEXT_FIELD, TARGET]
 
-export const SCHEMA = object(getValidationFromFields([COUNT]))
+export const SCHEMA = object(getValidationFromFields([TARGET]))

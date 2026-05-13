@@ -16,7 +16,7 @@
 import { ObjectSchema, object, string } from 'yup'
 
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { Field, getValidationFromFields } from '@UtilsModule'
+import { Field, getValidationFromFields, isValidRFC1123 } from '@UtilsModule'
 
 /** @type {Field} Name field */
 export const NAME = {
@@ -24,7 +24,11 @@ export const NAME = {
   label: T.Name,
   type: INPUT_TYPES.TEXT,
   multiline: false,
-  validation: string().trim(),
+  validation: string()
+    .trim()
+    .max(63, T.RFC1123MaxLength)
+    .test('rfc1123-check', T.RFC1123, isValidRFC1123),
+  tooltip: T.RFC1123Tooltip,
   grid: { md: 12 },
 }
 
@@ -34,7 +38,7 @@ export const DESCRIPTION = {
   label: T.Description,
   type: INPUT_TYPES.TEXT,
   multiline: true,
-  validation: string().trim(),
+  validation: string().trim().default(''),
   grid: { md: 12 },
 }
 

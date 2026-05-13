@@ -77,6 +77,7 @@ const Content = (families, typeForm) => {
                 classes.card,
                 selectedFlavour === flavour.name && classes.cardSelected
               )}
+              data-cy={flavour.name}
               onClick={() => onClick(flavour)}
             >
               <Stack direction="column" className={classes.cardContent}>

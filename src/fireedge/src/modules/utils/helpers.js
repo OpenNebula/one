@@ -595,6 +595,15 @@ export const deepStringify = (obj, depth = 3) => {
 }
 
 /**
+ * Validate if a string is a valid RFC 1123 string.
+ *
+ * @param {string} value - String to validate
+ * @returns {boolean} true if value is a valid RFC 1123 string
+ */
+export const isValidRFC1123 = (value) =>
+  !value || /^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$/.test(value)
+
+/**
  * Generate a link to the Open Nebula documentation using the first two digits of the version (e.g., 6.99.0 => 6.99).
  *
  * @param {string} version - Version of ONE

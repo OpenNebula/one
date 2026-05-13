@@ -14,18 +14,22 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { Field, getObjectSchemaFromFields } from '@UtilsModule'
+import { Field, getObjectSchemaFromFields, isValidRFC1123 } from '@UtilsModule'
 import { string } from 'yup'
 
 /** @type {Field} Name field */
-const NAME = {
+export const NAME = {
   name: 'NAME',
   label: T['cluster.create.name'],
   type: INPUT_TYPES.TEXT,
+  multiline: false,
   validation: string()
     .trim()
+    .max(63, T.RFC1123MaxLength)
     .required()
-    .default(() => undefined),
+    .default(() => undefined)
+    .test('rfc1123-check', T.RFC1123, isValidRFC1123),
+  tooltip: T.RFC1123Tooltip,
   grid: { md: 12 },
 }
 

@@ -428,6 +428,8 @@ module.exports = {
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   CannotConnectOneForm:
     'Cannot connect to OneForm server, please verify that service is running.',
+  CannotConnectOneKS:
+    'Cannot connect to OneKS server, please verify that service is running.',
   ContactYourAdmin: 'Please contact your system administrator',
   NotFound: 'Not found',
   Timeout: 'Timeout',
@@ -754,7 +756,9 @@ module.exports = {
   'oneformtags.info':
     'Optional key-value pairs applied to OpenNebula and cloud resources.',
   'oneform.info.more': 'See OpenNebula documentation to get more details ',
+  'oneks.info.more': 'See OpenNebula documentation to get more details ',
   'oneform.info.more.link': 'about OneForm service configuration.',
+  'oneks.info.more.link': 'about OneKS service configuration.',
   'cluster.vnet.del.ip': 'Delete IP range',
   'oneform.deploymentConf.info': 'Select the deployment configuration:',
   'oneform.deploymentConf.info.link':
@@ -2209,6 +2213,12 @@ module.exports = {
   Cache: 'Cache',
   EnableDistributedCache: 'Enable the distributed cache',
   CachePath: 'Absolute directory where cached images will be stored.',
+  RFC1123:
+    'Must be lowercase alfanumeric or hyphens, and start/end with an alfanumeric character.',
+  RFC1123MaxLength: 'Maximum 63 characters allowed.',
+  RFC1123Tooltip: `
+    This field must follow the RFC 1123 standard for hostnames. It must be lowercase alphanumeric or hyphens, and start/end with an alphanumeric character. Maximum 63 characters allowed.
+  `,
   CacheMaxSize:
     'Maximum percentage of disk (cache path), to be allocated for caching.',
   CacheUpstreams:
@@ -2783,7 +2793,7 @@ module.exports = {
   vcpu: 'Virtual CPU',
   memory: 'Memory',
   disk_size: 'Disk Size',
-  
+
   /* VM states */
   INIT: 'Init',
   PENDING: 'Pending',

@@ -16,7 +16,7 @@
 import { ReactElement, useMemo } from 'react'
 
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { OneKsAPI, useViews } from '@FeaturesModule'
+import { OneKsAPI, useViews, SystemAPI } from '@FeaturesModule'
 import EnhancedTable, {
   createColumns,
 } from '@modules/components/Tables/Enhanced'
@@ -25,6 +25,9 @@ import OneKsColumns from '@modules/components/Tables/Oneks/columns'
 import OneKsRow from '@modules/components/Tables/Oneks/row'
 import { timeFromMilliseconds } from '@ModelsModule'
 import Timer from '@modules/components/Timer'
+import { generateDocLink } from '@UtilsModule'
+import { Alert, Typography } from '@mui/material'
+import { Translate, Tr } from '@modules/components/HOC'
 
 const DEFAULT_DATA_CY = 'oneks'
 
@@ -45,11 +48,15 @@ const OneKSTable = (props) => {
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
+  // Get version to show links to documentation
+  const { data: version } = SystemAPI.useGetOneVersionQuery()
+
   const { view, getResourceView } = useViews()
   const {
     data = [],
     isFetching,
     refetch,
+    error,
   } = useQuery(
     { zone: zoneId },
     {
@@ -110,6 +117,23 @@ const OneKSTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
+      noDataMessage={
+        error?.status === 500 && (
+          <Alert severity="error" variant="outlined">
+            <Translate word={T.CannotConnectOneKS} />
+            <Typography variant="body2" gutterBottom>
+              {Tr(T['oneks.info.more'])}
+              <a
+                target="_blank"
+                href={generateDocLink(version, '')}
+                rel="noreferrer"
+              >
+                {Tr(T['oneks.info.more.link'])}
+              </a>
+            </Typography>
+          </Alert>
+        )
+      }
       RowComponent={component}
       headerList={header && listHeader}
       resourceType={RESOURCE_NAMES.ONEKS}

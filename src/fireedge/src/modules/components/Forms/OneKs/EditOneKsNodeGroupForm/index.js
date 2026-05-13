@@ -21,7 +21,10 @@ import { createForm } from '@UtilsModule'
 
 const EditOneKsNodeGroupForm = createForm(SCHEMA, FIELDS, {
   transformInitialValue: ({ name, description }, schema) => ({
-    ...schema.cast({ name, description }, { stripUnknown: true }),
+    ...schema.cast(
+      { name, description: description ?? '' },
+      { stripUnknown: true }
+    ),
   }),
 })
 
