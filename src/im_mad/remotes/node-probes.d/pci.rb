@@ -180,15 +180,15 @@ end
 def sriov_numvfs(device)
     numvfs = device_attr(device, 'sriov_numvfs')
 
-    return numvfs unless numvfs == ''
+    return 0 if numvfs.nil? || numvfs == ''
 
-    0
+    numvfs
 end
 
 def sriov_role(device)
     if virtfn?(device)
         'vf'
-    elsif has_virtfn?(device)
+    elsif sriov_pf?(device)
         'pf'
     else
         'no'
@@ -197,6 +197,11 @@ end
 
 def virtfn?(device)
     device_attr?(device, 'physfn')
+end
+
+def sriov_pf?(device)
+    device_attr?(device, 'sriov_numvfs') ||
+        device_attr?(device, 'sriov_totalvfs')
 end
 
 # rubocop:disable Naming/PredicateName
@@ -264,6 +269,10 @@ devices.each do |dev|
     next if CONF[:nvidia_vendors].include?(dev[:vendor]) && has_virtfn?(dev)
 
     sriov = sriov_role(dev)
+    sriov_num = sriov_numvfs(dev)
+
+    # Skip PFs with enabled virtual functions
+    next if sriov == 'pf' && sriov_num.to_i > 0
 
     puts 'PCI = ['
     values = [
@@ -284,7 +293,7 @@ devices.each do |dev|
         pval('SRIOV', sriov)
     ]
 
-    values << pval('SRIOV_NUM', sriov_numvfs(dev)) if sriov == 'pf'
+    values << pval('SRIOV_NUM', sriov_num) if sriov == 'pf'
 
     # NVIDIA GPU device
     if CONF[:nvidia_vendors].include?(dev[:vendor])
