@@ -80,7 +80,7 @@ export const getOneKsProgress = (state) => {
   switch (state) {
     case ONEKS_STATE.PENDING.name:
       return 0
-    case ONEKS_STATE.BOOTSTRAPING.name:
+    case ONEKS_STATE.BOOTSTRAPPING.name:
       return 33
     case ONEKS_STATE.SCALING.name:
       return 33

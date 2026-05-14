@@ -52,13 +52,13 @@ export const ONEKS_STATE = {
     color: COLOR.debug.light,
     finalState: false,
   },
-  BOOTSTRAPING: {
+  BOOTSTRAPPING: {
     name: 'READY',
     color: COLOR.info.main,
     finalState: false,
   },
-  BOOTSTRAPING_FAILURE: {
-    name: 'BOOTSTRAPING_FAILURE',
+  BOOTSTRAPPING_FAILURE: {
+    name: 'BOOTSTRAPPING_FAILURE',
     color: COLOR.warning.main,
     finalState: true,
   },

@@ -66,9 +66,6 @@ const OneKsInfoTab = ({ tabProps = {}, id }) => {
     await changeOwnership({ id, ...newOwnership })
   }
 
-  const { data } = OneKsAPI.useGetEndpointQuery({ id }) || {}
-  const endpoint = data?.endpoint ?? ''
-
   const getActions = useCallback(
     (actions) => getActionsAvailable(actions),
     [getActionsAvailable]
@@ -84,7 +81,6 @@ const OneKsInfoTab = ({ tabProps = {}, id }) => {
       {informationPanel?.enabled && (
         <Information
           cluster={DOCUMENT}
-          endpoint={endpoint}
           actions={getActions(informationPanel?.actions)}
         />
       )}

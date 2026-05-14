@@ -185,31 +185,6 @@ const oneKsApi = oneApi.injectEndpoints({
         return data
       },
     }),
-    getEndpoint: builder.query({
-      /**
-       * Retrieves the Kubernetes endpoint for a cluster.
-       *
-       * @param {object} params - Request params
-       * @returns {Cluster} Get cluster identified by id
-       * @throws Fails when response isn't code 200
-       */
-      query: (params) => {
-        const name = Actions.ENDPOINT
-        const command = { name, ...Commands[name] }
-
-        return { params, command }
-      },
-      transformResponse: (data) => {
-        if (
-          !data ||
-          (typeof data === 'object' && Object.keys(data).length === 0)
-        ) {
-          return ''
-        }
-
-        return data
-      },
-    }),
     createOneKsCluster: builder.mutation({
       /**
        * Create a new cluster in OpenNebula.
@@ -429,8 +404,6 @@ const oneKsQueries = (({
   useLazyGetOneKsFamiliesQuery,
   useGetKubeConfigQuery,
   useLazyGetKubeConfigQuery,
-  useGetEndpointQuery,
-  useLazyGetEndpointQuery,
   useGetKubernetesLogsQuery,
   useLazyGetKubernetesLogsQuery,
   useGetOneKsNodegroupFamiliesQuery,
@@ -459,8 +432,6 @@ const oneKsQueries = (({
   useLazyGetOneKsFamiliesQuery,
   useGetKubeConfigQuery,
   useLazyGetKubeConfigQuery,
-  useGetEndpointQuery,
-  useLazyGetEndpointQuery,
   useGetKubernetesLogsQuery,
   useLazyGetKubernetesLogsQuery,
   useGetOneKsNodegroupFamiliesQuery,

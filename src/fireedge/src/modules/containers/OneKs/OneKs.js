@@ -154,7 +154,7 @@ const InfoTabs = memo(({ kubernetes, gotoPage, unselect, selectedRows }) => {
             icon={<RefreshDouble />}
             tooltip={Tr(T.Refresh)}
             isSubmitting={isFetching}
-            onClick={() => get({ id })}
+            onClick={() => get({ id, expand: true })}
           />
           {typeof unselect === 'function' && (
             <SubmitButton
