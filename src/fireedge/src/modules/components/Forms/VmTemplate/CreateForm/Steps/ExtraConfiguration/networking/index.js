@@ -56,21 +56,17 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
   useEffect(() => {
     // Init nic modified fields
     setFieldPath(`extra.Network.NIC`)
-    initModifiedFields([
-      ...nics.map((element, index) => ({ __nicIndex__: index })),
-    ])
+    initModifiedFields([...nics.map((_, index) => ({ __nicIndex__: index }))])
 
     // Init alias modified fields
     setFieldPath(`extra.Network.NIC_ALIAS`)
     initModifiedFields([
-      ...alias.map((element, index) => ({ __aliasIndex__: index })),
+      ...alias.map((_, index) => ({ __aliasIndex__: index })),
     ])
 
     // Init pci modified fields
     setFieldPath(`extra.PciDevices.PCI`)
-    initModifiedFields([
-      ...pcis.map((element, index) => ({ __aliasPci__: index })),
-    ])
+    initModifiedFields([...pcis.map((_, index) => ({ __aliasPci__: index }))])
 
     // Set field to network
     setFieldPath(`extra.Network`)
@@ -114,9 +110,8 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
    *
    * @param {object} nic - Nic to delete
    * @param {string} idNic - Id of the nic in the array
-   * @param {object} updatedNic - Nic to update
    */
-  const removeAndReorder = (nic, idNic, updatedNic) => {
+  const removeAndReorder = (nic, idNic) => {
     // Get nic name and if it is pci
     const nicName = nic?.NAME
     const isPCI = nic?.TYPE === 'NIC'
@@ -234,7 +229,14 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
 
       // Update if the pci exists on pcis array
       updatedNic.TYPE = 'NIC'
-      delete updatedNic.PCI_TYPE
+      setFieldPath(`extra.PciDevices.PCI.${indexPci}`)
+      setModifiedFields({
+        advanced: {
+          PCI_TYPE: { __delete__: true },
+          PCI_ADDRESS: { __delete__: true },
+          PCI_SELECTION_MODE: { __delete__: true },
+        },
+      })
       updatePCI(indexPci, mapPCINameFunction(updatedNic, indexPci))
     } else {
       // Get the index of the nic in the nics array
@@ -294,7 +296,6 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
     if (isPCI) {
       // Set pci type as pci attribute
       newNic.TYPE = 'NIC'
-      delete newNic.PCI_TYPE
 
       // Add the nic to the pci section in modified fields
       !update &&
@@ -307,7 +308,11 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
         })
       setFieldPath(`extra.PciDevices.PCI.${pcis.length}`)
       setModifiedFields({
-        advanced: { PCI_TYPE: { __delete__: true } },
+        advanced: {
+          PCI_TYPE: { __delete__: true },
+          PCI_ADDRESS: { __delete__: true },
+          PCI_SELECTION_MODE: { __delete__: true },
+        },
       })
 
       // Append to form array of pci
@@ -316,7 +321,11 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
       // Set field path to last position
       setFieldPath(`extra.Network.NIC.${nics.length}`)
       setModifiedFields({
-        advanced: { PCI_TYPE: { __delete__: true } },
+        advanced: {
+          PCI_TYPE: { __delete__: true },
+          PCI_ADDRESS: { __delete__: true },
+          PCI_SELECTION_MODE: { __delete__: true },
+        },
       })
 
       // Append to form array of nics

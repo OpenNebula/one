@@ -47,6 +47,7 @@ const SwitchController = memo(
     onConditionChange,
     watcher,
     dependencies,
+    description,
   }) => {
     const {
       field: { value = false, onChange, onBlur },
@@ -101,6 +102,11 @@ const SwitchController = memo(
           }
           labelPlacement="end"
         />
+        {description && (
+          <FormHelperText>
+            {labelCanBeTranslated(description) ? Tr(description) : description}
+          </FormHelperText>
+        )}
         {Boolean(error) && (
           <FormHelperText data-cy={`${cy}-error`}>
             <ErrorHelper label={error?.message} />
@@ -125,6 +131,7 @@ SwitchController.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
+  description: PropTypes.string,
 }
 
 SwitchController.displayName = 'SwitchController'

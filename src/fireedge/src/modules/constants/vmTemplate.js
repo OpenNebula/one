@@ -104,7 +104,14 @@ export const CONFIDENTIAL_COMPUTING_TYPES = {
 export const FIRMWARE_TYPES = ['BIOS', 'UEFI']
 export const FIRMWARE_FORMAT_TYPES = ['qcow2', 'raw']
 
-export const PCI_TYPES = { MANUAL: 'pci_manual', AUTOMATIC: 'pci_automatic' }
+export const PCI_TYPES = {
+  MANUAL: 'pci_manual',
+  AUTOMATIC: 'pci_automatic',
+  // SRIOV types
+  VF: 'vf',
+  PF: 'pf',
+  NO: 'no',
+}
 
 export const DEFAULT_TEMPLATE_LOGO = 'images/logos/default.png'
 

@@ -32,25 +32,35 @@ const Content = (props) => {
 
   return (
     <Box
-      display="grid"
-      gap="2em"
-      sx={{ gridTemplateColumns: { lg: '1fr 1fr', md: '1fr' } }}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2px',
+      }}
     >
-      {sections.map(({ id, legend, fields }) => (
-        <FormWithSchema
-          key={id}
-          rootProps={{
-            sx: (id === 'general' || id === 'guacamole-connections') && {
-              gridColumn: '1 / -1',
-            },
-          }}
-          cy={id}
-          saveState={true}
-          fields={fields}
-          legend={legend}
-          id={STEP_ID}
-        />
-      ))}
+      <Box
+        display="grid"
+        gap="2em"
+        sx={{ gridTemplateColumns: { lg: '1fr 1fr', md: '1fr' } }}
+      >
+        {sections.map(({ id, legend, fields }) => (
+          <FormWithSchema
+            key={id}
+            rootProps={{
+              sx: (id === 'general' ||
+                id === 'guacamole-connections' ||
+                id === 'hardware') && {
+                gridColumn: '1 / -1',
+              },
+            }}
+            cy={id}
+            saveState={true}
+            fields={fields}
+            legend={legend}
+            id={STEP_ID}
+          />
+        ))}
+      </Box>
     </Box>
   )
 }

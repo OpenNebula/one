@@ -96,6 +96,11 @@ const VmNetworkTab = ({
   // Get data from vm
   const { data: vm } = VmAPI.useGetVmQuery({ id })
 
+  const history = [].concat(vm?.HISTORY_RECORDS?.HISTORY)
+  const hostId = (
+    history.find((h) => h?.ETIME === '0' || h?.ETIME === 0) ?? history.at(-1)
+  )?.HID
+
   // Set nics, hypervisor and actions
   const [nics, hypervisor, actionsAvailable] = useMemo(() => {
     const groupedNics = getNics(vm, {
@@ -156,6 +161,7 @@ const VmNetworkTab = ({
           adminGroup={adminGroup}
           onSubmit={handleAttach}
           disableNetworkAutoMode={true}
+          hostId={hostId}
         />
       )}
 

@@ -19,9 +19,11 @@ import PropTypes from 'prop-types'
 import {
   styled,
   FormControl,
+  Typography,
   ToggleButtonGroup,
   ToggleButton,
   FormHelperText,
+  Box,
 } from '@mui/material'
 import { useController } from 'react-hook-form'
 
@@ -105,9 +107,25 @@ const ToggleController = memo(
           data-cy={cy}
           {...fieldProps}
         >
-          {values?.map(({ text, value = '' }) => (
+          {values?.map(({ text, value = '', description }) => (
             <ToggleButton key={`${name}-${value}`} value={value} sx={{ p: 1 }}>
-              {Tr(text)}
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant="body2" fontWeight={600}>
+                  {Tr(text)}
+                </Typography>
+
+                {description && (
+                  <Typography
+                    variant="caption"
+                    display="block"
+                    color="text.secondary"
+                  >
+                    {labelCanBeTranslated(description)
+                      ? Tr(description)
+                      : description}
+                  </Typography>
+                )}
+              </Box>
             </ToggleButton>
           ))}
         </ToggleButtonGroup>

@@ -39,12 +39,14 @@ const MessageStyled = styled(Alert)({
  *
  * @param {object} props - Props
  * @param {boolean} props.withAlert - If `true`, the list of selected rows will be an alert
+ * @param {boolean} props.disableChipMarker - If `true`, the selected row(s), wont render a chip.
  * @param {function(Row)} [props.gotoRowPage] - Function to navigate to a page of the row
  * @param {TableProps} props.useTableProps - Table props
  * @returns {JSXElementConstructor} Component JSX
  */
 const GlobalSelectedRows = ({
   withAlert = false,
+  disableChipMarker = false,
   useTableProps,
   gotoRowPage,
 }) => {
@@ -81,23 +83,27 @@ const GlobalSelectedRows = ({
       </Button>
     </MessageStyled>
   ) : (
-    <div>
-      {selectedRows?.map((row) => (
-        <Chip
-          key={row.id}
-          label={row.original?.NAME ?? row.id}
-          onDelete={() => row.toggleRowSelected(false)}
-          data-cy="itemSelected"
-          {...(gotoRowPage && { onClick: () => gotoRowPage(row) })}
-        />
-      ))}
-    </div>
+    !disableChipMarker && (
+      <div>
+        {selectedRows?.map((row) => (
+          <Chip
+            key={row.id}
+            label={row.original?.NAME ?? row.id}
+            onDelete={() => row.toggleRowSelected(false)}
+            data-cy="itemSelected"
+            {...(gotoRowPage && { onClick: () => gotoRowPage(row) })}
+          />
+        ))}
+      </div>
+    )
   )
 }
 
 GlobalSelectedRows.propTypes = {
   withAlert: PropTypes.bool,
+  disableChipmarker: PropTypes.bool,
   useTableProps: PropTypes.object.isRequired,
+  disableChipMarker: PropTypes.bool,
   gotoRowPage: PropTypes.func,
 }
 

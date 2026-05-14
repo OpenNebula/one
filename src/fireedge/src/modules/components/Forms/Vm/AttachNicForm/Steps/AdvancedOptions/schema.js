@@ -14,6 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { boolean, string, ObjectSchema } from 'yup'
+import { PcisTable } from '@modules/components/Tables'
+import { Alert } from '@mui/material'
+import { WarningCircle } from 'iconoir-react'
 
 import {
   Field,
@@ -21,7 +24,6 @@ import {
   filterFieldsByHypervisor,
   filterFieldsByDriver,
   getObjectSchemaFromFields,
-  arrayToOptions,
   disableFields,
 } from '@UtilsModule'
 import {
@@ -30,36 +32,11 @@ import {
   HYPERVISORS,
   VN_DRIVERS,
   Nic,
-  NIC_HARDWARE,
-  NIC_HARDWARE_STR,
-  PCI_TYPES,
+  TABLE_VIEW_MODE,
 } from '@ConstantsModule'
-import { HostAPI } from '@FeaturesModule'
-import { getPciDevices } from '@ModelsModule'
-import {
-  getPciAttributes,
-  transformPciToString,
-} from '@modules/components/Forms/Vm/AttachPciForm/schema.js'
-
-const { lxc } = HYPERVISORS
-const PCI_TYPE_NAME = 'PCI_TYPE'
-const DEVICE_LIST = 'DEVICE_LIST'
-const VENDOR = 'VENDOR'
-const DEVICE = 'DEVICE'
-const CLASS = 'CLASS'
 
 const filterByHypAndDriver = (fields, { hypervisor, driver }) =>
   filterFieldsByDriver(filterFieldsByHypervisor(fields, hypervisor), driver)
-
-const fillPCIAtributes =
-  (nameAttr) =>
-  ([_, pciDevice = ''] = []) => {
-    if (pciDevice) {
-      const { [nameAttr]: attribute } = getPciAttributes(pciDevice)
-
-      return attribute
-    }
-  }
 
 /**
  * @param {object} [data] - VM or VM Template data
@@ -261,271 +238,6 @@ const GUACAMOLE_CONNECTIONS = [
   },
 ]
 
-/** @type {Field[]} List of hardware fields */
-const HARDWARE_FIELDS = (
-  defaultData = {},
-  hasAlias = false,
-  isAlias = false
-) => [
-  {
-    name: PCI_TYPE_NAME,
-    label: T.VirtualNicHardwareMode,
-    type: INPUT_TYPES.AUTOCOMPLETE,
-    optionsOnly: true,
-    values: arrayToOptions(Object.values(NIC_HARDWARE), {
-      addEmpty: false,
-      getText: (key) => NIC_HARDWARE_STR[key],
-      getValue: (type) => type,
-    }),
-    fieldProps: {
-      disabled: hasAlias || isAlias,
-    },
-    validation: string()
-      .trim()
-      .default(() => {
-        if (defaultData?.SHORT_ADDRESS) {
-          return NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL
-        }
-        if (defaultData?.CLASS && defaultData?.VENDOR && defaultData?.DEVICE) {
-          return NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC
-        }
-
-        return NIC_HARDWARE.EMULATED
-      }),
-    grid: { md: 12 },
-  },
-  // Emulated mode fields
-  {
-    name: 'MODEL',
-    label: T.HardwareModelToEmulate,
-    dependOf: PCI_TYPE_NAME,
-    htmlType: (value) => value !== NIC_HARDWARE.EMULATED && INPUT_TYPES.HIDDEN,
-    type: INPUT_TYPES.TEXT,
-    fieldProps: {
-      disabled: hasAlias || isAlias,
-    },
-    validation: string()
-      .trim()
-      .notRequired()
-      .default(() => undefined),
-    grid: { md: 5 },
-  },
-  {
-    name: 'VIRTIO_QUEUES',
-    label: T.TransmissionQueue,
-    tooltip: T.OnlySupportedForVirtioDriver,
-    type: INPUT_TYPES.TEXT,
-    fieldProps: ([_, AUTO] = []) => ({
-      disabled: AUTO || hasAlias || isAlias,
-    }),
-    dependOf: [PCI_TYPE_NAME, 'AUTO_VIRTIO_QUEUES'],
-    value: (_, form) => {
-      if (form?.getValues(`advanced.AUTO_VIRTIO_QUEUES`) && form?.setValue) {
-        form?.setValue(`advanced.VIRTIO_QUEUES`, 'auto')
-      }
-    },
-    validation: string()
-      .trim()
-      .default(() => undefined),
-    htmlType: ([value, _] = []) =>
-      value !== NIC_HARDWARE.EMULATED ? INPUT_TYPES.HIDDEN : 'number',
-    grid: { md: 4.5 },
-  },
-  {
-    name: 'AUTO_VIRTIO_QUEUES',
-    label: T.Auto,
-    tooltip: T.AutoVirtioQueues,
-    type: INPUT_TYPES.SWITCH,
-    dependOf: PCI_TYPE_NAME,
-    htmlType: (value) =>
-      value !== NIC_HARDWARE.EMULATED ? INPUT_TYPES.HIDDEN : INPUT_TYPES.SWITCH,
-    validation: boolean()
-      .notRequired()
-      .default(() => false)
-      .afterSubmit(() => undefined),
-    grid: { md: 1.5 },
-  },
-  // PCI Passthrough Automatic mode fields
-  {
-    name: DEVICE_LIST,
-    label: T.DeviceName,
-    type: INPUT_TYPES.AUTOCOMPLETE,
-    optionsOnly: true,
-    values: () => {
-      const { data: hosts = [] } = HostAPI.useGetHostsAdminQuery()
-      const pciDevices = hosts
-        .map(getPciDevices)
-        .flat()
-        .reduce(
-          (currentPCIS, newDevice) =>
-            currentPCIS.some((pci) => pci.ADDRESS === newDevice.ADDRESS) // Filter out devices with the same address
-              ? currentPCIS
-              : [...currentPCIS, newDevice],
-          []
-        )
-
-      return arrayToOptions(pciDevices, {
-        getText: ({ DEVICE_NAME } = {}) => DEVICE_NAME,
-        getValue: transformPciToString,
-      })
-    },
-    validation: string()
-      .trim()
-      .default(() => {
-        const {
-          DEVICE: dataDevice = undefined,
-          VENDOR: dataVendor = undefined,
-          CLASS: dataClass = undefined,
-          PROFILES: dataProfile = undefined,
-        } = defaultData
-
-        return (
-          dataDevice &&
-          dataVendor &&
-          dataClass &&
-          [dataDevice, dataVendor, dataClass, dataProfile].join(';')
-        )
-      })
-      .afterSubmit(() => undefined),
-    dependOf: PCI_TYPE_NAME,
-    htmlType: (pciTypeValue) =>
-      pciTypeValue !== NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC &&
-      INPUT_TYPES.HIDDEN,
-    grid: { md: 3 },
-  },
-  {
-    name: VENDOR,
-    label: T.Vendor,
-    type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [lxc],
-    dependOf: [PCI_TYPE_NAME, DEVICE_LIST],
-    watcher: fillPCIAtributes(VENDOR),
-    htmlType: (_, context) => {
-      const values = context?.getValues() || {}
-
-      return (
-        values?.advanced?.PCI_TYPE !== NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC &&
-        INPUT_TYPES.HIDDEN
-      )
-    },
-    validation: string()
-      .when('PCI_TYPE', (type, schema) =>
-        type === NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC
-          ? schema.required()
-          : schema.notRequired()
-      )
-      .default(() => undefined)
-      .afterSubmit((value, { context }) =>
-        context?.advanced?.PCI_TYPE === PCI_TYPES.AUTOMATIC ? value : undefined
-      ),
-    grid: { md: 3 },
-    fieldProps: {
-      disabled: true,
-    },
-  },
-  {
-    name: DEVICE,
-    label: T.Device,
-    type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [lxc],
-    dependOf: [PCI_TYPE_NAME, DEVICE_LIST],
-    watcher: fillPCIAtributes(DEVICE),
-    htmlType: (_, context) => {
-      const values = context?.getValues() || {}
-
-      return (
-        values?.advanced?.PCI_TYPE !== NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC &&
-        INPUT_TYPES.HIDDEN
-      )
-    },
-    validation: string()
-      .when('PCI_TYPE', (type, schema) =>
-        type === NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC
-          ? schema.required()
-          : schema.notRequired()
-      )
-      .default(() => undefined)
-      .afterSubmit((value, { context }) =>
-        context?.advanced?.PCI_TYPE === PCI_TYPES.AUTOMATIC ? value : undefined
-      ),
-    grid: { md: 3 },
-    fieldProps: {
-      disabled: true,
-    },
-  },
-  {
-    name: CLASS,
-    label: T.Class,
-    type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [lxc],
-    dependOf: [PCI_TYPE_NAME, DEVICE_LIST],
-    watcher: fillPCIAtributes(CLASS),
-    htmlType: (_, context) => {
-      const values = context?.getValues() || {}
-
-      return (
-        values?.advanced?.PCI_TYPE !== NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC &&
-        INPUT_TYPES.HIDDEN
-      )
-    },
-    validation: string()
-      .when('PCI_TYPE', (type, schema) =>
-        type === NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC
-          ? schema.required()
-          : schema.notRequired()
-      )
-      .default(() => undefined)
-      .afterSubmit((value, { context }) =>
-        context?.advanced?.PCI_TYPE === PCI_TYPES.AUTOMATIC ? value : undefined
-      ),
-    grid: { md: 3 },
-    fieldProps: {
-      disabled: true,
-    },
-  },
-  // PCI Passthrough Manual mode fields
-  {
-    name: 'SHORT_ADDRESS',
-    label: T.ShortAddress,
-    tooltip: T.ShortAddressConcept,
-    type: INPUT_TYPES.AUTOCOMPLETE,
-    notOnHypervisors: [lxc],
-    dependOf: PCI_TYPE_NAME,
-    htmlType: (value) =>
-      value !== NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL && INPUT_TYPES.HIDDEN,
-    values: () => {
-      const { data: hosts = [] } = HostAPI.useGetHostsAdminQuery()
-      const pciDevices = hosts
-        .map(getPciDevices)
-        .flat()
-        .reduce(
-          (currentPCIS, newDevice) =>
-            currentPCIS.some((pci) => pci.ADDRESS === newDevice.ADDRESS) // Filter out devices with the same address
-              ? currentPCIS
-              : [...currentPCIS, newDevice],
-          []
-        )
-
-      return arrayToOptions(pciDevices, {
-        addEmpty: false,
-        getText: ({ SHORT_ADDRESS, DEVICE_NAME } = {}) =>
-          `${DEVICE_NAME}: ${SHORT_ADDRESS}`,
-        getValue: ({ SHORT_ADDRESS } = {}) => SHORT_ADDRESS,
-      })
-    },
-    validation: string()
-      .when('PCI_TYPE', (type, schema) =>
-        type === NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL
-          ? schema.required()
-          : schema.notRequired()
-      )
-      .default(() => defaultData?.SHORT_ADDRESS)
-      .afterSubmit((value, { context }) =>
-        context?.advanced?.PCI_TYPE === PCI_TYPES.MANUAL ? value : undefined
-      ),
-  },
-]
-
 /** @type {Field[]} List of guest option fields */
 const GUEST_FIELDS = [
   {
@@ -552,6 +264,7 @@ const GUEST_FIELDS = [
  * @param {boolean} [data.isPci] - If it's a PCI
  * @param {boolean} [data.isAlias] - If it's an alias
  * @param {boolean} [data.disableNetworkAutoMode] - Disable the switch to enable network auto mode
+ * @param {number} data.hostId - Currenty scheduled host ID for the VM
  * @returns {Section[]} Sections
  */
 const SECTIONS = ({
@@ -565,6 +278,7 @@ const SECTIONS = ({
   isPci,
   isAlias,
   disableNetworkAutoMode,
+  hostId,
 } = {}) => {
   const filters = { driver, hypervisor }
 
@@ -592,6 +306,250 @@ const SECTIONS = ({
     },
   ]
 
+  const GET_PCI_FIELDS = () => {
+    const getTableHeaders = (filterType, mode) => {
+      const headerMap = {
+        automatic: [
+          {
+            header:
+              mode === 'automatic'
+                ? filterType === 'vf'
+                  ? T.AvailableFunctions
+                  : T.AvailableDevices
+                : T.InterfaceName,
+
+            id: 'ifname',
+            accessor: mode === 'automatic' ? 'AVAILABILITY' : 'IFNAME',
+            width: '20%',
+          },
+          {
+            header: T.Vendor,
+            id: 'vendorName',
+            accessor: 'VENDOR_NAME',
+            width: '40%',
+          },
+          {
+            header: T.Device,
+            id: 'deviceName',
+            accessor: 'DEVICE_NAME',
+            width: '40%',
+          },
+        ],
+
+        manual: [
+          {
+            header: T.PciDevice,
+            id: 'shortAddress',
+            accessor: 'SHORT_ADDRESS',
+            width: '25%',
+          },
+          {
+            header:
+              mode === 'automatic'
+                ? filterType === 'vf'
+                  ? T.AvailableFunctions
+                  : T.AvailableDevices
+                : T.InterfaceName,
+
+            id: 'ifname',
+            accessor: mode === 'automatic' ? 'AVAILABILITY' : 'IFNAME',
+            width: '25%',
+          },
+          {
+            header: T.Vendor,
+            id: 'vendorName',
+            accessor: 'VENDOR_NAME',
+            width: '25%',
+          },
+          {
+            header: T.Device,
+            id: 'deviceName',
+            accessor: 'DEVICE_NAME',
+            width: '25%',
+          },
+        ],
+      }
+
+      return headerMap?.[mode] ?? headerMap?.manual
+    }
+
+    const getInlineDescription = (mode) => {
+      if (mode === 'automatic') {
+        return (
+          <Alert severity="info" icon={<WarningCircle />}>
+            The scheduler picks the best available function on the selected
+            device. Addresses show the <strong>device</strong> without the
+            function suffix (<code>.x</code>). Leave unselected to let the
+            scheduler choose freely.
+          </Alert>
+        )
+      }
+
+      if (mode === 'manual') {
+        return (
+          <Alert severity="warning" icon={<WarningCircle />}>
+            Pins this NIC to a <strong>specific function</strong> on a specific
+            device. Select a <strong>full PCI address</strong> from the list.
+          </Alert>
+        )
+      }
+    }
+
+    return [
+      {
+        name: 'PCI_TYPE',
+        label: T.DeviceType,
+        type: INPUT_TYPES.RADIO,
+        optionsOnly: true,
+        values: [
+          {
+            text: T.Emulated,
+            value: 'emulated',
+            description: T.EmulatedConcept,
+          },
+          {
+            text: T.SrIov,
+            value: 'vf',
+            description: T.SrIovConcept,
+          },
+          {
+            text: T.PciPassthrough,
+            value: 'pf',
+            description: T.PciPassthroughConcept,
+          },
+        ],
+        validation: string()
+          .trim()
+          .required()
+          .default(() => 'automatic'),
+        grid: { md: 12 },
+      },
+
+      {
+        name: 'PCI_SELECTION_MODE',
+        label: T.SchedulingMode,
+        type: INPUT_TYPES.TOGGLE,
+        optionsOnly: true,
+        notNull: true,
+        dependOf: 'PCI_TYPE',
+        htmlType: (PCI_TYPE = '') =>
+          PCI_TYPE === 'emulated' && INPUT_TYPES.HIDDEN,
+        values: [
+          {
+            text: T.Automatic,
+            value: 'automatic',
+            description: T.AutomaticConcept,
+          },
+          {
+            text: T.Manual,
+            value: 'manual',
+            description: T.ManualConcept,
+          },
+        ],
+        validation: string()
+          .trim()
+          .nullable(false)
+          .required()
+          .default(() => 'automatic'),
+        grid: { md: 12 },
+      },
+
+      {
+        name: 'PCI_ADDRESS',
+        label: '',
+        type: INPUT_TYPES.TABLE,
+        dependOf: ['PCI_TYPE', 'PCI_SELECTION_MODE'],
+        Table: () => PcisTable.Table,
+        getRowId: (row) => {
+          const deviceClassVendor = [
+            row?.DEVICE,
+            row?.CLASS,
+            row?.VENDOR,
+          ]?.filter(Boolean)
+          const shortAddr = row?.SHORT_ADDRESS
+
+          return `${
+            deviceClassVendor?.length < 3
+              ? row?.TYPE
+              : deviceClassVendor?.join(':')
+          }@${shortAddr}`
+        },
+        singleSelect: true,
+        htmlType: (deps = []) => deps?.[0] === 'emulated' && INPUT_TYPES.HIDDEN,
+        validation: string()
+          .trim()
+          .notRequired()
+          .default(() => undefined),
+        grid: { md: 12 },
+        fieldProps: (deps) => ({
+          preserveState: true,
+          filterOn: deps,
+          inlineDescription: getInlineDescription(deps?.[1]),
+          customListHeader: getTableHeaders(deps?.[0], deps?.[1]),
+          forceTableView: TABLE_VIEW_MODE.LIST,
+          disableChipMarker: true,
+          disableSwitchView: true,
+          disableGlobalSort: true,
+          disableGlobalActions: true,
+          hostId: hostId,
+        }),
+      },
+
+      // Emulated mode fields
+      {
+        name: 'MODEL',
+        label: T.HardwareModelToEmulate,
+        dependOf: ['PCI_TYPE'],
+        htmlType: (deps = []) => deps?.[0] !== 'emulated' && INPUT_TYPES.HIDDEN,
+        type: INPUT_TYPES.TEXT,
+        fieldProps: {
+          disabled: hasAlias || isAlias,
+        },
+        validation: string()
+          .trim()
+          .notRequired()
+          .default(() => undefined),
+        grid: { md: 5 },
+      },
+      {
+        name: 'VIRTIO_QUEUES',
+        label: T.TransmissionQueue,
+        tooltip: T.OnlySupportedForVirtioDriver,
+        type: INPUT_TYPES.TEXT,
+        fieldProps: ([_, AUTO] = []) => ({
+          disabled: AUTO || hasAlias || isAlias,
+        }),
+        dependOf: ['PCI_TYPE'],
+        htmlType: (deps = []) => deps?.[0] !== 'emulated' && INPUT_TYPES.HIDDEN,
+        value: (_, form) => {
+          if (
+            form?.getValues(`advanced.AUTO_VIRTIO_QUEUES`) &&
+            form?.setValue
+          ) {
+            form?.setValue(`advanced.VIRTIO_QUEUES`, 'auto')
+          }
+        },
+        validation: string()
+          .trim()
+          .default(() => undefined),
+        grid: { md: 4.5 },
+      },
+      {
+        name: 'AUTO_VIRTIO_QUEUES',
+        label: T.Auto,
+        tooltip: T.AutoVirtioQueues,
+        type: INPUT_TYPES.SWITCH,
+        dependOf: ['PCI_TYPE'],
+        htmlType: (deps = []) => deps?.[0] !== 'emulated' && INPUT_TYPES.HIDDEN,
+        validation: boolean()
+          .notRequired()
+          .default(() => false)
+          .afterSubmit(() => undefined),
+        grid: { md: 1.5 },
+      },
+    ]
+  }
+
   const sections = general.concat([
     {
       id: 'guacamole-connections',
@@ -613,24 +571,18 @@ const SECTIONS = ({
         adminGroup
       ),
     },
-  ])
 
-  if (!isAlias) {
-    // Add hardware section before the guest section
-    sections.splice(sections.length - 1, 0, {
+    {
       id: 'hardware',
       legend: T.Hardware,
       fields: disableFields(
-        filterByHypAndDriver(
-          HARDWARE_FIELDS(defaultData, hasAlias, isAlias),
-          filters
-        ),
+        filterByHypAndDriver(GET_PCI_FIELDS(), filters),
         'NIC',
         oneConfig,
         adminGroup
       ),
-    })
-  }
+    },
+  ])
 
   return sections
 }

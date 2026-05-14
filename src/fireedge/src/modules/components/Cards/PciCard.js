@@ -46,6 +46,7 @@ const PciCard = memo(
       NAME,
       PCI_ID,
       VMID,
+      IFNAME,
     } = pci
 
     const name = PCI_ID ? `PCI${PCI_ID}` : NAME && `${NAME}`
@@ -98,6 +99,11 @@ const PciCard = memo(
                 <ModernTv />
                 <span data-cy="vm">{` ${VMID}`}</span>
               </span>
+            )}
+            {IFNAME && (
+              <span title={`${Tr(T.IfName)}: ${IFNAME}`}>{`${Tr(
+                T.IfName
+              )}: ${IFNAME}`}</span>
             )}
           </div>
         </Box>

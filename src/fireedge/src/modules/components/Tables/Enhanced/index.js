@@ -145,8 +145,15 @@ const DataListPerPage = memo(
         <TableHead>
           <TableRow>
             {!singleSelect && <TableCell className={styles.cellHeaders} />}
-            {headerList.map(({ header = '', id = '' }) => (
-              <TableCell key={id} className={styles.cellHeaders}>
+            {headerList.map(({ header = '', id = '', width, minWidth }) => (
+              <TableCell
+                key={id}
+                className={styles.cellHeaders}
+                sx={{
+                  width,
+                  minWidth,
+                }}
+              >
                 <Translate word={header} />
               </TableCell>
             ))}
@@ -202,6 +209,7 @@ const EnhancedTable = ({
   disableGlobalSort,
   disableGlobalActions = false,
   disableSwitchView = false,
+  disableChipMarker = false,
   onSelectedRowsChange,
   pageSize,
   onRowClick,
@@ -213,6 +221,7 @@ const EnhancedTable = ({
   searchProps = {},
   noDataMessage,
   noDataCustomRenderer,
+  inlineDescription,
   messages = [],
   dataDepend,
   readOnly = false,
@@ -510,6 +519,8 @@ const EnhancedTable = ({
           {!disableSwitchView && <SwitchTableView />}
         </div>
 
+        {inlineDescription && <Box>{inlineDescription}</Box>}
+
         {/* Second row - Left: Search bar, Right: Labels, Filters and Sort */}
         <div className={styles.toolbarContainer}>
           <GlobalSearch
@@ -541,6 +552,7 @@ const EnhancedTable = ({
         {displaySelectedRows && !readOnly && (
           <div>
             <GlobalSelectedRows
+              disableChipMarker={disableChipMarker}
               useTableProps={useTableProps}
               gotoRowPage={gotoRowPage}
             />
@@ -646,6 +658,7 @@ EnhancedTable.propTypes = {
   disableGlobalActions: PropTypes.bool,
   disableSwitchView: PropTypes.bool,
   disableRowSelect: PropTypes.bool,
+  disableChipMarker: PropTypes.bool,
   displaySelectedRows: PropTypes.bool,
   useUpdateMutation: PropTypes.func,
   onSelectedRowsChange: PropTypes.func,
@@ -668,6 +681,7 @@ EnhancedTable.propTypes = {
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   enabledFullScreen: PropTypes.bool,
   resourceType: PropTypes.string,
+  inlineDescription: PropTypes.string,
 }
 
 export * from '@modules/components/Tables/Enhanced/Utils'
