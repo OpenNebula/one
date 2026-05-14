@@ -343,6 +343,9 @@ class Restic
             :delay   => 5
         }.merge!(opts)
 
+        options[:retries] = options[:retries].to_i
+        options[:delay]   = options[:delay].to_i
+
         rc = nil
         options[:retries].times do
             rc = run_action name, script, rhost
