@@ -1987,6 +1987,14 @@ patches:
             #
             # logo: custom_logo.png
 
+            # Specify the filename for a custom favicon to be used in the browser tab.
+            # Acceptable formats include: .ico, .jpg, .jpeg, .png.
+            # Ensure the filename adheres to the pattern: [a-zA-Z0-9-_]+.(ico|jpg|jpeg|png)
+            # The file must exist in assets/favicon/sunstone.
+            # Example:
+            #
+            # favicon: custom_logo.png
+
             groups:
                 oneadmin:
                     - admin
@@ -5826,12 +5834,12 @@ patches:
                     sidebar: true
                     icon: SimpleCart
                     Component: Marketplaces
-                -   title: Marketplace
-                    path: "/marketplace/:id"
-                    Component: MarketplaceDetail
                 -   title: Create Marketplace
                     path: "/marketplace/create"
                     Component: CreateMarketplace
+                -   title: Marketplace
+                    path: "/marketplace/:id"
+                    Component: MarketplaceDetail
                 -   title: Apps
                     path: "/marketplace-app"
                     sidebar: true
@@ -5992,12 +6000,12 @@ patches:
                   sidebar: true
                   icon: SimpleCart
                   Component: Marketplaces
-                - title: Marketplace
-                  path: /marketplace/:id
-                  Component: MarketplaceDetail
                 - title: Create Marketplace
                   path: /marketplace/create
                   Component: CreateMarketplace
+                - title: Marketplace
+                  path: /marketplace/:id
+                  Component: MarketplaceDetail
                 - title: Apps
                   path: /marketplace-app
                   sidebar: true
@@ -6348,6 +6356,20 @@ patches:
         action: apply
         change:
         -   path: []
+            key: VM_MANAGE_OPERATIONS
+            value: |-
+                "undeploy, hold, release, stop, suspend, resume, reboot,
+                    poweroff, disk-attach, nic-attach, disk-snapshot, terminate, disk-resize,
+                    snapshot, updateconf, rename, resize, update, disk-saveas, sched-action,
+                    sg-attach, pci-attach, exec, vmgroup"
+            old: |-
+                "undeploy, hold, release, stop, suspend, resume, reboot,
+                    poweroff, disk-attach, nic-attach, disk-snapshot, terminate, disk-resize,
+                    snapshot, updateconf, rename, resize, update, disk-saveas, sched-action,
+                    sg-attach, pci-attach, exec"
+            state: set
+            extra: {}
+        -   path: []
             key: VM_ENCRYPTED_ATTR
             value: '"ONEAPP_ONEKS_CLUSTER_SPEC"'
             state: ins
@@ -6629,6 +6651,9 @@ patches:
             #     %A -- client IP address (only IPv4 supported)
             #     %P -- client TCP port
             #     %% -- %
+            #
+            #  LOG_RESULT_LENGTH: Max number of characters to show for API results
+            #  in the log (default is 20).
             #*******************************************************************************
 
             #MAX_CONN           = 15
@@ -6639,6 +6664,7 @@ patches:
             #RPC_LOG            = NO
             #MESSAGE_SIZE       = 1073741824
             #LOG_CALL_FORMAT    = "Req:%i UID:%u IP:%A %m invoked %l20"
+            #LOG_RESULT_LENGTH  = 20
 
             #*******************************************************************************
             # Physical Networks configuration
@@ -7130,7 +7156,7 @@ patches:
             VM_MANAGE_OPERATIONS = "undeploy, hold, release, stop, suspend, resume, reboot,
                 poweroff, disk-attach, nic-attach, disk-snapshot, terminate, disk-resize,
                 snapshot, updateconf, rename, resize, update, disk-saveas, sched-action,
-                sg-attach, pci-attach, exec"
+                sg-attach, pci-attach, exec, vmgroup"
 
             VM_USE_OPERATIONS    = ""
 
@@ -8802,10 +8828,11 @@ patches:
         mode: '0640'
         content: |
             # This file controls the monitoring information received from the qemu-guest agent
-            # inside the VMs
+            # inside the VMs.
 
-            # enable or disable monitoring information from the qemu guest agent.
+            # Enable or disable monitoring information from the qemu guest agent.
             :enabled: false
+
             # Commands used to gather VM information.
             # Each command key will appear on the MONITORING message from the poll probe
             # The value will be run as a command executed with virsh qemu-agent-command
@@ -8813,17 +8840,63 @@ patches:
             # are looping on each of the VMs on the host. Each command will be run once per VM.
             # The expected response for each command is a JSON string with a "return" key.
             # The contents of it will appear on the MONITORING message from the poll probe.
+            #
+            # SYNTAX OPTIONS (can be mixed):
+            # ===============
+            #
+            # Simple syntax:
+            #   :command_name: one-$vm_id '{"execute":"guest-ping"}' --timeout 5
+            #
+            # Alternative syntax for OS filtering:
+            #   :command_name:
+            #     command: one-$vm_id '{"execute":"guest-ping"}' --timeout 5
+            #     filter1: ['val1']
+            #     filter2: ['val1', 'val2']
+            #     ...
+            #
+            # Filtering works by previously extracting and storing special OS_ attributes from
+            # `guest-get-osinfo`, whose values will then be used to check each condition. They can also be
+            # accessed in the MONITORING section. The corresponding attribute must then match exactly (case
+            # sensitive) one of the given filters for the VM to be eligible to run the command. Providing
+            # several filters requires the VM to match each of them.
+            #
+            # This table summarizes the available filters and corresponding OS monitoring attributes:
+            #
+            # | Filter      | Attribute Matched | Possible Values                          | Comments                                |
+            # | ----------- | ----------------- | ---------------------------------------- | --------------------------------------- |
+            # | os_types    | OS_TYPE           | `posix`, `mswindows`                     |                                         |
+            # | os_ids      | OS_ID             | OS/distro ID (e.g., `ubuntu`, `freebsd`) | From os-release(5) ID attribute         |
+            # | os_versions | OS_VERSION        | Version ID (e.g., `3.20.9`, `24.04`)     | From os-release(5) VERSION_ID attribute |
+            # | os_machines | OS_MACHINE        | Architecture (e.g., `x86_64`, `amd64`)   | From `uname -m`                         |
+            #
+            # Values will be 'unknown' if not provided by qemu-guest-agent.
+            #
             :commands:
+              # String syntax - runs on all VMs
               :vm_qemu_ping: one-$vm_id '{"execute":"guest-ping"}' --timeout 5
-              # :guest_info: one-$vm_id '{"execute":"guest-info"}' --timeout 5
-              # # The first non-loopback address
-              # :vm_ip_address:       >
-              #                       one-$vm_id '{"execute":"guest-network-get-interfaces"}' --timeout 5 |
-              #                       jq '{"return": [.return[] | select(."ip-addresses") | ."ip-addresses"[] | select(."ip-address-type"=="ipv4" and (."ip-address"|startswith("127.")|not))."ip-address"][0]}'
-              # # Array of all IP addresses
-              # :vm_ip_address_list:  >
-              #                       one-$vm_id '{"execute":"guest-network-get-interfaces"}' --timeout 5 |
-              #                       jq '{"return" : [ .return[] | select(."ip-addresses") | ."ip-addresses"[]."ip-address" ]}'
+
+              # Hash syntax examples (with OS filtering):
+              #
+              # Simple command without filters - runs on all VMs
+              # :vm_simple:
+              #   :command: one-$vm_id '{"execute":"guest-ping"}' --timeout 5
+              #
+              # Example: Run only on POSIX amd64
+              # :vm_posix_amd64:
+              #   :command: one-$vm_id '{"execute":"guest-exec","arguments":{"path":"/usr/bin/uname","arg":["-a"]}}' --timeout 10
+              #   :os_types: [posix]
+              #   :os_machines: [x86_64, amd64]
+              #
+              # Example: Run only on Windows
+              # :vm_windows_only:
+              #   :command: one-$vm_id '{"execute":"guest-exec","arguments":{"path":"C:\\Windows\\System32\\cmd.exe","arg":["/c","echo hello"]}}' --timeout 10
+              #   :os_types: [mswindows]
+              #
+              # Example: Run only on specific OS versions
+              # :vm_ubuntu_22_24:
+              #   :command: one-$vm_id '{"execute":"guest-exec","arguments":{"path":"/usr/bin/cat","arg":["/etc/os-release"]}}' --timeout 10
+              #   :os_ids: [ubuntu]
+              #   :os_versions: ['24.04', '22.04']
     "/var/lib/one/remotes/etc/im/kvm-probes.d/forecast.conf":
         class: Yaml
         owner: oneadmin
