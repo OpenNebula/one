@@ -289,25 +289,10 @@ class Restic
         # (for a single VM). We wait here in a retry loop, because
         # forget/prune operations lock Restic exclusively.
 
-        rc = nil
-
-        options[:retries].to_i.times do
-            # NOTE: Running this operation on the Restic server (@sftp) can
-            # improve performance significantly.
-            rc = run_action 'remove_snapshots', script, rhost
-
-            return if rc.code == 0
-
-            # For Restic >= 0.17.0, exit code 11 means "locked repository"
-            if rc.code == 11
-                sleep options[:delay].to_i
-            else
-                break
-            end
-        end
+        rc = run_with_lock_retry 'remove_snapshots', script, rhost, options
 
         raise StandardError, "Unable to remove snapshots: #{rc.stdout} #{rc.stderr}" \
-            unless rc.nil?
+            if rc.code != 0
     end
 
     private
@@ -339,6 +324,34 @@ class Restic
                                         :nostdout => false,
                                         :nostderr => false
         end
+    end
+
+    # Runs a restic action with retry on exit code 11 (locked repository).
+    #
+    # @param name [String] name of the action (arbitrary)
+    #
+    # @param script [String] multiline shell script (BASH)
+    #
+    # @param rhost [String] hostname/IP of a node to run restic commands on
+    #
+    # @param opts [Hash] :retries (default 60), :delay in seconds (default 5)
+    #
+    # @return [Object] RC struct
+    def run_with_lock_retry(name, script, rhost, opts = {})
+        options = {
+            :retries => 60,
+            :delay   => 5
+        }.merge!(opts)
+
+        rc = nil
+        options[:retries].times do
+            rc = run_action name, script, rhost
+            break unless rc.code == 11
+
+            sleep options[:delay]
+        end
+
+        rc
     end
 
     # Queries Restic for a complete list of file paths contained in
@@ -418,7 +431,12 @@ class Restic
     # @param wdir [String, nil] directory to pull artifacts into (optional)
     #
     # @return [nil]
-    def pull_disks(disks, rhost, wdir = nil)
+    def pull_disks(disks, rhost, wdir = nil, opts = {})
+        options = {
+            :retries => 60,
+            :delay   => 15 # seconds
+        }.merge!(opts)
+
         script = [<<~EOS]
             set -e -o pipefail; shopt -qs failglob
             #{resticenv_sh}
@@ -436,7 +454,7 @@ class Restic
             end
         end
 
-        rc = run_action 'pull_disks', script.join("\n"), rhost
+        rc = run_with_lock_retry 'pull_disks', script.join("\n"), rhost, options
 
         raise StandardError, "Unable to pull disks: #{rc.stderr}" if rc.code != 0
     end
@@ -452,7 +470,12 @@ class Restic
     # @param wdir [String, nil] directory to pull artifacts into (optional)
     #
     # @return [nil]
-    def pull_other(snap, other, rhost, wdir = nil)
+    def pull_other(snap, other, rhost, wdir = nil, opts = {})
+        options = {
+            :retries => 60,
+            :delay   => 15 # seconds
+        }.merge!(opts)
+
         script = [<<~EOS]
             set -e -o pipefail; shopt -qs failglob
             #{resticenv_sh}
@@ -465,7 +488,7 @@ class Restic
             script << "#{restic("dump '#{snap}' '#{path}'", 'quiet' => nil)} > '#{wdir}/#{file}'"
         end
 
-        rc = run_action 'pull_other', script.join("\n"), rhost
+        rc = run_with_lock_retry 'pull_other', script.join("\n"), rhost, options
 
         raise StandardError, "Unable to pull files (non-disk): #{rc.stderr}" \
             if rc.code != 0
@@ -495,7 +518,7 @@ class Restic
             #{restic("dump '#{snap}' '#{path}'", 'quiet' => nil)}
         EOS
 
-        rc = run_action 'read_other', script, rhost
+        rc = run_with_lock_retry 'read_other', script, rhost
 
         raise StandardError, "Unable to read document (non-disk): #{rc.stderr}" \
             if rc.code != 0
