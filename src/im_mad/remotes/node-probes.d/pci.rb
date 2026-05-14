@@ -191,7 +191,7 @@ def sriov_role(device)
     elsif sriov_pf?(device)
         'pf'
     else
-        '-'
+        'no'
     end
 end
 
@@ -290,7 +290,7 @@ devices.each do |dev|
         pval('FUNCTION', dev[:function]),
         pval('NUMA_NODE', dev[:numa_node]),
         pval('IFNAME', get_interface_name(dev)),
-        pval('PCI_ROLE', pci_role(dev))
+        pval('SRIOV', sriov)
     ]
 
     values << pval('SRIOV_NUM', sriov_num) if sriov == 'pf'
