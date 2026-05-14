@@ -80,10 +80,11 @@
                           <xs:element name="FUNCTION" type="xs:string"/>
                           <xs:element name="IFNAME" type="xs:string"/>
                           <xs:element name="NUMA_NODE" type="xs:string"/>
-                          <xs:element name="PCI_ROLE" type="xs:string"/>
                           <xs:element name="PROFILES" type="xs:string" minOccurs="0"/>
                           <xs:element name="SHORT_ADDRESS" type="xs:string"/>
                           <xs:element name="SLOT" type="xs:string"/>
+                          <xs:element name="SRIOV" type="xs:string"/>
+                          <xs:element name="SRIOV_NUM" type="xs:string" minOccurs="0"/>
                           <xs:element name="TYPE" type="xs:string"/>
                           <xs:element name="UUID" type="xs:string" minOccurs="0"/>
                           <xs:element name="VENDOR" type="xs:string"/>

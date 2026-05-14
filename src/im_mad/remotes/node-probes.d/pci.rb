@@ -169,13 +169,29 @@ def device_attr?(device, attribute)
     File.exist? File.join(pci_bus_path(device), attribute)
 end
 
-def pci_role(device)
+def device_attr(device, attribute)
+    file = File.join(pci_bus_path(device), attribute)
+
+    return File.read(file).chomp if File.exist?(file)
+
+    nil
+end
+
+def sriov_numvfs(device)
+    numvfs = device_attr(device, 'sriov_numvfs')
+
+    return numvfs unless numvfs == ''
+
+    0
+end
+
+def sriov_role(device)
     if virtfn?(device)
         'vf'
     elsif has_virtfn?(device)
         'pf'
     else
-        '-'
+        'no'
     end
 end
 
@@ -247,6 +263,8 @@ devices.each do |dev|
     # Skip NVIDIA cards with virtual functions
     next if CONF[:nvidia_vendors].include?(dev[:vendor]) && has_virtfn?(dev)
 
+    sriov = sriov_role(dev)
+
     puts 'PCI = ['
     values = [
         pval('TYPE', dev[:type]),
@@ -263,8 +281,10 @@ devices.each do |dev|
         pval('FUNCTION', dev[:function]),
         pval('NUMA_NODE', dev[:numa_node]),
         pval('IFNAME', get_interface_name(dev)),
-        pval('PCI_ROLE', pci_role(dev))
+        pval('SRIOV', sriov)
     ]
+
+    values << pval('SRIOV_NUM', sriov_numvfs(dev)) if sriov == 'pf'
 
     # NVIDIA GPU device
     if CONF[:nvidia_vendors].include?(dev[:vendor])
