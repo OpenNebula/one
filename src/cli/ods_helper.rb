@@ -123,7 +123,7 @@ class ODSHelper < OpenNebulaHelper::OneHelper
                 body   = response.dig(:TEMPLATE, self.class.template_tag)
                 prefix = self.class.client_class.name.split('::').first.downcase
 
-                open_json_editor(
+                self.class.open_json_editor(
                     "#{prefix}_#{resource_id}_tmp",
                     body
                 )
@@ -229,42 +229,41 @@ class ODSHelper < OpenNebulaHelper::OneHelper
         answers
     end
 
-    # Read JSON input from a file or stdin.
-    # @param file [String, nil]
+    # Read and parse JSON input from a file or STDIN.
+    #
+    # If a file path is provided, the content is read from that file.
+    # Otherwise, STDIN is used. If no input is available, nil is returned.
+    #
+    # @param file [String, nil] path to the JSON input file
     # @return [Hash, Array, nil]
-    def read_json_input(file)
+    def self.read_json_input(file = nil)
+        content = nil
+
         if file
             begin
                 content = File.read(file)
             rescue Errno::ENOENT
-                return OpenNebula::Error.new("File not found: #{file}", OpenNebula::Error::EACTION)
+                STDERR.puts "File not found: #{file}"
+                exit(-1)
             end
         else
             stdin = OpenNebulaHelper.read_stdin
-            return OpenNebula::Error.new(
-                'Empty input from stdin', OpenNebula::Error::EACTION
-            ) if stdin.empty?
-
-            content = stdin
+            content = stdin unless stdin.empty?
         end
 
-        begin
-            JSON.parse(content, :symbolize_names => true)
-        rescue JSON::ParserError => e
-            source = file ? "file: #{file}" : 'stdin'
+        return if content.nil? || content.strip.empty?
 
-            OpenNebula::Error.new(
-                "Invalid JSON in #{source} - #{e.message}",
-                OpenNebula::Error::EACTION
-            )
-        end
+        JSON.parse(content, :symbolize_names => true)
+    rescue JSON::ParserError => e
+        STDERR.puts "Invalid JSON - #{e.message}"
+        exit(-1)
     end
 
     # Open the editor with JSON content and return the edited file path.
     # @param prefix  [String]
     # @param content [Object]
     # @return [String]
-    def open_json_editor(prefix, content)
+    def self.open_json_editor(prefix, content)
         tmp  = Tempfile.new(prefix)
         path = tmp.path
 
@@ -282,6 +281,17 @@ class ODSHelper < OpenNebulaHelper::OneHelper
         tmp.close
 
         path
+    end
+
+    def self.update_from_editor(client, resource_id, get_method)
+        response = client.public_send(get_method, resource_id)
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        body   = response.dig(:TEMPLATE, template_tag)
+        prefix = client_class.name.split('::').first.downcase
+        path   = open_json_editor("#{prefix}_#{resource_id}_tmp", body)
+
+        read_json_input(path)
     end
 
     # Prompt for string input
