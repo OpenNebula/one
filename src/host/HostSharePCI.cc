@@ -500,6 +500,24 @@ static bool is_address_match(const vector<string>& saddr, VectorAttribute *pci)
     return std::find(saddr.begin(), saddr.end(), address) != saddr.end();
 }
 
+static void update_monitor_attr(VectorAttribute *stored, const VectorAttribute *monitored,
+                                const string& name, bool remove_empty = false)
+{
+    const auto& stored_value    = stored->vector_value(name);
+    const auto& monitored_value = monitored->vector_value(name);
+
+    if (monitored_value.empty() && remove_empty)
+    {
+        stored->remove(name);
+
+        return;
+    }
+
+    if (monitored_value != stored_value)
+    {
+        stored->replace(name, monitored_value);
+    }
+}
 
 void HostSharePCI::set_monitorization(Template& ht, const HostShareConf& hconf)
 {
@@ -566,13 +584,9 @@ void HostSharePCI::set_monitorization(Template& ht, const HostShareConf& hconf)
         {
             missing.erase(address);
 
-            const auto& stored_profiles    = pci_it->second->attrs->vector_value("PROFILES");
-            const auto& monitored_profiles = pci->vector_value("PROFILES");
-
-            if (monitored_profiles != stored_profiles)
-            {
-                pci_it->second->attrs->replace("PROFILES", monitored_profiles);
-            }
+            update_monitor_attr(pci_it->second->attrs, pci, "PROFILES");
+            update_monitor_attr(pci_it->second->attrs, pci, "SRIOV");
+            update_monitor_attr(pci_it->second->attrs, pci, "SRIOV_NUM", true);
 
             delete pci;
             continue;
@@ -929,4 +943,3 @@ HostSharePCI& HostSharePCI::operator=(HostSharePCI&& other) noexcept
 
     return *this;
 }
-
