@@ -19,7 +19,6 @@ const { defaults, httpCodes } = require('server/utils/constants')
 const { httpResponse, parsePostData } = require('server/utils/server')
 const {
   oneKsSchema,
-  oneKsDeleteSchema,
   oneKsScaleNodeGroupSchema,
   oneKsCreateNodeGroupSchema,
 } = require('server/routes/api/oneks/schemas')
@@ -395,32 +394,21 @@ const clusterDelete = (
   const { user, password } = userData
   const command = Commands[Actions.DELETE]
 
-  if (!user || !password || !params.id || !params.template) {
+  if (!user || !password) {
     res.locals.httpCode = httpResponse(
       methodNotAllowed,
-      'invalid cluster ID or invalid template',
-      `invalid cluster ID or invalid template: received params: ${JSON.stringify(
-        params
-      )}`
+      '',
+      'missing credentials'
     )
 
     return next()
   }
 
-  // Validate schema
-  const v = new Validator()
-  const template = parsePostData(params.template)
-
-  v.addSchema(oneKsDeleteSchema, '/OneKsDelete')
-  const valSchema = v.validate(template, oneKsDeleteSchema)
-
-  if (!valSchema.valid) {
+  if (!params.id) {
     res.locals.httpCode = httpResponse(
-      internalServerError,
-      'Invalid schema',
-      `Invalid schema: ${returnSchemaError(
-        valSchema.errors
-      )}, Received template: ${JSON.stringify(template)}`
+      methodNotAllowed,
+      '',
+      'missing cluster id'
     )
 
     return next()
@@ -428,11 +416,10 @@ const clusterDelete = (
 
   const config = {
     method: command.httpMethod,
-    path: command.apiPath,
+    path: params?.force ? `${command.apiPath}?force=true` : command.apiPath,
     user,
     password,
     request: params.id,
-    post: params.template,
   }
 
   oneKsConnection(

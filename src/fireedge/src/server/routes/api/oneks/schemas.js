@@ -68,17 +68,6 @@ const oneKsSchema = {
   },
 }
 
-const oneKsDeleteSchema = {
-  id: '/OneKsDelete',
-  type: 'object',
-  properties: {
-    force: {
-      type: 'boolean',
-      required: true,
-    },
-  },
-}
-
 const oneKsScaleNodeGroupSchema = {
   id: '/OneKsScaleNodeGroup',
   type: 'object',
@@ -120,7 +109,6 @@ const oneKsCreateNodeGroupSchema = {
 
 module.exports = {
   oneKsSchema,
-  oneKsDeleteSchema,
   oneKsScaleNodeGroupSchema,
   oneKsCreateNodeGroupSchema,
 }

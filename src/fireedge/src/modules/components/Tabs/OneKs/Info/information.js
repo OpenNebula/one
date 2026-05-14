@@ -46,10 +46,9 @@ const getFormattedData = (dataObj) =>
  *
  * @param {object} props - Props
  * @param {Cluster} props.cluster - Cluster resource
- * @param {string} props.endpoint - Endpoint information
  * @returns {ReactElement} Information tab
  */
-const InformationPanel = ({ cluster = {}, endpoint = '' }) => {
+const InformationPanel = ({ cluster = {} }) => {
   const { ID, NAME, TEMPLATE = {} } = cluster
   const { CLUSTER_BODY = {} } = TEMPLATE
 
@@ -72,6 +71,11 @@ const InformationPanel = ({ cluster = {}, endpoint = '' }) => {
 
     return [fromMill, fromMill.toFormat('ff')]
   }, [CLUSTER_BODY])
+
+  const endpoint = useMemo(
+    () => CLUSTER_BODY?.control_plane?.endpoint || '',
+    [CLUSTER_BODY]
+  )
 
   const [stateColor, stateName] = useMemo(() => {
     const { color, name } = getVirtualOneKsState(cluster)
@@ -205,7 +209,7 @@ const InformationPanel = ({ cluster = {}, endpoint = '' }) => {
       name: `${T.Endpoint}`,
       canCopy: true,
       showActionsOnHover: true,
-      value: endpoint || '',
+      value: endpoint,
       dataCy: 'endpoint',
     },
   ]
@@ -241,7 +245,6 @@ const InformationPanel = ({ cluster = {}, endpoint = '' }) => {
 
 InformationPanel.propTypes = {
   cluster: PropTypes.object,
-  endpoint: PropTypes.string,
 }
 
 InformationPanel.displayName = 'InformationPanel'

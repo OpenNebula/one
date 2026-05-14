@@ -163,7 +163,14 @@ const Actions = (props = {}) => {
                 form: () => DeleteOneKsClusterForm(),
                 onSubmit: (rows) => async (template) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => remove({ id, template })))
+                  await Promise.all(
+                    ids.map((id) => {
+                      const params = { id }
+                      if (template?.force) params.force = true
+
+                      return remove(params)
+                    })
+                  )
                   setSelectedRows && setSelectedRows([])
                 },
               },

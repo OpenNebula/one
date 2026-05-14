@@ -114,8 +114,8 @@ const Commands = {
       id: {
         from: resource,
       },
-      template: {
-        from: postBody,
+      force: {
+        from: query,
       },
     },
   },
