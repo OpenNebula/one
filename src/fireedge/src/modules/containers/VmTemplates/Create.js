@@ -96,6 +96,53 @@ export function CreateVmTemplate() {
     refetchOnMountOrArgChange: false,
   })
 
+  const { data: hosts = [], isSuccess: hostsLoaded } =
+    HostAPI.useGetHostsAdminQuery()
+  const isNic = (device) => device?.CLASS?.startsWith('02')
+
+  const hostNics = []
+    .concat(hosts)
+    ?.map((host) => [].concat(host?.HOST_SHARE?.PCI_DEVICES?.PCI))
+    ?.flat()
+    ?.filter(isNic)
+
+  const formatNics = []
+    .concat(apiTemplateDataExtended?.TEMPLATE?.PCI)
+    ?.filter(Boolean)
+    ?.map((pci) => {
+      if (!isNic(pci) && !pci?.SHORT_ADDRESS) return pci
+      const DCV = ['DEVICE', 'CLASS', 'VENDOR']
+      const origNic = hostNics?.find((nic) =>
+        pci?.SHORT_ADDRESS
+          ? nic?.SHORT_ADDRESS === pci?.SHORT_ADDRESS
+          : DCV?.every((k) => nic?.[k] === pci?.[k])
+      )
+
+      const shortAddr =
+        pci?.SHORT_ADDRESS ?? `${origNic?.BUS}:${origNic?.SLOT}.x`
+
+      return {
+        ...pci,
+        PCI_ADDRESS: `${DCV?.map((k) => origNic?.[k])?.join(':')}@${shortAddr}`,
+        PCI_SELECTION_MODE: pci?.SHORT_ADDRESS ? 'manual' : 'automatic',
+        PCI_TYPE:
+          origNic?.SRIOV?.toLowerCase?.() === 'no'
+            ? 'pf'
+            : origNic?.SRIOV ?? 'emulated',
+      }
+    })
+    ?.filter(Boolean)
+
+  const formattedTemplate = formatNics?.length
+    ? {
+        ...apiTemplateDataExtended,
+        TEMPLATE: {
+          ...apiTemplateDataExtended?.TEMPLATE,
+          PCI: formatNics,
+        },
+      }
+    : apiTemplateDataExtended
+
   const onSubmit = async (rawTemplate) => {
     try {
       // Get current state and modified fields
@@ -196,13 +243,16 @@ export function CreateVmTemplate() {
   return (
     <TranslateProvider>
       {templateId &&
-      (!apiTemplateDataExtended || !apiTemplateData || _.isEmpty(oneConfig)) ? (
+      (!apiTemplateDataExtended ||
+        !apiTemplateData ||
+        _.isEmpty(oneConfig) ||
+        !hostsLoaded) ? (
         <SkeletonStepsForm />
       ) : (
         <VmTemplate.CreateForm
-          initialValues={apiTemplateDataExtended}
+          initialValues={formattedTemplate}
           stepProps={{
-            apiTemplateDataExtended,
+            formattedTemplate,
             oneConfig,
             adminGroup,
             store,

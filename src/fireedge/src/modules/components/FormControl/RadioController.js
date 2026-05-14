@@ -20,7 +20,6 @@ import {
   Box,
   FormControl,
   FormHelperText,
-  Radio,
   RadioGroup,
   useTheme,
 } from '@mui/material'
@@ -171,7 +170,7 @@ const RadioController = memo(
           className={classes.root}
           data-cy={cy}
         >
-          {values.map(({ text, value, svg }) => (
+          {values.map(({ text, value, svg, description }) => (
             <Box
               key={`${name}-${value}`}
               data-value={value}
@@ -183,20 +182,23 @@ const RadioController = memo(
               }
             >
               <Box className={svg ? classes.paddingSvg : classes.padding}>
-                <Box className={classes.row}>
-                  <Box className={classes.cell}>
-                    <Radio
-                      inputRef={ref}
-                      disabled={readOnly}
-                      checked={optionSelected === value}
-                      className={classes.radio}
-                      inputProps={{ 'data-value': value }}
-                    />
+                <Box sx={{ fontWeight: 500 }}>{Tr(text)}</Box>
+                {description && (
+                  <Box
+                    component="p"
+                    sx={{
+                      m: 0,
+                      mt: 0.5,
+                      fontSize: '0.75rem',
+                      color: 'text.secondary',
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {labelCanBeTranslated(description)
+                      ? Tr(description)
+                      : description}
                   </Box>
-                  <Box className={clsx(classes.cell, classes.cellFull)}>
-                    {Tr(text)}
-                  </Box>
-                </Box>
+                )}
                 {svg && (
                   <Box className={classes.row}>
                     <Box className={classes.cell} />
@@ -236,6 +238,7 @@ RadioController.propTypes = {
       text: PropTypes.string.isRequired,
       value: PropTypes.string.isRequired,
       svg: PropTypes.string,
+      description: PropTypes.string,
     })
   ).isRequired,
   watcher: PropTypes.func,

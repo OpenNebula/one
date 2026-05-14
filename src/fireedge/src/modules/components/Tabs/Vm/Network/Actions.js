@@ -48,6 +48,7 @@ const AttachAction = memo(
     isPci,
     isAlias,
     disableNetworkAutoMode,
+    hostId,
   }) => {
     const { setFieldPath } = useGeneralApi()
     const disableSteps = useDisableStep()
@@ -73,7 +74,10 @@ const AttachAction = memo(
         }
         options={[
           {
-            dialogProps: { title: T.AttachNic, dataCy: 'modal-attach-nic' },
+            dialogProps: {
+              title: T.AttachNic,
+              dataCy: 'modal-attach-nic',
+            },
             form: () => {
               // Set field path
               if (nic) {
@@ -98,6 +102,7 @@ const AttachAction = memo(
                   isAlias,
                   disableSteps,
                   disableNetworkAutoMode,
+                  hostId,
                 },
                 initialValues: nic,
               })
@@ -393,6 +398,7 @@ const ActionPropTypes = {
   index: PropTypes.number,
   indexNicAlias: PropTypes.number,
   disableNetworkAutoMode: PropTypes.bool,
+  hostId: PropTypes.number,
 }
 
 AttachAction.propTypes = ActionPropTypes

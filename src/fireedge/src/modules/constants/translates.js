@@ -1199,6 +1199,27 @@ module.exports = {
   PCIPassthroughManual: 'PCI Passthrough - Manual',
   Manual: 'Manual',
 
+  // Device type labels
+  SrIov: 'SR-IOV',
+  PciPassthrough: 'PCI Passthrough',
+  SrIovConcept: 'Shared virtual functions for near native performance.',
+  PciPassthroughConcept: 'Physical device passthrough, VM gains full access.',
+  EmulatedConcept: 'Includes QEMU hardware emulation.',
+  SchedulingMode: 'Scheduling mode',
+  DeviceType: 'Device Type',
+  Automatic: 'Automatic',
+  AutomaticConcept: 'OpenNebula scheduler picks the best available device',
+  ManualConcept: 'You specify the exact PCI address to use',
+  PciDevice: 'PCI Device',
+  InterfaceName: 'Interface Name',
+  AvailableFunctions: 'Available Functions',
+  AvailableDevices: 'Available Devices',
+  IfName: 'IFNAME',
+  PciAutomaticSchedulingConcept:
+    'The scheduler picks the best available function on the selected device. Addresses show the device without the function suffix (.x). Leave unselected to let the scheduler choose freely.',
+  PciManualSchedulingConcept:
+    'Pins this NIC to a specific function on a specific device. Select a full PCI address from the list.',
+
   AttachPci: 'Attach PCI device',
   AttachPciSuccess: 'PCI attached successfully - Virtual machine #%s',
   DetachPci: 'Detach PCI device',
@@ -1574,7 +1595,7 @@ module.exports = {
   DeviceTooltip:
     'Select one device of the Device name list to complete this field please.',
   Vendor: 'Vendor',
-  VendorName: 'VendorName',
+  VendorName: 'Vendor Name',
   VendorTooltip:
     'Select one vendor of the Device name list to complete this field please.',
   Class: 'Class',
@@ -2793,7 +2814,7 @@ module.exports = {
   vcpu: 'Virtual CPU',
   memory: 'Memory',
   disk_size: 'Disk Size',
-  
+
   /* VM states */
   INIT: 'Init',
   PENDING: 'Pending',

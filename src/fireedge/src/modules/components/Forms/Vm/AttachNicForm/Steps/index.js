@@ -109,10 +109,32 @@ const Steps = createSteps(
         [NETWORK_VALUES_ID]: networkValues,
       } = formData
 
+      const { PCI_ADDRESS, PCI_SELECTION_MODE, PCI_TYPE, ...rAdvanced } =
+        advanced
+
+      const pciAttrs = (() => {
+        if (PCI_TYPE === 'emulated' || !PCI_ADDRESS) return {}
+        const [deviceClassVendor, shortAddr] = PCI_ADDRESS.split('@')
+        const [d, c, v] = deviceClassVendor.split(':')
+
+        return {
+          ...(PCI_SELECTION_MODE === 'automatic'
+            ? { DEVICE: d, CLASS: c, VENDOR: v }
+            : { SHORT_ADDRESS: shortAddr }),
+          TYPE: 'NIC',
+          PCI_TYPE,
+          PCI_ADDRESS,
+          PCI_SELECTION_MODE,
+        }
+      })()
+
       return {
         ...network,
         ...qos,
-        ...advanced,
+        ...{
+          ...rAdvanced,
+          ...pciAttrs,
+        },
         ...networkAuto,
         ...networkValues,
       }

@@ -49,6 +49,10 @@ const alwaysIncludeAttributes = {
 // Attributes that will be always modify with the value of the form in the Pci section
 const alwaysIncludePci = {
   TYPE: true,
+  VENDOR: true,
+  DEVICE: true,
+  CLASS: true,
+  SHORT_ADDRESS: true,
 }
 
 // Attributes that will be always modify with the value of the form in the Nic section
