@@ -1358,18 +1358,14 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         //----------------------------------------------------------------------
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_MIGRATE:
-        case VirtualMachine::PROLOG_MIGRATE_FAILURE:
         case VirtualMachine::PROLOG_RESUME:
         case VirtualMachine::PROLOG_RESUME_FAILURE:
         case VirtualMachine::PROLOG_UNDEPLOY:
         case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
         case VirtualMachine::PROLOG_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
-        case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
-        case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
-        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
             if (success)
             {
                 trigger_prolog_success(vim);
@@ -1378,6 +1374,16 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_prolog_failure(vim);
             }
+            break;
+
+        case VirtualMachine::PROLOG_MIGRATE_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
+            // These states already represent a failed TM prolog migration. They
+            // can be retried explicitly, but "recover --success" must not skip
+            // straight into boot/deploy on the destination without rolling back.
+            trigger_prolog_failure(vim);
             break;
 
         case VirtualMachine::EPILOG:
