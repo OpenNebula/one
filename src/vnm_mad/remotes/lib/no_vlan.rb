@@ -47,7 +47,7 @@ module VNMMAD
                 TProxy.setup_tproxy(@nic, :up)
 
                 # Skip if vlan device is already in the bridge.
-                next if !@nic[:phydev] || @nic[:phydev].empty? ||
+                next if @nic[:phydev].nil? || @nic[:phydev].empty? ||
                         @bridges[@nic[:bridge]].include?(@nic[:phydev])
 
                 # Add phydev device to the bridge.
@@ -178,7 +178,8 @@ module VNMMAD
             process do |nic|
                 @nic = nic
 
-                next if @nic[:phydev].nil? || @nic[:bridge].nil? || !@nic.vlan_trunk?
+                next if @nic[:phydev].nil? || @nic[:phydev].empty?
+                next if @nic[:bridge].nil? || !@nic.vlan_trunk?
 
                 vlan_set = @nic.vlan_trunk
 
