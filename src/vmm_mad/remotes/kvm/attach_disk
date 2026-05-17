@@ -118,7 +118,14 @@ XML+="</source>"
 
 [ -n "${AUTH}" ] && XML+=" ${AUTH}"
 
-XML+="<target dev='$(xml_esc "${TARGET}")'/>"
+if [[ -n "${SD_DISK_BUS}" ]] && [[ "${TARGET:0:2}" == "sd" ]]; then
+    if [[ "${SD_DISK_BUS,,}" == "sata" ]]; then
+        log_error "The SATA disks are not hot-pluggable!"
+        exit 1
+    fi
+    TARGET_BUS="bus='$(xml_esc "${SD_DISK_BUS,,}")'"
+fi
+XML+="<target dev='$(xml_esc "${TARGET}")'${TARGET_BUS:+ ${TARGET_BUS}}/>"
 [ -n "${ORDER}" ] && XML+=" <boot order='$(xml_esc "${ORDER}")'/>"
 [ "${READONLY}" = 'yes' ] && XML+="<readonly/>"
 [ "${SHAREABLE}" = 'yes' ] && XML+="<shareable/>"

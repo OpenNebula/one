@@ -931,6 +931,7 @@ function get_disk_information {
         XPATH_ELEMENTS[i++]="$element"
     done < <($CMD       /VMM_DRIVER_ACTION_DATA/VM/ID \
                         /VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/VCPU \
+                        /VMM_DRIVER_ACTION_DATA//OS/SD_DISK_BUS \
                         $DISK_XPATH/DRIVER \
                         $DISK_XPATH/TYPE \
                         $DISK_XPATH/READONLY \
@@ -980,6 +981,7 @@ function get_disk_information {
 
     VMID="${XPATH_ELEMENTS[j++]}"
     VCPU="${XPATH_ELEMENTS[j++]:-1}"
+    SD_DISK_BUS="${XPATH_ELEMENTS[j++]}"
     DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
     TYPE="${XPATH_ELEMENTS[j++]}"
     READONLY="${XPATH_ELEMENTS[j++]}"
