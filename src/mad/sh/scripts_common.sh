@@ -975,7 +975,7 @@ function get_disk_information {
                         $DISK_XPATH/WRITE_IOPS_SEC_MAX_LENGTH \
                         $DISK_XPATH/SIZE_IOPS_SEC \
                         $DISK_XPATH/VIRTIO_BLK_QUEUES \
-                        $DISK_XPATH/IOTHREAD \
+                        $DISK_XPATH/IOTHREADS \
                         $DISK_XPATH/SERIAL )
 
     VMID="${XPATH_ELEMENTS[j++]}"
