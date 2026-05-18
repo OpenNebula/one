@@ -98,6 +98,9 @@ module VNMMAD
 
             ip_netns_exec(brdev, "ip route replace default dev #{brdev}a")
 
+            ip_netns_exec(brdev, 'sysctl -w net.ipv4.conf.all.arp_ignore=0')
+            ip_netns_exec(brdev, "sysctl -w net.ipv4.conf.#{brdev.tr('.', '/')}a.arp_ignore=0")
+
             # Prevent ARP requests from being propagated to other HV machines.
             # It reduces network traffic and ensures that the closest HV handles
             # proxied packets.
