@@ -57,6 +57,8 @@ class Ansible
                 evars += "one_auth=#{provision.user_auth}"
 
                 cmd = ". #{VENV_PATH}/bin/activate; "
+                # Force a locale that is always available in glibc.
+                cmd += "LANG=C.UTF-8 LC_ALL=C.UTF-8 "
                 cmd += "ansible-playbook -i inventory.yaml site.yaml --tags '#{tags}' -e '#{evars}'"
 
                 log.info("Running ansible playbook for #{provision.deployment_file}")
