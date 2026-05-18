@@ -20,6 +20,7 @@ import {
   Box,
   FormControl,
   FormHelperText,
+  Radio,
   RadioGroup,
   useTheme,
 } from '@mui/material'
@@ -182,23 +183,36 @@ const RadioController = memo(
               }
             >
               <Box className={svg ? classes.paddingSvg : classes.padding}>
-                <Box sx={{ fontWeight: 500 }}>{Tr(text)}</Box>
-                {description && (
-                  <Box
-                    component="p"
-                    sx={{
-                      m: 0,
-                      mt: 0.5,
-                      fontSize: '0.75rem',
-                      color: 'text.secondary',
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {labelCanBeTranslated(description)
-                      ? Tr(description)
-                      : description}
+                <Box className={classes.row}>
+                  <Box className={classes.cell}>
+                    <Radio
+                      inputRef={ref}
+                      disabled={readOnly}
+                      checked={optionSelected === value}
+                      className={classes.radio}
+                      inputProps={{ 'data-value': value }}
+                    />
                   </Box>
-                )}
+                  <Box className={clsx(classes.cell, classes.cellFull)}>
+                    <Box sx={{ fontWeight: 500 }}>{Tr(text)}</Box>
+                    {description && (
+                      <Box
+                        component="p"
+                        sx={{
+                          m: 0,
+                          mt: 0.5,
+                          fontSize: '0.75rem',
+                          color: 'text.secondary',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {labelCanBeTranslated(description)
+                          ? Tr(description)
+                          : description}
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
                 {svg && (
                   <Box className={classes.row}>
                     <Box className={classes.cell} />
