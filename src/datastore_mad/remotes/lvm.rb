@@ -683,7 +683,7 @@ module MAD
             @lv = ThinLV.new(@vm.pool.vgname, lvname, pool)
         end
 
-        def symlink(opts)
+        def symlink(opts = {})
             vmdir = @path.dirname
 
             script = <<~EOF
