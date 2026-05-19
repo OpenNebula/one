@@ -196,17 +196,11 @@ function s3_curl_args
     ENDPOINT="$S3_ENDPOINT"
     OBJECT=$(basename "$FROM")
     BUCKET=$(basename $(dirname "$FROM"))
+    AWS_SIGV4="aws:amz:${S3_REGION}:s3"
 
-    DATE="`date -u +'%a, %d %b %Y %H:%M:%S GMT'`"
-    AUTH_STRING="GET\n\n\n${DATE}\n/${BUCKET}/${OBJECT}"
-
-    SIGNED_AUTH_STRING=`echo -en "$AUTH_STRING" | \
-                        openssl sha1 -hmac ${S3_SECRET_ACCESS_KEY} -binary | \
-                        base64`
-
-    echo " -H \"Date: ${DATE}\"" \
-         " -H \"Authorization: AWS ${S3_ACCESS_KEY_ID}:${SIGNED_AUTH_STRING}\"" \
-         " '$(esc_sq "${ENDPOINT}/${BUCKET}/${OBJECT}")'"
+    echo "--aws-sigv4 ${AWS_SIGV4}" \
+         "--user" "'$(esc_sq "${S3_ACCESS_KEY_ID}"):$(esc_sq "${S3_SECRET_ACCESS_KEY}")'" \
+         "'$(esc_sq "${ENDPOINT}/${BUCKET}/${OBJECT}")'"
 }
 
 function s3_curl_args_aws
