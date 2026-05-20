@@ -93,6 +93,12 @@ const defaultValuesUpdate = {
   extra: {
     Context: { CONTEXT: { START_SCRIPT: true, START_SCRIPT_BASE64: true } },
     OsCpu: { MEMORY_ENCRYPTION: true },
+    InputOutput: {
+      GRAPHICS: {
+        LISTEN: true,
+        TYPE: true,
+      },
+    },
   },
 }
 
