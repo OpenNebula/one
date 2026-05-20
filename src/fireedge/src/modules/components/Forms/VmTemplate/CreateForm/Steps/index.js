@@ -105,7 +105,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     const type = vmTemplate?.TEMPLATE?.GRAPHICS?.TYPE === 'VNC'
     if (type) {
       objectSchema[EXTRA_ID].GRAPHICS = {
-        ...vmTemplate?.GRAPHICS,
+        ...vmTemplate?.TEMPLATE?.GRAPHICS,
         TYPE: type,
       }
     }
@@ -219,6 +219,11 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     delete formData.extra.CONTEXT.ENCODE_START_SCRIPT
     delete formData.general.TOPOLOGY
     delete formData.extra.TOPOLOGY.NUMA_VCPU
+
+    // Graphics
+    if (!formData?.extra?.GRAPHICS?.TYPE) {
+      delete formData?.extra?.GRAPHICS
+    }
 
     return formData
   },
