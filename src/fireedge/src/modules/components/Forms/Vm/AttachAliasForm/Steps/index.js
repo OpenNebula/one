@@ -64,9 +64,11 @@ const Steps = createSteps([NetworksTable, AdvancedOptions, NetworkValues], {
       [NETWORK_VALUES_ID]: networkValues,
     } = formData
 
+    const { PCI_TYPE, PCI_SELECTION_MODE, ...rAdvanced } = advanced
+
     return {
       ...network,
-      ...advanced,
+      ...rAdvanced,
       ...networkValues,
     }
   },

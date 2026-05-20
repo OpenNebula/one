@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo, useEffect, useRef } from 'react'
-import { HostAPI, useGeneralApi, useGeneral } from '@FeaturesModule'
+import { ReactElement, useMemo } from 'react'
+import { HostAPI } from '@FeaturesModule'
 import EnhancedTable from '@modules/components/Tables/Enhanced'
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import PciColumns from '@modules/components/Tables/Pcis/columns'
@@ -31,9 +31,6 @@ const DEFAULT_DATA_CY = 'pcis'
 const PcisTable = (props) => {
   const { data: hosts = [] } = HostAPI.useGetHostsAdminQuery()
   const { rootProps = {}, searchProps = {}, hostId, ...rest } = props ?? {}
-  const { tableViewMode } = useGeneral()
-  const { setTableViewMode } = useGeneralApi()
-  const originalTableMode = useRef(null)
 
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
@@ -114,14 +111,7 @@ const PcisTable = (props) => {
     { header: T.DeviceName, id: 'deviceName', accessor: 'DEVICE_NAME' },
     { header: T.ShortAddress, id: 'shortAddress', accessor: 'SHORT_ADDRESS' },
   ]
-  const { component, header } = WrapperRow(PciRow)
-
-  useEffect(() => {
-    originalTableMode.current = tableViewMode
-    !!props?.forceTableView && setTableViewMode(props?.forceTableView)
-
-    return () => setTableViewMode(originalTableMode.current)
-  }, [])
+  const { component, header } = WrapperRow(PciRow, false, props?.forceTableView)
 
   return (
     <EnhancedTable
