@@ -193,10 +193,8 @@ int VirtualRouter::shutdown_vms(const set<int>& _vms, const RequestAttributes& r
 int VirtualRouter::get_network_leases(string& estr) const
 {
     vector<VectorAttribute  *> nics;
-    VirtualNetworkPool *  vnpool;
 
-    Nebula& nd = Nebula::instance();
-    vnpool     = nd.get_vnpool();
+    VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
 
     int num_nics = obj_template->get("NIC", nics);
 
@@ -217,7 +215,6 @@ int VirtualRouter::get_network_leases(string& estr) const
         }
 
         prepare_nic_vm(nics[i]);
-
     }
 
     return 0;
@@ -406,15 +403,15 @@ void VirtualRouter::release_network_leases()
 {
     vector<VectorAttribute *> nics;
 
-    int num_nics = get_template_attribute("NIC", nics);
+    obj_template->get("NIC", nics);
 
-    for (int i=0; i<num_nics; i++)
+    for (auto vatt : nics)
     {
         int nic_id;
 
-        nics[i]->vector_value("NIC_ID", nic_id);
+        vatt->vector_value("NIC_ID", nic_id);
 
-        VirtualMachineNic nic(nics[i], nic_id);
+        VirtualMachineNic nic(vatt, nic_id);
 
         release_network_leases(&nic);
     }
@@ -468,16 +465,15 @@ Template * VirtualRouter::get_vm_template() const
     Template * tmpl = new Template();
 
     vector<const VectorAttribute  *> nics;
-    VectorAttribute * nic;
 
     int    keepalived_id;
     string st;
 
-    int num_nics = obj_template->get("NIC", nics);
+    obj_template->get("NIC", nics);
 
-    for (int i=0; i<num_nics; i++)
+    for (const auto vatt : nics)
     {
-        nic = nics[i]->clone();
+        VectorAttribute * nic = vatt->clone();
 
         prepare_nic_vm(nic);
 
@@ -573,13 +569,11 @@ int VirtualRouter::append_template(const string& tmpl_str, bool keep_restricted,
 VectorAttribute * VirtualRouter::attach_nic(
         VirtualMachineTemplate * tmpl, string& error_str)
 {
-    VirtualNetworkPool *        vnpool;
     vector<VectorAttribute *>   nics;
 
-    int rc;
     int nic_id;
 
-    vnpool = Nebula::instance().get_vnpool();
+    VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
 
     // -------------------------------------------------------------------------
     // Get the highest NIC_ID
@@ -621,7 +615,7 @@ VectorAttribute * VirtualRouter::attach_nic(
 
     VirtualMachineNic nic(nics[0], nic_id);
 
-    rc = vnpool->nic_attribute(PoolObjectSQL::VROUTER, &nic, nic_id, uid, oid,
+    int rc = vnpool->nic_attribute(PoolObjectSQL::VROUTER, &nic, nic_id, uid, oid,
                                error_str);
 
     if (rc == -1)
