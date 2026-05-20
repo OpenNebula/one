@@ -262,7 +262,16 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
           // If the element was pci, delete the pci fields
           setFieldPath(`extra.Network.NIC.${nics.length}`)
           setModifiedFields({
-            advanced: { TYPE: { __delete__: true } },
+            advanced: {
+              TYPE: { __delete__: true },
+              PCI_TYPE: { __delete__: true },
+              PCI_ADDRESS: { __delete__: true },
+              PCI_SELECTION_MODE: { __delete__: true },
+              SHORT_ADDRESS: { __delete__: true },
+              DEVICE: { __delete__: true },
+              CLASS: { __delete__: true },
+              VENDOR: { __delete__: true },
+            },
           })
         }
 
