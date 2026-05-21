@@ -43,6 +43,11 @@ public:
         return _id;
     }
 
+    void id(int i)
+    {
+        _id = i;
+    }
+
     PlanState state() const
     {
         return _state;
@@ -178,7 +183,7 @@ public:
         return _actions;
     }
 
-    PlanAction* get_next_action();
+    void get_ready_actions(std::vector<PlanAction *>& ready_actions);
 
     /**
      * Mark action as finished, return false if the action is not in the plan
@@ -199,6 +204,15 @@ public:
      * @param host_actions Map of host_id to number of actions
      */
     void count_actions(int &cluster_actions, std::map<int, int>& host_actions);
+
+    /**
+     * Merge new actions from an XML plan into the current plan, skipping VMs
+     * that already have a READY or APPLYING action. Used to append newly
+     * scheduled VMs to a plan that is already being applied.
+     *
+     * @param xml XML string of the incoming plan
+     */
+    void merge_actions(const std::string& xml);
 
 private:
     friend class PlanPool;
