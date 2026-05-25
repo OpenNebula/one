@@ -35,9 +35,10 @@ const SIZE = {
   name: 'SIZE',
   label: T.SizeOnInstantiate,
   tooltip: T.SizeOnInstantiateConcept,
-  type: INPUT_TYPES.TEXT,
+  type: INPUT_TYPES.UNITS,
   htmlType: 'number',
   validation: number()
+    .positive()
     .notRequired()
     .default(() => undefined),
 }
