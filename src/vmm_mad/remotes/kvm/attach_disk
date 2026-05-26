@@ -163,7 +163,17 @@ then
 fi
 
 if [ -z "${DISK_TARGET##sd*}" ]; then
-    CTRL_TARGET=$(( $(LC_CTYPE=C printf '%d' "'${DISK_TARGET##sd}") - 97 ))
+    suffix="${DISK_TARGET#sd}"
+
+    case "${#suffix}" in
+        1) CTRL_TARGET=$(( $(printf '%d' "'${suffix}") - 97 ));;
+        2)
+            CTRL_TARGET=$(( 26 + \
+                               ( $(printf '%d' "'${suffix:0:1}") - 97 ) * 26 + \
+                               ( $(printf '%d' "'${suffix:1:1}") - 97 ) ))
+            ;;
+    esac
+
     if [ ${CTRL_TARGET} -ge 0 ] && [ ${CTRL_TARGET} -lt 256 ]; then
         XML+="<address type='drive' controller='0' bus='0' target='${CTRL_TARGET}' unit='0'/>"
     fi
