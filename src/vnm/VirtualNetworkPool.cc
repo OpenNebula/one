@@ -39,17 +39,16 @@ using namespace std;
 
 unsigned int VirtualNetworkPool::_mac_prefix;
 
+bool VirtualNetworkPool::_mac_global_space;
+
 unsigned long int VirtualNetworkPool::_default_size;
-
-const char * VirtualNetworkPool::vlan_table = "network_vlan_bitmap";
-
-const int VirtualNetworkPool::VLAN_BITMAP_ID = 0;
 
 /* -------------------------------------------------------------------------- */
 
 VirtualNetworkPool::VirtualNetworkPool(
         SqlDB *                             db,
         const string&                       prefix,
+        bool                                mac_global_space,
         unsigned long int                   __default_size,
         vector<const SingleAttribute *>& restricted_attrs,
         vector<const SingleAttribute *>& encrypted_attrs,
@@ -65,15 +64,23 @@ VirtualNetworkPool::VirtualNetworkPool(
     unsigned int  tmp;
 
     BitMap<4096> vlan_id_bitmap(vlan_conf, VLAN_BITMAP_ID, vlan_table);
+    BitMap<AddressRange::MAC_GLOBAL_SIZE> mac_global_bitmap(MAC_BITMAP_ID, vlan_table);
 
     string mac = prefix;
 
-    _mac_prefix   = 0;
+    _mac_prefix       = 0;
+    _mac_global_space = mac_global_space;
+
     _default_size = __default_size;
 
     if ( vlan_id_bitmap.select(VLAN_BITMAP_ID, db) != 0 )
     {
         vlan_id_bitmap.insert(VLAN_BITMAP_ID, db);
+    }
+
+    if ( mac_global_bitmap.select(MAC_BITMAP_ID, db) != 0 )
+    {
+        mac_global_bitmap.insert(MAC_BITMAP_ID, db);
     }
 
     while ( (pos = mac.find(':')) !=  string::npos )
@@ -534,6 +541,79 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualNetworkPool::allocate_mac_id(unsigned int preferred_id, unsigned int& allocated_id)
+{
+    allocated_id = preferred_id;
+
+    auto vnpool = Nebula::instance().get_vnpool();
+
+    if (!vnpool || !vnpool->_mac_global_space)
+    {
+        return 0;
+    }
+
+    BitMap<AddressRange::MAC_GLOBAL_SIZE> bitmap(MAC_BITMAP_ID, vlan_table);
+
+    if ( bitmap.select(MAC_BITMAP_ID, vnpool->db) != 0 )
+    {
+        return -1;
+    }
+
+    if ( bitmap.get(preferred_id, allocated_id) != 0 )
+    {
+        return -1;
+    }
+
+    return bitmap.update(vnpool->db);
+}
+
+void VirtualNetworkPool::release_mac_id(unsigned int id)
+{
+    auto vnpool = Nebula::instance().get_vnpool();
+
+    if (!vnpool || !vnpool->_mac_global_space)
+    {
+        return;
+    }
+
+    BitMap<AddressRange::MAC_GLOBAL_SIZE> bitmap(MAC_BITMAP_ID, vlan_table);
+
+    if ( bitmap.select(MAC_BITMAP_ID, vnpool->db) != 0 )
+    {
+        return;
+    }
+
+    bitmap.reset(id);
+    bitmap.update(vnpool->db);
+}
+
+int VirtualNetworkPool::reserve_mac_id(unsigned int id)
+{
+    auto vnpool = Nebula::instance().get_vnpool();
+
+    if (!vnpool || !vnpool->_mac_global_space)
+    {
+        return 0;
+    }
+
+    BitMap<AddressRange::MAC_GLOBAL_SIZE> bitmap(MAC_BITMAP_ID, vlan_table);
+
+    if ( bitmap.select(MAC_BITMAP_ID, vnpool->db) != 0 )
+    {
+        return -1;
+    }
+
+    if ( bitmap.set(id) != 0 )
+    {
+        return -1;
+    }
+
+    return bitmap.update(vnpool->db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualNetworkPool::release_vlan_id(VirtualNetwork *vn)
 {
     istringstream  is;
@@ -929,4 +1009,3 @@ void VirtualNetworkPool::delete_success(std::unique_ptr<VirtualNetwork> vn)
         }
     }
 }
-

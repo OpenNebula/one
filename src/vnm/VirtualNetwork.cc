@@ -48,6 +48,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
     vlan_id_automatic(false),
     outer_vlan_id_automatic(false),
     parent_vid(_pvid),
+    ar_pool(-1),
     vrouters("VROUTERS"),
     updated("UPDATED_VMS"),
     outdated("OUTDATED_VMS"),
@@ -880,6 +881,8 @@ int VirtualNetwork::from_xml(const string &xml_str)
     one_util::split_unique(sg_str, ',', security_groups);
 
     // Address Range Pool
+    ar_pool.set_vnet_id(oid);
+
     ObjectXML::get_nodes("/VNET/AR_POOL", content);
 
     if (content.empty())
@@ -1208,6 +1211,7 @@ void VirtualNetwork::process_security_rule(
 
 int VirtualNetwork::add_var(vector<VectorAttribute *> &var, string& error_msg)
 {
+    int rc = 0;
     string ipam_mad;
     PoolObjectSQL::get_template_attribute("IPAM_MAD", ipam_mad);
 
@@ -1223,11 +1227,11 @@ int VirtualNetwork::add_var(vector<VectorAttribute *> &var, string& error_msg)
         if (ar_pool.from_vattr(ar, error_msg) != 0)
         {
             delete ar;
-            return -1;
+            rc = -1;
         }
     }
 
-    return 0;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

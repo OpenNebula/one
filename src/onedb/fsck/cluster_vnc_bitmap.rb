@@ -23,17 +23,37 @@ module OneDBFsck
                     end
                 end
 
-                map_encoded = Base64.strict_encode64(Zlib::Deflate.deflate(map))
+                # Optimization: Trim leading zeros
+                map.sub!(/^0+/, '')
+                map = '0' if map.empty?
             else
-                map_encoded = 'eJztwYEAAAAAgCCl/ekWqQoAAAAAAAAAAAAAAAAAAAAAA' \
-                              'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' \
-                              'AAAAAAAAAAAAAAAABqFo8C0Q=='
+                map = '0'
             end
+
+            map_encoded = Base64.strict_encode64(Zlib::Deflate.deflate(map))
 
             cluster         = @db[:cluster_vnc_bitmap].first(:id => cluster_id)
             old_map_encoded = cluster[:map] rescue nil
 
-            if old_map_encoded != map_encoded
+            if old_map_encoded.nil?
+                log_error("Cluster #{cluster_id} is missing its VNC bitmap")
+                fixes[cluster_id] = map_encoded
+                next
+            end
+
+            begin
+                old_map = Zlib::Inflate.inflate(Base64.decode64(old_map_encoded))
+                old_map.sub!(/^0+/, '')
+                old_map = '0' if old_map.empty?
+            rescue
+                log_error("Cluster #{cluster_id} has a corrupted VNC bitmap")
+                fixes[cluster_id] = map_encoded
+                next
+            end
+
+            puts map # todo delete this line
+
+            if old_map != map
                 log_error("Cluster #{cluster_id} has not the proper " \
                           'reserved VNC ports')
 

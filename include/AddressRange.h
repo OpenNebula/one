@@ -120,6 +120,7 @@ public:
      *    - IP
      *    - ULA_PREFIX
      *    - GLOBAL_PREFIX
+     *    - NEXT_INDEX*
      *
      *  The following can be defined to override VNET values:
      *    - BRIDGE
@@ -435,12 +436,26 @@ public:
      */
     friend int AddressRangePool::rm_ars(std::string& error_msg);
 
+    // *************************************************************************
+    // Global MAC address space definition
+    // *************************************************************************
+    /**
+     *  +----------------+------------------+---------------+------------------+
+     *  | Prefix (8bits) | VNET ID (16bits) | AR ID (4bits) | HOST ID (20bits) |
+     *  +----------------+------------------+---------------+------------------+
+     *                   |          MAC_GLOBAL_BITS         |
+     *                   +----------------------------------+
+     */
+    static constexpr int MAC_GLOBAL_BITS = 20;
+    static constexpr int MAC_GLOBAL_SIZE = 1u << MAC_GLOBAL_BITS;
+
 protected:
     /**
      *  Base constructor it cannot be called directly but from the
      *  AddressRange factory constructor.
      */
-    AddressRange(unsigned int _id):id(_id) {};
+    AddressRange(unsigned int _vnet_id, unsigned int _id)
+        : vnet_id(_vnet_id), id(_id) {};
 
     /* ---------------------------------------------------------------------- */
     /* Address/AR helper functions to build/parse driver messages             */
@@ -560,6 +575,11 @@ protected:
      */
     std::map<unsigned int, std::set<long long>> allocated;
 
+    /**
+     *  Lookup index for the next free address lease
+     */
+    unsigned int next = 0;
+
 private:
     /* ---------------------------------------------------------------------- */
     /* String to binary conversion functions for different address types      */
@@ -617,6 +637,19 @@ private:
                         std::string& ip6_s);
 
     static int ip6_to_s(const unsigned int ip6_i[], std::string& ip6_s);
+
+    /* ---------------------------------------------------------------------- */
+    /* MAC global address space helper functions                              */
+    /* ---------------------------------------------------------------------- */
+    /**
+     * Returns the id coded in a global MAC
+     */
+    unsigned int gmac_id() const;
+
+    /**
+     * Initializes the MAC address for the AR in the global MAC address space
+     */
+    int gmac_init(int mac_prefix);
 
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */
@@ -775,6 +808,11 @@ private:
     /* ---------------------------------------------------------------------- */
     /* Address Range data                                                     */
     /* ---------------------------------------------------------------------- */
+    /**
+     *  The parent VNET ID
+     */
+    unsigned int vnet_id;
+
     /**
      *  The type of addresses defined in the range
      */

@@ -51,6 +51,10 @@ public:
         }
     };
 
+    BitMap(int _id, const char * _db_table)
+        : id(_id), start_bit(0), bs(0), db_table(_db_table)
+    {};
+
     virtual ~BitMap()
     {
         delete bs;
@@ -287,8 +291,19 @@ private:
         std::ostringstream oss;
 
         std::string zipped;
+        std::string s;
 
-        if (ssl_util::zlib_compress64(bs->to_string(), zipped) != 0)
+        if (bs->none())
+        {
+            s = "0";
+        }
+        else
+        {
+            s = bs->to_string();
+            s.erase(0, s.find_first_not_of('0'));
+        }
+
+        if (ssl_util::zlib_compress64(s, zipped) != 0)
         {
             return -1;
         }

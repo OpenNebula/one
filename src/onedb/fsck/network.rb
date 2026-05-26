@@ -84,6 +84,96 @@ module OneDBFsck
         end
     end
 
+    # Check Global MAC address space
+    def check_global_mac_space
+        return unless @mac_global_space
+
+        @fixes_global_mac = nil
+        assigned_macs = {}
+
+        @db.fetch('SELECT oid, body FROM network_pool') do |row|
+            doc = nokogiri_doc(row[:body], 'network_pool')
+            vnet_id = row[:oid]
+
+            doc.root.xpath('AR_POOL/AR').each do |ar|
+                mac_s = ar.at_xpath('MAC')&.text
+                next if mac_s.nil? || mac_s.empty?
+
+                mac_i = mac_s_to_i(mac_s)
+                gmac_id = (mac_i >> 20) & 0xFFFFF
+
+                if assigned_macs.key?(gmac_id)
+                    other_vnet, other_ar = assigned_macs[gmac_id]
+                    log_error("Global MAC conflict: VNet #{vnet_id} AR " \
+                              "#{ar.at_xpath('AR_ID').text} and VNet " \
+                              "#{other_vnet} AR #{other_ar} use the same " \
+                              "global MAC ID #{gmac_id}", false)
+                else
+                    assigned_macs[gmac_id] = {
+                        :vnet_id => vnet_id,
+                        :ar_id   => ar.at_xpath('AR_ID').text,
+                        :mac_s   => mac_s
+                    }
+                end
+            end
+        end
+
+        # MAC_GLOBAL_SIZE = 1u << 20
+        size = 1048576
+
+        new_map = '0' * size
+        assigned_macs.each_key do |id|
+            new_map[size - 1 - id] = '1'
+        end
+
+        # Optimization: Trim leading zeros
+        new_map.sub!(/^0+/, '')
+        new_map = '0' if new_map.empty?
+
+        map_encoded = Base64.strict_encode64(Zlib::Deflate.deflate(new_map))
+
+        row = @db[:network_vlan_bitmap].where(:id => 1).first
+
+        if row.nil?
+            log_error('Global MAC bitmap (id=1) is missing')
+
+            @fixes_global_mac = { :op => :insert, :map => map_encoded }
+            return
+        end
+
+        old_map_encoded = row[:map]
+
+        begin
+            old_map = Zlib::Inflate.inflate(Base64.decode64(old_map_encoded))
+            old_map.sub!(/^0+/, '')
+            old_map = '0' if old_map.empty?
+        rescue
+            log_error('Global MAC bitmap (id=1) is corrupted')
+            @fixes_global_mac = { :op => :update, :map => map_encoded }
+            return
+        end
+
+        if old_map != new_map
+            log_error('Global MAC bitmap (id=1) is inconsistent')
+            @fixes_global_mac = { :op => :update, :map => map_encoded }
+        end
+    end
+
+    # Fix Global MAC address space
+    def fix_global_mac_space
+        return if @fixes_global_mac.nil?
+
+        @db.transaction do
+            if @fixes_global_mac[:op] == :insert
+                @db[:network_vlan_bitmap].insert(:id => 1,
+                                                 :map => @fixes_global_mac[:map])
+            else
+                @db[:network_vlan_bitmap].where(:id => 1)
+                                         .update(:map => @fixes_global_mac[:map])
+            end
+        end
+    end
+
     # Fix network cluster
     def fix_network_cluster
         @db.transaction do

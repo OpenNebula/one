@@ -512,6 +512,7 @@ void OpenNebulaTemplate::set_conf_default()
     #*******************************************************************************
     */
     set_conf_single("MAC_PREFIX", "02:00");
+    set_conf_single("MAC_GLOBAL_SPACE", "NO");
     set_conf_single("NETWORK_SIZE", "254");
 
     vvalue.clear();
@@ -693,4 +694,3 @@ int OpenNebulaTemplate::load_key()
 
     return 0;
 }
-

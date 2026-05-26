@@ -26,7 +26,8 @@ class VectorAttribute;
 class AddressRangeIPAM : public AddressRange
 {
 public:
-    AddressRangeIPAM(unsigned int _id):AddressRange(_id) {};
+    AddressRangeIPAM(unsigned int _vid, unsigned int _id)
+        : AddressRange(_vid, _id) {};
 
     virtual ~AddressRangeIPAM() {};
 

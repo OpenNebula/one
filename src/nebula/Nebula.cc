@@ -809,6 +809,7 @@ void Nebula::start(bool bootstrap_only)
         /* -------------------- VirtualNetwork Pool ------------------------- */
         unsigned long int size;
         string  mac_prefix;
+        bool    mac_global_space;
 
         vector<const SingleAttribute *> inherit_vnet_attrs;
         vector<const SingleAttribute *> vnet_restricted_attrs;
@@ -818,6 +819,8 @@ void Nebula::start(bool bootstrap_only)
         const VectorAttribute * vxlan_id;
 
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
+
+        nebula_configuration->get("MAC_GLOBAL_SPACE", mac_global_space);
 
         nebula_configuration->get("NETWORK_SIZE", size);
 
@@ -831,9 +834,9 @@ void Nebula::start(bool bootstrap_only)
 
         vxlan_id = nebula_configuration->get("VXLAN_IDS");
 
-        vnpool = new VirtualNetworkPool(logdb, mac_prefix, size,
-                                        vnet_restricted_attrs, vnet_encrypted_attrs, inherit_vnet_attrs,
-                                        vlan_id, vxlan_id);
+        vnpool = new VirtualNetworkPool(logdb, mac_prefix, mac_global_space, size,
+                                        vnet_restricted_attrs, vnet_encrypted_attrs,
+                                        inherit_vnet_attrs, vlan_id, vxlan_id);
 
         /* ----------------------- Group/User Pool -------------------------- */
         vector<const SingleAttribute *> user_restricted;
@@ -1459,4 +1462,3 @@ int Nebula::get_conf_attribute(
     value = nullptr;
     return -1;
 };
-

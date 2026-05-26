@@ -31,9 +31,14 @@ class AddressRange;
 class AddressRangePool
 {
 public:
-    AddressRangePool();
+    AddressRangePool(int _vnet_id);
 
     virtual ~AddressRangePool();
+
+    void set_vnet_id(int vid)
+    {
+        vnet_id = vid;
+    }
 
     // *************************************************************************
     // Inititalization functions
@@ -368,6 +373,11 @@ private:
      *  to store the pool in the DB
      */
     VirtualNetworkTemplate ar_template;
+
+    /**
+     *  VNET ID for the address range pool
+     */
+    int vnet_id;
 
     /**
      *  ID for the next Address Range

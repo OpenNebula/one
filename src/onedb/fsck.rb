@@ -26,6 +26,7 @@ require "rexml/document"
 include REXML
 require 'ipaddr'
 require 'set'
+require 'base64'
 
 require 'nokogiri'
 
@@ -198,6 +199,10 @@ EOT
         aug.load
 
         @zone_id = aug.get('FEDERATION/ZONE_ID').to_i
+        @mac_global_space = aug.get('MAC_GLOBAL_SPACE')&.gsub('"', '') == 'YES'
+        mac_prefix_s = aug.get('MAC_PREFIX').to_s || '02:00'
+        mac_prefix_s = mac_prefix_s.gsub('"', '')
+        @mac_prefix_i = mac_prefix_s.split(':').first.to_i(16)
 
         @generic_quotas = []
 
@@ -554,6 +559,9 @@ EOT
 
         check_network
         fix_network unless dry
+
+        check_global_mac_space
+        fix_global_mac_space unless dry
 
         log_time
 

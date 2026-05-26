@@ -22,6 +22,7 @@
 
 #include <arpa/inet.h>
 #include <algorithm>
+#include <regex>
 
 using namespace std;
 
@@ -188,36 +189,54 @@ int AddressRange::init_mac(string& error_msg)
         mac[0] = 0;
         mac[1] = 0;
 
-        set_mac(0,attr);
+        set_mac(0, attr);
 
         return 0;
     }
 
-    string value = attr->vector_value("MAC");
+    const string& value = attr->vector_value("MAC");
 
     if (value.empty())
     {
-        mac[1] = VirtualNetworkPool::mac_prefix();
-
-        if ( is_ipv4() )
+        if (VirtualNetworkPool::mac_global_space())
         {
-            mac[0] = ip;
+            if (gmac_init(VirtualNetworkPool::mac_prefix()) != 0)
+            {
+                error_msg = "Cannot initialize global MAC address. Global space full?";
+                return -1;
+            }
         }
         else
         {
-            mac[0] = one_util::random<uint32_t>() & 0xFFFFFFFF;
-        }
+            mac[1] = VirtualNetworkPool::mac_prefix();
 
-        set_mac(0, attr);
+            if ( is_ipv4() )
+            {
+                mac[0] = ip;
+            }
+            else
+            {
+                mac[0] = one_util::random<uint32_t>() & 0xFFFFFFFF;
+            }
+        }
     }
     else
     {
         if (mac_to_i(value, mac) == -1)
         {
-            error_msg = "Wrong format for MAC attribute";
+            error_msg = "Wrong format for MAC attribute: " + value;
             return -1;
-        };
+        }
+
+        if (VirtualNetworkPool::mac_global_space() &&
+            VirtualNetworkPool::reserve_mac_id(gmac_id()) != 0)
+        {
+            error_msg = "Cannot assign conflicting global MAC address = " + mac_to_s(mac);
+            return -1;
+        }
     }
+
+    attr->replace("MAC", mac_to_s(mac));
 
     return 0;
 }
@@ -294,6 +313,13 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
     {
         error_msg = "Wrong SIZE for address range";
         return -1;
+    }
+
+    /* ------------------------- Next Index -------------------------------- */
+
+    if ( vattr->vector_value("NEXT_INDEX", next) != 0 )
+    {
+        next = 0;
     }
 
     /* ------------------------- Security Groups ---------------------------- */
@@ -521,6 +547,8 @@ int AddressRange::update_attributes(
 
     vup->replace("SIZE", size);
 
+    vup->replace("NEXT_INDEX", next);
+
     string value = vup->vector_value("SECURITY_GROUPS");
 
     security_groups.clear();
@@ -601,6 +629,11 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
     }
 
     rc += vattr->vector_value("SIZE", size);
+
+    if ( vattr->vector_value("NEXT_INDEX", next) != 0 )
+    {
+        next = 0;
+    }
 
     rc += mac_to_i(vattr->vector_value("MAC"), mac);
 
@@ -699,6 +732,8 @@ void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
 
 void AddressRange::to_xml(ostringstream &oss) const
 {
+    attr->replace("NEXT_INDEX", next);
+
     const map<string, string>& ar_attrs = attr->value();
 
     unsigned int mac_end[2] = {0};
@@ -789,6 +824,8 @@ void AddressRange::to_xml(ostringstream &oss) const
 void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
                           const vector<int>& vns, const vector<int>& vrs) const
 {
+    attr->replace("NEXT_INDEX", next);
+
     const map<string, string>&          ar_attrs = attr->value();
 
     int          rc;
@@ -962,7 +999,6 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
         oss << "</LEASES>";
     }
-
     oss << "</AR>";
 }
 
@@ -971,49 +1007,41 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
 int AddressRange::mac_to_i(string mac, unsigned int i_mac[])
 {
-    istringstream iss;
-
-    size_t pos   = 0;
-    int    count = 0;
-
-    unsigned int tmp;
-
-    if ( mac.empty() || mac == "00:00:00:00:00:00")
+    if ( mac.empty() )
     {
         i_mac[0] = i_mac[1] = 0;
         return 0;
     }
 
-    while ( (pos = mac.find(':')) !=  string::npos )
-    {
-        mac.replace(pos, 1, " ");
-        count++;
-    }
+    static const std::regex mac_regex("^([0-9a-fA-F]{1,2}:){5}[0-9a-fA-F]{1,2}$");
 
-    if (count != 5)
+    if (!std::regex_match(mac, mac_regex))
     {
         return -1;
     }
 
-    iss.str(mac);
+    string mac_space = mac;
+    std::replace(mac_space.begin(), mac_space.end(), ':', ' ');
 
-    i_mac[1] = 0;
-    i_mac[0] = 0;
+    istringstream iss(mac_space);
+    unsigned int  octets[6];
 
-    iss >> hex >> i_mac[1] >> ws >> hex >> tmp >> ws;
-    i_mac[1] <<= 8;
-    i_mac[1] += tmp;
-
-    for (int i=0; i<4; i++)
+    for (int i = 0; i < 6; i++)
     {
-        iss >> hex >> tmp >> ws;
+        iss >> hex >> octets[i];
+    }
 
-        i_mac[0] <<= 8;
-        i_mac[0] += tmp;
+    i_mac[1] = (octets[0] << 8) + octets[1];
+    i_mac[0] = (octets[2] << 24) + (octets[3] << 16) + (octets[4] << 8) + octets[5];
+
+    if (i_mac[1] == 0xFFFF && i_mac[0] == 0xFFFFFFFF)
+    {
+        return -1;
     }
 
     return 0;
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1498,6 +1526,8 @@ void AddressRange::allocated_to_attr()
     }
 
     attr->replace("ALLOCATED", oss.str());
+
+    attr->replace("NEXT_INDEX", next);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1975,6 +2005,7 @@ const char * AddressRange::SG_RULE_ATTRIBUTES[] =
     "AR_ID",
     "TYPE",
     "SIZE",
+    "NEXT_INDEX",
     "MAC",
     "IP",
     "IP6"
@@ -2128,6 +2159,8 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 
     new_ar->replace("SIZE", rsize);
 
+    new_ar->replace("NEXT_INDEX", 0);
+
     new_ar->remove("IPAM_MAD");
 
     rar->from_vattr(new_ar, errmsg);
@@ -2186,6 +2219,8 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
     }
 
     new_ar->replace("SIZE", rsize);
+
+    new_ar->replace("NEXT_INDEX", 0);
 
     new_ar->remove("IPAM_MAD");
 
@@ -2344,5 +2379,35 @@ void AddressRange::decrypt()
     {
         attr->decrypt(one_key, ea.second);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+unsigned int AddressRange::gmac_id() const
+{
+    uint64_t mac64 = (static_cast<uint64_t>(mac[1]) << 32) |
+                      static_cast<uint64_t>(mac[0]);
+
+    return static_cast<unsigned int>((mac64 >> 20) & 0xFFFFF);
+}
+
+int AddressRange::gmac_init(int mac_prefix)
+{
+    unsigned int preferred_id = ((vnet_id & 0xFFFF) << 4) | (id & 0xF);
+    unsigned int allocated_id;
+
+    if (VirtualNetworkPool::allocate_mac_id(preferred_id, allocated_id) != 0)
+    {
+        return -1;
+    }
+
+    uint64_t mac64 = (static_cast<uint64_t>((mac_prefix >> 8) & 0xFF) << 40) |
+                     (static_cast<uint64_t>(allocated_id & 0xFFFFF) << 20);
+
+    mac[1] = (mac64 >> 32) & 0xFFFF;
+    mac[0] = mac64 & 0xFFFFFFFF;
+
+    return 0;
 }
 

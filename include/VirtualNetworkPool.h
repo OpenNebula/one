@@ -35,6 +35,7 @@ public:
 
     VirtualNetworkPool(SqlDB * db,
                        const std::string& str_mac_prefix,
+                       bool mac_global_space,
                        unsigned long int default_size,
                        std::vector<const SingleAttribute *>& restricted_attrs,
                        std::vector<const SingleAttribute *>& encrypted_attrs,
@@ -185,6 +186,14 @@ public:
     };
 
     /**
+     *  Returns true if global MAC address space generation is enabled
+     */
+    static bool mac_global_space()
+    {
+        return _mac_global_space;
+    };
+
+    /**
      *  Get the default network size
      *  @return the size
      */
@@ -301,6 +310,11 @@ private:
     static unsigned int _mac_prefix;
 
     /**
+     *  Enables global MAC address space generation
+     */
+    static bool _mac_global_space;
+
+    /**
      *  Default size for Virtual Networks
      */
     static unsigned long int _default_size;
@@ -318,7 +332,12 @@ private:
     /**
      *  ID for the VLAN_BITMAP, to store it in the DB
      */
-    static const int VLAN_BITMAP_ID;
+    static constexpr int VLAN_BITMAP_ID = 0;
+
+    /**
+     *  ID for the MAC_BITMAP, to store it in the DB
+     */
+    static constexpr int MAC_BITMAP_ID   = 1;
 
     /**
      *  Configuration attributes for the vxlan_id pool
@@ -328,7 +347,7 @@ private:
     /**
      * Virtual Network bitmap pool for VLANs table
      */
-    static const char * vlan_table;
+    static constexpr const char * vlan_table = "network_vlan_bitmap";
 
     //--------------------------------------------------------------------------
     // NIC Attribute build functions
@@ -349,6 +368,7 @@ private:
                                                   bool ro,
                                                   std::string& error);
 
+public:
     //--------------------------------------------------------------------------
     // VLAN ID management functions
     //--------------------------------------------------------------------------
@@ -359,6 +379,27 @@ private:
      *    @return 0 on success
      */
     int set_vlan_id(VirtualNetwork * vn);
+
+    /**
+     *  Gets a free Global MAC ID, if not set by the user.
+     *    @param preferred_id hint for the MAC ID
+     *    @param allocated_id the allocated MAC ID
+     *    @return 0 on success
+     */
+    static int allocate_mac_id(unsigned int preferred_id, unsigned int& allocated_id);
+
+    /**
+     *  Free a previously allocated Global MAC ID
+     *    @param id the MAC ID to free
+     */
+    static void release_mac_id(unsigned int id);
+
+    /**
+     *  Reserves a specific Global MAC ID
+     *    @param id the MAC ID to reserve
+     *    @return 0 on success
+     */
+    static int reserve_mac_id(unsigned int id);
 
     /**
      *  Helper functions to compute the next vlan_id for 802.1Q and VXLAN.

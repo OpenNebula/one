@@ -16,6 +16,7 @@
 
 #include "AddressRangePool.h"
 #include "AddressRange.h"
+#include "VirtualNetworkPool.h"
 #include "AddressRangeInternal.h"
 #include "AddressRangeIPAM.h"
 
@@ -28,8 +29,12 @@
 
 using namespace std;
 
-AddressRangePool::AddressRangePool():ar_template(false, '=', "AR_POOL"),
-    next_ar(0), used_addr(0) {};
+AddressRangePool::AddressRangePool(int _vnet_id)
+    : ar_template(false, '=', "AR_POOL")
+    , vnet_id(_vnet_id)
+    , next_ar(0)
+    , used_addr(0)
+{};
 
 AddressRangePool::~AddressRangePool()
 {
@@ -80,11 +85,11 @@ AddressRange * AddressRangePool::allocate_ar(const string& ipam_mad,
 {
     if ( ipam_mad.empty() || ipam_mad == "internal" )
     {
-        return new AddressRangeInternal(na);
+        return new AddressRangeInternal(vnet_id, na);
     }
     else
     {
-        return new AddressRangeIPAM(na);
+        return new AddressRangeIPAM(vnet_id, na);
     }
 }
 
@@ -226,6 +231,11 @@ int AddressRangePool::rm_ar(unsigned int ar_id, bool force, string& error_msg)
 
     ar_pool.erase(it);
 
+    if (VirtualNetworkPool::mac_global_space())
+    {
+        VirtualNetworkPool::release_mac_id(ar_ptr->gmac_id());
+    }
+
     delete ar_ptr;
 
     if (the_ar != 0)
@@ -263,6 +273,11 @@ int AddressRangePool::rm_ars(string& error_msg)
         if (it->second->attr != 0)
         {
             delete ar_template.remove(it->second->attr);
+        }
+
+        if (VirtualNetworkPool::mac_global_space())
+        {
+            VirtualNetworkPool::release_mac_id(it->second->gmac_id());
         }
 
         delete it->second;
@@ -846,3 +861,6 @@ void AddressRangePool::process_security_rule(
         new_rules.push_back(new_rule);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
