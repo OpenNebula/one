@@ -52,7 +52,7 @@ int AddressRangePool::from_vattr(VectorAttribute* va, string& error_msg)
     AddressRange * ar = allocate_ar(va->vector_value("IPAM_MAD"));
     string one_key;
 
-    if (ar->from_vattr(va, error_msg) != 0)
+    if (ar->from_vattr(va, false, error_msg) != 0)
     {
         next_ar = next_ar - 1;
         delete ar;
@@ -288,6 +288,25 @@ int AddressRangePool::rm_ars(string& error_msg)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRangePool::release_mac_ids()
+{
+    if (!VirtualNetworkPool::mac_global_space())
+    {
+        return;
+    }
+
+    for (auto& ar : ar_pool)
+    {
+        if (!ar.second->is_reservation())
+        {
+            VirtualNetworkPool::release_mac_id(ar.second->gmac_id());
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */

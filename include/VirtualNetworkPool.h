@@ -87,7 +87,10 @@ public:
      */
     int drop(PoolObjectSQL * vn, std::string& error_msg) override
     {
-        release_vlan_id(static_cast<VirtualNetwork *>(vn));
+        auto vnet = static_cast<VirtualNetwork *>(vn);
+
+        release_vlan_id(vnet);
+        vnet->release_mac_ids();
 
         return PoolSQL::drop(vn, error_msg);
     };

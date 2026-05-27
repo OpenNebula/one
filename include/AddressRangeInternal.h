@@ -40,9 +40,10 @@ public:
      *    @param error_msg description if error
      *    @return 0 on success
      */
-    int from_vattr(VectorAttribute * attr, std::string& error_msg) override
+    int from_vattr(VectorAttribute * attr, bool reservation,
+                   std::string& error_msg) override
     {
-        return AddressRange::from_attr(attr, error_msg);
+        return AddressRange::from_attr(attr, reservation, error_msg);
     }
 
     /**

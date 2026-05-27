@@ -182,7 +182,7 @@ int AddressRange::init_ipv6_static(string& error_msg)
 
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::init_mac(string& error_msg)
+int AddressRange::init_mac(bool reservation, string& error_msg)
 {
     if (_shared)
     {
@@ -198,7 +198,7 @@ int AddressRange::init_mac(string& error_msg)
 
     if (value.empty())
     {
-        if (VirtualNetworkPool::mac_global_space())
+        if (VirtualNetworkPool::mac_global_space() && !reservation)
         {
             if (gmac_init(VirtualNetworkPool::mac_prefix()) != 0)
             {
@@ -228,7 +228,7 @@ int AddressRange::init_mac(string& error_msg)
             return -1;
         }
 
-        if (VirtualNetworkPool::mac_global_space() &&
+        if (VirtualNetworkPool::mac_global_space() && !reservation &&
             VirtualNetworkPool::reserve_mac_id(gmac_id()) != 0)
         {
             error_msg = "Cannot assign conflicting global MAC address = " + mac_to_s(mac);
@@ -244,7 +244,8 @@ int AddressRange::init_mac(string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
+int AddressRange::from_attr(VectorAttribute *vattr, bool reservation,
+                            string& error_msg)
 {
     string value;
 
@@ -302,7 +303,7 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
         return -1;
     }
 
-    if ( init_mac(error_msg) != 0 )
+    if ( init_mac(reservation, error_msg) != 0 )
     {
         return -1;
     }
@@ -315,7 +316,7 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
         goto error_gmac;
     }
 
-    if (VirtualNetworkPool::mac_global_space() && !_shared)
+    if (VirtualNetworkPool::mac_global_space() && !_shared && !reservation)
     {
         const uint32_t available = MAC_GLOBAL_SIZE - (mac[0] & MAC_GLOBAL_HOST_MASK);
 
@@ -328,10 +329,7 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
 
     /* ------------------------- Next Index -------------------------------- */
 
-    if ( vattr->vector_value("NEXT_INDEX", next) != 0 )
-    {
-        next = 0;
-    }
+    next = 0;
 
     /* ------------------------- Security Groups ---------------------------- */
 
@@ -364,6 +362,8 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
 
     vattr->remove("ALLOCATED");
 
+    vattr->remove("NEXT_INDEX");
+
     vattr->remove("USED_LEASES");
 
     vattr->remove("LEASES");
@@ -375,7 +375,7 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
     return 0;
 
 error_gmac:
-    if (VirtualNetworkPool::mac_global_space())
+    if (VirtualNetworkPool::mac_global_space() && !reservation)
     {
         VirtualNetworkPool::release_mac_id(gmac_id());
     }
@@ -535,6 +535,17 @@ int AddressRange::update_attributes(
             return -1;
         }
 
+        if (VirtualNetworkPool::mac_global_space() && !_shared && !reservation)
+        {
+            const uint32_t available = MAC_GLOBAL_SIZE - (mac[0] & MAC_GLOBAL_HOST_MASK);
+
+            if (new_size > available)
+            {
+                error_msg = "SIZE exceeds maximum size for global MAC address space";
+                return -1;
+            }
+        }
+
         std::map<unsigned int, std::set<long long>>::iterator it;
 
         if ( new_size == 0 )
@@ -561,6 +572,11 @@ int AddressRange::update_attributes(
     }
 
     size = new_size;
+
+    if (next >= size)
+    {
+        next = 0;
+    }
 
     vup->replace("SIZE", size);
 
@@ -648,6 +664,10 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
     rc += vattr->vector_value("SIZE", size);
 
     if ( vattr->vector_value("NEXT_INDEX", next) != 0 )
+    {
+        next = 0;
+    }
+    else if (next >= size)
     {
         next = 0;
     }
@@ -2175,11 +2195,13 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 
     new_ar->replace("SIZE", rsize);
 
-    new_ar->replace("NEXT_INDEX", 0);
-
     new_ar->remove("IPAM_MAD");
 
-    rar->from_vattr(new_ar, errmsg);
+    if (rar->from_vattr(new_ar, true, errmsg) != 0)
+    {
+        NebulaLog::log("IPM", Log::ERROR, errmsg);
+        return -1;
+    }
 
     new_ar->replace("PARENT_NETWORK_AR_ID", id);
 
@@ -2236,11 +2258,13 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
 
     new_ar->replace("SIZE", rsize);
 
-    new_ar->replace("NEXT_INDEX", 0);
-
     new_ar->remove("IPAM_MAD");
 
-    rar->from_vattr(new_ar, errmsg);
+    if (rar->from_vattr(new_ar, true, errmsg) != 0)
+    {
+        NebulaLog::log("IPM", Log::ERROR, errmsg);
+        return -1;
+    }
 
     new_ar->replace("PARENT_NETWORK_AR_ID", id);
 
@@ -2431,4 +2455,3 @@ int AddressRange::gmac_init(int mac_prefix)
 
     return 0;
 }
-

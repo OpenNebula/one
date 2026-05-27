@@ -82,6 +82,11 @@ public:
     int rm_ars(std::string& error_msg);
 
     /**
+     *  Releases global MAC IDs owned by the address ranges in this pool.
+     */
+    void release_mac_ids();
+
+    /**
      *  Updates the given address ranges
      *    @param ars vector of address ranges as VectorAttributes obtained from
      *    template in the form AR = [...]. Only one AR is processed.

@@ -96,6 +96,9 @@ module OneDBFsck
             vnet_id = row[:oid]
 
             doc.root.xpath('AR_POOL/AR').each do |ar|
+                next if ar.at_xpath('PARENT_NETWORK_AR_ID')
+                next if ar.at_xpath('SHARED')&.text == 'YES'
+
                 mac_s = ar.at_xpath('MAC')&.text
                 next if mac_s.nil? || mac_s.empty?
 
@@ -103,10 +106,11 @@ module OneDBFsck
                 gmac_id = (mac_i >> 20) & 0xFFFFF
 
                 if assigned_macs.key?(gmac_id)
-                    other_vnet, other_ar = assigned_macs[gmac_id]
+                    other = assigned_macs[gmac_id]
+
                     log_error("Global MAC conflict: VNet #{vnet_id} AR " \
                               "#{ar.at_xpath('AR_ID').text} and VNet " \
-                              "#{other_vnet} AR #{other_ar} use the same " \
+                              "#{other[:vnet_id]} AR #{other[:ar_id]} use the same " \
                               "global MAC ID #{gmac_id}", false)
                 else
                     assigned_macs[gmac_id] = {

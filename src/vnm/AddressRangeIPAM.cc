@@ -23,7 +23,8 @@
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-int AddressRangeIPAM::from_vattr(VectorAttribute * attr, std::string& error_msg)
+int AddressRangeIPAM::from_vattr(VectorAttribute * attr, bool reservation,
+                                 std::string& error_msg)
 {
     IPAMManager * ipamm = Nebula::instance().get_ipamm();
 
@@ -44,7 +45,7 @@ int AddressRangeIPAM::from_vattr(VectorAttribute * attr, std::string& error_msg)
         return -1;
     }
 
-    return AddressRange::from_attr(attr, error_msg);
+    return AddressRange::from_attr(attr, reservation, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -171,4 +172,3 @@ int AddressRangeIPAM::free_addr(unsigned int index, std::string& error_msg)
 
     return 0;
 }
-

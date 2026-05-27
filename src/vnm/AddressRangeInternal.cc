@@ -43,18 +43,20 @@ int AddressRangeInternal::get_range_addr(unsigned int& index,
     unsigned int next_original = next;
     bool valid;
 
-    for (unsigned int i=0; i< ar_size; i++, next = (next+1)%ar_size )
+    for (unsigned int i = 0; i < ar_size; ++i)
     {
-        if ( allocated.count(next) != 0 )
+        unsigned int start = (next_original + i) % ar_size;
+
+        if (start + rsize > ar_size)
         {
             continue;
         }
 
         valid = true;
 
-        for (unsigned int j=0; j<rsize; j++, i++, next = (next+1)%ar_size)
+        for (unsigned int j = 0; j < rsize; ++j)
         {
-            if ( allocated.count(next) != 0 || i >= ar_size )
+            if (allocated.count(start + j) != 0)
             {
                 valid = false;
                 break;
@@ -63,13 +65,15 @@ int AddressRangeInternal::get_range_addr(unsigned int& index,
 
         if (valid)
         {
-            index = (next + ar_size - rsize) % ar_size;
-            next  = next%ar_size;
+            index = start;
+            next  = (start + rsize) % ar_size;
+
             return 0;
         }
     }
 
     next = next_original;
-    msg = "There isn't a continuous range big enough";
+    msg  = "There isn't a continuous range big enough";
+
     return -1;
 }

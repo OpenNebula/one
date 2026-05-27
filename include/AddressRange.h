@@ -127,7 +127,6 @@ public:
      *    - IP
      *    - ULA_PREFIX
      *    - GLOBAL_PREFIX
-     *    - NEXT_INDEX*
      *
      *  The following can be defined to override VNET values:
      *    - BRIDGE
@@ -154,7 +153,8 @@ public:
      * implementation may contact an external IPAM to complete or validate
      * the AR allocation request.
      */
-    virtual int from_vattr(VectorAttribute * attr, std::string& error_msg) = 0;
+    virtual int from_vattr(VectorAttribute * attr, bool reservation,
+                           std::string& error_msg) = 0;
 
     /**
      *  Builds an Address Range from a vector attribute stored in the DB
@@ -443,6 +443,11 @@ public:
      */
     friend int AddressRangePool::rm_ars(std::string& error_msg);
 
+    /*
+     *  release_mac_ids from AddressRangePool needs to access the global MAC ID.
+     */
+    friend void AddressRangePool::release_mac_ids();
+
     // *************************************************************************
     // Global MAC address space definition
     // *************************************************************************
@@ -471,7 +476,8 @@ protected:
     /**
      * Builds the AddressRange from its vector attribute representation
      */
-    int from_attr(VectorAttribute * attr, std::string& error_msg);
+    int from_attr(VectorAttribute * attr, bool reservation,
+                  std::string& error_msg);
 
     /**
      *  Builds an address request representation in XML form:
@@ -796,7 +802,7 @@ private:
      *    @param error_msg if any
      *    @return 0 on success
      */
-    int init_mac(std::string& error_msg);
+    int init_mac(bool reservation, std::string& error_msg);
 
     /**
      *  Checks for restricted attributes, returns the first one found

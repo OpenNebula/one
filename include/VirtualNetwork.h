@@ -330,6 +330,14 @@ public:
     int rm_ars(std::string& error_msg);
 
     /**
+     *  Releases global MAC IDs still owned by the address ranges in this VNET.
+     */
+    void release_mac_ids()
+    {
+        ar_pool.release_mac_ids();
+    }
+
+    /**
      *  Allocates a new (and empty) address range. It is not added to the
      *  ar_pool
      *    @return pointer to the new address range
