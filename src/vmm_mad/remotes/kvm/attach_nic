@@ -49,8 +49,12 @@ domain = ARGV[0]
 vm = KvmVM.new(STDIN.read)
 
 if vm.pci_attach?
-    pci1    = vm.dumpxml_regexp(domain, "<alias name='pci.1'/>")
-    dev_xml = vm.hostdev_xml(:pci => pci1)
+    pci_checks = ["<alias name='pci.1'/>"]
+    pci_checks << vm.pci_address_regexp
+    pci_checks.compact!
+
+    pci1, address_in_use = vm.dumpxml_regexp(domain, pci_checks)
+    dev_xml = vm.hostdev_xml(:pci => pci1 && !address_in_use)
 else
     dev_xml = vm.interface_xml
 end

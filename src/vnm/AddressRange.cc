@@ -769,8 +769,6 @@ void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
 
 void AddressRange::to_xml(ostringstream &oss) const
 {
-    attr->replace("NEXT_INDEX", next);
-
     const map<string, string>& ar_attrs = attr->value();
 
     unsigned int mac_end[2] = {0};
@@ -861,9 +859,7 @@ void AddressRange::to_xml(ostringstream &oss) const
 void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
                           const vector<int>& vns, const vector<int>& vrs) const
 {
-    attr->replace("NEXT_INDEX", next);
-
-    const map<string, string>&          ar_attrs = attr->value();
+    const map<string, string>& ar_attrs = attr->value();
 
     int          rc;
     unsigned int mac_end[2] = {0};
@@ -1546,6 +1542,8 @@ void AddressRange::set_vnet(VectorAttribute *nic, const set<string> &inherit) co
 
 void AddressRange::allocated_to_attr()
 {
+    attr->replace("NEXT_INDEX", next);
+
     if (allocated.empty())
     {
         attr->replace("ALLOCATED", "");
@@ -1563,8 +1561,6 @@ void AddressRange::allocated_to_attr()
     }
 
     attr->replace("ALLOCATED", oss.str());
-
-    attr->replace("NEXT_INDEX", next);
 }
 
 /* -------------------------------------------------------------------------- */
