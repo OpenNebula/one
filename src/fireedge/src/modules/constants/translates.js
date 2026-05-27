@@ -2900,4 +2900,21 @@ module.exports = {
   BACKUP: 'Backup',
   BACKUP_POWEROFF: 'Backup power off',
   RESTORE: 'Restore',
+
+  // Oneform Provision aka Cloud Cluster
+  PLANNING: 'Planning',
+  APPLYING: 'Applying',
+  CONFIGURING_PROVISION: 'Configuring Provision',
+  CONFIGURING_ONE: 'Configuring ONE resources',
+  SCALING: 'Scaling',
+  DEPROVISIONING: 'Deprovisioning',
+  INIT_FAILURE: 'Init failure',
+  PLANNING_FAILURE: 'Planning failure',
+  APPLYING_FAILURE: 'Applying failure',
+  CONFIGURING_PROVISION_FAILURE: 'Configuring Provision failure',
+  CONFIGURING_ONE_FAILURE: 'Configuring ONE failure',
+  SCALING_FAILURE: 'Scaling failure',
+  DEPROVISIONING_ONE_FAILURE: 'Deprovisioning ONE failure',
+  DEPROVISIONING_FAILURE: 'Deprovisioning failure',
+  DONE_FAILURE: 'Done failure',
 }
