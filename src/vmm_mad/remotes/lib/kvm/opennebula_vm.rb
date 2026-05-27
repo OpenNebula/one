@@ -606,12 +606,44 @@ module VirtualMachineManagerKVM
             cmd = "#{virsh} dumpxml #{domain}"
 
             out, _err, _rc = Open3.capture3(cmd)
+            array_exp      = str_exp.is_a?(Array)
 
-            return false if out.nil? || out.empty?
+            if out.nil? || out.empty?
+                return array_exp ? Array.new(str_exp.size, false) : false
+            end
 
-            regexp = Regexp.new(str_exp)
+            regexp = Array(str_exp).map do |exp|
+                exp.is_a?(Regexp) ? exp : Regexp.new(exp)
+            end
 
-            !out.match(regexp).nil?
+            matches = regexp.map {|exp| !out.match(exp).nil? }
+
+            array_exp ? matches : matches.first
+        end
+
+        def pci_address_regexp
+            xpath_prefix = "TEMPLATE/PCI[ATTACH='YES']/"
+
+            vm_addr = ['VM_DOMAIN', 'VM_BUS', 'VM_SLOT', 'VM_FUNCTION'].all? do |e|
+                @xml.exist?("#{xpath_prefix}#{e}")
+            end
+
+            return nil unless vm_addr
+
+            vm_domain   = hex_address_regexp(@xml["#{xpath_prefix}VM_DOMAIN"])
+            vm_bus      = hex_address_regexp(@xml["#{xpath_prefix}VM_BUS"])
+            vm_slot     = hex_address_regexp(@xml["#{xpath_prefix}VM_SLOT"])
+            vm_function = hex_address_regexp(@xml["#{xpath_prefix}VM_FUNCTION"])
+
+            [
+                '<address\b',
+                "(?=[^>]*\\btype=['\"]pci['\"])",
+                "(?=[^>]*\\bdomain=['\"]#{vm_domain}['\"])",
+                "(?=[^>]*\\bbus=['\"]#{vm_bus}['\"])",
+                "(?=[^>]*\\bslot=['\"]#{vm_slot}['\"])",
+                "(?=[^>]*\\bfunction=['\"]#{vm_function}['\"])",
+                '[^>]*>'
+            ].join
         end
 
         #-----------------------------------------------------------------------
@@ -701,6 +733,16 @@ module VirtualMachineManagerKVM
         end
 
         private
+
+        def hex_address_regexp(value)
+            value = value.to_s.strip.downcase
+            value = value[2..-1] if value.start_with?('0x')
+
+            int_val = value.to_i(16)
+            hex     = int_val.to_s(16)
+
+            int_val == 0 ? '0x0+' : "0x0*#{hex}"
+        end
 
         def vhost_socket_path(xpath_prefix)
             "#{VHOST_DIR}/#{@xml["#{xpath_prefix}TARGET"]}"
