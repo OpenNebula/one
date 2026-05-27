@@ -107,6 +107,13 @@ public:
         return !attr->vector_value("IPAM_MAD").empty() && attr->vector_value("IPAM_MAD") != "internal";
     }
 
+    bool is_reservation() const
+    {
+        int parent_id;
+
+        return get_attribute("PARENT_NETWORK_AR_ID", parent_id) == 0;
+    }
+
     // *************************************************************************
     // Address Range initialization functions
     // *************************************************************************
@@ -446,8 +453,9 @@ public:
      *                   |          MAC_GLOBAL_BITS         |
      *                   +----------------------------------+
      */
-    static constexpr int MAC_GLOBAL_BITS = 20;
+    static constexpr int MAC_GLOBAL_BITS = 20; // assumes equal to HOST ID bits
     static constexpr int MAC_GLOBAL_SIZE = 1u << MAC_GLOBAL_BITS;
+    static constexpr int MAC_GLOBAL_HOST_MASK = MAC_GLOBAL_SIZE - 1;
 
 protected:
     /**
@@ -642,9 +650,9 @@ private:
     /* MAC global address space helper functions                              */
     /* ---------------------------------------------------------------------- */
     /**
-     * Returns the id coded in a global MAC
+     * Returns the id coded in a global MAC, -1 if not used
      */
-    unsigned int gmac_id() const;
+    int gmac_id() const;
 
     /**
      * Initializes the MAC address for the AR in the global MAC address space

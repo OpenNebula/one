@@ -567,8 +567,13 @@ int VirtualNetworkPool::allocate_mac_id(unsigned int preferred_id, unsigned int&
     return bitmap.update(vnpool->db);
 }
 
-void VirtualNetworkPool::release_mac_id(unsigned int id)
+void VirtualNetworkPool::release_mac_id(int id)
 {
+    if (id == -1)
+    {
+        return;
+    }
+
     auto vnpool = Nebula::instance().get_vnpool();
 
     if (!vnpool || !vnpool->_mac_global_space)

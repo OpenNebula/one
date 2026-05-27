@@ -392,7 +392,7 @@ public:
      *  Free a previously allocated Global MAC ID
      *    @param id the MAC ID to free
      */
-    static void release_mac_id(unsigned int id);
+    static void release_mac_id(int id);
 
     /**
      *  Reserves a specific Global MAC ID

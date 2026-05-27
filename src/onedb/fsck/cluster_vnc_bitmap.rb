@@ -51,8 +51,6 @@ module OneDBFsck
                 next
             end
 
-            puts map # todo delete this line
-
             if old_map != map
                 log_error("Cluster #{cluster_id} has not the proper " \
                           'reserved VNC ports')

@@ -231,7 +231,7 @@ int AddressRangePool::rm_ar(unsigned int ar_id, bool force, string& error_msg)
 
     ar_pool.erase(it);
 
-    if (VirtualNetworkPool::mac_global_space())
+    if (VirtualNetworkPool::mac_global_space() && !ar_ptr->is_reservation())
     {
         VirtualNetworkPool::release_mac_id(ar_ptr->gmac_id());
     }
@@ -270,12 +270,14 @@ int AddressRangePool::rm_ars(string& error_msg)
             }
         }
 
+        bool reservation = it->second->is_reservation();
+
         if (it->second->attr != 0)
         {
             delete ar_template.remove(it->second->attr);
         }
 
-        if (VirtualNetworkPool::mac_global_space())
+        if (VirtualNetworkPool::mac_global_space() && !reservation)
         {
             VirtualNetworkPool::release_mac_id(it->second->gmac_id());
         }

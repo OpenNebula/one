@@ -52,19 +52,19 @@ int AddressRangeInternal::get_range_addr(unsigned int& index,
 
         valid = true;
 
-        for (unsigned int j=0; j<rsize; j++, i++, next++)
+        for (unsigned int j=0; j<rsize; j++, i++, next = (next+1)%ar_size)
         {
-            if ( allocated.count(next) != 0 || i >= ar_size || next >= ar_size )
+            if ( allocated.count(next) != 0 || i >= ar_size )
             {
                 valid = false;
                 break;
             }
         }
 
-        if (valid == true)
+        if (valid)
         {
-            index = next - rsize;
-            next = next%ar_size;
+            index = (next + ar_size - rsize) % ar_size;
+            next  = next%ar_size;
             return 0;
         }
     }

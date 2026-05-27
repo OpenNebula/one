@@ -312,7 +312,18 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
     if ( vattr->vector_value("SIZE", size) != 0 )
     {
         error_msg = "Wrong SIZE for address range";
-        return -1;
+        goto error_gmac;
+    }
+
+    if (VirtualNetworkPool::mac_global_space() && !_shared)
+    {
+        const uint32_t available = MAC_GLOBAL_SIZE - (mac[0] & MAC_GLOBAL_HOST_MASK);
+
+        if (size > available)
+        {
+            error_msg = "SIZE exceeds maximum size for global MAC address space";
+            goto error_gmac;
+        }
     }
 
     /* ------------------------- Next Index -------------------------------- */
@@ -362,6 +373,14 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
     vattr->remove("PARENT_NETWORK");
 
     return 0;
+
+error_gmac:
+    if (VirtualNetworkPool::mac_global_space())
+    {
+        VirtualNetworkPool::release_mac_id(gmac_id());
+    }
+
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -375,9 +394,7 @@ int AddressRange::update_attributes(
         string&            error_msg)
 {
     /* --------------- Do not allow to modify a reservation ------- */
-
-    int pid;
-    bool is_reservation = (get_attribute("PARENT_NETWORK_AR_ID", pid) == 0);
+    bool reservation = is_reservation();
 
     if (keep_restricted && restricted_set)
     {
@@ -425,7 +442,7 @@ int AddressRange::update_attributes(
 
     vup->remove("PARENT_NETWORK_AR_ID");
 
-    if (is_reservation)
+    if (reservation)
     {
         vup->replace("PARENT_NETWORK_AR_ID",
                      attr->vector_value("PARENT_NETWORK_AR_ID"));
@@ -512,7 +529,7 @@ int AddressRange::update_attributes(
     }
     else if (vup->vector_value("SIZE", new_size) == 0)
     {
-        if (is_reservation && new_size != size)
+        if (reservation && new_size != size)
         {
             error_msg = "The SIZE of a reservation cannot be changed.";
             return -1;
@@ -2005,7 +2022,6 @@ const char * AddressRange::SG_RULE_ATTRIBUTES[] =
     "AR_ID",
     "TYPE",
     "SIZE",
-    "NEXT_INDEX",
     "MAC",
     "IP",
     "IP6"
@@ -2384,12 +2400,17 @@ void AddressRange::decrypt()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-unsigned int AddressRange::gmac_id() const
+int AddressRange::gmac_id() const
 {
     uint64_t mac64 = (static_cast<uint64_t>(mac[1]) << 32) |
                       static_cast<uint64_t>(mac[0]);
 
-    return static_cast<unsigned int>((mac64 >> 20) & 0xFFFFF);
+    if (_shared)
+    {
+        return -1;
+    }
+
+    return static_cast<int>((mac64 >> 20) & 0xFFFFF);
 }
 
 int AddressRange::gmac_init(int mac_prefix)
