@@ -18,7 +18,7 @@ require 'opennebula'
 
 class OpenNebulaDatastoreCollector
 
-    LABELS = %i[one_datastore_id]
+    LABELS = %i[one_datastore_id one_datastore_type one_datastore_name]
 
     # --------------------------------------------------------------------------
     # Datastore metrics
@@ -43,7 +43,7 @@ class OpenNebulaDatastoreCollector
         },
         'datastore_used_bytes' => {
             :type   => :gauge,
-            :docstr => 'Capacity being used in the dastore',
+            :docstr => 'Capacity being used in the datastore',
             :value  => ->(v) { Integer(v['USED_MB']) * 1024 * 1024 },
             :labels => LABELS
         },
@@ -92,7 +92,11 @@ class OpenNebulaDatastoreCollector
         @metrics['datastore_total'].set(dss.length)
 
         dss.each do |ds|
-            labels = { :one_datastore_id => Integer(ds['ID']) }
+            labels = {
+                :one_datastore_id   => Integer(ds['ID']),
+                :one_datastore_type => OpenNebula::Datastore::DATASTORE_TYPES[Integer(ds['TYPE'])] || 'UNKNOWN',
+                :one_datastore_name => ds['NAME']
+            }
 
             DATASTORE_METRICS.each do |name, conf|
                 next unless conf[:value]
