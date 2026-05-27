@@ -155,7 +155,7 @@ class OpenNebulaVMCollector
                 metric.set(value, :labels => labels)
             end
 
-            disks = vm.retrieve_elements('TEMPLATE/DISK/DISK_ID')
+            disks = vm.retrieve_elements('TEMPLATE/DISK/DISK_ID') || []
 
             @metrics['vm_disks'].set(disks.length, :labels => labels)
 
