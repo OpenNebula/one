@@ -35,7 +35,9 @@ class Sudoers
                 'ip tuntap *',
                 'nft',
                 '/var/tmp/one/vnm/tproxy',
-                'bridge'
+                'bridge',
+                'devlink',
+                'ethtool'
             ],
             :NETNS => [
                 'ip netns add *',
@@ -50,7 +52,7 @@ class Sudoers
                 'lvcreate', 'lvremove', 'lvs', 'vgdisplay', 'lvchange', 'lvscan', 'lvextend',
                 'dmsetup'
             ],
-            :OVS => ['ovs-ofctl', 'ovs-vsctl'],
+            :OVS => ['ovs-ofctl', 'ovs-vsctl', 'ovs-appctl'],
             :CEPH => ['rbd'],
             :HA => [
                 'systemctl start opennebula-flow',

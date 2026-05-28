@@ -31,7 +31,7 @@ module OpenNebula
             lines = if message.is_a?(Exception)
                         ["#{message.message}\n"] + message.backtrace.map {|l| "  #{l}\n" }
                     else
-                        message.lines
+                        message.to_s.lines
                     end
             STDERR.puts lines.map {|l| "#{severity}: #{File.basename $PROGRAM_NAME}: #{l}" }.join
         end

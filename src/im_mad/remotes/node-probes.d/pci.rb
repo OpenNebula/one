@@ -135,13 +135,14 @@ end
 def get_interface_name(device)
     pci_addr = pci_address(device)
 
-    # Try manual renames (udev) first...
+    # Try manual renames (udev)
     if (name = UDEV_RENAMES[pci_addr])
         return name
     end
 
-    # ... then, cache
+    # Try cache file
     cache_file = File.join(NET_NAMES_CACHE_DIR, pci_addr)
+
     if File.exist?(cache_file)
         cached = File.read(cache_file).strip
         return cached unless cached.empty?
@@ -151,8 +152,34 @@ def get_interface_name(device)
     net_path = File.join(pci_bus_path(device), 'net')
     return '-' unless Dir.exist?(net_path)
 
-    iface_name = Dir.entries(net_path).reject {|e| e.start_with?('.') }.first
-    return '-' unless iface_name
+    iface_names = Dir.children(net_path)
+    return '-' if iface_names.empty?
+
+    # PF in switchdevmode logic
+    if iface_names.size > 1
+        pf_iface = nil
+
+        iface_names.find do |iface|
+            begin
+                # The PF usually has a phys_port_name like 'p0', 'p1', etc.
+                # whereas representors have 'pf0vf0', etc.
+                ppn_path = File.join(net_path, iface, 'phys_port_name')
+                ppn      = File.read(ppn_path).strip
+
+                if ppn.match(/^p\d+$/)
+                    pf_iface = iface
+                    break
+                end
+            rescue StandardError
+            end
+        end
+
+        return '-' unless pf_iface
+
+        iface_names[0] = pf_iface
+    end
+
+    iface_name = iface_names.first
 
     # Store in cache
     begin

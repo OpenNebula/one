@@ -151,9 +151,32 @@ module VNMMAD
                 self
             end
 
-            # rubocop:disable Naming/AccessorMethodName
+            # Return true if an interface is attached to a KVM domain.
             #
+            # Example domiflist output lines:
+            #  Interface    Type     Source     Model    MAC
+            # --------------------------------------------------------------
+            #  one-1095-0   bridge   vbr1       virtio   02:00:cd:c3:00:9e
+            #  one-1095-1   bridge   vbr1       virtio   02:00:cd:c3:00:9f
+            #  one-1095-2   bridge   onebr301   virtio   02:00:c0:a8:fe:02
+            def nic_attached?(interface, deploy_id)
+                o, e, rc = VNMNetwork::Command.run(:virsh, "domiflist #{deploy_id}")
+
+                return false unless rc.success?
+
+                interfaces = o.lines.map { |line| line.split[0] }.compact
+                interfaces.include?(interface)
+            end
+
+            # rubocop:disable Naming/AccessorMethodName
             def set_qos(deploy_id)
+                if !nic_attached?(self[:target], deploy_id)
+                    message = "Not setting QoS. NIC #{self[:target]} not in domain"
+                    OpenNebula::DriverLogger.log_warning(message)
+
+                    return
+                end
+
                 opts = "domiftune --live #{deploy_id} #{self[:target]} "
 
                 ['INBOUND', 'OUTBOUND'].each do |type|

@@ -39,7 +39,9 @@ module VNMMAD
             :nft           => 'sudo -n nft',
             :tproxy        => 'sudo -n /var/tmp/one/vnm/tproxy',
             :ip_netns_exec => 'sudo -nE /var/tmp/one/vnm/ip_netns_exec',
-            :bridge        => 'sudo -n bridge'
+            :bridge        => 'sudo -n bridge',
+            :devlink       => 'sudo -n devlink',
+            :ethtool       => 'sudo -n ethtool'
         }
 
         # Adjust :ip[6]tables commands to work with legacy versions.
