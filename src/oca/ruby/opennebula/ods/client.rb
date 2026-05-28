@@ -18,6 +18,7 @@ module OpenNebula
             DEFAULT_CONTENT_TYPE = 'application/json'
             DEFAULT_API_VERSION  = 'v1'
             DEFAULT_USER_AGENT   = 'Ruby OCA'
+            EVENT_DELIMITER      = /\r\n\r\n|\n\n|\r\r/
             POOLS                = {}
 
             DEFAULT_OPTIONS = [
@@ -91,6 +92,31 @@ module OpenNebula
                 request = Net::HTTP::Proxy(@host, @port)::Post.new(uri, default_headers)
                 request.body = body.is_a?(String) ? body : body.to_json
                 perform_request(uri, request)
+            end
+
+            def post_stream(path, body = {})
+                uri = build_uri(path)
+                request = Net::HTTP::Proxy(@host, @port)::Post.new(
+                    uri, default_headers.merge('Accept' => 'text/event-stream')
+                )
+                request.body = body.is_a?(String) ? body : body.to_json
+
+                Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https') do |http|
+                    http.request(request) do |response|
+                        unless response.is_a?(Net::HTTPSuccess)
+                            response_body = +''
+                            response.read_body {|chunk| response_body << chunk }
+
+                            raise stream_error(response, response_body)
+                        end
+
+                        parse_event_stream(response) do |event, data|
+                            yield event, data if block_given?
+                        end
+                    end
+                end
+
+                true
             end
 
             def put(path, body = {})
@@ -179,6 +205,66 @@ module OpenNebula
                     response = http.request(request)
                     handle_response(response)
                 end
+            end
+
+            def parse_event_stream(response)
+                buffer = +''
+
+                response.read_body do |chunk|
+                    buffer << chunk
+
+                    while (match = buffer.match(EVENT_DELIMITER))
+                        raw_event = buffer.slice!(0, match.end(0))
+                        event, data = parse_event(raw_event)
+
+                        yield event, data if event
+                    end
+                end
+
+                unless buffer.strip.empty?
+                    event, data = parse_event(buffer)
+                    yield event, data if event
+                end
+            end
+
+            def parse_event(raw_event)
+                event = 'message'
+                data  = +''
+
+                raw_event.each_line do |line|
+                    line = line.chomp
+                    next if line.empty? || line.start_with?(':')
+
+                    field, value = line.split(':', 2)
+                    value = value ? value.sub(/\A /, '') : ''
+
+                    case field
+                    when 'event'
+                        event = value
+                    when 'data'
+                        data << "\n" unless data.empty?
+                        data << value
+                    end
+                end
+
+                payload =
+                    if data.empty?
+                        {}
+                    else
+                        JSON.parse(data, :symbolize_names => true)
+                    end
+
+                [event, payload]
+            end
+
+            def stream_error(response, body)
+                json = JSON.parse(body, :symbolize_names => true)
+                err_code = json[:err_code] || response.code
+                message  = json[:message]  || body
+
+                "#{@app_name} Error (#{err_code}): #{message}"
+            rescue JSON::ParserError
+                "#{@app_name} Error (#{response.code}): #{body}"
             end
 
             def handle_response(response)
