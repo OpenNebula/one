@@ -539,3 +539,186 @@ class ODSHelper < OpenNebulaHelper::OneHelper
     end
 
 end
+
+# Print events progress
+class EventProgressPrinter
+
+    SPINNER = ['/', '-', '\\', '|']
+
+    STARTED = 'started'
+    SUCCESS = 'success'
+    FAILURE = 'failure'
+
+    def initialize(output: $stdout)
+        @output          = output
+        @spinner_index   = 0
+        @spinner_thread  = nil
+        @current_line    = nil
+        @transient_lines = 0
+        @mutex           = Mutex.new
+    end
+
+    def print_event(name, state, context = nil)
+        return if name.nil? || name.to_s.empty?
+
+        state = state.to_s
+
+        stop_spinner
+        clear_transient if interactive?
+
+        if state == STARTED
+            print_active_event(name, state, context)
+        else
+            print_event_line(name, state, context)
+        end
+    end
+
+    def close
+        stop_spinner
+        clear_transient if interactive?
+        show_cursor if interactive?
+    end
+
+    private
+
+    def print_active_event(name, state, context)
+        if context.nil? || (context.respond_to?(:empty?) && context.empty?)
+            start_spinner(name)
+            return
+        end
+
+        lines = print_event_line(name, state, context)
+        @transient_lines = lines if interactive?
+        start_spinner(name) if interactive?
+    end
+
+    def print_event_line(name, state, context = nil)
+        @output.puts "#{state_label(state)} #{name}"
+        1 + print_context(context, state_indent(state))
+    end
+
+    def start_spinner(name)
+        unless interactive?
+            @output.puts "#{state_label(STARTED)} #{name}"
+            return
+        end
+
+        stop_spinner
+        hide_cursor
+
+        @current_line = name
+
+        @spinner_thread = Thread.new do
+            loop do
+                @mutex.synchronize do
+                    @output.print "\r#{spinner_label} #{@current_line}"
+                    @output.flush
+                    @spinner_index = (@spinner_index + 1) % SPINNER.size
+                end
+
+                sleep 0.15
+            end
+        end
+    end
+
+    def stop_spinner
+        return unless @spinner_thread
+
+        @spinner_thread.kill
+        @spinner_thread.join
+        @spinner_thread = nil
+
+        clear_line if interactive?
+        show_cursor
+    end
+
+    def print_context(context, indent)
+        lines = 0
+
+        (context.is_a?(Array) ? context : [context]).each do |detail|
+            next if detail.nil?
+            next if detail.respond_to?(:empty?) && detail.empty?
+
+            detail.to_s.each_line do |line|
+                @output.puts "#{indent}#{line.chomp}"
+                lines += 1
+            end
+        end
+
+        lines
+    end
+
+    def clear_transient
+        return if @transient_lines.zero?
+
+        @output.print "\e[#{@transient_lines}F"
+        @output.print "\e[J"
+        @output.flush
+        @transient_lines = 0
+    end
+
+    def spinner_label
+        colorize("[#{SPINNER[@spinner_index]}]", CLIHelper::ANSI_YELLOW)
+    end
+
+    def state_label(state)
+        color =
+            if state == SUCCESS
+                CLIHelper::ANSI_GREEN
+            elsif state == FAILURE
+                CLIHelper::ANSI_RED
+            else
+                CLIHelper::ANSI_YELLOW
+            end
+
+        colorize(state_label_text(state), color)
+    end
+
+    def state_label_text(state)
+        if state == SUCCESS
+            '[OK]'
+        elsif state == FAILURE
+            '[FAIL]'
+        else
+            '[..]'
+        end
+    end
+
+    def state_indent(state)
+        ' ' * (state_label_text(state).length + 1)
+    end
+
+    def colorize(text, color)
+        return text unless interactive?
+
+        "#{color}#{text}#{CLIHelper::ANSI_RESET}"
+    end
+
+    def clear_line
+        @output.print "\r"
+        @output.print ' ' * terminal_width
+        @output.print "\r"
+        @output.flush
+    end
+
+    def terminal_width
+        Integer(`tput cols 2>/dev/null`.strip)
+    rescue StandardError
+        120
+    end
+
+    def hide_cursor
+        @output.print "\e[?25l"
+        @output.flush
+    end
+
+    def show_cursor
+        @output.print "\e[?25h"
+        @output.flush
+    end
+
+    def interactive?
+        @output.tty?
+    end
+
+end

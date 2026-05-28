@@ -98,6 +98,83 @@ module OpenNebula
                     true
                 end
 
+                def self.exec(client, vm_id, cmd, opts = {})
+                    stdin   = opts.fetch(:stdin, '')
+                    timeout = opts.fetch(:timeout, 60)
+
+                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, client)
+                    return vm if OpenNebula.is_error?(vm)
+
+                    rc = vm.exec(cmd, stdin)
+
+                    return OpenNebula::Error.new(
+                        "Command failed on VM #{vm_id}: #{rc.message}",
+                        OpenNebula::Error::EACTION
+                    ) if OpenNebula.is_error?(rc)
+
+                    wait_exec(vm, cmd, timeout)
+                rescue StandardError => e
+                    OpenNebula::Error.new(
+                        "Error executing command on VM #{vm_id}: #{e.message}",
+                        OpenNebula::Error::EACTION
+                    )
+                end
+
+                def self.wait_exec(vm, cmd, timeout)
+                    Timeout.timeout(timeout) do
+                        loop do
+                            rc = vm.info(true)
+                            return rc if OpenNebula.is_error?(rc)
+
+                            qemu_exec = vm.to_hash.dig('VM', 'TEMPLATE', 'QEMU_GA_EXEC') || {}
+                            next sleep(1) unless qemu_exec['COMMAND'] == cmd
+
+                            result = exec_result(qemu_exec)
+
+                            case result[:status]
+                            when 'DONE'
+                                return result if result[:return_code] == 0
+
+                                msg = result[:stderr]
+                                msg = result[:stdout] if msg.empty?
+                                msg = "Command returned code #{result[:return_code]}" if msg.empty?
+
+                                return OpenNebula::Error.new(msg, OpenNebula::Error::EACTION)
+                            when 'ERROR'
+                                msg = result[:stderr]
+                                msg = result[:stdout] if msg.empty?
+                                msg = 'Unknown guest execution error' if msg.empty?
+
+                                return OpenNebula::Error.new(msg, OpenNebula::Error::EACTION)
+                            when 'CANCELLED'
+                                msg = result[:stderr]
+                                msg = result[:stdout] if msg.empty?
+                                msg = "Command cancelled on VM #{vm.id}" if msg.empty?
+
+                                return OpenNebula::Error.new(msg, OpenNebula::Error::EACTION)
+                            end
+
+                            sleep 1
+                        end
+                    end
+                rescue Timeout::Error
+                    OpenNebula::Error.new(
+                        "Timeout waiting for command on VM #{vm.id}",
+                        OpenNebula::Error::EACTION
+                    )
+                end
+
+                def self.exec_result(qemu_exec)
+                    {
+                        :status      => qemu_exec['STATUS'],
+                        :return_code => qemu_exec['RETURN_CODE'].to_i,
+                        :stdout      => Base64.decode64(qemu_exec['STDOUT'].to_s).strip,
+                        :stderr      => Base64.decode64(qemu_exec['STDERR'].to_s).strip
+                    }
+                end
+
+                private_class_method :wait_exec, :exec_result
+
             end
 
         end

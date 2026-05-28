@@ -23,6 +23,9 @@ module OpenNebula
 
             COMP = 'SRV'
 
+            class StreamClosed < StandardError
+            end
+
             #----------------------------------------------------------------------------
             # Error response processing
             #----------------------------------------------------------------------------
@@ -103,6 +106,153 @@ module OpenNebula
             # --------------------------------------------------------------------------
             # Response processing
             # --------------------------------------------------------------------------
+            class EventStream
+
+                STARTED = 'started'
+                SUCCESS = 'success'
+                FAILURE = 'failure'
+
+                def initialize(out, event_name: 'event')
+                    @out        = out
+                    @event_name = event_name
+                    @closed     = false
+                end
+
+                # Emit a Server-Sent Event to the stream
+                #
+                # @param event [String, Symbol] SSE event name
+                # @param payload [Hash] JSON payload sent as event data
+                #
+                # @return [Boolean] true if written, false if the stream is closed
+                def emit(event, payload = {})
+                    return false if @closed
+
+                    @out << "event: #{event}\n"
+                    @out << "data: #{payload.to_json}\n\n"
+
+                    true
+                rescue IOError, Errno::EPIPE, Puma::ConnectionError
+                    @closed = true
+                    false
+                end
+
+                # Emit a progress notification using the default event name
+                #
+                # @param name [String, Symbol] Operation or step name
+                # @param state [String, Symbol] Current state of the operation
+                # @param context [Object, nil] Extra notification context
+                # @param opts [Hash] Stream options
+                # @option opts [Boolean] :abort_on_close (true) raise when the
+                #   stream is already closed
+                #
+                # @return [Boolean] true if written, false if the stream is closed
+                def progress(name, state, context = nil, **opts)
+                    payload = { :name => name, :state => state.to_s }
+                    payload[:context] = context unless context.nil?
+
+                    written = emit(@event_name, payload)
+                    raise StreamClosed if opts.fetch(:abort_on_close, true) && !written
+
+                    written
+                end
+
+                def call(event, payload = {})
+                    emit(event, payload)
+                end
+
+                def to_proc
+                    proc {|event, payload| emit(event, payload) }
+                end
+
+                def close
+                    @out.close
+                rescue IOError
+                    nil
+                end
+
+            end
+
+            # Streams Server-Sent Events (SSE) to the HTTP client.
+            #
+            # The block receives an EventStream object. Call `emit` to write a
+            # raw SSE event, or `progress` to write a named state update using
+            # the configured event_name:
+            #
+            #   stream_events(:event_name => 'task') do |events|
+            #       events.progress('Create resource', 'started')
+            #       service.run(events)
+            #   end
+            #
+            # @param opts [Hash] stream configuration
+            # @option opts [String] :error_event ('error') event emitted when the
+            #   block raises an exception and no error_handler is provided
+            # @option opts [Hash, nil] :error_payload payload emitted with
+            #   error_event; defaults to { :success => false, :error => message }
+            # @option opts [#call, nil] :error_handler custom error handler called
+            #   as error_handler.call(events, exception)
+            # @option opts [String] :event_name ('event') default event name used
+            #   by EventStream#progress
+            # @option opts [String, nil] :close_event event emitted before closing
+            #   the stream
+            # @option opts [Hash, nil] :close_payload payload emitted with
+            #   close_event; defaults to an empty Hash
+            # @option opts [Hash] :headers ({}) extra response headers merged with
+            #   the SSE defaults
+            # @option opts [Integer] :status_code (200) HTTP status code
+            # @yieldparam events [EventStream] object used to emit SSE events
+            # @return [Object] Sinatra streaming response
+            def stream_events(opts = {})
+                event_name    = opts.fetch(:event_name, 'event')
+                headers       = opts.fetch(:headers, {})
+                status_code   = opts.fetch(:status_code, 200)
+                error_event   = opts.fetch(:error_event, 'error')
+                error_payload = opts[:error_payload]
+                error_handler = opts[:error_handler]
+                close_event   = opts[:close_event]
+                close_payload = opts[:close_payload] || {}
+
+                status status_code
+                content_type 'text/event-stream'
+
+                headers(
+                    {
+                        'Cache-Control'     => 'no-cache',
+                        'Connection'        => 'keep-alive',
+                        'X-Accel-Buffering' => 'no'
+                    }.merge(headers)
+                )
+
+                stream do |out|
+                    events = EventStream.new(out, :event_name => event_name)
+
+                    begin
+                        yield events
+                    rescue IOError, Errno::EPIPE, StreamClosed
+                        nil
+                    rescue StandardError => e
+                        if error_handler
+                            error_handler.call(events, e)
+                        else
+                            events.emit(
+                                error_event,
+                                error_payload || {
+                                    :success => false,
+                                    :error   => e.message
+                                }
+                            )
+                        end
+                    ensure
+                        begin
+                            events.emit(close_event, close_payload) if close_event
+                        rescue IOError, Errno::EPIPE
+                            nil
+                        ensure
+                            events.close
+                        end
+                    end
+                end
+            end
+
             def process_response(response)
                 content_type = request.env['CONTENT_TYPE'] || 'application/json'
 
