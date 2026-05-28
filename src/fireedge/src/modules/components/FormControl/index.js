@@ -17,6 +17,7 @@ import AutocompleteController from '@modules/components/FormControl/Autocomplete
 import CheckboxController from '@modules/components/FormControl/CheckboxController'
 import FileController from '@modules/components/FormControl/FileController'
 import InformationUnitController from '@modules/components/FormControl/InformationUnitController'
+import InformationUnitControllerKB from '@modules/components/FormControl/InformationUnitControllerKB'
 import PasswordController from '@modules/components/FormControl/PasswordController'
 import RadioController from '@modules/components/FormControl/RadioController'
 import SelectController from '@modules/components/FormControl/SelectController'
@@ -43,6 +44,7 @@ export {
   ErrorHelper,
   FileController,
   InformationUnitController,
+  InformationUnitControllerKB,
   InputCode,
   PasswordController,
   RadioController,

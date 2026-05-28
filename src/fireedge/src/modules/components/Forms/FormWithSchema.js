@@ -62,6 +62,7 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.TOGGLE]: FC.ToggleController,
   [INPUT_TYPES.DOCKERFILE]: FC.DockerfileController,
   [INPUT_TYPES.UNITS]: FC.InformationUnitController,
+  [INPUT_TYPES.UNITSKB]: FC.InformationUnitControllerKB,
   [INPUT_TYPES.TYPOGRAPHY]: FC.TypographyController,
   [INPUT_TYPES.RADIO]: FC.RadioController,
 }

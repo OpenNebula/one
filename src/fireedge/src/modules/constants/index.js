@@ -152,6 +152,7 @@ export const INPUT_TYPES = {
   TOGGLE: 'toggle',
   DOCKERFILE: 'dockerfile',
   UNITS: 'units',
+  UNITSKB: 'units-kb',
   LABEL: 'label',
   TYPOGRAPHY: 'typography',
   RADIO: 'radio',

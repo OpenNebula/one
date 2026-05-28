@@ -1505,6 +1505,15 @@ module.exports = {
     Number of iothreads for virtio disks.
     By default threads will be assign to disk by round robin algorithm.
     Disk thread id can be forced by disk IOTHREAD attribute`,
+  Gic: 'GIC',
+  Ras: 'RAS',
+  PciHole64: 'PCIHole64',
+  PciHole64Concept:
+    'defines MMIO space for GPU support, GB200 needs aprox 4T (4294967296 KiB)',
+  MigrateAutoConvergeInitial: 'Migrate auto converge initial ',
+  MigrateAutoConvergeIncrement: 'Migrate auto converge increment',
+  MigrateCompressed: 'Migrate Compressed',
+  /* VM Template schema - OS & CPU - raw */
   Raw: 'Raw',
   RawData: 'Raw data',
   RawDataConcept:

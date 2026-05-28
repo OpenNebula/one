@@ -135,13 +135,30 @@ export function CreateVmTemplate() {
 
   const formattedTemplate = formatNics?.length
     ? {
-        ...apiTemplateDataExtended,
+        ...structuredClone(apiTemplateDataExtended),
         TEMPLATE: {
-          ...apiTemplateDataExtended?.TEMPLATE,
+          ...structuredClone(apiTemplateDataExtended?.TEMPLATE),
           PCI: formatNics,
         },
       }
     : apiTemplateDataExtended
+    ? structuredClone(apiTemplateDataExtended)
+    : apiTemplateDataExtended
+
+  if (formattedTemplate?.TEMPLATE?.FEATURES?.MIGRATE_AUTO_CONVERGE) {
+    const [MIGRATE_AUTO_CONVERGE_INITIAL, MIGRATE_AUTO_CONVERGE_INCREMENT] =
+      formattedTemplate.TEMPLATE.FEATURES.MIGRATE_AUTO_CONVERGE.split(',').map(
+        (value) => (isNaN(value) ? value : Number(value))
+      )
+
+    formattedTemplate.TEMPLATE.FEATURES.MIGRATE_AUTO_CONVERGE_INITIAL =
+      MIGRATE_AUTO_CONVERGE_INITIAL
+
+    formattedTemplate.TEMPLATE.FEATURES.MIGRATE_AUTO_CONVERGE_INCREMENT =
+      MIGRATE_AUTO_CONVERGE_INCREMENT
+
+    delete formattedTemplate.TEMPLATE.FEATURES.MIGRATE_AUTO_CONVERGE
+  }
 
   const onSubmit = async (rawTemplate) => {
     try {
@@ -149,7 +166,35 @@ export function CreateVmTemplate() {
       const currentState = store.getState()
       const osProfile = rawTemplate?.general?.OS_PROFILE
       const startScript64 = rawTemplate?.extra?.CONTEXT?.START_SCRIPT_BASE64
-      let modifiedFields = currentState.general?.modifiedFields
+      let modifiedFields = structuredClone(currentState.general?.modifiedFields)
+
+      if (rawTemplate?.extra?.FEATURES?.MIGRATE_AUTO_CONVERGE_INITIAL) {
+        rawTemplate.extra.FEATURES.MIGRATE_AUTO_CONVERGE = `${
+          rawTemplate?.extra?.FEATURES?.MIGRATE_AUTO_CONVERGE_INITIAL
+        }${
+          rawTemplate?.extra?.FEATURES?.MIGRATE_AUTO_CONVERGE_INCREMENT
+            ? `,${rawTemplate.extra.FEATURES.MIGRATE_AUTO_CONVERGE_INCREMENT}`
+            : ''
+        }`
+
+        if (
+          modifiedFields?.extra?.OsCpu?.FEATURES
+            ?.MIGRATE_AUTO_CONVERGE_INITIAL ||
+          modifiedFields?.extra?.OsCpu?.FEATURES
+            ?.MIGRATE_AUTO_CONVERGE_INCREMENT
+        ) {
+          modifiedFields.extra.OsCpu.FEATURES.MIGRATE_AUTO_CONVERGE = true
+          delete modifiedFields.extra.OsCpu.FEATURES
+            .MIGRATE_AUTO_CONVERGE_INITIAL
+          delete modifiedFields.extra.OsCpu.FEATURES
+            .MIGRATE_AUTO_CONVERGE_INCREMENT
+        }
+      }
+
+      rawTemplate?.extra?.FEATURES?.MIGRATE_AUTO_CONVERGE_INITIAL &&
+        delete rawTemplate.extra.FEATURES.MIGRATE_AUTO_CONVERGE_INITIAL
+      rawTemplate?.extra?.FEATURES?.MIGRATE_AUTO_CONVERGE_INCREMENT &&
+        delete rawTemplate.extra.FEATURES.MIGRATE_AUTO_CONVERGE_INCREMENT
 
       // This loads the OS profile and marks all fields of it as modified so they wont be filtered out
       if (osProfile && osProfile !== '-') {
