@@ -170,6 +170,27 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         0
     end
 
+    def activate_vf(vm)
+        super(vm)
+
+        lock
+        begin
+            @bridges = list_bridges
+
+            vm.each_pci do |pci|
+                nic_confs(pci)
+
+                next unless pci[:vf_index]
+
+                configure_vf_port(pci)
+            end
+        ensure
+            unlock
+        end
+
+        0
+    end
+
     def deactivate
         # NIC_ALIAS are  not processed, skip
         return 0 if @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
@@ -240,7 +261,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                 # Get the name of the link vlan device.
                 gen_vlan_dev_name
 
-                if changes[:vlan_id] && !@nic[:vlan_id].nil? && !@nic[:vlan_id].empty?
+                if changes.key?(:vlan_id)
                     tag_vlan
                 end
 
@@ -250,7 +271,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                     run cmd
                 end
 
-                if changes[:vlan_tagged_id] || changes[:vlan_id]
+                if changes[:vlan_tagged_id] || changes.key?(:vlan_id)
                     tag_trunk_vlans
                 end
 
@@ -312,15 +333,53 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         0
     end
 
+    def update_vf(vm, vn_id)
+        super(vm, vn_id)
+
+        changes = @vm.changes.select do |k, _|
+            [:vlan_id, :vlan_tagged_id, :cvlans, :qinq_type].include?(k)
+        end
+
+        return 0 if changes.empty?
+
+        lock
+        begin
+            @bridges = list_bridges
+
+            vm.each_pci do |pci|
+                nic_confs(pci)
+
+                next unless Integer(pci[:network_id]) == vn_id
+
+                configure_vf(pci)
+                configure_vf_port(pci)
+            end
+        ensure
+            unlock
+        end
+
+        0
+    end
+
     def tag_vlan
+        tag = if @nic[:vlan_id].nil? || @nic[:vlan_id]&.empty?
+            '[]'
+        else
+            @nic[:vlan_id]
+        end
+
         cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
-        cmd << "tag=#{@nic[:vlan_id]}"
+        cmd << "tag=#{tag}"
 
         run cmd
     end
 
     def tag_trunk_vlans
-        return unless @nic.vlan_trunk?
+        trunks = if @nic[:vlan_tagged_id].nil? || @nic[:vlan_tagged_id]&.empty?
+            '[]' # allow all vlan traffic
+        else
+            @nic.vlan_trunk_to_s
+        end
 
         vlan_mode = if @nic[:vlan_id].nil? || @nic[:vlan_id].empty?
                         'trunk'
@@ -330,11 +389,12 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
         ovs_vsctl_cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]}"
 
+
         # Open vSwitch 2.7.0+ allows range intervals (x-y), but
         # we need to support even older versions. We expand the
         # intervals into the list of values [x,x+1,...,y-1,y],
         # which should work for all.
-        cmd = "#{ovs_vsctl_cmd} trunks='#{@nic.vlan_trunk_to_s}'"
+        cmd = "#{ovs_vsctl_cmd} trunks='#{trunks}'"
         run cmd
 
         cmd = "#{ovs_vsctl_cmd} vlan_mode=#{vlan_mode}"
@@ -515,6 +575,29 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     # rubocop:enable Style/FormatStringToken
 
     private
+
+    def configure_vf_port(pci_nic)
+        ports = [:tap, :phydev]
+
+        ports.each { |port| return if pci_nic[port].nil? || pci_nic[port].empty? }
+
+        message = "Configuring port representor #{pci_nic[:tap]}"
+        OpenNebula::DriverLogger.log_info(message)
+
+        @nic = pci_nic
+
+        create_bridge
+
+        # make sure pf and representors are always added
+        ports.each {|port| add_bridge_port(@nic[port])}
+
+        if !@nic[:vlan_id].nil? && !@nic[:cvlans].nil?
+            tag_qinq
+        else
+            tag_vlan
+        end
+        tag_trunk_vlans
+    end
 
     # Generate the name of the vlan device which will be added to the bridge.
     def gen_vlan_dev_name

@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'pathname'
+
 # rubocop:disable Style/ClassAndModuleChildren
 ###########################################################################
 # Module to use as mixin for configuring VFs
@@ -73,26 +75,11 @@ module VNMMAD::VirtualFunction
             next if pci[:short_address].nil?
             next if is_attach && pci[:attach] != 'YES'
 
-            out = find_vfs
-
-            next if out.nil? || out.empty?
-
-            regexp = Regexp.new("#{pci[:short_address]}$")
-
-            out.each_line do |line|
-                next unless line.match(regexp)
-
-                pf_dev, vf = find_pf_dev(line)
-
-                next if pf_dev.nil?
-
-                cmd = "#{command(:ip)} link set #{pf_dev} vf #{vf}"
-                cmd << set_ip_links(pci)
-
-                LocalCommand.run_sh(cmd)
-            end
+            configure_vf(pci)
         end
         # rubocop:enable Style/CombinableLoops
+        # There is no deactivate_vf
+        # vf and representors are left dirty until next (re)activation
     end
 
     def update_vf(vm, vnet_id)
@@ -105,27 +92,40 @@ module VNMMAD::VirtualFunction
         vm.each_pci do |pci|
             next unless Integer(pci[:network_id]) == vnet_id
 
-            out = find_vfs
-
-            next if out.nil? || out.empty?
-
-            regexp = Regexp.new("#{pci[:short_address]}$")
-
-            out.each_line do |line|
-                next unless line.match(regexp)
-
-                pf_dev, vf = find_pf_dev(line)
-
-                next if pf_dev.nil?
-
-                cmd = "#{command(:ip)} link set #{pf_dev} vf #{vf}"
-                cmd << set_ip_links(pci)
-
-                LocalCommand.run_sh(cmd)
-            end
+            configure_vf(pci)
         end
 
         0
+    end
+
+    def configure_vf(pci)
+        out = find_vfs
+
+        return if out.nil? || out.empty?
+
+        regexp = Regexp.new("#{pci[:short_address]}$")
+
+        out.each_line do |line|
+            next unless line.match(regexp)
+
+            vf = vf_info(line)
+
+            next if vf.nil? || vf[:pf].nil?
+
+            [vf[:pf], vf[:rep]].each do |nic|
+                LocalCommand.run_sh("#{command(:ip)} link set #{nic} up")
+                LocalCommand.run_sh("#{command(:ethtool)} -K #{nic} hw-tc-offload on")
+            end if vf[:rep]
+
+            configure_pf_link(vf, pci)
+
+            pci[:target]   = vf[:rep]
+            pci[:phydev]   = vf[:pf]
+            pci[:tap]      = vf[:rep]
+            pci[:vf_index] = vf[:index]
+
+            break
+        end
     end
 
     private
@@ -150,49 +150,115 @@ module VNMMAD::VirtualFunction
         out
     end
 
+    #
     # Look for the associated PF device to use it as argument for ip command
     #
-    # @return [string, string] the PF device and associated VF number
-    #
     # Matched line (argument) is in the form:
-    # virtfn /sys/devices/pci0000:80/0000:80:03.2/0000:85:00.0/virtfn3
-    # _vf    /sys/devices/pci0000:80/0000:80:03.2/0000:85:02.3
-    def find_pf_dev(line)
-        virtfn, _vf = line.split('#')
+    # virtfn       /sys/devices/pci0000:80/0000:80:03.2/0000:85:00.0/virtfn3
+    # _vf_pci_path /sys/devices/pci0000:80/0000:80:03.2/0000:85:02.3
+    #
+    # Virtual Function representor are identify by the phys_port_name:
+    #     - cat pf810/phys_port_name
+    #       p0
+    #     - cat eth0/phys_port_name
+    #       pf0vf0
+    #     - cat eth1/phys_port_name
+    #       pf0vf1
+    # @return [Hash] :pf,:index,:rep
+    #
+    def vf_info(line)
+        virtfn, _vf_pci_path = line.split('#')
 
         m = virtfn.match(/virtfn([0-9]+)/)
+        return if m.nil?
 
-        return nil, nil if m.nil?
+        vf = {
+            :index => m[1]
+        }
 
-        pf_dev, _err, _rc = Open3.capture3("ls #{File.dirname(virtfn)}/net")
+        netdir = "#{File.dirname(virtfn)}/net"
+        return vf unless Dir.exist?(netdir)
 
-        return nil, nil if pf_dev.nil? || pf_dev.empty?
+        nics = Dir.children(netdir)
+        return vf if nics.empty? || nics.length == 1
 
-        pf_dev.strip!
+        nics.each do |nic|
+            break if vf[:rep] && vf[:pf]
 
-        [pf_dev, m[1]]
+            begin
+                portname = File.read("#{netdir}/#{nic}/phys_port_name").strip
+
+                if portname.match(/pf\d+vf#{vf[:index]}$/) || portname == "vf#{vf[:index]}"
+                    vf[:rep] = nic
+                elsif portname.match(/p\d/)
+                    vf[:pf]  = nic
+                end
+            rescue StandardError
+                # phys_port_name on VFs throws "Operation not supported"
+                next
+            end
+        end
+
+        vf
     end
 
-    # Generate ip link attributes for the VF
-    # rubocop:disable Naming/AccessorMethodName
-    def set_ip_links(pci)
-        cmd = ''
+    def get_eswitch_mode(pci_addr)
+        cmd = "#{command(:devlink)} dev eswitch show pci/#{pci_addr}"
+        o, e, rc = Open3.capture3(cmd)
 
-        # if no vlan id is set use 0 to reset it
-        vlan_id = if pci[:vlan_id]
-                      pci[:vlan_id]
-                  else
-                      0
-                  end
+        if rc != 0
+            message = "Could not get eswitch mode of device #{pci_addr}\n#{e}"
+            OpenNebula::DriverLogger.log_debug(cmd)
+            OpenNebula::DriverLogger.log_error(message)
+        end
 
-        cmd << " vlan #{vlan_id}"
+        # intel_switchdev = "pci/0000:16:00.0: mode switchdev"
+        # intel_legacy =    "pci/0000:16:00.1: mode legacy"
+        # intel_dumb =      "pci/0000:42:00.0:"
+
+        o.split(' ')[2]
+    end
+
+    def switchdev?(pf_nic)
+        pci_dir = nic_pci_dir(pf_nic)
+        return false if pci_dir.nil?
+
+        pci_addr = File.basename(pci_dir)
+        get_eswitch_mode(pci_addr) == 'switchdev'
+    end
+
+    def nic_pci_dir(nic_name)
+        path = Pathname.new("/sys/class/net/#{nic_name}/device")
+
+        return path.realpath.to_s if path.exist? && path.symlink?
+
+        nil
+    end
+
+    #
+    # Configure a virtual function using the physical function NIC
+    #
+    # @param [Hash] vf :pf,:index,:rep physical function ifname, vf index, representor
+    #
+    def configure_pf_link(vf, pci)
+        cmd = "#{command(:ip)} link set #{vf[:pf]} vf #{vf[:index]}"
         cmd << " mac #{pci[:mac]}" if pci[:mac]
-        cmd << " spoofchk #{on_off(pci[:spoofchk])}" if pci[:spoofchk]
-        cmd << " trust #{on_off(pci[:trust])}" if pci[:trust]
 
-        cmd
+        if !vf[:rep]
+            # if no vlan id is set use 0 to reset it
+            vlan_id = if pci[:vlan_id]
+                          pci[:vlan_id]
+                      else
+                          0
+                      end
+
+            cmd << " vlan #{vlan_id}"
+            cmd << " spoofchk #{on_off(pci[:spoofchk])}" if pci[:spoofchk]
+            cmd << " trust #{on_off(pci[:trust])}" if pci[:trust]
+        end
+
+        LocalCommand.run_sh(cmd)
     end
-    # rubocop:enable Naming/AccessorMethodName
 
 end
 # rubocop:enable Style/ClassAndModuleChildren
