@@ -331,6 +331,8 @@ int AddressRange::from_attr(VectorAttribute *vattr, bool reservation,
 
     next = 0;
 
+    vattr->replace("NEXT_INDEX", next);
+
     /* ------------------------- Security Groups ---------------------------- */
 
     value = vattr->vector_value("SECURITY_GROUPS");
@@ -361,8 +363,6 @@ int AddressRange::from_attr(VectorAttribute *vattr, bool reservation,
     vattr->replace("AR_ID", id);
 
     vattr->remove("ALLOCATED");
-
-    vattr->remove("NEXT_INDEX");
 
     vattr->remove("USED_LEASES");
 
