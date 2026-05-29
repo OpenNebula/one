@@ -611,7 +611,16 @@ class ExecDriver < VirtualMachineDriver
                 :driver     => :tm,
                 :action     => :tm_premigrate,
                 :parameters => pre.split,
-                :stdin      => action.data[:vm]
+                :stdin      => action.data[:vm],
+                :fail_actions => [
+                    {
+                        :driver     => :tm,
+                        :action     => :tm_failmigrate,
+                        :parameters => failed.split,
+                        :stdin      => action.data[:vm],
+                        :no_fail    => true
+                    }
+                ]
             },
             # Execute pre-boot networking setup on migrating host
             {
