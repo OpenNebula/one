@@ -605,6 +605,7 @@ module MAD
             vmdir  = dst.path.dirname
             script = <<~EOF
                 mkdir -p '#{vmdir}'
+                hostname -f > "#{vmdir}/.host" || :
                 rm -f '#{vmdir.parent}/.monitor'
                 #{@lv.activate_sh.strip}
                 ln -s '#{@lv.dev}' '#{dst.path}'
@@ -684,12 +685,9 @@ module MAD
         end
 
         def symlink(opts = {})
-            vmdir = @path.dirname
-
             script = <<~EOF
                 # Symlink LV mapper device to local disk path
-                mkdir -p '#{vmdir}'
-                rm -f '#{vmdir.parent}/.monitor'
+                #{vm.setup_vmdir_sh(true).strip}
                 ln -s '#{@lv.dev}' '#{@path}'
             EOF
 
@@ -733,6 +731,14 @@ module MAD
             raise e
         end
 
+        # Activate or deactivate associated LV. Also, create/delete the .host file if needed.
+        def activate_sh(activate = true, opts = {})
+            <<~EOF
+                #{@vm.setup_vmdir_sh(activate).strip}
+                #{@lv.activate_sh(activate, opts).strip}
+            EOF
+        end
+
         # TODO: freeze/thaw VM when live
         def snap_create(snap_id, opts = {})
             MAD.run(@host, lvmsync(@lv.snap_create_sh(snap_id, opts).strip),
@@ -755,7 +761,7 @@ module MAD
 
         include XmlWrapper
 
-        attr_reader :id, :host, :sdsid, :state, :state_str, :lcm_state, :lcm_state_str
+        attr_reader :id, :host, :sdsid, :state, :state_str, :lcm_state, :lcm_state_str, :path
 
         def self.get_from_id(id)
             onevm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
@@ -781,6 +787,8 @@ module MAD
 
             @lcm_state     = xml_text('LCM_STATE', true)
             @lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[@lcm_state.to_i]
+
+            @path = Pathname.new "/var/lib/one/datastores/#{@sdsid}/#{@id}"
         end
 
         def undeployed?
@@ -826,6 +834,21 @@ module MAD
             lvmds  = LVMDatastore.get_from_id(xml_text('TEMPLATE/DISK[TM_MAD="lvm"]/DATASTORE_ID'))
 
             @pool = ThinPool.new(lvmds.vgname, "#{lvname}-pool")
+        end
+
+        def activate_disks_sh(activate = true, opts = {})
+            disks.filter_map do |disk|
+                disk.activate_sh(activate, opts) if disk.is_a? MAD::LVMDisk
+            end.join
+        end
+
+        def setup_vmdir_sh(activate)
+            hostfile = "#{@path}/.host"
+            <<~EOF
+                mkdir -p '#{@path}'
+                #{activate ? "hostname -f > '#{hostfile}'" : "rm -f '#{hostfile}'"}
+                rm -f '#{@path.parent}/.monitor'
+            EOF
         end
 
         private
