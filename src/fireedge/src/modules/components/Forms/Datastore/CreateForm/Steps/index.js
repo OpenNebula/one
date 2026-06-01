@@ -54,6 +54,9 @@ function getDsAndTMMad({
     } else {
       tmMad = TM_MAD
     }
+  } else if (STORAGE_BACKEND === DS_STORAGE_BACKENDS.VIRTIOFS.value) {
+    dsMad = DS_STORAGE_BACKENDS.VIRTIOFS.value
+    tmMad = DS_STORAGE_BACKENDS.VIRTIOFS.value
   } else {
     const storageBackend = STORAGE_BACKEND.split('-')
     dsMad = storageBackend[0]
@@ -84,6 +87,9 @@ const Steps = createSteps(
           (entry) => entry.value === STORAGE_BACKEND
         )
           ? STORAGE_BACKEND
+          : dsTemplate?.DS_MAD === DS_STORAGE_BACKENDS.VIRTIOFS.value &&
+            dsTemplate?.TM_MAD === DS_STORAGE_BACKENDS.VIRTIOFS.value
+          ? DS_STORAGE_BACKENDS.VIRTIOFS.value
           : DS_STORAGE_BACKENDS.CUSTOM.value,
       }
 

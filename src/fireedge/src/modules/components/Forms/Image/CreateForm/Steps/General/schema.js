@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean, number, object, ObjectSchema, mixed } from 'yup'
+import { string, boolean, number, object, ObjectSchema, mixed, lazy } from 'yup'
 import {
   Field,
   arrayToOptions,
@@ -42,13 +42,38 @@ const IMAGE_LOCATION = {
   [IMAGE_LOCATION_TYPES.EMPTY]: T.EmptyDisk,
 }
 
-const htmlType = (opt, inputNumber) => (location) => {
-  if (location === opt && inputNumber) {
-    return 'number'
-  }
+/**
+ * @param {Array|string} opts - Allowed values to show the field
+ * @param {boolean} inputNumber - If the field is number or not
+ * @param {string} conditionType - Type of condition to check the values (AND, OR)
+ * @returns {function(string|Array): string} - Function to set the html type of the field
+ */
+export const htmlType =
+  (opts, inputNumber, conditionType = 'OR') =>
+  (location) => {
+    const currentValues = Array.isArray(location) ? location : [location]
 
-  return location !== opt && INPUT_TYPES.HIDDEN
-}
+    let hasMatch = false
+
+    if (conditionType.toUpperCase() === 'AND') {
+      hasMatch = currentValues.every((val, index) => {
+        const allowedForPosition = Array.isArray(opts[index])
+          ? opts[index]
+          : [opts[index]]
+
+        return allowedForPosition.includes(val)
+      })
+    } else {
+      const flatOpts = opts.flat()
+      hasMatch = currentValues.some((val) => flatOpts.includes(val))
+    }
+
+    if (hasMatch && inputNumber) {
+      return 'number'
+    }
+
+    return !hasMatch && INPUT_TYPES.HIDDEN
+  }
 
 /** @type {Field} name field */
 export const NAME = {
@@ -85,6 +110,8 @@ export const TYPE = {
           return T.Cdrom
         case IMAGE_TYPES_STR.DATABLOCK:
           return T.Datablock
+        case IMAGE_TYPES_STR.FILESYSTEM:
+          return T.Filesystem
         default:
           return upperCaseFirst(type.toLowerCase())
       }
@@ -110,29 +137,51 @@ export const PERSISTENT = {
 export const IMAGE_LOCATION_FIELD = {
   name: 'IMAGE_LOCATION',
   type: INPUT_TYPES.TOGGLE,
+  dependOf: TYPE.name,
+  htmlType: htmlType([
+    IMAGE_TYPES_STR.OS,
+    IMAGE_TYPES_STR.CDROM,
+    IMAGE_TYPES_STR.DATABLOCK,
+  ]),
   values: arrayToOptions(Object.entries(IMAGE_LOCATION), {
     addEmpty: false,
     getText: ([_, name]) => name,
     getValue: ([image]) => image,
   }),
-  validation: string()
-    .trim()
-    .required()
-    .default(() => IMAGE_LOCATION_TYPES.PATH),
+  validation: lazy((value, { context }) =>
+    string()
+      .trim()
+      .when(TYPE.name, (typeInput, schema) =>
+        typeInput === IMAGE_TYPES_STR.FILESYSTEM
+          ? schema.strip()
+          : schema.required()
+      )
+      .default(() =>
+        context.general.TYPE !== IMAGE_TYPES_STR.FILESYSTEM
+          ? IMAGE_LOCATION_TYPES.PATH
+          : undefined
+      )
+  ),
   grid: { md: 12 },
   notNull: true,
 }
+
 /** @type {Field} path field */
 export const PATH_FIELD = {
   name: 'PATH',
-  dependOf: IMAGE_LOCATION_FIELD.name,
-  htmlType: htmlType(IMAGE_LOCATION_TYPES.PATH),
+  dependOf: [IMAGE_LOCATION_FIELD.name, TYPE.name],
+  htmlType: htmlType([
+    [IMAGE_LOCATION_TYPES.PATH, undefined],
+    [IMAGE_TYPES_STR.FILESYSTEM],
+  ]),
   label: T.ImagePath,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
-    .when(IMAGE_LOCATION_FIELD.name, {
-      is: (location) => location === IMAGE_LOCATION_TYPES.PATH,
+    .when([IMAGE_LOCATION_FIELD.name, TYPE.name], {
+      is: (location, type) =>
+        location === IMAGE_LOCATION_TYPES.PATH ||
+        type === IMAGE_TYPES_STR.FILESYSTEM,
       then: (schema) => schema.required(),
       otherwise: (schema) => schema.strip(),
     }),
@@ -142,12 +191,21 @@ export const PATH_FIELD = {
 /** @type {Field} upload field */
 export const UPLOAD_FIELD = {
   name: 'UPLOAD',
-  dependOf: IMAGE_LOCATION_FIELD.name,
-  htmlType: htmlType(IMAGE_LOCATION_TYPES.UPLOAD),
+  dependOf: [IMAGE_LOCATION_FIELD.name, TYPE.name],
+  htmlType: htmlType(
+    [
+      [IMAGE_LOCATION_TYPES.UPLOAD],
+      [IMAGE_TYPES_STR.OS, IMAGE_TYPES_STR.CDROM, IMAGE_TYPES_STR.DATABLOCK],
+    ],
+    false,
+    'AND'
+  ),
   label: T.Upload,
   type: INPUT_TYPES.FILE,
-  validation: mixed().when(IMAGE_LOCATION_FIELD.name, {
-    is: (location) => location === IMAGE_LOCATION_TYPES.UPLOAD,
+  validation: mixed().when([IMAGE_LOCATION_FIELD.name, TYPE.name], {
+    is: (location, type) =>
+      location === IMAGE_LOCATION_TYPES.UPLOAD &&
+      type !== IMAGE_TYPES_STR.FILESYSTEM,
     then: (schema) => schema.required(),
     otherwise: (schema) => schema.strip(),
   }),
@@ -157,16 +215,25 @@ export const UPLOAD_FIELD = {
 /** @type {Field} size field */
 export const SIZE = {
   name: 'SIZE',
-  dependOf: IMAGE_LOCATION_FIELD.name,
-  htmlType: htmlType(IMAGE_LOCATION_TYPES.EMPTY, true),
+  dependOf: [IMAGE_LOCATION_FIELD.name, TYPE.name],
+  htmlType: htmlType(
+    [
+      [IMAGE_LOCATION_TYPES.EMPTY],
+      [IMAGE_TYPES_STR.OS, IMAGE_TYPES_STR.CDROM, IMAGE_TYPES_STR.DATABLOCK],
+    ],
+    true,
+    'AND'
+  ),
   label: T.Size,
   type: INPUT_TYPES.TEXT,
   tooltip: T.ImageSizeUnit,
   validation: number()
     .positive()
     .default(() => undefined)
-    .when(IMAGE_LOCATION_FIELD.name, {
-      is: (location) => location === IMAGE_LOCATION_TYPES.EMPTY,
+    .when([IMAGE_LOCATION_FIELD.name, TYPE.name], {
+      is: (location, type) =>
+        location === IMAGE_LOCATION_TYPES.EMPTY &&
+        type !== IMAGE_TYPES_STR.FILESYSTEM,
       then: (schema) => schema.required(),
       otherwise: (schema) => schema.strip(),
     }),
@@ -179,8 +246,15 @@ export const SIZE = {
  */
 export const SIZEUNIT = {
   name: 'SIZEUNIT',
-  dependOf: IMAGE_LOCATION_FIELD.name,
-  htmlType: htmlType(IMAGE_LOCATION_TYPES.EMPTY, true),
+  dependOf: [IMAGE_LOCATION_FIELD.name, TYPE.name],
+  htmlType: htmlType(
+    [
+      [IMAGE_LOCATION_TYPES.EMPTY],
+      [IMAGE_TYPES_STR.OS, IMAGE_TYPES_STR.CDROM, IMAGE_TYPES_STR.DATABLOCK],
+    ],
+    true,
+    'AND'
+  ),
   label: T.SizeUnit,
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
@@ -190,9 +264,15 @@ export const SIZEUNIT = {
     getText: (type) => type,
     getValue: (type) => type,
   }),
-  validation: string()
-    .trim()
-    .default(() => UNITS.MB),
+  validation: lazy((value, { context }) =>
+    string()
+      .trim()
+      .default(() =>
+        context.general.TYPE !== IMAGE_TYPES_STR.FILESYSTEM
+          ? UNITS.MB
+          : undefined
+      )
+  ),
   grid: { xs: 12, md: 3 },
 }
 

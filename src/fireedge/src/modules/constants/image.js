@@ -64,6 +64,7 @@ export const IMAGE_TYPES_STR = {
   RAMDISK: 'RAMDISK',
   CONTEXT: 'CONTEXT',
   BACKUP: 'BACKUP',
+  FILESYSTEM: 'FILESYSTEM',
 }
 
 /** @type {IMAGE_TYPES_STR[]} Return the string representation of an Image type */
@@ -75,6 +76,7 @@ export const IMAGE_TYPES = [
   IMAGE_TYPES_STR.RAMDISK,
   IMAGE_TYPES_STR.CONTEXT,
   IMAGE_TYPES_STR.BACKUP,
+  IMAGE_TYPES_STR.FILESYSTEM,
 ]
 
 /** @type {IMAGE_TYPES_STR[]} Return the string representation of an Image type for tab files */
@@ -89,6 +91,7 @@ export const IMAGE_TYPES_FOR_IMAGES = [
   IMAGE_TYPES_STR.OS,
   IMAGE_TYPES_STR.CDROM,
   IMAGE_TYPES_STR.DATABLOCK,
+  IMAGE_TYPES_STR.FILESYSTEM,
 ]
 
 /** @type {IMAGE_TYPES_STR[]} Return the string representation of an Image type for tab files */

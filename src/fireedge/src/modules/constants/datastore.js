@@ -117,6 +117,7 @@ export const DS_STORAGE_BACKENDS = {
   NETAPP_SYS: { name: T.NETAPP, value: 'netapp' },
   NETAPP_IMG: { name: T.NETAPP, value: 'netapp-netapp' },
   CUSTOM: { name: T.Custom, value: 'custom' },
+  VIRTIOFS: { name: T.VirtioFS, value: 'virtiofs' },
 }
 
 export const DS_DISK_TYPES = {
@@ -151,6 +152,7 @@ export const DATASTORE_TYPES = {
       DS_STORAGE_BACKENDS.RAW,
       DS_STORAGE_BACKENDS.CUSTOM,
       DS_STORAGE_BACKENDS.NETAPP_IMG,
+      DS_STORAGE_BACKENDS.VIRTIOFS,
     ],
   },
   SYSTEM: {

@@ -16,7 +16,7 @@
 import { string, number, boolean } from 'yup'
 import { Field, arrayToOptions, OPTION_SORTERS } from '@UtilsModule'
 import { T, INPUT_TYPES } from '@ConstantsModule'
-import { isRestic, typeIsOneOf } from '../../functions'
+import { isRestic, typeIsOneOf, afterSubmitVirtioFs } from '../../functions'
 
 /** @type {Field} - Restic password field */
 const RESTIC_PASSWORD = {
@@ -188,7 +188,7 @@ const RESTIC_SPARSIFY = {
   dependOf: '$general.STORAGE_BACKEND',
   type: INPUT_TYPES.SWITCH,
   htmlType: (type) => !typeIsOneOf(type, [isRestic]) && INPUT_TYPES.HIDDEN,
-  validation: boolean().yesOrNo(),
+  validation: boolean().yesOrNo().afterSubmit(afterSubmitVirtioFs),
   grid: { xs: 12, md: 6 },
 }
 

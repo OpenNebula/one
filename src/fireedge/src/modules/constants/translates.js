@@ -2273,6 +2273,8 @@ module.exports = {
   IoThreadId: 'IOTHREAD id',
   Serial: 'Serial',
   SerialConcept: `This field represents a unique identifier for the image`,
+  MountPoint: 'Mount Point',
+  MountTag: 'Mount Tag',
   IoThreadIdConcept: `
     Iothread id used by this disk. Default is round robin.
     Can be used only if IOTHREADS > 0. If this input is disabled
@@ -2740,6 +2742,8 @@ module.exports = {
   RunBackground: 'Run in background',
 
   LearnMore: 'Learn more',
+
+  VirtioFS: 'VirtioFS',
 
   /* Kubernetes */
   Tags: 'Tags',

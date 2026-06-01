@@ -24,7 +24,7 @@ import {
   RSYNC_FIELDS,
   NETAPP_FIELDS,
 } from './Fields'
-import { isCustom, typeIsOneOf } from '../functions'
+import { isCustom, typeIsOneOf, isVirtioFs } from '../functions'
 
 const COMPATIBLE_SYSTEM_DATASTORES = {
   name: 'COMPATIBLE_SYSTEM_DATASTORES',
@@ -44,7 +44,7 @@ const COMPATIBLE_SYSTEM_DATASTORES = {
   },
   dependOf: ['$general.TYPE', '$general.STORAGE_BACKEND'],
   htmlType: ([type, storageBackend] = []) =>
-    (typeIsOneOf(storageBackend, [isCustom]) ||
+    (typeIsOneOf(storageBackend, [isCustom, isVirtioFs]) ||
       type !== DATASTORE_TYPES.IMAGE.value) &&
     INPUT_TYPES.HIDDEN,
   grid: { md: 12 },

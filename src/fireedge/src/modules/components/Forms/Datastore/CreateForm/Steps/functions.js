@@ -25,6 +25,14 @@ function isShared(type) {
 
 /**
  * @param {string} type - Datastore type
+ * @returns {boolean} - True if type is virtiofs
+ */
+function isVirtioFs(type) {
+  return type === DS_STORAGE_BACKENDS.VIRTIOFS.value
+}
+
+/**
+ * @param {string} type - Datastore type
  * @returns {boolean} - True if type is ssh
  */
 function isSsh(type) {
@@ -99,6 +107,21 @@ function typeIsOneOf(type, evaulatedTypes = []) {
   return evaulatedTypes.some((evaulatedType) => evaulatedType(type))
 }
 
+/**
+ * Aftersubmit function to set virtiofs as default value when STORAGE_BACKEND is virtiofs.
+ *
+ * @param {string} value - Current value
+ * @param {object} form - Form context
+ * @param {object} form.context - Nested context object
+ * @returns {string} - Value to set
+ */
+function afterSubmitVirtioFs(value, { context }) {
+  if (context?.general?.STORAGE_BACKEND === DS_STORAGE_BACKENDS.VIRTIOFS.value)
+    return undefined
+
+  return value
+}
+
 export {
   isShared,
   isSsh,
@@ -109,5 +132,7 @@ export {
   isRsync,
   isNetapp,
   isCustom,
+  isVirtioFs,
   typeIsOneOf,
+  afterSubmitVirtioFs,
 }

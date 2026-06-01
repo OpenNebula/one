@@ -17,7 +17,15 @@ import { DATASTORE_TYPES, INPUT_TYPES, T } from '@ConstantsModule'
 import { InputAdornment } from '@mui/material'
 import { Field, arrayToOptions } from '@UtilsModule'
 import { array, boolean, number, string } from 'yup'
-import { isCeph, isLvm, isShared, isSsh, typeIsOneOf } from '../../functions'
+import {
+  isCeph,
+  isLvm,
+  isShared,
+  isSsh,
+  typeIsOneOf,
+  isVirtioFs,
+  afterSubmitVirtioFs,
+} from '../../functions'
 import { HostAPI } from '@FeaturesModule'
 
 /** @type {Field} - Options field */
@@ -30,7 +38,8 @@ const RESTRICTED_DIRS = {
   validation: array(string().trim()).default(() => []),
   dependOf: '$general.STORAGE_BACKEND',
   htmlType: (type) =>
-    !typeIsOneOf(type, [isShared, isSsh, isCeph, isLvm]) && INPUT_TYPES.HIDDEN,
+    !typeIsOneOf(type, [isShared, isSsh, isCeph, isLvm, isVirtioFs]) &&
+    INPUT_TYPES.HIDDEN,
   fieldProps: {
     freeSolo: true,
   },
@@ -47,7 +56,8 @@ const SAFE_DIRS = {
   validation: array(string().trim()).default(() => []),
   dependOf: '$general.STORAGE_BACKEND',
   htmlType: (type) =>
-    !typeIsOneOf(type, [isShared, isSsh, isCeph, isLvm]) && INPUT_TYPES.HIDDEN,
+    !typeIsOneOf(type, [isShared, isSsh, isCeph, isLvm, isVirtioFs]) &&
+    INPUT_TYPES.HIDDEN,
   fieldProps: {
     freeSolo: true,
   },
@@ -118,7 +128,7 @@ const NO_DECOMPRESS = {
   name: 'NO_DECOMPRESS',
   label: T.DoNotTryToUntarOrDecompress,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().yesOrNo(),
+  validation: boolean().yesOrNo().afterSubmit(afterSubmitVirtioFs),
   dependOf: '$general.STORAGE_BACKEND',
   htmlType: (type) =>
     !typeIsOneOf(type, [isShared, isSsh, isCeph, isLvm]) && INPUT_TYPES.HIDDEN,
@@ -130,7 +140,7 @@ const DATASTORE_CAPACITY_CHECK = {
   name: 'DATASTORE_CAPACITY_CHECK',
   label: T.CheckDSCapacityBeforeCreatingImage,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().yesOrNo(),
+  validation: boolean().yesOrNo().afterSubmit(afterSubmitVirtioFs),
   dependOf: '$general.STORAGE_BACKEND',
   htmlType: (type) =>
     !typeIsOneOf(type, [isShared, isSsh, isCeph, isLvm]) && INPUT_TYPES.HIDDEN,
@@ -167,7 +177,7 @@ const QCOW2_STANDALONE = {
   label: T.StandaloneQcow2Clone,
   tooltip: T.StandaloneQcow2CloneConcept,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().yesOrNo(),
+  validation: boolean().yesOrNo().afterSubmit(afterSubmitVirtioFs),
   dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE'],
   htmlType: ([STORAGE_BACKEND, TYPE] = []) => {
     if (
@@ -195,7 +205,7 @@ const NFS_AUTO_ENABLE = {
       return INPUT_TYPES.HIDDEN
     }
   },
-  validation: boolean().yesOrNo(),
+  validation: boolean().yesOrNo().afterSubmit(afterSubmitVirtioFs),
   grid: { xs: 12, md: 6 },
 }
 

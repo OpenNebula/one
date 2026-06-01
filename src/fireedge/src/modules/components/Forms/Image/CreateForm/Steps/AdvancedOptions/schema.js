@@ -13,11 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { INPUT_TYPES, RESTRICTED_ATTRIBUTES_TYPE, T } from '@ConstantsModule'
+import {
+  INPUT_TYPES,
+  RESTRICTED_ATTRIBUTES_TYPE,
+  T,
+  IMAGE_TYPES_STR,
+} from '@ConstantsModule'
 import { SystemAPI } from '@FeaturesModule'
 import {
   IMAGE_LOCATION_FIELD,
   IMAGE_LOCATION_TYPES,
+  TYPE,
+  htmlType as generalHtmlType,
 } from '@modules/components/Forms/Image/CreateForm/Steps/General/schema'
 import {
   arrayToOptions,
@@ -40,19 +47,23 @@ const FORMAT_TYPES = {
   CUSTOM: 'custom',
 }
 
-const htmlType = (opt) => (value) => value !== opt && INPUT_TYPES.HIDDEN
-
 /** @type {Field} Bus field */
 export const DEV_PREFIX = {
   name: 'DEV_PREFIX',
   label: T.Bus,
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
+  dependOf: `$general.${TYPE.name}`,
   values: arrayToOptions(Object.entries(BUS_TYPES), {
     addEmpty: true,
     getText: ([_, name]) => name,
     getValue: ([key]) => key,
   }),
+  htmlType: generalHtmlType([
+    IMAGE_TYPES_STR.OS,
+    IMAGE_TYPES_STR.CDROM,
+    IMAGE_TYPES_STR.DATABLOCK,
+  ]),
   validation: string()
     .trim()
     .default(() => undefined)
@@ -69,8 +80,15 @@ export const DEV_PREFIX = {
 /** @type {Field} Dev Prefix field */
 export const CUSTOM_DEV_PREFIX = {
   name: 'CUSTOM_DEV_PREFIX',
-  dependOf: DEV_PREFIX.name,
-  htmlType: htmlType('custom'),
+  dependOf: [DEV_PREFIX.name, `$general.${TYPE.name}`],
+  htmlType: generalHtmlType(
+    [
+      ['custom'],
+      [IMAGE_TYPES_STR.OS, IMAGE_TYPES_STR.CDROM, IMAGE_TYPES_STR.DATABLOCK],
+    ],
+    false,
+    'AND'
+  ),
   label: T.CustomBus,
   type: INPUT_TYPES.TEXT,
   validation: string()
@@ -88,6 +106,12 @@ export const CUSTOM_DEV_PREFIX = {
 export const DEVICE = {
   name: 'DEVICE',
   label: T.TargetDevice,
+  dependOf: `$general.${TYPE.name}`,
+  htmlType: generalHtmlType([
+    IMAGE_TYPES_STR.OS,
+    IMAGE_TYPES_STR.CDROM,
+    IMAGE_TYPES_STR.DATABLOCK,
+  ]),
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -98,8 +122,15 @@ export const DEVICE = {
 /** @type {Field} Format field */
 export const FORMAT_FIELD = {
   name: 'FORMAT',
-  dependOf: `$general.${IMAGE_LOCATION_FIELD.name}`,
-  htmlType: htmlType(IMAGE_LOCATION_TYPES.EMPTY),
+  dependOf: [`$general.${IMAGE_LOCATION_FIELD.name}`, `$general.${TYPE.name}`],
+  htmlType: generalHtmlType(
+    [
+      [IMAGE_LOCATION_TYPES.EMPTY],
+      [IMAGE_TYPES_STR.OS, IMAGE_TYPES_STR.CDROM, IMAGE_TYPES_STR.DATABLOCK],
+    ],
+    false,
+    'AND'
+  ),
   label: T.Format,
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
@@ -123,10 +154,15 @@ export const FORMAT_FIELD = {
 /** @type {Field} Custom format field */
 export const CUSTOM_FORMAT = {
   name: 'CUSTOM_FORMAT',
-  dependOf: [`$general.${IMAGE_LOCATION_FIELD.name}`, FORMAT_FIELD.name],
-  htmlType: ([imageLocation, formatField] = []) =>
+  dependOf: [
+    `$general.${IMAGE_LOCATION_FIELD.name}`,
+    FORMAT_FIELD.name,
+    `$general.${TYPE.name}`,
+  ],
+  htmlType: ([imageLocation, formatField, type] = []) =>
     (imageLocation !== IMAGE_LOCATION_TYPES.EMPTY ||
       formatField !== FORMAT_TYPES.CUSTOM) &&
+    type === IMAGE_TYPES_STR.FILESYSTEM &&
     INPUT_TYPES.HIDDEN,
   label: T.CustomFormat,
   type: INPUT_TYPES.TEXT,
@@ -143,8 +179,15 @@ export const CUSTOM_FORMAT = {
 /** @type {Field} FS field */
 export const FS = {
   name: 'FS',
-  dependOf: `$general.${IMAGE_LOCATION_FIELD.name}`,
-  htmlType: htmlType(IMAGE_LOCATION_TYPES.EMPTY),
+  dependOf: [`$general.${IMAGE_LOCATION_FIELD.name}`, `$general.${TYPE.name}`],
+  htmlType: generalHtmlType(
+    [
+      [IMAGE_LOCATION_TYPES.EMPTY],
+      [IMAGE_TYPES_STR.OS, IMAGE_TYPES_STR.CDROM, IMAGE_TYPES_STR.DATABLOCK],
+    ],
+    false,
+    'AND'
+  ),
   label: T.Fs,
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
@@ -169,6 +212,12 @@ export const SERIAL = {
   label: T.Serial,
   tooltip: T.SerialConcept,
   type: INPUT_TYPES.AUTOCOMPLETE,
+  dependOf: `$general.${TYPE.name}`,
+  htmlType: generalHtmlType([
+    IMAGE_TYPES_STR.OS,
+    IMAGE_TYPES_STR.CDROM,
+    IMAGE_TYPES_STR.DATABLOCK,
+  ]),
   multiple: false,
   fieldProps: {
     freeSolo: true,
@@ -186,6 +235,30 @@ export const SERIAL = {
   grid: { md: 6 },
 }
 
+/** @type {Field} Mount point field */
+export const MOUNT_POINT = {
+  name: 'MOUNT_POINT',
+  label: T.MountPoint,
+  dependOf: `$general.${TYPE.name}`,
+  htmlType: generalHtmlType([IMAGE_TYPES_STR.FILESYSTEM]),
+  type: INPUT_TYPES.TEXT,
+  multiline: false,
+  validation: string().trim(),
+  grid: { xs: 12, md: 6 },
+}
+
+/** @type {Field} Mount tag field */
+export const MOUNT_TAG = {
+  name: 'MOUNT_TAG',
+  label: T.MountTag,
+  dependOf: `$general.${TYPE.name}`,
+  htmlType: generalHtmlType([IMAGE_TYPES_STR.FILESYSTEM]),
+  type: INPUT_TYPES.TEXT,
+  multiline: false,
+  validation: string().trim(),
+  grid: { xs: 12, md: 6 },
+}
+
 /**
  * @param {object} oneConfig - OpenNebula configuration
  * @param {boolean} adminGroup - If the user belongs to oneadmin group
@@ -201,6 +274,8 @@ export const FIELDS = (oneConfig, adminGroup) =>
       FS,
       CUSTOM_FORMAT,
       SERIAL,
+      MOUNT_POINT,
+      MOUNT_TAG,
     ],
     '',
     oneConfig,
