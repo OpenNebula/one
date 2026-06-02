@@ -31,10 +31,18 @@ sudoers = Sudoers.new LIB_LOCATION
 aliases = sudoers.aliases
 aliases.reject! {|_k, v| v.empty? }
 
+# sudo-rs (default on Ubuntu 26.04+) does not implement the 'requiretty'
+# setting and aborts parsing the whole file when it is present. The classic
+# sudo on Debian/Ubuntu does not enforce 'requiretty' anyway, so only emit
+# the '!requiretty' default when the local sudo actually understands it.
+requiretty = !`sudo --version 2>/dev/null`.include?('sudo-rs')
+
 puts ERB.new(DATA.read, nil, '<>').result(binding)
 
 __END__
+<% if requiretty %>
 Defaults:oneadmin !requiretty
+<% end %>
 Defaults:oneadmin secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 
 <% cmd_sets = sudoers.cmds.keys.sort %>

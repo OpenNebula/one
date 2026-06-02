@@ -1,4 +1,3 @@
-Defaults:oneadmin !requiretty
 Defaults:oneadmin secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 
 Cmnd_Alias ONE_CEPH = /usr/bin/rbd
