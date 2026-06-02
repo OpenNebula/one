@@ -629,6 +629,9 @@ const genPathResources = () => {
     if (!global.paths.LOG_LOCATION) {
       global.paths.LOG_LOCATION = LOG_LOCATION
     }
+    if (!global.paths.LIB_LOCATION) {
+      global.paths.LIB_LOCATION = `${VAR_LOCATION}`
+    }
   }
 }
 

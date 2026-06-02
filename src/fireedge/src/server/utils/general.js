@@ -16,7 +16,7 @@
 
 const { XMLParser } = require('fast-xml-parser')
 const { sprintf } = require('sprintf-js')
-
+const { access, readFile } = require('fs-extra')
 const { defaults } = require('server/utils/constants')
 const { defaultEmptyFunction, defaultConfigParseXML } = defaults
 
@@ -162,10 +162,50 @@ const parseConfigFile = (fileContent) => {
   return config
 }
 
+/**
+ * Parse log file to JSON.
+ *
+ * @param {string} logPath - Path to the log file.
+ * @returns {Promise<object>} Parsed log data in JSON format.
+ * @throws Will throw an error if the file cannot be read.
+ */
+const parseLogFile = async (logPath) => {
+  // Check if the file exists
+  await access(logPath)
+
+  // Read the file
+  const content = await readFile(logPath, 'utf-8')
+
+  // Split content into lines
+  const linesArray = content.split('\n').filter((line) => line.trim() !== '')
+
+  // Map each line to the desired format
+  const lines = linesArray.map((line) => {
+    let level = 'debug' // Default level
+
+    if (/\[E\]/.test(line)) level = 'error'
+    else if (/\[W\]/.test(line)) level = 'warning'
+    else if (/\[D\]/.test(line)) level = 'debug'
+    else if (/\[I\]/.test(line)) level = 'info'
+
+    return { level, text: line }
+  })
+
+  // Build final JSON
+  return {
+    meta: {
+      mode: 'all',
+      total_lines: lines.length,
+    },
+    lines,
+  }
+}
+
 module.exports = {
   messageTerminal,
   addPrintf,
   checkEmptyObject,
   xml2json,
   parseConfigFile,
+  parseLogFile,
 }

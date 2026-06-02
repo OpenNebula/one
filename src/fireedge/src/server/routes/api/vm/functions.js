@@ -17,7 +17,7 @@ const btoa = require('btoa')
 const { createHash, createCipheriv } = require('crypto')
 const { defaults, httpCodes } = require('server/utils/constants')
 const { global } = require('window-or-global')
-const fs = require('fs-extra')
+const { parseLogFile } = require('server/utils/general')
 
 const {
   httpResponse,
@@ -353,57 +353,27 @@ const encryptConnection = (data) => {
  * @param {object} params - params of http request
  */
 const vmLogs = async (res = {}, next = defaultEmptyFunction, params = {}) => {
-  // Prepare response
-  let rtn
-
-  // Get vm id
   const { id } = params
+  const rtnNotFound = httpResponse(notFound, `Log file not found`)
+  const rtnError = httpResponse(internalServerError)
+  let rtn = rtnError
 
   if (id !== undefined && id !== '' && Number.isInteger(Number(id))) {
+    let logPath = `${global.paths.LOG_LOCATION}/${id}.log`
     try {
-      // Path to the vm
-      const logPath = `${global.paths.LOG_LOCATION}/${id}.log`
-
-      // Check if the file exists
-      await fs.access(logPath)
-
-      // Read the file
-      const content = await fs.readFile(logPath, 'utf-8')
-
-      // Split content into lines
-      const linesArray = content
-        .split('\n')
-        .filter((line) => line.trim() !== '')
-
-      // Map each line to the desired format
-      const lines = linesArray?.map((line) => {
-        // Defautl level
-        let level = 'debug'
-
-        // Check log level
-        if (/\[E\]/.test(line)) level = 'error'
-        else if (/\[W\]/.test(line)) level = 'warning'
-        else if (/\[D\]/.test(line)) level = 'debug'
-        else if (/\[I\]/.test(line)) level = 'info'
-
-        return { level, text: line }
-      })
-
-      // Build final JSON
-      const result = {
-        meta: {
-          mode: 'all',
-          total_lines: lines.length,
-        },
-        lines,
-      }
-
+      const result = await parseLogFile(logPath)
       rtn = httpResponse(ok, result)
     } catch (err) {
       if (err.code === 'ENOENT') {
-        rtn = httpResponse(notFound, `Log file not found`)
-      } else {
-        rtn = httpResponse(internalServerError)
+        try {
+          logPath = `${global.paths.LIB_LOCATION}/vms/${id}/vm.log`
+          const result = await parseLogFile(logPath)
+          rtn = httpResponse(ok, result)
+        } catch (error) {
+          if (error.code === 'ENOENT') {
+            rtn = rtnNotFound
+          }
+        }
       }
     }
   } else {
