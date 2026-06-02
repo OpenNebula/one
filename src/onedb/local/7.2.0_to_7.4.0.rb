@@ -35,9 +35,30 @@ module Migrator
     def up
         init_log_time
 
+        bug7244
+
         log_time
 
         true
+    end
+
+    # Backfill UUID for existing OneKS groups
+    def bug7244
+        @db.transaction do
+            @db[:document_pool].where(:type => 121).each do |row|
+                doc = nokogiri_doc(row[:body], 'document_pool')
+
+                group_body = doc.at_xpath('/DOCUMENT/TEMPLATE/GROUP_BODY')
+                json       = JSON.parse(group_body.text)
+
+                next if json.key?('uuid')
+
+                json['uuid'] = json['name']
+                group_body.children[0].content = json.to_json
+
+                @db[:document_pool].where(:oid => row[:oid]).update(:body => doc.root.to_s)
+            end
+        end
     end
 
 end
