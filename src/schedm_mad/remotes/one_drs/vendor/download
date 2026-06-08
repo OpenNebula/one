@@ -24,9 +24,9 @@ install -d "$SELF/lib/"
 
 # Download Python packages
 declare -A PACKAGES=(
-    ["pulp"]="2.9.0"
-    ["xsdata"]="24.12"
-    ["typing-extensions"]="4.12.2"
+    ["pulp"]="3.3.2"
+    ["xsdata"]="26.2"
+    ["typing-extensions"]="4.15.0"
 )
 
 for package in "${!PACKAGES[@]}"; do
