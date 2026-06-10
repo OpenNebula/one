@@ -590,6 +590,30 @@ Request::ErrorCode ImageAPI::snapshot_flatten(int oid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+Request::ErrorCode ImageAPI::resize(int oid,
+                                    const std::string& size,
+                                    RequestAttributes& att)
+{
+    ImageManager* imagem = Nebula::instance().get_imagem();
+
+    if ( auto ec = basic_authorization(oid, att); ec != Request::SUCCESS )
+    {
+        return ec;
+    }
+
+    int rc = imagem->resize_image(oid, size, att.resp_msg);
+
+    if ( rc < 0 )
+    {
+        return Request::ACTION;
+    }
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 Request::ErrorCode ImageAPI::restore(int oid,
                                      int ds_id,
                                      const std::string& opt_tmpl,

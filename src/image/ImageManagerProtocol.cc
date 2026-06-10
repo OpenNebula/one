@@ -844,6 +844,107 @@ void ImageManager::_snap_flatten(unique_ptr<image_msg_t> msg)
 
 /* -------------------------------------------------------------------------- */
 
+void ImageManager::_resize(unique_ptr<image_msg_t> msg)
+{
+    NebulaLog::dddebug("ImM", "_resize: " + msg->payload());
+
+    auto image = ipool->get(msg->oid());
+
+    if ( !image )
+    {
+        return;
+    }
+
+    int ds_id = image->get_ds_id();
+    int uid   = image->get_uid();
+    int gid   = image->get_gid();
+
+    long long resize_delta = 0;
+    image->get_template_attribute("RESIZE_DELTA", resize_delta);
+    image->remove_template_attribute("RESIZE_DELTA");
+
+    bool success = false;
+
+    if (msg->status() == "SUCCESS")
+    {
+        long long new_size = 0;
+
+        istringstream iss(msg->payload());
+        iss >> new_size >> std::ws;
+
+        long long cur_size = image->get_size();
+
+        if (!iss.fail() && iss.eof() && new_size > 0 && new_size > cur_size)
+        {
+            image->set_size(new_size);
+            success = true;
+        }
+        else
+        {
+            ostringstream oss;
+
+            if (new_size > 0 && new_size <= cur_size)
+            {
+                oss << "Error resizing image: driver returned size ("
+                    << new_size << " MiB) not greater than current ("
+                    << cur_size << " MiB)";
+            }
+            else
+            {
+                oss << "Error resizing image: driver returned invalid size";
+            }
+
+            image->set_template_error_message(oss.str());
+
+            NebulaLog::log("ImM", Log::ERROR, oss);
+        }
+    }
+    else
+    {
+        ostringstream oss;
+        oss << "Error resizing image";
+
+        const auto& info = msg->payload();
+
+        if (!info.empty() && (info[0] != '-'))
+        {
+            oss << ": " << info;
+        }
+
+        image->set_template_error_message(oss.str());
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+    }
+
+    image->set_state_unlock();
+
+    ipool->update(image.get());
+
+    image.reset();
+
+    if (success)
+    {
+        monitor_datastore(ds_id);
+    }
+    else if (resize_delta > 0)
+    {
+        Template quotas;
+
+        quotas.add("DATASTORE", ds_id);
+        quotas.add("SIZE", resize_delta);
+        quotas.add("IMAGES", 0);
+
+        Quotas::ds_del(uid, gid, &quotas);
+    }
+    else
+    {
+        NebulaLog::log("ImM", Log::WARNING,
+            "Cannot rollback resize quota: RESIZE_DELTA attribute missing");
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 void ImageManager::_restore(unique_ptr<image_msg_t> msg)
 {
     NebulaLog::dddebug("ImM", "_restore: " + msg->payload());

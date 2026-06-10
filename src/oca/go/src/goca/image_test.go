@@ -237,6 +237,62 @@ func (s *ImageSuite) TestSnapshots(c *C) {
 	c.Assert(err.Error(), Matches, ".*does not exist.*")
 }
 
+func (s *ImageSuite) TestResize(c *C) {
+	// Wait Image is ready
+	imageC := testCtrl.Image(s.ID)
+	wait := WaitResource(ImageExpectState(imageC, "READY"))
+	c.Assert(wait, Equals, true)
+
+	// Get initial size to make test independent of fixture
+	image, err := imageC.Info(false)
+	c.Assert(err, IsNil)
+	curSize := image.Size
+
+	// Resize to same size should fail (must be strictly greater)
+	err = imageC.Resize(fmt.Sprintf("%d", curSize))
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*greater than current.*")
+
+	// Resize with invalid input should fail
+	err = imageC.Resize("abc")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Invalid size.*")
+
+	// Resize with empty string should fail
+	err = imageC.Resize("")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Invalid size.*")
+
+	// Resize with trailing garbage should fail (not silently truncate)
+	err = imageC.Resize("100abc")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Invalid size.*")
+
+	// Resize with zero should fail
+	err = imageC.Resize("0")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Invalid size.*")
+
+	// Resize with negative number should fail
+	err = imageC.Resize("-1")
+	c.Assert(err, NotNil)
+	c.Assert(err.Error(), Matches, ".*Invalid size.*")
+
+	// Successful resize to larger size
+	newSize := curSize + 1
+	err = imageC.Resize(fmt.Sprintf("%d", newSize))
+	c.Assert(err, IsNil)
+
+	// Wait for image to return to READY state after async resize
+	wait = WaitResource(ImageExpectState(imageC, "READY"))
+	c.Assert(wait, Equals, true)
+
+	// Verify the new size
+	image, err = imageC.Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(image.Size, Equals, newSize)
+}
+
 func (s *ImageSuite) TestRestore(c *C) {
 	imageC := testCtrl.Image(s.ID)
 	err := imageC.Restore(1, "")
