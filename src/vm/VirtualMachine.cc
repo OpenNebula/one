@@ -3525,7 +3525,10 @@ int VirtualMachine::set_up_attach_disk(VirtualMachineTemplate * tmpl, string& er
 
     obj_template->get("TM_MAD_SYSTEM", tm_mad_sys);
 
-    new_disk = disks.set_up_attach(oid, uid, get_cid(), new_vdisk, tm_mad_sys, context, err);
+    bool is_q35 = test_machine_type({"q35", "virt"});
+
+    new_disk = disks.set_up_attach(oid, uid, get_cid(), new_vdisk, tm_mad_sys,
+                                   is_q35, context, err);
 
     if ( new_disk == 0 )
     {

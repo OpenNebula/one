@@ -881,18 +881,9 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
 
     std::ostringstream oss;
 
-    std::string cdrom_dev_prefix;
+    std::string cdrom_dev_prefix = is_q35 ? "sd" : "hd";
 
     std::set<std::string> mount_tags;
-
-    if ( is_q35 )
-    {
-        cdrom_dev_prefix = "sd";
-    }
-    else
-    {
-        cdrom_dev_prefix = "hd";
-    }
 
     for(auto it = disks.begin(); it != disks.end(); ++it, ++disk_id)
     {
@@ -1264,7 +1255,10 @@ int VirtualMachineDisks::set_attach(int id, string& error)
 /* -------------------------------------------------------------------------- */
 
 VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
-                                                        int cluster_id, VectorAttribute * vdisk, const std::string& tsys,
+                                                        int cluster_id,
+                                                        VectorAttribute * vdisk,
+                                                        const std::string& tsys,
+                                                        bool is_q35,
                                                         const VectorAttribute * vcontext,
                                                         string& error)
 {
@@ -1370,6 +1364,11 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
     else
     {
         queue<pair <string, VirtualMachineDisk *> > disks_queue;
+
+        if ( img_type == Image::CDROM && dev_prefix.empty() )
+        {
+            dev_prefix = is_q35 ? "sd" : "hd";
+        }
 
         disks_queue.push(make_pair(dev_prefix, disk));
 

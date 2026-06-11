@@ -655,14 +655,19 @@ public:
      *     @param uid of VM owner
      *     @param cluster_id where the VM is running
      *     @param vdisk VectorAttribute for the new disk
+     *     @param tsys tm_mad_sys mode to deploy the disks
+     *     @param is_q35 Q35/virt guest
      *     @param vcontext VectorAttribute for the CONTEXT disk, 0 if none
      *     @param error
      *
      *     @return Pointer to the new disk or 0 in case of error
      */
     VirtualMachineDisk * set_up_attach(int vmid, int uid, int cluster_id,
-                                       VectorAttribute * vdisk, const std::string& tsys,
-                                       const VectorAttribute * vcontext, std::string& error);
+                                       VectorAttribute * vdisk,
+                                       const std::string& tsys,
+                                       bool is_q35,
+                                       const VectorAttribute * vcontext,
+                                       std::string& error);
 
     /* ---------------------------------------------------------------------- */
     /* Save as Interface                                                      */
@@ -895,4 +900,3 @@ private:
 };
 
 #endif  /*VIRTUAL_MACHINE_DISK_H_*/
-
