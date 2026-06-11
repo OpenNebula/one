@@ -947,6 +947,9 @@ module.exports = {
   MaxNumberOSThreads: 'Max number of OS threads',
   MaxNumberOSThreadsConcept:
     'Sets GOMAXPROCS for restic to limit the OS threads that execute user-level Go code simultaneously.',
+  ResticLockRetries: 'Restic lock retries',
+  ResticLockRetriesConcept:
+    'Maximum number of retries (5 s apart) when waiting for an exclusive Restic repository lock to be released. Increase this for repositories where prune operations take a long time. Default: 720 (60 min).',
   Sparsify: 'Sparsify',
   SparsifyConcept:
     'Runs virt-sparsify on flatten backups to reduce backup size. It requires libguestfs package.',

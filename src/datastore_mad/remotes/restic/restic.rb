@@ -130,6 +130,9 @@ class Restic
         raise StandardError, 'Invalid value for RESTIC_PRUNE_MAX_UNUSED' \
             unless @max_unused.nil? || @max_unused.match(/^\d+[kKmMgGtT%]?$|^unlimited$/)
 
+        # Max retries when waiting for an exclusive Restic lock (5 s between each retry).
+        @lock_retries = Integer(safe_get("#{prefix}TEMPLATE/RESTIC_LOCK_RETRIES", 720))
+
         create_repo_if_not_exists if @options[:create_repo] && @repo_id
     rescue StandardError => e
         raise StandardError, "Wrong restic datastore configuration: #{e.message}"
@@ -176,12 +179,19 @@ class Restic
         script = <<~EOS
             set -e -o pipefail; shopt -qs failglob
             #{resticenv_sh(RESTIC_BIN_PATHS[:frontend])}
-            #{restic('stats')} || #{restic('init')}
+            #{restic('stats')} || { ec=$?; if [ "$ec" -eq 11 ]; then exit 11; fi; #{restic('init')}; }
         EOS
 
-        rc = LocalCommand.run '/bin/bash -s', nil, script
+        rc = nil
+        @lock_retries.times do
+            rc = LocalCommand.run '/bin/bash -s', nil, script
+            return if rc.code == 0
+            break unless rc.code == 11
 
-        raise StandardError, rc.stderr if rc.code != 0
+            sleep 5
+        end
+
+        raise StandardError, rc.stderr
     end
 
     # Gets (from Restic) full metadata of a specific snapshot.
@@ -268,7 +278,7 @@ class Restic
     # @return [nil]
     def remove_snapshots(snaps, rhost = @sftp, opts = {})
         options = {
-            :retries => 60,
+            :retries => @lock_retries,
             :delay   => 5 # seconds
         }.merge!(opts)
 
@@ -339,7 +349,7 @@ class Restic
     # @return [Object] RC struct
     def run_with_lock_retry(name, script, rhost, opts = {})
         options = {
-            :retries => 60,
+            :retries => @lock_retries,
             :delay   => 5
         }.merge!(opts)
 
