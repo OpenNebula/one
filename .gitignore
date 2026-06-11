@@ -18,6 +18,7 @@ share/doc/one/html
 src/svncterm_server/genfont
 src/svncterm_server/svncterm_server
 src/im_mad/remotes/status.db
+src/scheduler/src/sched/mm_sched
 
 src/schedm_mad/remotes/rank/src/sched/place
 src/schedm_mad/remotes/one_drs/vendor/lib/
@@ -76,11 +77,7 @@ src/oca/python/pyone/grpc/
 
 # vendor
 src/datastore_mad/remotes/restic/vendor/bin/
-src/oneprometheus/vendor/alertmanager.arm64/
-src/oneprometheus/vendor/alertmanager/
-src/oneprometheus/vendor/node_exporter.arm64/
-src/oneprometheus/vendor/node_exporter/
-src/oneprometheus/vendor/prometheus.arm64/
-src/oneprometheus/vendor/prometheus/
+src/oneprometheus/vendor/*
+!src/oneprometheus/vendor/download
 src/form/vendor/terraform
 src/form/vendor/terraform.arm64
