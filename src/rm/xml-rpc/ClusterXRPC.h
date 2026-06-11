@@ -187,7 +187,7 @@ class ClusterAddVNetXRPC: public RequestXRPC, public ClusterAPI
 {
 public:
     ClusterAddVNetXRPC()
-        : RequestXRPC("one.cluster.addhost",
+        : RequestXRPC("one.cluster.addvnet",
                       "Adds a virtual network to the cluster",
                       "A:sii")
         , ClusterAPI(static_cast<Request&>(*this))
@@ -205,7 +205,7 @@ class ClusterDelVNetXRPC : public RequestXRPC, public ClusterAPI
 {
 public:
     ClusterDelVNetXRPC()
-        : RequestXRPC("one.cluster.delhost",
+        : RequestXRPC("one.cluster.delvnet",
                       "Deletes a virtual network from its cluster",
                       "A:sii")
         , ClusterAPI(static_cast<Request&>(*this))

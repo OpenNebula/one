@@ -1410,7 +1410,6 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :backupmode, backupmode_set_desc, :vmid, :mode do
-        vm_ref = args[0]
         backup_mode = args[1]
 
         if !helper.backup_mode_valid?(backup_mode)
@@ -1421,8 +1420,9 @@ CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
-        # TODO: Ensure other BACKUP_CONFIG is not overwritten
-        helper.set_backup_mode(vm_ref, backup_mode)
+        helper.perform_action(args[0], options, 'Updating backup mode') do |vm|
+            vm.updateconf("BACKUP_CONFIG = [\"MODE\"=\"#{backup_mode}\"]", true)
+        end
     end
 
     updateconf_desc = <<-EOT.unindent

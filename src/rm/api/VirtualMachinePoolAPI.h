@@ -71,12 +71,6 @@ protected:
                                   std::string& xml,
                                   RequestAttributes& att);
 
-    Request::ErrorCode showback_calc(int start_month,
-                                     int start_year,
-                                     int end_month,
-                                     int end_year,
-                                     RequestAttributes& att);
-
     Request::ErrorCode showback_list(int filter_flag,
                                      int start_month,
                                      int start_year,
@@ -88,6 +82,22 @@ protected:
     /* Helpers */
 
     VirtualMachinePool* vmpool;
+};
+
+class VirtualMachinePoolShowbackCalculateAPI : public VirtualMachinePoolAPI
+{
+public:
+    VirtualMachinePoolShowbackCalculateAPI(Request &r)
+        : VirtualMachinePoolAPI(r)
+    {
+        request.leader_only(true);
+    }
+
+    Request::ErrorCode showback_calc(int start_month,
+                                     int start_year,
+                                     int end_month,
+                                     int end_year,
+                                     RequestAttributes& att);
 };
 
 #endif

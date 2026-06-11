@@ -299,7 +299,7 @@ class VirtualMachineDiskAttachXRPC: public RequestXRPC, public VirtualMachineAPI
 {
 public:
     VirtualMachineDiskAttachXRPC()
-        : RequestXRPC("one.vm.diskattach",
+        : RequestXRPC("one.vm.attach",
                       "Attach a disk to a Virtual Machine",
                       "A:sis")
         , VirtualMachineAPI(static_cast<Request&>(*this))
@@ -316,7 +316,7 @@ class VirtualMachineDiskDetachXRPC: public RequestXRPC, public VirtualMachineAPI
 {
 public:
     VirtualMachineDiskDetachXRPC()
-        : RequestXRPC("one.vm.diskdetach",
+        : RequestXRPC("one.vm.detach",
                       "Detach a disk from a Virtual Machine",
                       "A:sii")
         , VirtualMachineAPI(static_cast<Request&>(*this))
@@ -350,7 +350,7 @@ class VirtualMachineNicAttachXRPC: public RequestXRPC, public VirtualMachineAPI
 {
 public:
     VirtualMachineNicAttachXRPC()
-        : RequestXRPC("one.vm.nicattach",
+        : RequestXRPC("one.vm.attachnic",
                       "Attach a NIC to a Virtual Machine",
                       "A:sis")
         , VirtualMachineAPI(static_cast<Request&>(*this))
@@ -367,7 +367,7 @@ class VirtualMachineNicDetachXRPC: public RequestXRPC, public VirtualMachineAPI
 {
 public:
     VirtualMachineNicDetachXRPC()
-        : RequestXRPC("one.vm.nicdetach",
+        : RequestXRPC("one.vm.detachnic",
                       "Detach a NIC from a Virtual Machine",
                       "A:sii")
         , VirtualMachineAPI(static_cast<Request&>(*this))
@@ -401,7 +401,7 @@ class VirtualMachineSGAttachXRPC: public RequestXRPC, public VirtualMachineAPI
 {
 public:
     VirtualMachineSGAttachXRPC()
-        : RequestXRPC("one.vm.sgattach",
+        : RequestXRPC("one.vm.attachsg",
                       "Attach a Security Group to a Virtual Machine",
                       "A:siii")
         , VirtualMachineAPI(static_cast<Request&>(*this))
@@ -418,7 +418,7 @@ class VirtualMachineSGDetachXRPC: public RequestXRPC, public VirtualMachineAPI
 {
 public:
     VirtualMachineSGDetachXRPC()
-        : RequestXRPC("one.vm.sgdetach",
+        : RequestXRPC("one.vm.detachsg",
                       "Detach a Security Group from a Virtual Machine",
                       "A:siii")
         , VirtualMachineAPI(static_cast<Request&>(*this))
@@ -821,14 +821,14 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualMachinePoolShowbackCalculateXRPC : public RequestXRPC, public VirtualMachinePoolAPI
+class VirtualMachinePoolShowbackCalculateXRPC : public RequestXRPC, public VirtualMachinePoolShowbackCalculateAPI
 {
 public:
     VirtualMachinePoolShowbackCalculateXRPC()
         : RequestXRPC("one.vmpool.calculateshowback",
                       "Processes all the history records, and stores the monthly cost for each VM",
                       "A:siiiii")
-        , VirtualMachinePoolAPI(static_cast<Request&>(*this))
+        , VirtualMachinePoolShowbackCalculateAPI(static_cast<Request&>(*this))
     {}
 
     void request_execute(xmlrpc_c::paramList const& _paramList,

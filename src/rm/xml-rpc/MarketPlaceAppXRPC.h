@@ -163,7 +163,7 @@ class MarketPlaceAppLockXRPC : public RequestXRPC, public MarketPlaceAppAPI
 {
 public:
     MarketPlaceAppLockXRPC()
-        : RequestXRPC("one.marketapp.enable",
+        : RequestXRPC("one.marketapp.lock",
                       "Lock a MarketPlaceApp",
                       "A:siib")
         , MarketPlaceAppAPI(static_cast<Request&>(*this))
@@ -180,7 +180,7 @@ class MarketPlaceAppUnlockXRPC : public RequestXRPC, public MarketPlaceAppAPI
 {
 public:
     MarketPlaceAppUnlockXRPC()
-        : RequestXRPC("one.marketapp.enable",
+        : RequestXRPC("one.marketapp.unlock",
                       "Unlock a MarektPlaceApp",
                       "A:si")
         , MarketPlaceAppAPI(static_cast<Request&>(*this))

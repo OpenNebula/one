@@ -17,6 +17,7 @@ require 'one_helper'
 require 'one_helper/onevm_helper'
 require 'opennebula/virtual_network'
 require 'opennebula/virtual_network_pool'
+require 'opennebula/template_pool'
 
 # OneVnet Command Helper
 class OneVNetHelper < OpenNebulaHelper::OneHelper
@@ -238,8 +239,11 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         pool = factory_pool
         tmpl_pool = OpenNebula::TemplatePool.new(@client, -2)
 
-        pool.info
-        tmpl_pool.info
+        rc = pool.info
+        return rc if OpenNebula.is_error?(rc)
+
+        rc = tmpl_pool.info
+        return rc if OpenNebula.is_error?(rc)
 
         pool.each do |img|
             attrs = { :id    => img['ID'],

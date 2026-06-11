@@ -628,7 +628,7 @@ module VirtualMachineManagerKVM
                 @xml.exist?("#{xpath_prefix}#{e}")
             end
 
-            return nil unless vm_addr
+            return unless vm_addr
 
             vm_domain   = hex_address_regexp(@xml["#{xpath_prefix}VM_DOMAIN"])
             vm_bus      = hex_address_regexp(@xml["#{xpath_prefix}VM_BUS"])

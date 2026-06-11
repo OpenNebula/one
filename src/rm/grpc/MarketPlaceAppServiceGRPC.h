@@ -304,7 +304,7 @@ class MarketPlaceAppPoolInfoGRPC : public RequestGRPC, public MarketPlaceAppPool
 {
 public:
     MarketPlaceAppPoolInfoGRPC() :
-        RequestGRPC("one.marketpoolapp.info", "/one.marketapp.MarketPlaceAppService/PoolInfo"),
+        RequestGRPC("one.marketapppool.info", "/one.marketapp.MarketPlaceAppService/PoolInfo"),
         MarketPlaceAppPoolAPI(static_cast<Request&>(*this))
     {}
 

@@ -657,11 +657,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def set_backup_mode(vm_ref, backup_mode)
-        vm = retrieve_resource(vm_ref)
-        vm.updateconf("BACKUP_CONFIG = [\"MODE\"=\"#{backup_mode}\"]")
-    end
-
     private
 
     def factory(id = nil)

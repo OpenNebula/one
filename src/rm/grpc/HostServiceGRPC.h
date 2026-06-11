@@ -195,7 +195,7 @@ class HostPoolMonitoringGRPC : public RequestGRPC, public HostPoolAPI
 {
 public:
     HostPoolMonitoringGRPC() :
-        RequestGRPC("one.host.monitoring", "/one.host.HostService/PoolMonitoring"),
+        RequestGRPC("one.hostpool.monitoring", "/one.host.HostService/PoolMonitoring"),
         HostPoolAPI(static_cast<Request&>(*this))
     {}
 

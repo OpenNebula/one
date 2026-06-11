@@ -223,11 +223,11 @@ Request::ErrorCode VirtualMachinePoolAPI::accounting(int filter_flag,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode VirtualMachinePoolAPI::showback_calc(int start_month,
-                                                        int start_year,
-                                                        int end_month,
-                                                        int end_year,
-                                                        RequestAttributes& att)
+Request::ErrorCode VirtualMachinePoolShowbackCalculateAPI::showback_calc(int start_month,
+                                                                         int start_year,
+                                                                         int end_month,
+                                                                         int end_year,
+                                                                         RequestAttributes& att)
 {
     if ( att.gid != 0 )
     {
