@@ -308,6 +308,7 @@ const schemaUserInput = ({
       config.validation = array(string().trim())
         .concat(requiredSchema(mandatory, array()))
         .default(() => defaultValues)
+        .afterSubmit((value) => value?.length ? value.join(',') : undefined)
 
       // values: List of values to show to the user
       config.values = values
