@@ -203,7 +203,7 @@ struct SchedMatch
 
         if ( it == requirements.end() )
         {
-            requirements[vmid] = { {hostid}, {} };
+            requirements[vmid] = { {hostid}, {}, {} };
         }
         else
         {
