@@ -44,7 +44,20 @@ module VNMMAD
                      && (nets & nic.slice(:network, :network_id).values.map(&:to_s)).empty?
 
                 next if conf[:service_port].nil?
-                next if conf[:remote_addr].nil? || conf[:remote_addr] !~ Resolv::IPv4::Regex
+                next if conf[:remote_addr].nil? || conf[:remote_addr].to_s.strip.empty?
+
+                unless conf[:remote_addr] =~ Resolv::IPv4::Regex
+                    begin
+                        remote_ip = Resolv.getaddress(conf[:remote_addr])
+                        next unless remote_ip =~ Resolv::IPv4::Regex
+
+                        OpenNebula::DriverLogger.log_info "Resolved remote_addr #{conf[:remote_addr]} to #{remote_ip}"
+                        conf[:remote_addr] = remote_ip
+                    rescue Resolv::ResolvError
+                        OpenNebula::DriverLogger.log_warning "Can't resolve remote_addr #{conf[:remote_addr]}. Skipping."
+                        next
+                    end
+                end
                 next if conf[:remote_port].nil?
 
                 opts = {
