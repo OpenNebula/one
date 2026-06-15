@@ -1,66 +1,90 @@
 # [![OpenNebula Logo](https://opennebula.io/wp-content/uploads/2019/04/img-logo-blue.svg)](https://opennebula.io/)
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Documentation](https://img.shields.io/badge/Docs-Official%20Guides-008080?style=flat&logo=readme&logoColor=white)](https://docs.opennebula.io/stable/)
+[![Forum](https://img.shields.io/badge/Community-Forum-orange)](https://forum.opennebula.io/)
+[![LinkedIn Connect](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/company/opennebula/)
+[![Follow](https://img.shields.io/badge/Follow-%40opennebula%20-1da1f2?style=flat&logo=x)](https://x.com/opennebula)
+
 ## Description
 
-[OpenNebula](http://opennebula.io) is an open source platform delivering a simple but feature-rich and flexible solution to build and manage enterprise clouds for virtualized services, containerized applications and serverless computing.
+[OpenNebula](http://opennebula.io) is an open source cloud management platform for building and operating private clouds, edge infrastructures, distributed cloud deployments, and AI Factories.
 
-[![OpenNebula Architecture](https://opennebula.io/wp-content/uploads/2024/07/03_new_Key-Features.png)](https://opennebula.io/discover/)
+It provides a unified platform to manage Virtual Machines, Kubernetes Clusters, and GPU-accelerated workloads across on-premises, edge, and hybrid environments through a simple yet powerful cloud operating model.
 
-### To start using OpenNebula
+<p align="center">
+<img src="https://github.com/OpenNebula/website/blob/master/assets/images/overview_key-features.svg" alt="OpenNebula Architecture" width="70%">
+</p>
 
-- Explore OpenNebula’s **key features** [on our website](https://opennebula.io/discover).
-- Have a look at our [introductory datasheet](https://support.opennebula.pro/hc/en-us/articles/360036935791-OpenNebula-Key-Features-Datasheet).
-- Browse our catalog of [screencasts and video-tutorials](https://opennebula.io/screencasts/).
-- Download our [technical white papers](https://opennebula.io/docs-whitepapers/).
-- See our [Documentation](https://docs.opennebula.io).
-- Join our [Community Forum](https://forum.opennebula.io).
-- Check our [Quick Start Guide](https://docs.opennebula.io/stable/quick_start/index.html).
+## Key Features
 
-[![OpenNebula Intro](https://opennebula.io/wp-content/uploads/2020/08/Intro_Screencast_small.png)](https://opennebula.io/screencast-overview/)
+* **Unified Cloud Management** – Manage virtualized, containerized, and AI workloads from a single platform.
+* **Flexible Access Interfaces** – Web UI, CLI, REST API, Terraform provider, and automation tools.
+* **Federated Architecture** – Operate distributed infrastructures across multiple sites and regions.
+* **Built-in High Availability** – Increase resilience and reduce operational downtime.
+* **Kubernetes Integration** – Deploy and scale Kubernetes Clusters with integrated lifecycle management.
+* **Automated Infrastructure Provisioning** – Create and expand cloud environments on demand.
+* **Secure Multi-Tenancy** – Role-based access control, quotas, isolation, and governance capabilities.
+* **AI Factory Platform** – Support for GPU workloads, model training, LLM inference, and AI services.
+* **Marketplace** – Ready-to-use virtual appliances and service templates.
 
-### Contributing to OpenNebula
+Learn more in the [official documentation](https://docs.opennebula.io/stable/) or visit the [OpenNebula website](https://opennebula.io).
 
-- Contribute to [Development](https://github.com/OpenNebula/one/wiki/How-to-Contribute-to-Development).
-- Learn about our [Add-on Catalog](https://github.com/OpenNebula/one/wiki/How-to-participate-in-Add_on-Development).
-- Help us [translate OpenNebula](https://www.transifex.com/opennebula/one/) to your language.
-- Report a [security vulnerability](https://github.com/OpenNebula/one/wiki/Vulnerability-Management-Process).
+## Quick Start
 
-## Taking OpenNebula for a Test Drive
+The fastest way to evaluate OpenNebula is with [miniONE](https://github.com/OpenNebula/minione), which automatically deploys a complete OpenNebula environment on a single server in just a few minutes.
 
-You can quickly and easily try out OpenNebula’s functionality by installing [miniONE](https://github.com/OpenNebula/minione). Then, you can follow [tutorials](https://docs.opennebula.io/stable/quick_start/try_opennebula/opennebula_on-prem_with_minione/) to quickly install an OpenNebula cloud.
+See the [Evaluation Page](https://opennebula.io/evaluate-opennebula/) for details.
 
-## Installation
+### Production Installation
 
-For information on installing OpenNebula, please see this [documentation section](https://docs.opennebula.io/stable/software/installation_process/).
+For production environments, follow the installation guides and deployment recommendations available in the [official documentation](https://docs.opennebula.io/stable/software/):
 
-It is very useful to learn where [log files of the main OpenNebula components are placed](https://docs.opennebula.io/stable/product/operation_references/opennebula_services_configuration/troubleshooting/). Also check the [reference about the main OpenNebula daemon configuration file](https://docs.opennebula.io/stable/product/operation_references/opennebula_services_configuration/oned/).
+* [Installation Guide](https://docs.opennebula.io/stable/software/installation_process/overview/)
+* [Upgrade Guide](https://docs.opennebula.io/stable/software/upgrade_process/)
+* [Architecture and Design Documentation](https://docs.opennebula.io/stable/getting_started/understand_opennebula/cloud_architecture_and_design/)
 
-### Front-end Installation
+## Documentation & Resources
 
-The Front-end is the central part of an OpenNebula installation. This is the machine where the server software is installed and where you connect to manage your cloud. It can be a physical node or a virtual instance.
+Learn more about OpenNebula on through our website, white-papers, and official documentation site:
 
-Please visit the [official documentation for more details and a step-by-step guide](https://docs.opennebula.io/stable/software/installation_process/manual_installation/overview/). Using the packages provided on our site is the recommended method, to ensure the installation of the latest version and to avoid possible package divergences with different distributions. There are two alternatives here: you can add **our package repositories** to your system, or visit the [software menu](http://opennebula.io/use) to **download the latest package** for your Linux distribution.
+- Visit the [Main Website](https://opennebula.io/)
+- Browse the [Technical White Papers](https://opennebula.io/white-papers/)
+- Check the [OpenNebula Screencasts](https://opennebula.io/screencasts/)
+- Consult the [Official Documentation](https://docs.opennebula.io)
+- Check the [OpenNebula Evaluation Tools](https://opennebula.io/evaluate-opennebula/)
+- Take a look at the specific pages for [VMware Replacement](https://opennebula.io/open-alternative-to-vmware/) and [AI Factories](https://opennebula.io/ai-factory/)
 
-If there are no packages for your distribution, please check the [build dependencies](https://docs.opennebula.io/stable/software/installation_process/build_from_source_code/build_deps/) for OpenNebula and head to the [Building from Source Code guide](https://docs.opennebula.io/stable/software/installation_process/build_from_source_code/compile/).
+## Contributing to OpenNebula
 
-### Node Installation
+OpenNebula is developed in close collaboration with a global community of users and contributors. We welcome you to join us and help improve OpenNebula, check the following links to learn how to contribute:
 
-After the OpenNebula Front-end is correctly set up, the next step is preparing the hosts where the VMs are going to run. For details please refer to the installation guides for [KVM Nodes](https://docs.opennebula.io/stable/software/installation_process/manual_installation/kvm_node_installation/) and [LXC Nodes](https://docs.opennebula.io/stable/software/installation_process/manual_installation/lxc_node_installation/).
+* **Development**: [Contribute New Features or Fixes](https://github.com/OpenNebula/one/wiki/How-to-Contribute-to-Development)
+* **Localization**: [Help us Translate OpenNebula](https://explore.transifex.com/opennebula/one/) into your native language
+* **Bugs**: [Report Bugs and Issues on GitHub](https://github.com/OpenNebula/one/issues)
+* **Security**: [Report a Security Vulnerability](https://github.com/OpenNebula/one/wiki/Vulnerability-Management-Process)
 
-## Contact
+## Troubleshooting
 
-- [OpenNebula web site](https://opennebula.io).
-- [Development and issue tracking](https://github.com/OpenNebula/one/issues).
-- [Enterprise Services](https://opennebula.io/enterprise).
+Refer to the [Troubleshooting Guide](https://docs.opennebula.io/stable/product/operation_references/opennebula_services_configuration/troubleshooting/) if you encounter problems with your OpenNebula cloud deployment. We recommend familiarizing yourself with the locations of the [log files of the main OpenNebula components](https://docs.opennebula.io/stable/product/operation_references/opennebula_services_configuration/troubleshooting/#logging) and the structure of the [main OpenNebula daemon configuration file](https://docs.opennebula.io/stable/product/operation_references/opennebula_services_configuration/oned/).
+
+## Support
+
+- [Community Forum](https://forum.opennebula.io/)
+- [Enterprise Services and Support](https://opennebula.io/enterprise)
 
 ## License
 
-Copyright 2002-2026, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
+Copyright 2002-2026, OpenNebula Project, OpenNebula Systems
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
 ## Acknowledgements
 
-Some of the software features included in this repository have been made possible through the funding of the following innovation projects: [ONEnextgen](http://onenextgen.eu/), [ONEedge5G](https://opennebula.io/innovation/oneedge5g/), and [SovereignEdge.Cognit](https://cognit.sovereignedge.eu/).
+Some of the software features included in this repository have been made possible through the funding of the following innovation projects:
+
+* [ONEnextgen](http://onenextgen.eu/)
+* [ONEedge5G](https://opennebula.io/innovation/oneedge5g/)
+* [SovereignEdge.Cognit](https://cognit.sovereignedge.eu/)
