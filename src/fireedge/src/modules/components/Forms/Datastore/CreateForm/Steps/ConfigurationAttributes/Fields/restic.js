@@ -192,6 +192,19 @@ const RESTIC_SPARSIFY = {
   grid: { xs: 12, md: 6 },
 }
 
+/** @type {Field} - Max retries when waiting for an exclusive Restic lock */
+const RESTIC_LOCK_RETRIES = {
+  name: 'RESTIC_LOCK_RETRIES',
+  label: T.ResticLockRetries,
+  tooltip: T.ResticLockRetriesConcept,
+  dependOf: '$general.STORAGE_BACKEND',
+  type: INPUT_TYPES.TEXT,
+  htmlType: (type) =>
+    typeIsOneOf(type, [isRestic]) ? 'number' : INPUT_TYPES.HIDDEN,
+  validation: number(),
+  grid: { xs: 12, md: 6 },
+}
+
 export const RESTIC_FIELDS = [
   RESTIC_PASSWORD,
   RESTIC_SFTP_SERVER,
@@ -205,5 +218,6 @@ export const RESTIC_FIELDS = [
   RESTIC_MAX_WIOPS,
   RESTIC_CPU_QUOTA,
   RESTIC_MAXPROC,
+  RESTIC_LOCK_RETRIES,
   RESTIC_SPARSIFY,
 ]
