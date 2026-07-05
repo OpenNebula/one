@@ -1,0 +1,84 @@
+<%# Sunstone view for Audit Log tab %>
+<div id="audit_tab" class="tab-pane">
+  <h3><%= _('Audit Log') %></h3>
+  <form class="form-inline" id="audit_filter">
+    <div class="form-group">
+      <label for="audit_user"><%= _('User ID') %></label>
+      <input type="number" class="form-control" id="audit_user" placeholder="e.g., 0">
+    </div>
+    <div class="form-group">
+      <label for="audit_method"><%= _('Method') %></label>
+      <input type="text" class="form-control" id="audit_method" placeholder="e.g., vm.action">
+    </div>
+    <div class="form-group">
+      <label for="audit_resource"><%= _('Resource') %></label>
+      <select class="form-control" id="audit_resource">
+        <option value=""><%= _('All') %></option>
+        <option value="VM">VM</option>
+        <option value="HOST">HOST</option>
+        <option value="IMAGE">IMAGE</option>
+      </select>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="loadAuditLog()"><%= _('Search') %></button>
+  </form>
+  <table id="audit_table" class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Timestamp</th>
+        <th>User</th>
+        <th>Method</th>
+        <th>Resource</th>
+        <th>Success</th>
+      </tr>
+    </thead>
+    <tbody id="audit_table_body">
+    </tbody>
+  </table>
+  <nav>
+    <ul class="pager" id="audit_pager">
+      <li><a href="#" onclick="prevAuditPage()"><%= _('Previous') %></a></li>
+      <li><a href="#" onclick="nextAuditPage()"><%= _('Next') %></a></li>
+    </ul>
+  </nav>
+</div>
+
+<script type="text/javascript">
+var currentPage = 0;
+var pageSize = 100;
+
+function loadAuditLog() {
+    var user = $('#audit_user').val();
+    var method = $('#audit_method').val();
+    var resource = $('#audit_resource').val();
+    var data = {
+        action: 'audit_query',
+        user_id: user,
+        method: method,
+        resource_type: resource,
+        offset: currentPage * pageSize,
+        limit: pageSize
+    };
+    // Use Sunstone's XML-RPC call (simplified)
+    Sunstone.runAction('AuditLog.query', data, function(result) {
+        var html = '';
+        $.each(result.entries, function(i, entry) {
+            var ts = new Date(entry.timestamp * 1000).toLocaleString();
+            html += '<tr><td>' + entry.id + '</td><td>' + ts + '</td><td>' + entry.user_id + '</td><td>' + entry.method + '</td><td>' + entry.resource_type + '#' + entry.resource_id + '</td><td>' + (entry.success ? 'Yes' : 'No') + '</td></tr>';
+        });
+        $('#audit_table_body').html(html);
+    });
+}
+
+function nextAuditPage() {
+    currentPage++;
+    loadAuditLog();
+}
+
+function prevAuditPage() {
+    if (currentPage > 0) {
+        currentPage--;
+        loadAuditLog();
+    }
+}
+</script>
