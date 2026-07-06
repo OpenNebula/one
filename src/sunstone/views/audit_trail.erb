@@ -1,0 +1,96 @@
+<div class="row">
+  <div class="large-12 columns">
+    <h3>Audit Trail</h3>
+    <div class="row">
+      <div class="large-4 columns">
+        <label>User ID
+          <input type="text" id="filter-user-id" />
+        </label>
+      </div>
+      <div class="large-4 columns">
+        <label>Action
+          <select id="filter-action">
+            <option value="">All</option>
+            <% @actions.each do |action| %>
+              <option value="<%= action %>"><%= action %></option>
+            <% end %>
+          </select>
+        </label>
+      </div>
+      <div class="large-4 columns">
+        <label>Object Type
+          <select id="filter-object-type">
+            <option value="">All</option>
+            <option value="VM">VM</option>
+            <option value="HOST">Host</option>
+            <option value="IMAGE">Image</option>
+            <option value="USER">User</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-4 columns">
+        <label>Object ID
+          <input type="text" id="filter-object-id" />
+        </label>
+      </div>
+      <div class="large-4 columns">
+        <label>Start Time
+          <input type="text" id="filter-start-time" class="datepicker" />
+        </label>
+      </div>
+      <div class="large-4 columns">
+        <label>End Time
+          <input type="text" id="filter-end-time" class="datepicker" />
+        </label>
+      </div>
+    </div>
+    <button class="button" id="filter-btn">Filter</button>
+    <table id="audit-table">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>User ID</th>
+          <th>Action</th>
+          <th>Arguments</th>
+          <th>Result</th>
+          <th>Object</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+  $(document).ready(function(){
+    function loadAuditLogs() {
+      var filter = {
+        user_id: $('#filter-user-id').val(),
+        action: $('#filter-action').val(),
+        object_type: $('#filter-object-type').val(),
+        object_id: $('#filter-object-id').val(),
+        start_time: $('#filter-start-time').val(),
+        end_time: $('#filter-end-time').val()
+      };
+      $.getJSON('/audit_logs', filter, function(data) {
+        var tbody = $('#audit-table tbody');
+        tbody.empty();
+        $.each(data.logs, function(i, log) {
+          var row = '<tr>' +
+            '<td>' + log.created_at + '</td>' +
+            '<td>' + log.user_id + '</td>' +
+            '<td>' + log.action + '</td>' +
+            '<td>' + log.arguments.substr(0, 50) + '...</td>' +
+            '<td>' + log.result.substr(0, 50) + '...</td>' +
+            '<td>' + log.object_type + '#' + log.object_id + '</td>' +
+            '</tr>';
+          tbody.append(row);
+        });
+      });
+    }
+    $('#filter-btn').click(loadAuditLogs);
+    loadAuditLogs();
+  });
+</script>
