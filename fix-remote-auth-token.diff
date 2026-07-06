@@ -1,0 +1,84 @@
+diff --git a/src/fireedge/auth/remote.go b/src/fireedge/auth/remote.go
+index abc123..def456 100644
+--- a/src/fireedge/auth/remote.go
++++ b/src/fireedge/auth/remote.go
+@@ -1,5 +1,6 @@
+ package auth
+ 
++import (
+ 	"context"
+ 	"crypto/rand"
+ 	"encoding/base64"
+@@ -10,9 +11,9 @@ import (
+ 	"net/http"
+ 	"time"
+ 
+-	log "github.com/sirupsen/logrus"
+ 	"github.com/OpenNebula/one/src/fireedge/pkg/config"
+ 	"github.com/OpenNebula/one/src/fireedge/pkg/session"
+ 	"github.com/OpenNebula/one/src/fireedge/pkg/user"
++	log "github.com/sirupsen/logrus"
+ )
+ 
+ // RemoteAuth is the remote authentication provider.
+@@ -21,6 +22,7 @@ type RemoteAuth struct {
+ 	config *config.RemoteAuthConfig
+ 	userSvc *user.Service
+ 	sessionSvc *session.Service
++	secret []byte
+ }
+ 
+ // NewRemoteAuth creates a new RemoteAuth authentication provider.
+@@ -31,6 +33,7 @@ func NewRemoteAuth(cfg *config.RemoteAuthConfig, userSvc *user.Service, sessionS
+ 		config:    cfg,
+ 		userSvc:   userSvc,
+ 		sessionSvc: sessionSvc,
++		secret:    []byte("change-me-secret-key"),
+ 	}
+ }
+ 
+@@ -48,18 +51,43 @@ func (a *RemoteAuth) Authenticate(ctx context.Context, r *http.Request) (*user.U
+ 	if !ok {
+ 		return nil, fmt.Errorf("missing authentication header")
+ 	}
++
++	// Validate the user exists in OpenNebula
+ 	user, err := a.userSvc.GetByUsername(ctx, username)
+ 	if err != nil {
+ 		return nil, fmt.Errorf("authentication failed: %v", err)
+ 	}
++
++	// Create a session token
++	token, err := a.generateToken()
++	if err != nil {
++		return nil, fmt.Errorf("failed to generate token: %v", err)
++	}
++
++	// Associate token with user session
++	err = a.sessionSvc.CreateSession(ctx, user.ID, token)
++	if err != nil {
++		return nil, fmt.Errorf("failed to create session: %v", err)
++	}
++
++	// Set the FireedgeToken cookie in the response
++	http.SetCookie(r, &http.Cookie{
++		Name:     "FireedgeToken",
++		Value:    token,
++		Path:     "/",
++		HttpOnly: true,
++		Secure:   false, // set to true in production with HTTPS
++		MaxAge:   3600, // 1 hour
++	})
++
++	log.WithFields(log.Fields{"user": username}).Info("remote authentication successful, token issued")
+ 	return user, nil
+ }
+ 
+ // generateToken creates a random token.
+ func (a *RemoteAuth) generateToken() (string, error) {
+ 	bytes := make([]byte, 32)
+-	_, err := rand.Read(bytes)
++	_, err := rand.Read(bytes)
+ 	if err != nil {
+ 		return "", err
+ 	}
