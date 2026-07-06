@@ -1,0 +1,41 @@
+<!-- Audit Tab HTML -->
+<div class="row">
+    <div class="large-12 columns">
+        <h2>Audit Log</h2>
+        <div class="row">
+            <div class="large-2 columns">
+                <label>User</label>
+                <input type="text" id="filter_user" />
+            </div>
+            <div class="large-2 columns">
+                <label>Start Time</label>
+                <input type="text" id="filter_start" placeholder="timestamp" />
+            </div>
+            <div class="large-2 columns">
+                <label>End Time</label>
+                <input type="text" id="filter_end" placeholder="timestamp" />
+            </div>
+            <div class="large-2 columns">
+                <label>Request</label>
+                <input type="text" id="filter_request" />
+            </div>
+            <div class="large-2 columns end">
+                <label>&nbsp;</label>
+                <button onclick="filter_audit()" class="button">Filter</button>
+            </div>
+        </div>
+        <table id="audit_table" class="datatable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Request</th>
+                    <th>Timestamp</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
