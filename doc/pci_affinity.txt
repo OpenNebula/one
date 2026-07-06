@@ -1,0 +1,17 @@
+=== PCI Group Scheduling Affinity/Antiaffinity Extension ===
+
+This extension adds a new attribute `PCI_AFFINITY` to Virtual Networks.
+Values:
+  - YES: vNICs using this network MUST be assigned to the same physical PCI address.
+  - NO: vNICs using this network MUST be assigned to different physical PCI addresses.
+  - ANY (default): no restriction.
+
+Usage:
+  In the Virtual Network template, add:
+    PCI_AFFINITY = "YES"
+
+  When deploying a VM with multiple vNICs from networks with different PCI_AFFINITY values,
+  the scheduler will respect the constraints.
+
+Note: This is an initial implementation. More complex group constraints (e.g., affinity groups)
+may be added in future versions.
