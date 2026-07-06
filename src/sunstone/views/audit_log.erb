@@ -1,0 +1,38 @@
+<div id="audit_log_tab" class="tab">
+  <h2>Audit Log</h2>
+  <form id="audit_filter_form">
+    <label>User ID: <input type="text" name="user_id" /></label>
+    <label>Method: <input type="text" name="method" /></label>
+    <label>Object: <input type="text" name="object" /></label>
+    <label>From: <input type="datetime-local" name="start" /></label>
+    <label>To: <input type="datetime-local" name="end" /></label>
+    <button type="button" onclick="loadAuditLog()">Filter</button>
+  </form>
+  <table id="audit_table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Timestamp</th>
+        <th>User</th>
+        <th>Method</th>
+        <th>Params</th>
+        <th>Result</th>
+        <th>Objects</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script>
+    function loadAuditLog() {
+      var params = $('#audit_filter_form').serialize();
+      $.get('/audit_log', params, function(data) {
+        var tbody = $('#audit_table tbody');
+        tbody.empty();
+        data.forEach(function(row) {
+          tbody.append('<tr><td>' + row.id + '</td><td>' + row.timestamp + '</td><td>' + row.user_id + '</td><td>' + row.request_method + '</td><td>' + row.request_params + '</td><td>' + row.result + '</td><td>' + row.objects_involved + '</td></tr>');
+        });
+      });
+    }
+    $(document).ready(loadAuditLog);
+  </script>
+</div>
