@@ -1,0 +1,45 @@
+<%# Add advanced search dropdown to VM table toolbar %>
+<div id="vms_toolbar">
+  <form id="vms_search_form" method="get" action="#">
+    <input type="text" id="vms_search_input" placeholder="Search VMs..." />
+    <select id="vms_advanced_search_select">
+      <option value="">Basic</option>
+      <% @vm_deep_search_attributes.each do |attr| %>
+        <option value="<%= attr[:key] %>"><%= attr[:key] %></option>
+      <% end %>
+    </select>
+    <input type="text" id="vms_advanced_search_value" placeholder="Value regex..." style="display:none;" />
+    <button type="submit" id="vms_search_button">Search</button>
+  </form>
+</div>
+
+<%# Existing VM table rendering here %>
+<div id="vms_table">
+  <!-- Table content loaded dynamically -->
+</div>
+
+<script>
+  // Advanced search toggle logic
+  document.getElementById('vms_advanced_search_select').addEventListener('change', function() {
+    var valueInput = document.getElementById('vms_advanced_search_value');
+    if (this.value !== '') {
+      valueInput.style.display = 'inline';
+    } else {
+      valueInput.style.display = 'none';
+    }
+  });
+
+  // Override search form submit to send AJAX with advanced filter
+  document.getElementById('vms_search_form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var searchText = document.getElementById('vms_search_input').value;
+    var advancedKey = document.getElementById('vms_advanced_search_select').value;
+    var advancedValue = document.getElementById('vms_advanced_search_value').value;
+    var params = { filter: { text: searchText } };
+    if (advancedKey) {
+      params.advanced_filter = { key: advancedKey, value: advancedValue };
+    }
+    // Call VM reload function with params
+    loadVMs(params);
+  });
+</script>
