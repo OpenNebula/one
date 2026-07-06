@@ -1,0 +1,10 @@
+--- a/fireedge/controllers/sunstone.js
++++ b/fireedge/controllers/sunstone.js
+@@ -45,6 +45,7 @@ function handleRemoteAuth(req, res) {
+     const user = validateRemoteUser(req);
+     if (user) {
+         const token = generateToken(user);
++        res.cookie('FireedgeToken', token, { httpOnly: true, secure: true, sameSite: 'lax' });
+         res.send('OK');
+     } else {
+         res.status(401).send('Unauthorized');
