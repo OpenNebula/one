@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+# CLI tool to query audit log
+require 'sqlite3'
+require 'json'
+require 'optparse'
+
+def main
+  options = parse_options
+  db = SQLite3::Database.new('/var/lib/one/one.db')
+  db.results_as_hash = true
+
+  conditions = []
+  conditions << "user_id = #{options[:user_id]}" if options[:user_id]
+  conditions << "action = '#{options[:action]}'" if options[:action]
+  conditions << "timestamp >= '#{options[:start]}'" if options[:start]
+  conditions << "timestamp <= '#{options[:end]}'" if options[:end]
+  where = conditions.empty? ? '' : "WHERE #{conditions.join(' AND ')}"
+
+  rows = db.execute("SELECT * FROM audit_log #{where} ORDER BY timestamp DESC")
+  puts JSON.pretty_generate(rows)
+rescue => e
+  puts "Error: #{e.message}"
+  exit 1
+ensure
+  db.close if db
+end
+
+def parse_options
+  options = {}
+  OptionParser.new do |opts|
+    opts.banner = "Usage: oneaudit [options]"
+    opts.on('-u', '--user USER_ID', 'Filter by user ID') { |v| options[:user_id] = v.to_i }
+    opts.on('-a', '--action ACTION', 'Filter by action') { |v| options[:action] = v }
+    opts.on('-s', '--start DATETIME', 'Start time (YYYY-MM-DD HH:MM:SS)') { |v| options[:start] = v }
+    opts.on('-e', '--end DATETIME', 'End time (YYYY-MM-DD HH:MM:SS)') { |v| options[:end] = v }
+  end.parse!
+  options
+end
+
+main if __FILE__ == $0
