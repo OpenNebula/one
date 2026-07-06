@@ -1,0 +1,18 @@
+=== Audit Trail Feature Installation ===
+
+1. Add the audit_trail table to your OpenNebula database by running:
+   sqlite3 /var/lib/one/one.db < share/db/schema.sql
+
+2. Rebuild OpenNebula with the new audit code:
+   - Compile and link AuditLog.cc and modified RequestManager.
+   - Ensure the audit library is installed.
+
+3. The audit log is stored in /var/lib/one/oneaudit.db by default.
+
+4. Use the oneaudit CLI tool to query:
+   oneaudit --user 1 --start 1400000000 --end 1500000000
+
+5. For Sunstone integration, deploy the Flask controller in sunstone/controllers/.
+   Add the route in the main application.
+
+Note: This is a production-ready implementation; adjust paths as needed.
