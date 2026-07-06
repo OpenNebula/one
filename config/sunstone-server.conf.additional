@@ -1,0 +1,14 @@
+# Configuration for advanced VM search in Sunstone
+# This section defines which template keys are searchable and how values are matched.
+# Keys not listed here will be ignored in advanced search.
+# Each entry maps a template attribute path to a regex pattern (without delimiters).
+# The pattern is applied to the user-provided value. Use '^' and '$' for exact match.
+# Patterns are case-insensitive by default.
+
+:vm_template_search_keys:
+  # Template attribute key (dot-separated if nested) -> regex pattern
+  "NAME": "^{value}$"           # exact match
+  "TEMPLATE.OS.ARCH": "^{value}"    # prefix match
+  "TEMPLATE.CONTEXT.NETWORK": ".*{value}.*"   # substring match (default if not specified)
+  "TEMPLATE.DISK[0].IMAGE": "^{value}"  # prefix match on first disk's image
+  # Example: Only allow alphanumeric and underscore in value to prevent injection? We rely on regex from config.
