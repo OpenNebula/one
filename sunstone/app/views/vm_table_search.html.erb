@@ -1,0 +1,11 @@
+<div class="search-container">
+  <input type="text" id="search-input" placeholder="Search VMs..." />
+  <select id="advanced-search-attr" style="display:none;">
+    <option value="">All attributes</option>
+    <% @searchable_attrs.each do |attr| %>
+      <option value="<%= attr[:key] %>"><%= attr[:key] %></option>
+    <% end %>
+  </select>
+  <button id="advanced-search-toggle">Advanced</button>
+</div>
+<script src="/js/vm_search.js"></script>
