@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+# CLI tool to query audit logs
+
+require_relative '../oca/ruby/audit_log'
+require 'optparse'
+
+options = {}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: oneaudit [options]"
+  opts.on("-u", "--user USER_ID", "Filter by user ID") { |v| options[:user_id] = v.to_i }
+  opts.on("-f", "--from TIMESTAMP", "Filter from timestamp (Unix epoch)") { |v| options[:from_time] = v.to_i }
+  opts.on("-t", "--to TIMESTAMP", "Filter to timestamp (Unix epoch)") { |v| options[:to_time] = v.to_i }
+  opts.on("-o", "--object TYPE", "Filter by object type (e.g., VM, HOST)") { |v| options[:object_type] = v }
+  opts.on("-h", "--help", "Prints this help") { puts opts; exit }
+end.parse!
+
+rows = AuditLog.query(options)
+if rows.empty?
+  puts "No results found."
+else
+  puts sprintf("%-6s %-8s %-20s %-10s %-10s %s", "ID", "User", "Timestamp", "Request", "Result", "Objects")
+  rows.each do |row|
+    puts sprintf("%-6d %-8d %-20s %-10s %-10s %s",
+      row['id'], row['user_id'], Time.at(row['timestamp']).to_s, row['request'], row['result'], row['objects'])
+  end
+end
