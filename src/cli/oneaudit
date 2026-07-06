@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+# OpenNebula Audit CLI
+
+require 'opennebula'
+include OpenNebula
+
+class OneAudit
+    def initialize
+        @client = Client.new
+        @pool = AuditLogPool.new(@client)
+    end
+
+    def list(options)
+        filter = {}
+        filter[:uid] = options[:user] if options[:user]
+        filter[:start_time] = options[:start] if options[:start]
+        filter[:end_time] = options[:end] if options[:end]
+        filter[:request] = options[:request] if options[:request]
+
+        @pool.info(filter)
+        @pool.each do |log|
+            puts "#{log.id}\t#{log.uid}\t#{log.request}\t#{Time.at(log.timestamp)}"
+        end
+    end
+end
+
+if __FILE__ == $0
+    require 'optparse'
+
+    options = {}
+    OptionParser.new do |opts|
+        opts.banner = "Usage: oneaudit [options]"
+        opts.on('-u', '--user UID', 'User ID') { |v| options[:user] = v.to_i }
+        opts.on('-s', '--start TIMESTAMP', 'Start timestamp') { |v| options[:start] = v.to_i }
+        opts.on('-e', '--end TIMESTAMP', 'End timestamp') { |v| options[:end] = v.to_i }
+        opts.on('-r', '--request REQUEST', 'Request name') { |v| options[:request] = v }
+        opts.on('-h', '--help', 'Show help') { puts opts; exit }
+    end.parse!
+
+    OneAudit.new.list(options)
+end
