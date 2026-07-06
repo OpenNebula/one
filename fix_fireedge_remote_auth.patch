@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: OpenNebula Team <dev@opennebula.io>
+Date: Mon, 1 Jan 2024 00:00:00 +0000
+Subject: [PATCH] FireEdge: Generate FireedgeToken on successful remote auth
+
+When 'auth: remote' is enabled, after a successful remote authentication
+header is processed, FireEdge must generate and return a FireedgeToken
+cookie to allow subsequent API calls to be authenticated.
+
+This patch modifies the remote authentication handler to invoke the
+token generation logic that is already used for other authentication
+methods.
+---
+ internal/server/auth.go | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/internal/server/auth.go b/internal/server/auth.go
+index abcdef1..1234567 100644
+--- a/internal/server/auth.go
++++ b/internal/server/auth.go
+@@ -120,6 +120,12 @@ func (s *Server) authenticateRemote(c *gin.Context) {
+ 	if err := s.authenticateUser(username); err != nil {
+ 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+ 		return
++	}
++
++	// Generate and set FireedgeToken cookie after successful remote auth
++	token, err := s.tokenService.CreateToken(username)
++	if err != nil {
++		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create token"})
+ 		return
+ 	}
+ 
++ 	setTokenCookie(c, token)
+ }
+ 
+ // authenticateUser validates the user against OpenNebula core
+-- 
+2.34.1
