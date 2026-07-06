@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+# OpenNebula audit trail CLI tool
+
+require 'optparse'
+require 'json'
+require_relative '../../include/audit_log'
+
+options = {
+  limit: 100,
+  output: 'text'
+}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: oneaudit [options]"
+
+  opts.on('-u', '--user USER_ID', 'Filter by user ID') { |v| options[:user_id] = v.to_i }
+  opts.on('-s', '--start START_TIME', 'Start time (ISO8601)') { |v| options[:start] = Time.parse(v) }
+  opts.on('-e', '--end END_TIME', 'End time (ISO8601)') { |v| options[:end] = Time.parse(v) }
+  opts.on('-r', '--request REQUEST', 'Filter by request name (e.g., one.vm.deploy)') { |v| options[:request] = v }
+  opts.on('-o', '--object OBJECT_ID', 'Filter by object ID (VM/Host/Image ID)') { |v| options[:object_id] = v }
+  opts.on('-l', '--limit LIMIT', Integer, 'Maximum number of entries (default 100)') { |v| options[:limit] = v }
+  opts.on('-f', '--format FORMAT', 'Output format: text, json (default text)') { |v| options[:output] = v }
+  opts.on('-h', '--help', 'Prints this help') { puts opts; exit }
+end.parse!
+
+# Database configuration - should be read from oned.conf or environment
+config = {
+  audit_db: ENV['OPENNEBULA_AUDIT_DB'] || 'sqlite:///var/lib/one/audit.db'
+}
+
+AuditLog.init(config)
+
+entries = AuditLog.query(options)
+
+if options[:output] == 'json'
+  puts JSON.pretty_generate(entries)
+else
+  format = "%-20s %-10s %-30s %-50s"
+  puts format % ['Timestamp', 'User ID', 'Request', 'Params']
+  puts '-' * 110
+  entries.each do |e|
+    params = e[:params] ? e[:params][0..47] + '...' : 'N/A'
+    puts format % [e[:timestamp].to_s, e[:user_id], e[:request], params]
+  end
+end
