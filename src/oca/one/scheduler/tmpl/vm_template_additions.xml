@@ -1,0 +1,7 @@
+<!-- Add to VM template: PCI antiaffinity flag -->
+<!-- Include this in VM template to enable antiaffinity -->
+<PCI>
+  <ANTIAFFINITY>YES</ANTIAFFINITY>
+  <PCI_ADDRESS>0000:02:00.1</PCI_ADDRESS>
+  <PCI_ADDRESS>0000:02:00.2</PCI_ADDRESS>
+</PCI>
