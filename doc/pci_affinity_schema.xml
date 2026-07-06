@@ -1,0 +1,21 @@
+<!-- Extension to OpenNebula Virtual Machine template schema for PCI affinity/antiaffinity -->
+<!-- Add to the existing PCI_GROUPS element -->
+<xs:element name="PCI_GROUPS" minOccurs="0" maxOccurs="unbounded">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="PCI_ADDRESSES" type="xs:string" minOccurs="1" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>List of PCI addresses in the group (e.g., 0000:00:01.0).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AFFINITY_TYPE" minOccurs="0" default="antiaffinity">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="affinity"/>
+            <xs:enumeration value="antiaffinity"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
