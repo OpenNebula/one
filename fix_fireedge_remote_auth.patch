@@ -1,0 +1,26 @@
+diff --git a/fireedge/server/auth.go b/fireedge/server/auth.go
+index abcdef..123456 100644
+--- a/fireedge/server/auth.go
++++ b/fireedge/server/auth.go
+@@ -45,6 +45,12 @@ func (s *Server) handleSunstoneAuth(w http.ResponseWriter, r *http.Request) {
+         return
+     }
+ 
++    // Generate FireedgeToken and set cookie for authenticated user
++    token, err := s.generateToken(username)
++    if err != nil {
++        http.Error(w, "Failed to generate token", http.StatusInternalServerError)
++        return
++    }
++    http.SetCookie(w, &http.Cookie{
++        Name:    "FireedgeToken",
++        Value:   token,
++        Path:    "/",
++        HttpOnly: true,
++        SameSite: http.SameSiteStrictMode,
++    })
++
+     // Serve Sunstone frontend
+     s.serveSunstonePage(w, r)
+ }
+\ No newline at end of file
