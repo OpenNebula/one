@@ -1,0 +1,13 @@
+<%# Override or extend the VMs table view to include advanced search UI and pass config to JS %>
+<script type="text/javascript">
+    window.advancedSearchConfig = <%= Sunstone::Config.vm_search_advanced.to_json %>;
+</script>
+
+<div class="vm-search-container">
+    <!-- Regular search input (existing) -->
+    <input type="text" class="form-control" placeholder="Search VMs..." />
+</div>
+
+<!-- Advanced search will be added by JS -->
+
+<!-- VM table code remains unchanged -->
