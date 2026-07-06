@@ -1,0 +1,64 @@
+<div class="row">
+  <div class="large-12 columns">
+    <h3>Audit Log</h3>
+    <form id="audit-form">
+      <label>User:
+        <input type="text" name="user" />
+      </label>
+      <label>From (Unix timestamp):
+        <input type="text" name="from" />
+      </label>
+      <label>To:
+        <input type="text" name="to" />
+      </label>
+      <label>Object filter:
+        <input type="text" name="object" />
+      </label>
+      <button type="submit" class="button">Filter</button>
+    </form>
+    <table id="audit-table">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Args</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody id="audit-rows">
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+  $(document).ready(function() {
+    loadAudit({});
+    $('#audit-form').submit(function(e) {
+      e.preventDefault();
+      var data = {
+        user: $('input[name=user]').val(),
+        from: $('input[name=from]').val(),
+        to: $('input[name=to]').val(),
+        object: $('input[name=object]').val()
+      };
+      loadAudit(data);
+    });
+  });
+
+  function loadAudit(filters) {
+    $.ajax({
+      url: '/audit/query',
+      method: 'POST',
+      data: JSON.stringify(filters),
+      contentType: 'application/json',
+      success: function(resp) {
+        var rows = '';
+        resp.forEach(function(entry) {
+          rows += '<tr><td>' + entry.timestamp + '</td><td>' + entry.user + '</td><td>' + entry.action + '</td><td>' + entry.args + '</td><td>' + entry.result + '</td></tr>';
+        });
+        $('#audit-rows').html(rows);
+      }
+    });
+  }
+</script>

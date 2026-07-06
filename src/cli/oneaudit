@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# CLI tool to query audit logs
+# Usage: oneaudit [--user user] [--from time] [--to time] [--object obj]
+
+require 'optparse'
+require 'xmlrpc/client'
+
+options = {}
+OptionParser.new do |opts|
+  opts.on('--user USER', 'Filter by user') { |v| options[:user] = v }
+  opts.on('--from TIME', 'Start timestamp (Unix or ISO)') { |v| options[:from] = v }
+  opts.on('--to TIME', 'End timestamp') { |v| options[:to] = v }
+  opts.on('--object OBJ', 'Filter by object (e.g., VM ID)') { |v| options[:object] = v }
+end.parse!
+
+# Connect to OpenNebula XML-RPC
+server = XMLRPC::Client.new2('http://localhost:2633/RPC2')
+call = server.call('one.audit.query', options)
+if call[0]
+  call[1].each do |entry|
+    puts "#{entry['timestamp']} #{entry['user']} #{entry['action']} args: #{entry['args']} result: #{entry['result']}"
+  end
+else
+  puts "Error: #{call[1]}"
+end
