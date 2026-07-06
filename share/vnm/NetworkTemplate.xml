@@ -1,0 +1,10 @@
+<!-- Extended Network Template with PCI_AFFINITY attribute -->
+<NETWORK>
+  <NAME>%s</NAME>
+  <DESCRIPTION>%s</DESCRIPTION>
+  <TYPE>%s</TYPE>
+  <BRIDGE>%s</BRIDGE>
+  <VLAN_ID>%s</VLAN_ID>
+  <PCI_AFFINITY>%s</PCI_AFFINITY>
+  <!-- other fields -->
+</NETWORK>
