@@ -1,0 +1,72 @@
+<h2>Audit Trail</h2>
+
+<%= form_tag audit_log_path, method: :get do %>
+    <div class="row">
+        <div class="large-3 columns">
+            <%= label_tag :user_id, 'User ID' %>
+            <%= text_field_tag :user_id, params[:user_id] %>
+        </div>
+        <div class="large-3 columns">
+            <%= label_tag :start_time, 'Start Time (Unix)' %>
+            <%= text_field_tag :start_time, params[:start_time] %>
+        </div>
+        <div class="large-3 columns">
+            <%= label_tag :end_time, 'End Time (Unix)' %>
+            <%= text_field_tag :end_time, params[:end_time] %>
+        </div>
+        <div class="large-3 columns">
+            <%= label_tag :object_type, 'Object Type' %>
+            <%= text_field_tag :object_type, params[:object_type] %>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-3 columns">
+            <%= label_tag :object_id, 'Object ID' %>
+            <%= text_field_tag :object_id, params[:object_id] %>
+        </div>
+        <div class="large-3 columns">
+            <%= label_tag :request, 'Request' %>
+            <%= text_field_tag :request, params[:request] %>
+        </div>
+        <div class="large-3 columns">
+            <%= label_tag :result, 'Result' %>
+            <%= select_tag :result, options_for_select(['', 'SUCCESS', 'FAILURE'], params[:result]) %>
+        </div>
+        <div class="large-3 columns">
+            <%= submit_tag 'Filter', class: 'button' %>
+        </div>
+    </div>
+<% end %>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Timestamp</th>
+            <th>Request</th>
+            <th>Result</th>
+            <th>Object Type</th>
+            <th>Object ID</th>
+            <th>ACL Rule</th>
+            <th>Session</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% @logs.each do |log| %>
+            <tr>
+                <td><%= log.id %></td>
+                <td><%= log.uid %></td>
+                <td><%= Time.at(log.timestamp) %></td>
+                <td><%= log.request %></td>
+                <td><%= log.result %></td>
+                <td><%= log.object_type %></td>
+                <td><%= log.object_id %></td>
+                <td><%= log.acl_rule %></td>
+                <td><%= log.session %></td>
+            </tr>
+        <% end %>
+    </tbody>
+</table>
+
+<%= will_paginate @logs %>
