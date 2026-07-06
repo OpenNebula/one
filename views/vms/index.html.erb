@@ -1,0 +1,13 @@
+<div class="vm-search-bar">
+  <input type="text" id="search-input" placeholder="Search VMs..." />
+  <select id="advanced-search-select">
+    <option value="">All Attributes</option>
+    <% @vm_search_config.each do |key, pattern| %>
+      <option value="<%= key %>"><%= key %></option>
+    <% end %>
+  </select>
+  <button id="search-btn" onclick="performSearch()">Search</button>
+</div>
+<script>
+  var vmSearchConfig = <%= @vm_search_config.to_json %>;
+</script>
