@@ -1,0 +1,35 @@
+--- a/src/vnm/VirtualNetwork.cc
++++ b/src/vnm/VirtualNetwork.cc
+@@ -XYZ,6 +XYZ,28 @@
++// ovs_vlan_conflict_check.cpp
++// This patch adds validation to prevent VLAN_TAG from being included in VLAN_TRUNKS for Open vSwitch networks.
++
++bool VirtualNetwork::post_update_template()
++{
++    // ... existing code ...
++
++    // Check for OVS VLAN conflict
++    if (isOpenvSwitch())
++    {
++        std::string tag_str, trunks_str;
++        get_template_attribute("VLAN_TAG", tag_str);
++        get_template_attribute("VLAN_TRUNKS", trunks_str);
++
++        if (!tag_str.empty() && !trunks_str.empty() && tag_str != "NO_VLAN")
++        {
++            int tag = std::stoi(tag_str);
++            std::stringstream ss(trunks_str);
++            std::string trunk;
++            while (std::getline(ss, trunk, ','))
++            {
++                if (std::stoi(trunk) == tag)
++                {
++                    set_error("VLAN_TAG " + tag_str + " cannot be included in VLAN_TRUNKS");
++                    return false;
++                }
++            }
++        }
++    }
++
++    // ... existing code ...
++}
