@@ -972,7 +972,7 @@ class OptimizerParser:
     def _apply_predictive_adjustment(
         self, current: float, forecast: float = None
     ) -> float:
-        predictive = self.config.get("predictive", 0)
+        predictive = self.config.get("PREDICTIVE") or 0
         if predictive > 0 and forecast > 0:
             return current * (1 - predictive) + forecast * predictive
         return current
