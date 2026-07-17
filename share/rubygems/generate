@@ -19,7 +19,7 @@
 require 'fileutils'
 require 'tmpdir'
 
-VERSION = '7.3.85'
+VERSION = '7.4.0'
 
 GRPC_PROTO_FILES_DIR='src/rm/grpc/proto'
 GRPC_TARGET_DIR='src/oca/ruby/opennebula/grpc'
