@@ -49,8 +49,9 @@ module TransferManager
             snap_cmd = ''
             expo_cmd = ''
 
-            snap_clup = ''
-            expo_clup = ''
+            snap_clup  = ''
+            expo_clup  = ''
+            snap_abort = ''
             onebex_cmd = ''
 
             xml_vm = REXML::Document.new(@xml).root
@@ -79,10 +80,11 @@ module TransferManager
                 cmds = d.backup_cmds(backup_dir, ds, live, disk_format)
                 return nil unless cmds
 
-                snap_cmd  << cmds[:snapshot].to_s
-                expo_cmd  << cmds[:export].to_s
-                snap_clup << cmds[:snapshot_clup].to_s
-                expo_clup << cmds[:export_clup].to_s
+                snap_cmd   << cmds[:snapshot].to_s
+                expo_cmd   << cmds[:export].to_s
+                snap_clup  << cmds[:snapshot_clup].to_s
+                expo_clup  << cmds[:export_clup].to_s
+                snap_abort << cmds[:snapshot_abort].to_s
 
                 next unless cmds[:start_onebex]
 
@@ -102,6 +104,23 @@ module TransferManager
 
             <<~EOS
                 set -ex -o pipefail
+
+                # ---------------------------------------------------------
+                # Remove disk snapshots created by this backup on failure
+                # ---------------------------------------------------------
+                abort_cleanup() {
+                    rc=$?
+
+                    [ "$rc" = "0" ] && exit 0
+
+                    set +e
+
+                    #{snap_abort}
+
+                    exit "$rc"
+                }
+
+                trap abort_cleanup EXIT
 
                 # ----------------------
                 # Prepare backup folder

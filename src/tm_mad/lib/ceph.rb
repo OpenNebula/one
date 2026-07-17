@@ -141,8 +141,9 @@ module TransferManager
                 snap_cmd = ''
                 expo_cmd = ''
 
-                snap_clup = ''
-                expo_clup = ''
+                snap_clup  = ''
+                expo_clup  = ''
+                snap_abort = ''
 
                 backup_util = '/var/tmp/one/tm/lib/backup_rbd.rb'
 
@@ -154,12 +155,16 @@ module TransferManager
                     if live
                         snapshot = "#{@rbd_image}@one_backup"
 
+                        # Remove stale snapshot left over by a failed backup
+                        snap_cmd << rm_snaps_sh({ :type => :eq, :text => 'one_backup' })
                         snap_cmd << "#{@rbd_cmd} snap create #{snapshot}\n"
                         expo_cmd << ds.cmd_confinement(
                             "#{@rbd_cmd} export #{snapshot} #{draw}\n",
                             backup_dir
                         )
                         snap_clup << "#{@rbd_cmd} snap rm #{snapshot}\n"
+
+                        snap_abort << rm_snaps_sh({ :type => :eq, :text => 'one_backup' })
                     else
                         expo_cmd << ds.cmd_confinement(
                             "#{@rbd_cmd} export #{@rbd_image} #{draw}\n",
@@ -195,6 +200,8 @@ module TransferManager
                         "ruby #{backup_util} #{@rbd_image} NONE #{snapshot} #{dexp}\n",
                         backup_dir
                     )
+
+                    snap_abort << rm_snaps_sh({ :type => :prefix, :text => INC_SNAP_PREFIX })
                 else
                     # Incremental backup
                     incid = @vm_backup_config[:last_increment] + 1
@@ -204,6 +211,8 @@ module TransferManager
 
                     last_snap = "one_backup_#{@vm_backup_config[:last_increment]}"
 
+                    # Remove stale snapshot left over by a failed backup
+                    snap_cmd << rm_snaps_sh({ :type => :eq, :text => "one_backup_#{incid}" })
                     snap_cmd << "#{@rbd_cmd} snap create #{snapshot}\n"
                     snap_cmd << "#{@rbd_cmd} snap protect #{snapshot}\n"
 
@@ -225,14 +234,19 @@ module TransferManager
 
                     old_snapshot = "one_backup_#{@vm_backup_config[:last_increment]}"
                     snap_clup << rm_snaps_sh({ :type => :eq, :text => old_snapshot })
+
+                    # On abort remove only the new snapshot, the previous one
+                    # is still the base for the next increment
+                    snap_abort << rm_snaps_sh({ :type => :eq, :text => "one_backup_#{incid}" })
                 end
 
                 {
-                    :snapshot      => snap_cmd,
-                    :export        => expo_cmd,
-                    :snapshot_clup => snap_clup,
-                    :export_clup   => expo_clup,
-                    :cleanup       => snap_clup + expo_clup
+                    :snapshot       => snap_cmd,
+                    :export         => expo_cmd,
+                    :snapshot_clup  => snap_clup,
+                    :export_clup    => expo_clup,
+                    :snapshot_abort => snap_abort,
+                    :cleanup        => snap_clup + expo_clup
                 }
             end
 
