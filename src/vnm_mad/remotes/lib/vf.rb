@@ -176,17 +176,33 @@ module VNMMAD::VirtualFunction
             :index => m[1]
         }
 
-        netdir = "#{File.dirname(virtfn)}/net"
-        return vf unless Dir.exist?(netdir)
+        pf_netdir = "#{File.dirname(virtfn)}/net"
+        return vf unless Dir.exist?(pf_netdir)
 
-        nics = Dir.children(netdir)
-        return vf if nics.empty? || nics.length == 1
+        if !Dir.exist?(pf_netdir)
+            message = "Could not find a PF for VF #{vf[:index]}"
+            OpenNebula::DriverLogger.log_error(message)
+            reutrn vf
+        end
+
+        nics = Dir.children(pf_netdir)
+
+        if nics.empty?
+            message = "Could not find interfaces at #{pf_netdir}"
+            OpenNebula::DriverLogger.log_error(message)
+            reutrn vf
+        end
+
+        if nics.length == 1
+            vf[:pf] = nics.first
+            return vf
+        end
 
         nics.each do |nic|
             break if vf[:rep] && vf[:pf]
 
             begin
-                portname = File.read("#{netdir}/#{nic}/phys_port_name").strip
+                portname = File.read("#{pf_netdir}/#{nic}/phys_port_name").strip
 
                 if portname.match(/pf\d+vf#{vf[:index]}$/) || portname == "vf#{vf[:index]}"
                     vf[:rep] = nic
@@ -194,7 +210,7 @@ module VNMMAD::VirtualFunction
                     vf[:pf]  = nic
                 end
             rescue StandardError
-                # phys_port_name on VFs throws "Operation not supported"
+                # phys_port_name on VF and dumb PF throws "Operation not supported"
                 next
             end
         end
