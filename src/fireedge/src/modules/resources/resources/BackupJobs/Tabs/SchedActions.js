@@ -22,6 +22,7 @@ import {
   Button,
   ResourceActionConfirmation,
   Table,
+  Tag,
   ToggleGroup,
 } from '@ComponentsV2Module'
 import { BackupJobAPI, useModalsApi } from '@FeaturesModule'
@@ -63,7 +64,7 @@ const formatTime = (time) => {
     return [periodicity?.time, periodicity?.period].filter(Boolean).join(' ')
   }
 
-  return timeFromMilliseconds(+time).toFormat('ff')
+  return timeFromMilliseconds(+time).toRelative()
 }
 
 /**
@@ -195,13 +196,12 @@ export const SchedActions = ({ data, config }) => {
         id: 'id',
         header: T.ID,
         accessorKey: 'ID',
-        width: '10%',
+        grow: false,
       },
       {
         id: 'action',
         header: T.Action,
         accessorFn: (schedule) => sentenceCase(schedule?.ACTION),
-        width: '14%',
       },
       {
         id: 'type',
@@ -209,38 +209,47 @@ export const SchedActions = ({ data, config }) => {
         accessorFn: (schedule) =>
           TEMPLATE_SCHEDULE_TYPE_STRING?.[getTypeScheduleAction(schedule)] ??
           EMPTY_VALUE,
-        width: '14%',
+        cell: ({ row }) => {
+          const type =
+            TEMPLATE_SCHEDULE_TYPE_STRING?.[
+              getTypeScheduleAction(row.original)
+            ] ?? EMPTY_VALUE
+
+          return type !== EMPTY_VALUE ? (
+            <Tag title={type} status="default" />
+          ) : (
+            '-'
+          )
+        },
       },
       {
         id: 'time',
         header: T.Time,
         accessorFn: (schedule) => formatTime(schedule?.TIME),
-        width: '18%',
+        grow: false,
       },
       {
         id: 'repeat',
         header: 'Repeat',
         accessorFn: (schedule) =>
           formatTuple(getRepeatInformation(schedule)?.repeat) ?? EMPTY_VALUE,
-        width: '12%',
       },
       {
         id: 'end',
         header: 'End',
         accessorFn: (schedule) =>
           formatTuple(getRepeatInformation(schedule)?.end) ?? EMPTY_VALUE,
-        width: '14%',
       },
       {
         id: 'message',
         header: T.Message,
         accessorFn: (schedule) => schedule?.MESSAGE ?? EMPTY_VALUE,
-        width: '18%',
+        grow: false,
       },
       {
         id: 'actions',
         header: '',
-        width: '100px',
+        grow: false,
         cell: ({ row }) => (
           <ToggleGroup
             size="small"

@@ -15,9 +15,9 @@
  * ------------------------------------------------------------------------- */
 import { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Alert, Box } from '@mui/material'
+import { Box } from '@mui/material'
 import { OneKsAPI } from '@FeaturesModule'
-import { CodeSnippet } from '@ComponentsV2Module'
+import { AlertNotification, CodeSnippet } from '@ComponentsV2Module'
 import { T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
 import { isEmpty } from 'lodash'
@@ -48,9 +48,18 @@ const KubernetesConfig = ({ data: tabData }) => {
 
   if (isEmpty(DOCUMENT) || !data?.kubeconfig || error) {
     return (
-      <Alert severity="info" variant="outlined">
-        {translate(T['oneks.tab.info.kubeconfig.help.paragraph'])}
-      </Alert>
+      <AlertNotification
+        type="primary"
+        status="information"
+        description={translate(T['oneks.tab.info.kubeconfig.help.paragraph'])}
+        isDismissible={false}
+        style={{
+          gridColumn: '1 / -1',
+          marginTop: '1em',
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      />
     )
   }
 

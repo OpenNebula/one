@@ -61,6 +61,7 @@ export const VrTemplateCard = forwardRef((data = {}, ref) => {
   return (
     <Card
       ref={ref}
+      dataCy={`template-${ID}`}
       onCheck={onCheck}
       onClick={onClick}
       isSelected={isSelected}

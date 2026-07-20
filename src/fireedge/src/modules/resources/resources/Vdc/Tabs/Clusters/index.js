@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { PATH, RESOURCE_NAMES, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { ClusterAPI } from '@FeaturesModule'
 import { getTotalOfResources } from '@UtilsModule'
 import { Component } from 'react'
@@ -65,7 +65,6 @@ export const Clusters = ({ data }) => (
     columns={columns}
     rowDetailsResourceId={RESOURCE_NAMES.CLUSTER}
     dataCy="vdc-clusters"
-    path={PATH.INFRASTRUCTURE.CLUSTERS.DETAIL}
     useQuery={ClusterAPI.useGetClustersQuery}
   />
 )

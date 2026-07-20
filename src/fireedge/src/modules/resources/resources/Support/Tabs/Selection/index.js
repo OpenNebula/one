@@ -44,7 +44,7 @@ export const Selection = ({ data }) => {
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -57,27 +57,29 @@ export const Selection = ({ data }) => {
     {
       accessorKey: 'id',
       header: T.ID,
-      width: '7%',
+      grow: false,
     },
     {
       accessorKey: 'subject',
       header: T.Subject,
-      width: '35%',
+      truncate: true,
     },
     {
       id: 'status',
       header: T.Status,
       accessorFn: (row) => getSupportState(row)?.name,
+      grow: false,
     },
     {
       id: 'severity',
       header: T.Severity,
       accessorFn: getTicketSeverity,
+      grow: false,
     },
     {
       id: 'view',
       header: '',
-      width: '15%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}

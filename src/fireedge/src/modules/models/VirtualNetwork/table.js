@@ -30,11 +30,12 @@ const getCluster = ({ CLUSTERS } = {}) =>
   [CLUSTERS?.ID ?? []].flat().filter(Boolean)[0] ?? '-'
 
 export const VN_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'ID', width: '5%' },
+  { header: T.ID, id: 'id', accessorKey: 'ID', grow: false },
   {
     header: T.Name,
     id: 'name',
     accessorKey: 'NAME',
+    truncate: true,
     cell: ({ row }) => (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <span>{row.original?.NAME}</span>
@@ -84,11 +85,10 @@ export const VN_COLUMNS = [
     header: T.Cluster,
     id: 'cluster',
     accessorFn: getCluster,
-    width: '5%',
   },
-  { header: T.Owner, id: 'owner', accessorKey: 'UNAME' },
-  { header: T.Group, id: 'group', accessorKey: 'GNAME' },
-  createLabelColumn(),
+  { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
+  { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
+  createLabelColumn({ grow: false }),
 ]
 
 export const vnTable = createTable(VN_COLUMNS, VnAPI.useGetVNetworksQuery, {

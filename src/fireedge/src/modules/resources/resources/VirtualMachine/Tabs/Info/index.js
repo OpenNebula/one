@@ -22,13 +22,15 @@ import {
   CapacityPanel,
   PermissionsTab,
   OwnershipTab,
-  Tag,
-  Tooltip,
+  StatusTag,
+  TagList,
 } from '@ComponentsV2Module'
 import { Box } from '@mui/material'
 import { Copy as CopyIcon, Check as CopiedIcon } from 'iconoir-react'
 import {
   getVirtualMachineState,
+  getHypervisor,
+  getIpAddresses,
   getVmHostname,
   isVmAvailableAction,
 } from '@ModelsModule'
@@ -71,6 +73,9 @@ export const Info = ({ data, config }) => {
   const { copy, isCopied } = useClipboard()
   const { showModal } = useModalsApi()
   const { oneConfig, adminGroup } = useSystemData()
+  const { color: stateColor, name: stateName } =
+    getVirtualMachineState(selectedVm) ?? {}
+  const hypervisor = getHypervisor(selectedVm)
   const hostName = getVmHostname(selectedVm)
   const [resizeCapacity] = VmAPI.useResizeMutation()
 
@@ -127,9 +132,10 @@ export const Info = ({ data, config }) => {
                 [T.Name, selectedVm?.NAME],
                 [
                   T.State,
-                  <Tag
+                  <StatusTag
                     key="vm-state"
-                    title={getVirtualMachineState(selectedVm)?.name}
+                    statusColor={stateColor}
+                    statusName={stateName}
                   />,
                 ],
                 [T.Owner, selectedVm?.UNAME],
@@ -139,49 +145,18 @@ export const Info = ({ data, config }) => {
                   T.ip,
                   ((ips) =>
                     ips.length ? (
-                      <Box
+                      <TagList
                         key="ip-array"
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          overflow: 'hidden',
-                          gap: '4px',
-                        }}
-                      >
-                        <Tag
-                          title={ips?.[0]}
-                          endIcon={
-                            isCopied(ips?.[0]) ? <CopiedIcon /> : <CopyIcon />
-                          }
-                          onClick={() => copy(ips?.[0])}
-                          isInteractive
-                        />
-
-                        <Tooltip title={ips.join(', ')}>
-                          <Tag
-                            title={`+${ips.length - 1}`}
-                            type="squre"
-                            status="information"
-                            onClick={() => copy(ips.join(', '))}
-                            endIcon={
-                              isCopied(ips?.join(', ')) ? (
-                                <CopiedIcon />
-                              ) : (
-                                <CopyIcon />
-                              )
-                            }
-                            isInteractive
-                          />
-                        </Tooltip>
-                      </Box>
+                        max={1}
+                        tags={ips.map((ip) => ({
+                          title: ip,
+                          endIcon: isCopied(ip) ? <CopiedIcon /> : <CopyIcon />,
+                          onClick: () => copy(ip),
+                        }))}
+                      />
                     ) : (
                       '-'
-                    ))(
-                    []
-                      .concat(selectedVm?.TEMPLATE?.NIC)
-                      .map(({ IP } = {}) => IP)
-                      .filter(Boolean)
-                  ),
+                    ))(getIpAddresses(selectedVm)),
                 ],
                 [
                   T.StartTime,
@@ -201,6 +176,7 @@ export const Info = ({ data, config }) => {
                       )
                     : '-',
                 ],
+                [T.Hypervisor, hypervisor ?? '-'],
                 [T.Host, hostName ?? T.Unknown, T.Hostname],
                 [T.Cluster, clusterName ?? '-'],
                 [T.DeployID, selectedVm?.DEPLOY_ID ?? '-'],

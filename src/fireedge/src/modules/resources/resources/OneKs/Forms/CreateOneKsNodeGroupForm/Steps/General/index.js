@@ -14,15 +14,17 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
 import { T } from '@ConstantsModule'
 import { SCHEMA, FIELDS } from './schema'
 import { useMemo } from 'react'
-import { Grid, Alert, useTheme } from '@mui/material'
+import { Grid, useTheme } from '@mui/material'
 import { useTranslation } from '@ProvidersModule'
 import styles from '@modules/resources/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/styles'
 
 export const STEP_ID = 'general'
+const FIELDS_LIST = FIELDS()
+const COLUMNS = [[], FIELDS_LIST, []]
 
 const Content = () => {
   const { translate } = useTranslation()
@@ -33,20 +35,27 @@ const Content = () => {
 
   return (
     <>
-      <Alert
-        severity="info"
-        variant="outlined"
+      <AlertNotification
+        type="primary"
+        status="information"
+        description={translate(
+          T['oneks.form.create_nodegroup.general.help.paragraph']
+        )}
+        isDismissible={false}
         className={classes.groupInfo}
-        sx={{
-          width: '100% !important',
-          flexDirection: 'row !important',
-        }}
-      >
-        {translate(T['oneks.form.create_nodegroup.general.help.paragraph'])}
-      </Alert>
+        style={{ width: '100%', boxSizing: 'border-box' }}
+      />
       <Grid mt={2} container className={classes.container}>
         <Grid item xs={12}>
-          <FormWithSchema id={STEP_ID} cy={`${STEP_ID}`} fields={FIELDS()} />
+          <FormWithSchema
+            id={STEP_ID}
+            cy={`${STEP_ID}`}
+            fields={FIELDS_LIST}
+            columns={COLUMNS}
+            gridContainerSx={{
+              gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
+            }}
+          />
         </Grid>
       </Grid>
     </>

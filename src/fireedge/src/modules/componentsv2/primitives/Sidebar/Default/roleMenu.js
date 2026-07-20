@@ -139,7 +139,7 @@ export const SidebarRoleMenu = ({ isExpanded = false }) => {
   return (
     <Box className="role-menu">
       <MenuDropdown
-        className="dropdown"
+        className={`dropdown ${selectedRole?.view ?? ''}`}
         dataCy="header-view-button"
         id="sidebar-role-menu"
         expanded={isExpanded}

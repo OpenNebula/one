@@ -16,16 +16,15 @@
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
-import { useTranslation } from '@ProvidersModule'
+import { useResourceSingleViewContext, useTranslation } from '@ProvidersModule'
 import {
+  RESOURCE_NAMES,
   T,
   CPU_STATUS,
-  PATH,
   TEXT_VARIANTS,
   TEXT_WEIGHTS,
 } from '@ConstantsModule'
 import { getColorFromString } from '@ModelsModule'
-import { generatePath, useHistory } from 'react-router'
 
 import { getStyles } from '@modules/resources/resources/Host/Tabs/Numa/CPU/styles'
 import { Text } from '@ComponentsV2Module'
@@ -38,17 +37,14 @@ import { Text } from '@ComponentsV2Module'
  */
 const NumaCoreCPU = ({ core, status }) => {
   const { translate } = useTranslation()
+  const { openResourceSingleView } = useResourceSingleViewContext()
   // Generates unique colors for VM id, uses grey bg for isolated/free.
-  const history = useHistory()
   const isKnownStatus = !!CPU_STATUS?.[status]
   const bgColor = isKnownStatus
     ? 'surface.disabled'
     : getColorFromString(status)
 
   const attachedToVm = status >= 0
-
-  const gotoVm = (id) =>
-    history.push(generatePath(PATH.INSTANCE.VMS.DETAIL, { id }))
 
   return (
     <Box sx={(theme) => getStyles({ theme, bgColor, attachedToVm })}>
@@ -66,7 +62,11 @@ const NumaCoreCPU = ({ core, status }) => {
         variant={TEXT_VARIANTS.CAPTION}
         value={attachedToVm ? `${T.VM} #${status}` : CPU_STATUS?.[status]}
         data-cy={`cpu-${core}`}
-        onClick={attachedToVm ? () => gotoVm(status) : undefined}
+        onClick={
+          attachedToVm
+            ? () => openResourceSingleView(RESOURCE_NAMES.VM, status)
+            : undefined
+        }
         noWrap
       />
     </Box>

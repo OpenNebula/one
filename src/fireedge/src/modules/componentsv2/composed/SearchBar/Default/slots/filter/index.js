@@ -42,6 +42,7 @@ export const FilterSlot = forwardRef(
       ref={ref}
     >
       <Button
+        dataCy="filter-by-button"
         title={title}
         startIcon={filterIcon}
         size="medium"

@@ -27,9 +27,9 @@ const paddingScale = (theme, size) =>
  * @param {string} root0.size - Row size
  * @param {boolean} root0.isDisabled - Disable interactions
  * @param {boolean} root0.isLoading - Is loading
+ * @param {boolean} root0.isEmpty - Whether the table has no rows
  * @param {'small'|'medium'} root0.emptyContentSize - Empty content size
  * @param {number} root0.theadHeight - Table header ref height
- * @param {number} root0.footerHeight - Table footer ref height
  * @param {boolean} root0.isFullHeight - Is table full height
  * @returns {object} - Table SX styles
  */
@@ -38,9 +38,9 @@ export const getStyles = ({
   size,
   isDisabled,
   isLoading,
+  isEmpty,
   emptyContentSize,
   theadHeight,
-  footerHeight,
   isFullHeight,
 }) => {
   const isSmallEmptyContent = emptyContentSize === 'small'
@@ -114,12 +114,24 @@ export const getStyles = ({
 
     '& .table-scroll': {
       display: 'flex',
+      position: 'relative',
       width: '100%',
       flex: isFullHeight ? '1 1 auto' : '0 0 auto',
       minHeight: 0,
-      overflowX: 'auto',
+      overflowX: isEmpty ? 'hidden' : 'auto',
       overflowY: isFullHeight ? 'auto' : 'hidden',
       overscrollBehaviorX: 'contain',
+    },
+
+    '& .table-width-ruler': {
+      display: 'block',
+      position: 'absolute',
+      visibility: 'hidden',
+      boxSizing: 'border-box',
+      height: 0,
+      padding: 0,
+      border: 0,
+      pointerEvents: 'none',
     },
 
     '& .table-scroll table': {
@@ -155,6 +167,12 @@ export const getStyles = ({
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         maxWidth: '100%',
+      },
+
+      '& .menu-button-container': {
+        display: 'flex',
+        width: 'fit-content',
+        marginLeft: 'auto',
       },
 
       '& th.table-title': {
@@ -260,30 +278,6 @@ export const getStyles = ({
         },
       },
 
-      '@keyframes shimmer': {
-        '0%': { transform: 'translateX(-100%)' },
-        '100%': { transform: 'translateX(100%)' },
-      },
-      '& .skeleton-cell': {
-        position: 'relative',
-        overflow: 'hidden',
-        height: '14px',
-        borderRadius: `${theme.borderRadius.lg}px`,
-        bgcolor: 'surface.mute',
-        width: '100%',
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
-          background:
-            'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)',
-          animation: 'shimmer 2s infinite',
-        },
-      },
-
       ...(isDisabled && {
         pointerEvents: 'none',
         cursor: 'not-allowed',
@@ -291,16 +285,12 @@ export const getStyles = ({
     },
 
     '& .table-empty-content': {
-      position: 'absolute',
-      top: `${theadHeight}px`,
-      right: 0,
-      bottom: `${footerHeight}px`,
-      left: 0,
-      zIndex: 1,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       boxSizing: 'border-box',
+      minHeight: emptyRowHeight,
+      height: isFullHeight ? '100%' : 'auto',
       padding: emptyRowPadding,
       pointerEvents: 'none',
     },
@@ -317,6 +307,7 @@ export const getStyles = ({
       flex: '0 0 auto',
       width: '100%',
       boxSizing: 'border-box',
+      borderTop: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
       bgcolor: 'surface.primary',
     },
 

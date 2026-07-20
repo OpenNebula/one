@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { forwardRef, Component } from 'react'
+import { forwardRef, Component, ReactNode } from 'react'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 import { getStyles } from '@modules/componentsv2/composed/Cards/Default/slots/title/styles'
@@ -25,7 +25,7 @@ import { StatusTag } from '@modules/componentsv2/composed/Status'
  * TitleSlot component.
  *
  * @param {object} root0 - Params
- * @param {string} root0.title - Title text
+ * @param {ReactNode} root0.title - Title content
  * @param {string} root0.status - Badge status
  * @param {string} root0.statusName - Status label
  * @returns {Component} - TextField component
@@ -52,7 +52,7 @@ export const TitleSlot = forwardRef(
 )
 
 TitleSlot.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   status: PropTypes.string,
   statusName: PropTypes.string,
 }

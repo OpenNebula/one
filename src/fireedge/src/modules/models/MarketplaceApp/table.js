@@ -36,11 +36,12 @@ const stringifyValue = (value) => {
 }
 
 export const MARKETPLACEAPP_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'ID', width: '5%' },
+  { header: T.ID, id: 'id', accessorKey: 'ID', grow: false },
   {
     header: T.Name,
     id: 'name',
     accessorKey: 'NAME',
+    truncate: true,
     cell: ({ row }) => (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <span>{row.original?.NAME}</span>
@@ -101,21 +102,21 @@ export const MARKETPLACEAPP_COLUMNS = [
     header: T.Size,
     id: 'size',
     accessorKey: 'SIZE',
-    width: '5%',
     cell: ({ row }) => prettyBytes(row.original?.SIZE, UNITS.MB),
   },
-  { header: T.Owner, id: 'owner', accessorKey: 'UNAME' },
-  { header: T.Group, id: 'group', accessorKey: 'GNAME' },
+  { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
+  { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
   {
     header: T.RegistrationTime,
     id: 'time',
     accessorKey: 'REGTIME',
+    grow: false,
     cell: ({ row }) =>
       row.original?.REGTIME
         ? timeFromMilliseconds(+row.original.REGTIME).toRelative()
         : '-',
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const marketplaceAppTable = createTable(

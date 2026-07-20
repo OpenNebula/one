@@ -133,10 +133,10 @@ const SecurityGroupsDialog = ({
 }) => {
   const columns = useMemo(
     () => [
-      { accessorKey: 'ID', header: T.ID, width: '7%' },
-      { accessorKey: 'NAME', header: T.Name, width: '30%' },
-      { accessorKey: 'UNAME', header: T.Owner },
-      { accessorKey: 'GNAME', header: T.Group },
+      { accessorKey: 'ID', header: T.ID, grow: false },
+      { accessorKey: 'NAME', header: T.Name, truncate: true },
+      { accessorKey: 'UNAME', header: T.Owner, grow: false },
+      { accessorKey: 'GNAME', header: T.Group, grow: false },
       {
         id: 'rules',
         header: T.Rules,
@@ -145,7 +145,7 @@ const SecurityGroupsDialog = ({
       {
         id: 'actions',
         header: '',
-        width: '7%',
+        grow: false,
         cell: ({ row }) => {
           const securityGroup = row.original
           const securityGroupId = getSecurityGroupId(securityGroup)
@@ -210,6 +210,10 @@ const SecurityGroupsDialog = ({
           columns={columns}
           data={securityGroups}
           isLoading={isLoading}
+          emptyContentProps={{
+            title: T.NoSecurityGroups,
+            subtitle: T.SecurityGroupsWillAppearHere,
+          }}
           size="medium"
           isEnableSearchBar
           isEnableSort
@@ -459,19 +463,19 @@ export const Network = ({ data, config }) => {
     {
       header: T.SecurityGroups,
       id: 'security-groups',
-      width: '10%',
+      grow: false,
       cell: ({ row }) => getSecurityGroupIds(row?.original).length,
     },
     {
       header: T.Alias,
       id: 'alias',
-      width: '10%',
+      grow: false,
       cell: ({ row }) => getAliasCount(row?.original, nics),
     },
     {
       header: '',
       id: 'actions',
-      width: '7%',
+      grow: false,
       cell: ({ row }) => {
         const nic = row?.original
         const networkOptions =
@@ -560,6 +564,10 @@ export const Network = ({ data, config }) => {
           columns={columns}
           data={primaryNics}
           isLoading={isFetchingNics || isPerformingAction}
+          emptyContentProps={{
+            title: T.NoNics,
+            subtitle: T.AttachedNicsWillAppearHere,
+          }}
           size="medium"
           isEnableSearchBar
           isEnableSort

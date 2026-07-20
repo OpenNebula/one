@@ -54,8 +54,8 @@ export const ZoneInfoTab = ({ data, config }) => {
   }))
 
   const serverPoolColumns = [
-    { header: T.ID, accessorKey: 'ID' },
-    { header: T.Name, accessorKey: 'NAME' },
+    { header: T.ID, accessorKey: 'ID', grow: false },
+    { header: T.Name, accessorKey: 'NAME', truncate: true },
     { header: T.Endpoint, accessorKey: 'ENDPOINT' },
   ]
 

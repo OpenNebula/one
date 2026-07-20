@@ -23,6 +23,9 @@ import {
   ButtonGroup,
   Button,
   MenuButton,
+  SkeletonLoading,
+  StatusTag,
+  TagList,
   Tooltip,
   AlertNotification,
   getLabelMenuButtonProps,
@@ -34,6 +37,7 @@ import {
   ImageAPI,
   useGeneral,
 } from '@FeaturesModule'
+import { useClipboard } from '@HooksModule'
 import { Component, useMemo } from 'react'
 import {
   PATH,
@@ -54,9 +58,12 @@ import {
   Play,
   Cart,
   SaveFloppyDisk,
+  Check as CopiedIcon,
+  Copy as CopyIcon,
 } from 'iconoir-react'
 import {
   getBackupList,
+  getIpAddresses,
   getVirtualMachineState,
   getVmHostname,
   getVmClusterId,
@@ -98,13 +105,12 @@ export const SingleView = ({
   viewConfig = {},
 }) => {
   const { zone, defaultZone } = useGeneral()
+  const { copy, isCopied } = useClipboard()
   const history = useHistory()
   const vmId = selectedVm?.ID
   const hostName = getVmHostname(selectedVm)
-  const { palette } = useTheme()
+  const { palette, scale } = useTheme()
   const { showModal } = useModalsApi()
-  const vmState = getVirtualMachineState(selectedVm)
-
   const {
     data: extendedVmData,
     isFetching: isLoadingExtended,
@@ -117,6 +123,8 @@ export const SingleView = ({
     }
   )
   const vmData = extendedVmData ?? selectedVm
+  const vmState = getVirtualMachineState(vmData)
+  const vmIps = getIpAddresses(vmData)
   const vmLabelTags = useMemo(() => getLabelTags(vmData?.LABELS), [vmData])
   const clusterId = getVmClusterId(vmData)
   const clusterIdNumber = Number(clusterId)
@@ -316,6 +324,7 @@ export const SingleView = ({
   return (
     <DetailsDrawer
       isOpen={isOpen}
+      isLoading={isLoadingExtended}
       slots={[
         [
           InfoSlot,
@@ -329,7 +338,6 @@ export const SingleView = ({
               [T.Owner, selectedVm?.UNAME],
               [T.Group, selectedVm?.GNAME],
               [T.Host, hostName],
-              [T.Cluster, clusterName],
             ],
             tags: vmLabelTags,
             Toolbar: () => (
@@ -340,25 +348,32 @@ export const SingleView = ({
                   gap: `${theme.scale[500]}px`,
                 })}
               >
-                <Tooltip title={T.Resume}>
-                  <span>
-                    <Button
-                      startIcon={<Play />}
-                      title={T.Resume}
-                      onClick={handleResume}
-                      isDisabled={
-                        vmState?.name === 'RUNNING' || isActionsDisabled
-                      }
+                <SkeletonLoading
+                  loading={isLoadingExtended}
+                  width={112}
+                  height={scale[700]}
+                  borderRadius="xlg"
+                >
+                  {vmState?.name === 'RUNNING' ? (
+                    <MenuButton
+                      placeholder={T.Console}
+                      options={[consoleOptions]}
                       compactable
                     />
-                  </span>
-                </Tooltip>
-
-                <MenuButton
-                  placeholder={T.Console}
-                  options={[consoleOptions]}
-                  compactable
-                />
+                  ) : (
+                    <Tooltip title={T.Resume}>
+                      <span>
+                        <Button
+                          startIcon={<Play />}
+                          title={T.Resume}
+                          onClick={handleResume}
+                          isDisabled={isActionsDisabled}
+                          compactable
+                        />
+                      </span>
+                    </Tooltip>
+                  )}
+                </SkeletonLoading>
 
                 <MenuButton
                   placeholder={T.VMActions}
@@ -471,13 +486,28 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
-              [vmState?.name ?? T.Unknown, T.State],
               [
-                []
-                  .concat(selectedVm?.TEMPLATE?.NIC)
-                  ?.map(({ IP } = {}) => IP)
-                  ?.filter(Boolean)
-                  ?.join(', ') || '-',
+                <StatusTag
+                  key="state"
+                  statusColor={vmState?.color}
+                  statusName={vmState?.name ?? T.Unknown}
+                />,
+                T.State,
+              ],
+              [
+                vmIps.length ? (
+                  <TagList
+                    key="ips"
+                    max={1}
+                    tags={vmIps.map((ip) => ({
+                      title: ip,
+                      endIcon: isCopied(ip) ? <CopiedIcon /> : <CopyIcon />,
+                      onClick: () => copy(ip),
+                    }))}
+                  />
+                ) : (
+                  '-'
+                ),
                 T.ip,
               ],
               [hostName ?? T.Unknown, T.Hostname],

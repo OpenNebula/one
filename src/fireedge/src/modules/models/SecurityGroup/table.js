@@ -18,11 +18,12 @@ import { createTable, getTotalOfResources } from '@UtilsModule'
 import { SecurityGroupAPI, VmAPI } from '@FeaturesModule'
 import { VM_COLUMNS } from '@modules/models/VirtualMachine/table'
 import { createLabelColumn } from '@modules/models/labels'
+import { Tag } from '@ComponentsV2Module'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const SECURITYGROUPS_COLUMNS = [
-  { header: T.ID, accessorKey: 'ID', id: 'id' },
-  { header: T.Name, id: 'name', accessorKey: 'NAME' },
+  { header: T.ID, accessorKey: 'ID', id: 'id', grow: false },
+  { header: T.Name, id: 'name', accessorKey: 'NAME', truncate: true },
   {
     header: 'Updated VMs',
     id: 'UPDATED_VMS',
@@ -38,26 +39,54 @@ export const SECURITYGROUPS_COLUMNS = [
     id: 'ERROR_VMS',
     accessorFn: (row) => getTotalOfResources(row?.ERROR_VMS),
   },
-  { header: T.Owner, accessorKey: 'UNAME' },
-  { header: T.Group, accessorKey: 'GNAME' },
-  createLabelColumn(),
+  { header: T.Owner, accessorKey: 'UNAME', grow: false },
+  { header: T.Group, accessorKey: 'GNAME', grow: false },
+  createLabelColumn({ grow: false }),
 ]
 
 export const RULESECURITYGROUP_COLUMNS = [
-  { header: T.Protocol, id: 'PROTOCOL', accessorFn: (row) => row?.PROTOCOL },
-  { header: T.Type, id: 'TYPE', accessorFn: (row) => row?.RULE_TYPE },
-  { header: T.Range, id: 'RANGE', accessorFn: (row) => row?.RANGE },
+  {
+    header: T.Protocol,
+    id: 'PROTOCOL',
+    accessorFn: (row) => row?.PROTOCOL,
+    grow: false,
+  },
+  {
+    header: T.Type,
+    id: 'TYPE',
+    accessorFn: (row) => row?.RULE_TYPE,
+    grow: false,
+    cell: ({ row }) =>
+      row.original?.RULE_TYPE ? (
+        <Tag title={row.original.RULE_TYPE} status="default" />
+      ) : (
+        '-'
+      ),
+  },
+  {
+    header: T.Range,
+    id: 'RANGE',
+    accessorFn: (row) => row?.RANGE,
+    grow: false,
+  },
   {
     header: T.Network,
     id: 'NETWORK',
     cell: ({ row }) => row.original?.NETWORK,
+    truncate: true,
     meta: { disableCellTooltip: true },
   },
-  { header: T.IcmpType, id: 'ICMP_TYPE', accessorFn: (row) => row?.ICMP_TYPE },
+  {
+    header: T.IcmpType,
+    id: 'ICMP_TYPE',
+    accessorFn: (row) => row?.ICMP_TYPE,
+    grow: false,
+  },
   {
     header: T.IcmpTypeV6,
     id: 'ICMPv6_TYPE',
     accessorFn: (row) => row?.ICMPv6_TYPE,
+    grow: false,
   },
 ]
 

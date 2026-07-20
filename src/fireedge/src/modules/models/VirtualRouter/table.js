@@ -26,11 +26,12 @@ import { Box } from '@mui/material'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const VR_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'ID', width: '5%' },
+  { header: T.ID, id: 'id', accessorKey: 'ID', grow: false },
   {
     header: T.Name,
     id: 'name',
     accessorKey: 'NAME',
+    truncate: true,
     cell: ({ row }) => (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <span>{row.original?.NAME}</span>
@@ -53,9 +54,9 @@ export const VR_COLUMNS = [
     id: 'nics',
     accessorFn: getVirtualRouterTotalNics,
   },
-  { header: T.Owner, id: 'owner', accessorKey: 'UNAME' },
-  { header: T.Group, id: 'group', accessorKey: 'GNAME' },
-  createLabelColumn(),
+  { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
+  { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
+  createLabelColumn({ grow: false }),
 ]
 
 export const vrTable = createTable(VR_COLUMNS, VrAPI.useGetVrsQuery, {

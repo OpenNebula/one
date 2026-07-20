@@ -207,6 +207,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Lock} ${T.NetworkTemplate}`,
+        dataCy: 'modal-lock',
         description: (
           <ResourceActionConfirmation
             description={T['resource.lock.confirmation']}
@@ -224,6 +225,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Unlock} ${T.NetworkTemplate}`,
+        dataCy: 'modal-unlock',
         description: (
           <ResourceActionConfirmation
             description={T['resource.unlock.confirmation']}
@@ -241,6 +243,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Delete} ${T.NetworkTemplate}`,
+        dataCy: 'modal-vnettemplate-delete',
         description: (
           <ResourceActionConfirmation
             description={T['resource.delete.confirmation']}
@@ -292,6 +295,7 @@ export const SingleView = ({
         [
           InfoSlot,
           {
+            dataCy: 'vnet-template',
             isTitleEditable: canRename,
             onTitleChange: handleRename,
             isTitleEditDisabled: isActionsDisabled,
@@ -322,6 +326,7 @@ export const SingleView = ({
                         startIcon: <Lock width="16px" height="16px" />,
                         onClick: handleLockForm,
                         value: 'lock',
+                        dataCy: 'action-vnettemplate-lock',
                         tooltip: T.Lock,
                         isDisabled: isActionsDisabled,
                       },
@@ -329,6 +334,7 @@ export const SingleView = ({
                         startIcon: <NoLock width="16px" height="16px" />,
                         onClick: handleUnlockForm,
                         value: 'unlock',
+                        dataCy: 'action-vnettemplate-unlock',
                         tooltip: T.Unlock,
                         isDisabled: isActionsDisabled,
                       },
@@ -359,6 +365,7 @@ export const SingleView = ({
                         startIcon: <Edit width="16px" height="16px" />,
                         onClick: handleUpdate,
                         value: 'update',
+                        'data-cy': 'action-vnettemplate-update_dialog',
                         tooltip: T.Update,
                         isDisabled: isLocked || isActionsDisabled,
                       },
@@ -386,6 +393,7 @@ export const SingleView = ({
                         ),
                         onClick: handleDeleteForm,
                         value: 'delete',
+                        'data-cy': 'action-vnettemplate-delete',
                         tooltip: T.Delete,
                         isDestructive: true,
                         isDisabled: isLocked || isActionsDisabled,

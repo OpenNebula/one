@@ -36,10 +36,9 @@ export const CAPACITY_ACTION_GROUP_SX = (theme) => ({
 /**
  * @param {object} root0 - Params
  * @param {object} root0.theme - Current theme
- * @param {boolean} root0.isLoading - Display loading state
  * @returns {object} - Capacity panel styles
  */
-export const getStyles = ({ theme, isLoading }) => {
+export const getStyles = ({ theme }) => {
   const baseStyles = {
     overflow: 'auto',
     display: 'flex',
@@ -106,30 +105,8 @@ export const getStyles = ({ theme, isLoading }) => {
       textOverflow: 'ellipsis',
       maxWidth: '100%',
     },
-  }
-  const skeleton = {
-    '@keyframes shimmer': {
-      '0%': { transform: 'translateX(-100%)' },
-      '100%': { transform: 'translateX(100%)' },
-    },
-    '& .skeleton-cell': {
-      position: 'relative',
-      overflow: 'hidden',
-      height: '14px',
-      borderRadius: `${theme.borderRadius.lg}px`,
-      bgcolor: 'surface.mute',
-      width: '100%',
-      '&::after': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        background:
-          'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)',
-        animation: 'shimmer 2s infinite',
-      },
+    '& .capacity-loading-row': {
+      gridColumn: '1 / -1',
     },
   }
 
@@ -140,6 +117,5 @@ export const getStyles = ({ theme, isLoading }) => {
     ...title,
     ...container,
     ...row,
-    ...skeleton,
   }
 }

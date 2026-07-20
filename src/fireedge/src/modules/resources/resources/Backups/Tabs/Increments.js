@@ -16,9 +16,9 @@
 
 import PropTypes from 'prop-types'
 import { ReactElement, useMemo } from 'react'
-import { Table } from '@ComponentsV2Module'
+import { Table, Tag } from '@ComponentsV2Module'
 import { T } from '@ConstantsModule'
-import { prettyBytes, timeToString } from '@UtilsModule'
+import { prettyBytes, timeFromMilliseconds } from '@UtilsModule'
 import { getBackupIncrements } from '@ModelsModule'
 
 /**
@@ -36,31 +36,38 @@ export const Increments = ({ data }) => {
         header: T.ID,
         id: 'id',
         accessorKey: 'ID',
-        width: '10%',
+        grow: false,
       },
       {
         header: T.Type,
         id: 'type',
         accessorKey: 'TYPE',
-        width: '12%',
+        grow: false,
+        cell: ({ row }) =>
+          row.original?.TYPE ? (
+            <Tag title={row.original.TYPE} status="default" />
+          ) : (
+            '-'
+          ),
       },
       {
         header: T.Date,
         id: 'date',
-        width: '24%',
-        accessorFn: (row) => timeToString(row?.DATE),
+        grow: false,
+        accessorFn: (row) =>
+          row?.DATE ? timeFromMilliseconds(+row.DATE).toRelative() : '-',
       },
       {
         header: T.Size,
         id: 'size',
-        width: '12%',
+        grow: false,
         accessorFn: (row) => prettyBytes(row?.SIZE, 'MB'),
       },
       {
         header: T.Source,
         id: 'source',
         accessorKey: 'SOURCE',
-        width: '42%',
+        truncate: true,
       },
     ],
     []

@@ -118,6 +118,7 @@ const DialogConfirmation = memo(
             alignItems: 'center',
             gap: '2em',
             padding: '0.5rem 0.5rem 0.5rem 1rem',
+            color: 'text.headings',
           }}
         >
           <Box flexGrow={1}>
@@ -127,7 +128,7 @@ const DialogConfirmation = memo(
               </Typography>
             )}
             {subheader && (
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ color: 'text.body' }}>
                 {typeof subheader === 'string'
                   ? translate(subheader)
                   : subheader}
@@ -148,7 +149,11 @@ const DialogConfirmation = memo(
         {children && (
           <DialogContent
             dividers
-            sx={{ display: 'flex', flexDirection: 'column' }}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              color: 'text.body',
+            }}
             {...contentProps}
           >
             {children}

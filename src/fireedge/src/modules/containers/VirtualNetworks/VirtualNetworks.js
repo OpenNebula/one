@@ -137,6 +137,7 @@ export function VirtualNetworks() {
 
   return (
     <ResourceContainer
+      dataCy={vnTable.dataCy}
       resourceName={T.VirtualNetworks}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -153,6 +154,7 @@ export function VirtualNetworks() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={vnTable.dataCy}
                 columns={vnTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -164,6 +166,7 @@ export function VirtualNetworks() {
                 getRowId={(row) => String(row.ID)}
                 onRowClick={(row) => handleSelect(row.ID)}
                 size="medium"
+                defaultPageSize={25}
                 isFullHeight
               />
             )
@@ -178,6 +181,7 @@ export function VirtualNetworks() {
                   return (
                     <VirtualNetwork.Card
                       key={id}
+                      dataCy={`${vnTable.dataCy}-${id}`}
                       vnet={vnet}
                       isSelected={selectedItems?.includes(id)}
                       onCheck={() =>

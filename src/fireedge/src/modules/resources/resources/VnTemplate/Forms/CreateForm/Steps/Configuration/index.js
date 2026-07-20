@@ -161,7 +161,8 @@ const Content = ({
       <Tabs
         type="line"
         defaultSelect={0}
-        options={tabs.map(({ title, getError }, idx) => ({
+        options={tabs.map(({ id, title, getError }, idx) => ({
+          dataCy: id && `tab-${id}`,
           title,
           error: !!getError?.(stepErrors),
           value: idx,

@@ -250,10 +250,6 @@ export function CreateVmTemplate() {
         }
       )
 
-      if (rawTemplate?.general?.MEMORYUNIT) {
-        filteredTemplate.MEMORYUNIT = rawTemplate.general.MEMORYUNIT
-      }
-
       // Every action that is not an human action
       transformActionsCreate(filteredTemplate)
 

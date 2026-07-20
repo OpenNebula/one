@@ -15,12 +15,12 @@
  * ------------------------------------------------------------------------- */
 
 import { Component, useEffect, useMemo, useState } from 'react'
-import { Dropdown, Table } from '@ComponentsV2Module'
+import { AlertNotification, Dropdown, Table } from '@ComponentsV2Module'
 import { ALL_SELECTED, T } from '@ConstantsModule'
 import { VdcAPI, ZoneAPI } from '@FeaturesModule'
 import { OpenNebulaLogo } from '@modules/resources/Icons'
 import { LoadingDisplay } from '@modules/resources/LoadingState'
-import { Alert, Box, Stack } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 
 const toArray = (value) =>
@@ -54,9 +54,13 @@ export const LegacyVdcTab = ({ id, children }) => {
 
   if (isError) {
     return (
-      <Alert severity="error" variant="outlined">
-        {error?.data}
-      </Alert>
+      <AlertNotification
+        type="primary"
+        status="error"
+        description={error?.data}
+        isDismissible={false}
+        style={{ width: '100%', boxSizing: 'border-box' }}
+      />
     )
   }
 

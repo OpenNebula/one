@@ -76,6 +76,9 @@
     - title: Create VR Template
       path: /vrouter-template/create
       Component: CreateVrTemplate
+    - title: Update VR Template
+      path: /vrouter-template/update
+      Component: CreateVrTemplate
     - title: VR Template
       path: /vrouter-template/:id
       Component: VrTemplateDetail

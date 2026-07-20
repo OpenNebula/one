@@ -187,6 +187,15 @@ export const getDisks = (vm) => {
 
 /**
  * @param {VM} vm - Virtual machine
+ * @returns {number} Total configured disk size in MB
+ */
+export const getDiskSize = (vm) =>
+  []
+    .concat(vm?.TEMPLATE?.DISK ?? [])
+    .reduce((total, disk) => total + (Number(disk?.SIZE) || 0), 0)
+
+/**
+ * @param {VM} vm - Virtual machine
  * @param {object} [options] - Options
  * @param {boolean} [options.groupAlias]
  * - Create ALIAS attribute with result to mapping NIC_ALIAS and ALIAS_IDS
@@ -275,6 +284,35 @@ export const getIpsFromNic = (nic) => {
  */
 export const getIps = (vm) =>
   getNics(vm).map(getIpsFromNic).filter(Boolean).flat()
+
+/**
+ * @param {Nic} nic - NIC
+ * @returns {string[]} IP addresses from resource, excluding the MAC address
+ */
+export const getIpAddressesFromNic = (nic) =>
+  NIC_IP_ATTRS.filter((attribute) => attribute !== 'MAC')
+    .map((attribute) => nic?.[attribute])
+    .flat()
+    .filter(Boolean)
+
+/**
+ * @param {VM} vm - Virtual machine
+ * @returns {string[]} IP addresses from resource, excluding MAC addresses
+ */
+export const getIpAddresses = (vm) => getNics(vm).flatMap(getIpAddressesFromNic)
+
+/**
+ * @param {Nic} nic - NIC
+ * @returns {string[]} IPv4 addresses from resource
+ */
+export const getIpv4sFromNic = (nic) =>
+  [nic?.EXTERNAL_IP, nic?.IP].flat().filter(Boolean)
+
+/**
+ * @param {VM} vm - Virtual machine
+ * @returns {string[]} IPv4 addresses from resource
+ */
+export const getIpv4s = (vm) => getNics(vm).flatMap(getIpv4sFromNic)
 
 /**
  * @param {VM} vm - Virtual machine

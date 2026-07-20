@@ -127,9 +127,9 @@ const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
 
   const columns = useMemo(
     () => [
-      { accessorKey: 'ID', header: idLabel, width: '18%' },
-      { accessorKey: 'NAME', header: nameLabel, width: '28%' },
-      { accessorKey: 'CLUSTER', header: clusterLabel, width: '28%' },
+      { accessorKey: 'ID', header: idLabel, grow: false },
+      { accessorKey: 'NAME', header: nameLabel, truncate: true },
+      { accessorKey: 'CLUSTER', header: clusterLabel, truncate: true },
       {
         accessorKey: 'STATE',
         header: statusLabel,

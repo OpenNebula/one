@@ -20,16 +20,24 @@ import { SCHEMA, NAME_FIELD, DESCRIPTION_FIELD } from './schema'
 
 export const STEP_ID = 'general'
 
-const Content = ({ isUpdate }) => (
-  <FormWithSchema
-    id={STEP_ID}
-    cy={`${STEP_ID}`}
-    fields={[
-      { ...NAME_FIELD, fieldProps: { disabled: !!isUpdate } },
-      DESCRIPTION_FIELD,
-    ]}
-  />
-)
+const Content = ({ isUpdate }) => {
+  const fields = [
+    { ...NAME_FIELD, fieldProps: { disabled: !!isUpdate } },
+    DESCRIPTION_FIELD,
+  ]
+
+  return (
+    <FormWithSchema
+      id={STEP_ID}
+      cy={`${STEP_ID}`}
+      fields={fields}
+      columns={[[], fields, []]}
+      gridContainerSx={{
+        gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
+      }}
+    />
+  )
+}
 
 /**
  * General VmGroup configuration.

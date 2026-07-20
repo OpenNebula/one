@@ -19,9 +19,26 @@ import {
   SCHEMA,
 } from '@modules/resources/resources/VrTemplate/Forms/InstantiateForm/Steps/UserInputs/schema'
 import { T, UserInputObject } from '@ConstantsModule'
-import { generateTabs } from '@modules/resources/Forms/UserInputs'
+import { FormWithSchema } from '@ComponentsV2Module'
 import { Component } from 'react'
 export const STEP_ID = 'user_inputs'
+
+const getUserInputFields = (userInputsLayout = []) =>
+  userInputsLayout
+    ?.flatMap((layout) =>
+      layout?.groups?.flatMap((userInput) => userInput?.userInputs)
+    )
+    ?.reduce(
+      (acc, input) => {
+        if (!acc.seen.has(input?.name)) {
+          acc.seen.add(input.name)
+          acc.list.push(input)
+        }
+
+        return acc
+      },
+      { seen: new Set(), list: [] }
+    ).list ?? []
 
 /**
  * Return the content for the user inputs step.
@@ -31,8 +48,21 @@ export const STEP_ID = 'user_inputs'
  * @param {boolean} props.showMandatoryOnly - Show only mandatory inputs
  * @returns {Component} React component with the content of the step
  */
-const Content = ({ userInputsLayout, showMandatoryOnly }) =>
-  generateTabs(userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly)
+const Content = ({ userInputsLayout, showMandatoryOnly }) => {
+  const userInputFields = getUserInputFields(userInputsLayout)
+  const fields = showMandatoryOnly
+    ? userInputFields.filter((userInput) => userInput.mandatory)
+    : userInputFields
+
+  return (
+    <FormWithSchema
+      key="user-inputs"
+      cy="user-inputs"
+      id={STEP_ID}
+      fields={FIELDS(fields)}
+    />
+  )
+}
 
 Content.propTypes = {
   props: PropTypes.any,
@@ -51,7 +81,7 @@ const UserInputsStep = (userInputs, userInputsLayout) => ({
   id: STEP_ID,
   label: T.UserInputs,
   optionsValidate: { abortEarly: false },
-  resolver: SCHEMA(userInputs, userInputsLayout),
+  resolver: SCHEMA(userInputs),
   enableShowMandatoryOnly: true,
   content: (props) => Content({ ...props, userInputsLayout }),
 })

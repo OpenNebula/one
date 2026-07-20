@@ -16,19 +16,23 @@
 import { number, object } from 'yup'
 
 import { getValidationFromFields } from '@UtilsModule'
-import { Translate } from '@ProvidersModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { Alert } from '@mui/material'
+import { AlertNotification } from '@ComponentsV2Module'
 
 import PropTypes from 'prop-types'
 
-const VisualAlert = ({ children }) => <Alert severity="info">{children}</Alert>
+const VisualAlert = ({ description }) => (
+  <AlertNotification
+    type="primary"
+    status="information"
+    description={description}
+    isDismissible={false}
+    style={{ width: '100%', boxSizing: 'border-box' }}
+  />
+)
 
 VisualAlert.propTypes = {
-  children: PropTypes.oneOfType([
-    PropTypes.node,
-    PropTypes.arrayOf(PropTypes.node),
-  ]),
+  description: PropTypes.string,
 }
 VisualAlert.displayName = 'VisualAlert'
 
@@ -40,11 +44,7 @@ const ALERT_TEXT_FIELD = {
   name: 'ALERT_TEXT',
   type: INPUT_TYPES.TYPOGRAPHY,
   grid: { md: 12 },
-  text: (
-    <VisualAlert>
-      <Translate word={T.WarningScalingOneKsCluster} />
-    </VisualAlert>
-  ),
+  text: <VisualAlert description={T.WarningScalingOneKsCluster} />,
   dependOf: [formFieldNames.target],
 }
 

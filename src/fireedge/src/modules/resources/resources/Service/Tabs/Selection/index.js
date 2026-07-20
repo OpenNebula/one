@@ -33,7 +33,7 @@ export const Selection = ({ data }) => {
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -45,10 +45,10 @@ export const Selection = ({ data }) => {
     },
     ...SERVICES_COLUMNS,
     {
-      width: '15%',
       minWidth: '15%',
       id: 'select',
       header: '',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}

@@ -15,13 +15,13 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
 import { STEP_ID as FAMILY_ID } from '@modules/resources/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/Family'
 import { STEP_ID as FLAVOURS_ID } from '@modules/resources/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/Flavours'
 import { useFormContext, useController } from 'react-hook-form'
 import { find } from 'lodash'
 import { SCHEMA } from '@modules/resources/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/UserInputs/schema'
-import { Grid, Alert, useTheme, Stack } from '@mui/material'
+import { Grid, useTheme } from '@mui/material'
 import { useTranslation } from '@ProvidersModule'
 import styles from '@modules/resources/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/styles'
 import { useMemo } from 'react'
@@ -52,31 +52,20 @@ const Content = (families, typeForm) => {
   // Render tabs or form depending if there is layout
   return (
     <>
-      <Alert
-        severity="info"
-        variant="outlined"
+      <AlertNotification
+        type="primary"
+        status="information"
+        description={
+          typeForm === defaultTypeForm
+            ? translate(T['oneks.form.create.userinputs.help.paragraph'])
+            : translate(
+                T['oneks.form.create_nodegroup.userinputs.help.paragraph']
+              )
+        }
+        isDismissible={false}
         className={classes.groupInfo}
-        sx={{
-          width: '100% !important',
-          flexDirection: 'row !important',
-        }}
-      >
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1}
-          justifyContent="space-between"
-        >
-          <div>
-            {' '}
-            {typeForm === defaultTypeForm
-              ? translate(T['oneks.form.create.userinputs.help.paragraph'])
-              : translate(
-                  T['oneks.form.create_nodegroup.userinputs.help.paragraph']
-                )}
-          </div>
-        </Stack>
-      </Alert>
+        style={{ width: '100%', boxSizing: 'border-box' }}
+      />
       <Grid mt={2} container className={classes.container}>
         <Grid item xs={12}>
           <FormWithSchema

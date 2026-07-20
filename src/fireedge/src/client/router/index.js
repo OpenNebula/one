@@ -82,6 +82,39 @@ const appendResourceToLastBreadcrumb = (breadcrumbs, state) => {
   )
 }
 
+const normalizeRoutePath = (path = '') => {
+  const normalized = `/${String(path).replace(/^\/+|\/+$/g, '')}`
+
+  return normalized === '/' ? normalized : normalized.replace(/\/+$/g, '')
+}
+
+const getEndpointPaths = (endpoints = []) => {
+  const paths = []
+  const collect = (route) => {
+    if (route.path) paths.push(route.path)
+    route.routes?.forEach(collect)
+  }
+
+  endpoints.forEach(collect)
+
+  return paths
+}
+
+const getExactResourceActionRoutePath = (paths = [], pathname = '') => {
+  const basePath = normalizeRoutePath(pathname)
+  const getActionPath = (action) =>
+    `${basePath === '/' ? '' : basePath}/${action}`
+  const actionPaths = ['create', 'instantiate'].map(getActionPath)
+
+  return (
+    actionPaths
+      .map((actionPath) =>
+        paths.find((path) => normalizeRoutePath(path) === actionPath)
+      )
+      .find(Boolean) ?? null
+  )
+}
+
 /**
  * @param {object} props - Props
  * @param {string} props.redirectWhenAuth
@@ -96,6 +129,7 @@ const Router = ({ redirectWhenAuth, endpoints }) => {
     () => buildBreadcrumbMap(endpoints),
     [endpoints]
   )
+  const endpointPaths = useMemo(() => getEndpointPaths(endpoints), [endpoints])
 
   const { setBreadcrumbs, setResourceCreatePath } = useFunctionalityApi()
 
@@ -105,10 +139,13 @@ const Router = ({ redirectWhenAuth, endpoints }) => {
       state
     )
     setBreadcrumbs(breadCrumbs)
-    const createPath = getBreadcrumbs(`${pathname}/create`)?.at(-1) ?? null
+    const actionPath = getExactResourceActionRoutePath(endpointPaths, pathname)
+    const createPath = actionPath
+      ? getBreadcrumbs(actionPath)?.at(-1) ?? null
+      : null
     const isSupportPath = pathname === PATH.SUPPORT
     setResourceCreatePath(isSupportPath && !supportUser ? null : createPath)
-  }, [pathname, state, supportUser])
+  }, [endpointPaths, getBreadcrumbs, pathname, state, supportUser])
 
   return (
     <TransitionGroup>

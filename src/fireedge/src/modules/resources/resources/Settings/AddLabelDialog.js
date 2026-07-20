@@ -113,7 +113,9 @@ const AddLabelDialog = ({
         zIndex: (theme) => theme?.zIndex?.modal + 10,
       }}
     >
-      <DialogTitle>{translate(T.AddNewLabel)}</DialogTitle>
+      <DialogTitle sx={{ color: 'text.headings' }}>
+        {translate(T.AddNewLabel)}
+      </DialogTitle>
       <DialogContent>
         {!isRootAdd && parentNodeId && (
           <DialogContentText sx={{ mb: 2 }}>

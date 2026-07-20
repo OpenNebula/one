@@ -105,8 +105,8 @@ export const Security = ({ data, config }) => {
 
   // Table
   const columns = [
-    { accessorKey: 'ID', header: T.ID, width: '7%' },
-    { accessorKey: 'NAME', header: T.Name, width: '30%' },
+    { accessorKey: 'ID', header: T.ID, grow: false },
+    { accessorKey: 'NAME', header: T.Name, truncate: true },
     { accessorKey: 'UNAME', header: T.Owner },
     { accessorKey: 'GNAME', header: T.Group },
     {
@@ -117,7 +117,7 @@ export const Security = ({ data, config }) => {
     {
       id: 'actions',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => {
         const securityGroup = row.original
 

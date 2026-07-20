@@ -33,6 +33,7 @@ export const HostWildsTab = ({ data }) => {
       header: T.Name,
       id: 'name',
       accessorKey: 'VM_NAME',
+      truncate: true,
     },
   ]
 

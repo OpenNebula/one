@@ -117,7 +117,7 @@ const formatDate = (value) => {
 
   const date = timeFromMilliseconds(+value)
 
-  return `${date.toFormat('ff')} (${date.toRelative()})`
+  return date.toRelative()
 }
 
 const formatSize = (value) => (+value ? prettyBytes(+value, 'MB') : '-')
@@ -148,31 +148,35 @@ const SnapshotDialog = ({
 }) => {
   const columns = useMemo(
     () => [
-      { header: T.ID, id: 'id', accessorKey: 'ID', width: '10%' },
+      { header: T.ID, id: 'id', accessorKey: 'ID', grow: false },
       {
         header: T.Name,
         id: 'name',
         accessorKey: 'NAME',
+        truncate: true,
       },
       {
         header: T.Status,
         id: 'status',
+        grow: false,
         cell: ({ row }) => <SnapshotStatus snapshot={row?.original} />,
       },
       {
         header: T.Created,
         id: 'date',
+        grow: false,
         cell: ({ row }) => formatDate(row?.original?.DATE),
       },
       {
         header: `${T.Monitoring} / ${T.DiskSize}`,
         id: 'usage',
+        grow: false,
         cell: ({ row }) => formatSnapshotUsage(row?.original),
       },
       {
         header: '',
         id: 'actions',
-        width: '7%',
+        grow: false,
         cell: ({ row }) => {
           const snapshotContext = getSnapshotContext(disk, row?.original)
           const snapshotOptions =
@@ -231,6 +235,10 @@ const SnapshotDialog = ({
           columns={columns}
           data={snapshots}
           isLoading={isLoading}
+          emptyContentProps={{
+            title: T.NoDiskSnapshots,
+            subtitle: T.DiskSnapshotsWillAppearHere,
+          }}
           size="medium"
           isEnableSearchBar
           isEnableSort
@@ -301,7 +309,7 @@ export const Storage = ({ data, config }) => {
       {
         header: '',
         id: 'actions',
-        width: '7%',
+        grow: false,
         cell: ({ row }) => {
           const disk = row?.original
 
@@ -363,6 +371,10 @@ export const Storage = ({ data, config }) => {
           columns={columns}
           data={disks}
           isLoading={isFetchingDisks || isPerformingAction}
+          emptyContentProps={{
+            title: T.NoDisks,
+            subtitle: T.AttachedDisksWillAppearHere,
+          }}
           size="medium"
           isEnableSearchBar
           isEnableSort

@@ -15,13 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { number, object, ObjectSchema, string } from 'yup'
 
-import {
-  HYPERVISORS,
-  INPUT_TYPES,
-  SERVER_CONFIG,
-  T,
-  UNITS,
-} from '@ConstantsModule'
+import { HYPERVISORS, INPUT_TYPES, SERVER_CONFIG, T } from '@ConstantsModule'
 import {
   arrayToOptions,
   disableFields,
@@ -33,34 +27,13 @@ import {
 /** @type {Field} Size field */
 const SIZE = {
   name: 'SIZE',
-  label: [T.Size, 'MB'],
-  type: INPUT_TYPES.TEXT,
+  label: T.Size,
+  type: INPUT_TYPES.UNITS,
   htmlType: 'number',
   validation: number()
     .required()
     .default(() => undefined),
-  grid: { xs: 12, md: 3 },
-}
-
-/**
- * @type {Field} size field
- * ISSUE#6136: Add unit size. Use only MB, GB, and TB (other values do not apply to create image).
- */
-export const SIZEUNIT = {
-  name: 'SIZEUNIT',
-  label: T.SizeUnit,
-  type: INPUT_TYPES.AUTOCOMPLETE,
-  optionsOnly: true,
-  tooltip: T.SizeUnitTooltip,
-  values: arrayToOptions([UNITS.MB, UNITS.GB, UNITS.TB], {
-    addEmpty: false,
-    getText: (type) => type,
-    getValue: (type) => type,
-  }),
-  validation: string()
-    .trim()
-    .default(() => UNITS.MB),
-  grid: { xs: 12, md: 3 },
+  grid: { xs: 12, md: 6 },
 }
 
 /**
@@ -119,10 +92,7 @@ const FILESYSTEM = {
  */
 export const FIELDS = (hypervisor, oneConfig, adminGroup) =>
   disableFields(
-    filterFieldsByHypervisor(
-      [SIZE, SIZEUNIT, TYPE, FORMAT, FILESYSTEM],
-      hypervisor
-    ),
+    filterFieldsByHypervisor([SIZE, TYPE, FORMAT, FILESYSTEM], hypervisor),
     'DISK',
     oneConfig,
     adminGroup

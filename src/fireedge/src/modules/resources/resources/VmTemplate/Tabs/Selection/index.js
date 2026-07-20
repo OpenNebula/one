@@ -16,10 +16,11 @@
 
 import PropTypes from 'prop-types'
 import { Component } from 'react'
+import { Box } from '@mui/material'
 import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
 import { T, UNITS, STYLE_BUTTONS } from '@ConstantsModule'
-import { Lock, Cancel as CloseIcon, ArrowRight } from 'iconoir-react'
-import { prettyBytes } from '@UtilsModule'
+import { Cancel as CloseIcon, ArrowRight } from 'iconoir-react'
+import { getLockIcon, prettyBytes } from '@UtilsModule'
 
 /**
  * @param {object} root0 - Params
@@ -28,13 +29,13 @@ import { prettyBytes } from '@UtilsModule'
  * @returns {Component} - VM Templates aggregated info tab
  */
 export const Selection = ({ data, config }) => {
-  const { selected, handleSelect, handleDeselect, isLocked } = data
+  const { selected, handleSelect, handleDeselect } = data
 
   const selectionColumns = [
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -44,18 +45,17 @@ export const Selection = ({ data, config }) => {
         />
       ),
     },
-    isLocked && {
-      accessorKey: 'LOCK',
-      header: 'State',
-      width: '7%',
-      cell: ({ row }) =>
-        row?.original?.LOCK != null ? (
-          <Lock width="20px" height="20px" />
-        ) : null,
+    {
+      accessorKey: 'NAME',
+      header: T.Name,
+      truncate: true,
+      cell: ({ row }) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span>{row.original?.NAME}</span>
+          {getLockIcon(row.original)}
+        </Box>
+      ),
     },
-    { accessorKey: 'NAME', header: T.Name, width: '30%' },
-    { accessorKey: 'UNAME', header: T.Owner },
-    { accessorKey: 'GNAME', header: T.Group },
     {
       accessorKey: 'TEMPLATE.HYPERVISOR',
       header: T.Hypervisor,
@@ -75,6 +75,7 @@ export const Selection = ({ data, config }) => {
     {
       accessorKey: 'ID',
       header: '',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}

@@ -59,6 +59,10 @@ export const getStyles = ({ theme }) => {
       gap: '16px',
       minWidth: 0,
       minHeight: 0,
+
+      '& .table-scroll': {
+        overflowX: 'hidden',
+      },
     },
   }
 
@@ -80,6 +84,15 @@ export const getStyles = ({ theme }) => {
     },
   }
 
+  const vmIpTags = {
+    '& .vmIpTags': {
+      '& .MuiButton-endIcon, & .MuiButton-endIcon svg': {
+        width: '14px',
+        height: '14px',
+      },
+    },
+  }
+
   return {
     ...baseStyles,
     ...topContainer,
@@ -87,5 +100,6 @@ export const getStyles = ({ theme }) => {
     ...permissionsOwnershipContainer,
     ...capacityContainer,
     ...attributesContainer,
+    ...vmIpTags,
   }
 }

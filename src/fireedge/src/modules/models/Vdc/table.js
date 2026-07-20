@@ -50,8 +50,8 @@ export const getVdcVnetsCount = (vdc = {}) =>
   formatCount(toArray(vdc?.VNETS?.VNET).map((vnet) => vnet?.VNET_ID))
 
 export const VDC_COLUMNS = [
-  { header: T.ID, accessorKey: 'ID' },
-  { header: T.Name, accessorKey: 'NAME' },
+  { header: T.ID, accessorKey: 'ID', grow: false },
+  { header: T.Name, accessorKey: 'NAME', truncate: true },
   {
     header: T.Groups,
     id: 'GROUPS',
@@ -77,14 +77,22 @@ export const VDC_COLUMNS = [
     id: 'VNETS',
     accessorFn: getVdcVnetsCount,
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const VDC_LIST_COLUMNS = [
-  { accessorKey: 'ID', header: T.ID },
-  { accessorKey: 'NAME', header: T.Name },
-  { id: 'GROUPS', header: T.Groups, accessorFn: getVdcGroupsCount },
-  { id: 'CLUSTERS', header: T.Clusters, accessorFn: getVdcClustersCount },
+  { accessorKey: 'ID', header: T.ID, grow: false },
+  { accessorKey: 'NAME', header: T.Name, truncate: true },
+  {
+    id: 'GROUPS',
+    header: T.Groups,
+    accessorFn: getVdcGroupsCount,
+  },
+  {
+    id: 'CLUSTERS',
+    header: T.Clusters,
+    accessorFn: getVdcClustersCount,
+  },
   { id: 'HOSTS', header: T.Hosts, accessorFn: getVdcHostsCount },
   {
     id: 'DATASTORES',
@@ -92,7 +100,7 @@ export const VDC_LIST_COLUMNS = [
     accessorFn: getVdcDatastoresCount,
   },
   { id: 'VNETS', header: T.Vnets, accessorFn: getVdcVnetsCount },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const vdcTable = createTable(VDC_COLUMNS, VdcAPI.useGetVDCsQuery, {

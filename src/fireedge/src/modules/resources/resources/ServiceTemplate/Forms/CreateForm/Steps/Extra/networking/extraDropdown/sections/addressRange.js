@@ -142,13 +142,13 @@ const AddressRanges = ({ selectedNetwork }) => {
     {
       id: 'id',
       header: T.ID,
-      width: '5%',
+      grow: false,
       cell: ({ row }) => row.original?.AR_ID ?? row.original?.INDEX ?? '-',
     },
     {
       accessorKey: 'TYPE',
       header: T.Type,
-      width: '8%',
+      grow: false,
       cell: ({ row }) =>
         row.original?.TYPE ? (
           <Tag title={row.original.TYPE} status="default" />
@@ -156,26 +156,30 @@ const AddressRanges = ({ selectedNetwork }) => {
           '-'
         ),
     },
-    { accessorKey: 'SIZE', header: T.Size, width: '7%' },
+    { accessorKey: 'SIZE', header: T.Size, grow: false },
     {
       id: 'first_mac',
       header: T.FirstMAC,
       accessorFn: (row) => row?.MAC || '-',
+      grow: false,
     },
     {
       id: 'last_mac',
       header: T.LastMAC,
       accessorFn: (row) => row?.MAC_END || '-',
+      grow: false,
     },
     {
       id: 'first_ip',
       header: T.FirstIP,
       accessorFn: getFirstIP,
+      grow: false,
     },
     {
       id: 'last_ip',
       header: T.LastIP,
       accessorFn: getLastIP,
+      grow: false,
     },
     {
       id: 'ip6_global',

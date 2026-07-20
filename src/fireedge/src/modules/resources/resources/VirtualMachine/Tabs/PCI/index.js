@@ -119,7 +119,7 @@ export const PCI = ({ data, config }) => {
     {
       header: '',
       id: 'actions',
-      width: '7%',
+      grow: false,
       cell: ({ row }) => {
         const pci = row?.original
         const detachAction = actions?.[VM_ACTION_ENUM.DETACH_PCI]
@@ -164,6 +164,10 @@ export const PCI = ({ data, config }) => {
           columns={columns}
           data={pcis}
           isLoading={isFetchingPcis || isPerformingAction}
+          emptyContentProps={{
+            title: T.NoPciDevices,
+            subtitle: T.AttachedPciDevicesWillAppearHere,
+          }}
           size="medium"
           isEnableSearchBar
           isEnableSort

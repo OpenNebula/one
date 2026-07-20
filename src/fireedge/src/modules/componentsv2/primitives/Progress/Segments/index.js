@@ -26,6 +26,7 @@ const SEGMENT_TONES = [
   'error',
   'information',
   'action',
+  'focus',
 ]
 
 const getToneClassName = (tone = 'neutral') =>

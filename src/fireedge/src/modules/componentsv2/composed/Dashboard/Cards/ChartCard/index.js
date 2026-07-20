@@ -110,7 +110,9 @@ export const DashboardChartCard = forwardRef(
     const legendNames = graphSeries.map(
       ({ dataKey, label }) => label ?? dataKey
     )
-    const lineColors = graphSeries.map(({ color }) => color)
+    const lineColors = graphSeries.map(
+      ({ color }) => color ?? theme.palette.primary.main
+    )
     const filledSeries = graphSeries
       .filter(({ fill }) => fill)
       .map(({ dataKey }) => dataKey)

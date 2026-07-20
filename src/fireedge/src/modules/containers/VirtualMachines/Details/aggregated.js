@@ -237,10 +237,10 @@ export const AggregatedView = ({
     [actions]
   )
 
-  const isResumeDisabled =
-    isActionsDisabled ||
-    !viewConfig?.actions?.[VM_ACTIONS.RESUME] ||
-    !isVmAvailableAction(VM_ACTIONS.RESUME, selectedVms)
+  const isResumeAvailable =
+    !isActionsDisabled &&
+    viewConfig?.actions?.[VM_ACTIONS.RESUME] &&
+    isVmAvailableAction(VM_ACTIONS.RESUME, selectedVms)
 
   return (
     <DetailsDrawer
@@ -258,17 +258,18 @@ export const AggregatedView = ({
                   gap: `${theme.scale[500]}px`,
                 })}
               >
-                <Tooltip title={T.Resume}>
-                  <span>
-                    <Button
-                      startIcon={<Play />}
-                      title={T.Resume}
-                      onClick={handleResume}
-                      isDisabled={isResumeDisabled}
-                      compactable
-                    />
-                  </span>
-                </Tooltip>
+                {isResumeAvailable && (
+                  <Tooltip title={T.Resume}>
+                    <span>
+                      <Button
+                        startIcon={<Play />}
+                        title={T.Resume}
+                        onClick={handleResume}
+                        compactable
+                      />
+                    </span>
+                  </Tooltip>
+                )}
 
                 <MenuButton
                   placeholder={T.VMActions}

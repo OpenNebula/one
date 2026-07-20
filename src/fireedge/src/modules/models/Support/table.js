@@ -21,19 +21,26 @@ import {
 import { SupportAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
 import { getSupportState } from '@modules/models/Support/general'
+import { StatusTag } from '@ComponentsV2Module'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const SUPPORT_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'id' },
-  { header: T.Subject, id: 'subject', accessorKey: 'subject' },
+  { header: T.ID, id: 'id', accessorKey: 'id', grow: false },
+  { header: T.Subject, id: 'subject', accessorKey: 'subject', truncate: true },
   {
     header: T.State,
     id: 'state',
     accessorFn: (row) => getSupportState(row)?.name,
+    cell: ({ row }) => {
+      const { color, name } = getSupportState(row.original) ?? {}
+
+      return <StatusTag statusColor={color} statusName={name} />
+    },
   },
   {
     header: T.RegistrationTime,
     id: 'time',
+    grow: false,
     accessorFn: (row) =>
       row?.created_at
         ? timeFromMilliseconds(

@@ -24,6 +24,7 @@ import {
   getStyles,
 } from '@modules/componentsv2/composed/Panels/Capacity/styles'
 import { ToggleGroup } from '@modules/componentsv2/primitives/Buttons/Toggle/Group'
+import { SkeletonLoading } from '@modules/componentsv2/primitives/Loaders'
 import { T } from '@ConstantsModule'
 
 /**
@@ -48,7 +49,6 @@ export const CapacityPanel = forwardRef(
       sx={(theme) =>
         getStyles({
           theme,
-          isLoading,
         })
       }
       ref={ref}
@@ -81,17 +81,17 @@ export const CapacityPanel = forwardRef(
       <Box className="capacity-container">
         {[].concat(options)?.map(([label, value], idx) => (
           <Box key={idx} className="capacity-detail--row">
-            {isLoading ? (
-              <>
-                <Box className="skeleton-cell" />
-                <Box className="skeleton-cell" />
-              </>
-            ) : (
+            <SkeletonLoading
+              className="capacity-loading-row"
+              loading={isLoading}
+              width="100%"
+              borderRadius="lg"
+            >
               <>
                 <Box className="capacity-detail--label">{label}</Box>
                 <Box className="capacity-detail--value">{value}</Box>
               </>
-            )}
+            </SkeletonLoading>
           </Box>
         ))}
       </Box>

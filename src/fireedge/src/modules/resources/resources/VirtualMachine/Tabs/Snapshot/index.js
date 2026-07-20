@@ -57,7 +57,7 @@ export const Snapshot = ({ data, config }) => {
     {
       header: '',
       id: 'actions',
-      width: '7%',
+      grow: false,
       cell: ({ row }) => {
         const snapshotOptions =
           VirtualMachine.Actions.Utils.generateMenuOptions({
@@ -108,6 +108,10 @@ export const Snapshot = ({ data, config }) => {
           columns={columns}
           data={snapshots}
           isLoading={isFetchingSnapshots || isPerformingAction}
+          emptyContentProps={{
+            title: T.NoSnapshots,
+            subtitle: T.VmSnapshotsWillAppearHere,
+          }}
           size="medium"
           isEnableSearchBar
           isEnableSort

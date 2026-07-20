@@ -69,11 +69,11 @@ const SerialPanel = ({
   }
 
   const columns = [
-    { accessorKey: 'key', header: '', width: '40%' },
+    { accessorKey: 'key', header: '', grow: false },
     {
       id: 'value',
       header: '',
-      width: '60%',
+      truncate: true,
       cell: ({ row }) => (
         <Box
           sx={{

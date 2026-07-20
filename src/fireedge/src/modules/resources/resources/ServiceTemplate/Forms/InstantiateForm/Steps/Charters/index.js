@@ -85,7 +85,7 @@ const renderScheduleTime = ({ TIME } = {}) => {
     return { relative: getRelativeTimeValue(TIME) }
   }
 
-  return { text: timeFromMilliseconds(+TIME)?.toFormat?.('ff') ?? `${TIME}` }
+  return { text: timeFromMilliseconds(+TIME)?.toRelative?.() ?? `${TIME}` }
 }
 
 const renderScheduleWarning = ({ WARNING } = {}) => {

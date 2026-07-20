@@ -103,6 +103,7 @@ const Content = ({ isUpdate }) => {
   return (
     <Box display="grid" gap="1em">
       <AttributesPanel
+        dataCy="custom-variables-attributes"
         actions={{ add: true, edit: true, delete: true, copy: true }}
         handleAdd={handleChangeAttribute}
         handleEdit={handleChangeAttribute}

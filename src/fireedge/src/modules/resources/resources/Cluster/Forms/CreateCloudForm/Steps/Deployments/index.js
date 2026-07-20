@@ -16,7 +16,8 @@
 import { T } from '@ConstantsModule'
 import PropTypes from 'prop-types'
 import { SCHEMA } from './schema'
-import { useTheme, Alert, Grid, Stack, Typography } from '@mui/material'
+import { useTheme, Grid, Stack, Typography } from '@mui/material'
+import { AlertNotification } from '@ComponentsV2Module'
 import { useMemo } from 'react'
 import { sanitizeAllowingTarget } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
@@ -58,20 +59,31 @@ const Content = ({ providers, groupedDrivers }) => {
 
   return (
     <>
-      <Alert severity="info" variant="outlined" sx={styles.groupInfo}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1}
-          justifyContent="space-between"
-        >
-          <div>{translate(T['oneform.deploymentConf.info'])}</div>
-        </Stack>
-      </Alert>
+      <AlertNotification
+        type="primary"
+        status="information"
+        description={translate(T['oneform.deploymentConf.info'])}
+        isDismissible={false}
+        style={{
+          gridColumn: '1 / -1',
+          marginTop: '1em',
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      />
       {error && (
-        <Alert severity="error" variant="outlined" sx={styles.groupInfo}>
-          {translate(T['oneform.deploymentConf.error'])}
-        </Alert>
+        <AlertNotification
+          type="primary"
+          status="error"
+          description={translate(T['oneform.deploymentConf.error'])}
+          isDismissible={false}
+          style={{
+            gridColumn: '1 / -1',
+            marginTop: '1em',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        />
       )}
       <Grid container spacing={2} sx={styles.container}>
         {selectedDriver?.deploymentConfs?.map((conf) => (

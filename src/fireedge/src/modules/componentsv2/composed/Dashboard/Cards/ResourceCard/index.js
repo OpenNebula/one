@@ -34,6 +34,7 @@ const RESOURCE_CARD_TONES = [
   'error',
   'information',
   'action',
+  'focus',
 ]
 
 const getToneClassName = (tone = 'neutral') =>

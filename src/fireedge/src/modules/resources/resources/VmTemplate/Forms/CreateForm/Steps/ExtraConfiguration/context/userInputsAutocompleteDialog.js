@@ -104,7 +104,9 @@ const PopUpDialog = ({ open, handleClose }) => {
 
   return (
     <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Add autocomplete suggestion</DialogTitle>
+      <DialogTitle sx={{ color: 'text.headings' }}>
+        Add autocomplete suggestion
+      </DialogTitle>
       <DialogContent>
         <Box
           sx={{

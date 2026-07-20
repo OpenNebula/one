@@ -29,6 +29,7 @@ import { useTranslation } from '@ProvidersModule'
  * @param {string} [props.label] - Label.
  * @param {React.ElementType} [props.control] - control element.
  * @param {Function} [props.onClick] - onClick callback.
+ * @param {string} [props.dataCy] - Cypress selector.
  * @returns {React.ReactElement} - Dropdown item component.
  */
 export const DropdownItem = ({
@@ -36,12 +37,14 @@ export const DropdownItem = ({
   label,
   onClick,
   control = null,
+  dataCy,
 }) => {
   const { translateText } = useTranslation()
 
   return (
     <MenuItem
       className="dropdown-item"
+      data-cy={dataCy}
       onClick={onClick}
       sx={(theme) => getStyles({ theme })}
     >
@@ -58,6 +61,7 @@ DropdownItem.propTypes = {
   label: PropTypes.string,
   onClick: PropTypes.func,
   control: PropTypes.node,
+  dataCy: PropTypes.string,
 }
 
 DropdownItem.displayName = 'MenuDropdown'

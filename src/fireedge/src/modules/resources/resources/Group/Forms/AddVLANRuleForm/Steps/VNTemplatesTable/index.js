@@ -18,9 +18,9 @@ import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
 import { SCHEMA, FIELDS } from './schema'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
 import { useFormContext } from 'react-hook-form'
-import { Alert, useTheme } from '@mui/material'
+import { useTheme } from '@mui/material'
 import { css } from '@emotion/css'
 import { useMemo } from 'react'
 
@@ -48,9 +48,14 @@ const Content = () => {
   if (allVnets === true) {
     return (
       <>
-        <Alert severity="info" variant="outlined" className={classes.groupInfo}>
-          {translate(T['groups.actions.vlan-rule.hint'])}
-        </Alert>
+        <AlertNotification
+          type="primary"
+          status="information"
+          description={translate(T['groups.actions.vlan-rule.hint'])}
+          isDismissible={false}
+          className={classes.groupInfo}
+          style={{ width: '100%', boxSizing: 'border-box' }}
+        />
       </>
     )
   } else {

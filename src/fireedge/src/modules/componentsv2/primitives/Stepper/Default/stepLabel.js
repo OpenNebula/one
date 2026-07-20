@@ -15,8 +15,10 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
+import clsx from 'clsx'
 import { Component } from 'react'
 import { T, STEP_STATUS } from '@ConstantsModule'
+import { useTranslation } from '@ProvidersModule'
 
 /**
  * Get the corresponding label for a step status.
@@ -72,18 +74,29 @@ export const OpenNebulaStepLabel = ({
   stepNumber,
   stepIcon,
 }) => {
+  const { translate } = useTranslation()
   const statusLabel = getStepStatusLabel(stepStatus)
 
   return (
     <Box className="stepper-label">
       {stepIcon && (
-        <Box className="stepper-label-step">{`T.Label ${stepNumber}`}</Box>
+        <Box className="stepper-label-step">
+          {`${translate(T.Label)} ${stepNumber}`}
+        </Box>
       )}
 
-      <Box className={STATUS_MAP_TITLE[stepStatus]}>{label}</Box>
+      <Box
+        className={clsx('stepper-label-title', STATUS_MAP_TITLE[stepStatus])}
+      >
+        {label}
+      </Box>
 
       {statusLabel && (
-        <Box className={STATUS_MAP_LABEL[stepStatus]}>{statusLabel}</Box>
+        <Box
+          className={clsx('stepper-label-status', STATUS_MAP_LABEL[stepStatus])}
+        >
+          {translate(statusLabel)}
+        </Box>
       )}
     </Box>
   )

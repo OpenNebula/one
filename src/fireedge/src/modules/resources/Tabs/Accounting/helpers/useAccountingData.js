@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useState, useEffect } from 'react'
+import { useCallback, useState } from 'react'
 import { VmAPI } from '@FeaturesModule'
 import { transformWithComputedMetrics } from '@modules/resources/Tabs/Accounting/helpers'
+import { T } from '@ConstantsModule'
 
 const keyMap = {
   'VM.ID': 'ID',
@@ -30,33 +31,51 @@ const keyMap = {
 }
 
 const metricKeys = ['cpuHours', 'memoryGBHours', 'diskMBHours']
+const TIMEOUT = 8000
+const TIMEOUT_RESULT = Symbol('timeout')
 
-const TIMEOUT = 8000 // 8 seconds
+const getErrorMessage = (error) => {
+  if (typeof error === 'string') return error
+
+  const message = error?.data?.message ?? error?.error ?? error?.message
+
+  return typeof message === 'string' ? message : JSON.stringify(error)
+}
 
 /**
  * Hook to fetch and process accounting data.
  *
- * @param {number|string} id - The ID for which accounting data is to be fetched.
  * @returns {object} - Returns an object containing the processed data, loading state, and any error.
  */
-export const useAccountingData = ({ id, start, end }) => {
-  // Create the hook to fetch data
-  const [refetch, { data: fetchedData }] =
-    VmAPI.useLazyGetAccountingPoolFilteredQuery()
-
+export const useAccountingData = () => {
+  const [getAccounting] = VmAPI.useLazyGetAccountingPoolFilteredQuery()
   const [data, setData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const labelingFunction = (record) => record.DATE
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setError('Failed to fetch data in time')
-      setIsLoading(false)
-    }, TIMEOUT)
+  const refetch = useCallback(
+    async (params) => {
+      setData(null)
+      setError(null)
+      setIsLoading(true)
 
-    const pollingIntervalId = setInterval(() => {
-      if (fetchedData && typeof fetchedData === 'object') {
+      const request = getAccounting(params)
+      let timeoutId
+
+      try {
+        const fetchedData = await Promise.race([
+          request.unwrap(),
+          new Promise((resolve) => {
+            timeoutId = setTimeout(() => resolve(TIMEOUT_RESULT), TIMEOUT)
+          }),
+        ])
+
+        if (fetchedData === TIMEOUT_RESULT) {
+          request.abort()
+          throw T.Timeout
+        }
+
         const result = transformWithComputedMetrics(
           fetchedData,
           keyMap,
@@ -66,22 +85,20 @@ export const useAccountingData = ({ id, start, end }) => {
 
         if (result.error) {
           setError(result.error)
-          setIsLoading(false)
-        } else {
-          setData(result.dataset)
-          setIsLoading(false)
+
+          return
         }
 
+        setData(result.dataset)
+      } catch (requestError) {
+        setError(getErrorMessage(requestError))
+      } finally {
         clearTimeout(timeoutId)
-        clearInterval(pollingIntervalId)
+        setIsLoading(false)
       }
-    }, 1000)
+    },
+    [getAccounting]
+  )
 
-    return () => {
-      clearTimeout(timeoutId)
-      clearInterval(pollingIntervalId)
-    }
-  }, [fetchedData])
-
-  return { data, isLoading, setIsLoading, error, refetch }
+  return { data, isLoading, error, refetch }
 }

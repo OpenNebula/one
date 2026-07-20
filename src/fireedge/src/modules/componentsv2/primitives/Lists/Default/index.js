@@ -21,11 +21,19 @@ import {
   isValidElement,
   createElement,
   Children,
+  useEffect,
   useRef,
 } from 'react'
 import PropTypes from 'prop-types'
-import { List as MUIList, Typography, Box, Stack } from '@mui/material'
+import {
+  List as MUIList,
+  Typography,
+  Box,
+  Stack,
+  useTheme,
+} from '@mui/material'
 import { getStyles } from '@modules/componentsv2/primitives/Lists/Default/styles'
+import { SkeletonLoading } from '@modules/componentsv2/primitives/Loaders'
 import { v4 as uuidv4 } from 'uuid'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useTranslation } from '@ProvidersModule'
@@ -44,11 +52,15 @@ export const List = forwardRef(
       isRowIndicatorDisabled = false,
       isLoading = false,
       skeletonRows = 5,
+      getItemId,
+      onVisibleItemIdsChange,
       ...opts
     },
     ref
   ) => {
     const { translate } = useTranslation()
+    const muiTheme = useTheme()
+    const skeletonHeight = muiTheme.scale[1600]
     const parentRef = useRef(null)
     const listId = useMemo(() => uuidv4(), [])
     const isOrdered = type === 'ordered'
@@ -70,12 +82,25 @@ export const List = forwardRef(
     const virtualizer = useVirtualizer({
       count: mChildren?.length,
       getScrollElement: () => parentRef.current,
-      estimateSize: () => 64, // Approx card height, only used for first render
+      estimateSize: () => (isLoading ? skeletonHeight : 64),
       overscan: 5,
     })
+    const visibleItemIds = isLoading
+      ? []
+      : virtualizer
+          .getVirtualItems()
+          .map(({ index }) => getItemId?.(mChildren[index]))
+          .filter((id) => id !== undefined && id !== null)
+    const visibleItemIdsKey = visibleItemIds.join(',')
+
+    useEffect(() => {
+      if (!onVisibleItemIdsChange) return
+
+      onVisibleItemIdsChange(visibleItemIds)
+    }, [onVisibleItemIdsChange, visibleItemIdsKey])
 
     return (
-      <Box sx={(theme) => getStyles({ theme, type, isLoading })}>
+      <Box sx={(theme) => getStyles({ theme, type })}>
         {title && (
           <Typography className="list-header">{translate(title)}</Typography>
         )}
@@ -98,11 +123,14 @@ export const List = forwardRef(
                     {isOrdered && !isLoading ? virtualItem.index + 1 : null}
                   </Box>
                 )}
-                {isLoading ? (
-                  <div className="skeleton-cell" />
-                ) : (
-                  renderElement(mChildren[virtualItem.index])
-                )}
+                <SkeletonLoading
+                  loading={isLoading}
+                  width="100%"
+                  height={skeletonHeight}
+                  borderRadius="none"
+                >
+                  {renderElement(mChildren[virtualItem.index])}
+                </SkeletonLoading>
               </Stack>
             ))}
           </Box>
@@ -120,6 +148,8 @@ List.propTypes = {
   sorter: PropTypes.func,
   isLoading: PropTypes.bool,
   skeletonRows: PropTypes.number,
+  getItemId: PropTypes.func,
+  onVisibleItemIdsChange: PropTypes.func,
 }
 
 List.displayName = 'List'

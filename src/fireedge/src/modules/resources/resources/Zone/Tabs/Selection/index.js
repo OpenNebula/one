@@ -33,7 +33,7 @@ export const Selection = ({ data }) => {
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -46,13 +46,11 @@ export const Selection = ({ data }) => {
     {
       accessorKey: 'ID',
       header: T.ID,
-      width: '5%',
     },
     {
       id: 'name',
       header: T.Name,
       accessorKey: 'NAME',
-      width: '20%',
     },
     {
       id: 'state',
@@ -72,7 +70,7 @@ export const Selection = ({ data }) => {
     {
       id: 'view',
       header: '',
-      width: '15%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}

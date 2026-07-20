@@ -373,6 +373,7 @@ export const MenuButton = forwardRef(
       placeholder = T.Options,
       size = 'small',
       sx,
+      dataCy,
       compactable = false,
       nestedTrigger = 'click',
       ...opts
@@ -445,6 +446,7 @@ export const MenuButton = forwardRef(
                 startIcon,
                 title: translatedPlaceholder,
                 iconOnly,
+                dataCy,
               })}
         />
         <MUIMenu
@@ -513,6 +515,7 @@ MenuButton.propTypes = {
   startIcon: PropTypes.node,
   endIcon: PropTypes.node,
   iconOnly: PropTypes.node,
+  dataCy: PropTypes.string,
   sx: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.func]),
   compactable: PropTypes.bool,
   nestedTrigger: PropTypes.oneOf(['click', 'hover']),

@@ -47,8 +47,17 @@ export const getStyles = ({ theme }) => ({
   '& .accounting-toolbar-group': {
     display: 'flex',
     flexWrap: 'no-wrap',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     gap: `${theme.scale[300]}px`,
+  },
+
+  '& .accounting-add-dataset-action': {
+    display: 'inline-flex',
+    height: `calc(${theme.lineHeight.body.sm.desktop} + ${
+      theme.scale[300] * 2 + theme.borderWidth.sm * 2
+    }px)`,
+    flexShrink: 0,
+    alignItems: 'center',
   },
 
   '& .accounting-select': {

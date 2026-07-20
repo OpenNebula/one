@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { PATH, RESOURCE_NAMES, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { VnAPI } from '@FeaturesModule'
 import { getLeasesInfo, getVirtualNetworkState } from '@ModelsModule'
 import { Component } from 'react'
@@ -58,7 +58,6 @@ export const Vnets = ({ data }) => (
     columns={columns}
     rowDetailsResourceId={RESOURCE_NAMES.VNET}
     dataCy="vdc-vnets"
-    path={PATH.NETWORK.VNETS.DETAIL}
     useQuery={VnAPI.useGetVNetworksQuery}
   />
 )

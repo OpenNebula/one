@@ -451,6 +451,26 @@ export const getStyles = ({ theme, isOpen }) => {
         display: 'flex',
         gap: `${theme.scale[200]}px`,
 
+        '&.admin .avatar': {
+          backgroundColor: variables.pink[400],
+          borderColor: 'none',
+        },
+
+        '&.cloud .avatar': {
+          backgroundColor: variables.orange[400],
+          borderColor: 'none',
+        },
+
+        '&.user .avatar': {
+          backgroundColor: variables.rose[400],
+          borderColor: 'none',
+        },
+
+        '&.groupadmin .avatar': {
+          backgroundColor: variables.purple[400],
+          borderColor: 'none',
+        },
+
         '& .avatar': {
           width: `${theme.scale[600] + theme.scale[50]}px`,
           height: `${theme.scale[600] + theme.scale[50]}px`,

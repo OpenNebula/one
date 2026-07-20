@@ -14,16 +14,20 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement, useCallback, memo, useMemo } from 'react'
-import { useTheme, Stack, FormControl, Link } from '@mui/material'
+import { useTheme, Stack, FormControl } from '@mui/material'
 import { css } from '@emotion/css'
 import PropTypes from 'prop-types'
-import { Link as RouterLink, generatePath } from 'react-router-dom'
 import TableContainer from '@mui/material/TableContainer'
 import { Cancel as CloseIcon, Plus as AddIcon } from 'iconoir-react'
 import { useFieldArray, useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { Table, FormWithSchema, Button } from '@ComponentsV2Module'
+import {
+  Table,
+  FormWithSchema,
+  Button,
+  ResourceLink,
+} from '@ComponentsV2Module'
 import { Legend } from '@modules/resources/Forms'
 import { Translate, useTranslation } from '@ProvidersModule'
 
@@ -33,7 +37,7 @@ import {
 } from '@modules/resources/resources/SecurityGroups/Forms/CreateForm/Steps/Rules/schema'
 import {
   T,
-  PATH,
+  RESOURCE_NAMES,
   STYLE_BUTTONS,
   ICMP_STRING,
   ICMP_V6_STRING,
@@ -132,12 +136,9 @@ const RulesSection = memo(
           network = `${T.Start}: ${IP}, ${T.Size}: ${SIZE}`
         } else if (!isNaN(NETWORK_ID)) {
           network = (
-            <Link
-              component={RouterLink}
-              to={generatePath(PATH.NETWORK.VNETS.DETAIL, { id: NETWORK_ID })}
-            >
+            <ResourceLink resource={RESOURCE_NAMES.VNET} data={NETWORK_ID}>
               {NETWORK_ID}
-            </Link>
+            </ResourceLink>
           )
         }
 

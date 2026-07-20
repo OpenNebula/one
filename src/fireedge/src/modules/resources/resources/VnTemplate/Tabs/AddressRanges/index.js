@@ -159,12 +159,13 @@ export const AddressRanges = ({ data, config }) => {
     {
       id: 'id',
       header: T.ID,
-      width: '5%',
+      grow: false,
       cell: ({ row }) => row.original?.AR_ID ?? row.original?.INDEX,
     },
     {
       accessorKey: 'TYPE',
       header: T.Type,
+      grow: false,
       cell: ({ row }) =>
         row.original?.TYPE ? (
           <Tag title={row.original.TYPE} status="default" />
@@ -172,35 +173,41 @@ export const AddressRanges = ({ data, config }) => {
           '-'
         ),
     },
-    { accessorKey: 'SIZE', header: T.Size, width: '8%' },
+    { accessorKey: 'SIZE', header: T.Size, grow: false },
     {
       id: 'mac',
       header: T.MAC,
       accessorFn: (row) => getRange(row?.MAC, row?.MAC_END),
+      grow: false,
     },
     {
       id: 'ip',
       header: T.IP,
       accessorFn: (row) => getRange(row?.IP, row?.IP_END),
+      grow: false,
     },
     {
       id: 'ip6',
       header: 'IP6',
       accessorFn: (row) => getRange(row?.IP6, row?.IP6_END),
+      grow: false,
     },
     {
       id: 'ip6_global',
       header: T.IPv6GlobalPrefix,
       accessorFn: (row) => getRange(row?.IP6_GLOBAL, row?.IP6_GLOBAL_END),
+      grow: false,
     },
     {
       id: 'ip6_ula',
       header: T.IPv6ULAPrefix,
       accessorFn: (row) => getRange(row?.IP6_ULA, row?.IP6_ULA_END),
+      grow: false,
     },
     {
       id: 'ipam',
       header: T.IPAMDriver,
+      grow: false,
       accessorFn: (row) => row?.IPAM_MAD || T.No,
       cell: ({ row }) =>
         row.original?.IPAM_MAD ? (
@@ -212,7 +219,7 @@ export const AddressRanges = ({ data, config }) => {
     {
       id: 'actions',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => {
         const addressRange = row.original
         const index = addressRange?.POSITION

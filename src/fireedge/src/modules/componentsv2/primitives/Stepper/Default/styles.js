@@ -101,6 +101,7 @@ export const getStyles = ({ type, theme, iconOnly }) => {
     },
 
     '& .stepper-label-status, & .stepper-label-step': {
+      color: 'text.body',
       fontSize: {
         xs: theme.fontSize.body.caption.mobile,
         sm: theme.fontSize.body.caption.tablet,
@@ -119,6 +120,7 @@ export const getStyles = ({ type, theme, iconOnly }) => {
 
     // Styles for the step label
     '& .stepper-label-title': {
+      color: 'text.body',
       fontSize: {
         xs: theme.fontSize.body.sm.mobile,
         sm: theme.fontSize.body.sm.tablet,

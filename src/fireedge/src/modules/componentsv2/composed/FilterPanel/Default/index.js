@@ -101,6 +101,7 @@ export const FilterPanel = ({
     if (filter.type === 'number' || filter.type === 'text') {
       return (
         <InputField
+          inputProps={{ 'data-cy': `filter-${filter.id}` }}
           value={value ?? ''}
           type={filter.type === 'number' ? 'number' : 'text'}
           placeholder={filter.placeholder}
@@ -117,6 +118,7 @@ export const FilterPanel = ({
 
     return (
       <Dropdown
+        dataCy={`filter-${filter.id}`}
         options={options}
         initialValue={selectedOption}
         placeholder={filter.placeholder}
@@ -168,6 +170,7 @@ export const FilterPanel = ({
 
         <Box className="filterpanel-footer">
           <Button
+            dataCy="filter-apply"
             startIcon={FilterList}
             size="medium"
             className="filterpanel-apply-button"

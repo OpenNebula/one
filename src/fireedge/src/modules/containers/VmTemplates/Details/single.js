@@ -118,6 +118,7 @@ export const SingleView = ({
     showModal({
       dialogProps: {
         title: `${T.Delete} ${T.VMTemplate}`,
+        dataCy: 'modal-delete',
         description: (
           <ResourceActionConfirmation
             description={T['resource.delete.confirmation']}
@@ -149,6 +150,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: T.Lock,
+        dataCy: 'modal-lock',
         description: (
           <ResourceActionConfirmation
             description={T['resource.lock.confirmation']}
@@ -169,6 +171,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: T.Unlock,
+        dataCy: 'modal-unlock',
         description: (
           <ResourceActionConfirmation
             description={T['resource.unlock.confirmation']}
@@ -227,6 +230,7 @@ export const SingleView = ({
             isTitleEditable: true,
             onTitleChange: handleRename,
             isTitleEditDisabled: isRenaming,
+            dataCy: 'vm-template',
 
             icon: `${STATIC_FILES_URL}/${
               selectedTemplate?.TEMPLATE?.LOGO ?? DEFAULT_TEMPLATE_LOGO
@@ -258,6 +262,7 @@ export const SingleView = ({
                       startIcon: <Lock width="16px" height="16px" />,
                       onClick: handleLock,
                       value: 'lock',
+                      dataCy: 'action-template-lock',
                       tooltip: T.Lock,
                       isDisabled: isActionsDisabled,
                     },
@@ -265,6 +270,7 @@ export const SingleView = ({
                       startIcon: <NoLock width="16px" height="16px" />,
                       onClick: handleUnlock,
                       value: 'unlock',
+                      dataCy: 'action-template-unlock',
                       tooltip: T.Unlock,
                       isDisabled: isActionsDisabled,
                     },
@@ -278,6 +284,7 @@ export const SingleView = ({
                         startIcon: <Play width="16px" height="16px" />,
                         onClick: handleInstantiate,
                         value: 'instantiate',
+                        'data-cy': 'action-instantiate_dialog',
                         tooltip: T.Instantiate,
                         isDisabled: isActionsDisabled,
                       },
@@ -285,6 +292,7 @@ export const SingleView = ({
                         startIcon: <GridAdd width="16px" height="16px" />,
                         onClick: handleExport,
                         value: 'export',
+                        'data-cy': 'action-create_app_dialog',
                         tooltip: T.Export,
                         isDisabled: templateIsLocked || isActionsDisabled,
                       },
@@ -292,6 +300,7 @@ export const SingleView = ({
                         startIcon: <CloneIcon width="16px" height="16px" />,
                         onClick: handleOpenCloneForm,
                         value: 'clone',
+                        'data-cy': 'action-clone',
                         tooltip: T.Clone,
                         isDisabled: templateIsLocked || isActionsDisabled,
                       },
@@ -308,6 +317,7 @@ export const SingleView = ({
                         startIcon: <Edit width="16px" height="16px" />,
                         onClick: handleEdit,
                         value: 'edit',
+                        'data-cy': 'action-update_dialog',
                         tooltip: T.Update,
                         isDisabled: templateIsLocked || isActionsDisabled,
                       },
@@ -316,6 +326,7 @@ export const SingleView = ({
                         onClick: () =>
                           refreshTemplate({ id: selectedTemplate?.ID }),
                         value: 'refresh',
+                        'data-cy': 'action-refresh',
                         tooltip: T.Refresh,
                         isDisabled: isActionsDisabled,
                       },
@@ -337,6 +348,7 @@ export const SingleView = ({
                         ),
                         onClick: handleOpenDeleteForm,
                         value: 'delete',
+                        'data-cy': 'action-delete',
                         tooltip: T.Delete,
                         isDestructive: true,
                         isDisabled: templateIsLocked || isActionsDisabled,
@@ -345,6 +357,7 @@ export const SingleView = ({
                         startIcon: <Cancel width="16px" height="16px" />,
                         onClick: handleClose,
                         value: 'close',
+                        'data-cy': 'action-close',
                         tooltip: T.Close,
                       },
                     ],

@@ -16,9 +16,7 @@
 
 import { Component, forwardRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Link } from '@mui/material'
-import { Link as RouterLink } from 'react-router-dom'
-import { Table } from '@ComponentsV2Module'
+import { ResourceLink, Table } from '@ComponentsV2Module'
 import { RULESECURITYGROUP_COLUMNS } from '@ModelsModule'
 import { T, RESOURCE_NAMES } from '@ConstantsModule'
 /**
@@ -49,12 +47,9 @@ export const RulesSecGroups = forwardRef(({ title, rules = [] }, ref) => {
           NETWORK = `${T.Start}: ${IP}, ${T.Size}: ${SIZE}`
         } else if (NETWORK_ID && NETWORK_ID !== T.Any && !isNaN(NETWORK_ID)) {
           NETWORK = (
-            <Link
-              component={RouterLink}
-              to={`/${RESOURCE_NAMES.VNET}/${NETWORK_ID}`}
-            >
+            <ResourceLink resource={RESOURCE_NAMES.VNET} data={NETWORK_ID}>
               {NETWORK_ID}
-            </Link>
+            </ResourceLink>
           )
         } else {
           NETWORK = NETWORK_ID

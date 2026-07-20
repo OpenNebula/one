@@ -46,14 +46,7 @@ const DATASETS_LIMIT = 4
 const generateAccountingInfoTab = ({ groups }) => {
   const AccountingInfoTab = ({ id }) => {
     const [dateRange, setDateRange] = useState(getDefaultDateRange()) // LAST 7 DAYS
-    const { data, isLoading, setIsLoading, error, refetch } = useAccountingData(
-      {
-        groups,
-        id,
-        start: dateRange.startDate.toSeconds(),
-        end: dateRange.endDate.toSeconds(),
-      }
-    )
+    const { data, isLoading, error, refetch } = useAccountingData()
     const [datasets, setDatasets] = useState([])
     const [visibleDatasets, setVisibleDatasets] = useState([])
     const [chartType, setChartType] = useState('line')
@@ -174,9 +167,6 @@ const generateAccountingInfoTab = ({ groups }) => {
 
           return
         }
-
-        // Active loading
-        setIsLoading(true)
 
         // Make request to API
         const params = groups

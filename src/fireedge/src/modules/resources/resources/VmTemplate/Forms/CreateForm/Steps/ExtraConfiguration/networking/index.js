@@ -63,6 +63,8 @@ const getNicCardName = (nic) =>
     ? `${formatValue(nic?.NAME)}: ${formatValue(nic?.NETWORK)}`
     : formatValue(nic?.NAME)
 
+const getNicDataCyId = (nic) => nic?.NIC_ID ?? nic?.NAME?.match(/\d+$/)?.[0]
+
 const getSharedValue = (nic) =>
   nic?.SHARED === undefined ? '-' : nic?.SHARED === 'YES' ? T.Yes : T.No
 
@@ -132,7 +134,14 @@ const NetworkingNicCard = ({ actions, aliasLength, nic }) => {
     tags.length > 0 && [LabelSlot, { labels: tags }],
   ].filter(Boolean)
 
-  return <CardBlock actions={actions} isSelectable={false} slots={slots} />
+  return (
+    <CardBlock
+      actions={actions}
+      dataCy={`nic-${getNicDataCyId(nic)}`}
+      isSelectable={false}
+      slots={slots}
+    />
+  )
 }
 
 NetworkingNicCard.propTypes = {
@@ -591,10 +600,12 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
       {
         title: T.Edit,
         tooltip: T.Edit,
+        dataCy: `nic-edit-${getNicDataCyId(nic)}`,
         onClick: () => openEditNicForm(nic),
       },
       !aliasLength && {
         title: T.Detach,
+        dataCy: `detach-nic-${getNicDataCyId(nic)}`,
         tooltip: disableDetach ? T.DetachRestricted : T.Detach,
         isDisabled: disableDetach,
         onClick: () => openDetachNicConfirm(nic),
@@ -602,6 +613,7 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
       {
         title: T.Alias,
         tooltip: T.Alias,
+        dataCy: `alias-nic-${getNicDataCyId(nic)}`,
         onClick: () => openAliasForm(nic),
       },
     ].filter(Boolean)

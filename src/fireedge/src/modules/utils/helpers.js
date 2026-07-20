@@ -862,9 +862,19 @@ export const renderIcon = (iconProp, props = {}) => {
 export const buildBreadcrumbMap = (endpoints) => {
   const titles = {}
   const chains = {}
+  const normalizePath = (path = '') => {
+    const normalized = `/${String(path).replace(/^\/+|\/+$/g, '')}`
+
+    return normalized === '/' ? normalized : normalized.replace(/\/+$/g, '')
+  }
 
   const collect = (route, group) => {
-    if (route.path) titles[route.path] = route.title
+    if (route.path) {
+      titles[normalizePath(route.path)] = {
+        label: route.title,
+        path: route.path,
+      }
+    }
     route.routes?.forEach((r) => collect(r, route.title ?? group))
   }
 
@@ -873,12 +883,13 @@ export const buildBreadcrumbMap = (endpoints) => {
       const crumbs = group ? [{ label: group, path: null }] : []
 
       let path = ''
-      for (const seg of route.path.split('/').filter(Boolean)) {
+      for (const seg of normalizePath(route.path).split('/').filter(Boolean)) {
         path += '/' + seg
-        if (titles[path]) crumbs.push({ label: titles[path], path })
+        if (titles[path]) crumbs.push(titles[path])
       }
 
       chains[route.path] = crumbs
+      chains[normalizePath(route.path)] = crumbs
     }
     route.routes?.forEach((r) => buildChain(r, route.title ?? group))
   }

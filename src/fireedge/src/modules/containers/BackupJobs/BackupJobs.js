@@ -137,6 +137,7 @@ export function BackupJobs() {
                 getRowId={(row) => row.ID}
                 onRowClick={(row) => handleSelect(row.ID)}
                 size="medium"
+                defaultPageSize={25}
                 isFullHeight
               />
             )

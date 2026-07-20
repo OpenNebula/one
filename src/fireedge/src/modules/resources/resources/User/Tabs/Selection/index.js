@@ -32,7 +32,7 @@ export const Selection = ({ data }) => {
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -42,12 +42,12 @@ export const Selection = ({ data }) => {
         />
       ),
     },
-    { accessorKey: 'NAME', header: T.Name, width: '30%' },
-    { accessorKey: 'GNAME', header: T.Group },
+    { accessorKey: 'NAME', header: T.Name, truncate: true },
     { accessorKey: 'AUTH_DRIVER', header: T.AuthDriver },
     {
       accessorKey: 'ID',
       header: '',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}

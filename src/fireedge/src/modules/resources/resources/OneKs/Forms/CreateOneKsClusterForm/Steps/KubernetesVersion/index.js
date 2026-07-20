@@ -17,9 +17,9 @@ import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
 import { SCHEMA, FIELDS } from './schema'
 import { useMemo } from 'react'
-import { Grid, useTheme, Alert } from '@mui/material'
+import { Grid, useTheme } from '@mui/material'
 import styles from '@modules/resources/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/styles'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
 import { useTranslation } from '@ProvidersModule'
 
 export const STEP_ID = 'kubernetes_version'
@@ -30,18 +30,29 @@ const Content = (families) => {
   const theme = useTheme()
   // Style classes
   const classes = useMemo(() => styles(theme), [theme])
+  const fields = FIELDS(families)
+  const columns = [[], fields, []]
 
   return (
     <>
-      <Alert severity="info" variant="outlined" className={classes.groupInfo}>
-        {translate(T['oneks.form.create.kubernetes_version.info'])}
-      </Alert>
+      <AlertNotification
+        type="primary"
+        status="information"
+        description={translate(T['oneks.form.create.kubernetes_version.info'])}
+        isDismissible={false}
+        className={classes.groupInfo}
+        style={{ width: '100%', boxSizing: 'border-box' }}
+      />
       <Grid container mt={2} className={classes.container}>
         <Grid item xs={12}>
           <FormWithSchema
             id={STEP_ID}
             cy={`${STEP_ID}`}
-            fields={FIELDS(families)}
+            fields={fields}
+            columns={columns}
+            gridContainerSx={{
+              gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
+            }}
           />
         </Grid>
       </Grid>

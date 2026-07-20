@@ -17,7 +17,6 @@
 import PropTypes from 'prop-types'
 import { ReactElement, useMemo, useState } from 'react'
 import {
-  Alert,
   Box,
   FormControl,
   FormControlLabel,
@@ -26,7 +25,7 @@ import {
   Typography,
 } from '@mui/material'
 import { RefreshDouble } from 'iconoir-react'
-import { Button, Table, Tooltip } from '@ComponentsV2Module'
+import { AlertNotification, Button, Table, Tooltip } from '@ComponentsV2Module'
 import { BACKUPJOB_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
 import { BackupJobAPI } from '@FeaturesModule'
 import { getBackupJobVmIds, vmsTable } from '@ModelsModule'
@@ -185,26 +184,33 @@ export const VMs = ({ data }) => {
         </Box>
 
         {!!OUTDATED_VMS?.ID && state === STATE_OUTDATED && (
-          <Alert
-            variant="outlined"
-            severity="warning"
-            sx={alertStyles}
-            action={
-              <Tooltip title={T.Refresh}>
-                <span>
-                  <Button
-                    type="transparent"
-                    size="medium"
-                    iconOnly={<RefreshDouble width="16px" height="16px" />}
-                    onClick={() => ID !== undefined && refetch()}
-                    isDisabled={isFetching}
-                  />
-                </span>
-              </Tooltip>
-            }
+          <Box
+            sx={{
+              ...alertStyles,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
           >
-            {T.BackupJobRefresh}
-          </Alert>
+            <AlertNotification
+              type="primary"
+              status="warning"
+              description={T.BackupJobRefresh}
+              isDismissible={false}
+              style={{ width: '100%', boxSizing: 'border-box' }}
+            />
+            <Tooltip title={T.Refresh}>
+              <span>
+                <Button
+                  type="transparent"
+                  size="medium"
+                  iconOnly={<RefreshDouble width="16px" height="16px" />}
+                  onClick={() => ID !== undefined && refetch()}
+                  isDisabled={isFetching}
+                />
+              </span>
+            </Tooltip>
+          </Box>
         )}
 
         <Table

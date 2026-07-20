@@ -126,7 +126,7 @@ export const ScheduledActions = ({ data, config }) => {
     {
       header: '',
       id: 'actions',
-      width: '7%',
+      grow: false,
       cell: ({ row }) => {
         const [updateScheduleActionOption] =
           VirtualMachine.Actions.Utils.generateMenuOptions({
@@ -174,6 +174,10 @@ export const ScheduledActions = ({ data, config }) => {
           columns={columns}
           data={history}
           isLoading={isFetchingScheduledActions || isPerformingAction}
+          emptyContentProps={{
+            title: T.NoScheduleActions,
+            subtitle: T.ScheduleActionsWillAppearHere,
+          }}
           size="medium"
           isEnableSearchBar
           isEnableSort

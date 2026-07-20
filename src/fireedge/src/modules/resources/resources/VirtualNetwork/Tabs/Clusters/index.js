@@ -77,8 +77,8 @@ export const Clusters = ({ data, config }) => {
 
   // Table
   const columns = [
-    { accessorKey: 'ID', header: T.ID, width: '7%' },
-    { accessorKey: 'NAME', header: T.Name, width: '30%' },
+    { accessorKey: 'ID', header: T.ID, grow: false },
+    { accessorKey: 'NAME', header: T.Name, truncate: true },
     {
       id: 'hosts',
       header: T.Hosts,
@@ -97,7 +97,7 @@ export const Clusters = ({ data, config }) => {
     {
       id: 'actions',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => {
         const cluster = row.original
 

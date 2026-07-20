@@ -122,6 +122,7 @@ export function VnTemplates() {
 
   return (
     <ResourceContainer
+      dataCy={vntemplateTable.dataCy}
       resourceName={T.NetworkTemplates}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -138,6 +139,7 @@ export function VnTemplates() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={vntemplateTable.dataCy}
                 columns={vntemplateTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -149,6 +151,7 @@ export function VnTemplates() {
                 getRowId={(row) => String(row.ID)}
                 onRowClick={(row) => handleSelect(row.ID)}
                 size="medium"
+                defaultPageSize={25}
                 isFullHeight
               />
             )
@@ -163,6 +166,7 @@ export function VnTemplates() {
                   return (
                     <Resource.Card
                       key={id}
+                      dataCy={`${vntemplateTable.dataCy}-${id}`}
                       vnTemplate={vnTemplate}
                       isSelected={selectedItems?.includes(id)}
                       onCheck={() =>

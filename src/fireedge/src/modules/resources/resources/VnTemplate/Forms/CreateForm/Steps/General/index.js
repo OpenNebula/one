@@ -42,11 +42,16 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
 
   return (
     <>
-      {sections.map(({ id, ...section }) => (
+      {sections.map(({ fields, id, ...section }) => (
         <FormWithSchema
           key={id}
           id={STEP_ID}
           cy={`${STEP_ID}-${id}`}
+          fields={fields}
+          columns={[[], fields, []]}
+          gridContainerSx={{
+            gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
+          }}
           {...section}
         />
       ))}

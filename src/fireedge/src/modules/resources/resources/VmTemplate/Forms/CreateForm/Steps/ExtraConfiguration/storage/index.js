@@ -179,7 +179,14 @@ const StorageDiskCard = ({ actions, disk }) => {
     tags.length > 0 && [LabelSlot, { labels: tags }],
   ].filter(Boolean)
 
-  return <CardBlock actions={actions} isSelectable={false} slots={slots} />
+  return (
+    <CardBlock
+      actions={actions}
+      dataCy={`disk-${disk?.DISK_ID}`}
+      isSelectable={false}
+      slots={slots}
+    />
+  )
 }
 
 StorageDiskCard.propTypes = {
@@ -458,10 +465,12 @@ const Storage = ({ hypervisor, oneConfig, adminGroup, vmTemplate }) => {
         {
           title: T.Edit,
           tooltip: T.Edit,
+          dataCy: `disk-edit-${disk?.DISK_ID}`,
           onClick: () => openEditDiskForm(disk),
         },
         {
           title: T[VM_ACTION_ENUM.DETACH_DISK],
+          dataCy: `disk-detach-${disk?.DISK_ID}`,
           tooltip: disableDetach
             ? T.DetachRestricted
             : T[VM_ACTION_ENUM.DETACH_DISK],

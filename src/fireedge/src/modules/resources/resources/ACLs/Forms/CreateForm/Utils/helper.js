@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Alert, Box, Link, Stack } from '@mui/material'
+import { Box, Link, Stack } from '@mui/material'
+import { AlertNotification } from '@ComponentsV2Module'
 import { generateDocLink } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 import { T, ACL_TYPE_ID, ACL_RESOURCES } from '@ConstantsModule'
@@ -58,26 +59,19 @@ const ACLRulePreview = ({ users, groups, clusters, zones, rule }) => {
   const ruleString = rule ?? getACLRuleString(values)
 
   return (
-    <Alert severity="info" variant="outlined" sx={{ mb: 2 }}>
-      <Stack gap="1em">
-        <Box>
-          {translate(T['acls.form.create.summary.info.rule'])}
-          <Box
-            component="strong"
-            data-cy="ruleString"
-            sx={{ display: 'inline' }}
-          >
-            {ruleString}
-          </Box>
-        </Box>
-        <Box>
-          {translate(T['acls.form.create.summary.info.translation'])}
-          <Box component="strong" sx={{ display: 'inline' }}>
-            {translateACL(ruleString, users, groups, clusters, zones)}
-          </Box>
-        </Box>
-      </Stack>
-    </Alert>
+    <AlertNotification
+      type="primary"
+      status="information"
+      title={`${translate(
+        T['acls.form.create.summary.info.rule']
+      )}${ruleString}`}
+      description={`${translate(
+        T['acls.form.create.summary.info.translation']
+      )}${translateACL(ruleString, users, groups, clusters, zones)}`}
+      isDismissible={false}
+      data-cy="ruleString"
+      style={{ marginBottom: '16px', width: '100%', boxSizing: 'border-box' }}
+    />
   )
 }
 

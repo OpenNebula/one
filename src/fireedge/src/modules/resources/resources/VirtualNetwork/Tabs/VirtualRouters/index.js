@@ -47,8 +47,8 @@ export const VirtualRouters = ({ data }) => {
 
   // Table
   const columns = [
-    { accessorKey: 'ID', header: T.ID, width: '7%' },
-    { accessorKey: 'NAME', header: T.Name, width: '30%' },
+    { accessorKey: 'ID', header: T.ID },
+    { accessorKey: 'NAME', header: T.Name },
     { accessorKey: 'UNAME', header: T.Owner },
     { accessorKey: 'GNAME', header: T.Group },
     {

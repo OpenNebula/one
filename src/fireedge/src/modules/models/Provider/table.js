@@ -28,13 +28,13 @@ export const PROVIDER_COLUMNS = [
     header: T.ID,
     accessorKey: 'ID',
     id: 'id',
-    width: '5%',
+    grow: false,
   },
   {
     header: T.Name,
     accessorKey: 'NAME',
     id: 'name',
-    width: '30%',
+    truncate: true,
     cell: ({ row }) => {
       const src = getLogoSource(
         row?.original?.TEMPLATE?.PROVIDER_BODY?.fireedge
@@ -63,15 +63,18 @@ export const PROVIDER_COLUMNS = [
     header: T.Owner,
     accessorKey: 'UNAME',
     id: 'owner',
+    grow: false,
   },
   {
     header: T.Group,
     accessorKey: 'GNAME',
     id: 'group',
+    grow: false,
   },
   {
     header: T.RegistrationTime,
     id: 'time',
+    grow: false,
     cell: ({ row }) => {
       const registrationTime =
         row?.original?.TEMPLATE?.PROVIDER_BODY?.registration_time
@@ -81,7 +84,7 @@ export const PROVIDER_COLUMNS = [
         : '-'
     },
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const providerTable = createTable(

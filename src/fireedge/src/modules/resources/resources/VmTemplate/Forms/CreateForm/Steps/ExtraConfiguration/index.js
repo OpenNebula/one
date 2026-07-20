@@ -204,7 +204,8 @@ const Content = ({
           <Tabs
             type="line"
             defaultSelect={0}
-            options={tabs.map(({ title, startIcon, getError }, idx) => ({
+            options={tabs.map(({ id, title, startIcon, getError }, idx) => ({
+              id,
               title,
               startIcon,
               error: !!getError?.(stepErrors),

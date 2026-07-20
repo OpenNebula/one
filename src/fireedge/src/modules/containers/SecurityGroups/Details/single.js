@@ -186,6 +186,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Delete} ${T.SecurityGroups}`,
+        dataCy: 'modal-delete',
         description: (
           <ResourceActionConfirmation
             description={T['resource.delete.confirmation']}
@@ -245,6 +246,7 @@ export const SingleView = ({
             title: selectedSecurityGroup?.NAME,
             id: selectedSecurityGroup?.ID,
             tags: getLabelTags(selectedSecurityGroup?.LABELS),
+            dataCy: 'security-group',
             labels: [
               [T.Owner, selectedSecurityGroup?.UNAME],
               [T.Group, selectedSecurityGroup?.GNAME],
@@ -262,9 +264,29 @@ export const SingleView = ({
                   options={[
                     [
                       {
+                        startIcon: <RefreshDouble width="16px" height="16px" />,
+                        onClick: () =>
+                          refreshSecGroup({ id: selectedSecurityGroup?.ID }),
+                        value: 'refresh',
+                        tooltip: T.Refresh,
+                        isDisabled: isActionsDisabled,
+                      },
+                    ],
+
+                    [
+                      {
+                        startIcon: <Edit width="16px" height="16px" />,
+                        onClick: handleEdit,
+                        value: 'edit',
+                        'data-cy': 'action-update_dialog',
+                        tooltip: T.Edit,
+                        isDisabled: isActionsDisabled,
+                      },
+                      {
                         startIcon: <CloneIcon width="16px" height="16px" />,
                         onClick: handleOpenCloneForm,
                         value: 'clone',
+                        'data-cy': 'action-clone',
                         tooltip: T.Clone,
                         isDisabled: isActionsDisabled,
                       },
@@ -272,6 +294,7 @@ export const SingleView = ({
                         startIcon: <CommitIcon width="16px" height="16px" />,
                         onClick: handleOpenCommitForm,
                         value: 'commit',
+                        'data-cy': 'action-commit',
                         tooltip: T.Commit,
                         isDisabled: isActionsDisabled,
                       },
@@ -316,6 +339,7 @@ export const SingleView = ({
                         ),
                         onClick: handleOpenDeleteForm,
                         value: 'delete',
+                        'data-cy': 'action-secGroups_delete',
                         tooltip: T.Delete,
                         isDestructive: true,
                         isDisabled: isActionsDisabled,

@@ -47,7 +47,11 @@ const Content = ({ selectDiskId }) => {
 
   const model = useMemo(
     () => ({
-      columns: imageTable.columns,
+      columns: () =>
+        imageTable
+          .columns()
+          .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
+      dataCy: imageTable.dataCy,
       useData: (...args) => {
         const result = imageTable.useData(...args)
         imagesRef.current = [].concat(result?.data ?? [])

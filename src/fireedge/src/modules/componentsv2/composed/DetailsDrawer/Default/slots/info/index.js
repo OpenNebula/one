@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { forwardRef, Component, useRef } from 'react'
-import { Box } from '@mui/material'
+import { Box, useTheme } from '@mui/material'
 import { Button } from '@modules/componentsv2/primitives/Buttons'
 import { getStyles } from '@modules/componentsv2/composed/DetailsDrawer/Default/slots/info/styles'
 import { EditPencil } from 'iconoir-react'
@@ -26,6 +26,7 @@ import { Tooltip } from '@modules/componentsv2/primitives/Tooltip'
 import { useTranslation } from '@ProvidersModule'
 import { CompactToolbar } from '@modules/componentsv2/primitives/Buttons/CompactToolbar'
 import { TagList } from '@modules/componentsv2/primitives/Tags/List'
+import { SkeletonLoading } from '@modules/componentsv2/primitives/Loaders'
 
 const hasValue = (value) =>
   value !== undefined && value !== null && value !== '' && value !== false
@@ -47,12 +48,14 @@ export const InfoSlot = forwardRef(
       id,
       labels = [],
       tags = [],
+      isLoading = false,
       Toolbar,
       dataCy,
     },
     ref
   ) => {
     const { translate, translateText } = useTranslation()
+    const { scale } = useTheme()
     const editableTitleRef = useRef(null)
     const clickToRename = translate(T.ClickToRename)
 
@@ -120,7 +123,7 @@ export const InfoSlot = forwardRef(
               )}
             </Box>
           </Box>
-          {(!!labels?.length || !!tags?.length) && (
+          {(!!labels?.length || !!tags?.length || isLoading) && (
             <Box className="info-metadata">
               {!!labels?.length && (
                 <Box className="info-ownership">
@@ -140,9 +143,17 @@ export const InfoSlot = forwardRef(
                   ))}
                 </Box>
               )}
-              {!!tags?.length && (
+              {(isLoading || !!tags?.length) && (
                 <Box className="info-tags">
-                  <TagList tags={tags} max={tags.length} />
+                  <SkeletonLoading
+                    loading={isLoading}
+                    width={scale[1200] * 2}
+                    height={scale[550]}
+                    variant="rectangular"
+                    borderRadius="round"
+                  >
+                    <TagList tags={tags} max={tags.length} />
+                  </SkeletonLoading>
                 </Box>
               )}
             </Box>
@@ -166,6 +177,7 @@ InfoSlot.propTypes = {
   id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   labels: PropTypes.array,
   tags: PropTypes.array,
+  isLoading: PropTypes.bool,
   Toolbar: PropTypes.elementType,
   isTitleEditable: PropTypes.bool,
   onTitleChange: PropTypes.func,

@@ -177,21 +177,14 @@ export function OpenNebulaLoginHandler({ data = {} }) {
   const classes = useMemo(() => styles(theme), [theme])
 
   const renderFormStep = ({
-    direction = 'left',
     onBack = handleBack,
     onSubmit = handleSubmit,
     resolver,
     fields,
     errorField,
-    enter,
     additionalProps = {},
   }) => (
     <Form
-      transitionProps={{
-        direction,
-        in: true,
-        ...(enter !== undefined && { enter }),
-      }}
       onBack={onBack}
       onSubmit={onSubmit}
       resolver={resolver}
@@ -205,7 +198,6 @@ export function OpenNebulaLoginHandler({ data = {} }) {
 
   const renderUserStep = () =>
     renderFormStep({
-      direction: 'right',
       onBack: null,
       resolver: FORM_SCHEMA.FORM_USER_SCHEMA,
       fields: FORM_SCHEMA.FORM_USER_FIELDS,
@@ -250,7 +242,7 @@ export function OpenNebulaLoginHandler({ data = {} }) {
 
       <Box className={`${classes.login} ${loginStepClass}`}>
         {![STEPS.FA2_FORM, STEPS.REGISTER_2FA]?.includes(step) && (
-          <Box data-login-title display="flex" overflow="hidden" width="100%">
+          <Box data-login-title display="flex" overflow="visible" width="100%">
             <Typography className={classes.loginTitle} variant="h6">
               {translate(T.LogIn)}
             </Typography>

@@ -41,14 +41,30 @@ export const HostPciTab = ({ data }) => {
       id: 'vm',
       accessorFn: ({ VMID }) =>
         VMID && VMID !== -1 && VMID !== '-1' ? VMID : '-',
+      grow: false,
     },
     { header: T.IfName, accessorKey: 'IFNAME' },
     { header: T.Vendor, id: 'vendor', accessorKey: 'VENDOR' },
-    { header: T.VendorName, id: 'vendorName', accessorKey: 'VENDOR_NAME' },
+    {
+      header: T.VendorName,
+      id: 'vendorName',
+      accessorKey: 'VENDOR_NAME',
+      truncate: true,
+    },
     { header: T.Class, id: 'class', accessorKey: 'CLASS' },
-    { header: T.ClassName, id: 'className', accessorKey: 'CLASS_NAME' },
+    {
+      header: T.ClassName,
+      id: 'className',
+      accessorKey: 'CLASS_NAME',
+      truncate: true,
+    },
     { header: T.Device, id: 'device', accessorKey: 'DEVICE' },
-    { header: T.DeviceName, id: 'deviceName', accessorKey: 'DEVICE_NAME' },
+    {
+      header: T.DeviceName,
+      id: 'deviceName',
+      accessorKey: 'DEVICE_NAME',
+      truncate: true,
+    },
     {
       header: T.ShortAddress,
       id: 'shortAddress',

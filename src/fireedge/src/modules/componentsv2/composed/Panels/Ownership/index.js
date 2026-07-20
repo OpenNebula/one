@@ -125,6 +125,7 @@ export const OwnershipTab = forwardRef(
     const data = useMemo(
       () => [
         {
+          type: 'owner',
           label: T.Owner,
           value: userName,
           initialValue: { text: userName ?? '', value: userId },
@@ -132,6 +133,7 @@ export const OwnershipTab = forwardRef(
           onOpenForm: handleChangeOwnerForm,
         },
         {
+          type: 'group',
           label: T.Group,
           value: groupName,
           initialValue: { text: groupName ?? '', value: groupId },
@@ -156,7 +158,7 @@ export const OwnershipTab = forwardRef(
         accessorKey: 'value',
         header: '',
         cell: ({ row }) => {
-          const { canEdit, onOpenForm, value } = row.original
+          const { canEdit, onOpenForm, type, value } = row.original
           const isEditDisabled = isDisabled || !canEdit
 
           return (
@@ -171,6 +173,7 @@ export const OwnershipTab = forwardRef(
             >
               <Box
                 component="span"
+                data-cy={type === 'owner' ? 'owner' : 'group'}
                 sx={{
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -185,6 +188,7 @@ export const OwnershipTab = forwardRef(
                 iconOnly={<Edit />}
                 title={T.Edit}
                 aria-label={`${T.Edit} ${row.original.label}`}
+                dataCy={`ownership-${type}-edit`}
                 onClick={onOpenForm}
                 isDisabled={isEditDisabled}
               />

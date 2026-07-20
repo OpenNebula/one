@@ -51,7 +51,7 @@ export const TagList = ({ tags = [], max = 2 }) => {
         <Tooltip
           title={<Box sx={getPopupStyles()}>{hidden.map(renderTag)}</Box>}
         >
-          <Badge type="tag" status="information">{`+${hidden.length}`}</Badge>
+          <Badge type="tag" status="default">{`+${hidden.length}`}</Badge>
         </Tooltip>
       )}
     </Box>

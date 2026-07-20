@@ -26,7 +26,6 @@ import {
   INPUT_TYPES,
   IMAGE_TYPES_STR,
   IMAGE_TYPES_FOR_IMAGES,
-  UNITS,
   RESTRICTED_ATTRIBUTES_TYPE,
 } from '@ConstantsModule'
 
@@ -225,7 +224,7 @@ export const SIZE = {
     'AND'
   ),
   label: T.Size,
-  type: INPUT_TYPES.TEXT,
+  type: INPUT_TYPES.UNITS,
   tooltip: T.ImageSizeUnit,
   validation: number()
     .positive()
@@ -237,43 +236,7 @@ export const SIZE = {
       then: (schema) => schema.required(),
       otherwise: (schema) => schema.strip(),
     }),
-  grid: { md: 9 },
-}
-
-/**
- * @type {Field} size field
- * ISSUE#6136: Add unit size. Use only MB, GB, and TB (other values do not apply to create image).
- */
-export const SIZEUNIT = {
-  name: 'SIZEUNIT',
-  dependOf: [IMAGE_LOCATION_FIELD.name, TYPE.name],
-  htmlType: htmlType(
-    [
-      [IMAGE_LOCATION_TYPES.EMPTY],
-      [IMAGE_TYPES_STR.OS, IMAGE_TYPES_STR.CDROM, IMAGE_TYPES_STR.DATABLOCK],
-    ],
-    true,
-    'AND'
-  ),
-  label: T.SizeUnit,
-  type: INPUT_TYPES.AUTOCOMPLETE,
-  optionsOnly: true,
-  tooltip: T.SizeUnitTooltip,
-  values: arrayToOptions([UNITS.MB, UNITS.GB, UNITS.TB], {
-    addEmpty: false,
-    getText: (type) => type,
-    getValue: (type) => type,
-  }),
-  validation: lazy((value, { context }) =>
-    string()
-      .trim()
-      .default(() =>
-        context.general.TYPE !== IMAGE_TYPES_STR.FILESYSTEM
-          ? UNITS.MB
-          : undefined
-      )
-  ),
-  grid: { xs: 12, md: 3 },
+  grid: { md: 12 },
 }
 
 /**
@@ -292,7 +255,6 @@ export const FIELDS = (oneConfig, adminGroup) =>
       PATH_FIELD,
       UPLOAD_FIELD,
       SIZE,
-      SIZEUNIT,
     ],
     '',
     oneConfig,

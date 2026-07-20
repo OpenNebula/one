@@ -16,13 +16,14 @@
 
 import { List, Table, ResourceContainer } from '@ComponentsV2Module'
 import { VirtualMachine } from '@ResourcesModule'
-import { T, TABLE_VIEW_MODE } from '@ConstantsModule'
+import { T, TABLE_VIEW_MODE, VM_POOL_PAGINATION_SIZE } from '@ConstantsModule'
 import {
   useFunctionalityApi,
   useFunctionality,
   useViews,
+  VmAPI,
 } from '@FeaturesModule'
-import { ReactElement, useMemo, useCallback } from 'react'
+import { ReactElement, useMemo, useCallback, useState } from 'react'
 import { DetailsDrawer } from '@modules/containers/VirtualMachines/Details'
 import {
   getHypervisor,
@@ -56,12 +57,16 @@ export function VirtualMachines() {
   )
 
   const { setSelectedItems } = useFunctionalityApi()
+  const [visibleVmIds, setVisibleVmIds] = useState([])
 
   const {
     data = [],
     isFetching: isRefreshing,
     refetch: refresh,
-  } = vmsTable.useData()
+  } = vmsTable.useData({
+    extended: 0,
+    pageSize: VM_POOL_PAGINATION_SIZE,
+  })
 
   const filterOptions = useMemo(
     () => vmsTable.filterOptions(data, viewConfig?.filters),
@@ -111,6 +116,34 @@ export function VirtualMachines() {
     [items, selectedItems]
   )
 
+  const visibleVmIdsKey = visibleVmIds.join(',')
+  const { data: extendedVisibleVms = [] } = VmAPI.useGetVmInfosetQuery(
+    { ids: visibleVmIdsKey, extended: 1 },
+    { skip: !visibleVmIdsKey }
+  )
+
+  const visibleItems = useMemo(() => {
+    const extendedVmsById = new Map(
+      extendedVisibleVms.map((vm) => [String(vm.ID), vm])
+    )
+
+    return items.map((vm) => ({
+      ...vm,
+      ...(extendedVmsById.get(String(vm.ID)) ?? {}),
+    }))
+  }, [extendedVisibleVms, items])
+
+  const handleVisibleVmIdsChange = useCallback((ids) => {
+    const nextIds = [...new Set(ids.map(String))].sort()
+
+    setVisibleVmIds((currentIds) =>
+      currentIds.length === nextIds.length &&
+      currentIds.every((id, index) => id === nextIds[index])
+        ? currentIds
+        : nextIds
+    )
+  }, [])
+
   const rowSelection = useMemo(
     () => Object.fromEntries(selectedItems.map((id) => [id, true])),
     [selectedItems]
@@ -153,7 +186,7 @@ export function VirtualMachines() {
             return (
               <Table
                 columns={vmsTable.columns()}
-                data={items}
+                data={visibleItems}
                 isLoading={isRefreshing}
                 isRowsSelectable
                 isMultiRowSelection
@@ -161,16 +194,23 @@ export function VirtualMachines() {
                 rowSelection={rowSelection}
                 onRowSelectionChange={handleRowSelectionChange}
                 getRowId={(row) => row.ID}
+                onVisibleRowIdsChange={handleVisibleVmIdsChange}
                 onRowClick={(row) => handleSelect(row.ID)}
                 size="medium"
+                defaultPageSize={25}
                 isFullHeight
               />
             )
           case TABLE_VIEW_MODE.CARD:
           default:
             return (
-              <List isRowIndicatorDisabled={true} isLoading={isRefreshing}>
-                {items?.map(
+              <List
+                isRowIndicatorDisabled={true}
+                isLoading={isRefreshing}
+                getItemId={(item) => item?.props?.ID}
+                onVisibleItemIdsChange={handleVisibleVmIdsChange}
+              >
+                {visibleItems?.map(
                   ({
                     NAME,
                     ID,
@@ -194,7 +234,9 @@ export function VirtualMachines() {
                       STATE={STATE}
                       LCM_STATE={LCM_STATE}
                       LABELS={LABELS}
-                      HYPERVISOR={getHypervisor(vm)}
+                      TEMPLATE={vm?.TEMPLATE}
+                      USER_TEMPLATE={vm?.USER_TEMPLATE}
+                      HISTORY_RECORDS={vm?.HISTORY_RECORDS}
                       isSelected={selectedItems?.includes(ID)}
                       onCheck={() =>
                         setSelectedItems(

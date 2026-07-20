@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { MEMORY_RESIZE_OPTIONS, T } from '@ConstantsModule'
-import { convertToMB, scaleVcpuByCpuFactor } from '@modules/utils'
+import { scaleVcpuByCpuFactor } from '@modules/utils'
 import _, { cloneDeep, get, merge } from 'lodash'
 
 // Attributes that will be always modify with the value of the form (except Storage, Network and PCI sections)
@@ -860,10 +860,6 @@ const transformActionsCommon = (template) => {
   if (template?.MEMORY_RESIZE_MODE !== MEMORY_RESIZE_OPTIONS[T.Hotplug]) {
     delete template.MEMORY_SLOTS
   }
-
-  // ISSUE#6136: Convert size to MB (because XML API uses only MB) and delete sizeunit field (no needed on XML API)
-  template.MEMORY = convertToMB(template.MEMORY, template.MEMORYUNIT)
-  delete template.MEMORYUNIT
 
   // cast CPU_MODEL/FEATURES
   if (Array.isArray(template?.CPU_MODEL?.FEATURES)) {

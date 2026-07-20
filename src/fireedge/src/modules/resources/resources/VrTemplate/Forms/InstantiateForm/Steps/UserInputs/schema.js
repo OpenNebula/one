@@ -19,28 +19,17 @@ import { getObjectSchemaFromFields } from '@UtilsModule'
 import { createFieldsFromUserInputs } from '@modules/resources/Forms/UserInputs'
 import { Field, UserInputObject } from '@ConstantsModule'
 
-const USER_INPUT_GRID = { md: 12 }
-
 /**
  * @param {UserInputObject[]} userInputs - User inputs
- * @param {object} userInputsLayout - User input layout
  * @returns {Field[]} User inputs in Field format
  */
-const FIELDS = (userInputs = [], userInputsLayout) =>
-  createFieldsFromUserInputs(userInputs, userInputsLayout).map((field) => ({
-    ...field,
-    grid: {
-      ...field.grid,
-      ...USER_INPUT_GRID,
-    },
-  }))
+const FIELDS = (userInputs = []) => createFieldsFromUserInputs(userInputs)
 
 /**
  * @param {UserInputObject[]} userInputs - User inputs
- * @param {object} userInputsLayout - User input layout
  * @returns {ObjectSchema} User inputs schema
  */
-const SCHEMA = (userInputs = [], userInputsLayout) =>
-  getObjectSchemaFromFields(FIELDS(userInputs, userInputsLayout))
+const SCHEMA = (userInputs = []) =>
+  getObjectSchemaFromFields(FIELDS(userInputs))
 
 export { FIELDS, SCHEMA }

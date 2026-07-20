@@ -14,8 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { boolean, string, ObjectSchema } from 'yup'
-import { Alert } from '@mui/material'
-import { WarningCircle } from 'iconoir-react'
+import { AlertNotification } from '@ComponentsV2Module'
 import { uniqWith } from 'lodash'
 
 import {
@@ -110,6 +109,7 @@ const getFilteredPcis = (hosts = [], filterOn, hostId) => {
 
 const getPciModel = ({ columns, filterOn, hostId }) => ({
   columns: () => columns,
+  dataCy: 'pcis',
   useData: (_args, options) =>
     HostAPI.useGetHostsAdminQuery(undefined, {
       ...options,
@@ -459,21 +459,25 @@ const SECTIONS = ({
     const getInlineDescription = (mode) => {
       if (mode === 'automatic') {
         return (
-          <Alert severity="info" icon={<WarningCircle />}>
-            The scheduler picks the best available function on the selected
-            device. Addresses show the <strong>device</strong> without the
-            function suffix (<code>.x</code>). Leave unselected to let the
-            scheduler choose freely.
-          </Alert>
+          <AlertNotification
+            type="primary"
+            status="information"
+            description="The scheduler picks the best available function on the selected device. Addresses show the device without the function suffix (.x). Leave unselected to let the scheduler choose freely."
+            isDismissible={false}
+            style={{ width: '100%', boxSizing: 'border-box' }}
+          />
         )
       }
 
       if (mode === 'manual') {
         return (
-          <Alert severity="warning" icon={<WarningCircle />}>
-            Pins this NIC to a <strong>specific function</strong> on a specific
-            device. Select a <strong>full PCI address</strong> from the list.
-          </Alert>
+          <AlertNotification
+            type="primary"
+            status="warning"
+            description="Pins this NIC to a specific function on a specific device. Select a full PCI address from the list."
+            isDismissible={false}
+            style={{ width: '100%', boxSizing: 'border-box' }}
+          />
         )
       }
     }

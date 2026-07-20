@@ -16,13 +16,11 @@
 
 import PropTypes from 'prop-types'
 import { Component } from 'react'
-import {
-  Button,
-  StatusTag,
-  TablePanel as SelectionTable,
-} from '@ComponentsV2Module'
+import { Box } from '@mui/material'
+import { Button, TablePanel as SelectionTable } from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
+import { getLockIcon } from '@UtilsModule'
 
 /**
  * @param {object} root0 - Params
@@ -36,7 +34,7 @@ export const Selection = ({ data }) => {
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -46,23 +44,22 @@ export const Selection = ({ data }) => {
         />
       ),
     },
-    { accessorKey: 'NAME', header: T.Name, width: '25%' },
-    { accessorKey: 'UNAME', header: T.Owner },
-    { accessorKey: 'GNAME', header: T.Group },
-    { accessorKey: 'TEMPLATE.VN_MAD', header: T.Driver },
     {
-      id: 'locked',
-      header: T.Locked,
-      cell: ({ row }) =>
-        row.original?.LOCK ? (
-          <StatusTag statusColor="information" statusName={T.Locked} />
-        ) : (
-          '-'
-        ),
+      accessorKey: 'NAME',
+      header: T.Name,
+      truncate: true,
+      cell: ({ row }) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span>{row.original?.NAME}</span>
+          {getLockIcon(row.original)}
+        </Box>
+      ),
     },
+    { accessorKey: 'TEMPLATE.VN_MAD', header: T.Driver },
     {
       accessorKey: 'ID',
       header: '',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}

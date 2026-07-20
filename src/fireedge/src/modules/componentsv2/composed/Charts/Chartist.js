@@ -23,6 +23,8 @@ import {
   wheelZoomPlugin,
   tooltipPlugin,
 } from '@modules/componentsv2/composed/Charts/Plugins'
+import { Dropdown } from '@modules/componentsv2/primitives/Dropdown'
+import { Text } from '@modules/componentsv2/primitives/Text/Default'
 import {
   CircularProgress,
   List,
@@ -32,17 +34,14 @@ import {
   Stack,
   Typography,
   useTheme,
-  FormControl,
-  Select,
-  MenuItem,
 } from '@mui/material'
 import { Component, useMemo, useRef, useState } from 'react'
 import UplotReact from 'uplot-react'
 import { useResizeObserver } from '@HooksModule'
 
-import { T } from '@ConstantsModule'
+import { T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 
-const useStyles = ({ palette, typography }) => ({
+const useStyles = ({ palette, scale }) => ({
   graphContainer: css({
     width: '100%',
     height: '100%',
@@ -69,6 +68,21 @@ const useStyles = ({ palette, typography }) => ({
   title: css({
     lineHeight: '100%',
   }),
+  graphTitle: css({
+    flex: '1 1 auto',
+    minWidth: 0,
+  }),
+  periodSelector: css({
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: `${scale[200]}px`,
+    flex: '0 1 auto',
+  }),
+  periodDropdown: css({
+    width: '180px',
+    height: '40px',
+  }),
   placeholder: css({
     width: '100%',
     aspectRatio: '16/9',
@@ -85,15 +99,6 @@ const useStyles = ({ palette, typography }) => ({
     pointerEvents: 'none',
     zIndex: 999,
     whiteSpace: 'nowrap',
-  }),
-  selectRoot: css({
-    '&:focus': {
-      backgroundColor: 'transparent !important',
-    },
-    color: palette.grey[500],
-    '& .MuiSelect-icon': {
-      color: palette.grey[500],
-    },
   }),
 })
 
@@ -136,6 +141,10 @@ const sortingOptions = {
   [T.LastWeek]: 7 * 24 * 60 * (60 * 1e3),
   [T.LastMonth]: 30 * 24 * 60 * (60 * 1e3),
 }
+
+const timePeriodOptions = Object.entries(sortingOptions).map(
+  ([text, value]) => ({ text, value })
+)
 
 /**
  * Represents a Chartist Graph.
@@ -183,6 +192,9 @@ const Chartist = ({
   const classes = useMemo(() => useStyles(theme), [theme])
   const [timePeriod, setTimePeriod] = useState(sortingOptions[T.Last30Minutes])
   const [scaleIsZoomed, setScaleIsZoomed] = useState(false)
+  const selectedTimePeriod = scaleIsZoomed
+    ? null
+    : timePeriodOptions.find(({ value }) => value === timePeriod)
 
   const chartRef = useRef(null)
   const uplotRef = useRef(null)
@@ -502,6 +514,22 @@ const Chartist = ({
     [timePeriod, chartDimensions, transformData?.YRange]
   )
 
+  const handleTimePeriodChange = (option) => {
+    const value = option?.value ?? option
+    const isValid = Object.values(sortingOptions).includes(value)
+
+    if (!isValid) return
+
+    setTimePeriod(value)
+    setScaleIsZoomed(false)
+
+    if (uplotRef.current) {
+      const { setScale } = uplotRef.current
+      const [min, max] = transformData.XRange
+      setScale('x', { min: min ?? null, max: max ?? null })
+    }
+  }
+
   return (
     <Paper variant="outlined" className={classes.graphContainer}>
       <List className={classes.box} sx={{ width: '100%', height: '100%' }}>
@@ -512,64 +540,28 @@ const Chartist = ({
             alignItems="center"
             width="100%"
           >
-            <Typography
-              sx={{
-                fontFamily: 'Inter',
-                fontSize: 'clamp(0.75rem, 2vw, 1.313rem)',
-                lineHeight: '1.313rem',
-                fontStyle: 'normal',
-                fontWeight: 400,
-                flex: 1,
-              }}
-            >
-              {name}
-            </Typography>
-            <Box
-              display="flex"
-              justifyContent="end"
-              alignItems="baseline"
-              gap={1}
-              flex={1}
-            >
-              <Typography noWrap>{T.Period + ':'}</Typography>
-              <FormControl variant="standard">
-                <Select
-                  className={classes.selectRoot}
-                  id="time-period-sort"
-                  value={scaleIsZoomed ? '-' : timePeriod}
-                  disableUnderline={true}
-                  onChange={(e) => {
-                    const value = e?.target?.value
-                    const isValid =
-                      Object.values(sortingOptions)?.includes(value)
-                    if (isValid) {
-                      setTimePeriod(value)
-                      setScaleIsZoomed(false)
-                      if (uplotRef.current) {
-                        const { setScale } = uplotRef.current
-                        const [min, max] = transformData.XRange
-                        setScale('x', { min: min ?? null, max: max ?? null })
-                      }
-                    }
-                  }}
-                  renderValue={(selected) => {
-                    if (scaleIsZoomed || selected === '-') return '-'
-                    const label = Object.entries(sortingOptions).find(
-                      ([_, val]) => val === selected
-                    )?.[0]
-
-                    return label || selected
-                  }}
-                >
-                  {Object.entries(sortingOptions)?.map(
-                    ([label, value], idx) => (
-                      <MenuItem key={`${label}-${idx}`} value={value}>
-                        {label}
-                      </MenuItem>
-                    )
-                  )}
-                </Select>
-              </FormControl>
+            <Text
+              className={classes.graphTitle}
+              value={name}
+              variant={TEXT_VARIANTS.BODY_LARGE}
+              weight={TEXT_WEIGHTS.SEMIBOLD}
+            />
+            <Box className={classes.periodSelector}>
+              <Text
+                component="span"
+                value={`${T.Period}:`}
+                variant={TEXT_VARIANTS.BODY_SMALL}
+              />
+              <Box id="time-period-sort" className={classes.periodDropdown}>
+                <Dropdown
+                  dataCy="time-period-sort"
+                  initialValue={selectedTimePeriod}
+                  options={timePeriodOptions}
+                  placeholder={scaleIsZoomed ? '-' : T.Last30Minutes}
+                  onChange={handleTimePeriodChange}
+                  rowsDisplayed={timePeriodOptions.length}
+                />
+              </Box>
             </Box>
           </Box>
         </ListItem>

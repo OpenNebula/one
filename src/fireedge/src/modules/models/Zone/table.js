@@ -22,8 +22,8 @@ import { createLabelColumn } from '@modules/models/labels'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const ZONE_COLUMNS = [
-  { header: T.ID, accessorKey: 'ID' },
-  { header: T.Name, accessorKey: 'NAME' },
+  { header: T.ID, accessorKey: 'ID', grow: false },
+  { header: T.Name, accessorKey: 'NAME', truncate: true },
   {
     header: T.State,
     id: 'STATE',
@@ -38,13 +38,15 @@ export const ZONE_COLUMNS = [
     header: T.Endpoint,
     id: 'ENDPOINT',
     accessorFn: (row) => row?.TEMPLATE?.ENDPOINT,
+    truncate: true,
   },
   {
     header: T.EndpointGRPC,
     id: 'ENDPOINTGRPC',
     accessorFn: (row) => row?.TEMPLATE?.ENDPOINT_GRPC,
+    truncate: true,
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const zoneTable = createTable(ZONE_COLUMNS, ZoneAPI.useGetZonesQuery, {

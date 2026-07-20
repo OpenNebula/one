@@ -70,13 +70,13 @@ const DEFAULT_GROUP_ACTIONS = {
 }
 
 const groupColumns = [
-  { accessorKey: 'ID', header: T.ID, width: '10%' },
-  { accessorKey: 'NAME', header: T.Name, width: '24%' },
-  { accessorKey: 'TOTAL_USERS_LABEL', header: T.Users },
-  { accessorKey: 'VM_QUOTA_LABEL', header: T.VMs },
-  { accessorKey: 'DATASTORE_QUOTA_LABEL', header: T.Datastores },
-  { accessorKey: 'NETWORK_QUOTA_LABEL', header: T.Networks },
-  { accessorKey: 'IMAGE_QUOTA_LABEL', header: T.ImageRVMS },
+  { accessorKey: 'ID', header: T.ID, grow: false },
+  { accessorKey: 'NAME', header: T.Name, truncate: true },
+  { accessorKey: 'TOTAL_USERS_LABEL', header: T.Users, grow: false },
+  { accessorKey: 'VM_QUOTA_LABEL', header: T.VMs, grow: false },
+  { accessorKey: 'DATASTORE_QUOTA_LABEL', header: T.Datastores, grow: false },
+  { accessorKey: 'NETWORK_QUOTA_LABEL', header: T.Networks, grow: false },
+  { accessorKey: 'IMAGE_QUOTA_LABEL', header: T.ImageRVMS, grow: false },
 ]
 
 /**

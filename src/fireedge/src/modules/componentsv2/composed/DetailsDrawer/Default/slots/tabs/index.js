@@ -20,6 +20,7 @@ import { Box } from '@mui/material'
 import { getStyles } from '@modules/componentsv2/composed/DetailsDrawer/Default/slots/tabs/styles'
 import { Tabs } from '@modules/componentsv2/primitives/Tabs/Default'
 import { useViews } from '@FeaturesModule'
+import { useResourceSingleViewContext } from '@ProvidersModule'
 
 const getTabs = (tabs) =>
   Array.isArray(tabs) ? tabs : Object.values(tabs ?? {})
@@ -33,6 +34,7 @@ const getTabs = (tabs) =>
 export const TabSlot = forwardRef(
   ({ tabs = [], tabProps = {}, resourceId }, ref) => {
     const { getResourceView } = useViews()
+    const { openResourceSingleView } = useResourceSingleViewContext()
     const viewConfig = getResourceView(resourceId)?.['info-tabs']
     const enabledTabs = getTabs(tabs).filter(
       (Tab) => Tab?.id && viewConfig?.[Tab.id]?.enabled === true
@@ -41,6 +43,31 @@ export const TabSlot = forwardRef(
     const [selected, setSelected] = useState(0)
 
     const ActiveTab = enabledTabs?.[selected]
+    const hasSelectedResources = Array.isArray(tabProps.selected)
+    const handleSelect = (id) => {
+      const resource = []
+        .concat(tabProps.selected ?? [])
+        .flat()
+        .find((item) =>
+          [item?.ID, item?.id].some(
+            (resourceValue) => String(resourceValue) === String(id)
+          )
+        )
+
+      if (
+        resourceId &&
+        resource &&
+        openResourceSingleView(resourceId, resource)
+      ) {
+        return
+      }
+
+      tabProps.handleSelect?.(id)
+    }
+    const activeTabProps =
+      hasSelectedResources && tabProps.handleSelect
+        ? { ...tabProps, handleSelect }
+        : tabProps
 
     return (
       <Box sx={(theme) => getStyles({ theme })} ref={ref}>
@@ -52,7 +79,10 @@ export const TabSlot = forwardRef(
         />
         {ActiveTab && (
           <Box className="tab-content" data-cy={`tab-content-${ActiveTab.id}`}>
-            <ActiveTab data={tabProps} config={viewConfig?.[ActiveTab?.id]} />
+            <ActiveTab
+              data={activeTabProps}
+              config={viewConfig?.[ActiveTab?.id]}
+            />
           </Box>
         )}
       </Box>

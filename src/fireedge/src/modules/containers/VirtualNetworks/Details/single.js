@@ -217,6 +217,7 @@ export const SingleView = ({
     showModal({
       isConfirmDialog: true,
       dialogProps: {
+        dataCy: 'modal-lock',
         title: `${T.Lock} ${T.VirtualNetwork}`,
         description: (
           <ResourceActionConfirmation
@@ -234,6 +235,7 @@ export const SingleView = ({
     showModal({
       isConfirmDialog: true,
       dialogProps: {
+        dataCy: 'modal-unlock',
         title: `${T.Unlock} ${T.VirtualNetwork}`,
         description: (
           <ResourceActionConfirmation
@@ -251,6 +253,7 @@ export const SingleView = ({
     showModal({
       isConfirmDialog: true,
       dialogProps: {
+        dataCy: 'modal-vnet-delete',
         title: `${T.Delete} ${T.VirtualNetwork}`,
         description: (
           <ResourceActionConfirmation
@@ -297,6 +300,7 @@ export const SingleView = ({
             title: vnet?.NAME,
             id: vnet?.ID,
             tags: getLabelTags(vnet?.LABELS),
+            dataCy: 'vnet-info',
             labels: [
               [T.Owner, vnet?.UNAME],
               [T.Group, vnet?.GNAME],
@@ -317,6 +321,7 @@ export const SingleView = ({
                         startIcon: <Lock width="16px" height="16px" />,
                         onClick: handleLockForm,
                         value: 'lock',
+                        dataCy: 'action-vnet-lock',
                         tooltip: T.Lock,
                         isDisabled: isActionsDisabled,
                       },
@@ -324,6 +329,7 @@ export const SingleView = ({
                         startIcon: <NoLock width="16px" height="16px" />,
                         onClick: handleUnlockForm,
                         value: 'unlock',
+                        dataCy: 'action-vnet-unlock',
                         tooltip: T.Unlock,
                         isDisabled: isActionsDisabled,
                       },
@@ -338,6 +344,7 @@ export const SingleView = ({
                         startIcon: <AddSquare width="16px" height="16px" />,
                         onClick: handleReserveForm,
                         value: 'reserve',
+                        'data-cy': 'action-vnet-reserve_dialog',
                         tooltip: T.Reserve,
                         isDisabled: isActionsDisabled || isLocked,
                       },
@@ -354,6 +361,7 @@ export const SingleView = ({
                         startIcon: <Edit width="16px" height="16px" />,
                         onClick: handleUpdate,
                         value: 'update',
+                        'data-cy': 'action-vnet-update_dialog',
                         tooltip: T.Update,
                         isDisabled: isActionsDisabled || isLocked,
                       },
@@ -361,6 +369,7 @@ export const SingleView = ({
                         startIcon: <RefreshDouble width="16px" height="16px" />,
                         onClick: handleRefresh,
                         value: 'refresh',
+                        'data-cy': 'action-vnet-refresh',
                         tooltip: T.Refresh,
                         isDisabled: isActionsDisabled,
                       },
@@ -380,6 +389,7 @@ export const SingleView = ({
                         ),
                         onClick: handleDeleteForm,
                         value: 'delete',
+                        'data-cy': 'action-vnet-delete',
                         tooltip: T.Delete,
                         isDestructive: true,
                         isDisabled: isDeleteDisabled,
@@ -388,6 +398,7 @@ export const SingleView = ({
                         startIcon: <Cancel width="16px" height="16px" />,
                         onClick: handleClose,
                         value: 'close',
+                        'data-cy': 'action-vnet-close',
                         tooltip: T.Close,
                       },
                     ].filter(Boolean),

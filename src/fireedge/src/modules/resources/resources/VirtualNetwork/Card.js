@@ -36,6 +36,7 @@ import { getLockIcon } from '@UtilsModule'
  *
  * @param {object} root0 - Params
  * @param {object} root0.vnet - Virtual Network data
+ * @param {string} root0.dataCy - Data-cy attribute
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
@@ -43,8 +44,8 @@ import { getLockIcon } from '@UtilsModule'
  * @returns {Component} Virtual Network card component
  */
 export const VirtualNetworkCard = forwardRef(
-  ({ vnet = {}, isSelected, onCheck, onClick }, ref) => {
-    const { ID, NAME, UNAME, GNAME, VN_MAD, CLUSTERS } = vnet
+  ({ vnet = {}, dataCy, isSelected, onCheck, onClick }, ref) => {
+    const { ID, NAME, UNAME, GNAME, LOCK, VN_MAD, CLUSTERS } = vnet
 
     const { color: stateColor, name: stateName } =
       getVirtualNetworkState(vnet) ?? {}
@@ -55,6 +56,7 @@ export const VirtualNetworkCard = forwardRef(
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -115,6 +117,7 @@ export const VirtualNetworkCard = forwardRef(
 
 VirtualNetworkCard.propTypes = {
   vnet: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

@@ -28,7 +28,7 @@ import {
   CheckCircle,
   Group as GroupIcon,
   NavArrowDown,
-  UserCircle,
+  Search as SearchIcon,
   UserStar,
 } from 'iconoir-react'
 
@@ -215,7 +215,7 @@ export const UserGroupDropdownSlot = forwardRef(
                   }}
                   onChange={setQuery}
                   placeholder={`${translate(T.Search)}...`}
-                  startIcon={UserCircle}
+                  startIcon={SearchIcon}
                 />
 
                 <Divider className="divider" />

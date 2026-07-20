@@ -16,6 +16,7 @@
 import { createTable, getTotalOfResources } from '@UtilsModule'
 import { ClusterAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
+import { Tag } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
 
 /* eslint-disable jsdoc/require-jsdoc */
@@ -24,17 +25,23 @@ export const CLUSTER_COLUMNS = [
     header: T.ID,
     id: 'ID',
     accessorKey: 'ID',
-    width: '5%',
+    grow: false,
   },
   {
     header: T.Name,
     id: 'name',
     accessorKey: 'NAME',
+    truncate: true,
   },
   {
     header: T.ProvisionType,
     id: 'provisionType',
     accessorFn: (row) => row?.TEMPLATE?.ONEFORM?.DRIVER,
+    cell: ({ row }) => {
+      const driver = row.original?.TEMPLATE?.ONEFORM?.DRIVER
+
+      return driver ? <Tag title={driver} status="default" /> : '-'
+    },
   },
   {
     header: T.Hosts,
@@ -51,7 +58,7 @@ export const CLUSTER_COLUMNS = [
     id: 'vnets',
     accessorFn: (row) => getTotalOfResources(row?.VNETS),
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const clusterTable = createTable(

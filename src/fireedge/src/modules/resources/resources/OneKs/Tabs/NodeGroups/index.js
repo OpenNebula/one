@@ -15,14 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import {
-  Alert,
-  Box,
-  LinearProgress,
-  Stack,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import { Box, LinearProgress, Stack, Tooltip, Typography } from '@mui/material'
 import { OneKsAPI } from '@FeaturesModule'
 import {
   RenderNodeMetadata,
@@ -38,7 +31,7 @@ import {
 } from '@ModelsModule'
 import { T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
-import { Table } from '@ComponentsV2Module'
+import { StatusTag, AlertNotification, Table } from '@ComponentsV2Module'
 import Timer from '@modules/resources/Timer'
 import { find, isEmpty } from 'lodash'
 import { WarningCircle as WarningIcon } from 'iconoir-react'
@@ -80,7 +73,7 @@ const NodeGroups = ({ data }) => {
         header: T.ID,
         id: 'id',
         accessorFn: (node) => node?.id ?? '',
-        width: '10%',
+        grow: false,
         cell: ({ row }) => {
           const nodeId = row?.original?.id
 
@@ -91,7 +84,7 @@ const NodeGroups = ({ data }) => {
         header: T.Name,
         id: 'name',
         accessorFn: (node) => node?.name ?? '',
-        width: '20%',
+        truncate: true,
         cell: ({ row }) => {
           const node = row?.original ?? {}
 
@@ -116,26 +109,31 @@ const NodeGroups = ({ data }) => {
         id: 'state',
         accessorFn: (node) =>
           getNodeGroupState(node?.state)?.name ?? node?.state ?? EMPTY_VALUE,
-        width: '12%',
+        grow: false,
+        cell: ({ row }) => {
+          const { color, name } = getNodeGroupState(row.original?.state) ?? {}
+
+          return <StatusTag statusColor={color} statusName={name} />
+        },
       },
       {
         header: T.Nodes,
         id: 'nodes',
         accessorFn: (node) => node?.vms?.length ?? 0,
-        width: '10%',
+        grow: false,
       },
       {
         header: T.VMs,
         id: 'vms',
         accessorFn: (node) => [].concat(node?.vms ?? []).join(', '),
-        width: '14%',
+        grow: false,
         cell: ({ row }) => <VmLinks ids={row?.original?.vms ?? []} />,
       },
       {
         header: T.Flavour,
         id: 'flavour',
         accessorFn: (node) => node?.flavour ?? '',
-        width: '14%',
+        grow: false,
         cell: ({ row }) => {
           const node = row?.original ?? {}
           const familyData = getFamilyData(families, node)
@@ -179,7 +177,7 @@ const NodeGroups = ({ data }) => {
         header: T.Created,
         id: 'created',
         accessorFn: (node) => node?.registration_time ?? '',
-        width: '15%',
+        grow: false,
         cell: ({ row }) => {
           const createdTime = row?.original?.registration_time
 
@@ -191,7 +189,7 @@ const NodeGroups = ({ data }) => {
         id: 'user-inputs',
         accessorFn: (node) =>
           Object.values(node?.user_inputs_values ?? {}).join(' '),
-        width: '20%',
+        truncate: true,
         cell: ({ row }) => (
           <Box
             sx={{
@@ -209,7 +207,7 @@ const NodeGroups = ({ data }) => {
       {
         header: '',
         id: 'actions',
-        width: '7%',
+        grow: false,
         cell: ({ row }) => <RowAction node={row?.original} id={id} />,
       },
     ],
@@ -236,9 +234,15 @@ const NodeGroups = ({ data }) => {
             isLoading={isLoading}
           />
         ) : (
-          <Alert severity="info" variant="outlined">
-            {translate(T['oneks.tab.info.nodegroups.help.paragraph'])}
-          </Alert>
+          <AlertNotification
+            type="primary"
+            status="information"
+            description={translate(
+              T['oneks.tab.info.nodegroups.help.paragraph']
+            )}
+            isDismissible={false}
+            style={{ width: '100%', boxSizing: 'border-box' }}
+          />
         )}
       </Stack>
     </div>

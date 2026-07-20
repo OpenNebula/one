@@ -14,7 +14,30 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { css } from '@emotion/css'
+import { css, keyframes } from '@emotion/css'
+
+const fadeRise = keyframes`
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+`
+
+const fadeRiseAnimation = (delay) => ({
+  opacity: 0,
+  transform: 'translate3d(0, 12px, 0)',
+  animation: `${fadeRise} 600ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms 1 normal forwards`,
+  '@media (prefers-reduced-motion: reduce)': {
+    opacity: 1,
+    transform: 'none',
+    animation: 'none',
+  },
+})
 
 export const styles = (theme) => ({
   container: css({
@@ -57,5 +80,20 @@ export const styles = (theme) => ({
       sm: theme.lineHeight.heading.h5.tablet,
       md: theme.lineHeight.heading.h5.desktop,
     },
+    ...fadeRiseAnimation(140),
   }),
+
+  loginFields: css({
+    '& > .MuiGrid-container > .MuiGrid-item': {
+      ...fadeRiseAnimation(220),
+    },
+    '& > .MuiGrid-container > .MuiGrid-item:nth-of-type(2)': {
+      animationDelay: '300ms',
+    },
+    '& > .MuiGrid-container > .MuiGrid-item:nth-of-type(3)': {
+      animationDelay: '380ms',
+    },
+  }),
+
+  loginSubmit: css(fadeRiseAnimation(460)),
 })

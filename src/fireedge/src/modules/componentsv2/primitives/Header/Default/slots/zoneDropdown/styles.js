@@ -27,9 +27,19 @@ export const getStyles = ({ theme }) => {
       gap: `${theme.scale[200]}px`,
 
       '& .status-dot': {
+        display: 'inline-block',
+        flexShrink: 0,
         width: `${theme.scale[200]}px`,
         height: `${theme.scale[200]}px`,
         borderRadius: '50%',
+
+        '&.enabled': {
+          bgcolor: 'icon.success',
+        },
+
+        '&.disabled': {
+          bgcolor: 'icon.disabled',
+        },
       },
 
       '& .MuiButton-startIcon svg, & .MuiButton-endIcon svg': {
@@ -138,9 +148,19 @@ export const getStyles = ({ theme }) => {
           font: 'inherit',
 
           '& .status-dot': {
+            display: 'inline-block',
+            flexShrink: 0,
             width: `${theme.scale[200]}px`,
             height: `${theme.scale[200]}px`,
             borderRadius: '50%',
+
+            '&.enabled': {
+              bgcolor: 'icon.success',
+            },
+
+            '&.disabled': {
+              bgcolor: 'icon.disabled',
+            },
           },
 
           '& .copy': {
@@ -170,29 +190,6 @@ export const getStyles = ({ theme }) => {
                 xs: theme.lineHeight.body.sm.mobile,
                 sm: theme.lineHeight.body.sm.tablet,
                 md: theme.lineHeight.body.sm.desktop,
-              },
-            },
-
-            '& .detail': {
-              minWidth: 0,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              color: 'text.body',
-              fontWeight: {
-                xs: theme.fontWeight.body.caption.mobile,
-                sm: theme.fontWeight.body.caption.tablet,
-                md: theme.fontWeight.body.caption.desktop,
-              },
-              fontSize: {
-                xs: theme.fontSize.body.caption.mobile,
-                sm: theme.fontSize.body.caption.tablet,
-                md: theme.fontSize.body.caption.desktop,
-              },
-              lineHeight: {
-                xs: theme.lineHeight.body.caption.mobile,
-                sm: theme.lineHeight.body.caption.tablet,
-                md: theme.lineHeight.body.caption.desktop,
               },
             },
           },

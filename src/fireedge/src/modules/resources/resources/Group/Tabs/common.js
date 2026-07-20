@@ -16,7 +16,8 @@
 
 import { GroupAPI } from '@FeaturesModule'
 import { OpenNebulaLogo } from '@modules/resources/Icons'
-import { Alert, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
+import { AlertNotification } from '@ComponentsV2Module'
 import PropTypes from 'prop-types'
 
 /**
@@ -39,9 +40,13 @@ export const LegacyGroupTab = ({ id, children }) => {
 
   if (isError) {
     return (
-      <Alert severity="error" variant="outlined">
-        {error?.data}
-      </Alert>
+      <AlertNotification
+        type="primary"
+        status="error"
+        description={error?.data}
+        isDismissible={false}
+        style={{ width: '100%', boxSizing: 'border-box' }}
+      />
     )
   }
 

@@ -103,29 +103,33 @@ const SecurityGroups = ({ selectedNetwork }) => {
     [resources?.ID ?? []].flat().length || 0
 
   const columns = [
-    { accessorKey: 'ID', header: T.ID, width: '7%' },
-    { accessorKey: 'NAME', header: T.Name, width: '30%' },
-    { accessorKey: 'UNAME', header: T.Owner },
-    { accessorKey: 'GNAME', header: T.Group },
+    { accessorKey: 'ID', header: T.ID, grow: false },
+    { accessorKey: 'NAME', header: T.Name, truncate: true },
+    { accessorKey: 'UNAME', header: T.Owner, grow: false },
+    { accessorKey: 'GNAME', header: T.Group, grow: false },
     {
       id: 'updated_vms',
       header: T.TotalUpdatedVms,
       accessorFn: (row) => getTotalOfResources(row?.UPDATED_VMS),
+      grow: false,
     },
     {
       id: 'outdated_vms',
       header: T.TotalOutdatedVms,
       accessorFn: (row) => getTotalOfResources(row?.OUTDATED_VMS),
+      grow: false,
     },
     {
       id: 'error_vms',
       header: T.TotalErrorVms,
       accessorFn: (row) => getTotalOfResources(row?.ERROR_VMS),
+      grow: false,
     },
     {
       header: '',
       id: 'actions',
       enableSorting: false,
+      grow: false,
       cell: ({ row }) => (
         <Stack direction="row" justifyContent="flex-end">
           <SubmitButton

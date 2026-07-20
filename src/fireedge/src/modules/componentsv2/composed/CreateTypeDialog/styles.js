@@ -161,9 +161,9 @@ export const getStyles = ({ theme }) => ({
       md: theme.fontWeight.heading.h6.desktop,
     },
     lineHeight: {
-      xs: theme.lineHeight.heading.h5.mobile,
-      sm: theme.lineHeight.heading.h5.tablet,
-      md: theme.lineHeight.heading.h5.desktop,
+      xs: `${theme.scale[600]}px`,
+      sm: `${theme.scale[600]}px`,
+      md: `${theme.scale[600]}px`,
     },
   },
 

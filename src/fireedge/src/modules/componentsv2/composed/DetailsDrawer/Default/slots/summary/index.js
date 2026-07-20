@@ -37,9 +37,13 @@ export const SummarySlot = forwardRef(({ labels = [] }, ref) => (
   >
     {labels?.map(([title, value], idx) => (
       <Box key={idx} className="region-summary">
-        <Tooltip title={title} followCursor>
-          <span className="region-summary--title text-ellipsis">{title}</span>
-        </Tooltip>
+        {typeof title === 'string' ? (
+          <Tooltip title={title} followCursor>
+            <span className="region-summary--title text-ellipsis">{title}</span>
+          </Tooltip>
+        ) : (
+          <Box className="region-summary--title">{title}</Box>
+        )}
         {value && (
           <span className="region-summary--value text-ellipsis">{value}</span>
         )}

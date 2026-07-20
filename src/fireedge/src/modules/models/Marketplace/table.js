@@ -25,8 +25,8 @@ import { createLabelColumn } from '@modules/models/labels'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const MARKETPLACE_COLUMNS = [
-  { header: T.ID, accessorKey: 'ID', width: '5%' },
-  { header: T.Name, accessorKey: 'NAME' },
+  { header: T.ID, accessorKey: 'ID', grow: false },
+  { header: T.Name, accessorKey: 'NAME', truncate: true },
   {
     header: T.State,
     id: 'STATE',
@@ -76,9 +76,9 @@ export const MARKETPLACE_COLUMNS = [
     },
   },
   { header: T.Zone, accessorKey: 'ZONE_ID' },
-  { header: T.Owner, accessorKey: 'UNAME' },
-  { header: T.Group, accessorKey: 'GNAME' },
-  createLabelColumn(),
+  { header: T.Owner, accessorKey: 'UNAME', grow: false },
+  { header: T.Group, accessorKey: 'GNAME', grow: false },
+  createLabelColumn({ grow: false }),
 ]
 
 export const marketplaceTable = createTable(

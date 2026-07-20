@@ -16,15 +16,15 @@
 
 import { Component, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Box, Link, Stack } from '@mui/material'
-import { Link as RouterLink, generatePath } from 'react-router-dom'
+import { Box, Stack } from '@mui/material'
 import {
   DetailsCard,
   OwnershipTab,
   PermissionsTab,
+  ResourceLink,
   StatusTag,
 } from '@ComponentsV2Module'
-import { PATH, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import {
   aggregateOwnership,
   aggregatePermissions,
@@ -52,13 +52,9 @@ const VmLinks = ({ ids = [] }) => {
   return (
     <Stack direction="row" flexWrap="wrap" gap={1}>
       {validIds.map((id) => (
-        <Link
-          key={id}
-          component={RouterLink}
-          to={generatePath(PATH.INSTANCE.VMS.DETAIL, { id: String(id) })}
-        >
+        <ResourceLink key={id} resource={RESOURCE_NAMES.VM} data={id}>
           {id}
-        </Link>
+        </ResourceLink>
       ))}
     </Stack>
   )
@@ -138,25 +134,23 @@ export const Info = ({ data, config }) => {
     [T.Flavour, controlPlane?.flavour ?? '-'],
     isValidOneKsResourceId(publicNetwork) && [
       T.PublicNetwork,
-      <RouterLink
+      <ResourceLink
         key="oneks-public-network"
-        to={generatePath(PATH.NETWORK.VNETS.DETAIL, {
-          id: String(publicNetwork),
-        })}
+        resource={RESOURCE_NAMES.VNET}
+        data={publicNetwork}
       >
         {publicNetwork}
-      </RouterLink>,
+      </ResourceLink>,
     ],
     isValidOneKsResourceId(privateNetwork) && [
       T.PrivateNetwork,
-      <RouterLink
+      <ResourceLink
         key="oneks-private-network"
-        to={generatePath(PATH.NETWORK.VNETS.DETAIL, {
-          id: String(privateNetwork),
-        })}
+        resource={RESOURCE_NAMES.VNET}
+        data={privateNetwork}
       >
         {privateNetwork}
-      </RouterLink>,
+      </ResourceLink>,
     ],
   ].filter(Boolean)
 

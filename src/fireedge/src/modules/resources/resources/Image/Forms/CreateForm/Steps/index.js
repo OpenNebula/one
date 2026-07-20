@@ -30,7 +30,7 @@ import CustomAttributes, {
   STEP_ID as CUSTOM_ID,
 } from '@modules/resources/resources/Image/Forms/CreateForm/Steps/CustomAttributes'
 
-import { createSteps, cloneObject, set, convertToMB } from '@UtilsModule'
+import { createSteps, cloneObject, set } from '@UtilsModule'
 
 const Steps = createSteps(
   [General, Datastore, AdvancedOptions, CustomAttributes],
@@ -46,14 +46,6 @@ const Steps = createSteps(
       const generalData = cloneObject(general)
       set(generalData, 'UPLOAD', undefined)
       set(generalData, 'IMAGE_LOCATION', undefined)
-
-      // ISSUE#6136: Convert size to MB (because XML API uses only MB) and delete sizeunit field (no needed on XML API)
-      set(
-        generalData,
-        'SIZE',
-        convertToMB(generalData.SIZE, generalData.SIZEUNIT)
-      )
-      set(generalData, 'SIZEUNIT', undefined)
 
       return {
         template: {

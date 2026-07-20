@@ -14,11 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { Alert, Box, Stack } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import { Cancel, InfoEmpty } from 'iconoir-react'
 import { T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
-import { Button, Tooltip } from '@ComponentsV2Module'
+import { AlertNotification, Button, Tooltip } from '@ComponentsV2Module'
 
 const POLICY_LABELS = {
   AFFINED: T.Affined,
@@ -130,13 +130,15 @@ const RoleConfigurationPreview = ({
   const antiAffinedHosts = [].concat(role?.HOST_ANTI_AFFINED ?? [])
 
   return (
-    <Alert severity="info" variant="outlined" sx={{ mb: 2, width: '100%' }}>
+    <Box sx={{ mb: 2, width: '100%' }}>
+      <AlertNotification
+        type="primary"
+        status="information"
+        title={title}
+        isDismissible={false}
+        style={{ width: '100%', boxSizing: 'border-box' }}
+      />
       <Stack gap={2} data-cy="role-configuration-preview">
-        <Box
-          sx={{ color: 'text.headings', fontSize: '1.25rem', fontWeight: 700 }}
-        >
-          {title}
-        </Box>
         <Box>
           <strong>{translate(T.Name)}:</strong> {name}
         </Box>
@@ -160,7 +162,7 @@ const RoleConfigurationPreview = ({
           onRemoveHost={onRemoveHost}
         />
       </Stack>
-    </Alert>
+    </Box>
   )
 }
 

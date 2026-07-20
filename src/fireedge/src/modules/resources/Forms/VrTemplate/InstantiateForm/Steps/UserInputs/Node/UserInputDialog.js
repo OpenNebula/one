@@ -140,10 +140,12 @@ const UserInputDialog = ({ open, onClose, userInput }) => {
           onSubmit()
         }}
       >
-        <DialogTitle id="form-dialog-title">{userInput.name}</DialogTitle>
+        <DialogTitle id="form-dialog-title" sx={{ color: 'text.headings' }}>
+          {userInput.name}
+        </DialogTitle>
         <DialogContent>
           {userInput.description && (
-            <Typography style={{ marginBottom: '16px' }}>
+            <Typography sx={{ marginBottom: '16px', color: 'text.body' }}>
               {userInput.description}
             </Typography>
           )}

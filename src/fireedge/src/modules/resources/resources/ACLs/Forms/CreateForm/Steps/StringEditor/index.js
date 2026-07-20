@@ -15,9 +15,9 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { useMemo, useEffect, useState } from 'react'
-import { useTheme, Stack, Alert } from '@mui/material'
+import { useTheme, Stack } from '@mui/material'
 import { css } from '@emotion/css'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
 import { T } from '@ConstantsModule'
 import { SCHEMA, FIELDS } from './schema'
 import { useTranslation } from '@ProvidersModule'
@@ -31,6 +31,7 @@ import { useWatch } from 'react-hook-form'
 import { validACL } from '@ModelsModule'
 
 export const STEP_ID = 'stringEditor'
+const COLUMNS = [[], FIELDS, []]
 
 const Content = (users, groups, clusters, zones) => {
   const { translate } = useTranslation()
@@ -84,15 +85,24 @@ const Content = (users, groups, clusters, zones) => {
             rule={ruleString}
           />
         ) : (
-          <Alert
-            severity="error"
-            variant="outlined"
+          <AlertNotification
+            type="primary"
+            status="error"
+            description={translate(T['acls.translate.error'])}
+            isDismissible={false}
             className={classes.groupInfo}
-          >
-            {translate(T['acls.translate.error'])}
-          </Alert>
+            style={{ width: '100%', boxSizing: 'border-box' }}
+          />
         )}
-        <FormWithSchema id={STEP_ID} cy={`${STEP_ID}`} fields={FIELDS} />
+        <FormWithSchema
+          id={STEP_ID}
+          cy={`${STEP_ID}`}
+          fields={FIELDS}
+          columns={COLUMNS}
+          gridContainerSx={{
+            gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
+          }}
+        />
       </Stack>
     </Stack>
   )

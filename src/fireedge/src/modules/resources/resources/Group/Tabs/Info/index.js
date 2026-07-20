@@ -20,7 +20,7 @@ import {
   DetailsCard,
   TablePanel as SelectionTable,
 } from '@ComponentsV2Module'
-import { STYLE_BUTTONS, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, STYLE_BUTTONS, T } from '@ConstantsModule'
 import { GroupAPI, useFunctionalityApi } from '@FeaturesModule'
 import { GROUP_LIST_COLUMNS } from '@ModelsModule'
 import {
@@ -33,6 +33,7 @@ import { Box, Stack } from '@mui/material'
 import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
+import { useResourceSingleViewContext } from '@ProvidersModule'
 
 import {
   getGroupId,
@@ -54,7 +55,7 @@ const getSelectionColumns = (handleSelect, handleDeselect) => [
   {
     id: 'deselect',
     header: '',
-    width: '5%',
+    grow: false,
     cell: ({ row }) => (
       <Button
         type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -68,12 +69,13 @@ const getSelectionColumns = (handleSelect, handleDeselect) => [
   {
     id: 'view',
     header: '',
+    grow: false,
     cell: ({ row }) => (
       <Button
         type={STYLE_BUTTONS.TYPE.OUTLINE}
         size="small"
         endIcon={<ArrowRight width="16px" height="16px" />}
-        onClick={() => handleSelect?.(row.original.ID)}
+        onClick={() => handleSelect?.(row.original)}
       >
         {T.View}
       </Button>
@@ -83,9 +85,14 @@ const getSelectionColumns = (handleSelect, handleDeselect) => [
 
 const GroupAggregatedInfo = ({ selectedGroups = [] }) => {
   const { setSelectedItems } = useFunctionalityApi()
+  const { openResourceSingleView } = useResourceSingleViewContext()
   const selectedIds = selectedGroups.map(({ ID }) => String(ID))
 
-  const handleSelect = (ID) => setSelectedItems([String(ID)])
+  const handleSelect = (resource) => {
+    if (openResourceSingleView(RESOURCE_NAMES.GROUP, resource)) return
+
+    setSelectedItems([String(resource?.ID)])
+  }
 
   const handleDeselect = (ID) => {
     const id = String(ID)

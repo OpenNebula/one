@@ -111,23 +111,24 @@ const VLANRuleTab = ({
     {
       accessorKey: 'INDEX',
       header: T.ID,
-      width: '10%',
+      grow: false,
       cell: ({ row }) => `#${row.original.INDEX}`,
     },
     {
       accessorKey: 'SCOPE',
       header: T.Scope,
-      width: '20%',
+      grow: false,
     },
     {
       accessorKey: 'ID',
       header: T.VlanId,
-      width: '30%',
+      grow: false,
     },
     {
       id: 'vntemplate',
       header: T.NetworkTemplates,
       accessorFn: getNetworkTemplates,
+      truncate: true,
     },
   ]
 
@@ -135,7 +136,7 @@ const VLANRuleTab = ({
     columns.push({
       header: '',
       id: 'actions',
-      width: '7%',
+      grow: false,
       meta: { disableCellTooltip: true },
       cell: ({ row }) => {
         const vlanRule = row.original

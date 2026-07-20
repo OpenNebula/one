@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, useTheme } from '@mui/material'
+import { Box } from '@mui/material'
 import {
   BoxIso as ImagesIcon,
   Group as GroupIcon,
@@ -24,7 +24,7 @@ import {
   User as UserIcon,
 } from 'iconoir-react'
 import { ReactElement, useCallback, useMemo } from 'react'
-import { generatePath, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 
 import {
   Button,
@@ -69,7 +69,7 @@ import {
   getTotalLeases,
   getVirtualMachineState,
 } from '@ModelsModule'
-import { useTranslation } from '@ProvidersModule'
+import { useResourceSingleViewContext, useTranslation } from '@ProvidersModule'
 import {
   interpolationBytes,
   interpolationValue,
@@ -122,8 +122,8 @@ const countUniqueResources = (resources, idKey, nameKey) =>
 /** @returns {ReactElement} General dashboard container */
 export default function GeneralDashboard() {
   const history = useHistory()
-  const theme = useTheme()
   const { translate } = useTranslation()
+  const { openResourceSingleView } = useResourceSingleViewContext()
   const { zone } = useGeneral()
   const { getResourceView, hasAccessToResource } = useViews()
   const dashboardCards = getDashboardCards(getResourceView(DASHBOARD)?.cards)
@@ -274,23 +274,30 @@ export default function GeneralDashboard() {
     [hostMonitoringData]
   )
 
-  const vmStates = useMemo(
-    () =>
-      vms.reduce(
-        (states, vm) => {
-          const state = getVirtualMachineState(vm)?.name
+  const vmStates = useMemo(() => {
+    const states = vms.reduce(
+      (stateCounts, vm) => {
+        const state = getVirtualMachineState(vm)?.name
 
-          if (state === STATES.RUNNING) states.running += 1
-          if (state === STATES.PENDING) states.deploying += 1
-          if (state === STATES.POWEROFF) states.off += 1
-          if (state?.includes('FAIL')) states.failed += 1
+        if (state === STATES.RUNNING) stateCounts.running += 1
+        if (state === STATES.PENDING) stateCounts.deploying += 1
+        if (state === STATES.POWEROFF) stateCounts.off += 1
+        if (state?.includes('FAIL')) stateCounts.failed += 1
 
-          return states
-        },
-        { running: 0, deploying: 0, off: 0, failed: 0 }
+        return stateCounts
+      },
+      { running: 0, deploying: 0, off: 0, failed: 0 }
+    )
+
+    return {
+      ...states,
+      other: Math.max(
+        0,
+        vms.length -
+          Object.values(states).reduce((total, value) => total + value, 0)
       ),
-    [vms]
-  )
+    }
+  }, [vms])
   const vmOwnership = useMemo(
     () => ({
       owners: countUniqueResources(vms, 'UID', 'UNAME'),
@@ -298,34 +305,41 @@ export default function GeneralDashboard() {
     }),
     [vms]
   )
-  const hostStates = useMemo(
-    () =>
-      hosts.reduce(
-        (states, host) => {
-          const state = getHostState(host)?.name
+  const hostStates = useMemo(() => {
+    const states = hosts.reduce(
+      (stateCounts, host) => {
+        const state = getHostState(host)?.name
 
-          if ([STATES.MONITORED, STATES.MONITORING_MONITORED].includes(state)) {
-            states.monitoring += 1
-          }
-          if (
-            [
-              STATES.DISABLED,
-              STATES.MONITORING_DISABLED,
-              STATES.OFFLINE,
-            ].includes(state)
-          ) {
-            states.disabled += 1
-          }
-          if ([STATES.ERROR, STATES.MONITORING_ERROR].includes(state)) {
-            states.failed += 1
-          }
+        if ([STATES.MONITORED, STATES.MONITORING_MONITORED].includes(state)) {
+          stateCounts.monitoring += 1
+        }
+        if (
+          [
+            STATES.DISABLED,
+            STATES.MONITORING_DISABLED,
+            STATES.OFFLINE,
+          ].includes(state)
+        ) {
+          stateCounts.disabled += 1
+        }
+        if ([STATES.ERROR, STATES.MONITORING_ERROR].includes(state)) {
+          stateCounts.failed += 1
+        }
 
-          return states
-        },
-        { monitoring: 0, disabled: 0, failed: 0 }
+        return stateCounts
+      },
+      { monitoring: 0, disabled: 0, failed: 0 }
+    )
+
+    return {
+      ...states,
+      other: Math.max(
+        0,
+        hosts.length -
+          Object.values(states).reduce((total, value) => total + value, 0)
       ),
-    [hosts]
-  )
+    }
+  }, [hosts])
   const networkCapacity = useMemo(
     () =>
       vnets.reduce(
@@ -427,10 +441,7 @@ export default function GeneralDashboard() {
         value: hasMemoryCapacity ? getPercentage(memoryUsage, memoryTotal) : 0,
         ariaLabel: `${translate(T.Memory)}: ${memoryDetail}`,
       },
-      onClick: () =>
-        history.push(
-          generatePath(PATH.INFRASTRUCTURE.HOSTS.DETAIL, { id: ID })
-        ),
+      onClick: () => openResourceSingleView(HOST, host),
       ariaLabel: NAME ?? translate(T.Hosts),
     }
   })
@@ -496,6 +507,7 @@ export default function GeneralDashboard() {
               },
               { id: 'off', value: vmStates.off, tone: 'neutral' },
               { id: 'failed', value: vmStates.failed, tone: 'error' },
+              { id: 'other', value: vmStates.other, tone: 'focus' },
             ]}
             details={[
               {
@@ -521,6 +533,12 @@ export default function GeneralDashboard() {
                 value: vmStates.failed,
                 label: translate(T.FAILED),
                 tone: 'error',
+              },
+              {
+                id: 'other',
+                value: vmStates.other,
+                label: translate(T.Other),
+                tone: 'focus',
               },
             ]}
           >
@@ -584,6 +602,7 @@ export default function GeneralDashboard() {
                 tone: 'neutral',
               },
               { id: 'failed', value: hostStates.failed, tone: 'error' },
+              { id: 'other', value: hostStates.other, tone: 'focus' },
             ]}
             details={[
               {
@@ -603,6 +622,12 @@ export default function GeneralDashboard() {
                 value: hostStates.failed,
                 label: translate(T.FAILED),
                 tone: 'error',
+              },
+              {
+                id: 'other',
+                value: hostStates.other,
+                label: translate(T.Other),
+                tone: 'focus',
               },
             ]}
           />
@@ -699,7 +724,6 @@ export default function GeneralDashboard() {
               {
                 dataKey: 'CPU',
                 label: translate(T.CPU),
-                color: theme.palette.graphs.vm.cpu.real,
                 fill: true,
               },
             ]}
@@ -719,7 +743,6 @@ export default function GeneralDashboard() {
               {
                 dataKey: 'MEMORY',
                 label: translate(T.Memory),
-                color: theme.palette.graphs.vm.memory.real,
                 fill: true,
               },
             ]}
@@ -739,7 +762,6 @@ export default function GeneralDashboard() {
               {
                 dataKey: 'USED_CPU',
                 label: translate(T.CpuHost),
-                color: theme.palette.graphs.host.cpu.used.real,
               },
             ]}
             valueFormatter={interpolationValue}
@@ -758,7 +780,6 @@ export default function GeneralDashboard() {
               {
                 dataKey: 'USED_MEMORY',
                 label: translate(T.MemoryHost),
-                color: theme.palette.graphs.host.memory.used.real,
               },
             ]}
             valueFormatter={interpolationBytes}

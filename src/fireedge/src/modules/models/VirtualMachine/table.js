@@ -21,20 +21,23 @@ import {
   prettyBytes,
 } from '@UtilsModule'
 import { Box } from '@mui/material'
+import PropTypes from 'prop-types'
+import { Check as CopiedIcon, Copy as CopyIcon } from 'iconoir-react'
 import { VmAPI, HostAPI, ImageAPI, DatastoreAPI } from '@FeaturesModule'
+import { useClipboard } from '@HooksModule'
 import {
   getBackupList,
+  getDiskSize,
   getDisks,
   getHistoryAction,
   getHistoryRecords,
-  getIps,
+  getIpv4s,
   getLastHistory,
   getNics,
   getPcis,
   getSnapshotList,
   getScheduleActions,
   getVirtualMachineState,
-  getVirtualMachineType,
 } from '@modules/models/VirtualMachine/general'
 import { getRepeatInformation } from '@modules/models/Scheduler/general'
 import { getDiskType, getDiskName } from '@modules/models/Image/general'
@@ -42,38 +45,93 @@ import { getPciDevices } from '@modules/models/Host/general'
 import {
   T,
   UNITS,
-  DEFAULT_TIMESTAMP_FORMAT,
   STATIC_FILES_URL,
   DEFAULT_TEMPLATE_LOGO,
 } from '@ConstantsModule'
-import { Image, StatusTag, Tag } from '@ComponentsV2Module'
+import {
+  Image,
+  ProgressBar,
+  StatusTag,
+  Tag,
+  TagList,
+} from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
+
+const CopyableTagListCell = ({ values = [] }) => {
+  const { copy, isCopied } = useClipboard()
+
+  return (
+    <Box onClick={(event) => event.stopPropagation()}>
+      {values.length ? (
+        <TagList
+          max={1}
+          tags={values.map((value) => ({
+            title: value,
+            endIcon: isCopied(value) ? <CopiedIcon /> : <CopyIcon />,
+            onClick: (event) => {
+              event.stopPropagation()
+              copy(value)
+            },
+          }))}
+        />
+      ) : (
+        '-'
+      )}
+    </Box>
+  )
+}
+
+CopyableTagListCell.propTypes = {
+  values: PropTypes.arrayOf(PropTypes.string),
+}
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const VM_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'ID', width: '5%' },
+  { header: T.ID, id: 'id', accessorKey: 'ID', grow: false },
   {
     header: T.Name,
     id: 'name',
     accessorKey: 'NAME',
+    truncate: true,
     cell: ({ row }) => {
       const logo =
-        row?.original?.USER_TEMPLATE?.LOGO ??
-        row?.original?.USER_TEMPLATE?.USER_TEMPLATE?.LOGO ??
-        row?.original?.TEMPLATE?.LOGO ??
+        row?.original?.USER_TEMPLATE?.LOGO ||
+        row?.original?.USER_TEMPLATE?.USER_TEMPLATE?.LOGO ||
+        row?.original?.TEMPLATE?.LOGO ||
         DEFAULT_TEMPLATE_LOGO
       const src = `${STATIC_FILES_URL}/${logo}`
+      const lockIcon = getLockIcon(row.original)
 
       return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            minWidth: 0,
+          }}
+        >
           <Image
             src={src}
             width={32}
             height={32}
             alt={'list-image-identifier'}
           />
-          <span>{row.original?.NAME}</span>
-          {getLockIcon(row.original)}
+          <Box
+            component="span"
+            sx={{
+              flex: '0 1 auto',
+              minWidth: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {row.original?.NAME}
+          </Box>
+          {lockIcon && (
+            <Box sx={{ display: 'flex', flex: '0 0 auto' }}>{lockIcon}</Box>
+          )}
         </Box>
       )
     },
@@ -88,15 +146,10 @@ export const VM_COLUMNS = [
       return <StatusTag statusColor={color} statusName={name} />
     },
   },
-  { header: T.Type, id: 'type', accessorFn: getVirtualMachineType },
   {
-    header: `${T.CPU} / ${T.VCPU}`,
+    header: T.CPU,
     id: 'cpu',
-    cell: ({ row }) => {
-      const { CPU = 1, VCPU = 1 } = row?.original?.TEMPLATE
-
-      return `${CPU}/${VCPU || CPU}`
-    },
+    cell: ({ row }) => row?.original?.TEMPLATE?.CPU ?? 1,
   },
   {
     header: T.Memory,
@@ -105,35 +158,54 @@ export const VM_COLUMNS = [
       prettyBytes(row?.original?.TEMPLATE?.MEMORY ?? 0, UNITS.MB),
   },
   {
+    header: T.DiskSize,
+    id: 'disk_size',
+    cell: ({ row }) => prettyBytes(getDiskSize(row.original), UNITS.MB),
+  },
+  {
     header: T.IP,
     id: 'ips',
-    accessorFn: (row) => getIps(row).join(),
+    accessorFn: (row) => getIpv4s(row).join(),
+    meta: { disableCellTooltip: true },
+    cell: ({ row }) => <CopyableTagListCell values={getIpv4s(row.original)} />,
   },
   {
     header: T.Host,
     id: 'hostname',
+    truncate: true,
     accessorFn: (row) => getLastHistory(row)?.HOSTNAME,
   },
-  { header: T.Owner, id: 'owner', accessorKey: 'UNAME' },
-  { header: T.Group, id: 'group', accessorKey: 'GNAME' },
+  { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
+  { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
   {
     header: T.StartTime,
     id: 'time',
     cell: ({ row }) => timeFromMilliseconds(row.original.STIME).toRelative(),
+    grow: false,
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const VM_DISK_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'DISK_ID' },
+  { header: T.ID, id: 'id', accessorKey: 'DISK_ID', grow: false },
   {
-    width: '15%',
     header: T.Name,
     id: 'name',
+    truncate: true,
     accessorFn: (row) => getDiskName(row) ?? '-',
   },
 
-  { header: T.DiskType, id: 'type', accessorKey: 'DISK_TYPE' },
+  {
+    header: T.DiskType,
+    id: 'type',
+    grow: false,
+    accessorFn: getDiskType,
+    cell: ({ row }) => {
+      const diskType = getDiskType(row.original)
+
+      return diskType ? <Tag title={diskType} status="default" /> : '-'
+    },
+  },
   {
     header: T.TargetDevice,
     id: 'target',
@@ -144,10 +216,19 @@ export const VM_DISK_COLUMNS = [
     id: 'diskuse',
     cell: ({ row }) => {
       const { SIZE = 0, MONITOR_SIZE = 0 } = row?.original ?? {}
-
-      return `${+SIZE ? prettyBytes(+SIZE, 'MB') : '-'}/${
-        +MONITOR_SIZE ? prettyBytes(+MONITOR_SIZE, 'MB') : '-'
+      const size = Number(SIZE)
+      const monitorSize = Number(MONITOR_SIZE)
+      const label = `${monitorSize ? prettyBytes(monitorSize, 'MB') : '-'}/${
+        size ? prettyBytes(size, 'MB') : '-'
       }`
+
+      return (
+        <ProgressBar
+          value={size > 0 ? (monitorSize / size) * 100 : 0}
+          label={label}
+          isLabelVisible
+        />
+      )
     },
   },
   {
@@ -156,14 +237,33 @@ export const VM_DISK_COLUMNS = [
     accessorKey: 'DATASTORE',
   },
   { header: T.Filesystem, id: 'fs', accessorKey: 'FS' },
-  { header: 'TM MAD', id: 'tm_mad', accessorKey: 'TM_MAD' },
+  {
+    header: 'TM MAD',
+    id: 'tm_mad',
+    grow: false,
+    accessorKey: 'TM_MAD',
+    cell: ({ row }) =>
+      row.original?.TM_MAD ? (
+        <Tag title={row.original.TM_MAD} status="default" />
+      ) : (
+        '-'
+      ),
+  },
   {
     header: T.Driver,
     id: 'driver',
+    grow: false,
     accessorKey: 'DRIVER',
+    cell: ({ row }) =>
+      row.original?.DRIVER ? (
+        <Tag title={row.original.DRIVER} status="default" />
+      ) : (
+        '-'
+      ),
   },
   {
     header: T.Snapshots,
+    grow: false,
     id: 'snapshots',
     accessorFn: (row) =>
       [].concat(row?.SNAPSHOTS)?.filter(Boolean)?.length ?? 0,
@@ -171,7 +271,6 @@ export const VM_DISK_COLUMNS = [
   {
     header: T.Tags,
     id: 'tags',
-    width: '15%',
     cell: ({ row }) => {
       const { READONLY, PERSISTENT, SAVE, CLONE } = row
 
@@ -200,14 +299,20 @@ export const VM_DISK_COLUMNS = [
 ]
 
 export const VM_NIC_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'NIC_ID' },
+  { header: T.ID, id: 'id', accessorKey: 'NIC_ID', grow: false },
   {
-    width: '15%',
     header: T.Name,
     id: 'name',
+    truncate: true,
+    grow: false,
     accessorKey: 'NAME',
   },
-  { header: T.Network, id: 'network', accessorKey: 'NETWORK' },
+  {
+    header: T.Network,
+    id: 'network',
+    truncate: true,
+    accessorKey: 'NETWORK',
+  },
   {
     header: T.TargetDevice,
     id: 'target',
@@ -216,46 +321,64 @@ export const VM_NIC_COLUMNS = [
   {
     header: T.ip,
     id: 'ipv4',
-    accessorKey: 'IP',
+    meta: { disableCellTooltip: true },
+    cell: ({ row }) => (
+      <CopyableTagListCell values={[row.original?.IP].filter(Boolean)} />
+    ),
   },
-  { header: T.MAC, id: 'mac', accessorKey: 'MAC' },
-  { header: 'VN MAD', id: 'vn_mad', accessorKey: 'VN_MAD' },
+  {
+    header: T.MAC,
+    id: 'mac',
+    accessorKey: 'MAC',
+    meta: { disableCellTooltip: true },
+    cell: ({ row }) => (
+      <CopyableTagListCell values={[row.original?.MAC].filter(Boolean)} />
+    ),
+  },
+  {
+    header: 'VN MAD',
+    id: 'vn_mad',
+    accessorKey: 'VN_MAD',
+    cell: ({ row }) =>
+      row.original?.VN_MAD ? (
+        <Tag title={row.original.VN_MAD} status="default" />
+      ) : (
+        '-'
+      ),
+  },
 ]
 
 export const VM_PCI_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'PCI_ID', width: '10%' },
+  { header: T.ID, id: 'id', accessorKey: 'PCI_ID', grow: false },
   {
-    width: '30%',
     header: T.Name,
     id: 'name',
+    truncate: true,
     accessorKey: 'DEVICE_NAME',
   },
   {
     header: T.Vendor,
     id: 'vendor',
     accessorKey: 'VENDOR_NAME',
-    width: '25%',
   },
   {
     header: T.Class,
     id: 'class',
     accessorKey: 'CLASS_NAME',
-    width: '25%',
   },
   {
     header: T.NumaNode,
     id: 'numa_node_id',
     accessorKey: 'NUMA_NODE',
-    width: '10%',
   },
 ]
 
 export const VM_SNAPSHOT_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'SNAPSHOT_ID', width: '10%' },
+  { header: T.ID, id: 'id', accessorKey: 'SNAPSHOT_ID', grow: false },
   {
-    width: '30%',
     header: T.Name,
     id: 'name',
+    truncate: true,
     accessorKey: 'NAME',
   },
   {
@@ -269,24 +392,22 @@ export const VM_SNAPSHOT_COLUMNS = [
   {
     header: T.SystemDiskSize,
     id: 'system_disk_size',
-    width: '20%',
     cell: ({ row }) =>
       prettyBytes(row.original?.SYSTEM_DISK_SIZE ?? 0, UNITS.MB),
   },
 ]
 
 export const VM_BACKUP_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'ID', width: '5%' },
+  { header: T.ID, id: 'id', accessorKey: 'ID', grow: false },
   {
-    width: '20%',
     header: T.Name,
     id: 'name',
+    truncate: true,
     accessorKey: 'NAME',
   },
   {
     header: T.Created,
     id: 'regtime',
-    width: '20%',
     cell: ({ row }) =>
       row.original?.REGTIME
         ? timeFromMilliseconds(+row.original.REGTIME).toRelative()
@@ -295,7 +416,7 @@ export const VM_BACKUP_COLUMNS = [
   {
     header: T.Datastore,
     id: 'datastore',
-    width: '20%',
+    truncate: true,
     accessorKey: 'DATASTORE',
   },
   {
@@ -303,33 +424,26 @@ export const VM_BACKUP_COLUMNS = [
     id: 'backupType',
     accessorFn: (row) =>
       row?.BACKUP_INCREMENTS?.INCREMENT ? T.Incremental : T.Full,
-    width: '10%',
+    cell: ({ row }) => (
+      <Tag
+        title={
+          row.original?.BACKUP_INCREMENTS?.INCREMENT ? T.Incremental : T.Full
+        }
+        status="default"
+      />
+    ),
   },
   {
     header: T.Size,
     id: 'size',
-    width: '10%',
     cell: ({ row }) => prettyBytes(row.original?.SIZE ?? 0, UNITS.MB),
-  },
-  {
-    header: T.Owner,
-    id: 'owner',
-    width: '10%',
-    accessorKey: 'UNAME',
-  },
-  {
-    header: T.Group,
-    id: 'group',
-    width: '10%',
-    accessorKey: 'GNAME',
   },
   {
     header: T.Persistent,
     id: 'persistent',
-    width: '10%',
     cell: ({ row }) => (+row?.original?.PERSISTENT ? T.Yes : T.No),
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const VM_HISTORY_COLUMNS = [
@@ -337,52 +451,43 @@ export const VM_HISTORY_COLUMNS = [
     header: T.Sequence,
     id: 'seq',
     accessorKey: 'SEQ',
-    width: '7%',
+    grow: false,
   },
   {
     header: T.Action,
     id: 'action',
     accessorFn: (row) => getHistoryAction(row?.ACTION) ?? T.Unknown,
-    width: '13%',
   },
   {
     header: T.Host,
     id: 'hostname',
     accessorKey: 'HOSTNAME',
-    width: '15%',
+    truncate: true,
   },
   {
     header: T.Datastore,
     id: 'datastore',
     accessorKey: 'DATASTORE',
-    width: '15%',
   },
   {
     header: T.Started,
     id: 'stime',
-    width: '12%',
     cell: ({ row }) =>
       row.original?.STIME
-        ? timeFromMilliseconds(+row.original.STIME).toFormat(
-            DEFAULT_TIMESTAMP_FORMAT
-          )
+        ? timeFromMilliseconds(+row.original.STIME).toRelative()
         : '-',
   },
   {
     header: T.Ended,
     id: 'etime',
-    width: '12%',
     cell: ({ row }) =>
       row.original?.ETIME && +row.original.ETIME > 0
-        ? timeFromMilliseconds(+row.original.ETIME).toFormat(
-            DEFAULT_TIMESTAMP_FORMAT
-          )
+        ? timeFromMilliseconds(+row.original.ETIME).toRelative()
         : T.Running,
   },
   {
     header: T.Duration,
     id: 'duration',
-    width: '8%',
     cell: ({ row }) => {
       const start = +row.original?.STIME
       const end = +row.original?.ETIME || Math.floor(Date.now() / 1000)
@@ -411,14 +516,26 @@ export const VM_HISTORY_COLUMNS = [
   {
     header: T.Driver,
     id: 'vmMad',
+    grow: false,
     accessorKey: 'VM_MAD',
-    width: '10%',
+    cell: ({ row }) =>
+      row.original?.VM_MAD ? (
+        <Tag title={row.original.VM_MAD} status="default" />
+      ) : (
+        '-'
+      ),
   },
   {
     header: 'TM MAD',
     id: 'tmMad',
+    grow: false,
     accessorKey: 'TM_MAD',
-    width: '10%',
+    cell: ({ row }) =>
+      row.original?.TM_MAD ? (
+        <Tag title={row.original.TM_MAD} status="default" />
+      ) : (
+        '-'
+      ),
   },
 ]
 
@@ -427,44 +544,38 @@ export const VM_SCHED_ACTION_COLUMNS = [
     header: T.ID,
     id: 'id',
     accessorKey: 'ID',
-    width: '5%',
+    grow: false,
   },
   {
     header: T.Action,
     id: 'action',
     accessorKey: 'ACTION',
-    width: '15%',
   },
   {
     header: T.Scheduled,
     id: 'time',
-    width: '20%',
     accessorFn: (row) =>
-      timeFromMilliseconds(row?.TIME ?? 0).toFormat(DEFAULT_TIMESTAMP_FORMAT),
+      row?.TIME ? timeFromMilliseconds(+row.TIME).toRelative() : '-',
   },
   {
     header: T.Repeat,
     id: 'repeat',
-    width: '10%',
     accessorFn: (row) => getRepeatInformation(row)?.repeat ?? T.Once,
   },
   {
     header: T.Ends,
     id: 'end',
-    width: '15%',
     accessorFn: (row) => getRepeatInformation(row)?.end ?? '-',
   },
   {
     header: T.Warning,
     id: 'warning',
-    width: '20%',
     accessorFn: (row) =>
       +row?.WARNING ? timeFromMilliseconds(row?.WARNING)?.toRelative() : '-',
   },
   {
     header: T.Status,
     id: 'done',
-    width: '15%',
     accessorFn: (row) => (+row.DONE >= 0 ? T.DONE : T.PENDING),
   },
 ]

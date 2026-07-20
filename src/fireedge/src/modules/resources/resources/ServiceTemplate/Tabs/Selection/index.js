@@ -35,7 +35,7 @@ export const Selection = ({ data, config }) => {
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -45,11 +45,8 @@ export const Selection = ({ data, config }) => {
         />
       ),
     },
-    { accessorKey: 'NAME', header: T.Name, minWidth: '200px', width: '20%' },
-    { accessorKey: 'UNAME', header: T.Owner },
-    { accessorKey: 'GNAME', header: T.Group },
+    { accessorKey: 'NAME', header: T.Name, minWidth: '200px' },
     {
-      width: '150px',
       id: 'MEMORY',
       header: `${T.Total} ${T.Memory}`,
       cell: ({ row }) =>
@@ -59,7 +56,6 @@ export const Selection = ({ data, config }) => {
         ),
     },
     {
-      width: '150px',
       id: 'VCPU',
       header: `${T.Total} v${T.cpu}`,
       cell: ({ row }) =>
@@ -78,10 +74,10 @@ export const Selection = ({ data, config }) => {
         [].concat(row?.original?.TEMPLATE?.BODY?.networks)?.length ?? 0,
     },
     {
-      width: '15%',
       minWidth: '15%',
       id: 'ID',
       header: '',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}

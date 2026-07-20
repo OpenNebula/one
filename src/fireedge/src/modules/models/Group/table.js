@@ -23,8 +23,8 @@ import { ProgressBar } from '@ComponentsV2Module'
 import { getGroupQuotaUsage } from '@modules/models/Group/general'
 
 export const GROUP_LIST_COLUMNS = [
-  { accessorKey: 'ID', header: T.ID, width: '5%' },
-  { accessorKey: 'NAME', header: T.Name },
+  { accessorKey: 'ID', header: T.ID, grow: false },
+  { accessorKey: 'NAME', header: T.Name, truncate: true },
   {
     header: T.DatastoreSize,
     id: 'DATASTORE_QUOTA_SIZE',
@@ -106,6 +106,7 @@ export const GROUP_LIST_COLUMNS = [
     header: `${T.Total} ${T.Users}`,
     id: 'TOTAL_USERS',
     accessorFn: (row) => getTotalOfResources(row?.USERS),
+    grow: false,
   },
 ]
 export const GROUP_COLUMNS = [

@@ -136,7 +136,7 @@ export const NetworksDropdown = ({ roles, selectedRole }) => {
     {
       accessorKey: 'name',
       header: 'Network',
-      width: isVr ? '33%' : '50%',
+      truncate: true,
     },
 
     ...(isVr
@@ -144,7 +144,7 @@ export const NetworksDropdown = ({ roles, selectedRole }) => {
           {
             accessorKey: 'floating_ip',
             header: 'Floating IP',
-            width: '17%',
+            grow: false,
             meta: { disableCellTooltip: true },
             cell: ({ row }) => {
               if (!isVr) return null
@@ -166,7 +166,7 @@ export const NetworksDropdown = ({ roles, selectedRole }) => {
           {
             accessorKey: 'floating_only',
             header: 'Floating Only',
-            width: '17%',
+            grow: false,
             meta: { disableCellTooltip: true },
             cell: ({ row }) => {
               if (!isVr) return null
@@ -191,7 +191,7 @@ export const NetworksDropdown = ({ roles, selectedRole }) => {
     {
       accessorKey: 'NIC_ALIAS',
       header: 'As NIC Alias',
-      width: isVr ? '33%' : '50%',
+      grow: false,
       meta: { disableCellTooltip: true },
       cell: ({ row }) => {
         const rowId = row.original.id

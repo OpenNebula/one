@@ -171,8 +171,8 @@ const LabelTable = () => {
       id: 'name',
       accessorKey: 'name',
       header: T.Label,
-      width: '28%',
       minWidth: 160,
+      grow: false,
       meta: { disableCellTooltip: true },
       cell: ({ row }) => (
         <Tag
@@ -186,14 +186,14 @@ const LabelTable = () => {
       id: 'displayPath',
       accessorKey: 'displayPath',
       header: T.FullPath,
-      width: 'calc(72% - 72px)',
       minWidth: 240,
+      truncate: true,
     },
     {
       id: 'actions',
       header: '',
-      width: '72px',
       minWidth: 72,
+      grow: false,
       accessorFn: (row) => row.displayPath,
       enableSorting: false,
       meta: { disableCellTooltip: true, disableHeaderTooltip: true },

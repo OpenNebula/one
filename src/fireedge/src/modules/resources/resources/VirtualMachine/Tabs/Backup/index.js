@@ -80,6 +80,10 @@ export const Backup = ({ data, config }) => {
           columns={vmbackupsTable.columns()}
           data={backups}
           isLoading={isFetchingBackups || isPerformingAction}
+          emptyContentProps={{
+            title: T.NoBackups,
+            subtitle: T.VmBackupsWillAppearHere,
+          }}
           size="medium"
           isEnableSearchBar
           isEnableSort

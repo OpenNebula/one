@@ -24,7 +24,7 @@ import { ImageAPI } from '@FeaturesModule'
 import { getImageState } from '@modules/models/Image/general'
 import { T } from '@ConstantsModule'
 import { createLabelColumn } from '@modules/models/labels'
-import { StatusTag } from '@ComponentsV2Module'
+import { StatusTag, Tag } from '@ComponentsV2Module'
 import { Box } from '@mui/material'
 import { getBackupRunningVms } from '@modules/models/Backup/general'
 
@@ -34,13 +34,13 @@ export const IMAGE_COLUMNS = [
     header: T.ID,
     id: 'id',
     accessorKey: 'ID',
-    width: '10%',
+    grow: false,
   },
   {
     header: T.Name,
     id: 'name',
     accessorKey: 'NAME',
-    width: '22%',
+    truncate: true,
     cell: ({ row }) => (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <span>{row.original?.NAME}</span>
@@ -50,9 +50,7 @@ export const IMAGE_COLUMNS = [
   },
   {
     header: T.State,
-    id: 'state',
     accessorFn: (row) => getImageState(row)?.name,
-    width: '12%',
     cell: ({ row }) => {
       const { color, name } = getImageState(row.original) ?? {}
 
@@ -63,38 +61,42 @@ export const IMAGE_COLUMNS = [
     header: T.Type,
     id: 'type',
     accessorFn: (row) => getImageType(row),
-    width: '10%',
+    cell: ({ row }) => {
+      const type = getImageType(row.original)
+
+      return type ? <Tag title={type} status="default" /> : '-'
+    },
   },
   {
     header: T.VMs,
     id: 'vms',
     accessorFn: (row) => getBackupRunningVms(row),
-    width: '8%',
   },
   {
     header: T.Datastore,
     id: 'datastore',
     accessorKey: 'DATASTORE',
-    width: '16%',
+    truncate: true,
   },
   {
     header: T.Owner,
     id: 'owner',
     accessorKey: 'UNAME',
-    width: '11%',
+    grow: false,
   },
   {
     header: T.Group,
     id: 'group',
     accessorKey: 'GNAME',
-    width: '11%',
+    grow: false,
   },
   {
     accessorKey: 'REGTIME',
     header: T.RegistrationTime,
+    grow: false,
     cell: ({ row }) => timeFromMilliseconds(row.original.REGTIME).toRelative(),
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const imageTable = createTable(

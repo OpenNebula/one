@@ -18,7 +18,8 @@
  * @param {object} root0 - Params
  * @param {string} root0.status - Button type
  * @param {object} root0.theme - Current theme in use
- * @param {boolean} root0.isInteractive - Enable pointer events
+ * @param {boolean} root0.isInteractive - Enable selectable tag behavior
+ * @param {boolean} root0.isClickable - Enable click handling without selection
  * @param {boolean} root0.isSelected - Selected state.
  * @param {object} root0.customColor - Optional custom tag colors.
  * Tracked internally by default or externally by parent.
@@ -28,11 +29,12 @@ export const getStyles = ({
   status,
   theme,
   isInteractive,
+  isClickable,
   isSelected,
   customColor,
 }) => {
   const baseStyle = {
-    pointerEvents: 'none',
+    pointerEvents: isClickable || isInteractive ? 'auto' : 'none',
     textTransform: 'none',
     display: 'flex',
     justifyContent: 'center',
@@ -59,7 +61,7 @@ export const getStyles = ({
       },
     },
 
-    cursor: 'default',
+    cursor: isClickable || isInteractive ? 'pointer' : 'default',
 
     '&:hover': {
       backgroundColor: 'inherit',
@@ -82,6 +84,7 @@ export const getStyles = ({
     },
 
     '& .tag-title': {
+      display: 'inline-block',
       minWidth: 0,
       color: 'inherit',
       fontStyle: 'normal',
@@ -98,7 +101,7 @@ export const getStyles = ({
         md: theme.lineHeight.body.caption.desktop,
       },
 
-      '&:first-letter': {
+      '&::first-letter': {
         textTransform: 'uppercase',
       },
     },

@@ -29,6 +29,7 @@ const toneStyles = (property) => ({
     [property]: 'icon.information',
   },
   [`&.dashboard-resource-card-tone-action`]: { [property]: 'icon.action' },
+  [`&.dashboard-resource-card-tone-focus`]: { [property]: 'icon.focus' },
 })
 
 /**

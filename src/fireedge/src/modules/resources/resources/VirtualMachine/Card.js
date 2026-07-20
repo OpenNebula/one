@@ -16,15 +16,30 @@
 
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
+import { Box } from '@mui/material'
 import {
   Card,
+  CapacitySlot,
+  Image,
   TitleSlot,
   MetadataSlot,
   LabelSlot,
   TimeSlot,
 } from '@ComponentsV2Module'
-import { getLabelSlotLabels, getVirtualMachineState } from '@ModelsModule'
-import { getLockIcon } from '@UtilsModule'
+import {
+  T,
+  UNITS,
+  STATIC_FILES_URL,
+  DEFAULT_TEMPLATE_LOGO,
+} from '@ConstantsModule'
+import {
+  getIpAddresses,
+  getDiskSize,
+  getLabelTags,
+  getLastHistory,
+  getVirtualMachineState,
+} from '@ModelsModule'
+import { getLockIcon, prettyBytes } from '@UtilsModule'
 
 /**
  * VirtualMachineCard component displays a Virtual Machine as a card.
@@ -50,9 +65,9 @@ export const VirtualMachineCard = forwardRef((data = {}, ref) => {
     STIME,
     STATE,
     LCM_STATE,
-    HYPERVISOR,
-    MACHINE,
     LABELS,
+    TEMPLATE = {},
+    USER_TEMPLATE,
     isSelected,
     onCheck,
     onClick,
@@ -61,7 +76,14 @@ export const VirtualMachineCard = forwardRef((data = {}, ref) => {
     STATE,
     LCM_STATE,
   })
-  const labelSlotLabels = getLabelSlotLabels(LABELS)
+  const labelTags = getLabelTags(LABELS)
+  const { HOSTNAME } = getLastHistory(data)
+  const logo =
+    USER_TEMPLATE?.LOGO ||
+    USER_TEMPLATE?.USER_TEMPLATE?.LOGO ||
+    TEMPLATE?.LOGO ||
+    DEFAULT_TEMPLATE_LOGO
+  const lockIcon = getLockIcon(data)
 
   return (
     <Card
@@ -74,9 +96,38 @@ export const VirtualMachineCard = forwardRef((data = {}, ref) => {
           TitleSlot,
           {
             title: (
-              <>
-                {NAME} {getLockIcon(data)}
-              </>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  minWidth: 0,
+                }}
+              >
+                <Image
+                  src={`${STATIC_FILES_URL}/${logo}`}
+                  width={32}
+                  height={32}
+                  alt="list-image-identifier"
+                />
+                <Box
+                  component="span"
+                  sx={{
+                    flex: '0 1 auto',
+                    minWidth: 0,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {NAME}
+                </Box>
+                {lockIcon && (
+                  <Box sx={{ display: 'flex', flex: '0 0 auto' }}>
+                    {lockIcon}
+                  </Box>
+                )}
+              </Box>
             ),
             statusName,
             status,
@@ -86,21 +137,32 @@ export const VirtualMachineCard = forwardRef((data = {}, ref) => {
           MetadataSlot,
           {
             labels: [
-              ['ID', ID],
-              ['Owner', UNAME],
-              ['Group', GNAME],
-            ],
+              [T.ID, ID],
+              [T.Owner, UNAME],
+              [T.Group, GNAME],
+              [T.Host, HOSTNAME],
+            ].filter(
+              ([, value]) =>
+                value !== undefined && value !== null && value !== ''
+            ),
           },
         ],
 
-        (HYPERVISOR || MACHINE || labelSlotLabels.length > 0) && [
+        [
+          CapacitySlot,
+          {
+            cpu: TEMPLATE?.CPU ?? 1,
+            memory: prettyBytes(TEMPLATE?.MEMORY ?? 0, UNITS.MB),
+            disk: prettyBytes(getDiskSize(data), UNITS.MB),
+            ips: getIpAddresses(data),
+          },
+        ],
+
+        labelTags.length > 0 && [
           LabelSlot,
           {
-            labels: [
-              HYPERVISOR && [HYPERVISOR, 'miscellaneous'],
-              MACHINE && [MACHINE, 'miscellaneous2'],
-              ...labelSlotLabels,
-            ].filter(Boolean),
+            tags: labelTags,
+            max: 3,
           },
         ],
 
@@ -121,9 +183,10 @@ VirtualMachineCard.propTypes = {
   GNAME: PropTypes.string,
   UNAME: PropTypes.string,
   STIME: PropTypes.string,
-  HYPERVISOR: PropTypes.string,
-  MACHINE: PropTypes.string,
   LABELS: PropTypes.object,
+  TEMPLATE: PropTypes.object,
+  USER_TEMPLATE: PropTypes.object,
+  HISTORY_RECORDS: PropTypes.object,
   STATE: PropTypes.string,
   LCM_STATE: PropTypes.string,
   isSelected: PropTypes.bool,

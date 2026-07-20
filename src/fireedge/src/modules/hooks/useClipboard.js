@@ -25,6 +25,21 @@ export const CLIPBOARD_STATUS = {
 
 const { INIT, ERROR, COPIED } = CLIPBOARD_STATUS
 
+const fallbackCopy = (text) => {
+  const input = document.createElement('textarea')
+  input.value = String(text)
+  input.style.position = 'fixed'
+  input.style.opacity = '0'
+
+  document.body.appendChild(input)
+  input.select()
+
+  const isCopied = document.execCommand('copy')
+  document.body.removeChild(input)
+
+  if (!isCopied) throw new Error('Unable to copy text')
+}
+
 /**
  * @callback CallbackCopy
  * @param {string} text - Text to write on clipboard
@@ -58,8 +73,7 @@ const useClipboard = ({ tooltipDelay = 2000 } = {}) => {
 
   const copy = useCallback(
     async (text) => {
-      try {
-        await navigator.clipboard.writeText(String(text))
+      const setCopiedState = () => {
         setCopiedText(String(text))
         setState(COPIED)
         if (+tooltipDelay > 0) {
@@ -70,8 +84,22 @@ const useClipboard = ({ tooltipDelay = 2000 } = {}) => {
             }
           }, +tooltipDelay)
         }
+      }
+
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(String(text))
+        } else {
+          fallbackCopy(text)
+        }
+        setCopiedState()
       } catch {
-        setState(ERROR)
+        try {
+          fallbackCopy(text)
+          setCopiedState()
+        } catch {
+          setState(ERROR)
+        }
       }
     },
     [tooltipDelay]

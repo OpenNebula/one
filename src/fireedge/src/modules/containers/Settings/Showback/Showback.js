@@ -23,16 +23,17 @@ import { Box, Stack, Typography, useTheme } from '@mui/material'
 import { DateTime } from 'luxon'
 import { ReactElement, useMemo, useState } from 'react'
 
-const styles = ({ palette, spacing }) => ({
+const styles = ({ palette, scale, spacing }) => ({
   description: css({
     margin: spacing(2),
     color: palette.text.body,
   }),
   formContainer: css({
     height: '100%',
-    gap: spacing(1),
+    minHeight: scale[1800],
+    gap: spacing(2),
     padding: spacing(1),
-    overflow: 'auto',
+    overflow: 'visible',
     alignItems: 'center',
     color: palette.text.body,
   }),

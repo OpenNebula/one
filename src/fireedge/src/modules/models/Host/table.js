@@ -18,7 +18,7 @@ import { getHostState, getAllocatedInfo } from '@modules/models/Host/general'
 import { T } from '@ConstantsModule'
 import { createTable, getTotalOfResources } from '@UtilsModule'
 import { HostAPI } from '@FeaturesModule'
-import { StatusTag } from '@ComponentsV2Module'
+import { ProgressBar, StatusTag, Tag } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
 
 /* eslint-disable jsdoc/require-jsdoc */
@@ -28,12 +28,13 @@ export const HOST_COLUMNS = [
     accessorKey: 'ID',
     id: 'id',
     sortType: 'number',
-    width: '5%',
+    grow: false,
   },
   {
     header: T.Name,
     id: 'name',
     accessorFn: (row) => row?.TEMPLATE?.NAME ?? row.NAME,
+    truncate: true,
   },
   {
     header: T.State,
@@ -49,11 +50,23 @@ export const HOST_COLUMNS = [
     header: 'IM MAD',
     id: 'im_mad',
     accessorKey: 'IM_MAD',
+    cell: ({ row }) =>
+      row.original?.IM_MAD ? (
+        <Tag title={row.original.IM_MAD} status="default" />
+      ) : (
+        '-'
+      ),
   },
   {
     header: 'VM MAD',
     id: 'vm_mad',
     accessorKey: 'VM_MAD',
+    cell: ({ row }) =>
+      row.original?.VM_MAD ? (
+        <Tag title={row.original.VM_MAD} status="default" />
+      ) : (
+        '-'
+      ),
   },
   {
     header: T.RunningVMs,
@@ -69,18 +82,41 @@ export const HOST_COLUMNS = [
     header: T.CPU,
     id: 'cpu',
     accessorFn: (row) => getAllocatedInfo(row)?.percentCpuLabel,
+    cell: ({ row }) => {
+      const { percentCpuUsed, percentCpuLabel } = getAllocatedInfo(row.original)
+
+      return (
+        <ProgressBar
+          value={percentCpuUsed}
+          label={percentCpuLabel}
+          isLabelVisible
+        />
+      )
+    },
   },
   {
     header: T.Memory,
     id: 'memory',
     accessorFn: (row) => getAllocatedInfo(row)?.percentMemLabel,
+    cell: ({ row }) => {
+      const { percentMemUsed, percentMemLabel } = getAllocatedInfo(row.original)
+
+      return (
+        <ProgressBar
+          value={percentMemUsed}
+          label={percentMemLabel}
+          isLabelVisible
+        />
+      )
+    },
   },
   {
     header: T.Cluster,
     id: 'cluster',
     accessorKey: 'CLUSTER',
+    truncate: true,
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const hostTable = createTable(HOST_COLUMNS, HostAPI.useGetHostsQuery, {

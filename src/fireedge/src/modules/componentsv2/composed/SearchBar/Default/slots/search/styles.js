@@ -24,6 +24,20 @@ export const getStyles = ({ theme }) => {
     display: 'flex',
     flex: '1 0 0',
 
+    '&& .textfield-input-wrapper': {
+      padding: `${theme.scale[300]}px ${theme.scale[400]}px`,
+      gap: `${theme.scale[200]}px`,
+    },
+
+    '&& .textfield-adornment-start': {
+      height: 'auto',
+      padding: 0,
+    },
+
+    '&& .textfield-input': {
+      padding: 0,
+    },
+
     fontSize: {
       xs: theme.fontSize.body.sm.mobile,
       sm: theme.fontSize.body.sm.tablet,

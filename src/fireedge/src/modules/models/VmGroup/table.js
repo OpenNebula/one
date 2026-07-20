@@ -26,12 +26,12 @@ export const VMGROUP_COLUMNS = [
   {
     accessorKey: 'ID',
     header: T.ID,
-    width: '5%',
+    grow: false,
   },
   {
     accessorKey: 'NAME',
     header: T.Name,
-    width: '30%',
+    truncate: true,
     cell: ({ row }) => (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <span>{row.original?.NAME}</span>
@@ -40,14 +40,22 @@ export const VMGROUP_COLUMNS = [
     ),
   },
   {
+    header: T.Roles,
+    id: 'roles',
+    accessorFn: (row) =>
+      [].concat(row?.ROLES?.ROLE ?? []).filter(Boolean).length,
+  },
+  {
     accessorKey: 'UNAME',
     header: T.Owner,
+    grow: false,
   },
   {
     accessorKey: 'GNAME',
     header: T.Group,
+    grow: false,
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 const VMGROUP_VM_COLUMN_IDS = ['id', 'name', 'state', 'owner', 'group']

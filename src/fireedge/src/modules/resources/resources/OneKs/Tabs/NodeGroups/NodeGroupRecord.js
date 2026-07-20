@@ -14,18 +14,18 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement, memo, useMemo } from 'react'
-import { useTheme, Typography, Paper, Link, Tooltip, Box } from '@mui/material'
+import { useTheme, Typography, Paper, Tooltip, Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { isValidOneKsResourceId } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 import { getNodeGroupState, getValidKeys } from '@ModelsModule'
 import Timer from '@modules/resources/Timer'
 import { rowStyles } from '@modules/resources/Tables/styles'
-import { T, PATH } from '@ConstantsModule'
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { ResourceLink } from '@ComponentsV2Module'
 import RowAction from '@modules/resources/resources/OneKs/Tabs/NodeGroups/rowActions'
 import clsx from 'clsx'
 import { StatusCircle } from '@modules/resources/Status'
-import { Link as RouterLink, generatePath } from 'react-router-dom'
 import { find, isEmpty } from 'lodash'
 import { WarningCircle as WarningIcon } from 'iconoir-react'
 
@@ -47,12 +47,9 @@ export const VmLinks = memo(
         {validIds.map((id, index) => (
           <span key={id}>
             {index > 0 && ', '}
-            <Link
-              component={RouterLink}
-              to={generatePath(PATH.INSTANCE.VMS.DETAIL, { id: String(id) })}
-            >
+            <ResourceLink resource={RESOURCE_NAMES.VM} data={id}>
               {id}
-            </Link>
+            </ResourceLink>
           </span>
         ))}
       </>

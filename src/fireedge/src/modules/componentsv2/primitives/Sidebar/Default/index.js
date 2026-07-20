@@ -157,6 +157,7 @@ export const Sidebar = forwardRef(
               <Box className="sidebar-fixed-toggle-container">
                 <Button
                   className="sidebar-toggle-button"
+                  dataCy="sidebar-fixed-toggle-button"
                   onClick={handleFixedMenuToggle}
                   aria-label={translate(T.ToggleFixedMenu)}
                   iconOnly={

@@ -117,6 +117,7 @@ export function SecurityGroups() {
 
   return (
     <ResourceContainer
+      dataCy={securitygroupTable.dataCy}
       resourceName={T.SecurityGroups}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -133,6 +134,7 @@ export function SecurityGroups() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={securitygroupTable.dataCy}
                 columns={securitygroupTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -144,6 +146,7 @@ export function SecurityGroups() {
                 getRowId={(row) => row.ID}
                 onRowClick={(row) => handleSelect(row.ID)}
                 size="medium"
+                defaultPageSize={25}
                 isFullHeight
               />
             )
@@ -157,6 +160,7 @@ export function SecurityGroups() {
                   return (
                     <SecurityGroup.Card
                       key={ID}
+                      dataCy={`${securitygroupTable.dataCy}-${ID}`}
                       securityGroup={securityGroup}
                       isSelected={selectedItems?.includes(ID)}
                       onCheck={() =>

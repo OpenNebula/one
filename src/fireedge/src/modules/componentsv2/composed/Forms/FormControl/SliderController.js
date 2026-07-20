@@ -16,11 +16,12 @@
 import PropTypes from 'prop-types'
 import { memo, useCallback, useEffect } from 'react'
 
-import { FormHelperText, Slider, Stack, TextField } from '@mui/material'
+import { Stack } from '@mui/material'
 import { useController, useWatch } from 'react-hook-form'
 
+import { Slider } from '@modules/componentsv2/primitives/Slider/Default'
+import { InputField } from '@modules/componentsv2/primitives/Fields'
 import { ErrorHelper } from '@modules/componentsv2/composed/Forms/FormControl/ErrorHelper'
-import { AdornmentWithTooltip as Tooltip } from '@modules/componentsv2/composed/Forms/FormControl/Tooltip'
 import { isTranslationInput, generateKey } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 
@@ -98,23 +99,22 @@ export const SliderController = memo(
             value={typeof value === 'number' ? value : 0}
             aria-labelledby={sliderId}
             valueLabelDisplay="auto"
-            disabled={readOnly}
+            isDisabled={readOnly}
             data-cy={sliderId}
             onChange={handleChange}
             {...fieldProps}
           />
-          <TextField
+          <InputField
             {...inputProps}
             fullWidth
-            value={value}
+            value={value ?? ''}
             type="number"
-            error={Boolean(error)}
+            status={error ? 'error' : 'default'}
+            isDisabled={readOnly}
             label={isTranslationInput(label) ? translate(label) : label}
-            InputLabelProps={{ shrink: true }}
+            tooltip={tooltip}
             InputProps={{
               readOnly,
-              endAdornment: tooltip && <Tooltip title={tooltip} />,
-              ...fieldProps,
             }}
             inputProps={{
               'data-cy': inputId,
@@ -123,19 +123,14 @@ export const SliderController = memo(
               max,
               step,
             }}
-            onChange={(evt) =>
-              handleEnsuredChange(
-                !evt.target.value ? 0 : Number(evt.target.value)
-              )
+            onChange={(nextValue) =>
+              handleEnsuredChange(!nextValue ? 0 : Number(nextValue))
             }
             onBlur={() => handleEnsuredChange(value)}
+            error={error?.message && <ErrorHelper label={error.message} />}
+            errorDataCy={`${cy}-error`}
           />
         </Stack>
-        {Boolean(error) && (
-          <FormHelperText data-cy={`${cy}-error`}>
-            <ErrorHelper label={error?.message} />
-          </FormHelperText>
-        )}
       </>
     )
   }

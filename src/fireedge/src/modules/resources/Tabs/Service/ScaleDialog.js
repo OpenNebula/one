@@ -66,7 +66,9 @@ export const ScaleDialog = ({ open, onClose, onScale, roleName }) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <Box padding={4}>
-        <Typography variant="h6">Scale</Typography>
+        <Typography variant="h6" color="text.headings">
+          {translate(T.Scale)}
+        </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack direction="column" alignItems="start" justifyContent="center">
             <TextField

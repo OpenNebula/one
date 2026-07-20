@@ -18,10 +18,9 @@
  * @param {object} root0 - Params
  * @param {string} root0.type - Button type
  * @param {object} root0.theme - Current theme in use
- * @param {boolean} root0.isLoading - Is loading
  * @returns {object} - List SX style
  */
-export const getStyles = ({ type, theme, isLoading }) => {
+export const getStyles = ({ type, theme }) => {
   const isOrdered = type === 'ordered'
   const baseStyle = {
     display: 'flex',
@@ -45,7 +44,6 @@ export const getStyles = ({ type, theme, isLoading }) => {
       flex: '1 1 0',
       width: '100%',
     },
-
     '& .list-virtual-container': {
       position: 'relative',
       width: '100%',
@@ -106,30 +104,6 @@ export const getStyles = ({ type, theme, isLoading }) => {
         xs: theme.lineHeight.heading.h4.mobile,
         sm: theme.lineHeight.heading.h4.tablet,
         md: theme.lineHeight.heading.h4.desktop,
-      },
-    },
-
-    '@keyframes shimmer': {
-      '0%': { transform: 'translateX(-100%)' },
-      '100%': { transform: 'translateX(100%)' },
-    },
-    '& .skeleton-cell': {
-      position: 'relative',
-      overflow: 'hidden',
-      height: '64px',
-      bgcolor: 'surface.mute',
-      width: '100%',
-      borderBottom: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-      '&::after': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        background:
-          'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)',
-        animation: 'shimmer 2s infinite',
       },
     },
   }

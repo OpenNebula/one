@@ -19,8 +19,8 @@ import { Cancel } from 'iconoir-react'
 import { ReactElement, useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 
-import { Button, Table } from '@ComponentsV2Module'
-import { PATH, T } from '@ConstantsModule'
+import { Button, Table, Text } from '@ComponentsV2Module'
+import { PATH, T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 import { vmtemplateTable } from '@ModelsModule'
 import { VirtualMachines } from '@modules/containers/VirtualMachines/VirtualMachines'
 
@@ -83,7 +83,11 @@ export function CreateVm() {
             justifyContent="space-between"
             gap={2}
           >
-            {T.SelectVmTemplate}
+            <Text
+              value={T.SelectVmTemplate}
+              variant={TEXT_VARIANTS.H6}
+              weight={TEXT_WEIGHTS.SEMIBOLD}
+            />
             <Button
               iconOnly={<Cancel />}
               type="secondary"

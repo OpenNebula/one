@@ -32,6 +32,7 @@ import { getLockIcon } from '@UtilsModule'
  *
  * @param {object} root0 - Params
  * @param {object} root0.vnTemplate - VN Template data
+ * @param {string} root0.dataCy - Data-cy attribute
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
@@ -39,7 +40,7 @@ import { getLockIcon } from '@UtilsModule'
  * @returns {Component} VN Template card component
  */
 export const VnTemplatesCard = forwardRef(
-  ({ vnTemplate = {}, isSelected, onCheck, onClick }, ref) => {
+  ({ vnTemplate = {}, dataCy, isSelected, onCheck, onClick }, ref) => {
     const {
       ID,
       NAME,
@@ -53,6 +54,7 @@ export const VnTemplatesCard = forwardRef(
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -100,6 +102,7 @@ export const VnTemplatesCard = forwardRef(
 
 VnTemplatesCard.propTypes = {
   vnTemplate: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

@@ -16,3 +16,4 @@
 
 export * from '@modules/componentsv2/primitives/Tables/Default/internal/bootstrap'
 export * from '@modules/componentsv2/primitives/Tables/Default/internal/copyColumn'
+export * from '@modules/componentsv2/primitives/Tables/Default/internal/columnSizing'

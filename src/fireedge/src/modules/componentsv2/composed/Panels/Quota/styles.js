@@ -56,7 +56,7 @@ export const getStyles = ({ theme }) => ({
   },
 
   '& .quota-section-title': {
-    color: 'text.heading',
+    color: 'text.headings',
     fontSize: {
       xs: theme.fontSize.body.md.mobile,
       sm: theme.fontSize.body.md.tablet,

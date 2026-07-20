@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, useState, JSXElementConstructor } from 'react'
+import { useEffect, useMemo, useState, JSXElementConstructor } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { NetworkAlt as NetworkIcon, BoxIso as ImageIcon } from 'iconoir-react'
-import { Stack, Checkbox, styled } from '@mui/material'
+import {
+  NetworkAlt as NetworkIcon,
+  BoxIso as ImageIcon,
+  Drag as DragIcon,
+} from 'iconoir-react'
+import { Box } from '@mui/material'
 import {
   DragDropContext,
   Draggable,
@@ -25,42 +29,19 @@ import {
   DropResult,
 } from 'react-beautiful-dnd'
 
-import { Translate } from '@ProvidersModule'
+import { useTranslation } from '@ProvidersModule'
+import { Checkbox, Text } from '@ComponentsV2Module'
 import { STEP_ID as EXTRA_ID } from '@modules/resources/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
 import { TAB_ID as OS_ID } from '@modules/resources/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/booting'
 import { TAB_ID as STORAGE_ID } from '@modules/resources/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/storage'
 import { TAB_ID as NIC_ID } from '@modules/resources/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/networking'
-import { T } from '@ConstantsModule'
+import { T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
+import { getBootOrderStyles } from '@modules/resources/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/booting/styles'
 
 export const BOOT_ORDER_ID = 'BOOT'
 
 /** @returns {string} Boot order path in form */
 export const BOOT_ORDER_NAME = () => `${EXTRA_ID}.${OS_ID}.${BOOT_ORDER_ID}`
-
-const BootItemDraggable = styled('div')(({ theme, disabled }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5em',
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: '0.5em',
-  padding: '1em',
-  backgroundColor: theme.palette.background.default,
-  '&:before': {
-    content: "''",
-    display: 'block',
-    width: 16,
-    height: 10,
-    background:
-      !disabled &&
-      `linear-gradient(
-      to bottom,
-      ${theme.palette.action.active} 4px,
-      transparent 4px,
-      transparent 6px,
-      ${theme.palette.action.active} 6px
-    )`,
-  },
-}))
 
 /**
  * @param {string} id - Resource id: 'NIC<index>' or 'DISK<index>'
@@ -95,12 +76,15 @@ export const reorderBootAfterRemove = (id, list, currentBootOrder) => {
 /** @returns {JSXElementConstructor} Boot order component */
 const BootOrder = () => {
   const { setValue, getValues } = useFormContext()
+  const { translate } = useTranslation()
   const [bootOrder, setBootOrder] = useState(
     getValues(BOOT_ORDER_NAME())?.split(',')?.filter(Boolean) ?? []
   )
 
   const updateValues = (updatedBootOrder) => {
-    setValue(BOOT_ORDER_NAME(), updatedBootOrder.join(','))
+    setValue(BOOT_ORDER_NAME(), updatedBootOrder.join(','), {
+      shouldDirty: true,
+    })
     setBootOrder(updatedBootOrder)
   }
 
@@ -113,22 +97,13 @@ const BootOrder = () => {
 
         return {
           ID: diskId,
-          NAME: (
-            <>
-              <ImageIcon />
-              {isVolatile ? (
-                <>
-                  {`DISK${idx}: `}
-                  <Translate word={T.VolatileDisk} />
-                </>
-              ) : (
-                [`DISK${idx}`, disk?.IMAGE].filter(Boolean).join(': ')
-              )}
-            </>
-          ),
+          ICON: ImageIcon,
+          NAME: isVolatile
+            ? `DISK${idx}: ${translate(T.VolatileDisk)}`
+            : [`DISK${idx}`, disk?.IMAGE].filter(Boolean).join(': '),
         }
       }) ?? [],
-    []
+    [getValues, translate]
   )
 
   const nics = useMemo(() => {
@@ -140,98 +115,136 @@ const BootOrder = () => {
     return (
       nicValues?.map((nic, idx) => ({
         ID: `nic${idx}`,
-        NAME: (
-          <>
-            <NetworkIcon />
-            {[nic?.NAME, nic?.NETWORK].filter(Boolean).join(': ')}
-          </>
-        ),
+        ICON: NetworkIcon,
+        NAME: [nic?.NAME, nic?.NETWORK].filter(Boolean).join(': '),
       })) ?? []
     )
-  }, [])
+  }, [getValues])
 
-  const enabledItems = [...disks, ...nics]
-    .filter((item) => bootOrder.includes(item.ID))
-    .sort((a, b) => bootOrder.indexOf(a.ID) - bootOrder.indexOf(b.ID))
-
-  const restOfItems = [...disks, ...nics].filter(
-    (item) => !bootOrder.includes(item.ID)
+  const resources = useMemo(() => [...disks, ...nics], [disks, nics])
+  const resourceIds = useMemo(() => resources.map(({ ID }) => ID), [resources])
+  const resourcesById = useMemo(
+    () => new Map(resources.map((resource) => [resource.ID, resource])),
+    [resources]
   )
+  const [itemOrder, setItemOrder] = useState(() => {
+    const availableIds = new Set(resourceIds)
+
+    return [
+      ...bootOrder.filter((id) => availableIds.has(id)),
+      ...resourceIds.filter((id) => !bootOrder.includes(id)),
+    ]
+  })
+
+  useEffect(() => {
+    setItemOrder((currentOrder) => {
+      const currentIds = currentOrder.filter((id) => resourceIds.includes(id))
+      const addedIds = resourceIds.filter((id) => !currentIds.includes(id))
+
+      return [...currentIds, ...addedIds]
+    })
+  }, [resourceIds])
+
+  const orderedItems = itemOrder
+    .map((id) => resourcesById.get(id))
+    .filter(Boolean)
 
   /** @param {DropResult} result - Drop result */
-  const onDragEnd = async (result) => {
-    const { destination, source, draggableId } = result
-    const newBootOrder = [...bootOrder]
+  const onDragEnd = ({ destination, source, draggableId }) => {
+    if (!destination || destination.index === source.index) return
 
-    if (
-      destination &&
-      destination.index !== source.index &&
-      newBootOrder.includes(draggableId)
-    ) {
-      newBootOrder.splice(
-        destination.index,
-        0,
-        newBootOrder.splice(source.index, 1)[0]
-      )
+    const newItemOrder = [...itemOrder]
+    const sourceIndex = newItemOrder.indexOf(draggableId)
+
+    if (sourceIndex < 0) return
+
+    const [movedItem] = newItemOrder.splice(sourceIndex, 1)
+    const destinationIndex = Math.min(destination.index, newItemOrder.length)
+
+    newItemOrder.splice(destinationIndex, 0, movedItem)
+    setItemOrder(newItemOrder)
+
+    const selectedItems = new Set(bootOrder)
+    const newBootOrder = newItemOrder.filter((id) => selectedItems.has(id))
+
+    if (newBootOrder.join(',') !== bootOrder.join(',')) {
       updateValues(newBootOrder)
     }
   }
 
   const handleEnable = (itemId) => {
-    const newBootOrder = [...bootOrder]
-    const itemIndex = bootOrder.indexOf(itemId)
+    const selectedItems = new Set(bootOrder)
 
-    itemIndex >= 0
-      ? newBootOrder.splice(itemIndex, 1)
-      : newBootOrder.push(itemId)
+    selectedItems.has(itemId)
+      ? selectedItems.delete(itemId)
+      : selectedItems.add(itemId)
 
-    updateValues(newBootOrder)
+    updateValues(itemOrder.filter((id) => selectedItems.has(id)))
   }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Stack gap="1em">
+      <Box sx={(theme) => getBootOrderStyles({ theme })}>
         <Droppable droppableId="booting">
           {({ droppableProps, innerRef, placeholder }) => (
-            <Stack {...droppableProps} ref={innerRef} gap={1}>
-              {[...enabledItems, ...restOfItems].map(({ ID, NAME }, idx) => {
-                const disabled = !bootOrder.includes(ID)
+            <div
+              {...droppableProps}
+              ref={innerRef}
+              className="boot-order-droppable"
+            >
+              {orderedItems.map(({ ID, ICON: ResourceIcon, NAME }, idx) => {
+                const isSelected = bootOrder.includes(ID)
 
                 return (
-                  <Draggable
-                    key={ID}
-                    data-cy={ID}
-                    isDragDisabled={disabled}
-                    draggableId={ID}
-                    index={idx}
-                  >
-                    {({
-                      draggableProps,
-                      dragHandleProps,
-                      innerRef: dragRef,
-                    }) => (
-                      <BootItemDraggable
+                  <Draggable key={ID} draggableId={ID} index={idx}>
+                    {(
+                      { draggableProps, dragHandleProps, innerRef: dragRef },
+                      { isDragging }
+                    ) => (
+                      <div
                         {...draggableProps}
                         {...dragHandleProps}
-                        disabled={disabled}
                         ref={dragRef}
+                        data-cy={ID}
+                        className={
+                          'boot-order-item ' +
+                          (isSelected
+                            ? 'boot-order-item-selected'
+                            : 'boot-order-item-unselected') +
+                          (isDragging ? ' boot-order-item-dragging' : '')
+                        }
                       >
+                        <Box
+                          className="boot-order-drag-handle"
+                          aria-hidden="true"
+                        >
+                          <DragIcon />
+                        </Box>
                         <Checkbox
-                          checked={!disabled}
-                          data-cy={ID}
+                          className="boot-order-checkbox"
+                          checked={isSelected}
+                          inputProps={{ 'aria-label': NAME }}
                           onChange={() => handleEnable(ID)}
                         />
-                        {NAME}
-                      </BootItemDraggable>
+                        <Box className="boot-order-resource">
+                          <ResourceIcon className="boot-order-resource-icon" />
+                          <Text
+                            className="boot-order-resource-name"
+                            value={NAME}
+                            variant={TEXT_VARIANTS.BODY_SMALL}
+                            weight={TEXT_WEIGHTS.MEDIUM}
+                          />
+                        </Box>
+                      </div>
                     )}
                   </Draggable>
                 )
               })}
               {placeholder}
-            </Stack>
+            </div>
           )}
         </Droppable>
-      </Stack>
+      </Box>
     </DragDropContext>
   )
 }

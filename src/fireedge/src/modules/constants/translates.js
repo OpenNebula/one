@@ -78,6 +78,9 @@ module.exports = {
   NoSecurityGroupsToAdd: 'No security groups to add',
   NoSecurityGroupsToAddDescription:
     'There are no security groups available to attach to this NIC.',
+  NoSecurityGroups: 'No security groups',
+  SecurityGroupsWillAppearHere:
+    'Security groups attached to this NIC will appear here.',
   All: 'All',
   On: 'On',
   Optional: 'Optional',
@@ -1073,6 +1076,9 @@ module.exports = {
 
   /* sections - storage */
   Backups: 'Backups',
+  NoBackups: 'No backups',
+  VmBackupsWillAppearHere:
+    'Backups created for this virtual machine will appear here.',
   BackupDatastore: 'Backup Datastore',
   BackupRestored: 'Backup restored',
   BackupJobRefresh:
@@ -1514,6 +1520,9 @@ module.exports = {
   Snapshots: 'Snapshots',
   SnapshotName: 'Snapshot name',
   DiskSnapshot: 'Disk snapshot',
+  NoDiskSnapshots: 'No disk snapshots',
+  DiskSnapshotsWillAppearHere:
+    'Snapshots created for this disk will appear here.',
   DiskSize: 'Disk size',
   NewImageName: 'New Image name',
   NewImageNameConcept: 'Name for the new Image where the disk will be saved',
@@ -1596,6 +1605,9 @@ module.exports = {
     the memory state of the VM. For disk snapshots, see the Storage tab`,
   VmSnapshotInProgress:
     'Snapshot in progress. Please, press refresh to update the status of the snapshot.',
+  NoSnapshots: 'No snapshots',
+  VmSnapshotsWillAppearHere:
+    'System snapshots created for this virtual machine will appear here.',
   VmSnapshotNotAvailable: 'Taking snapshots is not available.',
   VmSnapshotReferLogs:
     'If none of the above worked, please refer to the VM monitoring logs.',
@@ -1638,6 +1650,8 @@ module.exports = {
     'No recover action possible, delete the Virtual Network',
   /* VM schema - history */
   History: 'History',
+  NoHistory: 'No history records',
+  VmHistoryWillAppearHere: 'Virtual machine history records will appear here.',
   RequestId: 'Request ID',
   TimeWhenTheStateChanged: 'Time when the state changed',
   TotalTimeInThisState: 'Total time in this state',

@@ -233,6 +233,7 @@ export function MarketplaceApps() {
                 getRowId={(row) => String(row.ID)}
                 onRowClick={(row) => handleSelect(row.ID)}
                 size="medium"
+                defaultPageSize={25}
                 isFullHeight
               />
             )

@@ -45,4 +45,112 @@ const useStyles = (theme) => ({
   }),
 })
 
+/**
+ * @param {object} root0 - Params
+ * @param {object} root0.theme - Current theme
+ * @returns {object} Boot order styles
+ */
+export const getBootOrderStyles = ({ theme }) => ({
+  width: '100%',
+
+  '& .boot-order-droppable': {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    marginBottom: `-${theme.scale[200]}px`,
+  },
+
+  '& .boot-order-item': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: `${theme.scale[300]}px`,
+    minWidth: 0,
+    minHeight: `${theme.scale[1100]}px`,
+    marginBottom: `${theme.scale[200]}px`,
+    padding: `${theme.scale[400]}px ${theme.scale[500]}px`,
+    backgroundColor: 'surface.primary',
+    border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
+    borderRadius: `${theme.borderRadius.xlg}px`,
+    cursor: 'grab',
+    touchAction: 'none',
+    userSelect: 'none',
+    willChange: 'transform',
+
+    '&:active': {
+      cursor: 'grabbing',
+    },
+
+    '&:hover': {
+      backgroundColor: 'surface.actionHover4',
+      borderColor: 'border.actionHover',
+    },
+
+    '&.boot-order-item-selected': {
+      backgroundColor: 'surface.focus2',
+      borderColor: 'border.actionHover',
+    },
+
+    '&.boot-order-item-dragging': {
+      backgroundColor: 'surface.primary',
+      borderColor: 'border.action',
+    },
+  },
+
+  '& .boot-order-drag-handle': {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    width: `${theme.scale[600]}px`,
+    height: `${theme.scale[600]}px`,
+    color: 'icon.primary',
+    cursor: 'grab',
+    touchAction: 'none',
+
+    '&:active': {
+      cursor: 'grabbing',
+    },
+
+    '&:focus-visible': {
+      borderRadius: `${theme.borderRadius.md}px`,
+      outline: `${theme.borderWidth.sm}px solid ${theme.palette.border.focus}`,
+      outlineOffset: `${theme.scale[50]}px`,
+    },
+
+    '& svg': {
+      width: `${theme.scale[550]}px`,
+      height: `${theme.scale[550]}px`,
+      strokeWidth: 1.6,
+    },
+  },
+
+  '& .boot-order-checkbox': {
+    flexShrink: 0,
+  },
+
+  '& .boot-order-resource': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: `${theme.scale[200]}px`,
+    flex: '1 1 auto',
+    minWidth: 0,
+  },
+
+  '& .boot-order-resource-icon': {
+    flexShrink: 0,
+    width: `${theme.scale[600]}px`,
+    height: `${theme.scale[600]}px`,
+    color: 'icon.primary',
+    strokeWidth: 1.6,
+  },
+
+  '& .boot-order-resource-name': {
+    minWidth: 0,
+    overflow: 'hidden',
+    color: 'text.body',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+})
+
 export default useStyles

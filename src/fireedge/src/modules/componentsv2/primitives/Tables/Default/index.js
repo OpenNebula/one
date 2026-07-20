@@ -14,17 +14,21 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { useMemo, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useLayoutEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { flexRender } from '@tanstack/react-table'
-import { Box } from '@mui/material'
+import { Box, useTheme } from '@mui/material'
 import { getStyles } from '@modules/componentsv2/primitives/Tables/Default/styles'
-import { initTable } from '@modules/componentsv2/primitives/Tables/Default/internal'
+import {
+  calculateColumnLayout,
+  initTable,
+} from '@modules/componentsv2/primitives/Tables/Default/internal'
 import { Pagination } from '@modules/componentsv2/primitives/Pagination/Default'
 import { Tooltip } from '@modules/componentsv2/primitives/Tooltip/Default'
 import { SearchBar } from '@modules/componentsv2/composed/SearchBar'
 import { FilterPanel } from '@modules/componentsv2/composed/FilterPanel'
 import { EmptyContent } from '@modules/componentsv2/composed/EmptyContent'
+import { SkeletonLoading } from '@modules/componentsv2/primitives/Loaders'
 import {
   filterTableData,
   getTableFilterOptions,
@@ -38,10 +42,16 @@ import { useResourceSingleViewContext, useTranslation } from '@ProvidersModule'
  * @param {Array<object>} props.columns - Column definitions.
  * @param {string} props.columns[].accessorKey - The key used to access column data from each row.
  * @param {string} props.columns[].header - The header label or React node.
- * @param {string} [props.columns[].width] - Column width (e.g., '40%').
- * - A column element with explicit width sets the width for that column.
- * - Otherwise, a cell in the first row with explicit width determines the width for that column.
- * - Otherwise, the column gets the width from the shared remaining horizontal space.
+ * @param {string|number} [props.columns[].width] - Explicit column width.
+ * It takes priority over automatic measurement and is limited by `minWidth`
+ * and `maxWidth`.
+ * @param {boolean} [props.columns[].truncate=false] - Limit an automatically
+ * measured column to `maxWidth`, or `theme.scale[1800]` by default, and use
+ * the table's ellipsis and tooltip behavior for overflowing content.
+ * @param {boolean} [props.columns[].grow=true] - Whether an automatically
+ * measured column shares the available space left after fitting content.
+ * @param {string|number} [props.columns[].minWidth] - Minimum column width.
+ * @param {string|number} [props.columns[].maxWidth] - Maximum column width.
  * @param {boolean} [props.isCopyColumn=true] - Whether to include a checkbox copy column at the start.
  * @param {'small'|'medium'|'large'} [props.size='small'] - Size variant of the table.
  * @param {boolean} [props.isRowsSelectable=true] - Whether to enable selecting rows.
@@ -55,6 +65,8 @@ import { useResourceSingleViewContext, useTranslation } from '@ProvidersModule'
  * @param {Function} props.onRowSelectionChange - On change handler for row selection change
  * @param {Function} props.onRowClick - Override row click handler
  * @param {Function} props.getRowId - Row ID handler
+ * @param {Function} props.onVisibleRowIdsChange - Handler called with the IDs
+ * of the rows in the current page.
  * @param {number} props.defaultPageSize - Initial/Default page size to use
  * @param {Array} props.pageSizeOptions - Array of page size options to use
  * @param {Function} props.onRefresh - Refresh handler
@@ -83,6 +95,7 @@ export const Table = ({
   onRowSelectionChange,
   onRowClick,
   getRowId,
+  onVisibleRowIdsChange,
   isCopyColumn = false,
   size = 'small',
   isRowsSelectable = false,
@@ -110,6 +123,7 @@ export const Table = ({
   sx,
   ...props
 }) => {
+  const muiTheme = useTheme()
   const { translate } = useTranslation()
   const { openResourceSingleView } = useResourceSingleViewContext()
   const tableData = useMemo(() => [].concat(data ?? []).flat(), [data])
@@ -129,10 +143,12 @@ export const Table = ({
   )
 
   const tableScrollRef = useRef(null)
+  const tableRef = useRef(null)
+  const widthRulerRef = useRef(null)
+  const observedWidthsRef = useRef({})
   const theadRef = useRef(null)
-  const footerRef = useRef(null)
   const [theadHeight, setTheadHeight] = useState(0)
-  const [footerHeight, setFooterHeight] = useState(0)
+  const [columnLayout, setColumnLayout] = useState(null)
 
   const { table } = initTable({
     data: filteredData,
@@ -151,60 +167,167 @@ export const Table = ({
   })
 
   const tableRows = table.getRowModel().rows
+  const visibleRowIds = tableRows.map((row) => row.id)
+  const visibleRowIdsKey = visibleRowIds.join(',')
   const isEmpty = !isLoading && tableRows.length === 0
   const tableColumns = table.getVisibleLeafColumns()
-  const columnLayout = useMemo(() => {
-    const styles = {}
-    let minWidth = 0
+  const shouldMeasureColumn = ({ columnDef }) => columnDef.width == null
 
-    tableColumns.forEach((column) => {
-      const { header, minWidth: definedMinWidth, width } = column.columnDef
-      const headerText =
-        typeof header === 'string' || typeof header === 'number'
-          ? translate(String(header))
-          : ''
-      const parsedMinWidth =
-        typeof definedMinWidth === 'number'
-          ? definedMinWidth
-          : Number(definedMinWidth?.match?.(/^(\d+(?:\.\d+)?)px$/)?.[1]) || 0
-      const parsedWidth =
-        typeof width === 'number'
-          ? width
-          : Number(width?.match?.(/^(\d+(?:\.\d+)?)px$/)?.[1]) || 0
-      const columnMinWidth = Math.max(
-        headerText ? 96 : 48,
-        headerText ? headerText.length * 8 + 48 : 48,
-        parsedMinWidth,
-        parsedWidth
+  useEffect(() => {
+    if (!onVisibleRowIdsChange) return
+
+    onVisibleRowIdsChange(isLoading ? [] : visibleRowIds)
+  }, [isLoading, onVisibleRowIdsChange, visibleRowIdsKey])
+
+  useLayoutEffect(() => {
+    const scrollElement = tableScrollRef.current
+    const tableNode = tableRef.current
+    const widthRuler = widthRulerRef.current
+    if (!scrollElement || !tableNode || !widthRuler) return undefined
+
+    observedWidthsRef.current = {}
+    let animationFrame
+    let isActive = true
+    const resolveLength = (value) => {
+      if (typeof value === 'number') return Math.max(value, 0)
+      if (typeof value !== 'string' || !value.trim()) return undefined
+
+      widthRuler.style.width = ''
+      widthRuler.style.width = value
+      if (!widthRuler.style.width) return undefined
+
+      const resolvedWidth = widthRuler.getBoundingClientRect().width
+      widthRuler.style.width = ''
+
+      return Number.isFinite(resolvedWidth)
+        ? Math.max(resolvedWidth, 0)
+        : undefined
+    }
+    const measure = () => {
+      tableNode
+        .querySelectorAll('[data-column-content]')
+        .forEach((contentElement) => {
+          const columnId = contentElement.dataset.columnContent
+          const cellElement = contentElement.closest('th, td')
+          const cellStyles = cellElement
+            ? window.getComputedStyle(cellElement)
+            : undefined
+          const horizontalPadding = cellStyles
+            ? parseFloat(cellStyles.paddingLeft) +
+              parseFloat(cellStyles.paddingRight)
+            : 0
+          const { width, maxWidth, overflow } = contentElement.style
+
+          contentElement.style.width = 'max-content'
+          contentElement.style.maxWidth = 'none'
+          contentElement.style.overflow = 'visible'
+          const contentWidth = contentElement.getBoundingClientRect().width
+          contentElement.style.width = width
+          contentElement.style.maxWidth = maxWidth
+          contentElement.style.overflow = overflow
+
+          observedWidthsRef.current[columnId] = Math.max(
+            observedWidthsRef.current[columnId] ?? 0,
+            contentWidth + horizontalPadding
+          )
+        })
+
+      const nextLayout = calculateColumnLayout(
+        tableColumns,
+        observedWidthsRef.current,
+        scrollElement.clientWidth,
+        resolveLength,
+        muiTheme.scale[1800]
       )
-      const cssMinWidth = `${columnMinWidth}px`
-      const cssWidth = typeof width === 'number' ? `${width}px` : width
 
-      minWidth += columnMinWidth
-      styles[column.id] = {
-        width: cssWidth ? `max(${cssWidth}, ${cssMinWidth})` : cssMinWidth,
-        minWidth: cssMinWidth,
-      }
+      setColumnLayout((currentLayout) => {
+        const currentWidths = currentLayout?.widths ?? {}
+        const nextIds = Object.keys(nextLayout.widths)
+        const isSameLayout =
+          currentLayout &&
+          Math.abs(currentLayout.tableWidth - nextLayout.tableWidth) < 0.5 &&
+          nextIds.length === Object.keys(currentWidths).length &&
+          nextIds.every(
+            (id) => Math.abs(currentWidths[id] - nextLayout.widths[id]) < 0.5
+          )
+
+        return isSameLayout ? currentLayout : nextLayout
+      })
+    }
+    const scheduleMeasure = () => {
+      if (!isActive) return
+
+      cancelAnimationFrame(animationFrame)
+      animationFrame = requestAnimationFrame(measure)
+    }
+    const resizeObserver = new ResizeObserver(scheduleMeasure)
+    const observeElements = () => {
+      resizeObserver.disconnect()
+      resizeObserver.observe(scrollElement)
+      tableNode.querySelectorAll('[data-column-content]').forEach((element) => {
+        resizeObserver.observe(element)
+        element
+          .querySelectorAll('*')
+          .forEach((child) => resizeObserver.observe(child))
+      })
+    }
+    const mutationObserver = new MutationObserver(() => {
+      observeElements()
+      scheduleMeasure()
     })
 
-    return { minWidth, styles }
-  }, [tableColumns, translate])
+    observeElements()
+    mutationObserver.observe(tableNode, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    })
+    measure()
+    document.fonts?.ready?.then(scheduleMeasure)
 
-  // Recalculate measured heights only when layout depends on them.
+    return () => {
+      isActive = false
+      cancelAnimationFrame(animationFrame)
+      resizeObserver.disconnect()
+      mutationObserver.disconnect()
+    }
+  }, [filteredData, globalFilter, muiTheme.scale, size, tableColumns])
+
+  const shouldUseMeasuredTableWidth =
+    columnLayout &&
+    columnLayout.tableWidth > (tableScrollRef.current?.clientWidth ?? 0) + 1
+  const columnStyles = useMemo(
+    () =>
+      Object.fromEntries(
+        tableColumns.map((column) => {
+          const width = columnLayout?.widths?.[column.id]
+          if (width === undefined) return [column.id, undefined]
+
+          const isFixedColumn =
+            column.columnDef.width != null || column.columnDef.grow === false
+          const isConstrained = shouldUseMeasuredTableWidth || isFixedColumn
+
+          return [
+            column.id,
+            {
+              width: `${width}px`,
+              ...(isConstrained && {
+                minWidth: `${width}px`,
+                maxWidth: `${width}px`,
+              }),
+            },
+          ]
+        })
+      ),
+    [columnLayout, shouldUseMeasuredTableWidth, tableColumns]
+  )
+
+  // Recalculate the header height only when the full-height body depends on it.
   useLayoutEffect(() => {
-    if (!isEmpty && !isFullHeight) return
+    if (!isFullHeight) return
 
     setTheadHeight(theadRef.current?.offsetHeight ?? 0)
-    setFooterHeight(footerRef.current?.offsetHeight ?? 0)
-  }, [
-    isEmpty,
-    isFullHeight,
-    title,
-    topRow,
-    footer,
-    pageSizeOptions,
-    isDisablePagination,
-  ])
+  }, [isFullHeight, title, topRow])
 
   if (!tableData) return null
 
@@ -242,7 +365,6 @@ export const Table = ({
     event.stopPropagation()
   }
   const emptyContentSize = emptyContentProps?.size
-
   const tableElement = (
     <Box className="table-container" sx={sx}>
       <Box
@@ -250,14 +372,20 @@ export const Table = ({
         className="table-scroll"
         onWheel={(event) => scrollTableHorizontally(event)}
       >
+        <span ref={widthRulerRef} className="table-width-ruler" />
         <Box
           component="table"
+          ref={tableRef}
           aria-disabled={isDisabled}
-          style={{ minWidth: `${columnLayout.minWidth}px` }}
+          style={{
+            width: shouldUseMeasuredTableWidth
+              ? `${columnLayout.tableWidth}px`
+              : '100%',
+          }}
         >
           <colgroup>
             {tableColumns.map((column) => (
-              <col key={column.id} style={columnLayout.styles[column.id]} />
+              <col key={column.id} style={columnStyles[column.id]} />
             ))}
           </colgroup>
           <thead ref={theadRef}>
@@ -285,7 +413,7 @@ export const Table = ({
                     <th
                       colSpan={header.colSpan}
                       key={header.id}
-                      style={columnLayout.styles[header.column.id]}
+                      style={columnStyles[header.column.id]}
                     >
                       <Tooltip
                         title={
@@ -294,7 +422,15 @@ export const Table = ({
                             : header.column.columnDef.header ?? ''
                         }
                       >
-                        <div className="text-ellipsis">
+                        <div
+                          className="text-ellipsis"
+                          data-column-content={
+                            header.colSpan === 1 &&
+                            shouldMeasureColumn(header.column)
+                              ? header.column.id
+                              : undefined
+                          }
+                        >
                           {header.isPlaceholder
                             ? null
                             : typeof header.column.columnDef.header === 'string'
@@ -315,11 +451,14 @@ export const Table = ({
             {isLoading
               ? Array.from({ length: skeletonRows }).map((_, rowIndex) => (
                   <tr key={rowIndex}>
-                    {tableColumns.map((column, colIndex) => (
-                      <td key={colIndex} style={columnLayout.styles[column.id]}>
-                        <div className="skeleton-cell" />
-                      </td>
-                    ))}
+                    <td colSpan={Math.max(1, tableColumns.length)}>
+                      <SkeletonLoading
+                        loading
+                        width="100%"
+                        height={muiTheme.scale[400]}
+                        borderRadius="lg"
+                      />
+                    </td>
                   </tr>
                 ))
               : tableRows.map((row) => (
@@ -350,7 +489,14 @@ export const Table = ({
                   >
                     {row.getVisibleCells().map((cell) => {
                       const body = (
-                        <div className="text-ellipsis">
+                        <div
+                          className="text-ellipsis"
+                          data-column-content={
+                            shouldMeasureColumn(cell.column)
+                              ? cell.column.id
+                              : undefined
+                          }
+                        >
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
@@ -359,10 +505,7 @@ export const Table = ({
                       )
 
                       return (
-                        <td
-                          key={cell.id}
-                          style={columnLayout.styles[cell.column.id]}
-                        >
+                        <td key={cell.id} style={columnStyles[cell.column.id]}>
                           {cell.column.columnDef.meta?.disableCellTooltip ? (
                             body
                           ) : (
@@ -380,7 +523,20 @@ export const Table = ({
                 ))}
             {isEmpty && (
               <tr className="table-empty-row">
-                <td colSpan={colCount} aria-hidden="true" />
+                <td colSpan={colCount}>
+                  {isEmptyContentEnabled && (
+                    <Box className="table-empty-content">
+                      <Box
+                        className="table-empty-content-inner"
+                        onWheel={(event) =>
+                          scrollTableHorizontally(event, true)
+                        }
+                      >
+                        <EmptyContent {...emptyContentProps} />
+                      </Box>
+                    </Box>
+                  )}
+                </td>
               </tr>
             )}
             {isFullHeight && !isEmpty && (
@@ -392,19 +548,8 @@ export const Table = ({
         </Box>
       </Box>
 
-      {isEmpty && isEmptyContentEnabled && (
-        <Box className="table-empty-content">
-          <Box
-            className="table-empty-content-inner"
-            onWheel={(event) => scrollTableHorizontally(event, true)}
-          >
-            <EmptyContent {...emptyContentProps} />
-          </Box>
-        </Box>
-      )}
-
       {hasFooter && (
-        <Box ref={footerRef} className="table-footer">
+        <Box className="table-footer">
           {footer && (
             <Box className="table-footer-item table-footer-content">
               {footer}
@@ -438,9 +583,9 @@ export const Table = ({
           size,
           isDisabled,
           isLoading,
+          isEmpty,
           emptyContentSize,
           theadHeight,
-          footerHeight,
           isFullHeight,
           ...props,
         })
@@ -499,6 +644,7 @@ Table.propTypes = {
   onRowSelectionChange: PropTypes.func,
   onRowClick: PropTypes.func,
   getRowId: PropTypes.func,
+  onVisibleRowIdsChange: PropTypes.func,
   isMultiRowSelection: PropTypes.bool,
   isRowsSelectable: PropTypes.bool,
   isDisablePagination: PropTypes.bool,

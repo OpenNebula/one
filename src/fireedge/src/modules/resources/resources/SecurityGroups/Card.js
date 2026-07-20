@@ -26,6 +26,7 @@ import { getLabelSlotLabels } from '@ModelsModule'
  *
  * @param {object} root0 - Params
  * @param {object} root0.securityGroup - Security Group data
+ * @param {string} root0.dataCy - Data-cy attribute
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
@@ -33,7 +34,7 @@ import { getLabelSlotLabels } from '@ModelsModule'
  * @returns {Component} SecurityGroupCard component
  */
 export const SecurityGroupCard = forwardRef(
-  ({ securityGroup = {}, isSelected, onCheck, onClick }, ref) => {
+  ({ securityGroup = {}, dataCy, isSelected, onCheck, onClick }, ref) => {
     const {
       ID,
       NAME,
@@ -52,6 +53,7 @@ export const SecurityGroupCard = forwardRef(
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -85,6 +87,7 @@ export const SecurityGroupCard = forwardRef(
 
 SecurityGroupCard.propTypes = {
   securityGroup: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

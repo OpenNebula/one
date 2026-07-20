@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { PATH, RESOURCE_NAMES, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { DatastoreAPI } from '@FeaturesModule'
 import {
   getDatastoreCapacityInfo,
@@ -66,7 +66,6 @@ export const Datastores = ({ data }) => (
     columns={columns}
     rowDetailsResourceId={RESOURCE_NAMES.DATASTORE}
     dataCy="vdc-datastores"
-    path={PATH.STORAGE.DATASTORES.DETAIL}
     useQuery={DatastoreAPI.useGetDatastoresQuery}
   />
 )

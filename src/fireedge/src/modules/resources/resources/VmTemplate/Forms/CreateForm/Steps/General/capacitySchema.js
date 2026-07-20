@@ -110,28 +110,8 @@ export const MEMORY = generateCapacityInput({
   name: 'MEMORY',
   label: T.Memory,
   tooltip: T.MemoryConcept,
+  type: INPUT_TYPES.UNITS,
   validation: commonValidation.integer().required(),
-})
-
-/**
- * @type {Field} size field
- * ISSUE#6136: Add unit size. Use only MB, GB, and TB (other values do not apply to create image).
- */
-export const MEMORYUNIT = () => ({
-  name: 'MEMORYUNIT',
-  label: T.MemoryUnit,
-  tooltip: T.MemoryConceptUnit,
-  type: INPUT_TYPES.AUTOCOMPLETE,
-  optionsOnly: true,
-  grid: { sm: 12, md: 12 },
-  values: arrayToOptions([UNITS.MB, UNITS.GB, UNITS.TB], {
-    addEmpty: false,
-    getText: (type) => type,
-    getValue: (type) => type,
-  }),
-  validation: string()
-    .trim()
-    .default(() => UNITS.MB),
 })
 
 /** @type {Field[]} Hot resize on memory field */
@@ -148,12 +128,7 @@ export const HR_MEMORY_FIELDS = generateHotResizeInputs(
 export const MOD_MEMORY_FIELDS = generateModificationInputs(MEMORY.name)
 
 /** @type {Field[]} List of memory fields */
-export const MEMORY_FIELDS = [
-  MEMORY,
-  MEMORYUNIT,
-  ...HR_MEMORY_FIELDS,
-  ...MOD_MEMORY_FIELDS,
-]
+export const MEMORY_FIELDS = [MEMORY, ...HR_MEMORY_FIELDS, ...MOD_MEMORY_FIELDS]
 
 // --------------------------------------------------------
 // CPU fields

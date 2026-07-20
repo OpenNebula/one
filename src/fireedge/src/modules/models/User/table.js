@@ -17,15 +17,26 @@
 import { createTable } from '@UtilsModule'
 import { UserAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
-import { ProgressBar } from '@ComponentsV2Module'
+import { ProgressBar, Tag } from '@ComponentsV2Module'
 
 import { getUserQuotaUsage } from '@modules/models/User/general'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const USER_COLUMNS = [
-  { header: 'ID', accessorKey: 'ID', width: '5%' },
-  { header: 'Name', accessorKey: 'NAME' },
-  { header: 'Auth driver', accessorKey: 'AUTH_DRIVER' },
+  { header: 'ID', accessorKey: 'ID', grow: false },
+  { header: 'Name', accessorKey: 'NAME', truncate: true },
+  {
+    header: 'Auth driver',
+    id: 'authDriver',
+    accessorKey: 'AUTH_DRIVER',
+    grow: false,
+    cell: ({ row }) =>
+      row.original?.AUTH_DRIVER ? (
+        <Tag title={row.original.AUTH_DRIVER} status="default" />
+      ) : (
+        '-'
+      ),
+  },
   {
     header: T.DatastoreSize,
     id: 'DATASTORE_QUOTA_SIZE',
@@ -103,7 +114,7 @@ export const USER_COLUMNS = [
       )
     },
   },
-  { header: 'Group', accessorKey: 'GNAME' },
+  { header: 'Group', accessorKey: 'GNAME', grow: false },
   { header: 'GroupAdmin', accessorKey: 'IS_ADMIN_GROUP' },
   { header: 'Enabled', accessorKey: 'ENABLED' },
   { header: 'VM quota', accessorKey: 'VM_QUOTA' },
@@ -113,9 +124,20 @@ export const USER_COLUMNS = [
 ]
 
 export const USER_LIST_COLUMNS = [
-  { accessorKey: 'ID', header: T.ID, width: '5%' },
-  { accessorKey: 'NAME', header: T.Name },
-  { accessorKey: 'AUTH_DRIVER', header: T.AuthDriver },
+  { accessorKey: 'ID', header: T.ID, grow: false },
+  { accessorKey: 'NAME', header: T.Name, truncate: true },
+  {
+    accessorKey: 'AUTH_DRIVER',
+    header: T.AuthDriver,
+    id: 'authDriver',
+    grow: false,
+    cell: ({ row }) =>
+      row.original?.AUTH_DRIVER ? (
+        <Tag title={row.original.AUTH_DRIVER} status="default" />
+      ) : (
+        '-'
+      ),
+  },
   {
     header: T.DatastoreSize,
     id: 'DATASTORE_QUOTA_SIZE',
@@ -193,7 +215,7 @@ export const USER_LIST_COLUMNS = [
       )
     },
   },
-  { accessorKey: 'GNAME', header: T.Group },
+  { accessorKey: 'GNAME', header: T.Group, grow: false },
 ]
 
 export const userTable = createTable(USER_COLUMNS, UserAPI.useGetUsersQuery, {

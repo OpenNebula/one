@@ -23,26 +23,25 @@ import {
 import { createTable } from '@UtilsModule'
 import { DatastoreAPI } from '@FeaturesModule'
 import { createLabelColumn } from '@modules/models/labels'
-import { StatusTag } from '@ComponentsV2Module'
+import { ProgressBar, StatusTag, Tag } from '@ComponentsV2Module'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const DATASTORE_COLUMNS = [
   {
     header: T.ID,
     id: 'id',
-    width: '10%',
     accessorKey: 'ID',
+    grow: false,
   },
   {
     header: T.Name,
     id: 'name',
-    width: '22%',
     accessorKey: 'NAME',
+    truncate: true,
   },
   {
     header: T.State,
     id: 'state',
-    width: '12%',
     accessorFn: (row) => getDatastoreState(row)?.name,
     cell: ({ row }) => {
       const { color, name } = getDatastoreState(row.original) ?? {}
@@ -53,38 +52,53 @@ export const DATASTORE_COLUMNS = [
   {
     header: T.Type,
     id: 'type',
-    width: '12%',
     accessorFn: (row) => getDatastoreType(row),
+    cell: ({ row }) => {
+      const type = getDatastoreType(row.original)
+
+      return type ? <Tag title={type} status="default" /> : '-'
+    },
   },
   {
     header: T.Capacity,
     id: 'capacity',
-    width: '14%',
     accessorFn: (row) => {
       const capacity = getDatastoreCapacityInfo(row)
 
       return capacity.percentLabel
     },
+    cell: ({ row }) => {
+      const { percentOfUsed, percentLabel } = getDatastoreCapacityInfo(
+        row.original
+      )
+
+      return (
+        <ProgressBar
+          value={percentOfUsed}
+          label={percentLabel}
+          isLabelVisible
+        />
+      )
+    },
   },
   {
     header: T.Clusters,
     id: 'clusters',
-    width: '10%',
     accessorFn: (row) => [row?.CLUSTERS?.ID ?? []].flat(),
   },
   {
     header: T.Owner,
     id: 'owner',
-    width: '10%',
     accessorKey: 'UNAME',
+    grow: false,
   },
   {
     header: T.Group,
     id: 'group',
-    width: '10%',
     accessorKey: 'GNAME',
+    grow: false,
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const datastoreTable = createTable(

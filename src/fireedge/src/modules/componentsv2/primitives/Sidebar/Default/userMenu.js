@@ -174,6 +174,7 @@ export const SidebarUserMenu = ({ isExpanded = false }) => {
         image={userImage}
         initials={initials}
         offset={[-2, 4]}
+        dataCy="sidebar-user-menu"
       >
         <Box className="section">
           <Box className="user-avatar">
@@ -198,12 +199,14 @@ export const SidebarUserMenu = ({ isExpanded = false }) => {
             icon={Settings}
             label={`${translate(T.Profile)} ${translate(T.Settings)}`}
             onClick={handleSettings}
+            dataCy="sidebar-settings-button"
           />
 
           <DropdownItem
             icon={FolderSettings}
             label={translate(T.Resources)}
             onClick={handleDocumentation}
+            dataCy="sidebar-resources-button"
           />
         </MenuList>
 
@@ -214,6 +217,7 @@ export const SidebarUserMenu = ({ isExpanded = false }) => {
             icon={SunLight}
             label={`${translate(T.Light)} ${translate(T.Mode)}`}
             onClick={handleThemeToggle}
+            dataCy="sidebar-theme-button"
             control={
               <Switch
                 size="small"
@@ -222,6 +226,7 @@ export const SidebarUserMenu = ({ isExpanded = false }) => {
                 switchProps={{
                   inputProps: {
                     'aria-label': `${translate(T.Light)} ${translate(T.Mode)}`,
+                    'data-cy': 'theme-switch',
                   },
                   onClick: handleSwitchClick,
                 }}
@@ -237,6 +242,7 @@ export const SidebarUserMenu = ({ isExpanded = false }) => {
             icon={LogOut}
             label={translate(T.SignOut)}
             onClick={handleLogout}
+            dataCy="sidebar-logout-button"
           />
         </MenuList>
       </MenuDropdown>

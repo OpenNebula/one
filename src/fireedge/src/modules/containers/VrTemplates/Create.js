@@ -23,7 +23,13 @@ import {
   VrTemplate,
 } from '@ResourcesModule'
 
-import { jsonToXml } from '@UtilsModule'
+import {
+  deepmerge,
+  filterTemplateData,
+  isDevelopment,
+  jsonToXml,
+  transformActionsCreate,
+} from '@UtilsModule'
 
 import {
   useSystemData,
@@ -32,14 +38,14 @@ import {
   VmGroupAPI,
   HostAPI,
   ImageAPI,
+  SystemAPI,
   UserAPI,
   DatastoreAPI,
 } from '@FeaturesModule'
 
-import { T, PATH } from '@ConstantsModule'
+import { PATH, STEP_MAP, T, TAB_FORM_MAP } from '@ConstantsModule'
 
 // Should match ResourcesModules' VmTemplate form
-const CUSTOM_ID = 'custom-variables'
 const EXTRA_ID = 'extra'
 const GENERAL_ID = 'general'
 
@@ -64,6 +70,7 @@ export function CreateVrTemplate() {
 
   const { enqueueSuccess, resetFieldPath, resetModifiedFields } =
     useGeneralApi()
+  const [fetchProfile] = SystemAPI.useLazyGetOsProfilesQuery()
   const [update] = VmTemplateAPI.useUpdateTemplateMutation()
   const [allocate] = VmTemplateAPI.useAllocateTemplateMutation()
 
@@ -89,19 +96,123 @@ export function CreateVrTemplate() {
     refetchOnMountOrArgChange: false,
   })
 
+  const formattedTemplate = apiTemplateDataExtended
+    ? structuredClone(apiTemplateDataExtended)
+    : apiTemplateDataExtended
+
+  if (formattedTemplate?.TEMPLATE?.FEATURES?.MIGRATE_AUTO_CONVERGE) {
+    const [MIGRATE_AUTO_CONVERGE_INITIAL, MIGRATE_AUTO_CONVERGE_INCREMENT] =
+      formattedTemplate.TEMPLATE.FEATURES.MIGRATE_AUTO_CONVERGE.split(',').map(
+        (value) => (isNaN(value) ? value : Number(value))
+      )
+
+    formattedTemplate.TEMPLATE.FEATURES.MIGRATE_AUTO_CONVERGE_INITIAL =
+      MIGRATE_AUTO_CONVERGE_INITIAL
+
+    formattedTemplate.TEMPLATE.FEATURES.MIGRATE_AUTO_CONVERGE_INCREMENT =
+      MIGRATE_AUTO_CONVERGE_INCREMENT
+
+    delete formattedTemplate.TEMPLATE.FEATURES.MIGRATE_AUTO_CONVERGE
+  }
+
   const onSubmit = async (rawTemplate) => {
     try {
-      const {
-        [GENERAL_ID]: general = {},
-        [CUSTOM_ID]: customVariables = {},
-        [EXTRA_ID]: extraTemplate = {},
-      } = rawTemplate ?? {}
+      const currentState = store.getState()
+      const osProfile = rawTemplate?.[GENERAL_ID]?.OS_PROFILE
+      const startScript64 =
+        rawTemplate?.[EXTRA_ID]?.CONTEXT?.START_SCRIPT_BASE64
+      let modifiedFields = structuredClone(currentState.general?.modifiedFields)
 
-      const xmlTemplate = jsonToXml({
-        ...general,
-        ...extraTemplate,
-        ...customVariables,
-        VROUTER: 'YES',
+      if (rawTemplate?.[EXTRA_ID]?.FEATURES?.MIGRATE_AUTO_CONVERGE_INITIAL) {
+        rawTemplate[EXTRA_ID].FEATURES.MIGRATE_AUTO_CONVERGE = `${
+          rawTemplate?.[EXTRA_ID]?.FEATURES?.MIGRATE_AUTO_CONVERGE_INITIAL
+        }${
+          rawTemplate?.[EXTRA_ID]?.FEATURES?.MIGRATE_AUTO_CONVERGE_INCREMENT
+            ? `,${rawTemplate[EXTRA_ID].FEATURES.MIGRATE_AUTO_CONVERGE_INCREMENT}`
+            : ''
+        }`
+
+        if (
+          modifiedFields?.extra?.OsCpu?.FEATURES
+            ?.MIGRATE_AUTO_CONVERGE_INITIAL ||
+          modifiedFields?.extra?.OsCpu?.FEATURES
+            ?.MIGRATE_AUTO_CONVERGE_INCREMENT
+        ) {
+          modifiedFields.extra.OsCpu.FEATURES.MIGRATE_AUTO_CONVERGE = true
+          delete modifiedFields.extra.OsCpu.FEATURES
+            .MIGRATE_AUTO_CONVERGE_INITIAL
+          delete modifiedFields.extra.OsCpu.FEATURES
+            .MIGRATE_AUTO_CONVERGE_INCREMENT
+        }
+      }
+
+      rawTemplate?.[EXTRA_ID]?.FEATURES?.MIGRATE_AUTO_CONVERGE_INITIAL &&
+        delete rawTemplate[EXTRA_ID].FEATURES.MIGRATE_AUTO_CONVERGE_INITIAL
+      rawTemplate?.[EXTRA_ID]?.FEATURES?.MIGRATE_AUTO_CONVERGE_INCREMENT &&
+        delete rawTemplate[EXTRA_ID].FEATURES.MIGRATE_AUTO_CONVERGE_INCREMENT
+
+      if (osProfile && osProfile !== '-') {
+        try {
+          const convertLeafValuesToBoolean = (obj) =>
+            Object.fromEntries(
+              Object.entries(obj).map(([key, value]) => {
+                if (typeof value === 'object' && value !== null) {
+                  return [key, convertLeafValuesToBoolean(value)]
+                }
+
+                return [key, value != null]
+              })
+            )
+
+          const { data: fetchedProfile } = await fetchProfile({ id: osProfile })
+          const mappedSteps = Object.fromEntries(
+            Object.entries(fetchedProfile).map(([step, values]) => [
+              STEP_MAP[step] || step,
+              convertLeafValuesToBoolean(values),
+            ])
+          )
+          modifiedFields = deepmerge(modifiedFields, mappedSteps)
+        } catch (error) {
+          isDevelopment() &&
+            console.error('Failed mapping profile filter: ', error)
+        }
+      }
+
+      if (
+        modifiedFields?.extra?.Context?.CONTEXT?.START_SCRIPT &&
+        startScript64
+      ) {
+        modifiedFields = deepmerge(modifiedFields, {
+          extra: { Context: { CONTEXT: { START_SCRIPT_BASE64: true } } },
+        })
+
+        delete modifiedFields.extra.Context.CONTEXT.START_SCRIPT
+      }
+
+      const existingTemplate = {
+        ...apiTemplateData?.TEMPLATE,
+      }
+
+      const filteredTemplate = filterTemplateData(
+        rawTemplate,
+        modifiedFields,
+        existingTemplate,
+        TAB_FORM_MAP,
+        {
+          instantiate: false,
+          update: !!templateId,
+        }
+      )
+
+      if (rawTemplate?.[GENERAL_ID]?.MEMORYUNIT) {
+        filteredTemplate.MEMORYUNIT = rawTemplate[GENERAL_ID].MEMORYUNIT
+      }
+
+      filteredTemplate.VROUTER = 'YES'
+      transformActionsCreate(filteredTemplate)
+
+      const xmlTemplate = jsonToXml(filteredTemplate, {
+        excluded: ['RAW.DATA'],
       })
 
       if (!templateId) {
@@ -119,7 +230,9 @@ export function CreateVrTemplate() {
         history.push(PATH.TEMPLATE.VROUTERS.LIST)
         enqueueSuccess(T.SuccessVrTemplateUpdated, [templateId, NAME])
       }
-    } catch {}
+    } catch (error) {
+      isDevelopment() && console.log('VR Template error: ', error)
+    }
   }
 
   return (
@@ -129,9 +242,9 @@ export function CreateVrTemplate() {
         <SkeletonStepsForm />
       ) : (
         <VrTemplate.Forms.CreateForm
-          initialValues={apiTemplateDataExtended}
+          initialValues={formattedTemplate}
           stepProps={{
-            apiTemplateDataExtended,
+            apiTemplateDataExtended: formattedTemplate,
             oneConfig,
             adminGroup,
             store,
@@ -140,7 +253,7 @@ export function CreateVrTemplate() {
           onSubmit={onSubmit}
           fallback={<SkeletonStepsForm />}
         >
-          {(config) => <DefaultFormStepper {...config} />}
+          {(config) => <DefaultFormStepper {...config} update={!!templateId} />}
         </VrTemplate.Forms.CreateForm>
       )}
     </>

@@ -28,6 +28,7 @@ export const ACL_COLUMNS = [
     header: T['acls.table.filter.user.name'],
     id: 'idUserName',
     accessorKey: 'USER.name',
+    truncate: true,
   },
   {
     header: T['acls.table.filter.user.type'],
@@ -38,6 +39,7 @@ export const ACL_COLUMNS = [
     header: T['acls.table.filter.user.id'],
     id: 'idUserId',
     accessorKey: 'USER.id',
+    grow: false,
   },
   {
     header: T.Resources,
@@ -48,6 +50,7 @@ export const ACL_COLUMNS = [
     header: T['acls.table.filter.resources.user.name'],
     id: 'idResourceName',
     accessorKey: 'RESOURCE.identifier.name',
+    truncate: true,
   },
   {
     header: T['acls.table.filter.resources.user.type'],
@@ -58,6 +61,7 @@ export const ACL_COLUMNS = [
     header: T['acls.table.filter.resources.user.id'],
     id: 'idResourceId',
     accessorKey: 'RESOURCE.identifier.id',
+    grow: false,
   },
   {
     header: T.Rights,
@@ -68,6 +72,7 @@ export const ACL_COLUMNS = [
     header: T['acls.table.filter.zone.name'],
     id: 'zoneName',
     accessorKey: 'ZONE.name',
+    truncate: true,
   },
   {
     header: T['acls.table.filter.zone.type'],
@@ -78,6 +83,7 @@ export const ACL_COLUMNS = [
     header: T['acls.table.filter.zone.id'],
     id: 'zoneId',
     accessorKey: 'ZONE.id',
+    grow: false,
   },
 ]
 
@@ -86,15 +92,18 @@ export const ACL_LIST_COLUMNS = [
     header: T.ID,
     id: 'ID',
     accessorKey: 'ID',
+    grow: false,
   },
   {
     header: T['acls.table.filter.string'],
     id: 'STRING',
     accessorKey: 'STRING',
+    truncate: true,
   },
   {
     header: T.AppliesTo,
     id: 'appliesTo',
+    truncate: true,
     accessorFn: ({ USER }) =>
       USER?.type ? sentenceCase(`${USER?.type} ${USER?.name ?? ''}`) : '',
   },
@@ -105,6 +114,7 @@ export const ACL_LIST_COLUMNS = [
       Array.isArray(RESOURCE?.resources)
         ? sentenceCase(RESOURCE.resources.join(', '))
         : '',
+    truncate: true,
   },
   {
     header: T['acls.table.card.resources.owned'],

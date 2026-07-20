@@ -68,9 +68,6 @@ const REMEMBER = {
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().default(() => false),
   grid: { md: 12 },
-  fieldProps: {
-    sx: { margin: '0rem 0rem 0rem 0rem' },
-  },
 }
 
 const TFA_TOKEN_ERROR = `Your one-time password must be ${DEFAULT_OTP_LENGTH} characters.`

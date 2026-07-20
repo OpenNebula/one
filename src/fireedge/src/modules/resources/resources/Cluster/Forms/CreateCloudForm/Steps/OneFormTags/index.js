@@ -18,9 +18,9 @@ import { T } from '@ConstantsModule'
 import { cleanEmpty, cloneObject, set } from '@UtilsModule'
 import { object } from 'yup'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { Box, Alert } from '@mui/material'
+import { Box } from '@mui/material'
 import { unset } from 'lodash'
-import { AttributesPanel } from '@ComponentsV2Module'
+import { AttributesPanel, AlertNotification } from '@ComponentsV2Module'
 
 export const STEP_ID = 'oneform-tags'
 
@@ -74,13 +74,18 @@ const Content = () => {
 
   return (
     <Box display="grid" gap="1em">
-      <Alert
-        severity="info"
-        variant="outlined"
-        sx={{ gridColumn: '1 / -1', mt: '1em', bgcolor: 'background.paper' }}
-      >
-        {T['oneformtags.info']}
-      </Alert>
+      <AlertNotification
+        type="primary"
+        status="information"
+        description={T['oneformtags.info']}
+        isDismissible={false}
+        style={{
+          gridColumn: '1 / -1',
+          marginTop: '1em',
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      />
       <AttributesPanel
         title={T.OneformTags}
         actions={{ add: true, copy: true, delete: true, edit: true }}
@@ -99,7 +104,6 @@ const Content = () => {
  *
  * @returns {object} Oneform Tags step
  */
-// IDEA: check the src/modules/components/Forms/VmTemplate/CreateForm/Steps/CustomVariables.js for inspiration
 const OneformTags = () => ({
   id: STEP_ID,
   label: T.OneformTags,

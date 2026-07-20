@@ -41,6 +41,10 @@ export const History = ({ data, config }) => {
           columns={vmhistoryTable.columns()}
           data={history}
           isLoading={isFetchingHistory}
+          emptyContentProps={{
+            title: T.NoHistory,
+            subtitle: T.VmHistoryWillAppearHere,
+          }}
           size="medium"
           isEnableSearchBar
           isEnableSort

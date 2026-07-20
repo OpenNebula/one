@@ -67,12 +67,13 @@ export const ResourceContainer = forwardRef(
     } = useFunctionalityApi()
     const [isFilterPanelOpen, setFilterPanelOpen] = useState(false)
     const translatedResourceName = translate(resourceName)
+    const viewKey = containerViewKey || resourceName
 
     useLayoutEffect(() => {
+      setSearchExpression('')
       setSelectedItems([])
-    }, [])
+    }, [viewKey])
 
-    const viewKey = containerViewKey || resourceName
     const currentView = viewMode ?? containerView
     const isEmpty = count === 0 && !isRefreshing
     const hasFilters = filterOptions?.length > 0

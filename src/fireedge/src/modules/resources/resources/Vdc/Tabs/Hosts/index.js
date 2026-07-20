@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { PATH, RESOURCE_NAMES, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { HostAPI } from '@FeaturesModule'
 import { getAllocatedInfo, getHostState } from '@ModelsModule'
 import { Component } from 'react'
@@ -66,7 +66,6 @@ export const Hosts = ({ data }) => (
     columns={columns}
     rowDetailsResourceId={RESOURCE_NAMES.HOST}
     dataCy="vdc-hosts"
-    path={PATH.INFRASTRUCTURE.HOSTS.DETAIL}
     useQuery={HostAPI.useGetHostsQuery}
   />
 )

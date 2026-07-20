@@ -14,10 +14,20 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { createTable, getLockIcon, timeFromMilliseconds } from '@UtilsModule'
+import {
+  createTable,
+  getLockIcon,
+  prettyBytes,
+  timeFromMilliseconds,
+} from '@UtilsModule'
 import { VmTemplateAPI } from '@FeaturesModule'
-import { T, STATIC_FILES_URL, DEFAULT_TEMPLATE_LOGO } from '@ConstantsModule'
-import { Image } from '@ComponentsV2Module'
+import {
+  T,
+  UNITS,
+  STATIC_FILES_URL,
+  DEFAULT_TEMPLATE_LOGO,
+} from '@ConstantsModule'
+import { Image, Tag } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
 import { Box } from '@mui/material'
 
@@ -26,12 +36,12 @@ export const VRTEMPLATE_COLUMNS = [
   {
     accessorKey: 'ID',
     header: T.ID,
-    width: '5%',
+    grow: false,
   },
   {
     accessorKey: 'NAME',
     header: T.Name,
-    width: '30%',
+    truncate: true,
     cell: ({ row }) => {
       const logo = row?.original?.TEMPLATE?.LOGO ?? DEFAULT_TEMPLATE_LOGO
       const src = `${STATIC_FILES_URL}/${logo}`
@@ -51,19 +61,43 @@ export const VRTEMPLATE_COLUMNS = [
     },
   },
   {
+    header: T.CPU,
+    id: 'cpu',
+    accessorFn: (row) => row?.TEMPLATE?.CPU ?? 1,
+  },
+  {
+    header: T.Memory,
+    id: 'memory',
+    accessorFn: (row) => row?.TEMPLATE?.MEMORY,
+    cell: ({ row }) => prettyBytes(row.original?.TEMPLATE?.MEMORY, UNITS.MB),
+  },
+  {
+    header: T.Hypervisor,
+    id: 'hypervisor',
+    accessorFn: (row) => row?.TEMPLATE?.HYPERVISOR,
+    cell: ({ row }) => {
+      const hypervisor = row.original?.TEMPLATE?.HYPERVISOR
+
+      return hypervisor ? <Tag title={hypervisor} status="default" /> : '-'
+    },
+  },
+  {
     accessorKey: 'UNAME',
     header: T.Owner,
+    grow: false,
   },
   {
     accessorKey: 'GNAME',
     header: T.Group,
+    grow: false,
   },
   {
     accessorKey: 'REGTIME',
     header: T.RegistrationTime,
+    grow: false,
     cell: ({ row }) => timeFromMilliseconds(row.original.REGTIME).toRelative(),
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const vrtemplateTable = createTable(

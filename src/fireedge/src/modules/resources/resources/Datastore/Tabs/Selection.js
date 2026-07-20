@@ -40,7 +40,7 @@ export const Selection = ({ data, config }) => {
         {
           id: 'deselect',
           header: '',
-          width: '5%',
+          grow: false,
           cell: ({ row }) => (
             <Button
               type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -54,18 +54,15 @@ export const Selection = ({ data, config }) => {
           accessorKey: 'NAME',
           id: 'name',
           header: T.Name,
-          width: '24%',
         },
         {
           header: T.State,
           id: 'state',
           accessorFn: (row) => getDatastoreState(row)?.name,
-          width: '12%',
         },
         {
           header: T.Capacity,
           id: 'capacity',
-          width: '14%',
           accessorFn: (row) => {
             const capacity = getDatastoreCapacityInfo(row)
 
@@ -78,30 +75,16 @@ export const Selection = ({ data, config }) => {
           header: T.Type,
           id: 'type',
           accessorFn: (row) => getDatastoreType(row),
-          width: '12%',
         },
         {
           header: T.Clusters,
           id: 'clusters',
           accessorFn: (row) => [row?.CLUSTERS?.ID ?? []].flat().join(', '),
-          width: '10%',
-        },
-        {
-          header: T.Owner,
-          id: 'owner',
-          accessorKey: 'UNAME',
-          width: '10%',
-        },
-        {
-          header: T.Group,
-          id: 'group',
-          accessorKey: 'GNAME',
-          width: '10%',
         },
         {
           accessorKey: 'ID',
           header: '',
-          width: '10%',
+          grow: false,
           cell: ({ row }) => (
             <Button
               type={STYLE_BUTTONS.TYPE.OUTLINE}

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
 import { T } from '@ConstantsModule'
 import { SCHEMA, FIELDS } from './schema'
 import { useMemo } from 'react'
-import { Grid, Alert, useTheme, Stack } from '@mui/material'
+import { Grid, useTheme } from '@mui/material'
 import { useTranslation } from '@ProvidersModule'
 import styles from '@modules/resources/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/styles'
 
@@ -32,16 +32,14 @@ const Content = () => {
 
   return (
     <>
-      <Alert severity="info" variant="outlined" className={classes.groupInfo}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1}
-          justifyContent="space-between"
-        >
-          <div>{translate(T['oneks.form.create.private.help.paragraph'])}</div>
-        </Stack>
-      </Alert>
+      <AlertNotification
+        type="primary"
+        status="information"
+        description={translate(T['oneks.form.create.private.help.paragraph'])}
+        isDismissible={false}
+        className={classes.groupInfo}
+        style={{ width: '100%', boxSizing: 'border-box' }}
+      />
       <Grid mt={2} container className={classes.container}>
         <Grid item xs={12}>
           <FormWithSchema id={STEP_ID} cy={`${STEP_ID}`} fields={FIELDS} />

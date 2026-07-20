@@ -128,7 +128,7 @@ const AddressesContent = ({ oneConfig, adminGroup }) => {
       {
         id: 'id',
         header: T.ID,
-        width: '5%',
+        grow: false,
         cell: ({ row }) => row.original?.AR_ID ?? row.original?.INDEX,
       },
       {
@@ -141,26 +141,29 @@ const AddressesContent = ({ oneConfig, adminGroup }) => {
             '-'
           ),
       },
-      { accessorKey: 'SIZE', header: T.Size, width: '8%' },
+      { accessorKey: 'SIZE', header: T.Size, grow: false },
       {
         id: 'mac',
         header: T.MAC,
         accessorFn: (row) => getRange(row?.MAC, row?.MAC_END),
+        grow: false,
       },
       {
         id: 'ip',
         header: T.IP,
         accessorFn: (row) => getRange(row?.IP, row?.IP_END),
+        grow: false,
       },
       {
         id: 'ip6',
         header: 'IP6',
         accessorFn: (row) => getRange(row?.IP6, row?.IP6_END),
+        grow: false,
       },
       {
         id: 'actions',
         header: '',
-        width: '10%',
+        grow: false,
         cell: ({ row }) => {
           const index = row.original?.INDEX
 
@@ -196,6 +199,7 @@ const AddressesContent = ({ oneConfig, adminGroup }) => {
         <Button
           type={STYLE_BUTTONS.TYPE.SECONDARY}
           htmlType="button"
+          dataCy="add-ar"
           startIcon={<AddIcon />}
           onClick={handleOpenCreate}
         >

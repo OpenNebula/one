@@ -76,7 +76,7 @@ export const Snapshots = ({ data, config }) => {
           ...snapshot,
           NAME: snapshot.NAME || `${translate(T.Snapshot)} #${snapshot.ID}`,
           ACTIVE_LABEL: stringToBoolean(ACTIVE) ? translate(T.Active) : '-',
-          DATE_LABEL: time?.toFormat?.('ff') ?? '-',
+          DATE_LABEL: time?.toRelative?.() ?? '-',
           SIZE_LABEL: size,
           MONITOR_SIZE_LABEL: monitorSize,
         }
@@ -89,37 +89,37 @@ export const Snapshots = ({ data, config }) => {
       {
         accessorKey: 'ID',
         header: T.ID,
-        width: '10%',
+        grow: false,
       },
       {
         accessorKey: 'NAME',
         header: T.Name,
-        width: '24%',
+        truncate: true,
       },
       {
         accessorKey: 'ACTIVE_LABEL',
         header: T.Active,
-        width: '10%',
+        grow: false,
       },
       {
         accessorKey: 'DATE_LABEL',
         header: T.Date,
-        width: '20%',
+        grow: false,
       },
       {
         accessorKey: 'MONITOR_SIZE_LABEL',
         header: T.Monitoring,
-        width: '13%',
+        grow: false,
       },
       {
         accessorKey: 'SIZE_LABEL',
         header: T.DiskSize,
-        width: '12%',
+        grow: false,
       },
       {
         id: 'actions',
         header: '',
-        width: '11%',
+        grow: false,
         cell: ({ row }) => {
           const snapshot = row.original
           const disabled = isFetching || isActionsDisabled

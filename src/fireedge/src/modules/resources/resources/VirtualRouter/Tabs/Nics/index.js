@@ -16,36 +16,60 @@
 
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
-import { TablePanel } from '@ComponentsV2Module'
+import { TablePanel, TagList } from '@ComponentsV2Module'
 import { T } from '@ConstantsModule'
 import { getVirtualRouterNics } from '@ModelsModule'
 
 const NIC_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'NIC_ID', width: '5%' },
-  { header: T.Name, id: 'name', accessorKey: 'NAME' },
-  { header: T.Network, id: 'network', accessorKey: 'NETWORK' },
+  { header: T.ID, id: 'id', accessorKey: 'NIC_ID', grow: false },
+  { header: T.Name, id: 'name', accessorKey: 'NAME', truncate: true },
+  { header: T.Network, id: 'network', accessorKey: 'NETWORK', truncate: true },
   {
     header: `${T.Network} ${T.ID}`,
     id: 'network-id',
     accessorKey: 'NETWORK_ID',
+    grow: false,
   },
   {
     header: `${T.AddressRange} ${T.ID}`,
     id: 'ar-id',
     accessorKey: 'AR_ID',
+    grow: false,
   },
-  { header: T.ip, id: 'ip', accessorKey: 'IP' },
-  { header: 'IPv6', id: 'ip6', accessorKey: 'IP6' },
-  { header: T.MAC, id: 'mac', accessorKey: 'MAC' },
+  {
+    header: T.ip,
+    id: 'ip',
+    accessorKey: 'IP',
+    grow: false,
+    meta: { disableCellTooltip: true },
+    cell: ({ row }) =>
+      row.original?.IP ? <TagList tags={[{ title: row.original.IP }]} /> : '-',
+  },
+  {
+    header: 'IPv6',
+    id: 'ip6',
+    accessorKey: 'IP6',
+    grow: false,
+    meta: { disableCellTooltip: true },
+    cell: ({ row }) =>
+      row.original?.IP6 ? (
+        <TagList tags={[{ title: row.original.IP6 }]} />
+      ) : (
+        '-'
+      ),
+  },
+  { header: T.MAC, id: 'mac', accessorKey: 'MAC', grow: false },
   {
     header: T.VirtualRouterNICFloatingIP,
     id: 'floating',
     accessorKey: 'FLOATING_IP',
+    grow: false,
   },
   {
     header: T['nic.card.management'],
     id: 'management',
     accessorKey: 'VROUTER_MANAGEMENT',
+    grow: false,
   },
 ]
 

@@ -16,11 +16,12 @@
 
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
+import { Box } from '@mui/material'
 import { Button, TablePanel as SelectionTable } from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
-import { ArrowRight, Cancel as CloseIcon, Lock } from 'iconoir-react'
+import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
 import { getImageState } from '@ModelsModule'
-import { getImageType } from '@UtilsModule'
+import { getImageType, getLockIcon } from '@UtilsModule'
 
 const getRunningVms = (file) =>
   file?.RUNNING_VMS ?? [file?.VMS?.ID ?? []].flat().length
@@ -36,17 +37,13 @@ export const Selection = ({ data }) => {
     () => [].concat(selected).filter(Boolean),
     [selected]
   )
-  const hasLockedItems = selectedFiles.some((file) =>
-    Object.hasOwn(file ?? {}, 'LOCK')
-  )
-
   const selectionColumns = useMemo(
     () =>
       [
         {
           id: 'deselect',
           header: '',
-          width: '5%',
+          grow: false,
           cell: ({ row }) => (
             <Button
               type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -56,61 +53,41 @@ export const Selection = ({ data }) => {
             />
           ),
         },
-        hasLockedItems && {
-          accessorKey: 'LOCK',
-          header: '',
-          width: '7%',
-          cell: ({ row }) =>
-            Object.hasOwn(row?.original ?? {}, 'LOCK') ? (
-              <Lock width="20px" height="20px" />
-            ) : null,
-        },
         {
           accessorKey: 'NAME',
           id: 'name',
           header: T.Name,
-          width: '24%',
+          cell: ({ row }) => (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>{row.original?.NAME}</span>
+              {getLockIcon(row.original)}
+            </Box>
+          ),
         },
         {
           header: T.State,
           id: 'state',
           accessorFn: (row) => getImageState(row)?.name,
-          width: '12%',
         },
         {
           header: T.Datastore,
           id: 'datastore',
           accessorKey: 'DATASTORE',
-          width: '16%',
         },
         {
           header: T.Type,
           id: 'type',
           accessorFn: (row) => getImageType(row),
-          width: '10%',
         },
         {
           header: T.VMs,
           id: 'vms',
           accessorFn: (row) => getRunningVms(row),
-          width: '8%',
-        },
-        {
-          header: T.Owner,
-          id: 'owner',
-          accessorKey: 'UNAME',
-          width: '10%',
-        },
-        {
-          header: T.Group,
-          id: 'group',
-          accessorKey: 'GNAME',
-          width: '10%',
         },
         {
           accessorKey: 'ID',
           header: '',
-          width: '10%',
+          grow: false,
           cell: ({ row }) => (
             <Button
               type={STYLE_BUTTONS.TYPE.OUTLINE}
@@ -123,7 +100,7 @@ export const Selection = ({ data }) => {
           ),
         },
       ].filter(Boolean),
-    [handleDeselect, handleSelect, hasLockedItems]
+    [handleDeselect, handleSelect]
   )
 
   return (

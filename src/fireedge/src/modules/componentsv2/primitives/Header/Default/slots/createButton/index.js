@@ -22,8 +22,6 @@ import { Plus } from 'iconoir-react'
 import { useFunctionality } from '@FeaturesModule'
 import { useHistory } from 'react-router-dom'
 
-const hasCreatePath = (path = '') => /(^|\/)create(\/|$)/.test(`${path}`)
-
 /**
  * CreateButtonSlot component.
  *
@@ -34,7 +32,7 @@ export const CreateButtonSlot = forwardRef((_, ref) => {
   const history = useHistory()
   const { label = '', path = '' } = createPath
 
-  if (!label || !hasCreatePath(path)) return null
+  if (!label || !path) return null
 
   return (
     <Box

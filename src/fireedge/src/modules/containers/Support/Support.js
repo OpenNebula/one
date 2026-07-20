@@ -220,6 +220,7 @@ function SupportTickets() {
                 getRowId={(row) => String(row.id)}
                 onRowClick={(row) => handleSelect(row.id)}
                 size="medium"
+                defaultPageSize={25}
                 isFullHeight
               />
             )

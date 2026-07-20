@@ -117,7 +117,6 @@ export const Dropdown = forwardRef(
     const menuItemRef = useRef(null)
     const menuTitleRef = useRef(null)
     const [menuHeight, setMenuHeight] = useState({ min: 0, max: 0 })
-    const EndIcon = open ? CloseIcon : OpenIcon
     const [selected, setSelected] = useControllableState({
       value: initialValue,
       defaultValue: initialValue ?? (isMultipleSelectable ? [] : null),
@@ -143,6 +142,19 @@ export const Dropdown = forwardRef(
         })
       },
       [filterOptions, getTranslatedOptionText]
+    )
+
+    const handleClear = useCallback(
+      (event) => {
+        event.preventDefault()
+        event.stopPropagation()
+
+        if (isDisabled || isReadOnly) return
+
+        setSelected(isMultipleSelectable ? [] : null)
+        setOpen(false)
+      },
+      [isDisabled, isReadOnly, isMultipleSelectable, setSelected]
     )
 
     useEffect(() => {
@@ -263,8 +275,16 @@ export const Dropdown = forwardRef(
             endIcon={() =>
               endIcon ? (
                 renderIcon(endIcon)
+              ) : open ? (
+                <CloseIcon
+                  width="16px"
+                  height="16px"
+                  strokeWidth={1.6}
+                  onMouseDown={handleClear}
+                  data-cy={dataCy && `${dataCy}-clear`}
+                />
               ) : (
-                <EndIcon width="16px" height="16px" strokeWidth={1.6} />
+                <OpenIcon width="16px" height="16px" strokeWidth={1.6} />
               )
             }
             startIcon={startIcon && renderIcon(startIcon)}

@@ -27,11 +27,13 @@ export const DRIVER_COLUMNS = [
     header: T.Name,
     accessorKey: 'name',
     id: 'name',
+    truncate: true,
   },
   {
     header: T.Description,
     accessorKey: 'description',
     id: 'description',
+    truncate: true,
   },
   {
     header: T.State,

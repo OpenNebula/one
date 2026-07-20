@@ -16,9 +16,11 @@
 
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
+import { Box } from '@mui/material'
 import { Button, TablePanel as SelectionTable } from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
-import { ArrowRight, Cancel as CloseIcon, Lock } from 'iconoir-react'
+import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
+import { getLockIcon } from '@UtilsModule'
 
 /**
  * @param {object} root0 - Params
@@ -31,17 +33,13 @@ export const Selection = ({ data }) => {
     () => [].concat(selected).filter(Boolean),
     [selected]
   )
-  const hasLockedItems = selectedBackupJobs.some((backupjob) =>
-    Object.hasOwn(backupjob ?? {}, 'LOCK')
-  )
-
   const selectionColumns = useMemo(
     () =>
       [
         {
           id: 'deselect',
           header: '',
-          width: '5%',
+          grow: false,
           cell: ({ row }) => (
             <Button
               type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -51,43 +49,26 @@ export const Selection = ({ data }) => {
             />
           ),
         },
-        hasLockedItems && {
-          accessorKey: 'LOCK',
-          header: '',
-          width: '7%',
-          cell: ({ row }) =>
-            Object.hasOwn(row?.original ?? {}, 'LOCK') ? (
-              <Lock width="20px" height="20px" />
-            ) : null,
-        },
         {
           accessorKey: 'NAME',
           id: 'name',
           header: T.Name,
-          width: '28%',
+          cell: ({ row }) => (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>{row.original?.NAME}</span>
+              {getLockIcon(row.original)}
+            </Box>
+          ),
         },
         {
           header: T.Priority,
           id: 'priority',
           accessorKey: 'PRIORITY',
-          width: '12%',
-        },
-        {
-          header: T.Owner,
-          id: 'owner',
-          accessorKey: 'UNAME',
-          width: '15%',
-        },
-        {
-          header: T.Group,
-          id: 'group',
-          accessorKey: 'GNAME',
-          width: '15%',
         },
         {
           accessorKey: 'ID',
           header: '',
-          width: '10%',
+          grow: false,
           cell: ({ row }) => (
             <Button
               type={STYLE_BUTTONS.TYPE.OUTLINE}
@@ -100,7 +81,7 @@ export const Selection = ({ data }) => {
           ),
         },
       ].filter(Boolean),
-    [handleDeselect, handleSelect, hasLockedItems]
+    [handleDeselect, handleSelect]
   )
 
   return (

@@ -17,7 +17,8 @@ import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
 import { SCHEMA } from './schema'
 import { useMemo } from 'react'
-import { Grid, useTheme, Alert, Stack, Typography } from '@mui/material'
+import { Grid, useTheme, Stack, Typography } from '@mui/material'
+import { AlertNotification } from '@ComponentsV2Module'
 import styles from '@modules/resources/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/styles'
 import { STEP_ID as FAMILY_ID } from '@modules/resources/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/Family'
 import { useFormContext, useController } from 'react-hook-form'
@@ -55,31 +56,27 @@ const Content = (families, typeForm) => {
 
   return (
     <>
-      <Alert
-        severity="info"
-        variant="outlined"
+      <AlertNotification
+        type="primary"
+        status="information"
+        description={
+          typeForm === defaultTypeForm
+            ? translate(T['oneks.form.create.flavour.help.parapraph'])
+            : translate(T['oneks.form.create_nodegroup.flavour.help.paragraph'])
+        }
+        isDismissible={false}
         className={classes.groupInfo}
-        sx={{
-          width: '100% !important',
-          flexDirection: 'row !important',
-        }}
-      >
-        {typeForm === defaultTypeForm
-          ? translate(T['oneks.form.create.flavour.help.parapraph'])
-          : translate(T['oneks.form.create_nodegroup.flavour.help.paragraph'])}
-      </Alert>
+        style={{ width: '100%', boxSizing: 'border-box' }}
+      />
       {error && (
-        <Alert
-          severity="error"
-          variant="outlined"
+        <AlertNotification
+          type="primary"
+          status="error"
+          description={translate(T['oneks.form.create.flavours.error'])}
+          isDismissible={false}
           className={classes.groupInfo}
-          sx={{
-            width: '100% !important',
-            flexDirection: 'row !important',
-          }}
-        >
-          {translate(T['oneks.form.create.flavours.error'])}
-        </Alert>
+          style={{ width: '100%', boxSizing: 'border-box' }}
+        />
       )}
       <Grid container spacing={2} className={classes.container}>
         {flavours?.map((flavour) => (

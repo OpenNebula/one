@@ -146,6 +146,7 @@ export function VrTemplates() {
   return (
     <>
       <ResourceContainer
+        dataCy={vrtemplateTable.dataCy}
         resourceName={T.Templates}
         onRefresh={refresh}
         isRefreshing={isRefreshing}
@@ -175,6 +176,7 @@ export function VrTemplates() {
             case TABLE_VIEW_MODE.LIST:
               return (
                 <Table
+                  dataCy={vrtemplateTable.dataCy}
                   columns={vrtemplateTable.columns()}
                   data={items}
                   isLoading={isRefreshing}
@@ -186,6 +188,7 @@ export function VrTemplates() {
                   getRowId={(row) => row.ID}
                   onRowClick={(row) => handleSelect(row.ID)}
                   size="medium"
+                  defaultPageSize={25}
                   isFullHeight
                 />
               )

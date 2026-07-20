@@ -21,7 +21,8 @@ import { useMemo } from 'react'
 import { sanitize } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 
-import { Grid, useTheme, Stack, Typography, Alert } from '@mui/material'
+import { Grid, useTheme, Stack, Typography } from '@mui/material'
+import { AlertNotification } from '@ComponentsV2Module'
 import styles from '@modules/resources/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/styles'
 import { useFormContext, useController } from 'react-hook-form'
 
@@ -48,19 +49,27 @@ const Content = (families, typeForm) => {
 
   return (
     <>
-      <Alert severity="info" variant="outlined" className={classes.groupInfo}>
-        {typeForm === defaultTypeForm
-          ? translate(T['oneks.form.create.family.help.paragraph'])
-          : translate(T['oneks.form.create_nodegroup.family.help.paragraph'])}
-      </Alert>
+      <AlertNotification
+        type="primary"
+        status="information"
+        description={
+          typeForm === defaultTypeForm
+            ? translate(T['oneks.form.create.family.help.paragraph'])
+            : translate(T['oneks.form.create_nodegroup.family.help.paragraph'])
+        }
+        isDismissible={false}
+        className={classes.groupInfo}
+        style={{ width: '100%', boxSizing: 'border-box' }}
+      />
       {error && (
-        <Alert
-          severity="error"
-          variant="outlined"
+        <AlertNotification
+          type="primary"
+          status="error"
+          description={translate(T['oneks.form.create.family.error'])}
+          isDismissible={false}
           className={classes.groupInfo}
-        >
-          {translate(T['oneks.form.create.family.error'])}
-        </Alert>
+          style={{ width: '100%', boxSizing: 'border-box' }}
+        />
       )}
       <Grid container spacing={2} className={classes.container}>
         {families?.map((family) => (

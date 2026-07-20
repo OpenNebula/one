@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
 
-import { Alert, Box, Collapse, Tooltip } from '@mui/material'
+import { Box, Collapse, Tooltip } from '@mui/material'
 import {
   Check as ApplyIcon,
   InfoEmpty as InfoIcon,
@@ -26,6 +26,7 @@ import {
 } from 'iconoir-react'
 
 import {
+  AlertNotification,
   ResourceActionConfirmation,
   SubmitButton,
   Table,
@@ -51,7 +52,7 @@ const formatResourceName = (nameMap, id) => {
 const formatTimestamp = (timestamp) =>
   Number(timestamp) <= 0
     ? T.NotStartedYet
-    : timeFromSeconds(Number(timestamp) * 1000).toFormat('MMM dd HH:mm:ss')
+    : timeFromSeconds(Number(timestamp) * 1000).toRelative()
 
 const getPlanState = (state) =>
   PLAN_STATE?.[state] ?? {
@@ -226,17 +227,21 @@ const ExecutionTimeline = ({ data = {}, isLoading, ...props }) => {
         </Box>
       </Box>
       <Collapse in={isApplyDisabled}>
-        <Alert
-          severity="warning"
+        <Box
           className="drs-automation-alert"
-          action={
-            <Tooltip title={T.AutomationFull} arrow>
-              <InfoIcon className="drs-alert-info-icon" />
-            </Tooltip>
-          }
+          sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          {T.AutomationEnabled}
-        </Alert>
+          <AlertNotification
+            type="primary"
+            status="warning"
+            description={T.AutomationEnabled}
+            isDismissible={false}
+            style={{ width: '100%', boxSizing: 'border-box' }}
+          />
+          <Tooltip title={T.AutomationFull} arrow>
+            <InfoIcon className="drs-alert-info-icon" />
+          </Tooltip>
+        </Box>
       </Collapse>
       <Box className="drs-recommendations-table">
         <Table

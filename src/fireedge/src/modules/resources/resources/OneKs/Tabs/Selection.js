@@ -20,10 +20,6 @@ import { Button, TablePanel as SelectionTable } from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
 import { getVirtualOneKsState } from '@ModelsModule'
-import { timeFromMilliseconds } from '@UtilsModule'
-
-const formatTime = (time) =>
-  +time > 0 ? timeFromMilliseconds(+time).toFormat('ff') : '-'
 
 /**
  * @param {object} root0 - Params
@@ -38,7 +34,7 @@ export const Selection = ({ data }) => {
       {
         id: 'deselect',
         header: '',
-        width: '5%',
+        grow: false,
         cell: ({ row }) => (
           <Button
             type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -52,50 +48,27 @@ export const Selection = ({ data }) => {
         accessorKey: 'NAME',
         id: 'name',
         header: T.Name,
-        width: '24%',
       },
       {
         header: T.State,
         id: 'state',
         accessorFn: (row) => getVirtualOneKsState(row)?.name,
-        width: '12%',
       },
       {
         header: T.KubernetesVersion,
         id: 'version',
         accessorFn: (row) => row?.TEMPLATE?.CLUSTER_BODY?.kubernetes_version,
-        width: '16%',
       },
       {
         header: T.NodeGroups,
         id: 'nodegroups',
         accessorFn: (row) =>
           row?.TEMPLATE?.CLUSTER_BODY?.node_groups?.length ?? 0,
-        width: '10%',
-      },
-      {
-        header: T.CreationTime,
-        id: 'created',
-        accessorFn: (row) =>
-          formatTime(row?.TEMPLATE?.CLUSTER_BODY?.registration_time),
-        width: '18%',
-      },
-      {
-        header: T.Owner,
-        id: 'owner',
-        accessorKey: 'UNAME',
-        width: '10%',
-      },
-      {
-        header: T.Group,
-        id: 'group',
-        accessorKey: 'GNAME',
-        width: '10%',
       },
       {
         accessorKey: 'ID',
         header: '',
-        width: '10%',
+        grow: false,
         cell: ({ row }) => (
           <Button
             type={STYLE_BUTTONS.TYPE.OUTLINE}

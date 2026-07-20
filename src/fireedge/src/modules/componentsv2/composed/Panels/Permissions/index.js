@@ -93,6 +93,7 @@ export const PermissionsTab = forwardRef(
             >
               <Checkbox
                 size="medium"
+                inputProps={{ 'data-cy': `permission-${key}` }}
                 checked={checked}
                 onChange={() => canEdit && handleChange(key, options?.[key])}
                 isDisabled={!canEdit || isDisabled}

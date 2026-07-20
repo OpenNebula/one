@@ -110,13 +110,13 @@ export const AddressRanges = ({ data, config }) => {
     {
       id: 'id',
       header: T.ID,
-      width: '5%',
+      grow: false,
       cell: ({ row }) => row.original?.AR_ID ?? row.original?.INDEX,
     },
     {
       accessorKey: 'TYPE',
       header: T.Type,
-      width: '5%',
+      grow: false,
       cell: ({ row }) =>
         row.original?.TYPE ? (
           <Tag title={row.original.TYPE} status="default" />
@@ -124,40 +124,47 @@ export const AddressRanges = ({ data, config }) => {
           '-'
         ),
     },
-    { accessorKey: 'SIZE', header: T.Size, width: '5%' },
+    { accessorKey: 'SIZE', header: T.Size, grow: false },
     {
       id: 'first_mac',
       header: T.FirstMAC,
       accessorFn: (row) => row?.MAC || '-',
+      grow: false,
     },
     {
       id: 'last_mac',
       header: T.LastMAC,
       accessorFn: (row) => row?.MAC_END || '-',
+      grow: false,
     },
     {
       id: 'first_ip',
       header: T.FirstIP,
       accessorFn: getFirstIP,
+      grow: false,
     },
     {
       id: 'last_ip',
       header: T.LastIP,
       accessorFn: getLastIP,
+      grow: false,
     },
     {
       id: 'ip6_global',
       header: T.IPv6GlobalPrefix,
       accessorFn: (row) => getRange(row?.IP6_GLOBAL, row?.IP6_GLOBAL_END),
+      grow: false,
     },
     {
       id: 'ip6_ula',
       header: T.IPv6ULAPrefix,
       accessorFn: (row) => getRange(row?.IP6_ULA, row?.IP6_ULA_END),
+      grow: false,
     },
     {
       id: 'ipam',
       header: T.IPAMDriver,
+      grow: false,
       accessorFn: (row) => row?.IPAM_MAD || T.No,
       cell: ({ row }) =>
         row.original?.IPAM_MAD ? (
@@ -186,25 +193,32 @@ export const AddressRanges = ({ data, config }) => {
     {
       id: 'actions',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => {
         const addressRange = row.original
         const index = addressRange?.POSITION
+        const addressRangeId = addressRange?.AR_ID ?? index
 
         return (
-          <Box display="flex" justifyContent="flex-end">
+          <Box
+            data-cy={`ar-actions-${addressRangeId}`}
+            display="flex"
+            justifyContent="flex-end"
+          >
             <MenuButton
               iconOnly={<MoreVert />}
               options={[
                 [
                   {
                     title: T.Edit,
+                    dataCy: `update_ar-${addressRangeId}`,
                     isDisabled: !canUpdateAddressRange || areRowActionsDisabled,
                     onClick: () =>
                       handleUpdateAddressRangeForm(addressRange, index),
                   },
                   {
                     title: T.Delete,
+                    dataCy: `delete_ar-${addressRangeId}`,
                     isDestructive: true,
                     isDisabled: !canDeleteAddressRange || areRowActionsDisabled,
                     onClick: () =>
@@ -295,6 +309,7 @@ export const AddressRanges = ({ data, config }) => {
           <Button
             type={STYLE_BUTTONS.TYPE.SECONDARY}
             size="small"
+            dataCy="add-ar"
             startIcon={<AddIcon width="16px" height="16px" />}
             onClick={handleAddRangeForm}
             isDisabled={areRowActionsDisabled}
@@ -304,6 +319,7 @@ export const AddressRanges = ({ data, config }) => {
         </Box>
       )}
       <TablePanel
+        dataCy="ar"
         key="virtual-network-address-ranges-table"
         columns={columns}
         data={addressRanges}

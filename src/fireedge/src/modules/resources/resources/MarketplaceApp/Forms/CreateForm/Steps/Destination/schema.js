@@ -30,6 +30,7 @@ const MARKETPLACE_COLUMN_IDS = [
 ]
 
 const marketplaceModel = {
+  dataCy: marketplaceTable.dataCy,
   columns: () => {
     const columns = marketplaceTable.columns()
 

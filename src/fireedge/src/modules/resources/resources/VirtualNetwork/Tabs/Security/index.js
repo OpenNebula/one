@@ -89,8 +89,8 @@ export const Security = ({ data, config }) => {
 
   // Table
   const columns = [
-    { accessorKey: 'ID', header: T.ID, width: '7%' },
-    { accessorKey: 'NAME', header: T.Name, width: '30%' },
+    { accessorKey: 'ID', header: T.ID, grow: false },
+    { accessorKey: 'NAME', header: T.Name, truncate: true },
     { accessorKey: 'UNAME', header: T.Owner },
     { accessorKey: 'GNAME', header: T.Group },
     {
@@ -101,18 +101,23 @@ export const Security = ({ data, config }) => {
     {
       id: 'actions',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => {
         const securityGroup = row.original
 
         return (
-          <Box display="flex" justifyContent="flex-end">
+          <Box
+            data-cy={`secgroup-actions-${securityGroup?.ID}`}
+            display="flex"
+            justifyContent="flex-end"
+          >
             <MenuButton
               iconOnly={<MoreVert />}
               options={[
                 [
                   {
                     title: T.Remove,
+                    dataCy: `provision-secgroup-unbind-${securityGroup?.ID}`,
                     isDestructive: true,
                     isDisabled: !canRemoveSecGroup || areActionsDisabled,
                     onClick: () => handleRemoveSecurityGroupForm(securityGroup),
@@ -201,6 +206,7 @@ export const Security = ({ data, config }) => {
           <Button
             type={STYLE_BUTTONS.TYPE.SECONDARY}
             size="small"
+            dataCy="action-add_secgroup"
             onClick={handleSelectSecurityGroupsForm}
             isDisabled={areActionsDisabled}
           >
@@ -209,6 +215,7 @@ export const Security = ({ data, config }) => {
         </Box>
       )}
       <TablePanel
+        dataCy="secgroup"
         key="virtual-network-security-groups-table"
         columns={columns}
         data={vnetSecurityGroups}

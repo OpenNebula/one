@@ -28,26 +28,29 @@ import { NavArrowDown } from 'iconoir-react'
 
 import { useGeneral, useGeneralApi, ZoneAPI } from '@FeaturesModule'
 import { Button } from '@modules/componentsv2/primitives/Buttons/Default'
-import { T } from '@ConstantsModule'
-import { getZoneDetail, getZoneState } from '@ModelsModule'
+import { STATES, T } from '@ConstantsModule'
+import { getZoneState } from '@ModelsModule'
 import { isSameId } from '@UtilsModule'
 import { getStyles } from '@modules/componentsv2/primitives/Header/Default/slots/zoneDropdown/styles'
 import { Tag } from '@modules/componentsv2/primitives/Tags/Default'
 import { useTranslation } from '@ProvidersModule'
 
-const ZoneStatusDot = ({ color }) => (
-  <span className="status-dot" style={{ backgroundColor: color }} />
+const ZoneStatusDot = ({ state }) => (
+  <span
+    aria-hidden="true"
+    className={`status-dot ${
+      state?.name === STATES.ENABLED ? 'enabled' : 'disabled'
+    }`}
+  />
 )
 
 ZoneStatusDot.propTypes = {
-  color: PropTypes.string,
+  state: PropTypes.object,
 }
 
 const ZoneOption = ({ disabled, isCurrent, onClick, state, zone }) => {
   const { translate } = useTranslation()
   const { NAME, ID } = zone
-  const { color, name } = state ?? {}
-  const detail = getZoneDetail(zone, name)
 
   return (
     <button
@@ -57,17 +60,10 @@ const ZoneOption = ({ disabled, isCurrent, onClick, state, zone }) => {
       onClick={onClick}
       type="button"
     >
-      <ZoneStatusDot color={color} />
+      <ZoneStatusDot state={state} />
 
       <span className="copy">
         <span className="name">{NAME}</span>
-        {detail && (
-          <span className="detail">
-            {translate(
-              name?.toLowerCase().replace(/^\w/, (c) => c.toUpperCase())
-            )}
-          </span>
-        )}
       </span>
 
       {isCurrent && <Tag title={translate(T.Current)} />}
@@ -135,7 +131,7 @@ export const ZoneDropdownSlot = forwardRef(({ zones: zonesProp }, ref) => {
         data-cy="header-zone-button"
         endIcon={<NavArrowDown />}
         onClick={handleToggle}
-        startIcon={<ZoneStatusDot color={currentState?.color} />}
+        startIcon={<ZoneStatusDot state={currentState} />}
         type="secondary"
       >
         <span className="label">{currentName}</span>

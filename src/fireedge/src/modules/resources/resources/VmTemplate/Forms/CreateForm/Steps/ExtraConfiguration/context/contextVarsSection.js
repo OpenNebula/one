@@ -138,6 +138,7 @@ const ContextVarsSection = ({ stepId, hypervisor }) => {
                   handleEdit={handleChangeAttribute}
                   handleDelete={handleDeleteAttribute}
                   attributes={unknownVars}
+                  dataCy="context-custom-vars-attributes"
                   filtersSpecialAttributes={false}
                   enableEdit={(name = '') => {
                     const regex = /^eth\d*(?:_[A-Za-z0-9]+)+$/i

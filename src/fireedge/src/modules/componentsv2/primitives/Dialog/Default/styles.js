@@ -43,13 +43,14 @@ export const getStyles = ({ theme }) => ({
   '& .MuiDialogTitle-root': {
     padding: 0,
     marginBottom: `${theme.scale[500]}px`,
-    color: 'text.heading',
+    color: 'text.headings',
   },
 
   '& .MuiDialogContent-root': {
     overflow: 'visible',
     padding: `${theme.scale[100]}px`,
     boxSizing: 'border-box',
+    color: 'text.body',
   },
 
   '& .MuiDialogActions-root': {

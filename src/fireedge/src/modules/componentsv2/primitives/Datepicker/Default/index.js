@@ -39,6 +39,7 @@ import en from 'date-fns/locale/en-US'
  * @param {Date|Date[]} root0.value - Controlled selected date value
  * @param {string} root0.label - Input label
  * @param {string} root0.placeholder - Input placeholder
+ * @param {string} root0.dataCy - Cypress selector
  * @param {object} root0.locale - Date fns locale import
  * @returns {Component} - Datepicker component
  */
@@ -51,6 +52,7 @@ export const Datepicker = forwardRef(
       value,
       label,
       placeholder = 'DD/MM/YYYY',
+      dataCy,
       locale = en,
       portalId,
       ...datePickerProps
@@ -107,7 +109,11 @@ export const Datepicker = forwardRef(
               />
             )}
             customInput={
-              <CalendarInput className="datepicker-input" label={label} />
+              <CalendarInput
+                className="datepicker-input"
+                dataCy={dataCy}
+                label={label}
+              />
             }
             dayClassName={getDayClassName}
             calendarClassName={'datepicker-calendar'}
@@ -147,6 +153,7 @@ Datepicker.propTypes = {
   ]),
   label: PropTypes.string,
   placeholder: PropTypes.string,
+  dataCy: PropTypes.string,
   locale: PropTypes.object,
   portalId: PropTypes.string,
 }

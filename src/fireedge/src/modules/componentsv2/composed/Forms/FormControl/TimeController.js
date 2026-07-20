@@ -63,6 +63,7 @@ export const TimeController = memo(
           portalId={datepickerPortalId}
           minDate={toDate(minDateTime)}
           disabled={readOnly}
+          dataCy={cy}
           onChange={(date) => {
             onBlur()
             onChange(date ?? undefined)

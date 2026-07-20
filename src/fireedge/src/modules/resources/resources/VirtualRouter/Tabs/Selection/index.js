@@ -33,7 +33,7 @@ export const Selection = ({ data }) => {
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -43,11 +43,13 @@ export const Selection = ({ data }) => {
         />
       ),
     },
-    ...VR_COLUMNS,
+    ...VR_COLUMNS.filter(
+      ({ id }) => !['owner', 'group', 'labels'].includes(id)
+    ),
     {
       accessorKey: 'ID',
       header: '',
-      width: '12%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}

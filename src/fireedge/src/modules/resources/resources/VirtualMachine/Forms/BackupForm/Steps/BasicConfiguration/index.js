@@ -28,15 +28,23 @@ import { Box } from '@mui/material'
 
 export const STEP_ID = 'configuration'
 
-const Content = (props) => (
-  <Box>
-    <FormWithSchema
-      cy="restore-configuration"
-      id={STEP_ID}
-      fields={() => FIELDS(props)}
-    />
-  </Box>
-)
+const Content = (props) => {
+  const fields = FIELDS(props)
+
+  return (
+    <Box>
+      <FormWithSchema
+        cy="restore-configuration"
+        id={STEP_ID}
+        fields={fields}
+        columns={[[], fields, []]}
+        gridContainerSx={{
+          gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
+        }}
+      />
+    </Box>
+  )
+}
 
 /**
  * Step to configure the marketplace app.

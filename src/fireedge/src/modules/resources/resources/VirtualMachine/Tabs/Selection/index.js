@@ -33,7 +33,7 @@ export const Selection = ({ data }) => {
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -43,12 +43,13 @@ export const Selection = ({ data }) => {
         />
       ),
     },
-    ...VM_COLUMNS,
+    ...VM_COLUMNS.filter(
+      ({ id }) => !['owner', 'group', 'time', 'labels'].includes(id)
+    ),
     {
-      width: '15%',
-      minWidth: '15%',
       id: 'select',
       header: '',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}

@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { createTable, timeToString } from '@UtilsModule'
+import { createTable, timeFromMilliseconds } from '@UtilsModule'
 import { ServiceAPI, VmAPI, oneApi } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
 import { StatusTag } from '@ComponentsV2Module'
@@ -35,11 +35,10 @@ import { getScheduleActions } from '@modules/models/VirtualMachine/general'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const SERVICES_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'ID', width: '5%' },
-  { header: T.Name, id: 'name', accessorKey: 'NAME' },
+  { header: T.ID, id: 'id', accessorKey: 'ID', grow: false },
+  { header: T.Name, id: 'name', accessorKey: 'NAME', truncate: true },
   {
     header: T.State,
-    id: 'state',
     accessorFn: (service) => getServiceState(service)?.displayName ?? '-',
     cell: ({ row }) => {
       const { color, displayName } = getServiceState(row.original) ?? {}
@@ -61,29 +60,33 @@ export const SERVICES_COLUMNS = [
     id: 'vms',
     accessorFn: getServiceTotalVms,
   },
-  { header: T.Owner, id: 'owner', accessorKey: 'UNAME' },
-  { header: T.Group, id: 'group', accessorKey: 'GNAME' },
+  { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
+  { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
   {
     header: T.StartTime,
     id: 'time',
-    accessorFn: ({ TEMPLATE: { BODY = {} } = {} }) =>
-      timeToString(BODY.registration_time ?? BODY.start_time),
+    accessorFn: ({ TEMPLATE: { BODY = {} } = {} }) => {
+      const time = BODY.registration_time ?? BODY.start_time
+
+      return time ? timeFromMilliseconds(+time).toRelative() : '-'
+    },
+    grow: false,
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 const ROLE_SCHED_ACTION_COLUMNS = [
   {
     id: 'ROLE_NAME',
     header: T.Role,
-    width: '10%',
     accessorKey: 'ROLE',
+    truncate: true,
   },
   {
     id: 'VM_NAME',
-    width: '10%',
     header: T.VM,
     accessorKey: 'VM_NAME',
+    truncate: true,
   },
   ...VM_SCHED_ACTION_COLUMNS,
 ]
@@ -106,7 +109,7 @@ export const ROLE_VMS_COLUMNS = [
     header: T.Role,
     id: 'role',
     accessorKey: 'ROLE',
-    width: '12%',
+    truncate: true,
   },
   ...VM_COLUMNS.filter(({ id }) => ROLE_VM_COLUMN_IDS.includes(id)),
 ]

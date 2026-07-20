@@ -106,7 +106,7 @@ const ErrorSummaryContainer = styled(Box)(({ theme }) => ({
 }))
 
 const StepIconStyled = styled(StepIcon)(({ theme }) => ({
-  color: theme.palette.text.hint,
+  color: theme.palette.text.disabled,
   display: 'block',
   [`&.${stepIconClasses.completed}, &.${stepIconClasses.active}`]: {
     color: theme.palette.primary.dark,

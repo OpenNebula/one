@@ -62,6 +62,7 @@ export const CardBlock = forwardRef(
   (
     {
       actions,
+      dataCy,
       isRemoveCheckbox = false,
       isSelectable = true,
       isSelected = false,
@@ -79,6 +80,7 @@ export const CardBlock = forwardRef(
           isRemoveCheckbox={!isSelectable || isRemoveCheckbox}
           isSelected={isSelected}
           onClick={isSelectable ? onClick : undefined}
+          dataCy={dataCy}
           sx={[
             (theme) =>
               getStyles({
@@ -94,6 +96,7 @@ export const CardBlock = forwardRef(
         {showActions && (
           <Box
             className="card-block-actions"
+            data-cy={dataCy ? `${dataCy}-actions` : undefined}
             onClick={(event) => event.stopPropagation()}
           >
             {renderActions(actions)}

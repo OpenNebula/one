@@ -45,7 +45,7 @@ const RESOURCE_TABLES = {
   [TYPES.VM_TEMPLATE]: vmtemplateTable,
 }
 
-const IMAGE_COLUMN_IDS = ['id', 'name', 'state', 'datastore', 'owner', 'group']
+const IMAGE_COLUMN_IDS = ['id', 'name', 'state', 'datastore']
 const VM_COLUMN_IDS = ['id', 'name', 'time', 'owner', 'group']
 
 const getResourceColumns = (type) => {
@@ -57,7 +57,6 @@ const getResourceColumns = (type) => {
     )
       .filter(Boolean)
       .map((column) => {
-        if (column.id === 'id') return { ...column, width: '5%' }
         if (column.id !== 'state') return column
 
         return {
@@ -84,6 +83,7 @@ const getResourceColumns = (type) => {
 }
 
 const getResourceModel = (type) => ({
+  dataCy: RESOURCE_TABLES[type]?.dataCy,
   columns: () => getResourceColumns(type),
   useData: () => {
     const isImage = type === TYPES.IMAGE

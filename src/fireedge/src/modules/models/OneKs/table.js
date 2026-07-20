@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createTable } from '@UtilsModule'
+import { createTable, timeFromMilliseconds } from '@UtilsModule'
 import { OneKsAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
-import { StatusTag } from '@ComponentsV2Module'
+import { StatusTag, Tag } from '@ComponentsV2Module'
 import { getVirtualOneKsState } from '@modules/models/OneKs/general'
 import { createLabelColumn } from '@modules/models/labels'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const ONEKS_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'ID', width: '10%' },
-  { header: T.Name, id: 'name', accessorKey: 'NAME', width: '28%' },
+  { header: T.ID, id: 'id', accessorKey: 'ID', grow: false },
+  { header: T.Name, id: 'name', accessorKey: 'NAME', truncate: true },
   {
     header: T.State,
     id: 'state',
-    width: '14%',
     accessorFn: (row) => getVirtualOneKsState(row)?.name,
     cell: ({ row }) => {
       const { color, name } = getVirtualOneKsState(row.original) ?? {}
@@ -38,8 +37,12 @@ export const ONEKS_COLUMNS = [
   {
     header: T.KubernetesVersion,
     id: 'version',
-    width: '18%',
     accessorFn: (row) => row?.TEMPLATE?.CLUSTER_BODY?.kubernetes_version ?? '',
+    cell: ({ row }) => {
+      const version = row.original?.TEMPLATE?.CLUSTER_BODY?.kubernetes_version
+
+      return version ? <Tag title={version} status="default" /> : '-'
+    },
   },
   {
     header: T.NodeGroups,
@@ -49,10 +52,16 @@ export const ONEKS_COLUMNS = [
   {
     header: T.RegistrationTime,
     id: 'registration_time',
-    width: '20%',
-    accessorFn: (row) => row?.TEMPLATE?.CLUSTER_BODY?.registration_time ?? '',
+    grow: false,
+    accessorFn: (row) => {
+      const registrationTime = row?.TEMPLATE?.CLUSTER_BODY?.registration_time
+
+      return registrationTime
+        ? timeFromMilliseconds(+registrationTime).toRelative()
+        : '-'
+    },
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 export const oneksTable = createTable(
   ONEKS_COLUMNS,

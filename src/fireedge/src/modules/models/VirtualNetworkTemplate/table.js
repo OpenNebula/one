@@ -22,11 +22,12 @@ import { Box } from '@mui/material'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const VNTEMPLATE_COLUMNS = [
-  { header: T.ID, id: 'id', accessorKey: 'ID', width: '5%' },
+  { header: T.ID, id: 'id', accessorKey: 'ID', grow: false },
   {
     header: T.Name,
     id: 'name',
     accessorKey: 'NAME',
+    truncate: true,
     cell: ({ row }) => (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <span>{row.original?.NAME}</span>
@@ -45,17 +46,46 @@ export const VNTEMPLATE_COLUMNS = [
         '-'
       ),
   },
-  { header: T.Owner, id: 'owner', accessorKey: 'UNAME' },
-  { header: T.Group, id: 'group', accessorKey: 'GNAME' },
+  {
+    header: T.AddressRanges,
+    id: 'addressRanges',
+    accessorFn: (row) =>
+      []
+        .concat(row?.TEMPLATE?.AR ?? [])
+        .flat()
+        .filter(Boolean).length,
+  },
+  {
+    header: T.SecurityGroups,
+    id: 'securityGroups',
+    accessorFn: (row) =>
+      [row?.TEMPLATE?.SECURITY_GROUPS ?? []]
+        .flat()
+        .flatMap((securityGroupIds) => `${securityGroupIds}`.split(','))
+        .filter(Boolean).length,
+  },
+  {
+    header: T.Cluster,
+    id: 'cluster',
+    accessorFn: (row) =>
+      [row?.TEMPLATE?.CLUSTER_IDS ?? [], row?.TEMPLATE?.CLUSTER ?? []]
+        .flat()
+        .flatMap((clusterIds) => `${clusterIds}`.split(','))
+        .filter(Boolean)
+        .join(', ') || '-',
+  },
+  { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
+  { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
   {
     header: T.RegistrationTime,
     id: 'time',
+    grow: false,
     cell: ({ row }) =>
       row.original?.REGTIME
         ? timeFromMilliseconds(+row.original.REGTIME).toRelative()
         : '-',
   },
-  createLabelColumn(),
+  createLabelColumn({ grow: false }),
 ]
 
 export const vntemplateTable = createTable(

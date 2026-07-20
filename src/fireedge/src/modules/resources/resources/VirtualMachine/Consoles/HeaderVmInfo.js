@@ -19,7 +19,7 @@ import { useHistory } from 'react-router'
 
 import { DEFAULT_IMAGE, STATIC_FILES_URL, T, PATH } from '@ConstantsModule'
 import { ServiceAPI, VmAPI, useGeneralApi } from '@FeaturesModule'
-import { getIps, getVirtualMachineState } from '@ModelsModule'
+import { getIpv4s, getVirtualMachineState } from '@ModelsModule'
 import { timeFromMilliseconds } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 import { useClipboard } from '@HooksModule'
@@ -183,7 +183,7 @@ const HeaderVmInfo = ({
 
   const vm = vmData ?? queryVm
   const isSuccess = Boolean(vmData) || queryIsSuccess
-  const ips = getIps(vm)
+  const ips = getIpv4s(vm)
   const { name: stateName, displayName: stateDisplayName } =
     getVirtualMachineState(vm) ?? {}
   const timeValue = +vm?.REGTIME || +vm?.ETIME || +vm?.STIME
@@ -321,7 +321,6 @@ const HeaderVmInfo = ({
                 title={ip}
                 endIcon={isCopied(ip) ? <CopiedIcon /> : <CopyIcon />}
                 onClick={() => copy(ip)}
-                isInteractive
               />
             ))}
           </Box>

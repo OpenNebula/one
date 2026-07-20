@@ -211,7 +211,14 @@ const VmTemplateScheduleActionCard = ({ actions, schedule }) => {
     tags.length > 0 && [LabelSlot, { labels: tags }],
   ].filter(Boolean)
 
-  return <CardBlock actions={actions} isSelectable={false} slots={slots} />
+  return (
+    <CardBlock
+      actions={actions}
+      dataCy={`sched-${schedule?.SCHED_ACTION_ID}`}
+      isSelectable={false}
+      slots={slots}
+    />
+  )
 }
 
 VmTemplateScheduleActionCard.propTypes = {
@@ -436,10 +443,12 @@ const ScheduleAction = ({ oneConfig, adminGroup }) => {
       {
         title: T.Edit,
         tooltip: T.Edit,
+        dataCy: `sched-update-${schedule?.SCHED_ACTION_ID}`,
         onClick: () => openEditScheduleActionForm(schedule),
       },
       {
         title: T.Delete,
+        dataCy: `sched-delete-${schedule?.SCHED_ACTION_ID}`,
         isDestructive: true,
         tooltip: disableDelete ? T.DetachRestricted : T.Delete,
         isDisabled: disableDelete,

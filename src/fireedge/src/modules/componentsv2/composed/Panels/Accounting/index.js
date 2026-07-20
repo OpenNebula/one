@@ -20,7 +20,7 @@ import { Plus } from 'iconoir-react'
 
 import { T } from '@ConstantsModule'
 import { Dropdown } from '@modules/componentsv2/primitives/Dropdown'
-import { SubmitButton } from '@modules/componentsv2/primitives/Buttons/Submit'
+import { Button } from '@modules/componentsv2/primitives/Buttons'
 import { Tooltip } from '@modules/componentsv2/primitives/Tooltip'
 import { getStyles } from '@modules/componentsv2/composed/Panels/Accounting/styles'
 
@@ -101,8 +101,8 @@ export const AccountingTab = forwardRef(
               placement="right"
               arrow
             >
-              <span>
-                <SubmitButton
+              <span className="accounting-add-dataset-action">
+                <Button
                   type="primary"
                   onClick={onAddDataset}
                   isDisabled={isLoading}

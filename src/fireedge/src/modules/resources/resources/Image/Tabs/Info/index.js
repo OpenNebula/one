@@ -17,15 +17,15 @@
 import { Component, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
-import { Link as RouterLink, generatePath } from 'react-router-dom'
 import {
   AttributesPanel,
   DetailsCard,
   PermissionsTab,
   OwnershipTab,
+  ResourceLink,
   StatusTag,
 } from '@ComponentsV2Module'
-import { PATH, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import {
   aggregateOwnership,
   aggregatePermissions,
@@ -101,11 +101,10 @@ export const Info = ({ data, config }) => {
 
   const imageTypeName = useMemo(() => getImageType(image), [image])
   const imageDiskTypeName = useMemo(() => getDiskType(image), [image])
-  const datastorePath =
+  const hasDatastore =
     DATASTORE_ID !== undefined &&
     DATASTORE_ID !== null &&
-    !Number.isNaN(+DATASTORE_ID) &&
-    generatePath(PATH.STORAGE.DATASTORES.DETAIL, { id: DATASTORE_ID })
+    !Number.isNaN(+DATASTORE_ID)
 
   const info = [
     { name: T.ID, value: ID, dataCy: 'id' },
@@ -117,10 +116,13 @@ export const Info = ({ data, config }) => {
     DATASTORE_ID !== undefined &&
       DATASTORE_ID !== null && {
         name: T.Datastore,
-        value: datastorePath ? (
-          <RouterLink
-            to={datastorePath}
-          >{`#${DATASTORE_ID} ${DATASTORE}`}</RouterLink>
+        value: hasDatastore ? (
+          <ResourceLink
+            resource={RESOURCE_NAMES.DATASTORE}
+            data={{ ID: DATASTORE_ID, NAME: DATASTORE }}
+          >
+            {`#${DATASTORE_ID} ${DATASTORE}`}
+          </ResourceLink>
         ) : (
           `#${DATASTORE_ID} ${DATASTORE}`
         ),

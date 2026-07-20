@@ -67,7 +67,7 @@ export const getStyles = ({ type, theme, iconOnly, size }) => {
     },
 
     '& .form-stepper-content': {
-      paddingBottom: '88px',
+      paddingBottom: `${theme.scale[600]}px`,
     },
 
     '& .form-stepper-content > *:has(.MuiTabs-root)': {

@@ -17,7 +17,7 @@ import PropTypes from 'prop-types'
 import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 
-import { Table } from '@ComponentsV2Module'
+import { StatusTag, Table, Tag } from '@ComponentsV2Module'
 import { ImageAPI } from '@FeaturesModule'
 import { getImageState } from '@ModelsModule'
 import { SCHEMA } from '@modules/resources/resources/Backups/Forms/RestoreForm/Steps/BackupsTable/schema'
@@ -35,43 +35,50 @@ const BACKUP_COLUMNS = [
     header: T.ID,
     id: 'id',
     accessorKey: 'ID',
-    width: '10%',
+    grow: false,
   },
   {
     header: T.Name,
     id: 'name',
     accessorKey: 'NAME',
-    width: '24%',
+    truncate: true,
   },
   {
     header: T.State,
     id: 'state',
     accessorFn: (row) => getImageState(row)?.name,
-    width: '12%',
+    cell: ({ row }) => {
+      const { color, name } = getImageState(row.original) ?? {}
+
+      return <StatusTag statusColor={color} statusName={name} />
+    },
   },
   {
     header: T.Type,
     id: 'type',
     accessorFn: getBackupType,
-    width: '12%',
+    grow: false,
+    cell: ({ row }) => (
+      <Tag title={getBackupType(row.original)} status="default" />
+    ),
   },
   {
     header: T.Datastore,
     id: 'datastore',
     accessorKey: 'DATASTORE',
-    width: '16%',
+    truncate: true,
   },
   {
     header: T.Owner,
     id: 'owner',
     accessorKey: 'UNAME',
-    width: '13%',
+    grow: false,
   },
   {
     header: T.Group,
     id: 'group',
     accessorKey: 'GNAME',
-    width: '13%',
+    grow: false,
   },
 ]
 

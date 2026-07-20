@@ -160,6 +160,7 @@ export function Groups() {
                 getRowId={(row) => String(row.ID)}
                 onRowClick={(row) => handleSelect(row.ID)}
                 size="medium"
+                defaultPageSize={25}
               />
             )
           case TABLE_VIEW_MODE.CARD:

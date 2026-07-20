@@ -128,6 +128,8 @@ export const CreateAction = () => {
       onConfirm={handleContinue}
       cancelLabel={translate(T.Cancel)}
       confirmLabel={translate(T.Continue)}
+      cancelDataCy="vnet-create-cancel"
+      confirmDataCy="vnet-create-confirm"
     />
   )
 }

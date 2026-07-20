@@ -105,15 +105,15 @@ export const DashboardCapacityCard = forwardRef(
         type="big"
         title={title}
         titleTag={
-          titleTag && isLoading ? (
+          titleTag && (
             <SkeletonLoading
-              loading
+              loading={isLoading}
               width={64}
               height={22}
               borderRadius="2xl"
-            />
-          ) : (
-            titleTag
+            >
+              {titleTag}
+            </SkeletonLoading>
           )
         }
         to={to}

@@ -34,7 +34,7 @@ export const Selection = ({ data, config }) => {
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -44,9 +44,7 @@ export const Selection = ({ data, config }) => {
         />
       ),
     },
-    { accessorKey: 'NAME', header: T.Name, width: '15%' },
-    { accessorKey: 'UNAME', header: T.Owner },
-    { accessorKey: 'GNAME', header: T.Group },
+    { accessorKey: 'NAME', header: T.Name, truncate: true },
     {
       accessorKey: 'UPDATED_VMS',
       header: T.TotalUpdatedVms,
@@ -70,6 +68,7 @@ export const Selection = ({ data, config }) => {
     {
       accessorKey: 'ID',
       header: '',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}

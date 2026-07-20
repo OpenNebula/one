@@ -51,6 +51,7 @@ export const Tag = forwardRef(
       customColor,
       dataCy,
       onChange,
+      onClick,
       ...opts
     },
     ref
@@ -64,19 +65,20 @@ export const Tag = forwardRef(
     const renderIcon = (icon) =>
       !icon ? null : isValidElement(icon) ? icon : createElement(icon)
 
-    const handleClick = (e) => {
-      e.preventDefault()
-
+    const handleClick = (event) => {
       if (isInteractive) {
+        event.preventDefault()
         setSelected((prev) => !prev)
       }
+
+      onClick?.(event)
     }
 
     const label = children ?? title
-    const content = titleClassName ? (
-      <span className={titleClassName}>{label}</span>
-    ) : (
-      label
+    const content = (
+      <span className={`tag-title ${titleClassName ?? ''}`.trim()}>
+        {label}
+      </span>
     )
 
     return (
@@ -92,6 +94,7 @@ export const Tag = forwardRef(
             theme,
             status,
             isInteractive,
+            isClickable: Boolean(onClick),
             isSelected: selected,
             customColor,
             ...opts,
@@ -121,6 +124,7 @@ Tag.propTypes = {
   isSelected: PropTypes.bool,
   dataCy: PropTypes.string,
   onChange: PropTypes.func,
+  onClick: PropTypes.func,
 }
 
 Tag.displayName = 'Tag'

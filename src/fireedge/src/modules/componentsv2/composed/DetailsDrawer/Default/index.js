@@ -55,6 +55,18 @@ const isEntry = (entry, resource, id) =>
   hasValue(id) &&
   String(getEntryId(entry)) === String(id)
 
+const getSelectedResourceIds = (slots = []) =>
+  []
+    .concat(
+      slots.find(([Slot]) => Slot.displayName === 'TabSlot')?.[1]?.tabProps
+        ?.selected ?? []
+    )
+    .flat()
+    .map((resource) => resource?.ID ?? resource?.id)
+    .filter(hasValue)
+    .sort()
+    .join(',')
+
 /**
  * @param {Array} slots - Drawer slots
  * @returns {object} Base stack data
@@ -62,32 +74,40 @@ const isEntry = (entry, resource, id) =>
 const getBaseData = (slots = []) => {
   const { id, title } = slots?.[0]?.[1] ?? {}
 
-  return { ID: id, NAME: title }
+  return { ID: id ?? getSelectedResourceIds(slots), NAME: title }
 }
 
 /**
  * Renders details drawer slots.
  *
  * @param {Array} slots - Component slots
+ * @param {boolean} isLoading - Whether the drawer body is loading
  * @returns {Component} Slots content
  */
-const renderSlots = (slots) => (
+const renderSlots = (slots, isLoading) => (
   <Box className="detailsdrawer-slots">
-    {slots?.map(([Slot, slotProps = {}, containerSx = {}], idx) => (
-      <Box
-        key={idx}
-        className={[
-          'detailsdrawer-slot',
-          `detailsdrawer-slot--${idx}`,
-          Slot.displayName && `detailsdrawer-slot--${Slot.displayName}`,
-        ]
-          .filter(Boolean)
-          .join(' ')}
-        sx={[...(Array.isArray(containerSx) ? containerSx : [containerSx])]}
-      >
-        <Slot {...slotProps} />
-      </Box>
-    ))}
+    {slots?.map(([Slot, slotProps = {}, containerSx = {}], idx) => {
+      const isInfoSlot = Slot.displayName === 'InfoSlot'
+      const props = isInfoSlot
+        ? { ...slotProps, isLoading: slotProps.isLoading ?? isLoading }
+        : slotProps
+
+      return (
+        <Box
+          key={idx}
+          className={[
+            'detailsdrawer-slot',
+            `detailsdrawer-slot--${idx}`,
+            Slot.displayName && `detailsdrawer-slot--${Slot.displayName}`,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          sx={[...(Array.isArray(containerSx) ? containerSx : [containerSx])]}
+        >
+          <Slot {...props} />
+        </Box>
+      )
+    })}
   </Box>
 )
 
@@ -133,7 +153,7 @@ StackArrow.propTypes = {
  * @returns {Component} - DetailsDrawer component
  */
 export const DetailsDrawer = forwardRef(
-  ({ isOpen = false, slots = [] }, ref) => {
+  ({ isOpen = false, isLoading = false, slots = [] }, ref) => {
     const theme = useTheme()
     const { pathname } = useLocation()
     const drawerStack = useDetailsDrawerStack()
@@ -299,7 +319,7 @@ export const DetailsDrawer = forwardRef(
               />
             </Box>
           )}
-          {renderSlots(slots)}
+          {renderSlots(slots, isLoading)}
         </Box>
       </Drawer>
     )
@@ -308,6 +328,7 @@ export const DetailsDrawer = forwardRef(
 
 DetailsDrawer.propTypes = {
   isOpen: PropTypes.bool,
+  isLoading: PropTypes.bool,
   slots: PropTypes.array,
 }
 

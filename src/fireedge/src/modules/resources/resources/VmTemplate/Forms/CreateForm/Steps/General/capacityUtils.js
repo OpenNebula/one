@@ -248,8 +248,8 @@ export const generateHotResizeInputs = (
  */
 export const generateCapacityInput = ({ validation, ...field }) => ({
   ...field,
-  type: INPUT_TYPES.TEXT,
-  htmlType: 'number',
+  type: field.type ?? INPUT_TYPES.TEXT,
+  htmlType: field.htmlType ?? 'number',
   validation: validation
     .when(`$general.MODIFICATION.${field.name}.type`, {
       is: (modificationType) =>

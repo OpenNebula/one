@@ -29,6 +29,8 @@ import {
 
 export const STEP_ID = 'network'
 
+const HIDDEN_COLUMN_IDS = ['owner', 'group', 'labels']
+
 const getSelectedNetwork = (network = {}) => {
   const { ID, NAME, UID, UNAME, SECURITY_GROUPS } = network
 
@@ -48,7 +50,9 @@ const Content = () => {
 
   const model = useMemo(
     () => ({
-      columns: vnTable.columns,
+      columns: () =>
+        vnTable.columns().filter(({ id }) => !HIDDEN_COLUMN_IDS.includes(id)),
+      dataCy: vnTable.dataCy,
       useData: (...args) => {
         const result = vnTable.useData(...args)
         networksRef.current = [].concat(result?.data ?? [])

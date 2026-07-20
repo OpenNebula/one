@@ -19,12 +19,18 @@ import { T } from '@ConstantsModule'
 import { SCHEMA, NAME_FIELD, DESCRIPTION_FIELD } from './schema'
 
 export const STEP_ID = 'general'
+const FIELDS = [NAME_FIELD, DESCRIPTION_FIELD]
+const COLUMNS = [[], FIELDS, []]
 
 const Content = () => (
   <FormWithSchema
     id={STEP_ID}
     cy={`${STEP_ID}`}
-    fields={[NAME_FIELD, DESCRIPTION_FIELD]}
+    fields={FIELDS}
+    columns={COLUMNS}
+    gridContainerSx={{
+      gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
+    }}
   />
 )
 

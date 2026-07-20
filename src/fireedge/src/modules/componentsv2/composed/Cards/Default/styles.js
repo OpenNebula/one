@@ -71,6 +71,7 @@ export const getStyles = ({ theme, isSelected }) => {
       display: 'flex',
       width: '16px',
       height: '16px',
+      marginTop: `${theme.scale[200]}px`,
       padding: 0,
       justifyContent: 'center',
       alignItems: 'center',

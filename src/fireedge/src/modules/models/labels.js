@@ -95,14 +95,14 @@ export const getLabelSlotLabels = (LABELS = {}) =>
 export const createLabelColumn = ({
   header = T.Labels,
   id = 'labels',
-  width = '18%',
+  width = null,
   max = 2,
   meta,
   ...column
 } = {}) => ({
   header,
   id,
-  width,
+  ...(width !== null && { width }),
   accessorFn: (row) => getLabelText(row?.LABELS),
   cell: ({ row }) => {
     const tags = getLabelTags(row.original?.LABELS)

@@ -31,6 +31,7 @@ export const getStyles = ({ theme }) => ({
     height: `${theme.scale[200]}px`,
     borderRadius: `${theme.borderRadius.round}px`,
     backgroundColor: theme.palette.surface.disabled,
+    opacity: 1,
   },
 
   '& .MuiSlider-track': {

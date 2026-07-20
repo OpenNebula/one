@@ -22,6 +22,7 @@ const segmentToneStyles = {
   error: 'icon.error',
   information: 'icon.information',
   action: 'icon.action',
+  focus: 'icon.focus',
 }
 
 /**

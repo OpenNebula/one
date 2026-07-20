@@ -19,12 +19,7 @@ import BasicConfiguration, {
 import AdvancedOptions, {
   STEP_ID as ADVANCED_ID,
 } from '@modules/resources/resources/VirtualMachine/Forms/AttachDiskForm/VolatileSteps/AdvancedOptions'
-import {
-  jsonToXml,
-  mapUserInputs,
-  createSteps,
-  convertToMB,
-} from '@UtilsModule'
+import { jsonToXml, mapUserInputs, createSteps } from '@UtilsModule'
 
 const Steps = createSteps([BasicConfiguration, AdvancedOptions], {
   transformInitialValue: (disk = {}, schema) => {
@@ -41,9 +36,6 @@ const Steps = createSteps([BasicConfiguration, AdvancedOptions], {
   transformBeforeSubmit: (formData) => {
     const { [BASIC_ID]: configuration = {}, [ADVANCED_ID]: advanced = {} } =
       formData ?? {}
-
-    configuration.SIZE = convertToMB(configuration.SIZE, configuration.SIZEUNIT)
-    delete configuration.SIZEUNIT
 
     return {
       template: jsonToXml({

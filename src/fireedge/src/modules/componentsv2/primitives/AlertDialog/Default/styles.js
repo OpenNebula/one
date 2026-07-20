@@ -109,6 +109,7 @@ export const useDescriptionStyles = ({ theme }) => ({
  */
 export const useActionsStyles = ({ theme }) => ({
   padding: 0,
+  marginTop: `${theme.scale[400]}px`,
   gap: `${theme.scale[400]}px`,
   flexDirection: {
     xs: 'column-reverse',

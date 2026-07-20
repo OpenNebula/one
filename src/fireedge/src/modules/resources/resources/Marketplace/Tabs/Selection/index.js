@@ -38,7 +38,7 @@ export const Selection = ({ data }) => {
     {
       id: 'deselect',
       header: '',
-      width: '5%',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.TRANSPARENT}
@@ -48,7 +48,7 @@ export const Selection = ({ data }) => {
         />
       ),
     },
-    { accessorKey: 'NAME', header: T.Name, width: '25%' },
+    { accessorKey: 'NAME', header: T.Name, truncate: true },
     {
       id: 'state',
       header: T.State,
@@ -58,8 +58,6 @@ export const Selection = ({ data }) => {
         return <StatusTag statusColor={color} statusName={name} />
       },
     },
-    { accessorKey: 'UNAME', header: T.Owner },
-    { accessorKey: 'GNAME', header: T.Group },
     { accessorKey: 'MARKET_MAD', header: T.Driver },
     {
       id: 'apps',
@@ -70,6 +68,7 @@ export const Selection = ({ data }) => {
     {
       accessorKey: 'ID',
       header: '',
+      grow: false,
       cell: ({ row }) => (
         <Button
           type={STYLE_BUTTONS.TYPE.OUTLINE}
