@@ -68,7 +68,17 @@ module TransferManager
                 sysds_id = @vm.elements['HISTORY_RECORDS/HISTORY[last()]/DS_ID'].text.to_i
 
                 if @tm_mad == 'lvm'
-                    @vgname = "vg-one-#{imgds_id}"
+                    # Volatile disks carry the system DS as their DATASTORE_ID
+                    vgds_id =
+                        if imageid
+                            imgds_id
+                        else
+                            @vm.elements[
+                                'TEMPLATE/DISK[TM_MAD="lvm"]/DATASTORE_ID'
+                            ].text.to_i
+                        end
+
+                    @vgname = "vg-one-#{vgds_id}"
                     @is_thin = true
                     if is_persistent
                         @lvname = "img-one-#{imageid}"
