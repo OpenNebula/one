@@ -19,12 +19,13 @@ import { Component } from 'react'
 import {
   Button,
   StatusTag,
+  Tag,
   TablePanel as SelectionTable,
 } from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T, UNITS } from '@ConstantsModule'
 import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
 import { getMarketplaceAppState, getMarketplaceAppType } from '@ModelsModule'
-import { prettyBytes } from '@UtilsModule'
+import { prettyBytes, sentenceCase } from '@UtilsModule'
 
 /**
  * @param {object} root0 - Params
@@ -61,14 +62,22 @@ export const Selection = ({ data }) => {
     {
       id: 'type',
       header: T.Type,
-      cell: ({ row }) => getMarketplaceAppType(row.original),
+      cell: ({ row }) => {
+        const type = getMarketplaceAppType(row.original)
+
+        return type ? <Tag title={sentenceCase(type)} status="default" /> : '-'
+      },
     },
     {
       id: 'size',
       header: T.Size,
       cell: ({ row }) => prettyBytes(row.original?.SIZE, UNITS.MB),
     },
-    { accessorKey: 'MARKETPLACE', header: T.Marketplace },
+    {
+      accessorKey: 'MARKETPLACE',
+      header: T.Marketplace,
+      truncate: true,
+    },
     { accessorKey: 'ZONE_ID', header: T.Zone },
     {
       accessorKey: 'ID',

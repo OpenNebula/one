@@ -17,7 +17,12 @@ import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
 
 import { Table } from '@ComponentsV2Module'
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import {
+  DATASTORE_TYPES,
+  IMAGE_TYPES_FOR_BACKUPS,
+  RESOURCE_NAMES,
+  T,
+} from '@ConstantsModule'
 import { imageTable } from '@ModelsModule'
 
 /**
@@ -26,20 +31,25 @@ import { imageTable } from '@ModelsModule'
  * @returns {Component} - Datastore images tab
  */
 export const Images = ({ data: tabData }) => {
-  const datastoreId = [].concat(tabData?.selected).filter(Boolean)?.[0]?.ID
+  const datastore = [].concat(tabData?.selected).filter(Boolean)?.[0]
+  const datastoreId = datastore?.ID
+  const isBackupDatastore = +datastore?.TYPE === DATASTORE_TYPES.BACKUP.id
 
-  const { data = [], isFetching } = imageTable.useData(undefined, {
-    selectFromResult: (result) => ({
-      ...result,
-      data: result?.data?.filter((image) => {
-        if (datastoreId) {
-          return String(image?.DATASTORE_ID) === String(datastoreId)
-        }
+  const { data = [], isFetching } = imageTable.useData(
+    isBackupDatastore ? { imageTypes: IMAGE_TYPES_FOR_BACKUPS } : undefined,
+    {
+      selectFromResult: (result) => ({
+        ...result,
+        data: result?.data?.filter((image) => {
+          if (datastoreId !== undefined && datastoreId !== null) {
+            return String(image?.DATASTORE_ID) === String(datastoreId)
+          }
 
-        return true
+          return true
+        }),
       }),
-    }),
-  })
+    }
+  )
 
   const columns = useMemo(
     () =>
@@ -69,8 +79,11 @@ export const Images = ({ data: tabData }) => {
       isEnableSearchBar={true}
       isEnableSort={true}
       isEnableFilters={true}
+      size="medium"
       openRowDetailsOnClick
-      rowDetailsResourceId={RESOURCE_NAMES.IMAGE}
+      rowDetailsResourceId={
+        isBackupDatastore ? RESOURCE_NAMES.BACKUP : RESOURCE_NAMES.IMAGE
+      }
     />
   )
 }

@@ -22,7 +22,10 @@ import { ObjectSchema, array, object, string } from 'yup'
 
 const getDatastoreModel = (zoneId) => ({
   dataCy: 'datastores',
-  columns: datastoreTable.columns,
+  columns: () =>
+    datastoreTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
   useData: (_args, options) =>
     datastoreTable.useData({ zone: zoneId }, options),
 })

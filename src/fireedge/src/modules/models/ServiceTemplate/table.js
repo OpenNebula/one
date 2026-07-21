@@ -38,7 +38,7 @@ export const SERVICETEMPLATES_COLUMNS = [
   { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
   { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
   {
-    header: T.RegistrationTime,
+    header: T.Registered,
     id: 'time',
     accessorKey: 'TEMPLATE.BODY.registration_time',
     grow: false,
@@ -56,10 +56,9 @@ export const SERVICETEMPLATES_ROLES_COLUMNS = [
     header: T.Cardinality,
     id: 'cardinality',
     accessorKey: 'cardinality',
-    grow: false,
   },
-  { header: T.Min, id: 'min_vms', accessorKey: 'min_vms', grow: false },
-  { header: T.Max, id: 'max_vms', accessorKey: 'max_vms', grow: false },
+  { header: T.Min, id: 'min_vms', accessorKey: 'min_vms' },
+  { header: T.Max, id: 'max_vms', accessorKey: 'max_vms' },
 ]
 
 export const servicetemplateTable = createTable(

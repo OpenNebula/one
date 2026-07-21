@@ -16,9 +16,7 @@
 import { array, lazy, object, ObjectSchema, string } from 'yup'
 import { INPUT_TYPES, T } from '@ConstantsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
-import { hostTable } from '@ModelsModule'
-
-const HIDDEN_HOST_COLUMNS = ['running_vms', 'TOTAL_VMS']
+import { hostSelectionTable } from '@ModelsModule'
 
 /** @type {Field} Host field */
 const HOSTS = ({ formType = '', filter }) => {
@@ -42,13 +40,9 @@ const HOSTS = ({ formType = '', filter }) => {
     label: T.SelectNewHostsToDelete,
     type: INPUT_TYPES.TABLE,
     model: {
-      ...hostTable,
-      columns: (override) =>
-        hostTable
-          .columns(override)
-          .filter((column) => !HIDDEN_HOST_COLUMNS.includes(column.id)),
+      ...hostSelectionTable,
       useData: (args, options) =>
-        hostTable.useData(args, {
+        hostSelectionTable.useData(args, {
           ...options,
           selectFromResult: (result) => ({
             ...result,

@@ -21,7 +21,7 @@ import { GroupAPI, VdcAPI } from '@FeaturesModule'
 import { getGroupQuotaUsage } from '@ModelsModule'
 import { LoadingDisplay } from '@modules/resources/LoadingState'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { Table, UserGroupsTab } from '@ComponentsV2Module'
+import { ProgressBar, Table, UserGroupsTab } from '@ComponentsV2Module'
 
 import {
   getVdcId,
@@ -60,14 +60,47 @@ const getGroupTableRow = (group = {}) => {
   }
 }
 
+const getQuotaColumn = (id, header, type, quotaField, usageField) => ({
+  accessorKey: id,
+  header,
+  cell: ({ row }) => {
+    const { percentOfUsed = 0, percentLabel = '-' } =
+      getGroupQuotaUsage(type, row.original?.[quotaField] ?? {})?.[
+        usageField
+      ] ?? {}
+
+    return (
+      <ProgressBar value={percentOfUsed} label={percentLabel} isLabelVisible />
+    )
+  },
+})
+
 const groupColumns = [
   { accessorKey: 'ID', header: T.ID, grow: false },
   { accessorKey: 'NAME', header: T.Name, truncate: true },
-  { accessorKey: 'TOTAL_USERS_LABEL', header: T.Users, grow: false },
-  { accessorKey: 'VM_QUOTA_LABEL', header: T.VMs, grow: false },
-  { accessorKey: 'DATASTORE_QUOTA_LABEL', header: T.Datastores, grow: false },
-  { accessorKey: 'NETWORK_QUOTA_LABEL', header: T.Networks, grow: false },
-  { accessorKey: 'IMAGE_QUOTA_LABEL', header: T.ImageRVMS, grow: false },
+  { accessorKey: 'TOTAL_USERS_LABEL', header: T.Users },
+  getQuotaColumn('VM_QUOTA_LABEL', T.VMs, 'VM', 'VM_QUOTA', 'vms'),
+  getQuotaColumn(
+    'DATASTORE_QUOTA_LABEL',
+    T.Datastores,
+    'DATASTORE',
+    'DATASTORE_QUOTA',
+    'size'
+  ),
+  getQuotaColumn(
+    'NETWORK_QUOTA_LABEL',
+    T.Networks,
+    'NETWORK',
+    'NETWORK_QUOTA',
+    'leases'
+  ),
+  getQuotaColumn(
+    'IMAGE_QUOTA_LABEL',
+    T.ImageRVMS,
+    'IMAGE',
+    'IMAGE_QUOTA',
+    'rvms'
+  ),
 ]
 
 /**

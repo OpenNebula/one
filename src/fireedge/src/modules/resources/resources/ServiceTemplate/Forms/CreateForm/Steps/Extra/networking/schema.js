@@ -18,6 +18,21 @@ import { getObjectSchemaFromFields, arrayToOptions } from '@UtilsModule'
 import { INPUT_TYPES } from '@ConstantsModule'
 import { vnTable, vntemplayeTable as vntemplateTable } from '@ModelsModule'
 
+const getSelectionTable = (table) => ({
+  ...table,
+  columns: () =>
+    table
+      .columns()
+      .filter(
+        ({ id, accessorKey }) =>
+          !['owner', 'group', 'time', 'labels'].includes(id) &&
+          !['UNAME', 'GNAME', 'REGTIME'].includes(accessorKey)
+      ),
+})
+
+const selectionVnTable = getSelectionTable(vnTable)
+const selectionVnTemplateTable = getSelectionTable(vntemplateTable)
+
 // Define the network types
 export const NETWORK_TYPES = {
   template_id: 'Create',
@@ -93,7 +108,8 @@ const NETWORK_SELECTION = (required = false) => ({
   label: 'Network',
   type: INPUT_TYPES.TABLE,
   dependOf: 'type',
-  model: (TYPE) => (TYPE === 'template_id' ? vntemplateTable : vnTable),
+  model: (TYPE) =>
+    TYPE === 'template_id' ? selectionVnTemplateTable : selectionVnTable,
   validation: string().trim()[required ? 'required' : 'notRequired'](),
   grid: { md: 12 },
   singleSelect: true,

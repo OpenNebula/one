@@ -17,7 +17,6 @@ actions:
   chgrp: true
   share: true
   unshare: true
-  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 
@@ -72,6 +71,9 @@ info-tabs:
       disk-snapshot-revert: true
       disk-snapshot-delete: true
 
+  networks:
+    enabled: true
+
   log:
     enabled: true
 
@@ -81,6 +83,9 @@ info-tabs:
       sched-add: true
       sched-update: true
       sched-delete: true
+
+  template:
+    enabled: true
 
 # Dialogs
 

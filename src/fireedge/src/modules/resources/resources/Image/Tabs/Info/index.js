@@ -24,13 +24,14 @@ import {
   OwnershipTab,
   ResourceLink,
   StatusTag,
+  Tag,
 } from '@ComponentsV2Module'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import {
   aggregateOwnership,
   aggregatePermissions,
   booleanToString,
-  getImageType,
+  getImageTypeLabel,
   levelLockToString,
   prettyBytes,
   timeToString,
@@ -99,7 +100,7 @@ export const Info = ({ data, config }) => {
     [image]
   )
 
-  const imageTypeName = useMemo(() => getImageType(image), [image])
+  const imageTypeName = useMemo(() => getImageTypeLabel(image), [image])
   const imageDiskTypeName = useMemo(() => getDiskType(image), [image])
   const hasDatastore =
     DATASTORE_ID !== undefined &&
@@ -134,7 +135,11 @@ export const Info = ({ data, config }) => {
     },
     {
       name: T.Type,
-      value: imageTypeName,
+      value: imageTypeName ? (
+        <Tag title={imageTypeName} status="default" />
+      ) : (
+        '-'
+      ),
     },
     {
       name: T.DiskType,

@@ -20,7 +20,9 @@ import {
   InfoSlot,
   ResourceActionConfirmation,
   SummarySlot,
+  StatusTag,
   TabSlot,
+  Tag,
   ToggleGroup,
 } from '@ComponentsV2Module'
 import { unset } from 'lodash'
@@ -45,7 +47,9 @@ import {
   getBackupIncrements,
   getBackupRestoreOptions,
   getBackupVmIds,
-  getImageType,
+  getImageState,
+  getImageTypeLabel,
+  getLabelTags,
 } from '@ModelsModule'
 
 const getRestoreFormConfig = (backup = {}) => {
@@ -107,8 +111,12 @@ export const SingleView = ({
       : selectedData
   const { ID, TEMPLATE } = data
 
-  const type = useMemo(() => getImageType(data), [data])
-  const { DATASTORE, PERSISTENT } = data
+  const type = useMemo(() => getImageTypeLabel(data), [data])
+  const { color: stateColor, name: stateName } = useMemo(
+    () => getImageState(data) ?? {},
+    [data]
+  )
+  const { DATASTORE, PERSISTENT, UNAME, GNAME } = data
 
   const backupIsLocked = data?.LOCK != null
 
@@ -366,6 +374,12 @@ export const SingleView = ({
 
             title: data?.NAME,
             id: ID,
+            labels: [
+              [T.Owner, UNAME],
+              [T.Group, GNAME],
+              [T.Datastore, DATASTORE],
+            ],
+            tags: getLabelTags(data?.LABELS),
             Toolbar: () => (
               <Box
                 sx={(theme) => ({
@@ -393,9 +407,20 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
-              [type ?? '-', T.Type],
+              [
+                <StatusTag
+                  key="state"
+                  statusColor={stateColor}
+                  statusName={stateName ?? '-'}
+                />,
+                T.State,
+              ],
+              [
+                type ? <Tag key="type" title={type} status="default" /> : '-',
+                T.Type,
+              ],
               [DATASTORE ?? '-', T.Datastore],
-              [+PERSISTENT ? T.Persistent : T.NonPersistent, T.Persistent],
+              [+PERSISTENT ? T.Yes : T.No, T.Persistent],
             ],
           },
         ],

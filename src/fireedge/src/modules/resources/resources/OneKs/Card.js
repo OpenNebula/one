@@ -17,19 +17,8 @@
 import { T } from '@ConstantsModule'
 import { Component, forwardRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import {
-  Card,
-  MetadataSlot,
-  OwnershipSlot,
-  TitleSlot,
-} from '@ComponentsV2Module'
+import { Card, MetadataSlot, TimeSlot, TitleSlot } from '@ComponentsV2Module'
 import { getVirtualOneKsState } from '@ModelsModule'
-import { timeFromMilliseconds } from '@UtilsModule'
-
-const formatRegistrationTime = (time) =>
-  +time > 0
-    ? `${T.Registered} ${timeFromMilliseconds(+time).toRelative()}`
-    : undefined
 
 /**
  * @param {object} root0 - Params
@@ -68,7 +57,7 @@ export const OneKsCard = forwardRef(
             },
           ],
           [
-            OwnershipSlot,
+            MetadataSlot,
             {
               labels: [
                 ['ID', ID],
@@ -79,14 +68,11 @@ export const OneKsCard = forwardRef(
               ],
             },
           ],
-          [
-            MetadataSlot,
+          CLUSTER_BODY?.registration_time && [
+            TimeSlot,
             {
-              labels: [
-                [
-                  formatRegistrationTime(CLUSTER_BODY?.registration_time),
-                ]?.filter(Boolean),
-              ],
+              time: CLUSTER_BODY.registration_time,
+              label: T.Created,
             },
           ],
         ]}

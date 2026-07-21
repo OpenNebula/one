@@ -17,9 +17,9 @@
 import PropTypes from 'prop-types'
 import { Component } from 'react'
 import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
-import { T, UNITS, STYLE_BUTTONS } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Cancel as CloseIcon, ArrowRight } from 'iconoir-react'
-import { prettyBytes } from '@UtilsModule'
+import { SERVICETEMPLATES_COLUMNS } from '@ModelsModule'
 
 /**
  * @param {object} root0 - Params
@@ -28,8 +28,7 @@ import { prettyBytes } from '@UtilsModule'
  * @returns {Component} - Service Templates aggregated info tab
  */
 export const Selection = ({ data, config }) => {
-  const { selected, handleSelect, handleDeselect, serviceTemplateMetrics } =
-    data
+  const { selected, handleSelect, handleDeselect } = data
 
   const selectionColumns = [
     {
@@ -45,36 +44,10 @@ export const Selection = ({ data, config }) => {
         />
       ),
     },
-    { accessorKey: 'NAME', header: T.Name, minWidth: '200px' },
+    ...SERVICETEMPLATES_COLUMNS.filter(
+      ({ id }) => !['owner', 'group', 'time', 'labels'].includes(id)
+    ),
     {
-      id: 'MEMORY',
-      header: `${T.Total} ${T.Memory}`,
-      cell: ({ row }) =>
-        prettyBytes(
-          serviceTemplateMetrics?.[row.original.ID]?.['TEMPLATE.MEMORY'],
-          UNITS.MB
-        ),
-    },
-    {
-      id: 'VCPU',
-      header: `${T.Total} v${T.cpu}`,
-      cell: ({ row }) =>
-        serviceTemplateMetrics?.[row.original.ID]?.['TEMPLATE.VCPU'],
-    },
-    {
-      id: 'ROLES',
-      header: T.Roles,
-      cell: ({ row }) =>
-        [].concat(row?.original?.TEMPLATE?.BODY?.roles)?.length ?? 0,
-    },
-    {
-      id: 'NETWORKS',
-      header: T.Networks,
-      cell: ({ row }) =>
-        [].concat(row?.original?.TEMPLATE?.BODY?.networks)?.length ?? 0,
-    },
-    {
-      minWidth: '15%',
       id: 'ID',
       header: '',
       grow: false,
@@ -93,7 +66,7 @@ export const Selection = ({ data, config }) => {
 
   return (
     <SelectionTable
-      key="selected-vmtemplates-table"
+      key="selected-service-templates-table"
       columns={selectionColumns}
       data={selected}
     />

@@ -13,6 +13,7 @@ actions:
   delete: true
   chown: true
   chgrp: true
+  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 

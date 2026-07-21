@@ -18,7 +18,10 @@ import PropTypes from 'prop-types'
 import { Component } from 'react'
 import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
-import { getTotalOfResources } from '@UtilsModule'
+import {
+  getSecurityGroupResourceCount,
+  getSecurityGroupRulesCount,
+} from '@ModelsModule'
 import { Cancel as CloseIcon, ArrowRight } from 'iconoir-react'
 
 /**
@@ -46,24 +49,24 @@ export const Selection = ({ data, config }) => {
     },
     { accessorKey: 'NAME', header: T.Name, truncate: true },
     {
+      id: 'rules',
+      header: T.Rules,
+      accessorFn: getSecurityGroupRulesCount,
+    },
+    {
       accessorKey: 'UPDATED_VMS',
-      header: T.TotalUpdatedVms,
-      accessorFn: (row) => getTotalOfResources(row?.UPDATED_VMS),
+      header: T.UpdatedVms,
+      accessorFn: (row) => getSecurityGroupResourceCount(row?.UPDATED_VMS),
     },
     {
       accessorKey: 'OUTDATED_VMS',
-      header: T.TotalOutdatedVms,
-      accessorFn: (row) => getTotalOfResources(row?.OUTDATED_VMS),
+      header: T.OutdatedVms,
+      accessorFn: (row) => getSecurityGroupResourceCount(row?.OUTDATED_VMS),
     },
     {
       accessorKey: 'ERROR_VMS',
-      header: T.TotalErrorVms,
-      accessorFn: (row) => getTotalOfResources(row?.ERROR_VMS),
-    },
-    {
-      accessorKey: 'TEMPLATE.RULE',
-      header: T.TotalRules,
-      accessorFn: (row) => row?.TEMPLATE?.RULE?.length || 0,
+      header: T.ErrorVms,
+      accessorFn: (row) => getSecurityGroupResourceCount(row?.ERROR_VMS),
     },
     {
       accessorKey: 'ID',

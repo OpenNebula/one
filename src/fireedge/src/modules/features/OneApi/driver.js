@@ -37,7 +37,7 @@ const driverApi = oneApi.injectEndpoints({
         const name = Actions.LIST
         const command = { name, ...Commands[name] }
 
-        return { command, showNotification: params?.showNotification }
+        return { command, showNotification: params?.showNotification ?? false }
       },
       transformResponse: (data) =>
         data.map((driver) => ({

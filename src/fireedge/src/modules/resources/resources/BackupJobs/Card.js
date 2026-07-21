@@ -19,15 +19,15 @@ import { Component, forwardRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import {
   Card,
+  IconSlot,
   LabelSlot,
   MetadataSlot,
-  OwnershipSlot,
   TitleSlot,
 } from '@ComponentsV2Module'
 import {
   getBackupJobRelativeLastBackupTime,
   getBackupJobStatus,
-  getLabelSlotLabels,
+  getLabelTags,
 } from '@ModelsModule'
 import { getLockIcon } from '@UtilsModule'
 
@@ -47,7 +47,7 @@ export const BackupJobCard = forwardRef(
       () => getBackupJobStatus(data ?? {}),
       [data]
     )
-    const labelSlotLabels = getLabelSlotLabels(data?.LABELS)
+    const labelTags = getLabelTags(data?.LABELS)
 
     return (
       <Card
@@ -69,33 +69,28 @@ export const BackupJobCard = forwardRef(
             },
           ],
           [
-            OwnershipSlot,
+            MetadataSlot,
             {
               labels: [
                 ['ID', ID],
                 [T.Owner, UNAME],
                 [T.Group, GNAME],
-                [T.Priority, PRIORITY],
               ],
             },
           ],
           [
-            MetadataSlot,
+            IconSlot,
             {
-              labels: [
-                [
-                  +LAST_BACKUP_TIME > 0 &&
-                    `${
-                      T.LastBackupTimeInfo
-                    } ${getBackupJobRelativeLastBackupTime(LAST_BACKUP_TIME)}`,
-                ]?.filter(Boolean),
-              ],
+              priority: PRIORITY ?? '-',
+              lastBackupTime:
+                getBackupJobRelativeLastBackupTime(LAST_BACKUP_TIME),
             },
           ],
-          labelSlotLabels.length > 0 && [
+          labelTags.length > 0 && [
             LabelSlot,
             {
-              labels: labelSlotLabels,
+              tags: labelTags,
+              max: 3,
             },
           ],
         ].filter(Boolean)}

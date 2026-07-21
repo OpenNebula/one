@@ -55,6 +55,7 @@ export const Clusters = ({ data: tabData }) => {
       isEnableSearchBar={true}
       isEnableSort={true}
       isEnableFilters={true}
+      size="medium"
       openRowDetailsOnClick
       rowDetailsResourceId={RESOURCE_NAMES.CLUSTER}
     />

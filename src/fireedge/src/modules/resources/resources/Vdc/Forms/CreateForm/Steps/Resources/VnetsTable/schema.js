@@ -24,7 +24,10 @@ import { ObjectSchema, array, object, string } from 'yup'
 
 const getVnetModel = (zoneId) => ({
   dataCy: 'vnets',
-  columns: vnTable.columns,
+  columns: () =>
+    vnTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
   useData: (_args, options) => vnTable.useData({ zone: zoneId }, options),
 })
 

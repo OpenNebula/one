@@ -24,7 +24,7 @@ import {
   TimeSlot,
   TitleSlot,
 } from '@ComponentsV2Module'
-import { getLabelSlotLabels } from '@ModelsModule'
+import { getLabelTags } from '@ModelsModule'
 import { getLockIcon } from '@UtilsModule'
 
 /**
@@ -49,7 +49,7 @@ export const VnTemplatesCard = forwardRef(
       REGTIME,
       TEMPLATE: { VN_MAD } = {},
     } = vnTemplate
-    const labelSlotLabels = getLabelSlotLabels(vnTemplate?.LABELS)
+    const labelTags = getLabelTags(vnTemplate?.LABELS)
 
     return (
       <Card
@@ -79,19 +79,19 @@ export const VnTemplatesCard = forwardRef(
               ].filter(([, value]) => value),
             },
           ],
-          (VN_MAD || labelSlotLabels.length > 0) && [
+          (VN_MAD || labelTags.length > 0) && [
             LabelSlot,
             {
-              labels: [
-                VN_MAD && [VN_MAD, 'default'],
-                ...labelSlotLabels,
-              ].filter(Boolean),
+              labels: [VN_MAD && [VN_MAD, 'default']].filter(Boolean),
+              tags: labelTags,
+              max: 3,
             },
           ],
           REGTIME && [
             TimeSlot,
             {
               time: REGTIME,
+              label: T.Registered,
             },
           ],
         ].filter(Boolean)}

@@ -15,9 +15,14 @@
  * ------------------------------------------------------------------------- */
 
 /**
- * Minimum width reserved for the compactable header toolbar before truncating.
+ * @param {object} theme - Current theme in use
+ * @returns {object} Responsive title region width styles
  */
-const MIN_TOOLBAR_WIDTH = 550
+const getTitleRegionWidth = (theme) => ({
+  xs: `min(65%, ${theme.scale[1800]}px)`,
+  sm: `min(60%, ${theme.scale[1800] * 1.1}px)`,
+  md: `min(55%, ${theme.scale[1800] * 1.2}px)`,
+})
 
 /**
  * @param {object} root0 - Params
@@ -66,20 +71,23 @@ export const getStyles = ({ theme }) => {
   }
 
   const header = {
+    '& .info-top-row': {
+      display: 'flex',
+      alignItems: 'center',
+      gap: `${theme.scale[400]}px`,
+      alignSelf: 'stretch',
+      minWidth: 0,
+      maxWidth: '100%',
+    },
     '& .info-header': {
       display: 'flex',
       alignItems: 'center',
       gap: `${theme.scale[100]}px`,
-      alignSelf: 'stretch',
+      flex: '0 0 auto',
+      width: getTitleRegionWidth(theme),
       minWidth: 0,
       maxWidth: '100%',
       overflow: 'hidden',
-
-      '&:hover': {
-        '& .info-edit-icon-container': {
-          visibility: 'visible',
-        },
-      },
 
       '& .icon-container': {
         flex: '0 0 auto',
@@ -94,27 +102,6 @@ export const getStyles = ({ theme }) => {
           width: '100%',
           height: '100%',
           aspectRatio: '1/1',
-        },
-      },
-      '& .info-edit-icon-container': {
-        appearance: 'none',
-        cursor: 'pointer',
-        lineHeight: 0,
-
-        visibility: 'hidden',
-
-        display: 'flex',
-        padding: `${theme.scale[50]}px`,
-        alignItems: 'center',
-        gap: '10px',
-        borderRadius: `${theme.borderRadius['2xl']}px`,
-        border: `${theme.borderWidth.sm}px solid ${theme.palette.border.actionHover2}`,
-        bgcolor: 'surface.actionHover2',
-        color: 'icon.action',
-
-        '&:focus-visible': {
-          outline: `${theme.borderWidth.sm}px unset ${theme.palette.border.focus}`,
-          outlineOffset: '2px',
         },
       },
       '& .info-title, & .info-id': {
@@ -140,7 +127,8 @@ export const getStyles = ({ theme }) => {
         display: 'flex',
         alignItems: 'center',
         gap: `${theme.scale[100]}px`,
-        flex: '1 1 auto',
+        flex: '0 1 auto',
+        width: 'fit-content',
         minWidth: 0,
         maxWidth: '100%',
         overflow: 'hidden',
@@ -193,12 +181,17 @@ export const getStyles = ({ theme }) => {
     '& .info-ownership': {
       display: 'flex',
       gap: `${theme.scale[100]}px`,
+      rowGap: `${theme.scale[50]}px`,
       alignItems: 'center',
       alignSelf: 'stretch',
+      flexWrap: 'wrap',
+      minWidth: 0,
 
       '& .region-label': {
         display: 'flex',
         gap: `${theme.scale[50]}px`,
+        minWidth: 0,
+        maxWidth: '100%',
         '&::before': {
           content: '"\\2022"',
           marginRight: `${theme.scale[50]}px`,
@@ -209,6 +202,10 @@ export const getStyles = ({ theme }) => {
         },
         '& .region-label--title, & .region-label--value': {
           ...captionTypography,
+          minWidth: 0,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
         },
 
         '& .region-label--title': {
@@ -222,15 +219,17 @@ export const getStyles = ({ theme }) => {
       display: 'flex',
       alignItems: 'center',
       minWidth: 0,
+      maxWidth: '100%',
+      overflow: 'visible',
     },
   }
   const toolbar = {
     '& .info-action-toggles': {
       display: 'flex',
       justifyContent: 'flex-end',
-      minWidth: `${MIN_TOOLBAR_WIDTH}px`,
+      flex: '1 1 0',
+      minWidth: 0,
       maxWidth: '100%',
-      flex: '0 1 auto',
       overflow: 'hidden',
     },
   }

@@ -964,6 +964,7 @@ module.exports = {
   Providers: 'Providers',
   Provisions: 'Provisions',
   NumberProvisions: 'Number of associated provisions',
+  AssociatedProvisions: 'Associated Provisions',
   'attribute.delete.confirmation':
     'The selected attribute will be deleted. This cannot be undone.',
   'vm.delete.confirmation':
@@ -1056,6 +1057,7 @@ module.exports = {
   VirtualNetworks: 'Virtual networks',
   IPsInUse: 'IPs in use',
   NoNetworksYet: 'No networks yet',
+  NoNetworksInService: 'This service does not currently have any networks',
   RoleNetwork: 'Role Network',
   RoleNetworks: 'Role Networks',
   NetworkTemplate: 'Network Template',
@@ -1084,7 +1086,9 @@ module.exports = {
   BackupJobRefresh:
     'There are machines in outdated, you can refresh to see if the backups are already done',
   Datastore: 'Datastore',
+  DatastoreDriver: 'Datastore driver',
   Datastores: 'Datastores',
+  TotalSize: 'Total size',
   OnDatastores: 'on datastores',
   NumberOfDatastores: 'Number of datastores',
   Image: 'Image',
@@ -1143,6 +1147,7 @@ module.exports = {
 
   /* datastore */
   Transfer: 'Transfer',
+  TransferDriver: 'Transfer driver',
   CustomDSMAD: 'Custom DS_MAD',
   CustomTMMAD: 'Custom TM_MAD',
   Filesystem: 'Filesystem',
@@ -2446,6 +2451,9 @@ module.exports = {
   TotalOutdatedVms: 'Total outdated VMs',
   TotalErrorVms: 'Total error VMs',
   TotalRules: 'Total rules',
+  UpdatedVms: 'Updated VMs',
+  OutdatedVms: 'Outdated VMs',
+  ErrorVms: 'Error VMs',
 
   /* Host schema */
   SearchHosts: 'Search hosts',
@@ -3298,7 +3306,11 @@ module.exports = {
   /* VM states */
   INIT: 'Init',
   PENDING: 'Pending',
+  READY: 'Ready',
   ACTIVE: 'Active',
+  ENABLED: 'Enabled',
+  DISABLED: 'Disabled',
+  USED: 'Used',
   STOPPED: 'Stopped',
   SUSPENDED: 'Suspended',
   DONE: 'Done',

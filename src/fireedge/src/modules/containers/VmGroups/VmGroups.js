@@ -153,14 +153,25 @@ export function VmGroups() {
             return (
               <List isRowIndicatorDisabled={true} isLoading={isRefreshing}>
                 {items?.map(
-                  ({ NAME, ID, GNAME, UNAME, LOCK = false, LABELS }) => (
+                  ({
+                    NAME,
+                    ID,
+                    GNAME,
+                    UNAME,
+                    REGTIME,
+                    LOCK = false,
+                    ROLES,
+                    LABELS,
+                  }) => (
                     <VmGroup.Card
                       key={ID}
                       NAME={NAME}
                       ID={ID}
                       GNAME={GNAME}
                       UNAME={UNAME}
+                      REGTIME={REGTIME}
                       LOCK={LOCK}
+                      ROLES={ROLES}
                       LABELS={LABELS}
                       isSelected={selectedItems?.includes(ID)}
                       onCheck={() =>

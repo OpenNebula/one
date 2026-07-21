@@ -49,21 +49,18 @@ export const HostPciTab = ({ data }) => {
       header: T.VendorName,
       id: 'vendorName',
       accessorKey: 'VENDOR_NAME',
-      truncate: true,
     },
     { header: T.Class, id: 'class', accessorKey: 'CLASS' },
     {
       header: T.ClassName,
       id: 'className',
       accessorKey: 'CLASS_NAME',
-      truncate: true,
     },
     { header: T.Device, id: 'device', accessorKey: 'DEVICE' },
     {
       header: T.DeviceName,
       id: 'deviceName',
       accessorKey: 'DEVICE_NAME',
-      truncate: true,
     },
     {
       header: T.ShortAddress,

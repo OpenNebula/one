@@ -20,6 +20,8 @@ import { TablePanel } from '@ComponentsV2Module'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { getVirtualRouterVms, VM_COLUMNS, vmsTable } from '@ModelsModule'
 
+const HIDDEN_COLUMN_IDS = ['cpu', 'memory', 'disk_size']
+
 /**
  * @param {object} root0 - Params
  * @param {object} root0.data - Tab specific data
@@ -37,11 +39,15 @@ export const Vms = ({ data }) => {
     () => vms.filter(({ ID }) => vrouterVmIds.includes(String(ID))),
     [vms, vrouterVmIds]
   )
+  const columns = useMemo(
+    () => VM_COLUMNS.filter(({ id }) => !HIDDEN_COLUMN_IDS.includes(id)),
+    []
+  )
 
   return (
     <TablePanel
       title={T.VirtualMachines}
-      columns={VM_COLUMNS}
+      columns={columns}
       data={filteredVms}
       isLoading={isFetching}
       isFullHeight

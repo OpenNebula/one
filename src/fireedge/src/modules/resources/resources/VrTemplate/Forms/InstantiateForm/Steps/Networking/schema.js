@@ -15,16 +15,31 @@
  * ------------------------------------------------------------------------- */
 import { mixed, boolean, array, string } from 'yup'
 import { getObjectSchemaFromFields, REG_V4, REG_V6 } from '@UtilsModule'
-import { securitygroupTable, vnTable } from '@ModelsModule'
+import { securitygroupSelectionTable, vnTable } from '@ModelsModule'
 
 import { T, INPUT_TYPES } from '@ConstantsModule'
+
+const getSelectionTable = (table) => ({
+  ...table,
+  columns: () =>
+    table
+      .columns()
+      .filter(
+        ({ id, accessorKey }) =>
+          !['owner', 'group', 'labels'].includes(id) &&
+          !['UNAME', 'GNAME'].includes(accessorKey)
+      ),
+})
+
+const selectionVnTable = getSelectionTable(vnTable)
+const selectionSecurityGroupTable = securitygroupSelectionTable
 
 const NETWORK = {
   name: 'NETWORK_ID',
   label: T.Network,
   type: INPUT_TYPES.TABLE,
   cy: 'network',
-  model: vnTable,
+  model: selectionVnTable,
   singleSelect: true,
   selectOnRowClick: true,
   fieldProps: {
@@ -98,7 +113,7 @@ const SECURITY_GROUPS = {
   label: T.SecurityGroups,
   type: INPUT_TYPES.TABLE,
   cy: 'secgroup',
-  model: securitygroupTable,
+  model: selectionSecurityGroupTable,
   singleSelect: true,
   selectOnRowClick: true,
   fieldProps: {

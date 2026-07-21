@@ -14,9 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T, VNET_THRESHOLD } from '@ConstantsModule'
 import { VnAPI } from '@FeaturesModule'
 import { getLeasesInfo, getVirtualNetworkState } from '@ModelsModule'
+import { ProgressBar, StatusTag } from '@ComponentsV2Module'
 import { Component } from 'react'
 
 import {
@@ -26,21 +27,38 @@ import {
 } from '@modules/resources/resources/Vdc/Tabs/common'
 
 const columns = [
-  { accessorKey: 'ID', header: T.ID, width: '10%' },
-  { accessorKey: 'NAME', header: T.Name },
+  { accessorKey: 'ID', header: T.ID, grow: false },
+  { accessorKey: 'NAME', header: T.Name, truncate: true },
   {
     id: 'STATE',
     header: T.State,
     accessorFn: (row) => getVirtualNetworkState(row)?.name,
+    cell: ({ row }) => {
+      const { color, name } = getVirtualNetworkState(row.original) ?? {}
+
+      return <StatusTag statusColor={color} statusName={name} />
+    },
   },
-  { accessorKey: 'UNAME', header: T.Owner },
-  { accessorKey: 'GNAME', header: T.Group },
   { accessorKey: 'VN_MAD', header: T.Driver },
   {
     id: 'USED_LEASES',
     header: T.UsedLeases,
     accessorFn: (row) => getLeasesInfo(row)?.percentLabel,
+    cell: ({ row }) => {
+      const { percentOfUsed, percentLabel } = getLeasesInfo(row.original)
+
+      return (
+        <ProgressBar
+          value={percentOfUsed}
+          label={percentLabel}
+          isLabelVisible
+          thresholds={[VNET_THRESHOLD.LEASES.low, VNET_THRESHOLD.LEASES.high]}
+        />
+      )
+    },
   },
+  { accessorKey: 'UNAME', header: T.Owner, grow: false },
+  { accessorKey: 'GNAME', header: T.Group, grow: false },
 ]
 
 /**

@@ -73,7 +73,7 @@ export default {
       dialogContentOverflowY: 'auto',
     },
     params: {
-      replace: 1, // Replace instead of merge
+      replace: 0,
     },
   },
   [VM_ACTION_ENUM.SCHED_ACTION_CREATE]: {

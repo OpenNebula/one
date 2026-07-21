@@ -22,6 +22,12 @@ export default (theme) => ({
     gridTemplateColumns: '1fr 1fr',
     gap: '2em',
     overflow: 'auto',
+
+    '& .form-legend': {
+      borderBottom: 0,
+      margin: `0 0 ${theme.scale[600]}px`,
+      padding: 0,
+    },
     [theme.breakpoints.down('lg')]: {
       gridTemplateColumns: '1fr',
     },

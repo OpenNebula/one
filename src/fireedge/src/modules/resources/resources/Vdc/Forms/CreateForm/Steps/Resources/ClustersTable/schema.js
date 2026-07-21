@@ -26,8 +26,8 @@ import { ObjectSchema, array, object, string } from 'yup'
 export const CLUSTER_FIELD_NAME = 'CLUSTER_Z'
 
 const clusterColumns = [
-  { header: T.ID, accessorKey: 'ID', width: '10%' },
-  { header: T.Name, accessorKey: 'NAME' },
+  { header: T.ID, accessorKey: 'ID', grow: false },
+  { header: T.Name, accessorKey: 'NAME', truncate: true },
   {
     header: T.Hosts,
     id: 'hosts',

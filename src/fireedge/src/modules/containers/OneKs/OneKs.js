@@ -90,6 +90,7 @@ export function OneKs() {
     data = [],
     isFetching: isRefreshing,
     refetch: refresh,
+    error,
   } = OneKsAPI.useGetOneKsClustersQuery(
     { zone },
     {
@@ -168,6 +169,9 @@ export function OneKs() {
       sortOptions={getTableSortOptions(columns)}
       count={items?.length}
       selectedCount={selectedItems?.length}
+      unavailableMessage={
+        error?.status === 500 ? T.CannotConnectOneKS : undefined
+      }
       onSelectAll={(checked) =>
         setSelectedItems(checked ? items?.map(({ ID }) => toId(ID)) : [])
       }

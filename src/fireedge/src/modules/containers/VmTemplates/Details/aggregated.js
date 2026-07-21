@@ -29,6 +29,10 @@ import { useModalsApi, VmTemplateAPI } from '@FeaturesModule'
 import { Component, useMemo } from 'react'
 import { prettyBytes, aggregateLockState, aggregateMetrics } from '@UtilsModule'
 import { RESOURCE_NAMES, T, UNITS, STYLE_BUTTONS } from '@ConstantsModule'
+import {
+  getVmTemplateImageCount,
+  getVmTemplateNetworkCount,
+} from '@ModelsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import {
@@ -216,11 +220,31 @@ export const AggregatedView = ({
 
   const { allLocked, noneLocked } = aggregateLockState(selectedTemplates)
 
-  const aggregatedMetrics = useMemo(
-    () =>
-      aggregateMetrics(selectedTemplates, ['TEMPLATE.VCPU', 'TEMPLATE.MEMORY']),
-    [selectedTemplates]
-  )
+  const aggregatedMetrics = useMemo(() => {
+    const templatesWithMetrics = selectedTemplates.map((template) => ({
+      ...template,
+      TEMPLATE: {
+        ...template?.TEMPLATE,
+        CPU: template?.TEMPLATE?.CPU ?? 1,
+        NETWORKS: getVmTemplateNetworkCount(template),
+        IMAGES: getVmTemplateImageCount(template),
+      },
+    }))
+
+    const metrics = aggregateMetrics(templatesWithMetrics, [
+      'TEMPLATE.CPU',
+      'TEMPLATE.MEMORY',
+      'TEMPLATE.NETWORKS',
+      'TEMPLATE.IMAGES',
+    ])
+
+    return {
+      cpu: metrics['TEMPLATE.CPU'],
+      memory: prettyBytes(metrics?.['TEMPLATE.MEMORY'] ?? 0, UNITS.MB),
+      networks: metrics['TEMPLATE.NETWORKS'],
+      images: metrics['TEMPLATE.IMAGES'],
+    }
+  }, [selectedTemplates])
 
   return (
     <DetailsDrawer
@@ -310,11 +334,10 @@ export const AggregatedView = ({
           SummarySlot,
           {
             labels: [
-              [aggregatedMetrics?.['TEMPLATE.VCPU'] || '-', 'Total vCPU'],
-              [
-                prettyBytes(aggregatedMetrics?.['TEMPLATE.MEMORY'], UNITS.MB),
-                T.Memory,
-              ],
+              [aggregatedMetrics.cpu, T.CPU],
+              [aggregatedMetrics.memory, T.Memory],
+              [aggregatedMetrics.images, T.Images],
+              [aggregatedMetrics.networks, T.Networks],
             ]?.filter(([value]) => value !== undefined),
           },
         ],

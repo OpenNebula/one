@@ -1128,11 +1128,13 @@ const vmApi = oneApi.injectEndpoints({
     }),
     updateConfiguration: builder.mutation({
       /**
-       * Updates (appends) a set of supported configuration attributes in the VM template.
-       *
+       * Updates a set of supported configuration attributes in the VM template.
        *
        * @param {object} params - Request parameters
-       * @param {number} params.replace - Replace all existing configuration attributes
+       * @param {0|1} params.replace
+       * - Core update mode (legacy parameter name):
+       * ``0`` replaces the supported configuration attributes.
+       * ``1`` merges them with the existing configuration.
        * @param {string} params.id - Virtual machine id
        * @param {string} params.template - The new configuration contents on syntax XML
        * @returns {number} Virtual machine id

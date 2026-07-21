@@ -117,7 +117,6 @@ const VLANRuleTab = ({
     {
       accessorKey: 'SCOPE',
       header: T.Scope,
-      grow: false,
     },
     {
       accessorKey: 'ID',

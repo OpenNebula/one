@@ -73,55 +73,66 @@ export const InfoSlot = forwardRef(
         ref={ref}
       >
         <Box className={'info-container'}>
-          <Box className="info-header">
-            {icon && (
-              <Box className="icon-container">
-                <img
-                  className="info-icon"
-                  src={icon}
-                  alt=""
-                  onError={(e) => {
-                    e.target.onerror = null
-                    e.target.src = DEFAULT_IMAGE
-                  }}
-                />
-              </Box>
-            )}
-            <Box className="info-title-wrapper">
-              {title &&
-                (isTitleEditable ? (
-                  <EditableTitle
-                    ref={editableTitleRef}
-                    value={title}
-                    onSave={onTitleChange}
-                    isDisabled={isTitleEditDisabled}
-                    dataCy={dataCy && `${dataCy}-title`}
+          <Box className="info-top-row">
+            <Box className="info-header">
+              {icon && (
+                <Box className="icon-container">
+                  <img
+                    className="info-icon"
+                    src={icon}
+                    alt=""
+                    onError={(e) => {
+                      e.target.onerror = null
+                      e.target.src = DEFAULT_IMAGE
+                    }}
                   />
-                ) : (
-                  <Box
-                    className="info-title"
-                    data-cy={dataCy && `${dataCy}-title`}
-                  >
-                    {title}
-                  </Box>
-                ))}
-              {id && (
-                <Box className="info-id" data-cy={dataCy && `${dataCy}-id`}>
-                  {`#${id}`}
                 </Box>
               )}
-              {isTitleEditable && !isTitleEditDisabled && (
-                <Tooltip title={clickToRename} placement="bottom" followCursor>
-                  <Button
-                    data-cy={dataCy && `${dataCy}-edit-title`}
-                    type={STYLE_BUTTONS.TYPE.TRANSPARENT}
-                    size="medium"
-                    iconOnly={<EditPencil width={'16px'} height={'16px'} />}
-                    onClick={handleEditTitle}
-                  />
-                </Tooltip>
-              )}
+              <Box className="info-title-wrapper">
+                {title &&
+                  (isTitleEditable ? (
+                    <EditableTitle
+                      ref={editableTitleRef}
+                      value={title}
+                      onSave={onTitleChange}
+                      isDisabled={isTitleEditDisabled}
+                      dataCy={dataCy && `${dataCy}-title`}
+                    />
+                  ) : (
+                    <Box
+                      className="info-title"
+                      data-cy={dataCy && `${dataCy}-title`}
+                    >
+                      {title}
+                    </Box>
+                  ))}
+                {id && (
+                  <Box className="info-id" data-cy={dataCy && `${dataCy}-id`}>
+                    {`#${id}`}
+                  </Box>
+                )}
+                {isTitleEditable && !isTitleEditDisabled && (
+                  <Tooltip
+                    title={clickToRename}
+                    placement="bottom"
+                    followCursor
+                  >
+                    <Button
+                      data-cy={dataCy && `${dataCy}-edit-title`}
+                      type={STYLE_BUTTONS.TYPE.TRANSPARENT}
+                      size="medium"
+                      iconOnly={<EditPencil width={'16px'} height={'16px'} />}
+                      onClick={handleEditTitle}
+                    />
+                  </Tooltip>
+                )}
+              </Box>
             </Box>
+            {Toolbar && (
+              <Box className="info-action-toggles">
+                <CompactToolbar resetKey={id}>{Toolbar()}</CompactToolbar>
+              </Box>
+            )}
           </Box>
           {(!!labels?.length || !!tags?.length || isLoading) && (
             <Box className="info-metadata">
@@ -152,20 +163,13 @@ export const InfoSlot = forwardRef(
                     variant="rectangular"
                     borderRadius="round"
                   >
-                    <TagList tags={tags} max={tags.length} />
+                    <TagList tags={tags} max={tags.length} wrap />
                   </SkeletonLoading>
                 </Box>
               )}
             </Box>
           )}
         </Box>
-        {Toolbar && (
-          <Box className="info-action-toggles">
-            <CompactToolbar>
-              <Toolbar />
-            </CompactToolbar>
-          </Box>
-        )}
       </Box>
     )
   }
@@ -178,7 +182,7 @@ InfoSlot.propTypes = {
   labels: PropTypes.array,
   tags: PropTypes.array,
   isLoading: PropTypes.bool,
-  Toolbar: PropTypes.elementType,
+  Toolbar: PropTypes.func,
   isTitleEditable: PropTypes.bool,
   onTitleChange: PropTypes.func,
   isTitleEditDisabled: PropTypes.bool,

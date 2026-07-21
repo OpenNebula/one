@@ -18,5 +18,6 @@ import { RESOURCE_NAMES } from '@ConstantsModule'
 
 export * as Tabs from '@modules/resources/resources/Vdc/Tabs'
 export * as Forms from '@modules/resources/resources/Vdc/Forms'
+export { VdcCard as Card } from '@modules/resources/resources/Vdc/Card'
 
 export const RID = RESOURCE_NAMES.VDC

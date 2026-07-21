@@ -20,7 +20,7 @@ import {
   prettyBytes,
   timeFromMilliseconds,
 } from '@UtilsModule'
-import { VmTemplateAPI } from '@FeaturesModule'
+import { VrTemplateAPI } from '@FeaturesModule'
 import {
   T,
   UNITS,
@@ -30,6 +30,7 @@ import {
 import { Image, Tag } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
 import { Box } from '@mui/material'
+import { scale } from '@StylesModule'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const VRTEMPLATE_COLUMNS = [
@@ -50,8 +51,8 @@ export const VRTEMPLATE_COLUMNS = [
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Image
             src={src}
-            width={32}
-            height={32}
+            width={scale[600]}
+            height={scale[600]}
             alt={'list-image-identifier'}
           />
           <span>{row.original?.NAME}</span>
@@ -78,7 +79,11 @@ export const VRTEMPLATE_COLUMNS = [
     cell: ({ row }) => {
       const hypervisor = row.original?.TEMPLATE?.HYPERVISOR
 
-      return hypervisor ? <Tag title={hypervisor} status="default" /> : '-'
+      return hypervisor ? (
+        <Tag title={hypervisor} status="miscellaneous" />
+      ) : (
+        '-'
+      )
     },
   },
   {
@@ -93,7 +98,7 @@ export const VRTEMPLATE_COLUMNS = [
   },
   {
     accessorKey: 'REGTIME',
-    header: T.RegistrationTime,
+    header: T.Registered,
     grow: false,
     cell: ({ row }) => timeFromMilliseconds(row.original.REGTIME).toRelative(),
   },
@@ -102,14 +107,6 @@ export const VRTEMPLATE_COLUMNS = [
 
 export const vrtemplateTable = createTable(
   VRTEMPLATE_COLUMNS,
-  (args, options) =>
-    VmTemplateAPI.useGetTemplatesQuery(args, {
-      ...options,
-      selectFromResult: ({ data, isFetching, isLoading }) => ({
-        data: data?.filter((t) => t?.TEMPLATE?.VROUTER === 'YES'),
-        isFetching,
-        isLoading,
-      }),
-    }),
+  VrTemplateAPI.useGetVrTemplatesQuery,
   { dataCy: 'vr-templates' }
 )

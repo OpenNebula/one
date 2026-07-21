@@ -16,11 +16,14 @@
 
 import PropTypes from 'prop-types'
 import { Component } from 'react'
-import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
+import {
+  Button,
+  StatusTag,
+  TablePanel as SelectionTable,
+} from '@ComponentsV2Module'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Cancel as CloseIcon, ArrowRight } from 'iconoir-react'
 import { getHostState } from '@ModelsModule'
-import { getTotalOfResources } from '@UtilsModule'
 
 /**
  * @param {object} root0 - Params
@@ -47,37 +50,32 @@ export const Selection = ({ data }) => {
     {
       accessorKey: 'ID',
       header: T.ID,
+      grow: false,
     },
     {
       id: 'name',
       header: T.Name,
       accessorFn: (row) => row?.TEMPLATE?.NAME ?? row?.NAME,
+      truncate: true,
     },
     {
       id: 'state',
       header: T.State,
       accessorFn: (row) => getHostState(row)?.name,
+      cell: ({ row }) => {
+        const { color, name } = getHostState(row.original) ?? {}
+
+        return <StatusTag statusColor={color} statusName={name} />
+      },
     },
     {
       accessorKey: 'CLUSTER',
       header: T.Cluster,
-    },
-    {
-      accessorKey: 'IM_MAD',
-      header: T.IM_MAD,
+      truncate: true,
     },
     {
       accessorKey: 'VM_MAD',
       header: T.VM_MAD,
-    },
-    {
-      accessorKey: 'HOST_SHARE.RUNNING_VMS',
-      header: T.RunningVMs,
-    },
-    {
-      id: 'TOTAL_VMS',
-      header: T.TotalVMs,
-      accessorFn: (row) => getTotalOfResources(row?.VMS),
     },
     {
       id: 'view',

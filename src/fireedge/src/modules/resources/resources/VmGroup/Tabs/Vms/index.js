@@ -20,6 +20,13 @@ import { TablePanel } from '@ComponentsV2Module'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { vmgroupVmTable, VMGROUP_VM_COLUMNS } from '@ModelsModule'
 
+const VMGROUP_VM_RESOURCE_COLUMNS = VMGROUP_VM_COLUMNS.filter(
+  ({ id }) => !['owner', 'group'].includes(id)
+)
+const VMGROUP_VM_OWNERSHIP_COLUMNS = VMGROUP_VM_COLUMNS.filter(({ id }) =>
+  ['owner', 'group'].includes(id)
+)
+
 /**
  * @param {object} root0 - Params
  * @param {object} root0.data - Tab specific data
@@ -35,7 +42,7 @@ export const VMs = ({ data, config }) => {
     <TablePanel
       key={'Templates-Tab'}
       columns={vmgroupVmTable.columns([
-        ...VMGROUP_VM_COLUMNS,
+        ...VMGROUP_VM_RESOURCE_COLUMNS,
         {
           header: T.Role,
           id: 'role',
@@ -52,6 +59,7 @@ export const VMs = ({ data, config }) => {
               .concat(aVms?.ROLES?.ROLE)
               .find((r) => r?.VMS?.split(',').includes(row?.ID))?.POLICY ?? '-',
         },
+        ...VMGROUP_VM_OWNERSHIP_COLUMNS,
       ])}
       data={aVms}
       isLoading={isLoadingVms}

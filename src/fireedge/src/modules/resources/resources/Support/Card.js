@@ -62,6 +62,7 @@ export const SupportCard = forwardRef(
             TimeSlot,
             {
               time: isoDateToMilliseconds(createdAt),
+              label: T.Created,
             },
           ],
         ]}

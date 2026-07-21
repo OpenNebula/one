@@ -32,6 +32,7 @@ import {
   aggregatePermissions,
   getActionsAvailable,
   prettyBytes,
+  sentenceCase,
 } from '@UtilsModule'
 import { getStyles } from '@modules/resources/resources/MarketplaceApp/Tabs/Info/styles'
 
@@ -97,7 +98,18 @@ export const Info = ({ data, config }) => {
               options={[
                 [T.ID, marketplaceApp?.ID],
                 [T.Name, marketplaceApp?.NAME],
-                [T.Type, <Tag key="type" title={typeName} status="default" />],
+                [
+                  T.Type,
+                  typeName ? (
+                    <Tag
+                      key="type"
+                      title={sentenceCase(typeName)}
+                      status="default"
+                    />
+                  ) : (
+                    '-'
+                  ),
+                ],
                 [
                   T.State,
                   <StatusTag

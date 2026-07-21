@@ -50,7 +50,7 @@ export const ONEKS_COLUMNS = [
     accessorFn: (row) => row?.TEMPLATE?.CLUSTER_BODY?.node_groups?.length ?? 0,
   },
   {
-    header: T.RegistrationTime,
+    header: T.Created,
     id: 'registration_time',
     grow: false,
     accessorFn: (row) => {

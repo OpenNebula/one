@@ -20,9 +20,9 @@ import { COLOR } from '@modules/constants/color'
  * @typedef Cluster
  * @property {string} ID - Id
  * @property {string} NAME - Name
- * @property {{ ID: string|string[] }} HOSTS - Hosts
- * @property {{ ID: string|string[] }} DATASTORES - Datastores
- * @property {{ ID: string|string[] }} VNETS - Virtual networks
+ * @property {{ ID: string|string[] }|string} HOSTS - Hosts
+ * @property {{ ID: string|string[] }|string} DATASTORES - Datastores
+ * @property {{ ID: string|string[] }|string} VNETS - Virtual networks
  * @property {object} TEMPLATE - Template
  * @property {string} [TEMPLATE.RESERVED_MEM] - Reserved memory
  * @property {string} [TEMPLATE.RESERVED_CPU] - Reserved CPU

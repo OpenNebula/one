@@ -107,7 +107,7 @@ export const MARKETPLACEAPP_COLUMNS = [
   { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
   { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
   {
-    header: T.RegistrationTime,
+    header: T.Registered,
     id: 'time',
     accessorKey: 'REGTIME',
     grow: false,

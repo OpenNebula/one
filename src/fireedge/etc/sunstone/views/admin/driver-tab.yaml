@@ -11,6 +11,7 @@ actions:
   enable: true
   disable: true
   sync: true
+  edit_labels: true
 
 # Info Tabs - Which info tabs are used to show extended information
 

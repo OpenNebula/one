@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { INPUT_TYPES, T } from '@ConstantsModule'
 import { HostAPI } from '@FeaturesModule'
-import { getKvmCpuModels, hostTable } from '@ModelsModule'
+import { getKvmCpuModels, hostSelectionTable } from '@ModelsModule'
 import {
   arrayToOptions,
   Field,
@@ -26,7 +26,6 @@ import { array, string } from 'yup'
 
 const HOST_NAME = 'ID'
 let previousValue
-const HIDDEN_HOST_COLUMNS = ['running_vms', 'TOTAL_VMS']
 
 /** @type {Field} EVC_MODE field */
 const EVC_MODE = {
@@ -79,11 +78,7 @@ const HOSTS = {
   label: T.SelectHosts,
   type: INPUT_TYPES.TABLE,
   model: {
-    ...hostTable,
-    columns: (override) =>
-      hostTable
-        .columns(override)
-        .filter((column) => !HIDDEN_HOST_COLUMNS.includes(column.id)),
+    ...hostSelectionTable,
   },
   singleSelect: false,
   validation: array(string().trim()).default(() => undefined),

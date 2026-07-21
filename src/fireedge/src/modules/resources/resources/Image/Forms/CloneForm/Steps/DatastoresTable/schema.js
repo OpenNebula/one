@@ -30,7 +30,10 @@ const getDatastoreType = (app) => {
 }
 
 const getDatastoreModel = (app) => ({
-  columns: datastoreTable.columns,
+  columns: () =>
+    datastoreTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
   useData: () =>
     datastoreTable.useData(undefined, {
       selectFromResult: (result) => ({

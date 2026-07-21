@@ -45,10 +45,12 @@ export const Selection = ({ data }) => {
     {
       accessorKey: 'ID',
       header: T.ID,
+      grow: false,
     },
     {
       accessorKey: 'NAME',
       header: T.Name,
+      truncate: true,
     },
     {
       id: 'view',

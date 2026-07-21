@@ -23,3 +23,41 @@ import { VMGROUP_STATES } from '@ConstantsModule'
  * @returns {VMGROUP_STATES.StateInfo} - User state object
  */
 export const getVmGroupState = ({ LOCKED = '0' } = {}) => VMGROUP_STATES[LOCKED]
+
+/**
+ * Normalizes the roles of a VM Group.
+ *
+ * @param {object} vmGroup - VM Group object
+ * @returns {object[]} Normalized roles
+ */
+export const getVmGroupRoles = (vmGroup = {}) =>
+  []
+    .concat(vmGroup?.ROLES?.ROLE ?? [])
+    .filter((role) => role && typeof role === 'object' && !Array.isArray(role))
+
+/**
+ * Returns the total number of roles in a VM Group.
+ *
+ * @param {object} vmGroup - VM Group object
+ * @returns {number} Total roles
+ */
+export const getVmGroupTotalRoles = (vmGroup = {}) =>
+  getVmGroupRoles(vmGroup).length
+
+/**
+ * Returns the total number of VMs assigned across all VM Group roles.
+ *
+ * @param {object} vmGroup - VM Group object
+ * @returns {number} Total VMs
+ */
+export const getVmGroupTotalVms = (vmGroup = {}) =>
+  getVmGroupRoles(vmGroup).reduce((total, { VMS } = {}) => {
+    if (typeof VMS !== 'string' && typeof VMS !== 'number') return total
+
+    const vmIds = String(VMS)
+      .split(',')
+      .map((id) => id.trim())
+      .filter(Boolean)
+
+    return total + vmIds.length
+  }, 0)

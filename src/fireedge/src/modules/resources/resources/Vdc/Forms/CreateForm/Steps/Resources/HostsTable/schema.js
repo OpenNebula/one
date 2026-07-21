@@ -15,15 +15,16 @@
  * ------------------------------------------------------------------------- */
 import { CLUSTER_FIELD_NAME } from '@modules/resources/resources/Vdc/Forms/CreateForm/Steps/Resources/ClustersTable/schema'
 import { ZONE_FIELD_NAME } from '@modules/resources/resources/Vdc/Forms/CreateForm/Steps/Resources/ZonesSelect/schema'
-import { hostTable } from '@ModelsModule'
+import { hostSelectionTable } from '@ModelsModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
 import { ObjectSchema, array, object, string } from 'yup'
 
 const getHostModel = (zoneId) => ({
   dataCy: 'hosts',
-  columns: hostTable.columns,
-  useData: (_args, options) => hostTable.useData({ zone: zoneId }, options),
+  columns: hostSelectionTable.columns,
+  useData: (_args, options) =>
+    hostSelectionTable.useData({ zone: zoneId }, options),
 })
 
 /** @type {Field} Cluster field */

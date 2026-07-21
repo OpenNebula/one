@@ -18,12 +18,20 @@ import { Field, getObjectSchemaFromFields } from '@UtilsModule'
 import { string, array } from 'yup'
 import { datastoreTable } from '@ModelsModule'
 
+const selectionDatastoreTable = {
+  ...datastoreTable,
+  columns: () =>
+    datastoreTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
+}
+
 /** @type {Field} Datastores field */
 const DATASTORES = {
   name: 'ID',
   label: T.SelectDatastores,
   type: INPUT_TYPES.TABLE,
-  model: datastoreTable,
+  model: selectionDatastoreTable,
   singleSelect: false,
   validation: array(string().trim()).default(() => undefined),
   grid: { md: 12 },

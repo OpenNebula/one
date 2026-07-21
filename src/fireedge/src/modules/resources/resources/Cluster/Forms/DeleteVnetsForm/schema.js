@@ -42,6 +42,10 @@ const VNETS = ({ formType = '', filter }) => {
     type: INPUT_TYPES.TABLE,
     model: {
       ...vnetTable,
+      columns: () =>
+        vnetTable
+          .columns()
+          .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
       useData: (args, options) =>
         vnetTable.useData(args, {
           ...options,

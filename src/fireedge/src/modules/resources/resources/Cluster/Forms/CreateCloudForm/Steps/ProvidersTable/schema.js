@@ -24,6 +24,10 @@ const PROVIDER = {
   type: INPUT_TYPES.TABLE,
   model: {
     ...providerTable,
+    columns: () =>
+      providerTable
+        .columns()
+        .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
     useData: (args, options) =>
       providerTable.useData(args, {
         ...options,

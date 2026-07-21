@@ -161,7 +161,8 @@ export const ChartRenderer = ({
                   dataset.id,
                   metricHues,
                   coordinateType,
-                  groupBy
+                  groupBy,
+                  theme
                 )
               )
             : customChartDefs(
@@ -169,7 +170,8 @@ export const ChartRenderer = ({
                 datasets[0].id,
                 metricHues,
                 coordinateType,
-                groupBy
+                groupBy,
+                theme
               )}
 
           {coordinateType === 'CARTESIAN' && (
@@ -177,9 +179,15 @@ export const ChartRenderer = ({
               <XAxis
                 interval={0}
                 dataKey={groupBy}
-                tick={<CustomXAxisTick />}
+                tick={<CustomXAxisTick fill={theme.palette.graphs.legend} />}
+                axisLine={{ stroke: theme.palette.graphs.legend }}
+                tickLine={{ stroke: theme.palette.graphs.legend }}
               />
-              <YAxis />
+              <YAxis
+                tick={{ fill: theme.palette.graphs.legend }}
+                axisLine={{ stroke: theme.palette.graphs.legend }}
+                tickLine={{ stroke: theme.palette.graphs.legend }}
+              />
             </>
           )}
 
@@ -225,6 +233,7 @@ export const ChartRenderer = ({
                 wrapperStyle={{
                   wordWrap: 'break-word',
                   maxWidth: '100%',
+                  color: theme.palette.graphs.legend,
                 }}
               />
             ) : (

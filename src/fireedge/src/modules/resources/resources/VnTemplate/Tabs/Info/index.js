@@ -137,26 +137,6 @@ export const Info = ({ data, config }) => {
                 ],
               ]}
             />
-            {qosPanel?.enabled && (
-              <Box className="qosContainer">
-                <DetailsCard
-                  title={T.Inbound}
-                  options={[
-                    [T.AverageBandwidth, bandwidth(INBOUND_AVG_BW)],
-                    [T.PeakBandwidth, bandwidth(INBOUND_PEAK_BW)],
-                    [T.PeakBurst, burst(INBOUND_PEAK_KB)],
-                  ]}
-                />
-                <DetailsCard
-                  title={T.Outbound}
-                  options={[
-                    [T.AverageBandwidth, bandwidth(OUTBOUND_AVG_BW)],
-                    [T.PeakBandwidth, bandwidth(OUTBOUND_PEAK_BW)],
-                    [T.PeakBurst, burst(OUTBOUND_PEAK_KB)],
-                  ]}
-                />
-              </Box>
-            )}
           </Box>
         )}
         <Box className="permissionsOwnershipContainer">
@@ -193,6 +173,26 @@ export const Info = ({ data, config }) => {
           )}
         </Box>
       </Box>
+      {qosPanel?.enabled && !isAggregated && (
+        <Box className="qosContainer">
+          <DetailsCard
+            title={T.Inbound}
+            options={[
+              [T.AverageBandwidth, bandwidth(INBOUND_AVG_BW)],
+              [T.PeakBandwidth, bandwidth(INBOUND_PEAK_BW)],
+              [T.PeakBurst, burst(INBOUND_PEAK_KB)],
+            ]}
+          />
+          <DetailsCard
+            title={T.Outbound}
+            options={[
+              [T.AverageBandwidth, bandwidth(OUTBOUND_AVG_BW)],
+              [T.PeakBandwidth, bandwidth(OUTBOUND_PEAK_BW)],
+              [T.PeakBurst, burst(OUTBOUND_PEAK_KB)],
+            ]}
+          />
+        </Box>
+      )}
       {attributesPanel?.enabled && !isAggregated && (
         <Box className="attributesTablePanelContainer">
           <AttributesPanel

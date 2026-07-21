@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, object, ObjectSchema, array } from 'yup'
 
-import { securitygroupTable } from '@ModelsModule'
+import { securitygroupSelectionTable } from '@ModelsModule'
 import { T, INPUT_TYPES } from '@ConstantsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
 
@@ -25,9 +25,9 @@ const SECGROUP = ({ isCopyColumn = true } = {}) => ({
   label: T.SelectNewSecGroup,
   type: INPUT_TYPES.TABLE,
   model: {
-    ...securitygroupTable,
+    ...securitygroupSelectionTable,
     useData: (args, options) =>
-      securitygroupTable.useData(args, {
+      securitygroupSelectionTable.useData(args, {
         ...options,
         selectFromResult: (result) => ({
           ...result,

@@ -15,10 +15,23 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { Card, MetadataSlot, TimeSlot, TitleSlot } from '@ComponentsV2Module'
+import {
+  Card,
+  LabelSlot,
+  MetadataSlot,
+  TimeSlot,
+  TitleSlot,
+} from '@ComponentsV2Module'
 import { Component, forwardRef } from 'react'
-import { getLogoSource } from '@ModelsModule'
+import { getLabelTags, getLogoSource } from '@ModelsModule'
 import PropTypes from 'prop-types'
+
+const toArray = (value) =>
+  Array.isArray(value)
+    ? value
+    : value && typeof value === 'object'
+    ? Object.values(value)
+    : [value].filter(Boolean)
 /**
  * ProviderCard component displays a Provider as a card.
  *
@@ -34,17 +47,15 @@ import PropTypes from 'prop-types'
  */
 export const ProviderCard = forwardRef(
   ({ provider, isSelected, onCheck, onClick }, ref) => {
-    const { ID, NAME, UNAME, GNAME, TEMPLATE = {} } = provider
-
-    const {
-      PROVIDER_BODY: {
-        registration_time: registrationTime,
-        provision_ids: provisionIds = [],
-        fireedge = {},
-      } = {},
-    } = TEMPLATE
-
-    const numberOfProvisions = provisionIds?.length ?? 0
+    const { ID, NAME, UNAME, GNAME, TEMPLATE = {} } = provider ?? {}
+    const providerBody =
+      TEMPLATE?.PROVIDER_BODY && typeof TEMPLATE.PROVIDER_BODY === 'object'
+        ? TEMPLATE.PROVIDER_BODY
+        : {}
+    const registrationTime = providerBody?.registration_time
+    const numberOfProvisions = toArray(providerBody?.provision_ids).length
+    const driver = providerBody?.driver ?? TEMPLATE?.DRIVER
+    const labelTags = getLabelTags(provider?.LABELS)
 
     return (
       <Card
@@ -52,7 +63,7 @@ export const ProviderCard = forwardRef(
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
-        icon={getLogoSource(fireedge)}
+        icon={getLogoSource(providerBody?.fireedge)}
         iconAspectRatio="1 / 1"
         slots={[
           [TitleSlot, { title: NAME }],
@@ -63,14 +74,23 @@ export const ProviderCard = forwardRef(
                 [T.ID, ID],
                 [T.Owner, UNAME],
                 [T.Group, GNAME],
-                [T.NumberProvisions, String(numberOfProvisions)],
-              ],
+                [T.AssociatedProvisions, String(numberOfProvisions)],
+              ].filter(([, value]) => value),
+            },
+          ],
+          (driver || labelTags.length > 0) && [
+            LabelSlot,
+            {
+              labels: [driver && [driver, 'default']].filter(Boolean),
+              tags: labelTags,
+              max: 3,
             },
           ],
           [
             TimeSlot,
             {
               time: registrationTime,
+              label: T.Registered,
             },
           ],
         ]}
@@ -85,6 +105,7 @@ ProviderCard.propTypes = {
     NAME: PropTypes.string,
     UNAME: PropTypes.string,
     GNAME: PropTypes.string,
+    LABELS: PropTypes.object,
     TEMPLATE: PropTypes.object,
   }),
   isSelected: PropTypes.bool,

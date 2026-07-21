@@ -19,6 +19,7 @@ import { Component } from 'react'
 import {
   Button,
   StatusTag,
+  Tag,
   TablePanel as SelectionTable,
 } from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
@@ -58,7 +59,16 @@ export const Selection = ({ data }) => {
         return <StatusTag statusColor={color} statusName={name} />
       },
     },
-    { accessorKey: 'MARKET_MAD', header: T.Driver },
+    {
+      accessorKey: 'MARKET_MAD',
+      header: T.Driver,
+      cell: ({ row }) =>
+        row.original?.MARKET_MAD ? (
+          <Tag title={row.original.MARKET_MAD} status="default" />
+        ) : (
+          '-'
+        ),
+    },
     {
       id: 'apps',
       header: T.Apps,

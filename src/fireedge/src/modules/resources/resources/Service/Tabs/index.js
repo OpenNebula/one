@@ -16,12 +16,14 @@
 
 import { Info } from '@modules/resources/resources/Service/Tabs/Info'
 import { Log } from '@modules/resources/resources/Service/Tabs/Log'
+import { Networks } from '@modules/resources/resources/Service/Tabs/Networks'
 import { Roles } from '@modules/resources/resources/Service/Tabs/Roles'
 import { Selection } from '@modules/resources/resources/Service/Tabs/Selection'
 import { ScheduledActions } from '@modules/resources/resources/Service/Tabs/ScheduledActions'
+import { Template } from '@modules/resources/resources/Service/Tabs/Template'
 
-export { Info, Roles, Log, Selection }
+export { Info, Roles, Networks, Log, Selection, Template }
 
-export const Single = [Info, Roles, Log, ScheduledActions]
+export const Single = [Info, Roles, Networks, Log, ScheduledActions, Template]
 
 export const Aggregated = [Selection, Info]

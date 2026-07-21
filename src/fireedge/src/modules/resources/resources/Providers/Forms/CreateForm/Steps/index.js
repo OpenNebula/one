@@ -26,16 +26,15 @@ import ConnectionValues, {
 } from '@modules/resources/resources/Providers/Forms/CreateForm/Steps/ConnectionValues'
 
 import { createSteps, createFieldsFromDriversOdsUserInputs } from '@UtilsModule'
-import { isEmpty, find } from 'lodash'
+import { find } from 'lodash'
 
 const Steps = createSteps(
-  ({ dataTemplate = {}, drivers = [] }) => {
+  ({ dataTemplate = {}, drivers = [], isUpdate }) => {
     // Create steps list
     const steps = []
 
     // Create the Sunstone user inputs that will be used in each provider, avoiding to
     // show the sensitive fields in case of update.
-    const isUpdate = !isEmpty(dataTemplate)
     const groupedDrivers = createFieldsFromDriversOdsUserInputs(drivers)
 
     // STEP 1. Drivers

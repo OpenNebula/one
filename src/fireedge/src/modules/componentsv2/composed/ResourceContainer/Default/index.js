@@ -14,7 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { forwardRef, useLayoutEffect, useMemo, useState } from 'react'
+import {
+  forwardRef,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react'
 import PropTypes from 'prop-types'
 import { Box, Chip } from '@mui/material'
 import { Cancel } from 'iconoir-react'
@@ -45,6 +51,7 @@ export const ResourceContainer = forwardRef(
       viewMode,
       dataCy,
       emptyContentProps,
+      unavailableMessage,
       children,
     },
     ref
@@ -57,6 +64,7 @@ export const ResourceContainer = forwardRef(
       containerView,
       containerViewKey,
       defaultContainerView,
+      createPath,
     } = useFunctionality()
     const {
       setSearchExpression,
@@ -64,6 +72,7 @@ export const ResourceContainer = forwardRef(
       setFilterExpression,
       setContainerView,
       setSelectedItems,
+      setResourceCreatePath,
     } = useFunctionalityApi()
     const [isFilterPanelOpen, setFilterPanelOpen] = useState(false)
     const translatedResourceName = translate(resourceName)
@@ -76,6 +85,7 @@ export const ResourceContainer = forwardRef(
 
     const currentView = viewMode ?? containerView
     const isEmpty = count === 0 && !isRefreshing
+    const showEmptyContent = isEmpty || Boolean(unavailableMessage)
     const hasFilters = filterOptions?.length > 0
     const filterValues = useMemo(
       () => cleanFilterValues(filterExpression),
@@ -85,6 +95,18 @@ export const ResourceContainer = forwardRef(
       () => getActiveFilters(filterOptions, filterValues),
       [filterOptions, filterValues]
     )
+
+    useEffect(() => {
+      if (
+        createPath?.path &&
+        Boolean(createPath.isDisabled) !== Boolean(unavailableMessage)
+      ) {
+        setResourceCreatePath({
+          ...createPath,
+          isDisabled: Boolean(unavailableMessage),
+        })
+      }
+    }, [createPath?.isDisabled, createPath?.path, unavailableMessage])
 
     /**
      * Remove one active filter.
@@ -163,7 +185,7 @@ export const ResourceContainer = forwardRef(
             </Button>
           </Box>
         )}
-        {!isEmpty && currentView !== TABLE_VIEW_MODE.LIST && (
+        {!showEmptyContent && currentView !== TABLE_VIEW_MODE.LIST && (
           <Box className="select-all-container">
             <Checkbox
               text={`${translate(T.SelectAll)} \u2022 ${
@@ -175,9 +197,17 @@ export const ResourceContainer = forwardRef(
             />
           </Box>
         )}
-        {isEmpty ? (
+        {showEmptyContent ? (
           <Box className="empty-content-container">
-            <EmptyContent {...emptyContentProps} />
+            <EmptyContent
+              {...emptyContentProps}
+              {...(unavailableMessage && {
+                action: undefined,
+                status: 'error',
+                title: unavailableMessage,
+                subtitle: T.ContactYourAdmin,
+              })}
+            />
           </Box>
         ) : (
           children
@@ -191,6 +221,7 @@ ResourceContainer.propTypes = {
   slots: PropTypes.array,
   extraSlots: PropTypes.array,
   emptyContentProps: PropTypes.object,
+  unavailableMessage: PropTypes.string,
   children: PropTypes.node,
   onRefresh: PropTypes.func,
   onSelectAll: PropTypes.func,

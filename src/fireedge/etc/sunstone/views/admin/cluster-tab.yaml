@@ -15,6 +15,7 @@ actions:
   deprovision: true
   retry: true
   delete: true
+  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 

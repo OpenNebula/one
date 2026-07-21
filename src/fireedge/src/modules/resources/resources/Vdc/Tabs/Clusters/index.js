@@ -26,8 +26,8 @@ import {
 } from '@modules/resources/resources/Vdc/Tabs/common'
 
 const columns = [
-  { accessorKey: 'ID', header: T.ID, width: '10%' },
-  { accessorKey: 'NAME', header: T.Name },
+  { accessorKey: 'ID', header: T.ID, grow: false },
+  { accessorKey: 'NAME', header: T.Name, truncate: true },
   {
     id: 'HOSTS',
     header: T.Hosts,

@@ -32,6 +32,7 @@ import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Lock, NoLock, Trash, Cancel as CloseIcon } from 'iconoir-react'
 import { VmGroup } from '@ResourcesModule'
+import { getVmGroupTotalRoles, getVmGroupTotalVms } from '@ModelsModule'
 
 /**
  * @param {object} root0 - Params
@@ -165,14 +166,15 @@ export const AggregatedView = ({
 
   const { allLocked, noneLocked } = aggregateLockState(selectedVmGroups)
 
-  const totalRoles = useMemo(
+  const { totalRoles, totalVms } = useMemo(
     () =>
-      []
-        .concat(selectedVmGroups)
-        ?.reduce(
-          (acc, g) => acc + [].concat(g?.ROLES?.ROLE)?.filter(Boolean)?.length,
-          0
-        ),
+      [].concat(selectedVmGroups).reduce(
+        (totals, vmGroup) => ({
+          totalRoles: totals.totalRoles + getVmGroupTotalRoles(vmGroup),
+          totalVms: totals.totalVms + getVmGroupTotalVms(vmGroup),
+        }),
+        { totalRoles: 0, totalVms: 0 }
+      ),
     [selectedVmGroups]
   )
 
@@ -239,9 +241,10 @@ export const AggregatedView = ({
         [
           SummarySlot,
           {
-            labels: [[totalRoles, T.Roles]]?.filter(
-              ([value]) => value !== undefined
-            ),
+            labels: [
+              [totalRoles, T.Roles],
+              [totalVms, T.VMs],
+            ]?.filter(([value]) => value !== undefined),
           },
         ],
         [

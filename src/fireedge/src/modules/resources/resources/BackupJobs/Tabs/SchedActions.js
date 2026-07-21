@@ -319,6 +319,7 @@ export const SchedActions = ({ data, config }) => {
 
       <Table
         title={T.SchedActions}
+        size="medium"
         columns={columns}
         data={scheduling}
         isRowsSelectable={false}

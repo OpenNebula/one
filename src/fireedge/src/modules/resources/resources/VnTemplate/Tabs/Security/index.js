@@ -107,13 +107,13 @@ export const Security = ({ data, config }) => {
   const columns = [
     { accessorKey: 'ID', header: T.ID, grow: false },
     { accessorKey: 'NAME', header: T.Name, truncate: true },
-    { accessorKey: 'UNAME', header: T.Owner },
-    { accessorKey: 'GNAME', header: T.Group },
     {
       id: 'rules',
       header: T.Rules,
       cell: ({ row }) => getRulesCount(row.original),
     },
+    { accessorKey: 'UNAME', header: T.Owner, grow: false },
+    { accessorKey: 'GNAME', header: T.Group, grow: false },
     {
       id: 'actions',
       header: '',

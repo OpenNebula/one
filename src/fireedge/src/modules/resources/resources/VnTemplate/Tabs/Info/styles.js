@@ -46,7 +46,9 @@ export const getStyles = ({ theme }) => {
       minWidth: 0,
 
       '& > *': {
+        flex: '1 1 0',
         width: '100%',
+        minHeight: 0,
       },
     },
   }

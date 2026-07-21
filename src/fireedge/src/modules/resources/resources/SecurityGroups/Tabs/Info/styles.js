@@ -21,38 +21,54 @@
  */
 export const getStyles = ({ theme }) => ({
   display: 'flex',
-  flexDirection: 'row',
-  flexWrap: 'wrap',
+  flex: '1 1 0',
+  flexDirection: 'column',
   minWidth: 0,
-  gap: `${theme.scale[200]}px`,
+  minHeight: 0,
+  gap: `${theme.scale[400]}px`,
+  overflowX: 'hidden',
+  overflowY: 'auto',
+
+  '& .topContainer': {
+    display: 'grid',
+    flex: '0 0 auto',
+    gap: `${theme.scale[400]}px`,
+    alignItems: 'stretch',
+    gridTemplateColumns: {
+      xs: '1fr',
+      lg: 'repeat(2, minmax(0, 1fr))',
+    },
+  },
 
   '& .detailsContainer': {
     display: 'flex',
-    flex: '1 1 0',
     minWidth: 0,
+    minHeight: 0,
   },
 
   '& .permissionsOwnershipContainer': {
     display: 'flex',
-    flex: '1 1 0',
     flexDirection: 'column',
-    gap: `${theme.scale[200]}px`,
+    gap: `${theme.scale[400]}px`,
     minWidth: 0,
+    minHeight: 0,
   },
 
   '& .permissionsContainer, & .ownershipContainer': {
     display: 'flex',
-    flex: '1 1 0',
     minWidth: 0,
+    minHeight: 0,
   },
 
-  '& .attributesContainer': {
+  '& .rulesContainer, & .attributesContainer': {
     display: 'flex',
-    flex: '1 1 0',
-  },
+    flex: '0 0 auto',
+    width: '100%',
+    minWidth: 0,
+    minHeight: 0,
 
-  '& .rulesContainer': {
-    display: 'flex',
-    flex: '1 1 0',
+    '& > *': {
+      width: '100%',
+    },
   },
 })

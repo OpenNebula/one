@@ -99,21 +99,18 @@ export const Snapshots = ({ data, config }) => {
       {
         accessorKey: 'ACTIVE_LABEL',
         header: T.Active,
-        grow: false,
-      },
-      {
-        accessorKey: 'DATE_LABEL',
-        header: T.Date,
-        grow: false,
       },
       {
         accessorKey: 'MONITOR_SIZE_LABEL',
         header: T.Monitoring,
-        grow: false,
       },
       {
         accessorKey: 'SIZE_LABEL',
         header: T.DiskSize,
+      },
+      {
+        accessorKey: 'DATE_LABEL',
+        header: T.Date,
         grow: false,
       },
       {
@@ -164,6 +161,7 @@ export const Snapshots = ({ data, config }) => {
       isEnableSort={true}
       isEnableFilters={true}
       isLoading={isFetching}
+      size="medium"
       getRowId={(row) => String(row.ID)}
       sx={(theme) => getTableStyles({ theme })}
     />

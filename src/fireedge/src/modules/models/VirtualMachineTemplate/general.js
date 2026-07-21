@@ -22,3 +22,24 @@ import { getLocked } from '@UtilsModule'
  * @returns {string} - Return if virtual machine template is locked/unlocked
  */
 export const getVMTemplateLocked = getLocked
+
+/**
+ * @param {VmTemplate} vmTemplate - Virtual machine template
+ * @returns {number} Number of defined virtual networks
+ */
+export const getVmTemplateNetworkCount = ({ TEMPLATE = {} } = {}) =>
+  []
+    .concat(TEMPLATE?.NIC ?? [])
+    .flat()
+    .filter(Boolean).length
+
+/**
+ * @param {VmTemplate} vmTemplate - Virtual machine template
+ * @returns {number} Number of image-backed disks
+ */
+export const getVmTemplateImageCount = ({ TEMPLATE = {} } = {}) =>
+  []
+    .concat(TEMPLATE?.DISK ?? [])
+    .flat()
+    .filter((disk) => disk?.IMAGE !== undefined || disk?.IMAGE_ID !== undefined)
+    .length

@@ -29,7 +29,10 @@ import {
   aggregatePermissions,
   levelLockToString,
 } from '@UtilsModule'
-import { getBackupJobLastBackupTime } from '@ModelsModule'
+import {
+  getBackupJobLastBackupDuration,
+  getBackupJobLastBackupTime,
+} from '@ModelsModule'
 import { getStyles } from '@modules/resources/resources/BackupJobs/Tabs/Info/styles'
 
 /**
@@ -87,7 +90,7 @@ export const Info = ({ data, config }) => {
     },
     {
       name: T.LastBackupDuration,
-      value: LAST_BACKUP_DURATION,
+      value: getBackupJobLastBackupDuration(LAST_BACKUP_DURATION),
       dataCy: 'lastDurationTime',
     },
     {

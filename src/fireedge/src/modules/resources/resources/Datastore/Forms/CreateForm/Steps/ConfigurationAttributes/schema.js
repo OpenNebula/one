@@ -27,7 +27,10 @@ import {
 import { isCustom, typeIsOneOf, isVirtioFs } from '../functions'
 
 const systemDatastoreTable = {
-  columns: datastoreTable.columns,
+  columns: () =>
+    datastoreTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
   useData: () =>
     datastoreTable.useData(undefined, {
       selectFromResult: (result) => ({

@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { T, PATH } from '@ConstantsModule'
 import { VmAPI, useModalsApi } from '@FeaturesModule'
-import { jsonToXml } from '@UtilsModule'
 import { BackupConfigForm } from '@modules/resources/resources/VirtualMachine/Forms'
 import { BackupsTable } from '@modules/resources/Tables'
 import { Stack } from '@mui/material'
@@ -47,10 +46,8 @@ const VmBackupTab = ({ id, oneConfig, adminGroup }) => {
     history.push(generatePath(path, { id: String(rowId) }))
   }
 
-  const handleUpdateBackupConf = async (newConfiguration) => {
-    const xml = jsonToXml(newConfiguration)
-    await updateConf({ id, template: xml })
-  }
+  const handleUpdateBackupConf = async ({ template }) =>
+    updateConf({ id, template })
 
   const handleOpenForm = () =>
     showModal({

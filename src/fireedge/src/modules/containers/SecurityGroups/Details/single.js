@@ -41,7 +41,11 @@ import {
 import { useHistory } from 'react-router'
 import { SecurityGroupAPI, useModalsApi } from '@FeaturesModule'
 import { SecurityGroup } from '@ResourcesModule'
-import { getLabelTags } from '@ModelsModule'
+import {
+  getLabelTags,
+  getSecurityGroupResourceCount,
+  getSecurityGroupRulesCount,
+} from '@ModelsModule'
 import { cloneObject, filterAttributes, jsonToXml } from '@UtilsModule'
 
 const HIDDEN_ATTRIBUTES = /^(RULE)$/
@@ -362,28 +366,32 @@ export const SingleView = ({
           {
             labels: [
               [
-                Object?.keys(
-                  selectedSecurityGroup?.UPDATED_VMS?.ID ?? {}
-                )?.length.toString() ?? '0',
-                T.TotalUpdatedVms,
+                String(getSecurityGroupRulesCount(selectedSecurityGroup)),
+                T.Rules,
               ],
               [
-                Object?.keys(
-                  selectedSecurityGroup?.OUTDATED_VMS?.ID ?? {}
-                )?.length.toString() ?? '0',
-                T.TotalOutdatedVms,
+                String(
+                  getSecurityGroupResourceCount(
+                    selectedSecurityGroup?.UPDATED_VMS
+                  )
+                ),
+                T.UpdatedVms,
               ],
               [
-                Object?.keys(
-                  selectedSecurityGroup?.ERROR_VMS?.ID ?? {}
-                )?.length.toString() ?? '0',
-                T.TotalErrorVms,
+                String(
+                  getSecurityGroupResourceCount(
+                    selectedSecurityGroup?.OUTDATED_VMS
+                  )
+                ),
+                T.OutdatedVms,
               ],
               [
-                (
-                  selectedSecurityGroup?.TEMPLATE?.RULE ?? []
-                )?.length?.toString() ?? '0',
-                T.TotalRules,
+                String(
+                  getSecurityGroupResourceCount(
+                    selectedSecurityGroup?.ERROR_VMS
+                  )
+                ),
+                T.ErrorVms,
               ],
             ]?.filter(([value]) => value !== undefined),
           },

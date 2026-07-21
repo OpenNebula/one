@@ -243,7 +243,9 @@ export const getStyles = ({ theme, type }) => {
     },
 
     '& .MuiTabs-indicator': {
-      display: 'none',
+      display: type === 'line' ? 'block' : 'none',
+      height: `${theme.borderWidth.md}px`,
+      backgroundColor: theme.palette.border.action,
     },
 
     '& .MuiTab-root': {

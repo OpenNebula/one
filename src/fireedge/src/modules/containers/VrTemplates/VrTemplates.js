@@ -16,12 +16,7 @@
 
 import { FormDialog, List, Table, ResourceContainer } from '@ComponentsV2Module'
 
-import {
-  T,
-  DEFAULT_TEMPLATE_LOGO,
-  TABLE_VIEW_MODE,
-  RESOURCE_NAMES,
-} from '@ConstantsModule'
+import { T, TABLE_VIEW_MODE, RESOURCE_NAMES } from '@ConstantsModule'
 import {
   MarketplaceAppAPI,
   useFunctionalityApi,
@@ -205,7 +200,7 @@ export function VrTemplates() {
                       REGTIME,
                       LOCK = false,
                       LABELS,
-                      TEMPLATE: { LOGO = DEFAULT_TEMPLATE_LOGO } = {},
+                      TEMPLATE = {},
                     }) => (
                       <VrTemplate.Card
                         key={ID}
@@ -215,7 +210,7 @@ export function VrTemplates() {
                         UNAME={UNAME}
                         REGTIME={REGTIME}
                         LOCK={LOCK}
-                        LOGO={LOGO}
+                        TEMPLATE={TEMPLATE}
                         LABELS={LABELS}
                         isSelected={selectedItems?.includes(ID)}
                         onCheck={() =>

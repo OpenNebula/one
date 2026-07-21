@@ -137,11 +137,20 @@ export const AggregatedView = ({
 
   const { allLocked, noneLocked } = aggregateLockState(selectedTemplates)
 
-  const aggregatedMetrics = useMemo(
-    () =>
-      aggregateMetrics(selectedTemplates, ['TEMPLATE.VCPU', 'TEMPLATE.MEMORY']),
-    [selectedTemplates]
-  )
+  const aggregatedMetrics = useMemo(() => {
+    const templatesWithMetrics = selectedTemplates.map((template) => ({
+      ...template,
+      TEMPLATE: {
+        ...template?.TEMPLATE,
+        CPU: template?.TEMPLATE?.CPU ?? 1,
+      },
+    }))
+
+    return aggregateMetrics(templatesWithMetrics, [
+      'TEMPLATE.CPU',
+      'TEMPLATE.MEMORY',
+    ])
+  }, [selectedTemplates])
 
   return (
     <DetailsDrawer
@@ -210,7 +219,7 @@ export const AggregatedView = ({
           SummarySlot,
           {
             labels: [
-              [aggregatedMetrics?.['TEMPLATE.VCPU'] || '-', 'Total vCPU'],
+              [aggregatedMetrics?.['TEMPLATE.CPU'] || '-', T.CPU],
               [
                 prettyBytes(aggregatedMetrics?.['TEMPLATE.MEMORY'], UNITS.MB),
                 T.Memory,

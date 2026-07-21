@@ -158,20 +158,18 @@ const SnapshotDialog = ({
       {
         header: T.Status,
         id: 'status',
-        grow: false,
         cell: ({ row }) => <SnapshotStatus snapshot={row?.original} />,
+      },
+      {
+        header: `${T.Monitoring} / ${T.DiskSize}`,
+        id: 'usage',
+        cell: ({ row }) => formatSnapshotUsage(row?.original),
       },
       {
         header: T.Created,
         id: 'date',
         grow: false,
         cell: ({ row }) => formatDate(row?.original?.DATE),
-      },
-      {
-        header: `${T.Monitoring} / ${T.DiskSize}`,
-        id: 'usage',
-        grow: false,
-        cell: ({ row }) => formatSnapshotUsage(row?.original),
       },
       {
         header: '',

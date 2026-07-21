@@ -349,6 +349,10 @@ export const SingleView = ({
 
             title: data?.NAME,
             id: ID,
+            labels: [
+              [T.Owner, data?.UNAME],
+              [T.Group, data?.GNAME],
+            ],
             tags: getLabelTags(data?.LABELS),
             Toolbar: () => (
               <Box
@@ -385,7 +389,6 @@ export const SingleView = ({
                 getBackupJobLastBackupTime(LAST_BACKUP_TIME),
                 T.LastBackupTimeInfo,
               ],
-              [backupJobIsLocked ? T.Locked : T.Unlocked, T.Locked],
             ],
           },
         ],

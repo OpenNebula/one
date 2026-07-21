@@ -22,12 +22,31 @@ import { Field, getValidationFromFields } from '@UtilsModule'
 export const VMS_FIELD = 'VMS'
 export const BACKUP_VMS_FIELD = 'BACKUP_VMS'
 
+const selectionVmsTable = {
+  ...vmsTable,
+  columns: () =>
+    vmsTable
+      .columns()
+      .filter(
+        ({ id }) =>
+          ![
+            'owner',
+            'group',
+            'labels',
+            'cpu',
+            'memory',
+            'ips',
+            'disk_size',
+          ].includes(id)
+      ),
+}
+
 /** @type {Field} DataTable field */
 const VMS = {
   name: VMS_FIELD,
   label: T.SelectVms,
   type: INPUT_TYPES.TABLE,
-  model: vmsTable,
+  model: selectionVmsTable,
   singleSelect: false,
   selectOnRowClick: true,
   fieldProps: {

@@ -24,6 +24,7 @@ import {
   prettyBytes,
   getLocked,
   getImageType as getImageTypeFromUtils,
+  getImageTypeLabel as getImageTypeLabelFromUtils,
 } from '@UtilsModule'
 
 /**
@@ -41,6 +42,14 @@ export const getImageState = ({ STATE } = {}) => IMAGE_STATES[+STATE]
  * @returns {string} - Image type
  */
 export const getImageType = getImageTypeFromUtils
+
+/**
+ * Returns the display name of an image type.
+ *
+ * @param {Image} image - Image
+ * @returns {string} Image type display name
+ */
+export const getImageTypeLabel = getImageTypeLabelFromUtils
 
 /**
  * Returns the disk type.

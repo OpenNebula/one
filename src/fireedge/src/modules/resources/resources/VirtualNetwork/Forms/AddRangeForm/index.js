@@ -43,6 +43,8 @@ import { createForm } from '@UtilsModule'
 // List of attributes that can't be changed in update operation
 const IMMUTABLE_ATTRS = [
   'AR_ID',
+  'SHARED',
+  'SIZE',
   'TYPE',
   'IP',
   'IP_END',

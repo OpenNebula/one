@@ -19,6 +19,7 @@ import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
 import {
   Card,
+  IconSlot,
   LabelSlot,
   MetadataSlot,
   TitleSlot,
@@ -27,6 +28,7 @@ import {
 import {
   getLabelSlotLabels,
   getServiceState,
+  getServiceTotalNetworks,
   getServiceTotalRoles,
   getServiceTotalVms,
 } from '@ModelsModule'
@@ -50,7 +52,7 @@ export const ServiceCard = forwardRef(
       UNAME,
       GNAME,
       TEMPLATE: {
-        BODY: { deployment, registration_time: regTime, start_time: startTime },
+        BODY: { registration_time: regTime, start_time: startTime },
       } = { BODY: {} },
     } = service
     const serviceState = getServiceState(service) ?? {}
@@ -79,23 +81,27 @@ export const ServiceCard = forwardRef(
                 [T.ID, String(ID)],
                 [T.Owner, UNAME],
                 [T.Group, GNAME],
-                [T.Roles, String(getServiceTotalRoles(service) ?? 0)],
-                [T.TotalVms, String(getServiceTotalVms(service) ?? 0)],
-                [T.Strategy, deployment],
               ].filter(Boolean),
             },
           ],
           [
-            TimeSlot,
+            IconSlot,
             {
-              time: registeredTime,
+              roles: getServiceTotalRoles(service) ?? 0,
+              vms: getServiceTotalVms(service) ?? 0,
+              networks: getServiceTotalNetworks(service) ?? 0,
             },
           ],
           labelSlotLabels.length > 0 && [
             LabelSlot,
             {
               labels: labelSlotLabels,
+              max: 3,
             },
+          ],
+          registeredTime && [
+            TimeSlot,
+            { time: registeredTime, label: T.Created },
           ],
         ].filter(Boolean)}
       />

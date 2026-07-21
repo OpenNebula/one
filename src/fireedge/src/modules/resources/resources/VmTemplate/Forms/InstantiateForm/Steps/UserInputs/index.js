@@ -19,7 +19,7 @@ import {
   SCHEMA,
 } from '@modules/resources/resources/VmTemplate/Forms/InstantiateForm/Steps/UserInputs/schema'
 import { T, UserInputObject } from '@ConstantsModule'
-import { generateTabs } from '@modules/resources/Forms/UserInputs'
+import { generateTabs } from '@ComponentsV2Module'
 import { Component } from 'react'
 export const STEP_ID = 'user_inputs'
 

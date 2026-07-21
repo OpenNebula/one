@@ -16,7 +16,13 @@
 
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
-import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
+import {
+  Button,
+  ProgressBar,
+  StatusTag,
+  Tag,
+  TablePanel as SelectionTable,
+} from '@ComponentsV2Module'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Cancel as CloseIcon, ArrowRight } from 'iconoir-react'
 import {
@@ -54,27 +60,45 @@ export const Selection = ({ data, config }) => {
           accessorKey: 'NAME',
           id: 'name',
           header: T.Name,
+          truncate: true,
         },
         {
           header: T.State,
           id: 'state',
           accessorFn: (row) => getDatastoreState(row)?.name,
-        },
-        {
-          header: T.Capacity,
-          id: 'capacity',
-          accessorFn: (row) => {
-            const capacity = getDatastoreCapacityInfo(row)
+          cell: ({ row }) => {
+            const { color, name } = getDatastoreState(row.original) ?? {}
 
-            return `${capacity.percentOfUsed.toFixed(2)}% ${
-              capacity.percentLabel
-            }`
+            return <StatusTag statusColor={color} statusName={name} />
           },
         },
         {
           header: T.Type,
           id: 'type',
           accessorFn: (row) => getDatastoreType(row),
+          cell: ({ row }) => {
+            const type = getDatastoreType(row.original)
+
+            return type ? <Tag title={type} status="default" /> : '-'
+          },
+        },
+        {
+          header: T.Capacity,
+          id: 'capacity',
+          accessorFn: (row) => getDatastoreCapacityInfo(row)?.percentLabel,
+          cell: ({ row }) => {
+            const { percentOfUsed, percentLabel } = getDatastoreCapacityInfo(
+              row.original
+            )
+
+            return (
+              <ProgressBar
+                value={percentOfUsed}
+                label={percentLabel}
+                isLabelVisible
+              />
+            )
+          },
         },
         {
           header: T.Clusters,

@@ -56,23 +56,6 @@ const getStyles = ({ theme }) => ({
   },
 })
 
-const titleStyles = ({ theme }) => ({
-  color: 'text.headings',
-  fontFamily: 'Inter',
-  fontStyle: 'normal',
-  fontWeight: 600,
-  fontSize: {
-    xs: theme.fontSize.heading.h6.mobile,
-    sm: theme.fontSize.heading.h6.tablet,
-    md: theme.fontSize.heading.h6.desktop,
-  },
-  lineHeight: {
-    xs: theme.lineHeight.heading.h5.mobile,
-    sm: theme.lineHeight.heading.h5.tablet,
-    md: theme.lineHeight.heading.h5.desktop,
-  },
-})
-
 /**
  * @param {object} root0 - Params
  * @param {object} root0.data - Tab specific data
@@ -95,15 +78,13 @@ export const Template = ({ data }) => {
   return (
     <Box sx={(theme) => getStyles({ theme })}>
       <Box className="marketplaceapp-template-section">
-        <Box sx={(theme) => titleStyles({ theme })}>{T.AppTemplate}</Box>
         <Box className="marketplaceapp-template-body">
-          <TemplateTab code={appTemplate} />
+          <TemplateTab title={T.AppTemplate} code={appTemplate} />
         </Box>
       </Box>
       <Box className="marketplaceapp-template-section">
-        <Box sx={(theme) => titleStyles({ theme })}>{T.VMTemplate}</Box>
         <Box className="marketplaceapp-template-body">
-          <TemplateTab code={vmTemplate} />
+          <TemplateTab title={T.VMTemplate} code={vmTemplate} />
         </Box>
       </Box>
     </Box>

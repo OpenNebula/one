@@ -20,7 +20,10 @@ import { datastoreTable } from '@ModelsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
 
 const systemDatastoreTable = {
-  columns: datastoreTable.columns,
+  columns: () =>
+    datastoreTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
   useData: () =>
     datastoreTable.useData(undefined, {
       selectFromResult: (result) => ({

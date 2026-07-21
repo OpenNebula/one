@@ -28,6 +28,7 @@ export const General = [
 ]
 
 export const State = [
+  VM_ACTION_ENUM.RESUME,
   VM_ACTION_ENUM.SUSPEND,
   VM_ACTION_ENUM.STOP,
   VM_ACTION_ENUM.POWEROFF,

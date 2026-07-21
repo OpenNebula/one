@@ -40,7 +40,6 @@ const NIC_COLUMNS = [
     header: T.ip,
     id: 'ip',
     accessorKey: 'IP',
-    grow: false,
     meta: { disableCellTooltip: true },
     cell: ({ row }) =>
       row.original?.IP ? <TagList tags={[{ title: row.original.IP }]} /> : '-',
@@ -49,7 +48,6 @@ const NIC_COLUMNS = [
     header: 'IPv6',
     id: 'ip6',
     accessorKey: 'IP6',
-    grow: false,
     meta: { disableCellTooltip: true },
     cell: ({ row }) =>
       row.original?.IP6 ? (
@@ -58,18 +56,16 @@ const NIC_COLUMNS = [
         '-'
       ),
   },
-  { header: T.MAC, id: 'mac', accessorKey: 'MAC', grow: false },
+  { header: T.MAC, id: 'mac', accessorKey: 'MAC' },
   {
     header: T.VirtualRouterNICFloatingIP,
     id: 'floating',
     accessorKey: 'FLOATING_IP',
-    grow: false,
   },
   {
     header: T['nic.card.management'],
     id: 'management',
     accessorKey: 'VROUTER_MANAGEMENT',
-    grow: false,
   },
 ]
 

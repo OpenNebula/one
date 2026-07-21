@@ -66,3 +66,9 @@ export const clusterTable = createTable(
   ClusterAPI.useGetClustersQuery,
   { dataCy: 'clusters' }
 )
+
+export const clusterSelectionTable = createTable(
+  CLUSTER_COLUMNS.filter(({ id }) => id !== 'labels'),
+  ClusterAPI.useGetClustersQuery,
+  { dataCy: 'clusters' }
+)

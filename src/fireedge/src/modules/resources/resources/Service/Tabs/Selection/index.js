@@ -43,9 +43,10 @@ export const Selection = ({ data }) => {
         />
       ),
     },
-    ...SERVICES_COLUMNS,
+    ...SERVICES_COLUMNS.filter(
+      ({ id }) => !['owner', 'group', 'time', 'labels'].includes(id)
+    ),
     {
-      minWidth: '15%',
       id: 'select',
       header: '',
       grow: false,

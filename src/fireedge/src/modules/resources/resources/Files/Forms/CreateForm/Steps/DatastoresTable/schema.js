@@ -22,7 +22,10 @@ import { Field, getValidationFromFields } from '@UtilsModule'
 export const DATASTORE_FIELD = 'datastore'
 
 const fileDatastoreTable = {
-  columns: datastoreTable.columns,
+  columns: () =>
+    datastoreTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
   useData: () =>
     datastoreTable.useData(undefined, {
       selectFromResult: (result) => ({

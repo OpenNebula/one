@@ -56,7 +56,13 @@ export const Datastores = ({ data }) => {
     [datastores, clusterDatastoreIds]
   )
 
-  const columns = useMemo(() => datastoreTable.columns(), [])
+  const columns = useMemo(
+    () =>
+      datastoreTable
+        .columns()
+        .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
+    []
+  )
 
   return (
     <Table

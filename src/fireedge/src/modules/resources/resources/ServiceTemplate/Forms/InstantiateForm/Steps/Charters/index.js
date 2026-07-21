@@ -269,7 +269,7 @@ const getScheduleActionColumns = ({
   {
     header: T.ID,
     accessorKey: 'ID',
-    size: '5%',
+    grow: false,
   },
   {
     header: T.Type,
@@ -284,20 +284,9 @@ const getScheduleActionColumns = ({
     cell: ({ getValue }) => <Translate word={sentenceCase(getValue())} />,
   },
   {
-    header: T.Scheduled,
-    id: 'scheduled',
-    accessorFn: renderScheduleTime,
-    cell: ScheduleTimeCell,
-  },
-  {
     header: T.Repeat,
     id: 'repeat',
     accessorFn: (row) => renderText(getRepeatInformation(row)?.repeat, T.Once),
-  },
-  {
-    header: T.Ends,
-    id: 'ends',
-    accessorFn: (row) => renderText(getRepeatInformation(row)?.end),
   },
   {
     header: T.Warning,
@@ -306,9 +295,23 @@ const getScheduleActionColumns = ({
     cell: ScheduleTimeCell,
   },
   {
+    header: T.Scheduled,
+    id: 'scheduled',
+    accessorFn: renderScheduleTime,
+    grow: false,
+    cell: ScheduleTimeCell,
+  },
+  {
+    header: T.Ends,
+    id: 'ends',
+    accessorFn: (row) => renderText(getRepeatInformation(row)?.end),
+    grow: false,
+  },
+  {
     header: '',
     id: 'actions',
     enableSorting: false,
+    grow: false,
     cell: ({ row }) => {
       const { original } = row
       const { _index, _fieldId, ...schedule } = original

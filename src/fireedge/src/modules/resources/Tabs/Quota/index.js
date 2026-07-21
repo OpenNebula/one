@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
-import { MultiChart } from '@modules/resources/Charts'
+import { MultiChart, QuotaTab } from '@ComponentsV2Module'
 import { transformApiResponseToDataset } from '@modules/resources/Charts/MultiChart/helpers/scripts'
 import { QuotaControls } from '@modules/resources/Tabs/Quota/Components'
 
@@ -30,7 +30,6 @@ import {
 import { nameMapper } from '@modules/resources/Tabs/Quota/Components/helpers/scripts'
 import { useTranslation } from '@ProvidersModule'
 import { T } from '@ConstantsModule'
-import { QuotaTab } from '@ComponentsV2Module'
 
 /**
  * Generates a QuotaInfoTab for an user or a group.

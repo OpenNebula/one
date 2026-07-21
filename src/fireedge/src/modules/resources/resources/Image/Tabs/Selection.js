@@ -17,11 +17,16 @@
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
 import { Box } from '@mui/material'
-import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
+import {
+  Button,
+  StatusTag,
+  Tag,
+  TablePanel as SelectionTable,
+} from '@ComponentsV2Module'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Cancel as CloseIcon, ArrowRight } from 'iconoir-react'
-import { getImageState } from '@ModelsModule'
-import { getImageType, getLockIcon } from '@UtilsModule'
+import { getBackupRunningVms, getImageState } from '@ModelsModule'
+import { getImageTypeLabel, getLockIcon, prettyBytes } from '@UtilsModule'
 
 /**
  * @param {object} root0 - Params
@@ -54,6 +59,7 @@ export const Selection = ({ data }) => {
           accessorKey: 'NAME',
           id: 'name',
           header: T.Name,
+          truncate: true,
           cell: ({ row }) => (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>{row.original?.NAME}</span>
@@ -65,28 +71,44 @@ export const Selection = ({ data }) => {
           header: T.State,
           id: 'state',
           accessorFn: (row) => getImageState(row)?.name,
+          cell: ({ row }) => {
+            const { color, name } = getImageState(row.original) ?? {}
+
+            return <StatusTag statusColor={color} statusName={name} />
+          },
+        },
+        {
+          header: T.Type,
+          id: 'type',
+          accessorFn: (row) => getImageTypeLabel(row),
+          cell: ({ row }) => {
+            const type = getImageTypeLabel(row.original)
+
+            return type ? <Tag title={type} status="default" /> : '-'
+          },
+        },
+        {
+          header: T.Size,
+          id: 'size',
+          accessorFn: (row) => prettyBytes(+row?.SIZE || 0, 'MB'),
+          cell: ({ row }) => prettyBytes(+row.original?.SIZE || 0, 'MB'),
+        },
+        {
+          header: T.Persistent,
+          id: 'persistent',
+          accessorFn: (row) => (+row?.PERSISTENT ? T.Yes : T.No),
+          cell: ({ row }) => (+row.original?.PERSISTENT ? T.Yes : T.No),
+        },
+        {
+          header: T.VMs,
+          id: 'vms',
+          accessorFn: (row) => getBackupRunningVms(row),
         },
         {
           header: T.Datastore,
           id: 'datastore',
           accessorKey: 'DATASTORE',
-        },
-        {
-          header: T.Type,
-          id: 'type',
-          accessorFn: (row) => getImageType(row),
-        },
-        {
-          header: T.VMs,
-          id: 'vms',
-          accessorKey: 'RUNNING_VMS',
-        },
-        {
-          header: T.Persistent,
-          id: 'persistent',
-          accessorKey: 'PERSISTENT',
-          cell: ({ row }) =>
-            +row.original?.PERSISTENT ? T.Persistent : T.NonPersistent,
+          truncate: true,
         },
         {
           accessorKey: 'ID',

@@ -26,6 +26,10 @@ const VNTEMPLATES = {
   dependOf: '$general.ALL_VNETS',
   model: {
     ...vntemplateTable,
+    columns: () =>
+      vntemplateTable
+        .columns()
+        .filter(({ id }) => !['owner', 'group', 'time', 'labels'].includes(id)),
     useData: (args, options) =>
       vntemplateTable.useData(args, {
         ...options,

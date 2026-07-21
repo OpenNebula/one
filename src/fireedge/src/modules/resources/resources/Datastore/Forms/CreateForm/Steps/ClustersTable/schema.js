@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { object, ObjectSchema, string } from 'yup'
 
-import { clusterTable } from '@ModelsModule'
+import { clusterSelectionTable } from '@ModelsModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
 
@@ -24,7 +24,7 @@ const CLUSTER = {
   name: 'cluster',
   label: T.SelectCluster,
   type: INPUT_TYPES.TABLE,
-  model: clusterTable,
+  model: clusterSelectionTable,
   singleSelect: true,
   fieldProps: {
     preserveState: true,

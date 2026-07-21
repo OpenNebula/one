@@ -23,6 +23,7 @@ import {
   Button,
   ButtonGroup,
   CollapsiblePanel,
+  StatusTag,
   Table,
   Tooltip,
 } from '@ComponentsV2Module'
@@ -39,7 +40,7 @@ import {
 const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
   const { translate } = useTranslation()
   const { enqueueError } = useGeneralApi()
-  const { data = [], error, isFetching, isLoading } = HostAPI.useGetHostsQuery()
+  const { data, error, isFetching, isLoading } = HostAPI.useGetHostsQuery()
   const [selectedHostIds, setSelectedHostIds] = useState([])
   const [affinityType, setAffinityType] = useState('Affined')
 
@@ -133,8 +134,12 @@ const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
       {
         accessorKey: 'STATE',
         header: statusLabel,
-        cell: ({ row }) =>
-          HOST_STATES[Number(row.original?.STATE) || 0]?.name ?? '-',
+        cell: ({ row }) => {
+          const { color, name } =
+            HOST_STATES[Number(row.original?.STATE) || 0] ?? {}
+
+          return <StatusTag statusColor={color} statusName={name} />
+        },
       },
     ],
     [clusterLabel, idLabel, nameLabel, statusLabel]

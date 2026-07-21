@@ -33,7 +33,7 @@ import {
   ProvisionAPI,
   useGeneralApi,
 } from '@FeaturesModule'
-import { hostTable } from '@ModelsModule'
+import { hostSelectionTable } from '@ModelsModule'
 import { getActionsAvailable } from '@UtilsModule'
 import {
   AddHost,
@@ -152,7 +152,7 @@ export const Hosts = ({ data, config }) => {
     enqueueSuccess(T.DeleteHostProvisionSuccess)
   }
 
-  const columns = useMemo(() => hostTable.columns(), [])
+  const columns = useMemo(() => hostSelectionTable.columns(), [])
 
   return (
     <Box sx={(theme) => getStyles({ theme })}>
@@ -183,7 +183,7 @@ export const Hosts = ({ data, config }) => {
             )}
         </Box>
         <Table
-          dataCy={hostTable.dataCy}
+          dataCy={hostSelectionTable.dataCy}
           columns={columns}
           data={clusterHosts}
           isRowsSelectable={false}

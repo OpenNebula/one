@@ -241,6 +241,10 @@ const NETWORK_ID = {
     range !== T.OpennebulaVirtualNetwork && INPUT_TYPES.HIDDEN,
   model: {
     ...vnTable,
+    columns: () =>
+      vnTable
+        .columns()
+        .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
     useData: (args, options) =>
       vnTable.useData(args, {
         ...options,

@@ -23,12 +23,17 @@ import {
   ToggleGroup,
   ButtonGroup,
   ResourceActionConfirmation,
+  Tag,
 } from '@ComponentsV2Module'
 
 import { Component } from 'react'
 import { prettyBytes, timeFromMilliseconds } from '@UtilsModule'
 import { VmTemplate } from '@ResourcesModule'
-import { getLabelTags } from '@ModelsModule'
+import {
+  getLabelTags,
+  getVmTemplateImageCount,
+  getVmTemplateNetworkCount,
+} from '@ModelsModule'
 import {
   T,
   RESOURCE_NAMES,
@@ -295,6 +300,7 @@ export const SingleView = ({
                         'data-cy': 'action-create_app_dialog',
                         tooltip: T.Export,
                         isDisabled: templateIsLocked || isActionsDisabled,
+                        compactable: true,
                       },
                       {
                         startIcon: <CloneIcon width="16px" height="16px" />,
@@ -303,6 +309,7 @@ export const SingleView = ({
                         'data-cy': 'action-clone',
                         tooltip: T.Clone,
                         isDisabled: templateIsLocked || isActionsDisabled,
+                        compactable: true,
                       },
                     ],
                     [
@@ -312,6 +319,7 @@ export const SingleView = ({
                           resourceType: RESOURCE_NAMES.VM_TEMPLATE,
                           isDisabled: isActionsDisabled,
                         }),
+                        compactable: true,
                       },
                       {
                         startIcon: <Edit width="16px" height="16px" />,
@@ -320,6 +328,7 @@ export const SingleView = ({
                         'data-cy': 'action-update_dialog',
                         tooltip: T.Update,
                         isDisabled: templateIsLocked || isActionsDisabled,
+                        compactable: true,
                       },
                       {
                         startIcon: <RefreshDouble width="16px" height="16px" />,
@@ -329,6 +338,7 @@ export const SingleView = ({
                         'data-cy': 'action-refresh',
                         tooltip: T.Refresh,
                         isDisabled: isActionsDisabled,
+                        compactable: true,
                       },
                     ],
 
@@ -354,6 +364,11 @@ export const SingleView = ({
                         isDisabled: templateIsLocked || isActionsDisabled,
                       },
                       {
+                        value: 'compact-overflow',
+                        compactToolbarOverflow: true,
+                        isDisabled: isActionsDisabled,
+                      },
+                      {
                         startIcon: <Cancel width="16px" height="16px" />,
                         onClick: handleClose,
                         value: 'close',
@@ -371,15 +386,34 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
+              [selectedTemplate?.TEMPLATE?.CPU ?? 1, T.CPU],
               [
-                selectedTemplate?.TEMPLATE?.HYPERVISOR?.toUpperCase(),
+                prettyBytes(selectedTemplate?.TEMPLATE?.MEMORY ?? 0, UNITS.MB),
+                T.Memory,
+              ],
+              [getVmTemplateImageCount(selectedTemplate), T.Images],
+              [getVmTemplateNetworkCount(selectedTemplate), T.Networks],
+              [
+                selectedTemplate?.TEMPLATE?.HYPERVISOR ? (
+                  <Tag
+                    title={selectedTemplate.TEMPLATE.HYPERVISOR}
+                    status="miscellaneous"
+                  />
+                ) : (
+                  '-'
+                ),
                 T.Hypervisor,
               ],
-
-              [selectedTemplate?.TEMPLATE?.VCPU ?? '-', T.vcpu],
               [
-                prettyBytes(selectedTemplate?.TEMPLATE?.MEMORY, UNITS.MB),
-                T.Memory,
+                selectedTemplate?.TEMPLATE?.OS?.ARCH ? (
+                  <Tag
+                    title={selectedTemplate.TEMPLATE.OS.ARCH}
+                    status="miscellaneous2"
+                  />
+                ) : (
+                  '-'
+                ),
+                T.Architecture,
               ],
             ]?.filter(([value]) => value !== undefined),
           },

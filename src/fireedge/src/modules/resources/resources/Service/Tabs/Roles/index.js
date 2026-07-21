@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { useModalsApi } from '@FeaturesModule'
-import { SERVICE_ACTION_ENUM, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, SERVICE_ACTION_ENUM, T } from '@ConstantsModule'
 import { getServiceRoles, rolevmsTable } from '@ModelsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
@@ -162,6 +162,8 @@ export const Roles = ({ data, config }) => {
             data={roleVms}
             isLoading={isLoadingRoleVms || isFetchingRoleVms}
             getRowId={(row) => String(row.ID)}
+            openRowDetailsOnClick
+            rowDetailsResourceId={RESOURCE_NAMES.VM}
             size="medium"
             isEnableSearchBar
             isFullHeight

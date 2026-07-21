@@ -16,8 +16,9 @@
 
 import {
   createTable,
-  getImageType,
+  getImageTypeLabel,
   getLockIcon,
+  prettyBytes,
   timeFromMilliseconds,
 } from '@UtilsModule'
 import { ImageAPI } from '@FeaturesModule'
@@ -60,12 +61,24 @@ export const IMAGE_COLUMNS = [
   {
     header: T.Type,
     id: 'type',
-    accessorFn: (row) => getImageType(row),
+    accessorFn: (row) => getImageTypeLabel(row),
     cell: ({ row }) => {
-      const type = getImageType(row.original)
+      const type = getImageTypeLabel(row.original)
 
       return type ? <Tag title={type} status="default" /> : '-'
     },
+  },
+  {
+    header: T.Size,
+    id: 'size',
+    accessorFn: (row) => prettyBytes(+row?.SIZE || 0, 'MB'),
+    cell: ({ row }) => prettyBytes(+row.original?.SIZE || 0, 'MB'),
+  },
+  {
+    header: T.Persistent,
+    id: 'persistent',
+    accessorFn: (row) => (+row?.PERSISTENT ? T.Yes : T.No),
+    cell: ({ row }) => (+row.original?.PERSISTENT ? T.Yes : T.No),
   },
   {
     header: T.VMs,
@@ -92,7 +105,7 @@ export const IMAGE_COLUMNS = [
   },
   {
     accessorKey: 'REGTIME',
-    header: T.RegistrationTime,
+    header: T.Registered,
     grow: false,
     cell: ({ row }) => timeFromMilliseconds(row.original.REGTIME).toRelative(),
   },

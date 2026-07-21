@@ -18,9 +18,10 @@ import { Info } from '@modules/resources/resources/ServiceTemplate/Tabs/Info'
 import { Template } from '@modules/resources/resources/ServiceTemplate/Tabs/Template'
 import { Selection } from '@modules/resources/resources/ServiceTemplate/Tabs/Selection'
 import { Roles } from '@modules/resources/resources/ServiceTemplate/Tabs/Roles'
+import { Networks } from '@modules/resources/resources/ServiceTemplate/Tabs/Networks'
 
-export { Info, Template, Selection }
+export { Info, Template, Selection, Networks }
 
-export const Single = [Info, Roles, Template]
+export const Single = [Info, Roles, Networks, Template]
 
 export const Aggregated = [Selection, Info]

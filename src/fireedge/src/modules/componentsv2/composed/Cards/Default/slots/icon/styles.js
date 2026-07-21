@@ -24,6 +24,7 @@ export const getStyles = ({ theme }) => ({
   flexWrap: 'wrap',
   alignItems: 'center',
   gap: `${theme.scale[400]}px`,
+  marginBottom: `${theme.scale[50]}px`,
   maxWidth: '100%',
 
   '& .capacity-item': {
@@ -35,6 +36,8 @@ export const getStyles = ({ theme }) => ({
   },
 
   '& .capacity-icon': {
+    alignSelf: 'center',
+    display: 'block',
     flexShrink: 0,
     width: `${theme.scale[500]}px`,
     height: `${theme.scale[500]}px`,
@@ -58,15 +61,11 @@ export const getStyles = ({ theme }) => ({
 
   '& .capacity-label': {
     color: 'text.body',
-    fontWeight: theme.typography.fontWeightMedium,
+    fontWeight: theme.typography.fontWeightRegular,
   },
 
   '& .capacity-value': {
     color: 'text.headings',
-    fontWeight: {
-      xs: theme.fontWeight.heading.h6.mobile,
-      sm: theme.fontWeight.heading.h6.tablet,
-      md: theme.fontWeight.heading.h6.desktop,
-    },
+    fontWeight: theme.typography.fontWeightMedium,
   },
 })

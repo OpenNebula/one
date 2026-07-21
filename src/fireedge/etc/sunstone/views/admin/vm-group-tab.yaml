@@ -15,6 +15,7 @@ actions:
   chgrp: true
   chown: true
   delete: true
+  edit_labels: true
 
 # Filters -  List of criteria to filter the resource
 
@@ -47,4 +48,3 @@ info-tabs:
       enabled: true
   vms:
     enabled: true
-

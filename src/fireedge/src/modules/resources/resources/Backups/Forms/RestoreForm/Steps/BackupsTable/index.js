@@ -57,7 +57,6 @@ const BACKUP_COLUMNS = [
     header: T.Type,
     id: 'type',
     accessorFn: getBackupType,
-    grow: false,
     cell: ({ row }) => (
       <Tag title={getBackupType(row.original)} status="default" />
     ),
@@ -67,18 +66,6 @@ const BACKUP_COLUMNS = [
     id: 'datastore',
     accessorKey: 'DATASTORE',
     truncate: true,
-  },
-  {
-    header: T.Owner,
-    id: 'owner',
-    accessorKey: 'UNAME',
-    grow: false,
-  },
-  {
-    header: T.Group,
-    id: 'group',
-    accessorKey: 'GNAME',
-    grow: false,
   },
 ]
 

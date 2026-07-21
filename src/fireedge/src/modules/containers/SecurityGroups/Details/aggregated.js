@@ -20,14 +20,19 @@ import {
   InfoSlot,
   LabelButton,
   ResourceActionConfirmation,
+  SummarySlot,
   TabSlot,
 } from '@ComponentsV2Module'
 
 import { useModalsApi, SecurityGroupAPI } from '@FeaturesModule'
-import { Component } from 'react'
+import { Component, useMemo } from 'react'
 
 import { T, STYLE_BUTTONS, RESOURCE_NAMES } from '@ConstantsModule'
 import { SecurityGroup } from '@ResourcesModule'
+import {
+  getSecurityGroupResourceCount,
+  getSecurityGroupRulesCount,
+} from '@ModelsModule'
 
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
@@ -52,6 +57,25 @@ export const AggregatedView = ({
   actions,
 }) => {
   const { showModal } = useModalsApi()
+  const summary = useMemo(
+    () =>
+      selectedSecurityGroups.reduce(
+        (totals, securityGroup) => ({
+          rules: totals.rules + getSecurityGroupRulesCount(securityGroup),
+          updatedVms:
+            totals.updatedVms +
+            getSecurityGroupResourceCount(securityGroup?.UPDATED_VMS),
+          outdatedVms:
+            totals.outdatedVms +
+            getSecurityGroupResourceCount(securityGroup?.OUTDATED_VMS),
+          errorVms:
+            totals.errorVms +
+            getSecurityGroupResourceCount(securityGroup?.ERROR_VMS),
+        }),
+        { rules: 0, updatedVms: 0, outdatedVms: 0, errorVms: 0 }
+      ),
+    [selectedSecurityGroups]
+  )
 
   const [refreshSecGroup, { isFetching: isRefreshingSecGroup }] =
     SecurityGroupAPI.useLazyGetSecGroupQuery()
@@ -159,6 +183,17 @@ export const AggregatedView = ({
                 />
               </Box>
             ),
+          },
+        ],
+        [
+          SummarySlot,
+          {
+            labels: [
+              [summary.rules, T.TotalRules],
+              [summary.updatedVms, T.TotalUpdatedVms],
+              [summary.outdatedVms, T.TotalOutdatedVms],
+              [summary.errorVms, T.TotalErrorVms],
+            ],
           },
         ],
         [

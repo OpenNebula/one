@@ -169,6 +169,7 @@ const Illustration = () => (
  * @param {*} root0.subtitle - Empty state subtitle
  * @param {*} root0.title - Empty state title
  * @param {'small'|'medium'} root0.size - Empty state size
+ * @param {'default'|'error'} root0.status - Empty state status
  * @param {object|Array|Function} root0.sx - Custom SX styles
  * @returns {Component} - EmptyContent component
  */
@@ -181,6 +182,7 @@ export const EmptyContent = forwardRef(
       subtitle = T.ThereIsNoContent,
       title = T.NoContent,
       size = 'medium',
+      status = 'default',
       sx,
     },
     ref
@@ -188,7 +190,7 @@ export const EmptyContent = forwardRef(
     <Box
       ref={ref}
       sx={[
-        (theme) => getStyles({ theme, size }),
+        (theme) => getStyles({ theme, size, status }),
         ...(Array.isArray(sx) ? sx : [sx]),
       ].filter(Boolean)}
     >
@@ -228,6 +230,7 @@ EmptyContent.propTypes = {
   actionProps: PropTypes.object,
   actionTitle: PropTypes.node,
   size: PropTypes.oneOf(['small', 'medium']),
+  status: PropTypes.oneOf(['default', 'error']),
   subtitle: PropTypes.node,
   sx: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.func]),
   title: PropTypes.node,

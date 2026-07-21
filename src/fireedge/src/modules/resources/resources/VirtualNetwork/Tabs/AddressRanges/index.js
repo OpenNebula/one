@@ -116,7 +116,6 @@ export const AddressRanges = ({ data, config }) => {
     {
       accessorKey: 'TYPE',
       header: T.Type,
-      grow: false,
       cell: ({ row }) =>
         row.original?.TYPE ? (
           <Tag title={row.original.TYPE} status="default" />
@@ -124,47 +123,40 @@ export const AddressRanges = ({ data, config }) => {
           '-'
         ),
     },
-    { accessorKey: 'SIZE', header: T.Size, grow: false },
+    { accessorKey: 'SIZE', header: T.Size },
     {
       id: 'first_mac',
       header: T.FirstMAC,
       accessorFn: (row) => row?.MAC || '-',
-      grow: false,
     },
     {
       id: 'last_mac',
       header: T.LastMAC,
       accessorFn: (row) => row?.MAC_END || '-',
-      grow: false,
     },
     {
       id: 'first_ip',
       header: T.FirstIP,
       accessorFn: getFirstIP,
-      grow: false,
     },
     {
       id: 'last_ip',
       header: T.LastIP,
       accessorFn: getLastIP,
-      grow: false,
     },
     {
       id: 'ip6_global',
       header: T.IPv6GlobalPrefix,
       accessorFn: (row) => getRange(row?.IP6_GLOBAL, row?.IP6_GLOBAL_END),
-      grow: false,
     },
     {
       id: 'ip6_ula',
       header: T.IPv6ULAPrefix,
       accessorFn: (row) => getRange(row?.IP6_ULA, row?.IP6_ULA_END),
-      grow: false,
     },
     {
       id: 'ipam',
       header: T.IPAMDriver,
-      grow: false,
       accessorFn: (row) => row?.IPAM_MAD || T.No,
       cell: ({ row }) =>
         row.original?.IPAM_MAD ? (
@@ -275,7 +267,6 @@ export const AddressRanges = ({ data, config }) => {
       stepProps: {
         ...stepProps,
         isUpdate: true,
-        hasLease: +addressRange?.USED_LEASES > 0,
       },
       onSubmit: (updatedAr) =>
         handleUpdateAddressRange(updatedAr, addressRange),

@@ -91,6 +91,8 @@ export const AutocompleteController = memo(
       (nextValue) => {
         const valueToChange = multiple
           ? nextValue ?? []
+          : nextValue == null
+          ? null
           : getOptionValue(nextValue)
 
         onChange(valueToChange)

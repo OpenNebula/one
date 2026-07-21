@@ -31,7 +31,12 @@ import PropTypes from 'prop-types'
 import { RefreshDouble, Edit, Cancel, Trash, Lock, NoLock } from 'iconoir-react'
 import { useHistory } from 'react-router'
 import { VmGroupAPI, useModalsApi } from '@FeaturesModule'
-import { getLabelTags, vmgroupVmTable } from '@ModelsModule'
+import {
+  getLabelTags,
+  getVmGroupTotalRoles,
+  getVmGroupTotalVms,
+  vmgroupVmTable,
+} from '@ModelsModule'
 import { VmGroup } from '@ResourcesModule'
 
 /**
@@ -268,7 +273,8 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
-              [[].concat(selectedVmGroup?.ROLES?.ROLE)?.length ?? 0, T.Roles],
+              [getVmGroupTotalRoles(selectedVmGroup), T.Roles],
+              [getVmGroupTotalVms(selectedVmGroup), T.VMs],
             ]?.filter(([value]) => value !== undefined),
           },
         ],

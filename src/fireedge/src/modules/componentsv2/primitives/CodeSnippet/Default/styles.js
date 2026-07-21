@@ -18,9 +18,10 @@
  * @param {object} root0 - Params
  * @param {object} root0.theme - Current theme in use
  * @param {boolean} root0.isDisabled - Is disabled
+ * @param {boolean} root0.hasTitle - Whether the snippet has a title
  * @returns {object} - CodeSnippet SX style
  */
-export const getStyles = ({ theme, isDisabled }) => {
+export const getStyles = ({ theme, isDisabled, hasTitle }) => {
   const baseStyle = {
     overflow: 'auto',
     position: 'relative',
@@ -48,7 +49,14 @@ export const getStyles = ({ theme, isDisabled }) => {
       justifyContent: 'space-between',
       alignSelf: 'stretch',
       gap: `${theme.scale[200]}px`,
-      padding: `${theme.scale[300]}px ${theme.scale[400]}px`,
+      ...(hasTitle
+        ? { padding: `${theme.scale[300]}px ${theme.scale[400]}px` }
+        : {
+            position: 'absolute',
+            top: `${theme.scale[300]}px`,
+            right: `${theme.scale[400]}px`,
+            zIndex: 1,
+          }),
       '&:has(.code-snippet-title)': {
         borderBottom: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
       },

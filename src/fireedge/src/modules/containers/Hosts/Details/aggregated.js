@@ -21,6 +21,7 @@ import {
   InfoSlot,
   ResourceActionConfirmation,
   SummarySlot,
+  StatusTag,
   TabSlot,
   ToggleGroup,
 } from '@ComponentsV2Module'
@@ -329,6 +330,10 @@ export const AggregatedView = ({
         selectedHosts,
         (host) => getHostState(host)?.name ?? '-'
       ),
+      stateColor: getCommonValue(
+        selectedHosts,
+        (host) => getHostState(host)?.color ?? 'default'
+      ),
       cluster: getCommonValue(selectedHosts, (host) => host?.CLUSTER ?? '-'),
       imMad: getCommonValue(selectedHosts, (host) => host?.IM_MAD ?? '-'),
       vmMad: getCommonValue(selectedHosts, (host) => host?.VM_MAD ?? '-'),
@@ -376,10 +381,16 @@ export const AggregatedView = ({
           SummarySlot,
           {
             labels: [
-              [summary.state, T.State],
-              [summary.cluster, T.Cluster],
-              [summary.imMad, T.IM_MAD],
-              [summary.vmMad, T.VM_MAD],
+              [
+                <StatusTag
+                  key="host-state"
+                  statusColor={
+                    summary.stateColor === '-' ? 'default' : summary.stateColor
+                  }
+                  statusName={summary.state}
+                />,
+                T.State,
+              ],
               [summary.runningVms, T.RunningVMs],
               [summary.totalVms, T.TotalVMs],
               [summary.cpuLabel, T.CPU],

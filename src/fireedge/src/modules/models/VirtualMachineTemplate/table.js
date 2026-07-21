@@ -29,7 +29,12 @@ import {
 } from '@ConstantsModule'
 import { Image, Tag } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
+import {
+  getVmTemplateImageCount,
+  getVmTemplateNetworkCount,
+} from '@modules/models/VirtualMachineTemplate/general'
 import { Box } from '@mui/material'
+import { scale } from '@StylesModule'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const VMTEMPLATE_COLUMNS = [
@@ -50,8 +55,8 @@ export const VMTEMPLATE_COLUMNS = [
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Image
             src={src}
-            width={32}
-            height={32}
+            width={scale[600]}
+            height={scale[600]}
             alt={'list-image-identifier'}
           />
           <span>{row.original?.NAME}</span>
@@ -72,13 +77,27 @@ export const VMTEMPLATE_COLUMNS = [
     cell: ({ row }) => prettyBytes(row.original?.TEMPLATE?.MEMORY, UNITS.MB),
   },
   {
+    header: T.Images,
+    id: 'images',
+    accessorFn: getVmTemplateImageCount,
+  },
+  {
+    header: T.Networks,
+    id: 'networks',
+    accessorFn: getVmTemplateNetworkCount,
+  },
+  {
     header: T.Hypervisor,
     id: 'hypervisor',
     accessorFn: (row) => row?.TEMPLATE?.HYPERVISOR,
     cell: ({ row }) => {
       const hypervisor = row.original?.TEMPLATE?.HYPERVISOR
 
-      return hypervisor ? <Tag title={hypervisor} status="default" /> : '-'
+      return hypervisor ? (
+        <Tag title={hypervisor} status="miscellaneous" />
+      ) : (
+        '-'
+      )
     },
   },
   {
@@ -88,7 +107,11 @@ export const VMTEMPLATE_COLUMNS = [
     cell: ({ row }) => {
       const architecture = row.original?.TEMPLATE?.OS?.ARCH
 
-      return architecture ? <Tag title={architecture} status="default" /> : '-'
+      return architecture ? (
+        <Tag title={architecture} status="miscellaneous2" />
+      ) : (
+        '-'
+      )
     },
   },
   {
@@ -103,7 +126,7 @@ export const VMTEMPLATE_COLUMNS = [
   },
   {
     accessorKey: 'REGTIME',
-    header: T.RegistrationTime,
+    header: T.Registered,
     grow: false,
     cell: ({ row }) => timeFromMilliseconds(row.original.REGTIME).toRelative(),
   },

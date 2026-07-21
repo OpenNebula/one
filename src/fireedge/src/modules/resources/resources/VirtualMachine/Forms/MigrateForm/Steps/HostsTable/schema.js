@@ -16,7 +16,7 @@
 import { string } from 'yup'
 
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { hostTable } from '@ModelsModule'
+import { hostSelectionTable } from '@ModelsModule'
 import { Field, getObjectSchemaFromFields } from '@UtilsModule'
 
 /** @type {Field} Host field */
@@ -24,7 +24,7 @@ const HOST = {
   name: 'ID',
   label: T.SelectHost,
   type: INPUT_TYPES.TABLE,
-  model: hostTable,
+  model: hostSelectionTable,
   singleSelect: true,
   selectOnRowClick: true,
   getRowId: (row) => String(row?.ID),

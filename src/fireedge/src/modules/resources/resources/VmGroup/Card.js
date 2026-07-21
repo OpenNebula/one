@@ -14,18 +14,21 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { T, STATIC_FILES_URL, DEFAULT_TEMPLATE_LOGO } from '@ConstantsModule'
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import {
   Card,
+  IconSlot,
   LabelSlot,
   TitleSlot,
-  OwnershipSlot,
   MetadataSlot,
 } from '@ComponentsV2Module'
-import { getLockIcon, timeFromMilliseconds } from '@UtilsModule'
-import { getLabelSlotLabels } from '@ModelsModule'
+import { getLockIcon } from '@UtilsModule'
+import {
+  getLabelTags,
+  getVmGroupTotalRoles,
+  getVmGroupTotalVms,
+} from '@ModelsModule'
 
 /**
  * VmGroupCard component displays a VM Template as a card.
@@ -36,7 +39,7 @@ import { getLabelSlotLabels } from '@ModelsModule'
  * @param {string} root0.GNAME - Group name
  * @param {string} root0.UNAME - Owner name
  * @param {string} root0.REGTIME - Registration time
- * @param {string} root0.LOGO - Template logo path
+ * @param {object|Array} root0.ROLES - VM Group roles
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
@@ -49,14 +52,13 @@ export const VmGroupCard = forwardRef((data = {}, ref) => {
     ID,
     GNAME,
     UNAME,
-    REGTIME,
-    LOGO = DEFAULT_TEMPLATE_LOGO,
+    ROLES,
     LABELS,
     isSelected,
     onCheck,
     onClick,
   } = data
-  const labelSlotLabels = getLabelSlotLabels(LABELS)
+  const labelTags = getLabelTags(LABELS)
 
   return (
     <Card
@@ -64,7 +66,6 @@ export const VmGroupCard = forwardRef((data = {}, ref) => {
       onCheck={onCheck}
       onClick={onClick}
       isSelected={isSelected}
-      icon={`${STATIC_FILES_URL}/${LOGO}`}
       slots={[
         [
           TitleSlot,
@@ -77,7 +78,7 @@ export const VmGroupCard = forwardRef((data = {}, ref) => {
           },
         ],
         [
-          OwnershipSlot,
+          MetadataSlot,
           {
             labels: [
               ['ID', ID],
@@ -87,22 +88,17 @@ export const VmGroupCard = forwardRef((data = {}, ref) => {
           },
         ],
         [
-          MetadataSlot,
+          IconSlot,
           {
-            labels: [
-              [
-                REGTIME &&
-                  `${T.Registered} ${timeFromMilliseconds(
-                    +REGTIME
-                  ).toRelative()}`,
-              ]?.filter(Boolean),
-            ],
+            roles: getVmGroupTotalRoles({ ROLES }),
+            vms: getVmGroupTotalVms({ ROLES }),
           },
         ],
-        labelSlotLabels.length > 0 && [
+        labelTags.length > 0 && [
           LabelSlot,
           {
-            labels: labelSlotLabels,
+            tags: labelTags,
+            max: 3,
           },
         ],
       ].filter(Boolean)}
@@ -116,7 +112,7 @@ VmGroupCard.propTypes = {
   GNAME: PropTypes.string,
   UNAME: PropTypes.string,
   REGTIME: PropTypes.string,
-  LOGO: PropTypes.string,
+  ROLES: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   LABELS: PropTypes.object,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,

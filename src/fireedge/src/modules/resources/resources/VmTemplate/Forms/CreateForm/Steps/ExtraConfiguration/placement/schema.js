@@ -18,10 +18,18 @@ import { string, array } from 'yup'
 import { Field, Section, arrayToOptions, disableFields } from '@UtilsModule'
 import {
   clusterTable as clTable,
-  hostTable as hsTable,
+  hostSelectionTable as hsTable,
   datastoreTable as dsTable,
 } from '@ModelsModule'
 import { T, INPUT_TYPES } from '@ConstantsModule'
+
+const datastoreSelectionTable = {
+  ...dsTable,
+  columns: () =>
+    dsTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
+}
 
 /**
  * Add or replace the hypervisor type in SCHED_REQUIREMENTS attribute.
@@ -286,7 +294,7 @@ const HOST_TABLE = {
 const DS_TABLE = {
   name: 'DS_TABLE',
   type: INPUT_TYPES.TABLE,
-  model: dsTable,
+  model: datastoreSelectionTable,
   singleSelect: false,
   fieldProps: {
     preserveState: true,

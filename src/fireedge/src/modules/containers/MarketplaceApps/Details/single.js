@@ -62,6 +62,7 @@ import {
   getActionsAvailable,
   jsonToXml,
   prettyBytes,
+  sentenceCase,
   timeFromMilliseconds,
 } from '@UtilsModule'
 import { MarketplaceApp } from '@ResourcesModule'
@@ -518,7 +519,14 @@ export const SingleView = ({
                 />,
                 T.State,
               ],
-              [<Tag key="type" title={typeName} status="default" />, T.Type],
+              [
+                <Tag
+                  key="type"
+                  title={typeName ? sentenceCase(typeName) : '-'}
+                  status="default"
+                />,
+                T.Type,
+              ],
               [prettyBytes(marketplaceApp?.SIZE, UNITS.MB), T.Size],
               [
                 <Tag

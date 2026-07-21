@@ -55,6 +55,9 @@ info-tabs:
   nics:
     enabled: true
 
+  template:
+    enabled: true
+
 
 # Dialogs
 

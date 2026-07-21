@@ -77,7 +77,7 @@ export const VNTEMPLATE_COLUMNS = [
   { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
   { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
   {
-    header: T.RegistrationTime,
+    header: T.Registered,
     id: 'time',
     grow: false,
     cell: ({ row }) =>

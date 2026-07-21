@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 
 import {
-  Button,
   ButtonGroup,
   DetailsDrawer,
   getLabelMenuButtonProps,
@@ -23,14 +22,13 @@ import {
   MenuButton,
   SummarySlot,
   TabSlot,
-  Tooltip,
   ToggleGroup,
 } from '@ComponentsV2Module'
 import { useModalsApi, VmAPI } from '@FeaturesModule'
 import { Box, useTheme } from '@mui/material'
 import { Component, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Cancel, Lock, NoLock, Play, Trash } from 'iconoir-react'
+import { Cancel, Lock, NoLock, Trash } from 'iconoir-react'
 import {
   RESOURCE_NAMES,
   T,
@@ -45,11 +43,7 @@ import {
   getCommonValue,
   prettyBytes,
 } from '@UtilsModule'
-import {
-  getVirtualMachineState,
-  getVmHostname,
-  isVmAvailableAction,
-} from '@ModelsModule'
+import { getVirtualMachineState, getVmHostname } from '@ModelsModule'
 
 const DELETE_ACTIONS = [VM_ACTIONS.TERMINATE, VM_ACTIONS.TERMINATE_HARD]
 
@@ -189,7 +183,6 @@ export const AggregatedView = ({
   const summary = useMemo(() => {
     const metrics = aggregateMetrics(selectedVms, [
       'TEMPLATE.CPU',
-      'TEMPLATE.VCPU',
       'TEMPLATE.MEMORY',
     ])
 
@@ -212,9 +205,7 @@ export const AggregatedView = ({
         (vm) => getVirtualMachineState(vm)?.name ?? T.Unknown
       ),
       host: getCommonValue(selectedVms, (vm) => getVmHostname(vm) ?? '-'),
-      cpu: `${metrics?.['TEMPLATE.CPU'] || '-'}/${
-        metrics?.['TEMPLATE.VCPU'] || metrics?.['TEMPLATE.CPU'] || '-'
-      }`,
+      cpu: metrics?.['TEMPLATE.CPU'] || '-',
       memory: prettyBytes(metrics?.['TEMPLATE.MEMORY'] ?? 0, UNITS.MB),
       disk: prettyBytes(totalDisk, UNITS.MB),
     }
@@ -232,16 +223,6 @@ export const AggregatedView = ({
     [actions]
   )
 
-  const handleResume = useCallback(
-    async () => await actions?.[VM_ACTION_ENUM.RESUME]?.mutate(),
-    [actions]
-  )
-
-  const isResumeAvailable =
-    !isActionsDisabled &&
-    viewConfig?.actions?.[VM_ACTIONS.RESUME] &&
-    isVmAvailableAction(VM_ACTIONS.RESUME, selectedVms)
-
   return (
     <DetailsDrawer
       isOpen={isOpen}
@@ -258,19 +239,6 @@ export const AggregatedView = ({
                   gap: `${theme.scale[500]}px`,
                 })}
               >
-                {isResumeAvailable && (
-                  <Tooltip title={T.Resume}>
-                    <span>
-                      <Button
-                        startIcon={<Play />}
-                        title={T.Resume}
-                        onClick={handleResume}
-                        compactable
-                      />
-                    </span>
-                  </Tooltip>
-                )}
-
                 <MenuButton
                   placeholder={T.VMActions}
                   options={[generalOptions]}
@@ -291,14 +259,12 @@ export const AggregatedView = ({
                       startIcon: <Lock width="16px" height="16px" />,
                       ...lockAction,
                       tooltip: T.Lock,
-                      compactable: true,
                     },
                     {
                       value: 'unlock',
                       startIcon: <NoLock width="16px" height="16px" />,
                       ...unlockAction,
                       tooltip: T.Unlock,
-                      compactable: true,
                     },
                   ]}
                 />
@@ -368,7 +334,7 @@ export const AggregatedView = ({
             labels: [
               [summary.state, T.State],
               [summary.host, T.Hostname],
-              [summary.cpu, `${T.CPU}/${T.VCPU}`],
+              [summary.cpu, T.CPU],
               [summary.memory, T.Memory],
               [summary.disk, `${T.Disk} ${T.Total}`],
             ]?.filter(([value]) => value !== undefined),

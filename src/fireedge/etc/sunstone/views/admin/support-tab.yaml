@@ -26,6 +26,7 @@ resource_name: "SUPPORT"
 actions:
   create_dialog: true
   logout: true
+  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 

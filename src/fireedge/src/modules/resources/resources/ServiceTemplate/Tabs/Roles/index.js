@@ -16,10 +16,18 @@
 
 import PropTypes from 'prop-types'
 import { Component } from 'react'
-import { TablePanel } from '@ComponentsV2Module'
-import { T, UNITS } from '@ConstantsModule'
+import { Image, TablePanel, Tag } from '@ComponentsV2Module'
+import {
+  DEFAULT_TEMPLATE_LOGO,
+  RESOURCE_NAMES,
+  STATIC_FILES_URL,
+  T,
+  UNITS,
+} from '@ConstantsModule'
 import { prettyBytes } from '@UtilsModule'
 import { SERVICETEMPLATES_ROLES_COLUMNS } from '@ModelsModule'
+import { Box } from '@mui/material'
+import { scale } from '@StylesModule'
 
 /**
  * @param {object} root0 - Params
@@ -28,22 +36,60 @@ import { SERVICETEMPLATES_ROLES_COLUMNS } from '@ModelsModule'
  * @returns {Component} - Service Templates roles info tab
  */
 export const Roles = ({ data, config }) => {
-  const { vmTemplateIdMap, selected } = data
+  const { vmTemplateIdMap = {}, selected } = data
 
   const aSelected = [].concat(selected)
+  const roles = []
+    .concat(aSelected?.[0]?.TEMPLATE?.BODY?.roles ?? [])
+    .filter(Boolean)
+    .map((role) => {
+      const template = vmTemplateIdMap[String(role?.template_id)] ?? {}
+
+      return {
+        ...template,
+        ...role,
+        ID: role?.template_id ?? template?.ID,
+      }
+    })
 
   return (
     <TablePanel
       title={T.Roles}
       key="Roles-Tab"
       columns={[
-        SERVICETEMPLATES_ROLES_COLUMNS?.[0], // name
+        {
+          ...SERVICETEMPLATES_ROLES_COLUMNS?.[0],
+          meta: { disableCellTooltip: true },
+          cell: ({ row }) =>
+            row.original.name ? <Tag title={row.original.name} /> : '-',
+        },
+        {
+          header: T.TemplateID,
+          id: 'template_id',
+          accessorKey: 'template_id',
+          grow: false,
+        },
         {
           header: T.Template,
           id: 'template_name',
-          cell: ({ row }) =>
-            vmTemplateIdMap[String(row.original.template_id)]?.NAME ??
-            row.original.template_id,
+          truncate: true,
+          cell: ({ row }) => {
+            const template =
+              vmTemplateIdMap[String(row.original.template_id)] ?? {}
+            const logo = template?.TEMPLATE?.LOGO ?? DEFAULT_TEMPLATE_LOGO
+
+            return (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Image
+                  src={`${STATIC_FILES_URL}/${logo}`}
+                  width={scale[600]}
+                  height={scale[600]}
+                  alt="list-image-identifier"
+                />
+                <span>{template?.NAME ?? row.original.template_id}</span>
+              </Box>
+            )
+          },
         },
         {
           header: T.Memory,
@@ -56,16 +102,18 @@ export const Roles = ({ data, config }) => {
             ),
         },
         {
-          header: `v${T.cpu}`,
-          id: 'vcpu',
+          header: T.CPU,
+          id: 'cpu',
           cell: ({ row }) =>
-            vmTemplateIdMap[String(row.original.template_id)]?.TEMPLATE?.VCPU ??
+            vmTemplateIdMap[String(row.original.template_id)]?.TEMPLATE?.CPU ??
             '-',
         },
 
         ...SERVICETEMPLATES_ROLES_COLUMNS.slice(1),
       ]}
-      data={[].concat(aSelected?.[0]?.TEMPLATE?.BODY?.roles)}
+      data={roles}
+      openRowDetailsOnClick
+      rowDetailsResourceId={RESOURCE_NAMES.VM_TEMPLATE}
     />
   )
 }

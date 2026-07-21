@@ -22,6 +22,9 @@
  */
 export const getStyles = ({ theme, isOutlined }) => {
   const baseStyle = {
+    '--compact-toolbar-divider-space': `${
+      theme.borderWidth.sm + theme.scale[100] * 2
+    }px`,
     display: 'flex',
     flexWrap: 'nowrap',
     padding: 0,

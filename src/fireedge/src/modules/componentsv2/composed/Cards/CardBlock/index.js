@@ -114,6 +114,7 @@ CardBlock.propTypes = {
     PropTypes.node,
   ]),
   icon: PropTypes.node,
+  dataCy: PropTypes.string,
   isRemoveCheckbox: PropTypes.bool,
   isSelectable: PropTypes.bool,
   isSelected: PropTypes.bool,

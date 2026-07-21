@@ -26,9 +26,10 @@ import { timeFromMilliseconds } from '@UtilsModule'
  *
  * @param {object} root0 - Params
  * @param {string} root0.time - Time text
+ * @param {string} root0.label - Time label
  * @returns {Component} - TimeSlot component
  */
-export const TimeSlot = forwardRef(({ time }, ref) => (
+export const TimeSlot = forwardRef(({ time, label = T.Registered }, ref) => (
   <Box
     sx={(theme) =>
       getStyles({
@@ -39,9 +40,9 @@ export const TimeSlot = forwardRef(({ time }, ref) => (
   >
     {time && (
       <Box className="region-label">
-        <span className="region-label--value">{`${
-          T.Registered
-        } ${timeFromMilliseconds(+time).toRelative()}`}</span>
+        <span className="region-label--value">{`${label} ${timeFromMilliseconds(
+          +time
+        ).toRelative()}`}</span>
       </Box>
     )}
   </Box>
@@ -49,6 +50,7 @@ export const TimeSlot = forwardRef(({ time }, ref) => (
 
 TimeSlot.propTypes = {
   time: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  label: PropTypes.string,
 }
 
 TimeSlot.displayName = 'TimeSlot'

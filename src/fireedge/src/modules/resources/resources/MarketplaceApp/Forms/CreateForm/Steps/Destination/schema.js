@@ -20,14 +20,7 @@ import { SystemAPI } from '@FeaturesModule'
 import { marketplaceTable, onedConfIncludesAction } from '@ModelsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
 
-const MARKETPLACE_COLUMN_IDS = [
-  'ID',
-  'NAME',
-  'STATE',
-  'capacity',
-  'UNAME',
-  'GNAME',
-]
+const MARKETPLACE_COLUMN_IDS = ['ID', 'NAME', 'STATE', 'capacity']
 
 const marketplaceModel = {
   dataCy: marketplaceTable.dataCy,

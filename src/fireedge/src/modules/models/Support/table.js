@@ -38,7 +38,7 @@ export const SUPPORT_COLUMNS = [
     },
   },
   {
-    header: T.RegistrationTime,
+    header: T.Created,
     id: 'time',
     grow: false,
     accessorFn: (row) =>

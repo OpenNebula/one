@@ -96,6 +96,73 @@ export const getServiceTotalRoles = (service) => getServiceRoles(service).length
  */
 export const getServiceTotalVms = (service) => getServiceNodes(service).length
 
+const normalizeNetworkReference = (reference) =>
+  String(reference ?? '')
+    .replace(/^\$/, '')
+    .trim()
+
+const getServiceNetworkValues = ({ TEMPLATE = {} } = {}) =>
+  []
+    .concat(TEMPLATE?.BODY?.networks_values ?? [])
+    .flat()
+    .filter(Boolean)
+    .reduce(
+      (valuesByName, networkValues) => ({
+        ...valuesByName,
+        ...networkValues,
+      }),
+      {}
+    )
+
+const getNetworkIdFromDefinition = (definition) =>
+  String(definition ?? '').match(/(?:id|reserve_from):([^|]+)/)?.[1]
+
+const getRoleNetworkReferences = (role = {}) =>
+  []
+    .concat(role?.template_contents?.NIC ?? [])
+    .flat()
+    .filter(Boolean)
+    .flatMap(({ NETWORK_ID: networkId, NETWORK: network }) => [
+      networkId,
+      network,
+    ])
+    .map(normalizeNetworkReference)
+    .filter(Boolean)
+
+/**
+ * Returns the virtual networks defined by a Service and their assigned roles.
+ *
+ * @param {Service} service - Service
+ * @returns {{ID: string|number, NAME: string, ROLES: string}[]} Service networks
+ */
+export const getServiceNetworks = (service = {}) => {
+  const networks = service?.TEMPLATE?.BODY?.networks ?? {}
+  const networkValues = getServiceNetworkValues(service)
+  const roles = getServiceRoles(service)
+
+  return Object.entries(networks).map(([name, definition]) => {
+    const id =
+      networkValues?.[name]?.id ?? getNetworkIdFromDefinition(definition)
+    const references = new Set(
+      [name, id].map(normalizeNetworkReference).filter(Boolean)
+    )
+    const assignedRoles = roles
+      .filter((role) =>
+        getRoleNetworkReferences(role).some((reference) =>
+          references.has(reference)
+        )
+      )
+      .map((role) => role?.name)
+      .filter(Boolean)
+
+    return {
+      ID: id,
+      NAME: name,
+      ROLES: assignedRoles.join(', ') || '-',
+    }
+  })
+}
+
 /**
  * Returns the total number of networks in a Service.
  *

@@ -16,10 +16,17 @@
 
 import PropTypes from 'prop-types'
 import { Component, forwardRef } from 'react'
-import { Card, LabelSlot, MetadataSlot, TitleSlot } from '@ComponentsV2Module'
+import {
+  Card,
+  IconSlot,
+  LabelSlot,
+  MetadataSlot,
+  TitleSlot,
+} from '@ComponentsV2Module'
 import { T } from '@ConstantsModule'
-import { getTotalOfResources } from '@UtilsModule'
-import { getLabelSlotLabels } from '@ModelsModule'
+import { getLockIcon } from '@UtilsModule'
+import { getLabelTags, getSecurityGroupResourceCount } from '@ModelsModule'
+import { Hexagon, PcCheck, PcNoEntry, PcWarning } from 'iconoir-react'
 
 /**
  * SecurityGroupCard component displays a Security Group as a card.
@@ -48,7 +55,7 @@ export const SecurityGroupCard = forwardRef(
 
     const id = String(ID)
     const totalRules = [].concat(TEMPLATE?.RULE ?? []).filter(Boolean).length
-    const labelSlotLabels = getLabelSlotLabels(securityGroup?.LABELS)
+    const labelTags = getLabelTags(securityGroup?.LABELS)
 
     return (
       <Card
@@ -58,7 +65,16 @@ export const SecurityGroupCard = forwardRef(
         onClick={onClick}
         isSelected={isSelected}
         slots={[
-          [TitleSlot, { title: NAME }],
+          [
+            TitleSlot,
+            {
+              title: (
+                <>
+                  {NAME} {getLockIcon(securityGroup)}
+                </>
+              ),
+            },
+          ],
           [
             MetadataSlot,
             {
@@ -66,17 +82,37 @@ export const SecurityGroupCard = forwardRef(
                 [T.ID, id],
                 [T.Owner, UNAME],
                 [T.Group, GNAME],
-                [T.Updated, String(getTotalOfResources(UPDATED_VMS))],
-                [T.Outdated, String(getTotalOfResources(OUTDATED_VMS))],
-                [T.Error, String(getTotalOfResources(ERROR_VMS))],
-                [T.Rules, String(totalRules)],
+              ].filter(([, value]) => value),
+            },
+          ],
+          [
+            IconSlot,
+            {
+              items: [
+                { Icon: Hexagon, label: T.Rules, value: totalRules },
+                {
+                  Icon: PcCheck,
+                  label: T.UpdatedVms,
+                  value: getSecurityGroupResourceCount(UPDATED_VMS),
+                },
+                {
+                  Icon: PcNoEntry,
+                  label: T.OutdatedVms,
+                  value: getSecurityGroupResourceCount(OUTDATED_VMS),
+                },
+                {
+                  Icon: PcWarning,
+                  label: T.ErrorVms,
+                  value: getSecurityGroupResourceCount(ERROR_VMS),
+                },
               ],
             },
           ],
-          labelSlotLabels.length > 0 && [
+          labelTags.length > 0 && [
             LabelSlot,
             {
-              labels: labelSlotLabels,
+              tags: labelTags,
+              max: 3,
             },
           ],
         ].filter(Boolean)}

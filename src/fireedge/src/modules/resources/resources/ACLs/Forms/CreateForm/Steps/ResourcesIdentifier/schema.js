@@ -41,8 +41,8 @@ const groupSelectorTable = {
 }
 
 const clusterColumns = [
-  { accessorKey: 'ID', header: T.ID, width: '10%' },
-  { accessorKey: 'NAME', header: T.Name },
+  { accessorKey: 'ID', header: T.ID, grow: false },
+  { accessorKey: 'NAME', header: T.Name, truncate: true },
   {
     header: T.Hosts,
     id: 'hosts',

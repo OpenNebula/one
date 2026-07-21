@@ -21,7 +21,9 @@ import {
   InfoSlot,
   ResourceActionConfirmation,
   SummarySlot,
+  StatusTag,
   TabSlot,
+  Tag,
   ToggleGroup,
 } from '@ComponentsV2Module'
 import { unset } from 'lodash'
@@ -46,7 +48,7 @@ import { IMAGE_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
 import {
   cloneObject,
   createActions,
-  getImageType,
+  getImageTypeLabel,
   jsonToXml,
   set,
 } from '@UtilsModule'
@@ -97,9 +99,12 @@ export const SingleView = ({
       : selectedData
   const { ID, TEMPLATE } = data
 
-  const { name: stateName } = useMemo(() => getImageState(data) ?? {}, [data])
-  const type = useMemo(() => getImageType(data), [data])
-  const { DATASTORE, PERSISTENT } = data
+  const { color: stateColor, name: stateName } = useMemo(
+    () => getImageState(data) ?? {},
+    [data]
+  )
+  const type = useMemo(() => getImageTypeLabel(data), [data])
+  const { DATASTORE, PERSISTENT, UNAME, GNAME } = data
 
   const imageIsLocked = data?.LOCK
   const imagePersistent = data?.PERSISTENT === '1'
@@ -457,6 +462,11 @@ export const SingleView = ({
 
             title: data?.NAME,
             id: ID,
+            labels: [
+              [T.Owner, UNAME],
+              [T.Group, GNAME],
+              [T.Datastore, DATASTORE],
+            ],
             tags: getLabelTags(data?.LABELS),
             Toolbar: () => (
               <Box
@@ -503,10 +513,20 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
-              [stateName ?? '-', T.State],
-              [type ?? '-', T.Type],
+              [
+                <StatusTag
+                  key="state"
+                  statusColor={stateColor}
+                  statusName={stateName ?? '-'}
+                />,
+                T.State,
+              ],
+              [
+                type ? <Tag key="type" title={type} status="default" /> : '-',
+                T.Type,
+              ],
               [DATASTORE ?? '-', T.Datastore],
-              [+PERSISTENT ? T.Persistent : T.NonPersistent, T.Persistent],
+              [+PERSISTENT ? T.Yes : T.No, T.Persistent],
             ],
           },
         ],

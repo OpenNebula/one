@@ -14,18 +14,24 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { T, STATIC_FILES_URL, DEFAULT_TEMPLATE_LOGO } from '@ConstantsModule'
+import {
+  T,
+  UNITS,
+  STATIC_FILES_URL,
+  DEFAULT_TEMPLATE_LOGO,
+} from '@ConstantsModule'
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import {
   Card,
   TitleSlot,
-  OwnershipSlot,
   MetadataSlot,
+  IconSlot,
   LabelSlot,
+  TimeSlot,
 } from '@ComponentsV2Module'
-import { getLockIcon, timeFromMilliseconds } from '@UtilsModule'
-import { getLabelSlotLabels } from '@ModelsModule'
+import { getLockIcon, prettyBytes } from '@UtilsModule'
+import { getLabelTags } from '@ModelsModule'
 
 /**
  * VrTemplateCard component displays a VR Template as a card.
@@ -36,7 +42,7 @@ import { getLabelSlotLabels } from '@ModelsModule'
  * @param {string} root0.GNAME - Group name
  * @param {string} root0.UNAME - Owner name
  * @param {string} root0.REGTIME - Registration time
- * @param {string} root0.LOGO - Template logo path
+ * @param {object} root0.TEMPLATE - Template data
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
@@ -50,13 +56,15 @@ export const VrTemplateCard = forwardRef((data = {}, ref) => {
     GNAME,
     UNAME,
     REGTIME,
-    LOGO = DEFAULT_TEMPLATE_LOGO,
+    TEMPLATE = {},
     LABELS,
     isSelected,
     onCheck,
     onClick,
   } = data
-  const labelSlotLabels = getLabelSlotLabels(LABELS)
+  const labelTags = getLabelTags(LABELS)
+  const lockIcon = getLockIcon(data)
+  const logo = TEMPLATE?.LOGO ?? DEFAULT_TEMPLATE_LOGO
 
   return (
     <Card
@@ -65,47 +73,45 @@ export const VrTemplateCard = forwardRef((data = {}, ref) => {
       onCheck={onCheck}
       onClick={onClick}
       isSelected={isSelected}
-      icon={`${STATIC_FILES_URL}/${LOGO}`}
+      icon={`${STATIC_FILES_URL}/${logo}`}
       slots={[
         [
           TitleSlot,
           {
             title: (
               <>
-                {NAME} {getLockIcon(data)}
+                {NAME} {lockIcon}
               </>
             ),
-          },
-        ],
-        [
-          OwnershipSlot,
-          {
-            labels: [
-              ['ID', ID],
-              ['Owner', UNAME],
-              ['Group', GNAME],
-            ],
           },
         ],
         [
           MetadataSlot,
           {
             labels: [
-              [
-                REGTIME &&
-                  `${T.Registered} ${timeFromMilliseconds(
-                    +REGTIME
-                  ).toRelative()}`,
-              ]?.filter(Boolean),
+              ['Owner', UNAME],
+              ['Group', GNAME],
             ],
           },
         ],
-        labelSlotLabels.length > 0 && [
-          LabelSlot,
+        [
+          IconSlot,
           {
-            labels: labelSlotLabels,
+            cpu: TEMPLATE?.CPU ?? 1,
+            memory: prettyBytes(TEMPLATE?.MEMORY ?? 0, UNITS.MB),
           },
         ],
+        (TEMPLATE?.HYPERVISOR || labelTags.length > 0) && [
+          LabelSlot,
+          {
+            labels: [
+              TEMPLATE?.HYPERVISOR && [TEMPLATE.HYPERVISOR, 'miscellaneous'],
+            ].filter(Boolean),
+            tags: labelTags,
+            max: 3,
+          },
+        ],
+        REGTIME && [TimeSlot, { time: REGTIME, label: T.Registered }],
       ].filter(Boolean)}
     />
   )
@@ -117,7 +123,7 @@ VrTemplateCard.propTypes = {
   GNAME: PropTypes.string,
   UNAME: PropTypes.string,
   REGTIME: PropTypes.string,
-  LOGO: PropTypes.string,
+  TEMPLATE: PropTypes.object,
   LABELS: PropTypes.object,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,

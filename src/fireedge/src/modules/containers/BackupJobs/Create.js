@@ -42,7 +42,7 @@ export function CreateBackupJob() {
       const newBackupJobId = await create({
         template: jsonToXml(template),
       }).unwrap()
-      if (newBackupJobId) {
+      if (newBackupJobId !== undefined && newBackupJobId !== null) {
         history.push(PATH.STORAGE.BACKUPJOBS.LIST)
         enqueueSuccess(T.SuccessBackupJobCreated, newBackupJobId)
       }

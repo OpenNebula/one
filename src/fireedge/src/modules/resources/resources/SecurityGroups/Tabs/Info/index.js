@@ -84,8 +84,8 @@ export const Info = ({ data, config }) => {
       (Array.isArray(selected) && selected.length === 1))
 
   return (
-    <>
-      <Box sx={(theme) => getStyles({ theme })}>
+    <Box sx={(theme) => getStyles({ theme })}>
+      <Box className="topContainer">
         {isInformationPanelEnabled && (
           <Box className="detailsContainer">
             <DetailsCard
@@ -136,35 +136,32 @@ export const Info = ({ data, config }) => {
           )}
         </Box>
       </Box>
-      <Box sx={(theme) => getStyles({ theme })}>
-        {isRulesPanelEnabled && (
-          <Box className="rulesContainer">
-            <RulesSecGroups
-              title={T.SecurityGroup}
-              rules={
-                Array.isArray(selected?.TEMPLATE?.RULE)
-                  ? selected?.TEMPLATE?.RULE
-                  : [selected?.TEMPLATE?.RULE]
-              }
-            />
-          </Box>
-        )}
-      </Box>
-      <Box sx={(theme) => getStyles({ theme })}>
-        {isAttributesPanelEnabled && (
-          <Box className="attributesContainer">
-            <AttributesPanel
-              title={T.Attributes}
-              attributes={secGroupAttributes}
-              actions={attributesPanel?.actions}
-              handleDelete={handleDeleteAttribute}
-              handleAdd={handleAddAttribute}
-              isLoading={isLoadingExtended}
-            />
-          </Box>
-        )}
-      </Box>
-    </>
+      {isRulesPanelEnabled && (
+        <Box className="rulesContainer">
+          <RulesSecGroups
+            title={T.SecurityGroup}
+            rules={
+              Array.isArray(selected?.TEMPLATE?.RULE)
+                ? selected?.TEMPLATE?.RULE
+                : [selected?.TEMPLATE?.RULE]
+            }
+          />
+        </Box>
+      )}
+      {isAttributesPanelEnabled && (
+        <Box className="attributesContainer">
+          <AttributesPanel
+            title={T.Attributes}
+            attributes={secGroupAttributes}
+            actions={attributesPanel?.actions}
+            handleDelete={handleDeleteAttribute}
+            handleAdd={handleAddAttribute}
+            isLoading={isLoadingExtended}
+            isFullHeight={false}
+          />
+        </Box>
+      )}
+    </Box>
   )
 }
 

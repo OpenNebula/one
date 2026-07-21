@@ -14,34 +14,64 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { T } from '@ConstantsModule'
-import { createTable, getTotalOfResources } from '@UtilsModule'
+import { createTable } from '@UtilsModule'
 import { SecurityGroupAPI, VmAPI } from '@FeaturesModule'
 import { VM_COLUMNS } from '@modules/models/VirtualMachine/table'
 import { createLabelColumn } from '@modules/models/labels'
 import { Tag } from '@ComponentsV2Module'
 
 /* eslint-disable jsdoc/require-jsdoc */
+export const getSecurityGroupRulesCount = (securityGroup) =>
+  [securityGroup?.TEMPLATE?.RULE ?? []].flat().filter(Boolean).length
+
+export const getSecurityGroupResourceCount = (value) => {
+  if (typeof value === 'number' || typeof value === 'string') {
+    const count = Number(value)
+
+    return Number.isFinite(count) && count >= 0 ? count : 0
+  }
+
+  const ids = value?.ID
+
+  return [ids ?? []].flat().filter(Boolean).length
+}
+
 export const SECURITYGROUPS_COLUMNS = [
   { header: T.ID, accessorKey: 'ID', id: 'id', grow: false },
   { header: T.Name, id: 'name', accessorKey: 'NAME', truncate: true },
   {
-    header: 'Updated VMs',
+    header: T.Rules,
+    id: 'rules',
+    accessorFn: getSecurityGroupRulesCount,
+  },
+  {
+    header: T.UpdatedVms,
     id: 'UPDATED_VMS',
-    accessorFn: (row) => getTotalOfResources(row?.UPDATED_VMS),
+    accessorFn: (row) => getSecurityGroupResourceCount(row?.UPDATED_VMS),
   },
   {
-    header: 'Outdated VMs',
+    header: T.OutdatedVms,
     id: 'OUTDATED_VMS',
-    accessorFn: (row) => getTotalOfResources(row?.OUTDATED_VMS),
+    accessorFn: (row) => getSecurityGroupResourceCount(row?.OUTDATED_VMS),
   },
   {
-    header: 'Error VMs',
+    header: T.ErrorVms,
     id: 'ERROR_VMS',
-    accessorFn: (row) => getTotalOfResources(row?.ERROR_VMS),
+    accessorFn: (row) => getSecurityGroupResourceCount(row?.ERROR_VMS),
   },
   { header: T.Owner, accessorKey: 'UNAME', grow: false },
   { header: T.Group, accessorKey: 'GNAME', grow: false },
   createLabelColumn({ grow: false }),
+]
+
+export const SECURITYGROUP_SELECTION_COLUMNS = [
+  { header: T.ID, accessorKey: 'ID', id: 'id', grow: false },
+  { header: T.Name, id: 'name', accessorKey: 'NAME', truncate: true },
+  {
+    header: T.Rules,
+    id: 'rules',
+    accessorFn: getSecurityGroupRulesCount,
+  },
 ]
 
 export const RULESECURITYGROUP_COLUMNS = [
@@ -49,13 +79,11 @@ export const RULESECURITYGROUP_COLUMNS = [
     header: T.Protocol,
     id: 'PROTOCOL',
     accessorFn: (row) => row?.PROTOCOL,
-    grow: false,
   },
   {
     header: T.Type,
     id: 'TYPE',
     accessorFn: (row) => row?.RULE_TYPE,
-    grow: false,
     cell: ({ row }) =>
       row.original?.RULE_TYPE ? (
         <Tag title={row.original.RULE_TYPE} status="default" />
@@ -67,26 +95,22 @@ export const RULESECURITYGROUP_COLUMNS = [
     header: T.Range,
     id: 'RANGE',
     accessorFn: (row) => row?.RANGE,
-    grow: false,
   },
   {
     header: T.Network,
     id: 'NETWORK',
     cell: ({ row }) => row.original?.NETWORK,
-    truncate: true,
     meta: { disableCellTooltip: true },
   },
   {
     header: T.IcmpType,
     id: 'ICMP_TYPE',
     accessorFn: (row) => row?.ICMP_TYPE,
-    grow: false,
   },
   {
     header: T.IcmpTypeV6,
     id: 'ICMPv6_TYPE',
     accessorFn: (row) => row?.ICMPv6_TYPE,
-    grow: false,
   },
 ]
 
@@ -113,6 +137,12 @@ export const secGroupVmTable = createTable(
 
 export const securitygroupTable = createTable(
   SECURITYGROUPS_COLUMNS,
+  SecurityGroupAPI.useGetSecGroupsQuery,
+  { dataCy: 'security-groups' }
+)
+
+export const securitygroupSelectionTable = createTable(
+  SECURITYGROUP_SELECTION_COLUMNS,
   SecurityGroupAPI.useGetSecGroupsQuery,
   { dataCy: 'security-groups' }
 )

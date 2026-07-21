@@ -17,9 +17,15 @@
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
-import { Card, LabelSlot, MetadataSlot, TitleSlot } from '@ComponentsV2Module'
 import {
-  getLabelSlotLabels,
+  IconSlot,
+  Card,
+  LabelSlot,
+  MetadataSlot,
+  TitleSlot,
+} from '@ComponentsV2Module'
+import {
+  getLabelTags,
   getVirtualRouterTotalNics,
   getVirtualRouterTotalVms,
 } from '@ModelsModule'
@@ -38,8 +44,8 @@ import { getLockIcon } from '@UtilsModule'
  */
 export const VirtualRouterCard = forwardRef(
   ({ vrouter = {}, isSelected, onCheck, onClick }, ref) => {
-    const { ID, NAME, UNAME, GNAME, TEMPLATE_ID } = vrouter
-    const labelSlotLabels = getLabelSlotLabels(vrouter?.LABELS)
+    const { NAME, UNAME, GNAME, LABELS } = vrouter
+    const labelTags = getLabelTags(LABELS)
 
     return (
       <Card
@@ -62,22 +68,26 @@ export const VirtualRouterCard = forwardRef(
             MetadataSlot,
             {
               labels: [
-                [T.ID, String(ID)],
                 [T.Owner, UNAME],
                 [T.Group, GNAME],
-                [`${T.Template} ${T.ID}`, TEMPLATE_ID],
-                [T.TotalVms, String(getVirtualRouterTotalVms(vrouter) ?? 0)],
-                [T.NIC, String(getVirtualRouterTotalNics(vrouter) ?? 0)],
               ].filter(([, value]) => value !== undefined && value !== null),
             },
           ],
-          labelSlotLabels.length > 0 && [
-            LabelSlot,
+          [
+            IconSlot,
             {
-              labels: labelSlotLabels,
+              vms: getVirtualRouterTotalVms(vrouter) ?? 0,
+              nics: getVirtualRouterTotalNics(vrouter) ?? 0,
             },
           ],
-        ].filter(Boolean)}
+          labelTags.length > 0 && [
+            LabelSlot,
+            {
+              tags: labelTags,
+              max: 3,
+            },
+          ],
+        ]}
       />
     )
   }

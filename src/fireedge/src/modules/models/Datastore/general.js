@@ -34,7 +34,7 @@ export const getDatastoreType = ({ TYPE } = {}) => {
   const ds = Object.values(DATASTORE_TYPES).filter((type) => type.id === +TYPE)
   const name = ds.length ? ds[0].name : T.Unknown
 
-  return name.toUpperCase()
+  return name
 }
 
 /**
@@ -53,8 +53,7 @@ export const getDatastoreState = ({ STATE = 0 } = {}) => DATASTORE_STATES[STATE]
  */
 export const getDeployMode = (datastore = {}) => {
   const { TEMPLATE = {} } = datastore
-  const isImage =
-    getDatastoreType(datastore) === DATASTORE_TYPES.IMAGE.name.toUpperCase()
+  const isImage = getDatastoreType(datastore) === DATASTORE_TYPES.IMAGE.name
 
   return isImage
     ? TEMPLATE?.TM_MAD_SYSTEM?.split(',')?.filter(Boolean) ?? []

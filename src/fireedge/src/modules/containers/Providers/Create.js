@@ -80,7 +80,10 @@ export function CreateProvider() {
         <SkeletonStepsForm />
       ) : (
         <Provider.Forms.CreateForm
-          initialValues={dataTemplate}
+          initialValues={{
+            dataTemplate: dataTemplate,
+            isUpdate: !!providerId,
+          }}
           stepProps={{
             dataTemplate,
             drivers,
@@ -88,7 +91,7 @@ export function CreateProvider() {
           onSubmit={onSubmit}
           fallback={<SkeletonStepsForm />}
         >
-          {(config) => <DefaultFormStepper {...config} />}
+          {(config) => <DefaultFormStepper {...config} update={!!providerId} />}
         </Provider.Forms.CreateForm>
       )}
     </>

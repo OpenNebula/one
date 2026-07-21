@@ -41,7 +41,7 @@ const basicEndpoints = (builder) => ({
       const name = Actions.LIST
       const command = { name, ...Commands[name] }
 
-      return { command, needStateInMeta: true }
+      return { command, needStateInMeta: true, showNotification: false }
     },
     transformResponse: (data, meta) =>
       withResourceLabels(

@@ -63,7 +63,9 @@ export const SelectTemplateForm = ({ onSelect }) => {
 
   return (
     <Table
-      columns={vntemplateTable.columns()}
+      columns={vntemplateTable
+        .columns()
+        .filter(({ id }) => !['owner', 'group', 'time', 'labels'].includes(id))}
       data={data}
       isLoading={isFetching}
       isRowsSelectable

@@ -16,6 +16,7 @@ actions:
   chgrp: true
   lock: true
   unlock: true
+  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 

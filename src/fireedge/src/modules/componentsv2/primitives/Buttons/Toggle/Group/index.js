@@ -110,6 +110,10 @@ export const ToggleGroup = forwardRef(
         ]}
         ref={ref}
         className={'toggle-group-container'}
+        data-compact-toolbar-divider-count={Math.max(
+          (options?.length ?? 0) - 1,
+          0
+        )}
         {...opts}
       >
         {options?.map((group, groupIdx) => (

@@ -403,19 +403,16 @@ const SECTIONS = ({
 
             id: 'ifname',
             accessorKey: mode === 'automatic' ? 'AVAILABILITY' : 'IFNAME',
-            width: '20%',
           },
           {
             header: T.Vendor,
             id: 'vendorName',
             accessorKey: 'VENDOR_NAME',
-            width: '40%',
           },
           {
             header: T.Device,
             id: 'deviceName',
             accessorKey: 'DEVICE_NAME',
-            width: '40%',
           },
         ],
 
@@ -424,7 +421,6 @@ const SECTIONS = ({
             header: T.PciDevice,
             id: 'shortAddress',
             accessorKey: 'SHORT_ADDRESS',
-            width: '25%',
           },
           {
             header:
@@ -436,19 +432,16 @@ const SECTIONS = ({
 
             id: 'ifname',
             accessorKey: mode === 'automatic' ? 'AVAILABILITY' : 'IFNAME',
-            width: '25%',
           },
           {
             header: T.Vendor,
             id: 'vendorName',
             accessorKey: 'VENDOR_NAME',
-            width: '25%',
           },
           {
             header: T.Device,
             id: 'deviceName',
             accessorKey: 'DEVICE_NAME',
-            width: '25%',
           },
         ],
       }

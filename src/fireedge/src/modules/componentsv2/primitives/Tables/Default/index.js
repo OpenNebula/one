@@ -188,6 +188,7 @@ export const Table = ({
     observedWidthsRef.current = {}
     let animationFrame
     let isActive = true
+    let availableWidth
     const resolveLength = (value) => {
       if (typeof value === 'number') return Math.max(value, 0)
       if (typeof value !== 'string' || !value.trim()) return undefined
@@ -204,6 +205,13 @@ export const Table = ({
         : undefined
     }
     const measure = () => {
+      const nextAvailableWidth = scrollElement.clientWidth
+
+      if (availableWidth !== nextAvailableWidth) {
+        observedWidthsRef.current = {}
+        availableWidth = nextAvailableWidth
+      }
+
       tableNode
         .querySelectorAll('[data-column-content]')
         .forEach((contentElement) => {
@@ -235,7 +243,7 @@ export const Table = ({
       const nextLayout = calculateColumnLayout(
         tableColumns,
         observedWidthsRef.current,
-        scrollElement.clientWidth,
+        availableWidth,
         resolveLength,
         muiTheme.scale[1800]
       )
@@ -291,7 +299,14 @@ export const Table = ({
       resizeObserver.disconnect()
       mutationObserver.disconnect()
     }
-  }, [filteredData, globalFilter, muiTheme.scale, size, tableColumns])
+  }, [
+    filteredData,
+    globalFilter,
+    muiTheme.scale,
+    size,
+    tableColumns,
+    visibleRowIdsKey,
+  ])
 
   const shouldUseMeasuredTableWidth =
     columnLayout &&

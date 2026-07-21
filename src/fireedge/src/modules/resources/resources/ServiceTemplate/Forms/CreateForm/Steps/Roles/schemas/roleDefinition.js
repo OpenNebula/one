@@ -18,6 +18,18 @@ import { string, array, number } from 'yup'
 import { Field, getObjectSchemaFromFields, arrayToOptions } from '@UtilsModule'
 import { vmtemplateTable } from '@ModelsModule'
 
+const selectionVmTemplateTable = {
+  ...vmtemplateTable,
+  columns: () =>
+    vmtemplateTable
+      .columns()
+      .filter(
+        ({ id, accessorKey }) =>
+          id !== 'labels' &&
+          !['UNAME', 'GNAME', 'REGTIME'].includes(accessorKey)
+      ),
+}
+
 // export const TAB_ID = 'definition'
 
 /**
@@ -98,7 +110,7 @@ export const TEMPLATE_ID_FIELD = {
   name: 'template_id',
   label: T.SelectTemplate,
   type: INPUT_TYPES.TABLE,
-  model: vmtemplateTable,
+  model: selectionVmTemplateTable,
   validation: number()
     .min(0)
     .required()

@@ -39,16 +39,17 @@ const truncateLabel = (label, maxLength) => {
  * @param {number} props.x - The x position of the tick.
  * @param {number} props.y - The y position of the tick.
  * @param {object} props.payload - The payload of the tick.
+ * @param {string} props.fill - Tick text color.
  * @returns {Component} The rendered tick.
  */
-export const CustomXAxisTick = ({ x, y, payload }) => {
+export const CustomXAxisTick = ({ x, y, payload, fill }) => {
   const fullLabel = payload?.value
   const truncatedLabel = truncateLabel(fullLabel, 10)
 
   return (
     <g transform={`translate(${x},${y})`}>
       <title>{fullLabel}</title>
-      <text x={0} y={0} dy={16}>
+      <text x={0} y={0} dy={16} fill={fill}>
         {truncatedLabel}
       </text>
     </g>
@@ -89,6 +90,7 @@ export const generateColorByMetric = (metric, metricHues, datasetId) => {
  * @param {object} metricHues - Object containing hue values for different metrics.
  * @param {string} coordinateType - Coordinate system type.
  * @param {string} groupBy - Used in non-cartesian configurations to specify dataKey.
+ * @param {object} theme - MUI theme.
  * @returns {Component} A React component with SVG definitions and a CartesianGrid.
  */
 export const GetChartDefs = (
@@ -96,7 +98,8 @@ export const GetChartDefs = (
   datasetId,
   metricHues,
   coordinateType = 'CARTESIAN',
-  groupBy = 'pct'
+  groupBy = 'pct',
+  theme
 ) => (
   <Fragment key={`defs-${datasetId}`}>
     <defs>
@@ -120,9 +123,8 @@ export const GetChartDefs = (
     </defs>
     {coordinateType === 'CARTESIAN' ? (
       <CartesianGrid
-        stroke={'#ccc'}
+        stroke={theme?.palette?.border?.disabled2}
         strokeDasharray="4 4"
-        strokeOpacity={0.1}
       />
     ) : (
       <PolarAngleAxis
@@ -259,7 +261,7 @@ export const GetChartElementConfig = (
             activeDot: {
               r: 8,
               fill: `url(#color${keyBase})`,
-              stroke: 'white',
+              stroke: theme?.palette?.surface?.primary,
               strokeWidth: 2,
             },
             stroke: `url(#color${keyBase})`,
@@ -276,6 +278,7 @@ CustomXAxisTick.propTypes = {
   x: PropTypes.number,
   y: PropTypes.number,
   payload: PropTypes.object,
+  fill: PropTypes.string,
 }
 
 GetChartElementConfig.propTypes = {

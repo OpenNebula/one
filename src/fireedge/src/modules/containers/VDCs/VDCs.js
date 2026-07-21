@@ -14,15 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import {
-  Card,
-  LabelSlot,
-  List,
-  MetadataSlot,
-  ResourceContainer,
-  Table,
-  TitleSlot,
-} from '@ComponentsV2Module'
+import { List, ResourceContainer, Table } from '@ComponentsV2Module'
 import { T, TABLE_VIEW_MODE } from '@ConstantsModule'
 import { useFunctionality, useFunctionalityApi } from '@FeaturesModule'
 import {
@@ -31,10 +23,10 @@ import {
   getVdcGroupsCount,
   getVdcHostsCount,
   getVdcVnetsCount,
-  getLabelSlotLabels,
   VDC_LIST_COLUMNS,
   vdcTable,
 } from '@ModelsModule'
+import { Vdc } from '@ResourcesModule'
 import { DetailsDrawer } from '@modules/containers/VDCs/Details'
 import { ReactElement, useCallback, useMemo } from 'react'
 
@@ -143,18 +135,13 @@ export function VDCs() {
             return (
               <List isRowIndicatorDisabled={true} isLoading={isRefreshing}>
                 {items?.map((vdc) => {
-                  const { ID, NAME } = vdc
+                  const { ID } = vdc
                   const id = String(ID)
-                  const groupsCount = getVdcGroupsCount(vdc)
-                  const clustersCount = getVdcClustersCount(vdc)
-                  const hostsCount = getVdcHostsCount(vdc)
-                  const datastoresCount = getVdcDatastoresCount(vdc)
-                  const vnetsCount = getVdcVnetsCount(vdc)
-                  const labelSlotLabels = getLabelSlotLabels(vdc?.LABELS)
 
                   return (
-                    <Card
+                    <Vdc.Card
                       key={id}
+                      vdc={vdc}
                       dataCy={`${vdcTable.dataCy}-${id}`}
                       isSelected={selectedItems?.includes(id)}
                       onCheck={() =>
@@ -165,33 +152,6 @@ export function VDCs() {
                         )
                       }
                       onClick={() => handleSelect(id)}
-                      slots={[
-                        [
-                          TitleSlot,
-                          {
-                            title: NAME,
-                          },
-                        ],
-                        [
-                          MetadataSlot,
-                          {
-                            labels: [
-                              [T.ID, id],
-                              [T.Groups, String(groupsCount)],
-                              [T.Clusters, String(clustersCount)],
-                              [T.Hosts, String(hostsCount)],
-                              [T.Datastores, String(datastoresCount)],
-                              [T.Vnets, String(vnetsCount)],
-                            ],
-                          },
-                        ],
-                        labelSlotLabels.length > 0 && [
-                          LabelSlot,
-                          {
-                            labels: labelSlotLabels,
-                          },
-                        ],
-                      ].filter(Boolean)}
                     />
                   )
                 })}

@@ -23,6 +23,7 @@ import {
   AttributesPanel,
   StatusTag,
   ProgressBar,
+  Tag,
 } from '@ComponentsV2Module'
 import { T, DS_THRESHOLD } from '@ConstantsModule'
 import {
@@ -75,7 +76,7 @@ export const Info = ({ data, config }) => {
   )
 
   const datastore = aSelected.length === 1 ? aSelected[0] : {}
-  const { ID, NAME, BASE_PATH, TEMPLATE = {} } = datastore
+  const { ID, NAME, BASE_PATH, DS_MAD, TM_MAD, TEMPLATE = {} } = datastore
 
   const { percentOfUsed, percentLabel } = useMemo(
     () => getDatastoreCapacityInfo(datastore),
@@ -107,7 +108,18 @@ export const Info = ({ data, config }) => {
         />
       ),
     },
-    { name: T.Type, value: dsTypeName },
+    {
+      name: T.Type,
+      value: dsTypeName ? <Tag title={dsTypeName} status="default" /> : '-',
+    },
+    {
+      name: T.DatastoreDriver,
+      value: DS_MAD ? <Tag title={DS_MAD} status="default" /> : '-',
+    },
+    {
+      name: T.TransferDriver,
+      value: TM_MAD ? <Tag title={TM_MAD} status="default" /> : '-',
+    },
     { name: T.BasePath, value: BASE_PATH },
     {
       name: T.Capacity,

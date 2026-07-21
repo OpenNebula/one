@@ -19,7 +19,7 @@ import { CodeSnippet } from '@modules/componentsv2/primitives/CodeSnippet/Defaul
 import { Box } from '@mui/material'
 import { getStyles } from '@modules/componentsv2/composed/Panels/Template/styles'
 
-export const TemplateTab = forwardRef(({ template, code }, ref) => {
+export const TemplateTab = forwardRef(({ template, code, title }, ref) => {
   const fCode = code ?? JSON.stringify(template, null, 2)
 
   return (
@@ -31,7 +31,7 @@ export const TemplateTab = forwardRef(({ template, code }, ref) => {
       }
       ref={ref}
     >
-      <CodeSnippet code={fCode} />
+      <CodeSnippet title={title} code={fCode} />
     </Box>
   )
 })
@@ -39,5 +39,6 @@ export const TemplateTab = forwardRef(({ template, code }, ref) => {
 TemplateTab.propTypes = {
   template: PropTypes.object,
   code: PropTypes.any,
+  title: PropTypes.string,
 }
 TemplateTab.displayName = 'TemplateTab'

@@ -19,14 +19,15 @@ import { Component, forwardRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import {
   Card,
+  IconSlot,
   LabelSlot,
   TitleSlot,
-  OwnershipSlot,
   MetadataSlot,
+  TimeSlot,
 } from '@ComponentsV2Module'
 
-import { getImageState, getLabelSlotLabels } from '@ModelsModule'
-import { getLockIcon, prettyBytes, timeFromMilliseconds } from '@UtilsModule'
+import { getBackupRunningVms, getImageState, getLabelTags } from '@ModelsModule'
+import { getImageTypeLabel, getLockIcon, prettyBytes } from '@UtilsModule'
 
 /**
  * VmTemplateCard component displays a VM Template as a card.
@@ -46,22 +47,15 @@ import { getLockIcon, prettyBytes, timeFromMilliseconds } from '@UtilsModule'
  */
 export const ImageCard = forwardRef(
   ({ data, isSelected, onCheck, onClick }, ref) => {
-    const {
-      ID,
-      NAME,
-      UNAME,
-      GNAME,
-      REGTIME,
-      PERSISTENT,
-      DATASTORE,
-      RUNNING_VMS,
-      SIZE,
-    } = data || {}
+    const { ID, NAME, UNAME, GNAME, REGTIME, PERSISTENT, DATASTORE, SIZE } =
+      data || {}
     const { color: stateColor, name: stateName } = useMemo(
       () => getImageState(data),
       [data]
     )
-    const labelSlotLabels = getLabelSlotLabels(data?.LABELS)
+    const type = useMemo(() => getImageTypeLabel(data), [data])
+    const vms = useMemo(() => getBackupRunningVms(data), [data])
+    const labelTags = getLabelTags(data?.LABELS)
 
     return (
       <Card
@@ -83,38 +77,35 @@ export const ImageCard = forwardRef(
             },
           ],
           [
-            OwnershipSlot,
+            MetadataSlot,
             {
               labels: [
                 ['ID', ID],
                 ['Owner', UNAME],
                 ['Group', GNAME],
                 [T.Datastore, DATASTORE ?? '-'],
-                [T.Persistent, +PERSISTENT ? T.Persistent : T.NonPersistent],
-                [T.VMs, RUNNING_VMS],
-                [T.Size, `${prettyBytes(+SIZE ?? 0, 'MB')}`],
               ],
             },
           ],
           [
-            MetadataSlot,
+            IconSlot,
             {
-              labels: [
-                [
-                  REGTIME &&
-                    `${T.Registered} ${timeFromMilliseconds(
-                      +REGTIME
-                    ).toRelative()}`,
-                ]?.filter(Boolean),
-              ],
+              vms,
+              size: prettyBytes(+SIZE || 0, 'MB'),
             },
           ],
-          labelSlotLabels.length > 0 && [
+          (type || +PERSISTENT || labelTags.length > 0) && [
             LabelSlot,
             {
-              labels: labelSlotLabels,
+              labels: [
+                type && [type, 'default'],
+                +PERSISTENT && [T.Persistent, 'information'],
+              ].filter(Boolean),
+              tags: labelTags,
+              max: 3,
             },
           ],
+          [TimeSlot, { time: REGTIME, label: T.Registered }],
         ].filter(Boolean)}
       />
     )

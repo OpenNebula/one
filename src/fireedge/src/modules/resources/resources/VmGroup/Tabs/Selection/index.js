@@ -50,7 +50,6 @@ export const Selection = ({ data, config }) => {
       ({ id }) => !['owner', 'group', 'labels'].includes(id)
     ),
     {
-      minWidth: '15%',
       id: 'select',
       header: '',
       grow: false,

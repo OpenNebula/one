@@ -47,15 +47,15 @@ export const VirtualRouters = ({ data }) => {
 
   // Table
   const columns = [
-    { accessorKey: 'ID', header: T.ID },
-    { accessorKey: 'NAME', header: T.Name },
-    { accessorKey: 'UNAME', header: T.Owner },
-    { accessorKey: 'GNAME', header: T.Group },
+    { accessorKey: 'ID', header: T.ID, grow: false },
+    { accessorKey: 'NAME', header: T.Name, truncate: true },
     {
       id: 'vms',
       header: T.VirtualMachines,
       cell: ({ row }) => getTotalOfResources(row.original?.VMS),
     },
+    { accessorKey: 'UNAME', header: T.Owner, grow: false },
+    { accessorKey: 'GNAME', header: T.Group, grow: false },
   ]
 
   return (

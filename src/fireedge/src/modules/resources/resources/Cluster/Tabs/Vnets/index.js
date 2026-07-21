@@ -138,7 +138,13 @@ export const Vnets = ({ data, config }) => {
     [vnets, tableVnetIds]
   )
 
-  const columns = useMemo(() => vnTable.columns(), [])
+  const columns = useMemo(
+    () =>
+      vnTable
+        .columns()
+        .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
+    []
+  )
 
   const refetchAll = async () => {
     const refreshes = [handleRefresh?.()]

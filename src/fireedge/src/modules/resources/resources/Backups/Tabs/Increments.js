@@ -42,7 +42,6 @@ export const Increments = ({ data }) => {
         header: T.Type,
         id: 'type',
         accessorKey: 'TYPE',
-        grow: false,
         cell: ({ row }) =>
           row.original?.TYPE ? (
             <Tag title={row.original.TYPE} status="default" />
@@ -51,23 +50,21 @@ export const Increments = ({ data }) => {
           ),
       },
       {
-        header: T.Date,
-        id: 'date',
-        grow: false,
-        accessorFn: (row) =>
-          row?.DATE ? timeFromMilliseconds(+row.DATE).toRelative() : '-',
-      },
-      {
         header: T.Size,
         id: 'size',
-        grow: false,
         accessorFn: (row) => prettyBytes(row?.SIZE, 'MB'),
       },
       {
         header: T.Source,
         id: 'source',
         accessorKey: 'SOURCE',
-        truncate: true,
+      },
+      {
+        header: T.Date,
+        id: 'date',
+        grow: false,
+        accessorFn: (row) =>
+          row?.DATE ? timeFromMilliseconds(+row.DATE).toRelative() : '-',
       },
     ],
     []
@@ -81,6 +78,7 @@ export const Increments = ({ data }) => {
       isEnableSearchBar={true}
       isEnableSort={true}
       isEnableFilters={true}
+      size="medium"
       isDisablePagination
     />
   )

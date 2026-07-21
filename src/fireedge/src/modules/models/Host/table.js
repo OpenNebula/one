@@ -119,6 +119,16 @@ export const HOST_COLUMNS = [
   createLabelColumn({ grow: false }),
 ]
 
+export const HOST_SELECTION_COLUMNS = HOST_COLUMNS.filter(
+  ({ id }) => !['im_mad', 'running_vms', 'TOTAL_VMS', 'labels'].includes(id)
+)
+
 export const hostTable = createTable(HOST_COLUMNS, HostAPI.useGetHostsQuery, {
   dataCy: 'hosts',
 })
+
+export const hostSelectionTable = createTable(
+  HOST_SELECTION_COLUMNS,
+  HostAPI.useGetHostsQuery,
+  { dataCy: 'hosts' }
+)

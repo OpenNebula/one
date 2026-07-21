@@ -15,39 +15,18 @@
  * ------------------------------------------------------------------------- */
 import { array, object, ObjectSchema, string } from 'yup'
 
-import { SecurityGroupAPI } from '@FeaturesModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { createTable, Field, getValidationFromFields } from '@UtilsModule'
+import { securitygroupSelectionTable } from '@ModelsModule'
+import { Field, getValidationFromFields } from '@UtilsModule'
 
 export const TAB_ID = 'SECURITY_GROUPS'
-
-const getRulesCount = (securityGroup) =>
-  [securityGroup?.TEMPLATE?.RULE ?? []].flat().filter(Boolean).length
-
-const SECURITY_GROUP_COLUMNS = [
-  { accessorKey: 'ID', header: T.ID, width: '7%' },
-  { accessorKey: 'NAME', header: T.Name, width: '30%' },
-  { accessorKey: 'UNAME', header: T.Owner },
-  { accessorKey: 'GNAME', header: T.Group },
-  {
-    id: 'rules',
-    header: T.Rules,
-    accessorFn: getRulesCount,
-  },
-]
-
-const securityGroupTemplateTable = createTable(
-  SECURITY_GROUP_COLUMNS,
-  SecurityGroupAPI.useGetSecGroupsQuery,
-  { dataCy: 'security-groups' }
-)
 
 /** @type {Field} Security groups field */
 const SECURITY_GROUPS = (readOnly) => ({
   name: TAB_ID,
   label: T.SecurityGroups,
   type: INPUT_TYPES.TABLE,
-  model: securityGroupTemplateTable,
+  model: securitygroupSelectionTable,
   singleSelect: false,
   selectOnRowClick: true,
   readOnly,

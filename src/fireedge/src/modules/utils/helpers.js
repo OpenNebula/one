@@ -767,6 +767,7 @@ export const getLockIcon = (resource) =>
           height: '16px',
           color: 'icon.disabled',
           flexShrink: 0,
+          verticalAlign: 'middle',
         },
       })
     : null

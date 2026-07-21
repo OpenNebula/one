@@ -66,6 +66,7 @@ export function Services() {
     data = [],
     isFetching: isRefreshing,
     refetch: refresh,
+    error,
   } = serviceTable.useData()
 
   const filterOptions = useMemo(
@@ -165,6 +166,9 @@ export function Services() {
       filterOptions={filterOptions}
       count={items?.length}
       selectedCount={selectedItems?.length}
+      unavailableMessage={
+        error?.status === 500 ? T.CannotConnectOneFlow : undefined
+      }
       onSelectAll={(checked) =>
         setSelectedItems(checked ? items?.map(({ ID }) => String(ID)) : [])
       }

@@ -309,13 +309,13 @@ export const filterTableData = (
 }
 
 /**
- * @param {Array} columns - List of table column definitions
+ * @param {Array} [columns=[]] - List of table column definitions
  * @param {Function} useQuery - RTK data fetching function
  * @param {object} tableOptions - Table descriptor options
  * @param {string} tableOptions.dataCy - Cypress selector prefix
  * @returns {object} - Table descriptor
  */
-export const createTable = (columns, useQuery, tableOptions = {}) => {
+export const createTable = (columns = [], useQuery, tableOptions = {}) => {
   const { dataCy } = tableOptions
 
   return {

@@ -25,7 +25,10 @@ const isKernelApp = (app) =>
   )
 
 const getDatastoreModel = (app) => ({
-  columns: datastoreTable.columns,
+  columns: () =>
+    datastoreTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
   useData: () => {
     const result = datastoreTable.useData()
     const kernelApp = isKernelApp(app)

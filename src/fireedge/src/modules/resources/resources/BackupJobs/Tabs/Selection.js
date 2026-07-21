@@ -20,6 +20,7 @@ import { Box } from '@mui/material'
 import { Button, TablePanel as SelectionTable } from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
+import { getBackupJobLastBackupTime } from '@ModelsModule'
 import { getLockIcon } from '@UtilsModule'
 
 /**
@@ -50,9 +51,16 @@ export const Selection = ({ data }) => {
           ),
         },
         {
+          accessorKey: 'ID',
+          id: 'id',
+          header: T.ID,
+          grow: false,
+        },
+        {
           accessorKey: 'NAME',
           id: 'name',
           header: T.Name,
+          truncate: true,
           cell: ({ row }) => (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>{row.original?.NAME}</span>
@@ -64,6 +72,12 @@ export const Selection = ({ data }) => {
           header: T.Priority,
           id: 'priority',
           accessorKey: 'PRIORITY',
+        },
+        {
+          header: T.LastBackupTimeInfo,
+          id: 'lastBackupTime',
+          accessorFn: (row) =>
+            getBackupJobLastBackupTime(row?.LAST_BACKUP_TIME),
         },
         {
           accessorKey: 'ID',

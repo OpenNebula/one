@@ -21,13 +21,21 @@ import { Field, getValidationFromFields } from '@UtilsModule'
 
 export const DATASTORE_FIELD = 'datastore'
 
+const selectionDatastoreTable = {
+  ...datastoreTable,
+  columns: () =>
+    datastoreTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
+}
+
 /** @type {Field[]} Datastore fields */
 export const FIELDS = [
   {
     name: DATASTORE_FIELD,
     label: T.SelectDatastoreImage,
     type: INPUT_TYPES.TABLE,
-    model: datastoreTable,
+    model: selectionDatastoreTable,
     singleSelect: true,
     selectOnRowClick: true,
     fieldProps: {

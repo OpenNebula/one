@@ -19,7 +19,6 @@ import {
   DetailsCard,
   OwnershipTab,
   PermissionsTab,
-  StatusTag,
 } from '@ComponentsV2Module'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
@@ -144,21 +143,9 @@ export const Info = ({ data, config }) => {
                 options={[
                   [T.ID, vrouter?.ID],
                   [T.Name, vrouter?.NAME],
-                  [`${T.Template} ${T.ID}`, vrouter?.TEMPLATE_ID ?? '-'],
+                  [T.TemplateID, vrouter?.TEMPLATE?.TEMPLATE_ID],
                   [T.TotalVms, getVirtualRouterTotalVms(vrouter)],
                   [T.NIC, getVirtualRouterTotalNics(vrouter)],
-                  [
-                    T.Locked,
-                    vrouter?.LOCK ? (
-                      <StatusTag
-                        key="locked"
-                        statusColor="information"
-                        statusName={T.Locked}
-                      />
-                    ) : (
-                      '-'
-                    ),
-                  ],
                 ]}
               />
             </Box>

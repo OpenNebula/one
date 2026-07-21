@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { timeFromMilliseconds } from '@UtilsModule'
+import { timeDiff, timeFromMilliseconds } from '@UtilsModule'
 
 const HIDDEN_BACKUPJOB_TEMPLATE_REG = /^(SCHED_ACTION|ERROR)$/
 
@@ -71,6 +71,18 @@ export const getBackupJobLastBackupTime = (time) =>
  */
 export const getBackupJobRelativeLastBackupTime = (time) =>
   +time > 0 ? timeFromMilliseconds(+time).toRelative() : '-'
+
+/**
+ * Formats the duration reported by the API in seconds.
+ *
+ * @param {string|number} duration - Backup job duration in seconds
+ * @returns {string} Formatted duration including its units
+ */
+export const getBackupJobLastBackupDuration = (duration) => {
+  const seconds = Number(duration)
+
+  return Number.isFinite(seconds) && seconds >= 0 ? timeDiff(0, seconds) : '-'
+}
 
 /**
  * @param {object} template - Backup job template

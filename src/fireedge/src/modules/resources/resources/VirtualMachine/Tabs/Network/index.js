@@ -135,13 +135,13 @@ const SecurityGroupsDialog = ({
     () => [
       { accessorKey: 'ID', header: T.ID, grow: false },
       { accessorKey: 'NAME', header: T.Name, truncate: true },
-      { accessorKey: 'UNAME', header: T.Owner, grow: false },
-      { accessorKey: 'GNAME', header: T.Group, grow: false },
       {
         id: 'rules',
         header: T.Rules,
         cell: ({ row }) => getRulesCount(row.original),
       },
+      { accessorKey: 'UNAME', header: T.Owner, grow: false },
+      { accessorKey: 'GNAME', header: T.Group, grow: false },
       {
         id: 'actions',
         header: '',
@@ -463,13 +463,11 @@ export const Network = ({ data, config }) => {
     {
       header: T.SecurityGroups,
       id: 'security-groups',
-      grow: false,
       cell: ({ row }) => getSecurityGroupIds(row?.original).length,
     },
     {
       header: T.Alias,
       id: 'alias',
-      grow: false,
       cell: ({ row }) => getAliasCount(row?.original, nics),
     },
     {

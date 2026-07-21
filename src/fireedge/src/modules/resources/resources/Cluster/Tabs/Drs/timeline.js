@@ -69,6 +69,7 @@ const ActionEventColumns = (nameMap) => [
     header: T.ID,
     id: 'id',
     accessorKey: 'ID',
+    grow: false,
   },
   {
     header: T.Operation,
@@ -79,16 +80,19 @@ const ActionEventColumns = (nameMap) => [
     header: T.VM,
     id: 'vm',
     accessorFn: ({ VM_ID }) => formatResourceName(nameMap?.vm, VM_ID),
+    truncate: true,
   },
   {
     header: T.Host,
     id: 'host',
     accessorFn: ({ HOST_ID }) => formatResourceName(nameMap?.host, HOST_ID),
+    truncate: true,
   },
   {
     header: T.Datastore,
     id: 'ds',
     accessorFn: ({ DS_ID }) => formatResourceName(nameMap?.ds, DS_ID),
+    truncate: true,
   },
   {
     header: T.State,
@@ -109,6 +113,7 @@ const ActionEventColumns = (nameMap) => [
     header: T.StartTime,
     id: 'timestamp',
     accessorFn: ({ TIMESTAMP }) => formatTimestamp(TIMESTAMP),
+    grow: false,
   },
 ]
 

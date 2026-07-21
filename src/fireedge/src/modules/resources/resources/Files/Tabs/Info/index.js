@@ -24,13 +24,14 @@ import {
   PermissionsTab,
   ResourceLink,
   StatusTag,
+  Tag,
 } from '@ComponentsV2Module'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import {
   aggregateOwnership,
   aggregatePermissions,
   booleanToString,
-  getImageType,
+  getImageTypeLabel,
   levelLockToString,
   prettyBytes,
   timeToString,
@@ -96,7 +97,7 @@ export const Info = ({ data, config }) => {
     [file]
   )
 
-  const fileTypeName = useMemo(() => getImageType(file), [file])
+  const fileTypeName = useMemo(() => getImageTypeLabel(file), [file])
   const fileDiskTypeName = useMemo(() => getDiskType(file), [file])
   const hasDatastore =
     DATASTORE_ID !== undefined &&
@@ -132,7 +133,7 @@ export const Info = ({ data, config }) => {
     },
     {
       name: T.Type,
-      value: fileTypeName,
+      value: fileTypeName ? <Tag title={fileTypeName} status="default" /> : '-',
       dataCy: 'type',
     },
     {

@@ -23,6 +23,7 @@ import {
   StatusTag,
   SummarySlot,
   TabSlot,
+  Tag,
   ToggleGroup,
 } from '@ComponentsV2Module'
 import { getHostState, getLabelTags } from '@ModelsModule'
@@ -423,8 +424,14 @@ export const SingleView = ({
                 T.State,
               ],
               [CLUSTER ?? '-', T.Cluster],
-              [IM_MAD ?? '-', T.IM_MAD],
-              [VM_MAD ?? '-', T.VM_MAD],
+              [
+                <Tag key="im-mad" title={IM_MAD ?? '-'} status="default" />,
+                T.IM_MAD,
+              ],
+              [
+                <Tag key="vm-mad" title={VM_MAD ?? '-'} status="default" />,
+                T.VM_MAD,
+              ],
             ],
           },
         ],

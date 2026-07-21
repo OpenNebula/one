@@ -14,7 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
+import {
+  Button,
+  StatusTag,
+  TablePanel as SelectionTable,
+} from '@ComponentsV2Module'
 import { SEVERITIES, STYLE_BUTTONS, T, TICKET_FIELDS } from '@ConstantsModule'
 import { Component } from 'react'
 import PropTypes from 'prop-types'
@@ -68,13 +72,16 @@ export const Selection = ({ data }) => {
       id: 'status',
       header: T.Status,
       accessorFn: (row) => getSupportState(row)?.name,
-      grow: false,
+      cell: ({ row }) => {
+        const { color, name } = getSupportState(row.original) ?? {}
+
+        return <StatusTag statusColor={color} statusName={name} />
+      },
     },
     {
       id: 'severity',
       header: T.Severity,
       accessorFn: getTicketSeverity,
-      grow: false,
     },
     {
       id: 'view',

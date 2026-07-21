@@ -20,7 +20,7 @@ import PropTypes from 'prop-types'
 import {
   Card,
   TitleSlot,
-  OwnershipSlot,
+  MetadataSlot,
   ProgressBarSlot,
   LabelSlot,
 } from '@ComponentsV2Module'
@@ -75,7 +75,7 @@ export const DatastoreCard = forwardRef(
             },
           ],
           [
-            OwnershipSlot,
+            MetadataSlot,
             {
               labels: [
                 ['ID', ID],

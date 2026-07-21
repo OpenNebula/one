@@ -73,7 +73,6 @@ const SerialPanel = ({
     {
       id: 'value',
       header: '',
-      truncate: true,
       cell: ({ row }) => (
         <Box
           sx={{

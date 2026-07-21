@@ -54,6 +54,7 @@ export function Providers() {
     data = [],
     isFetching: isRefreshing,
     refetch: refresh,
+    error,
   } = providerTable.useData()
 
   const filterOptions = useMemo(
@@ -136,6 +137,9 @@ export function Providers() {
       filterOptions={filterOptions}
       count={items?.length}
       selectedCount={selectedItems?.length}
+      unavailableMessage={
+        error?.status === 500 ? T.CannotConnectOneForm : undefined
+      }
       onSelectAll={(checked) =>
         setSelectedItems(
           checked ? items?.map(({ ID }) => String(ID)) ?? [] : []

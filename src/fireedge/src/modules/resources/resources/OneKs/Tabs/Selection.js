@@ -16,7 +16,11 @@
 
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
-import { Button, TablePanel as SelectionTable } from '@ComponentsV2Module'
+import {
+  Button,
+  StatusTag,
+  TablePanel as SelectionTable,
+} from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
 import { getVirtualOneKsState } from '@ModelsModule'
@@ -48,11 +52,17 @@ export const Selection = ({ data }) => {
         accessorKey: 'NAME',
         id: 'name',
         header: T.Name,
+        truncate: true,
       },
       {
         header: T.State,
         id: 'state',
         accessorFn: (row) => getVirtualOneKsState(row)?.name,
+        cell: ({ row }) => {
+          const { color, name } = getVirtualOneKsState(row.original) ?? {}
+
+          return <StatusTag statusColor={color} statusName={name} />
+        },
       },
       {
         header: T.KubernetesVersion,

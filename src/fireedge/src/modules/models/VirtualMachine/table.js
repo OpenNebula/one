@@ -56,6 +56,7 @@ import {
   TagList,
 } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
+import { scale } from '@StylesModule'
 
 const CopyableTagListCell = ({ values = [] }) => {
   const { copy, isCopied } = useClipboard()
@@ -113,8 +114,8 @@ export const VM_COLUMNS = [
         >
           <Image
             src={src}
-            width={32}
-            height={32}
+            width={scale[600]}
+            height={scale[600]}
             alt={'list-image-identifier'}
           />
           <Box
@@ -178,7 +179,7 @@ export const VM_COLUMNS = [
   { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
   { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
   {
-    header: T.StartTime,
+    header: T.Created,
     id: 'time',
     cell: ({ row }) => timeFromMilliseconds(row.original.STIME).toRelative(),
     grow: false,

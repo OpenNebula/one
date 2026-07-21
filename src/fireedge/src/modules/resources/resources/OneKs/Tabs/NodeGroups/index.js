@@ -109,7 +109,6 @@ const NodeGroups = ({ data }) => {
         id: 'state',
         accessorFn: (node) =>
           getNodeGroupState(node?.state)?.name ?? node?.state ?? EMPTY_VALUE,
-        grow: false,
         cell: ({ row }) => {
           const { color, name } = getNodeGroupState(row.original?.state) ?? {}
 
@@ -120,20 +119,17 @@ const NodeGroups = ({ data }) => {
         header: T.Nodes,
         id: 'nodes',
         accessorFn: (node) => node?.vms?.length ?? 0,
-        grow: false,
       },
       {
         header: T.VMs,
         id: 'vms',
         accessorFn: (node) => [].concat(node?.vms ?? []).join(', '),
-        grow: false,
         cell: ({ row }) => <VmLinks ids={row?.original?.vms ?? []} />,
       },
       {
         header: T.Flavour,
         id: 'flavour',
         accessorFn: (node) => node?.flavour ?? '',
-        grow: false,
         cell: ({ row }) => {
           const node = row?.original ?? {}
           const familyData = getFamilyData(families, node)
@@ -174,22 +170,10 @@ const NodeGroups = ({ data }) => {
         },
       },
       {
-        header: T.Created,
-        id: 'created',
-        accessorFn: (node) => node?.registration_time ?? '',
-        grow: false,
-        cell: ({ row }) => {
-          const createdTime = row?.original?.registration_time
-
-          return createdTime ? <Timer initial={+createdTime} /> : EMPTY_VALUE
-        },
-      },
-      {
         header: T.UserInputs,
         id: 'user-inputs',
         accessorFn: (node) =>
           Object.values(node?.user_inputs_values ?? {}).join(' '),
-        truncate: true,
         cell: ({ row }) => (
           <Box
             sx={{
@@ -203,6 +187,17 @@ const NodeGroups = ({ data }) => {
             />
           </Box>
         ),
+      },
+      {
+        header: T.Created,
+        id: 'created',
+        accessorFn: (node) => node?.registration_time ?? '',
+        grow: false,
+        cell: ({ row }) => {
+          const createdTime = row?.original?.registration_time
+
+          return createdTime ? <Timer initial={+createdTime} /> : EMPTY_VALUE
+        },
       },
       {
         header: '',

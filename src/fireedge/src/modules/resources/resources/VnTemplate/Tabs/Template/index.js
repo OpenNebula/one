@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { CodeSnippet } from '@ComponentsV2Module'
+import { TemplateTab } from '@ComponentsV2Module'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Component } from 'react'
@@ -35,7 +35,7 @@ export const Template = ({ data, config }) => {
     <Box sx={getStyles}>
       <Box className="code-container">
         {fTemplate && (
-          <CodeSnippet title={T.NetworkTemplate} code={fTemplate} />
+          <TemplateTab title={T.NetworkTemplate} code={fTemplate} />
         )}
       </Box>
     </Box>

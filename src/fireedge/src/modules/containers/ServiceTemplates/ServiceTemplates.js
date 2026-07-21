@@ -14,12 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import {
-  List,
-  Table,
-  ServiceTemplateCard,
-  ResourceContainer,
-} from '@ComponentsV2Module'
+import { List, Table, ResourceContainer } from '@ComponentsV2Module'
 import { T, TABLE_VIEW_MODE, RESOURCE_NAMES } from '@ConstantsModule'
 import {
   useFunctionalityApi,
@@ -30,6 +25,7 @@ import { ReactElement, useMemo, useCallback } from 'react'
 import { getActionsAvailable, timeFromMilliseconds } from '@UtilsModule'
 import { DetailsDrawer } from '@modules/containers/ServiceTemplates/Details'
 import { servicetemplateTable } from '@ModelsModule'
+import { ServiceTemplate } from '@ResourcesModule'
 
 /**
  * Displays a list of VM Templates with a split pane between the list and selected row(s).
@@ -59,6 +55,7 @@ export function ServiceTemplates() {
     data = [],
     isFetching: isRefreshing,
     refetch: refresh,
+    error,
   } = servicetemplateTable.useData()
 
   const filterOptions = useMemo(
@@ -136,6 +133,9 @@ export function ServiceTemplates() {
       searchPlaceholder={T.SearchTemplates}
       count={items?.length}
       selectedCount={selectedItems?.length}
+      unavailableMessage={
+        error?.status === 500 ? T.CannotConnectOneFlow : undefined
+      }
       onSelectAll={(checked) =>
         setSelectedItems(checked ? items?.map(({ ID }) => ID) : [])
       }
@@ -164,37 +164,27 @@ export function ServiceTemplates() {
           default:
             return (
               <List isRowIndicatorDisabled={true} isLoading={isRefreshing}>
-                {items?.map(
-                  ({
-                    NAME,
-                    ID,
-                    GNAME,
-                    UNAME,
-                    TEMPLATE: {
-                      BODY: { registration_time: REGTIME = 0 } = {},
-                    } = {},
-                    LABELS,
-                  }) => (
-                    <ServiceTemplateCard
-                      key={ID}
-                      NAME={NAME}
-                      ID={ID}
-                      GNAME={GNAME}
-                      UNAME={UNAME}
-                      REGTIME={REGTIME}
-                      LABELS={LABELS}
-                      isSelected={selectedItems?.includes(ID)}
-                      onCheck={() =>
-                        setSelectedItems(
-                          selectedItems?.includes(ID)
-                            ? selectedItems.filter((id) => id !== ID)
-                            : [...(selectedItems ?? []), ID]
-                        )
-                      }
-                      onClick={() => handleSelect(ID)}
-                    />
-                  )
-                )}
+                {items?.map(({ NAME, ID, GNAME, UNAME, TEMPLATE, LABELS }) => (
+                  <ServiceTemplate.Card
+                    key={ID}
+                    NAME={NAME}
+                    ID={ID}
+                    GNAME={GNAME}
+                    UNAME={UNAME}
+                    REGTIME={TEMPLATE?.BODY?.registration_time ?? 0}
+                    LABELS={LABELS}
+                    TEMPLATE={TEMPLATE}
+                    isSelected={selectedItems?.includes(ID)}
+                    onCheck={() =>
+                      setSelectedItems(
+                        selectedItems?.includes(ID)
+                          ? selectedItems.filter((id) => id !== ID)
+                          : [...(selectedItems ?? []), ID]
+                      )
+                    }
+                    onClick={() => handleSelect(ID)}
+                  />
+                ))}
               </List>
             )
         }

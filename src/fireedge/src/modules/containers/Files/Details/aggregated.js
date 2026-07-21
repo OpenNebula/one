@@ -18,22 +18,29 @@ import {
   DetailsDrawer,
   InfoSlot,
   ResourceActionConfirmation,
+  SummarySlot,
   TabSlot,
   ButtonGroup,
   Button,
 } from '@ComponentsV2Module'
 
 import { ImageAPI, useModalsApi } from '@FeaturesModule'
-import { Component } from 'react'
+import { Component, useMemo } from 'react'
 
-import { aggregateLockState, createActions } from '@UtilsModule'
-import { aggregateImageEnabledState } from '@ModelsModule'
+import { aggregateLockState, createActions, prettyBytes } from '@UtilsModule'
+import { aggregateImageEnabledState, getBackupRunningVms } from '@ModelsModule'
 
 import { IMAGE_ACTIONS, STYLE_BUTTONS, T } from '@ConstantsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Cancel as CloseIcon, OffTag, OnTag, Trash } from 'iconoir-react'
 import { Files as FilesResource } from '@ResourcesModule'
+
+const getValidNumber = (value) => {
+  const number = Number(value)
+
+  return Number.isFinite(number) && number > 0 ? number : 0
+}
 
 /**
  * @param {object} root0 - Params
@@ -178,6 +185,17 @@ export const AggregatedView = ({
 
   const { noneLocked } = aggregateLockState(selectedData)
   const { allEnabled, allDisabled } = aggregateImageEnabledState(selectedData)
+  const totals = useMemo(
+    () =>
+      selectedData.reduce(
+        (summary, file) => ({
+          size: summary.size + getValidNumber(file?.SIZE),
+          vms: summary.vms + getValidNumber(getBackupRunningVms(file)),
+        }),
+        { size: 0, vms: 0 }
+      ),
+    [selectedData]
+  )
 
   return (
     <DetailsDrawer
@@ -229,6 +247,15 @@ export const AggregatedView = ({
                 />
               </Box>
             ),
+          },
+        ],
+        [
+          SummarySlot,
+          {
+            labels: [
+              [prettyBytes(totals.size, 'MB'), T.TotalSize],
+              [totals.vms, T.VMs],
+            ],
           },
         ],
         [

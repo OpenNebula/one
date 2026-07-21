@@ -22,6 +22,7 @@ import { StatusTag } from '@ComponentsV2Module'
 import {
   getRoleVms,
   getServiceState,
+  getServiceTotalNetworks,
   getServiceTotalRoles,
   getServiceTotalVms,
 } from '@modules/models/Service/general'
@@ -56,14 +57,19 @@ export const SERVICES_COLUMNS = [
     accessorFn: getServiceTotalRoles,
   },
   {
-    header: T.TotalVms,
+    header: T.VMs,
     id: 'vms',
     accessorFn: getServiceTotalVms,
+  },
+  {
+    header: T.Networks,
+    id: 'networks',
+    accessorFn: getServiceTotalNetworks,
   },
   { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
   { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
   {
-    header: T.StartTime,
+    header: T.Created,
     id: 'time',
     accessorFn: ({ TEMPLATE: { BODY = {} } = {} }) => {
       const time = BODY.registration_time ?? BODY.start_time
@@ -99,8 +105,6 @@ const ROLE_VM_COLUMN_IDS = [
   'ips',
   'cpu',
   'memory',
-  'owner',
-  'group',
   'time',
 ]
 

@@ -140,10 +140,9 @@ const getUpdateFields = (fields = [], mutableFields = []) => {
  * @param {boolean} [props.isUpdate] - Is `true` the form will be filter immutable attributes
  * @param {object} props.oneConfig - Open Nebula configuration
  * @param {boolean} props.adminGroup - If the user belongs to oneadmin group
- * @param {boolean} props.hasLease - If the address range has leases
  * @returns {ReactElement} Form content component
  */
-const Content = ({ isUpdate, hasLease, oneConfig, adminGroup }) => {
+const Content = ({ isUpdate, oneConfig, adminGroup }) => {
   const { setValue } = useFormContext()
   const customAttrs = useWatch({ name: CUSTOM_ATTRS_ID }) || {}
   const addressRangeType = useWatch({ name: 'TYPE' })
@@ -151,14 +150,11 @@ const Content = ({ isUpdate, hasLease, oneConfig, adminGroup }) => {
   const fields = useMemo(() => {
     const allFields = FIELDS(oneConfig, adminGroup)
     const formFields = isUpdate
-      ? getUpdateFields(
-          allFields,
-          MUTABLE_FIELDS(oneConfig, adminGroup, isUpdate, hasLease)
-        )
+      ? getUpdateFields(allFields, MUTABLE_FIELDS())
       : allFields
 
     return orderFieldsByType(formFields, addressRangeType ?? AR_TYPES.IP4)
-  }, [addressRangeType, adminGroup, hasLease, isUpdate, oneConfig])
+  }, [addressRangeType, adminGroup, isUpdate, oneConfig])
 
   const handleChangeAttribute = useCallback(
     ({ key, path, value } = {}) => {
@@ -204,7 +200,6 @@ const Content = ({ isUpdate, hasLease, oneConfig, adminGroup }) => {
 
 Content.propTypes = {
   isUpdate: PropTypes.bool,
-  hasLease: PropTypes.bool,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
 }

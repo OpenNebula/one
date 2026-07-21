@@ -20,9 +20,8 @@ import { UserAPI } from '@FeaturesModule'
 import { getValidationFromFields } from '@UtilsModule'
 
 const userColumns = [
-  { accessorKey: 'ID', header: T.ID, width: '10%' },
-  { accessorKey: 'NAME', header: T.Name, width: '24%' },
-  { accessorKey: 'GNAME', header: T.Group },
+  { accessorKey: 'ID', header: T.ID, grow: false },
+  { accessorKey: 'NAME', header: T.Name, truncate: true },
   { accessorKey: 'IS_ADMIN_GROUP_LABEL', header: T.Admin },
   { accessorKey: 'ENABLED_LABEL', header: T.Enabled },
   { accessorKey: 'AUTH_DRIVER', header: T.AuthDriver },

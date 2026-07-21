@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { CodeSnippet } from '@ComponentsV2Module'
+import { TemplateTab } from '@ComponentsV2Module'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Component } from 'react'
@@ -36,8 +36,8 @@ export const Template = ({ data, config }) => {
   return (
     <Box sx={(theme) => getStyles({ theme })}>
       <Box className="code-container">
-        {fTemplate && <CodeSnippet title={T.Template} code={fTemplate} />}
-        {fUTemplate && <CodeSnippet title={T.UserTemplate} code={fUTemplate} />}
+        {fTemplate && <TemplateTab title={T.Template} code={fTemplate} />}
+        {fUTemplate && <TemplateTab title={T.UserTemplate} code={fUTemplate} />}
       </Box>
     </Box>
   )

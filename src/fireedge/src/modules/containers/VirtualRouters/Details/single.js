@@ -261,7 +261,6 @@ export const SingleView = ({
             labels: [
               [T.Owner, vrouter?.UNAME],
               [T.Group, vrouter?.GNAME],
-              [`${T.Template} ${T.ID}`, vrouter?.TEMPLATE_ID],
             ],
             Toolbar: () => (
               <Box
@@ -349,7 +348,6 @@ export const SingleView = ({
             labels: [
               [summary.vms, T.TotalVms],
               [summary.nics, T.NIC],
-              [vrouter?.LOCK ? T.Yes : T.No, T.Locked],
             ],
           },
         ],

@@ -38,10 +38,10 @@ const DEFAULT_USER_ACTIONS = {
 const userColumns = [
   { accessorKey: 'ID', header: T.ID, grow: false },
   { accessorKey: 'NAME', header: T.Name, truncate: true },
-  { accessorKey: 'GNAME', header: T.Group, grow: false },
   { accessorKey: 'IS_ADMIN_GROUP_LABEL', header: T.Admin },
   { accessorKey: 'ENABLED_LABEL', header: T.Enabled },
   { accessorKey: 'AUTH_DRIVER', header: T.AuthDriver },
+  { accessorKey: 'GNAME', header: T.Group, grow: false },
 ]
 
 const isSameId = (firstId, secondId) => String(firstId) === String(secondId)

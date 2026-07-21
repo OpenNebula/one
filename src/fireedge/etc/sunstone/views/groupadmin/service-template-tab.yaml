@@ -52,6 +52,9 @@ info-tabs:
   roles:
     enabled: true
 
+  networks:
+    enabled: true
+
   template:
     enabled: true
 

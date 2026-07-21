@@ -51,12 +51,13 @@ export const Info = ({ data, config }) => {
   const {
     selectedVm,
     extendedVmData,
-    clusterName,
+    clusterId,
     attributes,
     isLoadingExtended,
     handleChangePermission,
     handleChangeOwnership,
     handleDeleteAttribute,
+    handleEditAttribute,
     handleAddAttribute,
     vmIsLocked,
     isActionsDisabled,
@@ -178,7 +179,7 @@ export const Info = ({ data, config }) => {
                 ],
                 [T.Hypervisor, hypervisor ?? '-'],
                 [T.Host, hostName ?? T.Unknown, T.Hostname],
-                [T.Cluster, clusterName ?? '-'],
+                [T.Cluster, clusterId ?? '-'],
                 [T.DeployID, selectedVm?.DEPLOY_ID ?? '-'],
               ]}
             />
@@ -256,7 +257,9 @@ export const Info = ({ data, config }) => {
             attributes={attributes}
             actions={attributesPanel?.actions}
             handleDelete={handleDeleteAttribute}
+            handleEdit={handleEditAttribute}
             handleAdd={handleAddAttribute}
+            isDisabled={vmIsLocked || isActionsDisabled}
             isLoading={isLoadingExtended}
             isFullHeight={false}
           />

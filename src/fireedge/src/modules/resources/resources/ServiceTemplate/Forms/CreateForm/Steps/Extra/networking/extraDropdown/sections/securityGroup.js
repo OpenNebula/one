@@ -105,25 +105,20 @@ const SecurityGroups = ({ selectedNetwork }) => {
   const columns = [
     { accessorKey: 'ID', header: T.ID, grow: false },
     { accessorKey: 'NAME', header: T.Name, truncate: true },
-    { accessorKey: 'UNAME', header: T.Owner, grow: false },
-    { accessorKey: 'GNAME', header: T.Group, grow: false },
     {
       id: 'updated_vms',
       header: T.TotalUpdatedVms,
       accessorFn: (row) => getTotalOfResources(row?.UPDATED_VMS),
-      grow: false,
     },
     {
       id: 'outdated_vms',
       header: T.TotalOutdatedVms,
       accessorFn: (row) => getTotalOfResources(row?.OUTDATED_VMS),
-      grow: false,
     },
     {
       id: 'error_vms',
       header: T.TotalErrorVms,
       accessorFn: (row) => getTotalOfResources(row?.ERROR_VMS),
-      grow: false,
     },
     {
       header: '',

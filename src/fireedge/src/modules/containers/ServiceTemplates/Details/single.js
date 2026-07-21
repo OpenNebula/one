@@ -24,7 +24,7 @@ import {
   ResourceActionConfirmation,
 } from '@ComponentsV2Module'
 
-import { Component, useMemo } from 'react'
+import { Component, useEffect, useMemo } from 'react'
 import { timeFromMilliseconds } from '@UtilsModule'
 import { ServiceTemplate } from '@ResourcesModule'
 import { getLabelTags } from '@ModelsModule'
@@ -63,6 +63,10 @@ export const SingleView = ({
   const history = useHistory()
   const { palette } = useTheme()
   const { showModal } = useModalsApi()
+
+  useEffect(() => {
+    import('@modules/containers/VmTemplates/Details')
+  }, [])
 
   const { data: vmTemplates = [], isFetching: isLoadingVMTemplates } =
     VmTemplateAPI.useGetTemplatesQuery()

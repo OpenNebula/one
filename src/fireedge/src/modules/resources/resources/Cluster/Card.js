@@ -18,7 +18,7 @@ import { T } from '@ConstantsModule'
 import { Card, LabelSlot, MetadataSlot, TitleSlot } from '@ComponentsV2Module'
 import { Component, forwardRef } from 'react'
 import { getTotalOfResources } from '@UtilsModule'
-import { getLabelSlotLabels } from '@ModelsModule'
+import { getLabelTags } from '@ModelsModule'
 import PropTypes from 'prop-types'
 
 /**
@@ -40,7 +40,7 @@ export const ClusterCard = forwardRef(
     const template =
       typeof TEMPLATE === 'object' && !Array.isArray(TEMPLATE) ? TEMPLATE : {}
     const driver = template?.ONEFORM?.DRIVER
-    const labelSlotLabels = getLabelSlotLabels(cluster?.LABELS)
+    const labelTags = getLabelTags(cluster?.LABELS)
 
     return (
       <Card
@@ -62,13 +62,12 @@ export const ClusterCard = forwardRef(
               ].filter(Boolean),
             },
           ],
-          (driver || labelSlotLabels.length > 0) && [
+          (driver || labelTags.length > 0) && [
             LabelSlot,
             {
-              labels: [
-                driver && [driver, 'default'],
-                ...labelSlotLabels,
-              ].filter(Boolean),
+              labels: [driver && [driver, 'default']].filter(Boolean),
+              tags: labelTags,
+              max: 3,
             },
           ],
         ].filter(Boolean)}
@@ -84,14 +83,17 @@ ClusterCard.propTypes = {
     HOSTS: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.object),
       PropTypes.object,
+      PropTypes.string,
     ]),
     VNETS: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.object),
       PropTypes.object,
+      PropTypes.string,
     ]),
     DATASTORES: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.object),
       PropTypes.object,
+      PropTypes.string,
     ]),
     TEMPLATE: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   }),

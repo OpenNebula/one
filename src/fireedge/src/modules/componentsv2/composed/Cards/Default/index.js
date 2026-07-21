@@ -59,6 +59,7 @@ export const Card = forwardRef(
           getStyles({
             theme,
             isSelected,
+            hasIcon: Boolean(icon),
           }),
         ...(Array.isArray(sx) ? sx : [sx]),
       ].filter(Boolean)}

@@ -17,12 +17,13 @@
 /**
  * @param {object} root0 - Params
  * @param {object} root0.theme - Current theme in use
+ * @param {boolean} root0.wrap - Whether tags should wrap
  * @returns {object} - Tag SX style
  */
-export const getStyles = ({ theme }) => {
+export const getStyles = ({ theme, wrap = false }) => {
   const baseStyle = {
     display: 'flex',
-    flexWrap: 'nowrap',
+    flexWrap: wrap ? 'wrap' : 'nowrap',
     alignItems: 'center',
     gap: 0.5,
     fontSize: {
@@ -44,6 +45,19 @@ export const getStyles = ({ theme }) => {
 
   return {
     ...baseStyle,
+    ...(wrap && {
+      maxWidth: '100%',
+      '& .MuiButton-root': {
+        maxWidth: '100%',
+        height: 'auto',
+        whiteSpace: 'normal',
+        overflowWrap: 'anywhere',
+        wordBreak: 'break-word',
+      },
+      '& .tag-title': {
+        whiteSpace: 'normal',
+      },
+    }),
   }
 }
 /* eslint-disable jsdoc/require-jsdoc */
@@ -72,6 +86,9 @@ export const getPopupStyles = () => {
       overflowWrap: 'anywhere',
       wordBreak: 'break-word',
       textAlign: 'left',
+    },
+    '& .tag-title': {
+      whiteSpace: 'normal',
     },
   }
 

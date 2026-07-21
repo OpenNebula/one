@@ -16,7 +16,11 @@
 
 import PropTypes from 'prop-types'
 import { Component } from 'react'
-import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
+import {
+  Button,
+  StatusTag,
+  TablePanel as SelectionTable,
+} from '@ComponentsV2Module'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Cancel as CloseIcon, ArrowRight } from 'iconoir-react'
 import { getZoneState } from '@ModelsModule'
@@ -46,16 +50,23 @@ export const Selection = ({ data }) => {
     {
       accessorKey: 'ID',
       header: T.ID,
+      grow: false,
     },
     {
       id: 'name',
       header: T.Name,
       accessorKey: 'NAME',
+      truncate: true,
     },
     {
       id: 'state',
       header: T.State,
       accessorFn: (row) => getZoneState(row)?.name,
+      cell: ({ row }) => {
+        const { color, name } = getZoneState(row.original) ?? {}
+
+        return <StatusTag statusColor={color} statusName={name} />
+      },
     },
     {
       id: 'endpoint',

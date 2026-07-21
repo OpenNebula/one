@@ -214,6 +214,7 @@ export const VMs = ({ data }) => {
         )}
 
         <Table
+          size="medium"
           columns={columns}
           data={[].concat(vmData)}
           isRowsSelectable={false}

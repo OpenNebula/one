@@ -81,15 +81,6 @@ export const MarketplaceCard = forwardRef(
               ].filter(([, value]) => value),
             },
           ],
-          (MARKET_MAD || labelSlotLabels.length > 0) && [
-            LabelSlot,
-            {
-              labels: [
-                MARKET_MAD && [MARKET_MAD, 'default'],
-                ...labelSlotLabels,
-              ].filter(Boolean),
-            },
-          ],
           [
             ProgressBarSlot,
             {
@@ -104,6 +95,15 @@ export const MarketplaceCard = forwardRef(
                   ],
                 },
               ],
+            },
+          ],
+          (MARKET_MAD || labelSlotLabels.length > 0) && [
+            LabelSlot,
+            {
+              labels: [
+                MARKET_MAD && [MARKET_MAD, 'default'],
+                ...labelSlotLabels,
+              ].filter(Boolean),
             },
           ],
         ]}

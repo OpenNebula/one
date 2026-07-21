@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { Component } from 'react'
 import PropTypes from 'prop-types'
+import { Box } from '@mui/material'
 
 import EmptyTab from '@modules/resources/Tabs/EmptyTab'
 import { InformationPanel } from '@modules/resources/resources/Host/Tabs/Numa/Information'
@@ -35,7 +36,7 @@ export const HostNumaTab = ({ data }) => {
   const numa = getHostNuma(host)
 
   return (
-    <>
+    <Box>
       <UpdateNumaForm host={host} />
       {numa?.length > 0 ? (
         numa.map((node) => (
@@ -44,7 +45,7 @@ export const HostNumaTab = ({ data }) => {
       ) : (
         <EmptyTab />
       )}
-    </>
+    </Box>
   )
 }
 

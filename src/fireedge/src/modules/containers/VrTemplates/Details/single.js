@@ -23,6 +23,7 @@ import {
   ToggleGroup,
   ButtonGroup,
   ResourceActionConfirmation,
+  Tag,
 } from '@ComponentsV2Module'
 
 import { Component } from 'react'
@@ -308,15 +309,21 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
-              [
-                selectedTemplate?.TEMPLATE?.HYPERVISOR?.toUpperCase(),
-                T.Hypervisor,
-              ],
-
-              [selectedTemplate?.TEMPLATE?.VCPU ?? '-', T.vcpu],
+              [selectedTemplate?.TEMPLATE?.CPU ?? 1, T.CPU],
               [
                 prettyBytes(selectedTemplate?.TEMPLATE?.MEMORY, UNITS.MB),
                 T.Memory,
+              ],
+              [
+                selectedTemplate?.TEMPLATE?.HYPERVISOR ? (
+                  <Tag
+                    title={selectedTemplate.TEMPLATE.HYPERVISOR}
+                    status="miscellaneous"
+                  />
+                ) : (
+                  '-'
+                ),
+                T.Hypervisor,
               ],
             ]?.filter(([value]) => value !== undefined),
           },

@@ -20,9 +20,10 @@ const isSmall = (size) => size === 'small'
  * @param {object} root0 - Params
  * @param {object} root0.theme - Current theme in use
  * @param {'small'|'medium'} root0.size - Empty content size
+ * @param {'default'|'error'} root0.status - Empty content status
  * @returns {object} - EmptyContent styles
  */
-export const getStyles = ({ theme, size = 'medium' }) => ({
+export const getStyles = ({ theme, size = 'medium', status = 'default' }) => ({
   alignItems: 'center',
   display: 'flex',
   flexDirection: isSmall(size) ? 'row' : 'column',
@@ -47,8 +48,8 @@ export const getStyles = ({ theme, size = 'medium' }) => ({
   },
 
   '& .empty-content-card-active': {
-    fill: theme.palette.surface.primary,
-    stroke: theme.palette.border.action,
+    fill: theme.palette.surface[status === 'error' ? 'error' : 'primary'],
+    stroke: theme.palette.border[status === 'error' ? 'error' : 'action'],
   },
 
   '& .empty-content-card-muted': {
@@ -58,7 +59,7 @@ export const getStyles = ({ theme, size = 'medium' }) => ({
   },
 
   '& .empty-content-icon-active': {
-    fill: theme.palette.icon.action,
+    fill: theme.palette.icon[status === 'error' ? 'error' : 'action'],
   },
 
   '& .empty-content-icon-muted': {
@@ -79,7 +80,7 @@ export const getStyles = ({ theme, size = 'medium' }) => ({
   },
 
   '& .empty-content-pointer-active': {
-    stroke: theme.palette.icon.action,
+    stroke: theme.palette.icon[status === 'error' ? 'error' : 'action'],
   },
 
   '& .empty-content-pointer-muted': {
@@ -105,7 +106,7 @@ export const getStyles = ({ theme, size = 'medium' }) => ({
   },
 
   '& .empty-content-title': {
-    color: 'text.headings',
+    color: status === 'error' ? 'text.error' : 'text.headings',
   },
 
   '& .empty-content-subtitle': {

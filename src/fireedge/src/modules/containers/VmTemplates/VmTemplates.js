@@ -199,7 +199,7 @@ export function VmTemplates() {
                     REGTIME,
                     LOCK = false,
                     LABELS,
-                    TEMPLATE: { LOGO = DEFAULT_TEMPLATE_LOGO } = {},
+                    TEMPLATE = {},
                   }) => (
                     <VmTemplate.Card
                       key={ID}
@@ -209,8 +209,9 @@ export function VmTemplates() {
                       UNAME={UNAME}
                       REGTIME={REGTIME}
                       LOCK={LOCK}
-                      LOGO={LOGO}
+                      LOGO={TEMPLATE.LOGO ?? DEFAULT_TEMPLATE_LOGO}
                       LABELS={LABELS}
+                      TEMPLATE={TEMPLATE}
                       isSelected={selectedItems?.includes(ID)}
                       onCheck={() =>
                         setSelectedItems(

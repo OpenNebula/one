@@ -24,6 +24,7 @@ import {
   PermissionsTab,
   ResourceLink,
   StatusTag,
+  Tag,
 } from '@ComponentsV2Module'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import {
@@ -37,7 +38,7 @@ import {
   getBackupRunningVms,
   getDiskType,
   getImageState,
-  getImageType,
+  getImageTypeLabel,
 } from '@ModelsModule'
 import { getStyles } from '@modules/resources/resources/Backups/Tabs/Info/styles'
 
@@ -97,7 +98,7 @@ export const Info = ({ data, config }) => {
     [backup]
   )
 
-  const backupTypeName = useMemo(() => getImageType(backup), [backup])
+  const backupTypeName = useMemo(() => getImageTypeLabel(backup), [backup])
   const backupDiskTypeName = useMemo(() => getDiskType(backup), [backup])
   const hasDatastore =
     DATASTORE_ID !== undefined &&
@@ -133,7 +134,11 @@ export const Info = ({ data, config }) => {
     },
     {
       name: T.Type,
-      value: backupTypeName,
+      value: backupTypeName ? (
+        <Tag title={backupTypeName} status="default" />
+      ) : (
+        '-'
+      ),
       dataCy: 'type',
     },
     {

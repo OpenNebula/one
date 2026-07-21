@@ -25,7 +25,6 @@ import {
   getHypervisor,
   isVmAvailableAction,
   getActionsAvailable,
-  jsonToXml,
 } from '@UtilsModule'
 import { T, VM_ACTIONS, ATTR_CONF_CAN_BE_UPDATED } from '@ConstantsModule'
 
@@ -105,10 +104,8 @@ const VmConfigurationTab = ({
     return Object.keys(ATTR_CONF_CAN_BE_UPDATED).map(filterSection)
   }, [TEMPLATE])
 
-  const handleUpdateConf = async (newConfiguration) => {
-    const xml = jsonToXml(newConfiguration)
-    await updateConf({ id, template: xml })
-  }
+  const handleUpdateConf = async ({ template }) =>
+    updateConf({ id, template, replace: 0 })
 
   const [
     osAttributes,

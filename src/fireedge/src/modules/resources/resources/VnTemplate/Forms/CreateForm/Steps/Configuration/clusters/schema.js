@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { array, object, ObjectSchema, string } from 'yup'
 
-import { clusterTable } from '@ModelsModule'
+import { clusterSelectionTable } from '@ModelsModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
 
@@ -26,7 +26,7 @@ const CLUSTERS = (readOnly) => ({
   name: TAB_ID,
   label: T.SelectClusters,
   type: INPUT_TYPES.TABLE,
-  model: clusterTable,
+  model: clusterSelectionTable,
   singleSelect: false,
   selectOnRowClick: true,
   readOnly,

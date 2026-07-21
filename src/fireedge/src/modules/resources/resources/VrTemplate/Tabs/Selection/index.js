@@ -17,10 +17,22 @@
 import PropTypes from 'prop-types'
 import { Component } from 'react'
 import { Box } from '@mui/material'
-import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
-import { T, UNITS, STYLE_BUTTONS } from '@ConstantsModule'
+import {
+  TablePanel as SelectionTable,
+  Button,
+  Tag,
+  Image,
+} from '@ComponentsV2Module'
+import {
+  T,
+  UNITS,
+  STYLE_BUTTONS,
+  STATIC_FILES_URL,
+  DEFAULT_TEMPLATE_LOGO,
+} from '@ConstantsModule'
 import { Cancel as CloseIcon, ArrowRight } from 'iconoir-react'
 import { getLockIcon, prettyBytes } from '@UtilsModule'
+import { scale } from '@StylesModule'
 
 /**
  * @param {object} root0 - Params
@@ -49,28 +61,45 @@ export const Selection = ({ data, config }) => {
       accessorKey: 'NAME',
       header: T.Name,
       truncate: true,
-      cell: ({ row }) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span>{row.original?.NAME}</span>
-          {getLockIcon(row.original)}
-        </Box>
-      ),
+      cell: ({ row }) => {
+        const logo = row.original?.TEMPLATE?.LOGO ?? DEFAULT_TEMPLATE_LOGO
+
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Image
+              src={`${STATIC_FILES_URL}/${logo}`}
+              width={scale[600]}
+              height={scale[600]}
+              alt="list-image-identifier"
+            />
+            <span>{row.original?.NAME}</span>
+            {getLockIcon(row.original)}
+          </Box>
+        )
+      },
     },
     {
-      accessorKey: 'TEMPLATE.HYPERVISOR',
-      header: T.Hypervisor,
-      cell: ({ row }) =>
-        row.original.TEMPLATE?.HYPERVISOR?.toUpperCase() ?? '-',
-    },
-    {
-      accessorKey: 'TEMPLATE.VCPU',
-      header: T.vcpu,
-      cell: ({ row }) => row.original.TEMPLATE?.VCPU ?? '-',
+      accessorKey: 'TEMPLATE.CPU',
+      header: T.CPU,
+      cell: ({ row }) => row.original.TEMPLATE?.CPU ?? 1,
     },
     {
       accessorKey: 'TEMPLATE.MEMORY',
       header: T.Memory,
       cell: ({ row }) => prettyBytes(row.original.TEMPLATE?.MEMORY, UNITS.MB),
+    },
+    {
+      accessorKey: 'TEMPLATE.HYPERVISOR',
+      header: T.Hypervisor,
+      cell: ({ row }) => {
+        const hypervisor = row.original.TEMPLATE?.HYPERVISOR
+
+        return hypervisor ? (
+          <Tag title={hypervisor} status="miscellaneous" />
+        ) : (
+          '-'
+        )
+      },
     },
     {
       accessorKey: 'ID',

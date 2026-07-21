@@ -17,6 +17,7 @@
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { HostAPI } from '@FeaturesModule'
 import { getAllocatedInfo, getHostState } from '@ModelsModule'
+import { ProgressBar, StatusTag } from '@ComponentsV2Module'
 import { Component } from 'react'
 
 import {
@@ -26,28 +27,56 @@ import {
 } from '@modules/resources/resources/Vdc/Tabs/common'
 
 const columns = [
-  { accessorKey: 'ID', header: T.ID, width: '10%' },
+  { accessorKey: 'ID', header: T.ID, grow: false },
   {
     id: 'NAME',
     header: T.Name,
     accessorFn: (row) => row?.TEMPLATE?.NAME ?? row?.NAME,
+    truncate: true,
   },
   {
     id: 'STATE',
     header: T.State,
     accessorFn: (row) => getHostState(row)?.name,
+    cell: ({ row }) => {
+      const { color, name } = getHostState(row.original) ?? {}
+
+      return <StatusTag statusColor={color} statusName={name} />
+    },
   },
-  { accessorKey: 'CLUSTER', header: T.Cluster },
+  { accessorKey: 'CLUSTER', header: T.Cluster, truncate: true },
   { accessorKey: 'HOST_SHARE.RUNNING_VMS', header: T.RunningVMs },
   {
     id: 'CPU',
     header: T.CPU,
     accessorFn: (row) => getAllocatedInfo(row)?.percentCpuLabel,
+    cell: ({ row }) => {
+      const { percentCpuUsed, percentCpuLabel } = getAllocatedInfo(row.original)
+
+      return (
+        <ProgressBar
+          value={percentCpuUsed}
+          label={percentCpuLabel}
+          isLabelVisible
+        />
+      )
+    },
   },
   {
     id: 'MEMORY',
     header: T.Memory,
     accessorFn: (row) => getAllocatedInfo(row)?.percentMemLabel,
+    cell: ({ row }) => {
+      const { percentMemUsed, percentMemLabel } = getAllocatedInfo(row.original)
+
+      return (
+        <ProgressBar
+          value={percentMemUsed}
+          label={percentMemLabel}
+          isLabelVisible
+        />
+      )
+    },
   },
 ]
 

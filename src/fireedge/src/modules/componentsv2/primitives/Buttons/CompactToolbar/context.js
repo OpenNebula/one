@@ -72,12 +72,19 @@ const toMenuOption = ({
 export const useCompactToolbarAction = (id, option, compactable = false) => {
   const context = useContext(CompactToolbarContext)
   const registerAction = context?.registerAction
+  const updateAction = context?.updateAction
 
   useLayoutEffect(() => {
     if (!registerAction || !compactable || !id) return undefined
 
-    return registerAction(id, toMenuOption(option))
-  }, [compactable, id, option, registerAction])
+    return registerAction(id)
+  }, [compactable, id, registerAction])
+
+  useLayoutEffect(() => {
+    if (!updateAction || !compactable || !id) return
+
+    updateAction(id, toMenuOption(option))
+  }, [compactable, id, option, updateAction])
 
   return !!(compactable && context?.isCompacted(id))
 }

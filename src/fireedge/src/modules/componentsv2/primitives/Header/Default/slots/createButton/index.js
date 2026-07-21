@@ -30,7 +30,7 @@ import { useHistory } from 'react-router-dom'
 export const CreateButtonSlot = forwardRef((_, ref) => {
   const { createPath } = useFunctionality()
   const history = useHistory()
-  const { label = '', path = '' } = createPath
+  const { label = '', path = '', isDisabled = false } = createPath
 
   if (!label || !path) return null
 
@@ -49,6 +49,7 @@ export const CreateButtonSlot = forwardRef((_, ref) => {
         size="small"
         className="create-button"
         data-cy="action-create_dialog"
+        isDisabled={isDisabled}
         onClick={() => history.push(path)}
         title={label}
       />

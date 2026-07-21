@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { array, lazy, string, object, ObjectSchema } from 'yup'
-import { clusterTable } from '@ModelsModule'
+import { clusterSelectionTable } from '@ModelsModule'
 import { T, INPUT_TYPES } from '@ConstantsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
 
@@ -23,7 +23,7 @@ const CLUSTER = ({ singleSelect = true, isCopyColumn = true } = {}) => ({
   name: 'cluster',
   label: T.SelectNewCluster,
   type: INPUT_TYPES.TABLE,
-  model: clusterTable,
+  model: clusterSelectionTable,
   singleSelect: singleSelect,
   fieldProps: {
     preserveState: true,

@@ -121,12 +121,8 @@ const PREFIX_LENGTH_FIELD = {
     }),
 }
 
-/**
- * @param {boolean} [isUpdate=false] - If true the form is for update
- * @param {boolean} [hasLease=false] - If true the address range has leases
- * @returns {Field} Shared field
- */
-const SHARED_FIELD = (isUpdate = false, hasLease = false) => ({
+/** @returns {Field} Shared field */
+const SHARED_FIELD = () => ({
   name: 'SHARED',
   label: T.Shared,
   type: INPUT_TYPES.SWITCH,
@@ -142,13 +138,6 @@ const SHARED_FIELD = (isUpdate = false, hasLease = false) => ({
       pt: { md: '1.5em' },
     },
   },
-  ...(isUpdate &&
-    hasLease && {
-      fieldProps: { disabled: true, isDisabled: true },
-    }),
-  ...(isUpdate && {
-    tooltip: T.CannotModifySharedWithLeases,
-  }),
 })
 
 /** @type {Field} MAC field */
@@ -238,35 +227,19 @@ const FIELDS = (oneConfig, adminGroup) =>
     RESTRICTED_ATTRIBUTES_TYPE.VNET
   )
 
-/**
- * @param {object} oneConfig - OpenNebula configuration
- * @param {boolean} adminGroup - If the user belongs to oneadmin group
- * @param {boolean} isUpdate - If true the form is to update the AR
- * @param {boolean} hasLease - If true the address range has leases
- * @returns {Array} - Mutable fields
- */
-const MUTABLE_FIELDS = (oneConfig, adminGroup, isUpdate, hasLease) =>
-  disableFields(
-    [SIZE_FIELD, SHARED_FIELD(isUpdate, hasLease)],
-    'AR',
-    oneConfig,
-    adminGroup,
-    RESTRICTED_ATTRIBUTES_TYPE.VNET
-  )
+/** @returns {Array} Mutable fields */
+const MUTABLE_FIELDS = () => []
 
 /**
  * @param {object} stepProps - Step props
  * @param {boolean} stepProps.isUpdate - If true the form is to update the AR
  * @param {object} stepProps.oneConfig - Open Nebula configuration
  * @param {boolean} stepProps.adminGroup - If the user belongs to oneadmin group
- * @param {boolean} stepProps.hasLease - If true the address range has leases
  * @returns {BaseSchema} Schema
  */
-const SCHEMA = ({ isUpdate, oneConfig, adminGroup, hasLease } = {}) =>
+const SCHEMA = ({ isUpdate, oneConfig, adminGroup } = {}) =>
   getObjectSchemaFromFields([
-    ...(isUpdate
-      ? MUTABLE_FIELDS(oneConfig, adminGroup, isUpdate, hasLease)
-      : FIELDS(oneConfig, adminGroup)),
+    ...(isUpdate ? MUTABLE_FIELDS() : FIELDS(oneConfig, adminGroup)),
   ])
 
 export { FIELDS, MUTABLE_FIELDS, SCHEMA }

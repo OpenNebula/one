@@ -146,16 +146,24 @@ export const Dropdown = forwardRef(
 
     const handleClear = useCallback(
       (event) => {
-        event.preventDefault()
-        event.stopPropagation()
-
         if (isDisabled || isReadOnly) return
 
+        event.preventDefault()
+        event.stopPropagation()
         setSelected(isMultipleSelectable ? [] : null)
         setOpen(false)
       },
       [isDisabled, isReadOnly, isMultipleSelectable, setSelected]
     )
+
+    const preventClearMouseDown = useCallback((event) => {
+      event.preventDefault()
+      event.stopPropagation()
+    }, [])
+
+    const hasSelectedValue = isMultipleSelectable
+      ? [].concat(selected ?? []).length > 0
+      : selected !== null && selected !== undefined && selected !== ''
 
     useEffect(() => {
       if (menuItemRef.current && inputRef.current) {
@@ -275,12 +283,13 @@ export const Dropdown = forwardRef(
             endIcon={() =>
               endIcon ? (
                 renderIcon(endIcon)
-              ) : open ? (
+              ) : hasSelectedValue && !isDisabled && !isReadOnly ? (
                 <CloseIcon
                   width="16px"
                   height="16px"
                   strokeWidth={1.6}
-                  onMouseDown={handleClear}
+                  onMouseDown={preventClearMouseDown}
+                  onClick={handleClear}
                   data-cy={dataCy && `${dataCy}-clear`}
                 />
               ) : (

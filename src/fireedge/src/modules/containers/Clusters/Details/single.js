@@ -318,9 +318,9 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
-              [T.NumberOfHosts, String(getTotalOfResources(HOSTS))],
-              [T.NumberOfVnets, String(getTotalOfResources(VNETS))],
-              [T.NumberOfDatastores, String(getTotalOfResources(DATASTORES))],
+              [T.Hosts, String(getTotalOfResources(HOSTS))],
+              [T.Networks, String(getTotalOfResources(VNETS))],
+              [T.Datastores, String(getTotalOfResources(DATASTORES))],
             ],
           },
         ],

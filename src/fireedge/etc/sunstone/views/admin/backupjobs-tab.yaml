@@ -17,6 +17,7 @@ actions:
   unlock: true
   start: true
   cancel: true
+  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 

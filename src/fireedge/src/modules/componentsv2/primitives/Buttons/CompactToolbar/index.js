@@ -30,49 +30,49 @@ import { MenuButton } from '@modules/componentsv2/primitives/Buttons/Menu'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { CompactToolbarContext } from '@modules/componentsv2/primitives/Buttons/CompactToolbar/context'
 
-const optionSignature = ({
-  title,
-  text,
-  tooltip,
-  placeholder,
-  isDisabled,
-  isDestructive,
-  isSelected,
-  options,
-} = {}) =>
-  JSON.stringify({
-    title,
-    text,
-    tooltip,
-    placeholder,
-    isDisabled,
-    isDestructive,
-    isSelected,
-    options: []
-      .concat(options ?? [])
-      .flat()
-      .filter(Boolean)
-      .map(optionSignature),
-  })
-
 const getAvailableWidth = (node) => node?.clientWidth ?? 0
+
+/**
+ * Returns the space of configured group dividers not currently in the DOM.
+ *
+ * @param {HTMLElement} node - Toolbar content node.
+ * @returns {number} Missing divider width.
+ */
+const getMissingDividerWidth = (node) =>
+  [
+    ...(node?.querySelectorAll('[data-compact-toolbar-divider-count]') ?? []),
+  ].reduce((total, group) => {
+    const reservedCount = Number(group.dataset.compactToolbarDividerCount ?? 0)
+    const renderedCount = group.querySelectorAll(
+      ':scope > .toggle-group-divider'
+    ).length
+    const dividerWidth =
+      parseFloat(
+        window
+          .getComputedStyle(group)
+          .getPropertyValue('--compact-toolbar-divider-space')
+      ) || 0
+
+    return total + Math.max(reservedCount - renderedCount, 0) * dividerWidth
+  }, 0)
 
 /**
  * Toolbar wrapper that moves registered compactable actions to an overflow menu.
  *
  * @param {object} root0 - Params.
  * @param {*} root0.children - Toolbar content.
+ * @param {string|number} root0.resetKey - Identity that resets compact state.
  * @returns {*} Compact toolbar.
  */
-export const CompactToolbar = ({ children }) => {
+export const CompactToolbar = ({ children, resetKey }) => {
   const rootRef = useRef(null)
   const contentRef = useRef(null)
   const overflowRef = useRef(null)
   const childrenRef = useRef(children)
+  const resetKeyRef = useRef(resetKey)
   const [overflowSlotCount, setOverflowSlotCount] = useState(0)
   const failedExpandedRef = useRef(null)
   const actionsRef = useRef(new Map())
-  const signaturesRef = useRef(new Map())
   const [version, setVersion] = useState(0)
   const [compactedCount, setCompactedCount] = useState(0)
 
@@ -80,65 +80,73 @@ export const CompactToolbar = ({ children }) => {
     () => [...actionsRef.current.entries()],
     [version]
   )
-  const compactedIds = useMemo(
-    () =>
-      new Set(
-        (compactedCount ? orderedActions.slice(0, compactedCount) : []).map(
-          ([id]) => id
-        )
-      ),
+  const compactedActions = useMemo(
+    () => orderedActions.slice(0, compactedCount),
     [compactedCount, orderedActions]
   )
+  const compactedIds = useMemo(
+    () => new Set(compactedActions.map(([id]) => id)),
+    [compactedActions]
+  )
   const compactedOptions = useMemo(
-    () =>
-      orderedActions
-        .filter(([id]) => compactedIds.has(id))
-        .map(([, action]) => action),
-    [compactedIds, orderedActions]
+    () => compactedActions.map(([, action]) => action),
+    [compactedActions]
   )
 
-  const registerAction = useCallback((id, action) => {
+  const registerAction = useCallback((id) => {
     const actions = actionsRef.current
-    const signatures = signaturesRef.current
-    const signature = optionSignature(action)
-    const hasAction = actions.has(id)
-    const hasChanged = signatures.get(id) !== signature
-    const hasActionRefChanged = actions.get(id) !== action
 
-    actions.set(id, action)
-    signatures.set(id, signature)
-
-    if (!hasAction || hasChanged || hasActionRefChanged) {
+    if (!actions.has(id)) {
+      actions.set(id, undefined)
       failedExpandedRef.current = null
       setVersion((current) => current + 1)
     }
 
     return () => {
       actions.delete(id)
-      signatures.delete(id)
       failedExpandedRef.current = null
       setCompactedCount((current) => Math.min(current, actions.size))
       setVersion((current) => current + 1)
     }
   }, [])
 
+  const updateAction = useCallback((id, action) => {
+    const actions = actionsRef.current
+    if (!actions.has(id)) return
+
+    actions.set(id, action)
+    failedExpandedRef.current = null
+    setVersion((current) => current + 1)
+  }, [])
+
   const isCompacted = useCallback((id) => compactedIds.has(id), [compactedIds])
   const hasOverflowSlot = overflowSlotCount > 0
   const registerOverflowSlot = useCallback(() => {
+    failedExpandedRef.current = null
     setOverflowSlotCount((current) => current + 1)
 
-    return () => setOverflowSlotCount((current) => Math.max(0, current - 1))
+    return () => {
+      failedExpandedRef.current = null
+      setOverflowSlotCount((current) => Math.max(0, current - 1))
+    }
   }, [])
 
   const context = useMemo(
     () => ({
       registerAction,
+      updateAction,
       isCompacted,
       compactedOptions,
       overflowRef,
       registerOverflowSlot,
     }),
-    [compactedOptions, isCompacted, registerAction, registerOverflowSlot]
+    [
+      compactedOptions,
+      isCompacted,
+      registerAction,
+      registerOverflowSlot,
+      updateAction,
+    ]
   )
 
   const compactUntilFits = useCallback(() => {
@@ -167,6 +175,7 @@ export const CompactToolbar = ({ children }) => {
         overflow && !hasOverflowSlot ? parseFloat(rootStyle.columnGap) || 0 : 0
       const requiredWidth =
         content.scrollWidth +
+        getMissingDividerWidth(content) +
         (hasOverflowSlot ? 0 : overflow?.offsetWidth ?? 0) +
         gap
 
@@ -192,13 +201,25 @@ export const CompactToolbar = ({ children }) => {
   }, [hasOverflowSlot])
 
   useLayoutEffect(() => {
-    if (childrenRef.current !== children) {
+    const hasReset = resetKeyRef.current !== resetKey
+
+    if (hasReset) {
+      resetKeyRef.current = resetKey
+      childrenRef.current = children
+      failedExpandedRef.current = null
+
+      if (compactedCount !== 0) {
+        setCompactedCount(0)
+
+        return
+      }
+    } else if (childrenRef.current !== children) {
       childrenRef.current = children
       failedExpandedRef.current = null
     }
 
     compactUntilFits()
-  }, [children, compactUntilFits, compactedCount, version])
+  }, [children, compactUntilFits, compactedCount, resetKey, version])
 
   useEffect(() => {
     const node = rootRef.current
@@ -214,14 +235,6 @@ export const CompactToolbar = ({ children }) => {
     ].filter(Boolean)
     let previousWidth = getAvailableWidth(availableNode)
     let previousLayoutWidth = getAvailableWidth(layoutNode)
-    let inputFrame
-    const handleLayoutInput = () => {
-      cancelAnimationFrame(inputFrame)
-      inputFrame = requestAnimationFrame(() => {
-        failedExpandedRef.current = null
-        compactUntilFits()
-      })
-    }
     const observer = new ResizeObserver(() => {
       const nextWidth = getAvailableWidth(availableNode)
       const nextLayoutWidth = getAvailableWidth(layoutNode)
@@ -239,12 +252,9 @@ export const CompactToolbar = ({ children }) => {
     })
 
     observedNodes.forEach((observedNode) => observer.observe(observedNode))
-    layoutNode?.addEventListener('input', handleLayoutInput)
 
     return () => {
       observer.disconnect()
-      layoutNode?.removeEventListener('input', handleLayoutInput)
-      cancelAnimationFrame(inputFrame)
     }
   }, [compactUntilFits])
 
@@ -308,6 +318,7 @@ export const CompactToolbar = ({ children }) => {
 
 CompactToolbar.propTypes = {
   children: PropTypes.node,
+  resetKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 }
 
 /**

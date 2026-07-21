@@ -100,10 +100,16 @@ export const SearchBar = forwardRef(
         : typeof sortValue === 'object'
         ? !!sortValue?.desc
         : false
-      const nextDesc =
+      const isCurrentOption =
         value != null && String(optionValue) === String(value)
-          ? !currentDesc
-          : false
+
+      if (isCurrentOption && currentDesc) {
+        onSortChange?.(Array.isArray(sortValue) ? [] : null)
+
+        return
+      }
+
+      const nextDesc = isCurrentOption ? !currentDesc : false
 
       if (Array.isArray(sortValue)) {
         onSortChange?.([{ id: optionValue, desc: nextDesc }])

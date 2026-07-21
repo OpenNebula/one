@@ -18,12 +18,20 @@ import { Field, getObjectSchemaFromFields } from '@UtilsModule'
 import { string } from 'yup'
 import { vnTable } from '@ModelsModule'
 
+const selectionVnTable = {
+  ...vnTable,
+  columns: () =>
+    vnTable
+      .columns()
+      .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
+}
+
 /** @type {Field} Vnets field */
 const PUBLIC_NETWORK = {
   name: 'PUBLIC_NETWORK',
   label: T.SelectVirtualNetworks,
   type: INPUT_TYPES.TABLE,
-  model: vnTable,
+  model: selectionVnTable,
   singleSelect: true,
   selectOnRowClick: true,
   validation: string()

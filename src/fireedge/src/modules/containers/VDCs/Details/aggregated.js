@@ -150,7 +150,6 @@ export const AggregatedView = ({
           SummarySlot,
           {
             labels: [
-              [selectedVdcs?.length, T.VDCs],
               [totals.groups, T.Groups],
               [totals.clusters, T.Clusters],
               [totals.hosts, T.Hosts],

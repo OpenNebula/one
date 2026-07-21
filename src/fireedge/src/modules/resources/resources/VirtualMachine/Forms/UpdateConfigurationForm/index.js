@@ -24,6 +24,13 @@ import {
 import { set } from 'lodash'
 import { reach } from 'yup'
 
+const omitEmptyValues = (values = {}) =>
+  Object.fromEntries(
+    Object.entries(values).filter(
+      ([, value]) => value !== undefined && value !== null && value !== ''
+    )
+  )
+
 const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
   ContentForm,
   transformInitialValue: (vmTemplate, schema) => {
@@ -46,6 +53,22 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
     knownTemplate.CONTEXT = {
       ...knownContext,
       ...getUnknownAttributes(context, knownContext),
+    }
+
+    // Keep updateconf attributes supported by core but not exposed in this
+    // form, otherwise replace mode would remove them.
+    if (template.FEATURES) {
+      knownTemplate.FEATURES = {
+        ...template.FEATURES,
+        ...knownTemplate.FEATURES,
+      }
+    }
+
+    if (template.GRAPHICS) {
+      knownTemplate.GRAPHICS = {
+        ...template.GRAPHICS,
+        ...knownTemplate.GRAPHICS,
+      }
     }
 
     // Decode script base 64
@@ -111,7 +134,7 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
       ...restFormData,
       OS: {
         ...restFormData.OS,
-        BOOT: extra?.OS?.BOOT || restFormData.OS?.BOOT,
+        BOOT: extra?.OS?.BOOT ?? restFormData.OS?.BOOT,
       },
     }
 
@@ -125,7 +148,10 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
           initialValues.TEMPLATE.CONTEXT.START_SCRIPT
       }
     }
-    delete updatedFormData.CONTEXT.ENCODE_START_SCRIPT
+    if (updatedFormData.CONTEXT) {
+      delete updatedFormData.CONTEXT.ENCODE_START_SCRIPT
+      updatedFormData.CONTEXT = omitEmptyValues(updatedFormData.CONTEXT)
+    }
 
     // If initial CONTEXT is empty, no context data should be sent (it will cause a core error). The Configuration tab is disabled in that case, but we need to ensure that when update another tab, no context data is sent.
     if (!initialValues?.TEMPLATE?.CONTEXT) {

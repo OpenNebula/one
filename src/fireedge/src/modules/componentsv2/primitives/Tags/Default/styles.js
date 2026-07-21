@@ -88,21 +88,18 @@ export const getStyles = ({
       minWidth: 0,
       color: 'inherit',
       fontStyle: 'normal',
-      textTransform: 'lowercase',
+      textTransform: 'none',
       fontSize: {
         xs: theme.fontSize.body.caption.mobile,
         sm: theme.fontSize.body.caption.tablet,
         md: theme.fontSize.body.caption.desktop,
       },
       fontWeight: 600,
+      whiteSpace: 'nowrap',
       lineHeight: {
         xs: theme.lineHeight.body.caption.mobile,
         sm: theme.lineHeight.body.caption.tablet,
         md: theme.lineHeight.body.caption.desktop,
-      },
-
-      '&::first-letter': {
-        textTransform: 'uppercase',
       },
     },
   }

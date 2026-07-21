@@ -20,6 +20,7 @@ import {
   InfoSlot,
   SummarySlot,
   TabSlot,
+  Tag,
   ToggleGroup,
   ResourceActionConfirmation,
 } from '@ComponentsV2Module'
@@ -81,20 +82,16 @@ export const SingleView = ({
       ? refreshedProvider
       : selectedProvider
 
-  const {
-    ID,
-    NAME,
-    UNAME,
-    GNAME,
-    TEMPLATE: {
-      PROVIDER_BODY: {
-        description,
-        registration_time: registrationTime,
-        provision_ids: provisionIds = [],
-        fireedge = {},
-      } = {},
-    } = {},
-  } = provider || {}
+  const { ID, NAME, UNAME, GNAME, TEMPLATE = {} } = provider ?? {}
+  const providerBody =
+    TEMPLATE?.PROVIDER_BODY && typeof TEMPLATE.PROVIDER_BODY === 'object'
+      ? TEMPLATE.PROVIDER_BODY
+      : {}
+  const { registration_time: registrationTime, fireedge = {} } = providerBody
+  const provisionIds = Array.isArray(providerBody?.provision_ids)
+    ? providerBody.provision_ids
+    : Object.values(providerBody?.provision_ids ?? {}).filter(Boolean)
+  const driver = providerBody?.driver ?? TEMPLATE?.DRIVER
 
   const handleRefresh = async () => refreshProvider({ id: ID })
 
@@ -175,7 +172,7 @@ export const SingleView = ({
             labels: [
               [T.Owner, UNAME],
               [T.Group, GNAME],
-              [T.Description, description],
+              [T.Registered, creationDate],
             ]?.filter(([, value]) => value !== undefined),
             Toolbar: () => (
               <Box
@@ -226,8 +223,11 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
-              [T.Registered, creationDate],
-              [T.NumberProvisions, String(numberOfProvisions)],
+              [
+                <Tag key="driver" title={driver ?? '-'} status="default" />,
+                T.Driver,
+              ],
+              [String(numberOfProvisions), T.AssociatedProvisions],
             ],
           },
         ],

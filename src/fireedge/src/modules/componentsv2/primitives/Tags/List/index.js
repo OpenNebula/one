@@ -18,7 +18,6 @@ import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 import { Tag } from '@modules/componentsv2/primitives/Tags/Default'
 import { Tooltip } from '@modules/componentsv2/primitives/Tooltip'
-import { Badge } from '@modules/componentsv2/primitives/Badge'
 import {
   getStyles,
   getPopupStyles,
@@ -28,9 +27,10 @@ import {
  * @param {object} root0 - Params
  * @param {object[]} root0.tags - List of Tag prop objects to display
  * @param {number} root0.max - Maximum number of tags to show
+ * @param {boolean} root0.wrap - Allow tags to wrap across multiple lines
  * @returns {Component} - Displays a capped list of tags with overflow tooltip
  */
-export const TagList = ({ tags = [], max = 2 }) => {
+export const TagList = ({ tags = [], max = 2, wrap = false }) => {
   const visible = tags.slice(0, max)
   const hidden = tags.slice(max)
 
@@ -45,13 +45,15 @@ export const TagList = ({ tags = [], max = 2 }) => {
   )
 
   return (
-    <Box sx={(theme) => getStyles({ theme })}>
+    <Box sx={(theme) => getStyles({ theme, wrap })}>
       {visible.map(renderTag)}
       {hidden.length > 0 && (
         <Tooltip
           title={<Box sx={getPopupStyles()}>{hidden.map(renderTag)}</Box>}
         >
-          <Badge type="tag" status="default">{`+${hidden.length}`}</Badge>
+          <Box sx={{ display: 'inline-flex' }}>
+            <Tag title={`+${hidden.length}`} />
+          </Box>
         </Tooltip>
       )}
     </Box>
@@ -76,6 +78,7 @@ TagList.propTypes = {
     })
   ),
   max: PropTypes.number,
+  wrap: PropTypes.bool,
 }
 
 TagList.displayName = 'TagList'

@@ -18,9 +18,10 @@
  * @param {object} root0 - Params
  * @param {object} root0.theme - Current theme in use
  * @param {boolean} root0.isSelected - Selected
+ * @param {boolean} root0.hasIcon - Card has an icon
  * @returns {object} - Fields styles
  */
-export const getStyles = ({ theme, isSelected }) => {
+export const getStyles = ({ theme, isSelected, hasIcon }) => {
   const baseStyles = {
     display: 'flex',
     padding: `${theme.scale[400]}px ${theme.scale[500]}px`,
@@ -86,6 +87,7 @@ export const getStyles = ({ theme, isSelected }) => {
       gap: `${theme.scale[100]}px`,
       alignItems: 'flex-start',
       flex: '1 0 0',
+      ...(hasIcon && { marginTop: `${theme.scale[100]}px` }),
     },
   }
 

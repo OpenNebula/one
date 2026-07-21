@@ -14,10 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { T, UNITS } from '@ConstantsModule'
+import { T, UNITS, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 import { SystemAPI } from '@FeaturesModule'
 import { css } from '@emotion/css'
-import { Translate } from '@ProvidersModule'
+import { Text } from '@ComponentsV2Module'
 import { formatNumberByCurrency } from '@UtilsModule'
 import { Typography, useTheme } from '@mui/material'
 import clsx from 'clsx'
@@ -84,7 +84,11 @@ export const CapacityMemoryLabel = memo(({ data }) => {
 
   return (
     <>
-      <Translate word={T.Capacity} />
+      <Text
+        value={T.Capacity}
+        variant={TEXT_VARIANTS.H6}
+        weight={TEXT_WEIGHTS.BOLD}
+      />
       <Typography className={classes.cost}>
         {`${(memory * memoryUnitCostMB + cpu * cpuCost).toFixed(6)}`}
       </Typography>

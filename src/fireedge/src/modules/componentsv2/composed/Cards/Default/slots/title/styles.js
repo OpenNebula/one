@@ -22,7 +22,7 @@
 export const getStyles = ({ theme }) => {
   const baseStyles = {
     display: 'flex',
-    gap: `${theme.scale[100]}px`,
+    gap: `${theme.scale[200]}px`,
     alignItems: 'center',
     alignSelf: 'stretch',
 

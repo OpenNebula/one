@@ -657,3 +657,22 @@ export const getErrorMessage = (resource) => {
  */
 export const getImageType = ({ TYPE } = {}) =>
   isNaN(+TYPE) ? TYPE : IMAGE_TYPES[+TYPE]
+
+/**
+ * Returns the display name of an image type.
+ *
+ * @param {Image} image - Image
+ * @returns {string} Image type display name
+ */
+export const getImageTypeLabel = (image) => {
+  const type = getImageType(image)
+  const normalizedType = String(type ?? '')
+
+  if (!normalizedType) return type
+
+  return normalizedType.toUpperCase() === 'OS'
+    ? 'OS'
+    : `${normalizedType.charAt(0).toUpperCase()}${normalizedType
+        .slice(1)
+        .toLowerCase()}`
+}

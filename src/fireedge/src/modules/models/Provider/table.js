@@ -21,6 +21,7 @@ import { createTable, timeFromMilliseconds } from '@UtilsModule'
 import { getLogoSource } from '@modules/models/Provider/general'
 import { Box } from '@mui/material'
 import { createLabelColumn } from '@modules/models/labels'
+import { scale } from '@StylesModule'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const PROVIDER_COLUMNS = [
@@ -44,8 +45,8 @@ export const PROVIDER_COLUMNS = [
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Image
             src={src}
-            width={32}
-            height={32}
+            width={scale[600]}
+            height={scale[600]}
             alt={'list-image-identifier'}
           />
           <span>{row.original?.NAME}</span>
@@ -72,7 +73,7 @@ export const PROVIDER_COLUMNS = [
     grow: false,
   },
   {
-    header: T.RegistrationTime,
+    header: T.Registered,
     id: 'time',
     grow: false,
     cell: ({ row }) => {

@@ -141,24 +141,21 @@ const AddressesContent = ({ oneConfig, adminGroup }) => {
             '-'
           ),
       },
-      { accessorKey: 'SIZE', header: T.Size, grow: false },
+      { accessorKey: 'SIZE', header: T.Size },
       {
         id: 'mac',
         header: T.MAC,
         accessorFn: (row) => getRange(row?.MAC, row?.MAC_END),
-        grow: false,
       },
       {
         id: 'ip',
         header: T.IP,
         accessorFn: (row) => getRange(row?.IP, row?.IP_END),
-        grow: false,
       },
       {
         id: 'ip6',
         header: 'IP6',
         accessorFn: (row) => getRange(row?.IP6, row?.IP6_END),
-        grow: false,
       },
       {
         id: 'actions',

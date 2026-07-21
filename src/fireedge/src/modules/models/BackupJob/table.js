@@ -62,6 +62,12 @@ export const BACKUPJOB_COLUMNS = [
     accessorKey: 'PRIORITY',
   },
   {
+    header: T.LastBackupTimeInfo,
+    id: 'lastBackupTime',
+    accessorFn: (row) =>
+      getBackupJobRelativeLastBackupTime(row?.LAST_BACKUP_TIME),
+  },
+  {
     header: T.Owner,
     id: 'owner',
     accessorKey: 'UNAME',
@@ -72,13 +78,6 @@ export const BACKUPJOB_COLUMNS = [
     id: 'group',
     accessorKey: 'GNAME',
     grow: false,
-  },
-  {
-    header: T.LastBackupTimeInfo,
-    id: 'lastBackupTime',
-    grow: false,
-    accessorFn: (row) =>
-      getBackupJobRelativeLastBackupTime(row?.LAST_BACKUP_TIME),
   },
   createLabelColumn({ grow: false }),
 ]

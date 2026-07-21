@@ -21,6 +21,7 @@ import {
   MenuButton,
   ResourceActionConfirmation,
   SummarySlot,
+  StatusTag,
   TabSlot,
   ToggleGroup,
 } from '@ComponentsV2Module'
@@ -282,7 +283,6 @@ export const SingleView = ({
             labels: [
               [T.Owner, service?.UNAME],
               [T.Group, service?.GNAME],
-              [T.State, serviceState?.displayName],
             ],
             Toolbar: () => (
               <Box
@@ -337,7 +337,14 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
-              [summary.state, T.State],
+              [
+                <StatusTag
+                  key="state"
+                  statusColor={serviceState?.color}
+                  statusName={summary.state}
+                />,
+                T.State,
+              ],
               [summary.roles, T.Roles],
               [summary.vms, T.TotalVms],
               [summary.networks, T.Networks],

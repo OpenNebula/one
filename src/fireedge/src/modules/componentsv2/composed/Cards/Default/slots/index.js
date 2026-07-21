@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-export * from '@modules/componentsv2/composed/Cards/Default/slots/capacity'
+export * from '@modules/componentsv2/composed/Cards/Default/slots/icon'
 export * from '@modules/componentsv2/composed/Cards/Default/slots/label'
 export * from '@modules/componentsv2/composed/Cards/Default/slots/metadata'
 export * from '@modules/componentsv2/composed/Cards/Default/slots/ownership'

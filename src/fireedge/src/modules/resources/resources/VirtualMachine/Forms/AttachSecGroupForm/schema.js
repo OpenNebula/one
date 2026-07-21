@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, object } from 'yup'
 
-import { securitygroupTable } from '@ModelsModule'
+import { securitygroupSelectionTable } from '@ModelsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
 import { T, INPUT_TYPES } from '@ConstantsModule'
 
@@ -24,7 +24,7 @@ const SEC_GROUP = () => ({
   name: 'secgroup',
   label: T.SelectTheNewSecurityGroup,
   type: INPUT_TYPES.TABLE,
-  model: securitygroupTable,
+  model: securitygroupSelectionTable,
   singleSelect: true,
   selectOnRowClick: true,
   fieldProps: {

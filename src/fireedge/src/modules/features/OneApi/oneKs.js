@@ -187,7 +187,12 @@ const oneKsApi = oneApi.injectEndpoints({
         const name = Actions.LIST
         const command = { name, ...Commands[name] }
 
-        return { command, params, needStateInMeta: true }
+        return {
+          command,
+          params,
+          needStateInMeta: true,
+          showNotification: false,
+        }
       },
       transformResponse: (data, meta) =>
         [data ?? []].flat().map((resource) => withOneKsLabels(resource, meta)),

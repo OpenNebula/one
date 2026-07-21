@@ -46,7 +46,7 @@ const RESOURCE_TABLES = {
 }
 
 const IMAGE_COLUMN_IDS = ['id', 'name', 'state', 'datastore']
-const VM_COLUMN_IDS = ['id', 'name', 'time', 'owner', 'group']
+const VM_COLUMN_IDS = ['id', 'name']
 
 const getResourceColumns = (type) => {
   const columns = RESOURCE_TABLES[type]?.columns?.() ?? imageTable.columns()
@@ -70,16 +70,18 @@ const getResourceColumns = (type) => {
       })
   }
 
+  if (type === TYPES.VM_TEMPLATE) {
+    return columns.filter(
+      ({ id, accessorKey }) =>
+        id !== 'labels' && !['UNAME', 'GNAME', 'REGTIME'].includes(accessorKey)
+    )
+  }
+
   if (type !== TYPES.VM) return columns
 
-  return VM_COLUMN_IDS.map((id) => columns.find((column) => column.id === id))
-    .filter(Boolean)
-    .map((column) => {
-      if (column.id === 'id') return { ...column, width: '5%' }
-      if (column.id === 'time') return { ...column, header: T.CreationTime }
-
-      return column
-    })
+  return VM_COLUMN_IDS.map((id) =>
+    columns.find((column) => column.id === id)
+  ).filter(Boolean)
 }
 
 const getResourceModel = (type) => ({

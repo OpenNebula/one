@@ -20,12 +20,24 @@ import { mixed } from 'yup'
 import { getObjectSchemaFromFields } from '@UtilsModule'
 import { vrtemplateTable } from '@ModelsModule'
 
+const selectionVrTemplateTable = {
+  ...vrtemplateTable,
+  columns: () =>
+    vrtemplateTable
+      .columns()
+      .filter(
+        ({ id, accessorKey }) =>
+          id !== 'labels' &&
+          !['UNAME', 'GNAME', 'REGTIME'].includes(accessorKey)
+      ),
+}
+
 const TEMPLATEID = {
   name: 'vmTemplate',
   type: INPUT_TYPES.TABLE,
   label: T.VirtualRouterTemplate,
   cy: 'vmTemplate',
-  model: vrtemplateTable,
+  model: selectionVrTemplateTable,
   singleSelect: true,
   selectOnRowClick: true,
   fieldProps: {

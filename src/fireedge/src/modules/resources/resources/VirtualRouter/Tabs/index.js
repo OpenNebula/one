@@ -18,10 +18,11 @@ import { AggregatedInfo } from '@modules/resources/resources/VirtualRouter/Tabs/
 import { Info } from '@modules/resources/resources/VirtualRouter/Tabs/Info'
 import { Nics } from '@modules/resources/resources/VirtualRouter/Tabs/Nics'
 import { Selection } from '@modules/resources/resources/VirtualRouter/Tabs/Selection'
+import { Template } from '@modules/resources/resources/VirtualRouter/Tabs/Template'
 import { Vms } from '@modules/resources/resources/VirtualRouter/Tabs/Vms'
 
-export { AggregatedInfo, Info, Nics, Selection, Vms }
+export { AggregatedInfo, Info, Nics, Selection, Template, Vms }
 
-export const Single = [Info, Vms, Nics]
+export const Single = [Info, Vms, Nics, Template]
 
 export const Aggregated = [Selection, AggregatedInfo]

@@ -18,6 +18,10 @@ import { createTable, getLockIcon } from '@UtilsModule'
 import { VmGroupAPI, VmAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
 import { VM_COLUMNS } from '@modules/models/VirtualMachine/table'
+import {
+  getVmGroupTotalRoles,
+  getVmGroupTotalVms,
+} from '@modules/models/VmGroup/general'
 import { createLabelColumn } from '@modules/models/labels'
 import { Box } from '@mui/material'
 
@@ -42,8 +46,12 @@ export const VMGROUP_COLUMNS = [
   {
     header: T.Roles,
     id: 'roles',
-    accessorFn: (row) =>
-      [].concat(row?.ROLES?.ROLE ?? []).filter(Boolean).length,
+    accessorFn: getVmGroupTotalRoles,
+  },
+  {
+    header: T.VMs,
+    id: 'vms',
+    accessorFn: getVmGroupTotalVms,
   },
   {
     accessorKey: 'UNAME',

@@ -138,18 +138,18 @@ export function CreateKubernetesLogs() {
           alignItems="center"
           sx={{ marginTop: '10px' }}
         >
-          <Text
-            variant={TEXT_VARIANTS.BODY_SMALL}
-            weight={TEXT_WEIGHTS.SEMIBOLD}
-            value={operationText ? translations.operation : document?.NAME}
-          />
-          <Box>
+          <Stack direction="row" alignItems="center" gap={1}>
+            <Text
+              variant={TEXT_VARIANTS.BODY_SMALL}
+              weight={TEXT_WEIGHTS.SEMIBOLD}
+              value={operationText ? translations.operation : document?.NAME}
+            />
             <StatusTag
               dataCy="state"
               statusColor={stateColor}
               statusName={stateName}
             />
-          </Box>
+          </Stack>
           <SubmitButton
             data-cy={`button-background`}
             size="medium"

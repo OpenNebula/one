@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 import { ReactElement, useMemo } from 'react'
 import { Table } from '@ComponentsV2Module'
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T, VM_EXTENDED_POOL } from '@ConstantsModule'
 import { getBackupVmIds, vmsTable } from '@ModelsModule'
 
 const HIDDEN_COLUMN_IDS = [
@@ -39,7 +39,7 @@ export const VMs = ({ data }) => {
   const backup = [].concat(data?.selected).filter(Boolean)?.[0] ?? {}
   const backupVmIds = useMemo(() => getBackupVmIds(backup), [backup])
   const { data: vmData = [] } = vmsTable.useData(
-    { extended: 0 },
+    { extended: VM_EXTENDED_POOL ? 1 : 0 },
     {
       selectFromResult: (result) => ({
         ...result,
@@ -68,6 +68,7 @@ export const VMs = ({ data }) => {
       isEnableSearchBar={true}
       isEnableSort={true}
       isEnableFilters={true}
+      size="medium"
       openRowDetailsOnClick
       rowDetailsResourceId={RESOURCE_NAMES.VM}
     />

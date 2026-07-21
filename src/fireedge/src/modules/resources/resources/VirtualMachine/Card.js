@@ -16,11 +16,9 @@
 
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
-import { Box } from '@mui/material'
 import {
   Card,
-  CapacitySlot,
-  Image,
+  IconSlot,
   TitleSlot,
   MetadataSlot,
   LabelSlot,
@@ -91,43 +89,15 @@ export const VirtualMachineCard = forwardRef((data = {}, ref) => {
       onCheck={onCheck}
       onClick={onClick}
       isSelected={isSelected}
+      icon={`${STATIC_FILES_URL}/${logo}`}
       slots={[
         [
           TitleSlot,
           {
             title: (
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  minWidth: 0,
-                }}
-              >
-                <Image
-                  src={`${STATIC_FILES_URL}/${logo}`}
-                  width={32}
-                  height={32}
-                  alt="list-image-identifier"
-                />
-                <Box
-                  component="span"
-                  sx={{
-                    flex: '0 1 auto',
-                    minWidth: 0,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {NAME}
-                </Box>
-                {lockIcon && (
-                  <Box sx={{ display: 'flex', flex: '0 0 auto' }}>
-                    {lockIcon}
-                  </Box>
-                )}
-              </Box>
+              <>
+                {NAME} {lockIcon}
+              </>
             ),
             statusName,
             status,
@@ -149,7 +119,7 @@ export const VirtualMachineCard = forwardRef((data = {}, ref) => {
         ],
 
         [
-          CapacitySlot,
+          IconSlot,
           {
             cpu: TEMPLATE?.CPU ?? 1,
             memory: prettyBytes(TEMPLATE?.MEMORY ?? 0, UNITS.MB),
@@ -170,6 +140,7 @@ export const VirtualMachineCard = forwardRef((data = {}, ref) => {
           TimeSlot,
           {
             time: STIME,
+            label: T.Created,
           },
         ],
       ]}

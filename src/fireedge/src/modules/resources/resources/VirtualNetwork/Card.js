@@ -25,7 +25,7 @@ import {
   TitleSlot,
 } from '@ComponentsV2Module'
 import {
-  getLabelSlotLabels,
+  getLabelTags,
   getLeasesInfo,
   getVirtualNetworkState,
 } from '@ModelsModule'
@@ -45,13 +45,13 @@ import { getLockIcon } from '@UtilsModule'
  */
 export const VirtualNetworkCard = forwardRef(
   ({ vnet = {}, dataCy, isSelected, onCheck, onClick }, ref) => {
-    const { ID, NAME, UNAME, GNAME, LOCK, VN_MAD, CLUSTERS } = vnet
+    const { ID, NAME, UNAME, GNAME, VN_MAD, CLUSTERS } = vnet
 
     const { color: stateColor, name: stateName } =
       getVirtualNetworkState(vnet) ?? {}
     const { percentOfUsed, percentLabel } = getLeasesInfo(vnet)
     const cluster = [CLUSTERS?.ID ?? []].flat()[0]
-    const labelSlotLabels = getLabelSlotLabels(vnet?.LABELS)
+    const labelTags = getLabelTags(vnet?.LABELS)
 
     return (
       <Card
@@ -84,15 +84,6 @@ export const VirtualNetworkCard = forwardRef(
               ].filter(([, value]) => value),
             },
           ],
-          (VN_MAD || labelSlotLabels.length > 0) && [
-            LabelSlot,
-            {
-              labels: [
-                VN_MAD && [VN_MAD, 'default'],
-                ...labelSlotLabels,
-              ].filter(Boolean),
-            },
-          ],
           [
             ProgressBarSlot,
             {
@@ -107,6 +98,14 @@ export const VirtualNetworkCard = forwardRef(
                   ],
                 },
               ],
+            },
+          ],
+          (VN_MAD || labelTags.length > 0) && [
+            LabelSlot,
+            {
+              labels: [VN_MAD && [VN_MAD, 'default']].filter(Boolean),
+              tags: labelTags,
+              max: 3,
             },
           ],
         ].filter(Boolean)}

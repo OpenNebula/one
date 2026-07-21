@@ -40,11 +40,6 @@ export const VR_COLUMNS = [
     ),
   },
   {
-    header: T.TemplateID,
-    id: 'template',
-    accessorKey: 'TEMPLATE_ID',
-  },
-  {
     header: T.TotalVms,
     id: 'vms',
     accessorFn: getVirtualRouterTotalVms,

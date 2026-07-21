@@ -19,12 +19,13 @@ import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import {
   Card,
+  IconSlot,
   LabelSlot,
   MetadataSlot,
   TimeSlot,
   TitleSlot,
 } from '@ComponentsV2Module'
-import { getLabelSlotLabels, getMarketplaceAppState } from '@ModelsModule'
+import { getLabelTags, getMarketplaceAppState } from '@ModelsModule'
 import { getLockIcon, prettyBytes } from '@UtilsModule'
 
 /**
@@ -54,7 +55,7 @@ export const MarketplaceAppsCard = forwardRef(
 
     const { color: stateColor, name: stateName } =
       getMarketplaceAppState(marketplaceApp) ?? {}
-    const labelSlotLabels = getLabelSlotLabels(marketplaceApp?.LABELS)
+    const labelTags = getLabelTags(marketplaceApp?.LABELS)
 
     return (
       <Card
@@ -82,15 +83,20 @@ export const MarketplaceAppsCard = forwardRef(
                 [T.ID, String(ID)],
                 [T.Owner, UNAME],
                 [T.Group, GNAME],
-                [T.Size, prettyBytes(SIZE, UNITS.MB)],
-                [T.Marketplace, MARKETPLACE],
               ].filter(([, value]) => value),
+            },
+          ],
+          [
+            IconSlot,
+            {
+              size: prettyBytes(SIZE, UNITS.MB),
+              marketplace: MARKETPLACE || '-',
             },
           ],
           (TEMPLATE?.HYPERVISOR ||
             TEMPLATE?.ARCHITECTURE ||
             VERSION ||
-            labelSlotLabels.length > 0) && [
+            labelTags.length > 0) && [
             LabelSlot,
             {
               labels: [
@@ -100,14 +106,16 @@ export const MarketplaceAppsCard = forwardRef(
                   'miscellaneous2',
                 ],
                 VERSION && [VERSION, 'default'],
-                ...labelSlotLabels,
               ].filter(Boolean),
+              tags: labelTags,
+              max: 2,
             },
           ],
           REGTIME && [
             TimeSlot,
             {
               time: REGTIME,
+              label: T.Registered,
             },
           ],
         ].filter(Boolean)}

@@ -21,7 +21,9 @@ import {
   InfoSlot,
   ResourceActionConfirmation,
   SummarySlot,
+  StatusTag,
   TabSlot,
+  Tag,
   ToggleGroup,
 } from '@ComponentsV2Module'
 import { unset } from 'lodash'
@@ -98,7 +100,10 @@ export const SingleView = ({
 
   const dsStatus = data?.STATE === '0'
 
-  const { name: stateName } = useMemo(() => getDatastoreState(data), [data])
+  const { color: stateColor, name: stateName } = useMemo(
+    () => getDatastoreState(data),
+    [data]
+  )
   const type = useMemo(() => getDatastoreType(data), [data])
 
   const isActionsDisabled =
@@ -414,6 +419,11 @@ export const SingleView = ({
 
             title: data?.NAME,
             id: ID,
+            labels: [
+              [T.Owner, data?.UNAME],
+              [T.Group, data?.GNAME],
+              [T.Cluster, [data?.CLUSTERS?.ID ?? []].flat().join(', ')],
+            ],
             tags: getLabelTags(data?.LABELS),
             Toolbar: () => (
               <Box
@@ -442,8 +452,18 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
-              [stateName ?? '-', T.State],
-              [type ?? '-', T.Type],
+              [
+                <StatusTag
+                  key="state"
+                  statusColor={stateColor}
+                  statusName={stateName ?? '-'}
+                />,
+                T.State,
+              ],
+              [
+                type ? <Tag key="type" title={type} status="default" /> : '-',
+                T.Type,
+              ],
             ],
           },
         ],

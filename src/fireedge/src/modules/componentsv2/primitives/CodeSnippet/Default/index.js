@@ -44,6 +44,7 @@ export const CodeSnippet = forwardRef(
           getStyles({
             theme,
             isDisabled,
+            hasTitle: Boolean(title),
             ...opts,
           })
         }
@@ -64,9 +65,8 @@ export const CodeSnippet = forwardRef(
             <Box className="code-snippet-copy-button">
               <Button
                 isDisabled={isDisabled}
-                iconOnly={
-                  <Copy width="12px" height="12px" onClick={() => copy(code)} />
-                }
+                iconOnly={<Copy width="12px" height="12px" />}
+                onClick={() => copy(code)}
                 type={STYLE_BUTTONS.TYPE.TRANSPARENT}
               />
             </Box>

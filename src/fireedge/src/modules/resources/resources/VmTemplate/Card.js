@@ -14,18 +14,28 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { T, STATIC_FILES_URL, DEFAULT_TEMPLATE_LOGO } from '@ConstantsModule'
+import {
+  T,
+  UNITS,
+  STATIC_FILES_URL,
+  DEFAULT_TEMPLATE_LOGO,
+} from '@ConstantsModule'
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import {
   Card,
+  IconSlot,
   TitleSlot,
-  OwnershipSlot,
   MetadataSlot,
   LabelSlot,
+  TimeSlot,
 } from '@ComponentsV2Module'
-import { getLockIcon, timeFromMilliseconds } from '@UtilsModule'
-import { getLabelSlotLabels } from '@ModelsModule'
+import { getLockIcon, prettyBytes } from '@UtilsModule'
+import {
+  getLabelTags,
+  getVmTemplateImageCount,
+  getVmTemplateNetworkCount,
+} from '@ModelsModule'
 
 /**
  * VmTemplateCard component displays a VM Template as a card.
@@ -52,11 +62,13 @@ export const VmTemplateCard = forwardRef((data = {}, ref) => {
     REGTIME,
     LOGO = DEFAULT_TEMPLATE_LOGO,
     LABELS,
+    TEMPLATE = {},
     isSelected,
     onCheck,
     onClick,
   } = data
-  const labelSlotLabels = getLabelSlotLabels(LABELS)
+  const labelTags = getLabelTags(LABELS)
+  const lockIcon = getLockIcon(data)
 
   return (
     <Card
@@ -72,13 +84,13 @@ export const VmTemplateCard = forwardRef((data = {}, ref) => {
           {
             title: (
               <>
-                {NAME} {getLockIcon(data)}
+                {NAME} {lockIcon}
               </>
             ),
           },
         ],
         [
-          OwnershipSlot,
+          MetadataSlot,
           {
             labels: [
               ['ID', ID],
@@ -88,24 +100,28 @@ export const VmTemplateCard = forwardRef((data = {}, ref) => {
           },
         ],
         [
-          MetadataSlot,
+          IconSlot,
           {
-            labels: [
-              [
-                REGTIME &&
-                  `${T.Registered} ${timeFromMilliseconds(
-                    +REGTIME
-                  ).toRelative()}`,
-              ]?.filter(Boolean),
-            ],
+            cpu: TEMPLATE?.CPU ?? 1,
+            memory: prettyBytes(TEMPLATE?.MEMORY ?? 0, UNITS.MB),
+            images: getVmTemplateImageCount(data),
+            networks: getVmTemplateNetworkCount(data),
           },
         ],
-        labelSlotLabels.length > 0 && [
+        (TEMPLATE?.HYPERVISOR ||
+          TEMPLATE?.OS?.ARCH ||
+          labelTags.length > 0) && [
           LabelSlot,
           {
-            labels: labelSlotLabels,
+            labels: [
+              TEMPLATE?.HYPERVISOR && [TEMPLATE.HYPERVISOR, 'miscellaneous'],
+              TEMPLATE?.OS?.ARCH && [TEMPLATE.OS.ARCH, 'miscellaneous2'],
+            ].filter(Boolean),
+            tags: labelTags,
+            max: 2,
           },
         ],
+        REGTIME && [TimeSlot, { time: REGTIME, label: T.Registered }],
       ].filter(Boolean)}
     />
   )
@@ -119,6 +135,7 @@ VmTemplateCard.propTypes = {
   REGTIME: PropTypes.string,
   LOGO: PropTypes.string,
   LABELS: PropTypes.object,
+  TEMPLATE: PropTypes.object,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

@@ -24,10 +24,10 @@ import {
   ResourceActionConfirmation,
 } from '@ComponentsV2Module'
 
-import { useModalsApi, ServiceTemplateAPI, oneApi } from '@FeaturesModule'
+import { useModalsApi, ServiceTemplateAPI } from '@FeaturesModule'
 import { Component, useMemo } from 'react'
-import { aggregateMetrics } from '@UtilsModule'
 import { T, STYLE_BUTTONS, RESOURCE_NAMES } from '@ConstantsModule'
+import { getServiceTotalNetworks, getServiceTotalRoles } from '@ModelsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Trash, Cancel as CloseIcon } from 'iconoir-react'
@@ -52,44 +52,6 @@ export const AggregatedView = ({
   actions,
 }) => {
   const { showModal } = useModalsApi()
-
-  const [selectedVmTemplateIds, allVmTemplateIds] = useMemo(() => {
-    const map = Object.fromEntries(
-      []
-        .concat(selectedTemplates)
-        .map((t) => [
-          t.ID,
-          (t?.TEMPLATE?.BODY?.roles ?? [])
-            .map((r) => r?.template_id)
-            .filter(Boolean),
-        ])
-    )
-
-    return [map, [...new Set(Object.values(map).flat())]]
-  }, [selectedTemplates])
-
-  const { data: vmTemplates } = oneApi.endpoints.getTemplates.useQueryState(
-    undefined,
-    {
-      selectFromResult: ({ data }) => ({
-        data: [].concat(data).filter((t) => allVmTemplateIds.includes(+t?.ID)),
-      }),
-    }
-  )
-
-  const serviceTemplateMetrics = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(selectedVmTemplateIds).map(([serviceId, vmIds]) => [
-          serviceId,
-          aggregateMetrics(
-            vmTemplates?.filter((t) => vmIds.includes(+t.ID)) ?? [],
-            ['TEMPLATE.VCPU', 'TEMPLATE.MEMORY']
-          ),
-        ])
-      ),
-    [selectedVmTemplateIds, vmTemplates]
-  )
 
   const [refreshTemplate, { isFetching: isRefreshingTemplate }] =
     ServiceTemplateAPI.useLazyGetServiceTemplateQuery()
@@ -158,16 +120,13 @@ export const AggregatedView = ({
 
   const [totalRoles, totalNetworks] = useMemo(
     () =>
-      []
-        .concat(selectedTemplates)
-        .reduce(
-          ([roles, networks], t) => [
-            roles + (t?.TEMPLATE?.BODY?.roles?.length ?? 0),
-            networks +
-              (Object.keys(t?.TEMPLATE?.BODY?.networks ?? {})?.length ?? 0),
-          ],
-          [0, 0]
-        ),
+      selectedTemplates.reduce(
+        ([roles, networks], template) => [
+          roles + getServiceTotalRoles(template),
+          networks + getServiceTotalNetworks(template),
+        ],
+        [0, 0]
+      ),
     [selectedTemplates]
   )
 
@@ -218,7 +177,7 @@ export const AggregatedView = ({
             labels: [
               [totalRoles, T.Roles],
               [totalNetworks, T.Networks],
-            ]?.filter(([value]) => value !== undefined),
+            ],
           },
         ],
         [
@@ -230,7 +189,6 @@ export const AggregatedView = ({
               selected: selectedTemplates,
               handleChangeOwnership,
               handleChangePermission,
-              serviceTemplateMetrics,
               handleSelect,
               handleDeselect,
               isMutating,

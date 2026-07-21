@@ -17,11 +17,7 @@
 import { T, HOST_THRESHOLD } from '@ConstantsModule'
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
-import {
-  getHostState,
-  getAllocatedInfo,
-  getLabelSlotLabels,
-} from '@ModelsModule'
+import { getHostState, getAllocatedInfo, getLabelTags } from '@ModelsModule'
 import {
   Card,
   LabelSlot,
@@ -53,7 +49,7 @@ export const HostCard = forwardRef(
       getAllocatedInfo(host)
     const totalVms = [host?.VMS?.ID ?? []].flat().length || 0
     const runningVms = host?.HOST_SHARE?.RUNNING_VMS ?? 0
-    const labelSlotLabels = getLabelSlotLabels(host?.LABELS)
+    const labelTags = getLabelTags(host?.LABELS)
 
     return (
       <Card
@@ -105,10 +101,11 @@ export const HostCard = forwardRef(
               ],
             },
           ],
-          labelSlotLabels.length > 0 && [
+          labelTags.length > 0 && [
             LabelSlot,
             {
-              labels: labelSlotLabels,
+              tags: labelTags,
+              max: 3,
             },
           ],
         ].filter(Boolean)}

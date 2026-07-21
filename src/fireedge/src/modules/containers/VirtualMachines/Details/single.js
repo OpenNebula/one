@@ -21,22 +21,13 @@ import {
   TabSlot,
   ToggleGroup,
   ButtonGroup,
-  Button,
   MenuButton,
-  SkeletonLoading,
   StatusTag,
   TagList,
-  Tooltip,
   AlertNotification,
   getLabelMenuButtonProps,
 } from '@ComponentsV2Module'
-import {
-  useModalsApi,
-  VmAPI,
-  ClusterAPI,
-  ImageAPI,
-  useGeneral,
-} from '@FeaturesModule'
+import { useModalsApi, VmAPI, ImageAPI, useGeneral } from '@FeaturesModule'
 import { useClipboard } from '@HooksModule'
 import { Component, useMemo } from 'react'
 import {
@@ -44,6 +35,8 @@ import {
   RESOURCE_NAMES,
   T,
   UNITS,
+  STATIC_FILES_URL,
+  DEFAULT_TEMPLATE_LOGO,
   VM_ACTION_ENUM,
 } from '@ConstantsModule'
 import { useHistory } from 'react-router-dom'
@@ -55,7 +48,6 @@ import {
   RefreshDouble,
   Cancel,
   Trash,
-  Play,
   Cart,
   SaveFloppyDisk,
   Check as CopiedIcon,
@@ -63,6 +55,7 @@ import {
 } from 'iconoir-react'
 import {
   getBackupList,
+  getDiskSize,
   getIpAddresses,
   getVirtualMachineState,
   getVmHostname,
@@ -70,8 +63,9 @@ import {
   getLabelTags,
 } from '@ModelsModule'
 
-import { prettyBytes, jsonToXml } from '@UtilsModule'
+import { cloneObject, jsonToXml, prettyBytes, set } from '@UtilsModule'
 import { VirtualMachine } from '@ResourcesModule'
+import { getIpSummaryStyles } from '@modules/containers/VirtualMachines/Details/styles'
 
 const VmErrorAlert = ({ message, isDismissible, onDismiss }) => (
   <AlertNotification
@@ -109,7 +103,7 @@ export const SingleView = ({
   const history = useHistory()
   const vmId = selectedVm?.ID
   const hostName = getVmHostname(selectedVm)
-  const { palette, scale } = useTheme()
+  const { palette } = useTheme()
   const { showModal } = useModalsApi()
   const {
     data: extendedVmData,
@@ -123,12 +117,17 @@ export const SingleView = ({
     }
   )
   const vmData = extendedVmData ?? selectedVm
+  const isCurrentVmData = extendedVmData?.ID === vmId
+  const vmLogo =
+    (isCurrentVmData &&
+      (extendedVmData?.USER_TEMPLATE?.LOGO ||
+        extendedVmData?.USER_TEMPLATE?.USER_TEMPLATE?.LOGO ||
+        extendedVmData?.TEMPLATE?.LOGO)) ||
+    DEFAULT_TEMPLATE_LOGO
   const vmState = getVirtualMachineState(vmData)
   const vmIps = getIpAddresses(vmData)
   const vmLabelTags = useMemo(() => getLabelTags(vmData?.LABELS), [vmData])
   const clusterId = getVmClusterId(vmData)
-  const clusterIdNumber = Number(clusterId)
-  const hasClusterId = Number.isInteger(clusterIdNumber) && clusterIdNumber >= 0
   const vmBackupIds = useMemo(() => getBackupList(vmData), [vmData])
   const {
     data: backupPool = [],
@@ -216,28 +215,14 @@ export const SingleView = ({
   )
 
   const {
-    [VM_ACTION_ENUM.RESUME]: resumeAction,
     [VM_ACTION_ENUM.RENAME]: renameAction,
     [VM_ACTION_ENUM.UPDATE_USER_TEMPLATE]: updateUserTemplateAction,
     [VM_ACTION_ENUM.CHANGE_MODE]: changePermissionsAction,
     [VM_ACTION_ENUM.CHANGE_OWNER]: changeOwnerAction,
   } = actions
 
-  const { data: clusterName } = ClusterAPI.useGetClusterQuery(
-    { id: clusterId, extended: true },
-    {
-      skip: !vmId || !hasClusterId,
-      refetchOnMountOrArgChange: true,
-      selectFromResult: ({ data }) => ({ data: data?.NAME ?? '-' }),
-    }
-  )
-
   const handleRename = async (newName) => {
     await renameAction?.mutate({ name: newName })
-  }
-
-  const handleResume = async () => {
-    await resumeAction?.mutate()
   }
 
   const handleCreateApp = () => {
@@ -272,6 +257,21 @@ export const SingleView = ({
         ?.filter((_, idx) => index !== idx)
         ?.map(({ key, value }) => [key, value])
     )
+
+    await updateUserTemplateAction.mutate({
+      replace: 0,
+      template: jsonToXml(newAttributes),
+    })
+  }
+
+  const handleEditAttribute = async ({ path, value }) => {
+    if (!path) return
+
+    const newAttributes = cloneObject(
+      extendedVmData?.USER_TEMPLATE ?? selectedVm?.USER_TEMPLATE ?? {}
+    )
+
+    set(newAttributes, path, value)
 
     await updateUserTemplateAction.mutate({
       replace: 0,
@@ -332,6 +332,7 @@ export const SingleView = ({
             isTitleEditable: true,
             onTitleChange: handleRename,
             isTitleEditDisabled: isPerformingAction,
+            icon: `${STATIC_FILES_URL}/${vmLogo}`,
             title: selectedVm?.NAME,
             id: vmId,
             labels: [
@@ -348,32 +349,11 @@ export const SingleView = ({
                   gap: `${theme.scale[500]}px`,
                 })}
               >
-                <SkeletonLoading
-                  loading={isLoadingExtended}
-                  width={112}
-                  height={scale[700]}
-                  borderRadius="xlg"
-                >
-                  {vmState?.name === 'RUNNING' ? (
-                    <MenuButton
-                      placeholder={T.Console}
-                      options={[consoleOptions]}
-                      compactable
-                    />
-                  ) : (
-                    <Tooltip title={T.Resume}>
-                      <span>
-                        <Button
-                          startIcon={<Play />}
-                          title={T.Resume}
-                          onClick={handleResume}
-                          isDisabled={isActionsDisabled}
-                          compactable
-                        />
-                      </span>
-                    </Tooltip>
-                  )}
-                </SkeletonLoading>
+                <MenuButton
+                  placeholder={T.Console}
+                  options={[consoleOptions]}
+                  compactable
+                />
 
                 <MenuButton
                   placeholder={T.VMActions}
@@ -381,7 +361,11 @@ export const SingleView = ({
                   compactable
                 />
 
-                <MenuButton placeholder={T.VMState} options={[stateOptions]} />
+                <MenuButton
+                  placeholder={T.VMState}
+                  options={[stateOptions]}
+                  compactable
+                />
 
                 <ButtonGroup
                   selected={[vmIsLocked ? 'lock' : 'unlock']}
@@ -494,22 +478,6 @@ export const SingleView = ({
                 />,
                 T.State,
               ],
-              [
-                vmIps.length ? (
-                  <TagList
-                    key="ips"
-                    max={1}
-                    tags={vmIps.map((ip) => ({
-                      title: ip,
-                      endIcon: isCopied(ip) ? <CopiedIcon /> : <CopyIcon />,
-                      onClick: () => copy(ip),
-                    }))}
-                  />
-                ) : (
-                  '-'
-                ),
-                T.ip,
-              ],
               [hostName ?? T.Unknown, T.Hostname],
               [
                 `${selectedVm?.TEMPLATE?.CPU || '-'}/${
@@ -524,13 +492,25 @@ export const SingleView = ({
               ],
 
               [
-                prettyBytes(
-                  []
-                    .concat(selectedVm?.TEMPLATE?.DISK)
-                    ?.reduce((acc, { SIZE = 0 } = {}) => acc + SIZE, 0),
-                  UNITS.MB
-                ),
+                prettyBytes(getDiskSize(selectedVm), UNITS.MB),
                 `${T.Disk} ${T.Total}`,
+              ],
+              [
+                vmIps.length ? (
+                  <Box key="ips" sx={getIpSummaryStyles}>
+                    <TagList
+                      max={1}
+                      tags={vmIps.map((ip) => ({
+                        title: ip,
+                        endIcon: isCopied(ip) ? <CopiedIcon /> : <CopyIcon />,
+                        onClick: () => copy(ip),
+                      }))}
+                    />
+                  </Box>
+                ) : (
+                  '-'
+                ),
+                T.ip,
               ],
             ]?.filter(([value]) => value != null),
           },
@@ -556,7 +536,7 @@ export const SingleView = ({
             tabProps: {
               selectedVm,
               extendedVmData,
-              clusterName,
+              clusterId,
               attributes,
               backups,
               isFetchingBackups,
@@ -564,6 +544,7 @@ export const SingleView = ({
               handleChangeOwnership,
               handleChangePermission,
               handleDeleteAttribute,
+              handleEditAttribute,
               handleAddAttribute,
               vmIsLocked,
               isActionsDisabled,
