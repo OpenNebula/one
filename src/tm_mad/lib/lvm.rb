@@ -81,23 +81,20 @@ module TransferManager
                     @vgname = "vg-one-#{vgds_id}"
                     @is_thin = true
                     if is_persistent
-                        @lvname = "img-one-#{imageid}"
+                        @lvname   = "img-one-#{imageid}"
                         @poolname = "img-one-#{imageid}-pool"
                     else
-                        @lvname = "vm-one-#{@vmid}-#{@id}"
+                        @lvname   = "vm-one-#{@vmid}-#{@id}"
                         @poolname = "vm-one-#{@vmid}-pool"
                     end
                 else
-                    @vgname = "vg-one-#{sysds_id}"
-                    @is_thin = disk_xml.elements['LVM_THIN_ENABLE']&.text&.downcase == 'yes'
-                    @lvname = "lv-one-#{@vmid}-#{@id}"
-                    if @is_thin
-                        @poolname = "lv-one-#{@vmid}-pool"
-                    end
+                    @vgname   = "vg-one-#{sysds_id}"
+                    @is_thin  = disk_xml.elements['LVM_THIN_ENABLE']&.text&.downcase == 'yes'
+                    @lvname   = "lv-one-#{@vmid}-#{@id}"
+                    @poolname = "lv-one-#{@vmid}-pool" if @is_thin
                 end
-                if @is_thin
-                    @pool = MAD::ThinPool.new(@vgname, @poolname)
-                end
+
+                @pool = MAD::ThinPool.new(@vgname, @poolname) if @is_thin
 
                 bc   = @vm.elements['BACKUPS/BACKUP_CONFIG']
                 mode = bc.elements['MODE']&.text if bc

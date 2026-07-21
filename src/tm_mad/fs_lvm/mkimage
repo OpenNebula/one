@@ -66,14 +66,17 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID | $XPATH  \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/FS)
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/FS \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/LVM_THIN_ENABLE)
 
 FS="${XPATH_ELEMENTS[j++]}"
+LVM_THIN_ENABLE="${XPATH_ELEMENTS[j++],,}"
 
 #-------------------------------------------------------------------------------
 # Create the logical volume and link it
 #-------------------------------------------------------------------------------
 
+POOL_NAME="lv-one-$VM_ID-pool"
 LV_NAME="lv-one-$VM_ID-$DISK_ID"
 VG_NAME="vg-one-$DS_SYS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
@@ -88,7 +91,24 @@ CREATE_CMD=$(cat <<EOF
     set -e -o pipefail
     $SYNC
     $SUDO $LVSCAN
-    $SUDO $LVCREATE --wipesignatures n -L${SIZE}M -n $LV_NAME $VG_NAME
+    if [ "$LVM_THIN_ENABLE" = 'yes' ]; then
+        # If pool exists, extend it for the new disk. Otherwise, create it.
+        if [ -n "\$($SUDO $LVS --noheading -S "vg_name = $VG_NAME && lv_name = $POOL_NAME")" ]; then
+            $SUDO $LVEXTEND -L +${SIZE}M $VG_NAME/$POOL_NAME
+        else
+            # -ky is to enable activation skip, preventing possible data corruption for
+            # example in HA situations
+            # -Zy is for auto-zeroing thin volumes. It already defaults to 'y' but just in case...
+            $SUDO $LVCREATE -ky -Zy -L ${SIZE}M --type thin-pool --thinpool $POOL_NAME $VG_NAME
+            $SUDO $LVCHANGE -an $VG_NAME/$POOL_NAME
+            $SYNC
+        fi
+        $SUDO $LVCREATE -ky --thin $VG_NAME/$POOL_NAME -V ${SIZE}M -n $LV_NAME
+        $SUDO $LVCHANGE -ay -K $VG_NAME/$LV_NAME
+    else
+        $SUDO $LVCREATE --wipesignatures n -L${SIZE}M -n $LV_NAME $VG_NAME
+    fi
+    $SYNC
 EOF
 )
 
@@ -105,7 +125,7 @@ MKIMAGE_CMD=$(cat <<EOF
     hostname -f >"${DST_DIR}/.host" || :
 
     # zero the volume
-    if [ "${ZERO_LVM_ON_CREATE}" = "yes" ]; then
+    if [ "${ZERO_LVM_ON_CREATE}" = "yes" ] && [ "$LVM_THIN_ENABLE" != 'yes' ]; then
         ${DD} if=/dev/zero of="${DEV}" bs=${DD_BLOCK_SIZE:-64k} 2> /dev/null || :
     fi
 
