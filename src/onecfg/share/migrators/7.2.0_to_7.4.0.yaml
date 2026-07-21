@@ -2083,6 +2083,11 @@ patches:
             value: true
             state: ins
             extra: {}
+        -   path: *1
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the IMAGE tab
@@ -2100,6 +2105,7 @@ patches:
               delete: true
               lock: true
               unlock: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2140,34 +2146,51 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
         content: "---\n# This file describes the information and actions available in the Backup Jobs tab\n\n# Resource\n\nresource_name:
             \"BACKUPJOBS\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog:
             true\n  update_dialog: true\n  delete: true\n  chown: true\n  chgrp: true\n  lock: true\n  unlock: true\n  start:
-            true\n  cancel: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n\n# Info Tabs - Which
-            info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
-            \     enabled: true\n      actions:\n        rename: true\n        priority: true\n    permissions_panel:\n      enabled:
-            true\n      actions:\n        chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n        chown:
-            true\n        chgrp: true\n    attributes_panel:\n      enabled: true\n      actions:\n        copy: true\n        add:
-            true\n        edit: true\n        delete: true\n\n  vms:\n    enabled: true\n  sched_actions:\n    enabled: true\n
-            \   actions:\n      sched_action_create: true\n      sched_action_update: true\n      sched_action_delete: true\n
-            \ \n\n# Dialogs\ndialogs:\n  create_dialog:\n    general: true\n    vms: true\n    datastores: true\n    sched_actions:
-            true"
+            true\n  cancel: true\n  edit_labels: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n\n#
+            Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n
+            \   information_panel:\n      enabled: true\n      actions:\n        rename: true\n        priority: true\n    permissions_panel:\n
+            \     enabled: true\n      actions:\n        chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n
+            \       chown: true\n        chgrp: true\n    attributes_panel:\n      enabled: true\n      actions:\n        copy:
+            true\n        add: true\n        edit: true\n        delete: true\n\n  vms:\n    enabled: true\n  sched_actions:\n
+            \   enabled: true\n    actions:\n      sched_action_create: true\n      sched_action_update: true\n      sched_action_delete:
+            true\n  \n\n# Dialogs\ndialogs:\n  create_dialog:\n    general: true\n    vms: true\n    datastores: true\n    sched_actions:
+            true\n"
     "/etc/one/fireedge/sunstone/views/admin/cluster-tab.yaml":
         class: Yaml
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
         content: "---\n# This file describes the information and actions available in the CLUSTER tab\n\n# Resource\n\nresource_name:
             \"CLUSTER\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog:
             true\n  create_cloud_dialog: true\n  create_cloud_dialog_logs: true\n  update_dialog: true\n  deprovision: true\n
-            \ retry: true\n  delete: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n\n# Info Tabs
-            - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
-            \     enabled: true\n      actions:\n        rename: true\n    overcommitment:\n      enabled: true\n      actions:\n
-            \       update_cpu: true\n        update_memory: true\n    attributes_panel:\n      enabled: true\n      actions:\n
-            \       copy: true\n        add: true\n        edit: true\n        delete: true\n\n  host:\n    enabled: true\n
-            \   provision:\n      actions:\n        add: true\n        delete: true\n  vnet:\n    enabled: true\n    provision:\n
-            \     actions:\n        add: true\n        delete: true\n        delete_ar: true\n        \n  datastore:\n    enabled:
-            true\n  drs:\n    enabled: true\n  events:\n    enabled: true  \n  logs:\n    enabled: true  \n"
+            \ retry: true\n  delete: true\n  edit_labels: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n\n#
+            Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n
+            \   information_panel:\n      enabled: true\n      actions:\n        rename: true\n    overcommitment:\n      enabled:
+            true\n      actions:\n        update_cpu: true\n        update_memory: true\n    attributes_panel:\n      enabled:
+            true\n      actions:\n        copy: true\n        add: true\n        edit: true\n        delete: true\n\n  host:\n
+            \   enabled: true\n    provision:\n      actions:\n        add: true\n        delete: true\n  vnet:\n    enabled:
+            true\n    provision:\n      actions:\n        add: true\n        delete: true\n        delete_ar: true\n        \n
+            \ datastore:\n    enabled: true\n  drs:\n    enabled: true\n  events:\n    enabled: true  \n  logs:\n    enabled:
+            true  \n"
     "/etc/one/fireedge/sunstone/views/admin/datastore-tab.yaml":
         class: Yaml
         owner: root
@@ -2235,7 +2258,15 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        content: |-
+        action: apply
+        change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
+        content: |
             ---
             # This file describes the information and actions available in the DRIVER tab
 
@@ -2249,6 +2280,7 @@ patches:
               enable: true
               disable: true
               sync: true
+              edit_labels: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -2281,7 +2313,12 @@ patches:
             value: true
             state: ins
             extra: {}
-        content: |-
+        -   path: *2
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
+        content: |
             ---
             # This file describes the information and actions available in the FILE tab
 
@@ -2301,6 +2338,7 @@ patches:
               chown: true
               chgrp: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2424,6 +2462,12 @@ patches:
         action: apply
         change:
         -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
+        -   path:
             - info-tabs
             - info
             key: nsx_panel
@@ -2454,6 +2498,7 @@ patches:
               offline: true
               flush: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2511,7 +2556,15 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        content: |-
+        action: apply
+        change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
+        content: |
             ---
             # This file describes the information and actions available in the IMAGE tab
 
@@ -2534,6 +2587,7 @@ patches:
               chown: true
               chgrp: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2649,6 +2703,14 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the MARKETPLACE tab
@@ -2667,6 +2729,7 @@ patches:
               delete: true
               disable: true
               enable: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2705,7 +2768,15 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        content: |-
+        action: apply
+        change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
+        content: |
             ---
             # This file describes the information and actions available in the PROVIDER tab
 
@@ -2721,6 +2792,7 @@ patches:
               delete: true
               chown: true
               chgrp: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2759,6 +2831,14 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the SECURITY GROUP tab
@@ -2777,6 +2857,7 @@ patches:
               chown: true
               chgrp: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2878,6 +2959,19 @@ patches:
             old: true
             state: rm
             extra: {}
+        -   path: &4
+            - info-tabs
+            key: networks
+            value:
+                enabled: true
+            state: ins
+            extra: {}
+        -   path: *4
+            key: template
+            value:
+                enabled: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the Service tab
@@ -2952,6 +3046,9 @@ patches:
                   disk-snapshot-revert: true
                   disk-snapshot-delete: true
 
+              networks:
+                enabled: true
+
               log:
                 enabled: true
 
@@ -2962,6 +3059,9 @@ patches:
                   sched-update: true
                   sched-delete: true
 
+              template:
+                enabled: true
+
             # Dialogs
 
             dialogs:
@@ -2971,6 +3071,15 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - info-tabs
+            key: networks
+            value:
+                enabled: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the Service Template tab
@@ -3026,6 +3135,9 @@ patches:
               roles:
                 enabled: true
 
+              networks:
+                enabled: true
+
               template:
                 enabled: true
 
@@ -3039,6 +3151,14 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
         content: |
             # -------------------------------------------------------------------------- #
             # Copyright 2002-2026, OpenNebula Project, OpenNebula Systems                #
@@ -3068,6 +3188,7 @@ patches:
             actions:
               create_dialog: true
               logout: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -3184,7 +3305,13 @@ patches:
         mode: '0640'
         action: apply
         change:
-        -   path: &4
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
+        -   path: &5
             - info-tabs
             - info
             - ownership_panel
@@ -3193,20 +3320,20 @@ patches:
             old: true
             state: rm
             extra: {}
-        -   path: *4
+        -   path: *5
             key: chgrp
             value: true
             state: ins
             extra: {}
         content: "---\n# This file describe the information add actions available in the VM GROUP TEMPLATES tab\n\n# Resource\n\nresource_name:
             \"VM-GROUP\"\n\n# Actions - Which buttons are visible to operate over the resource\n\nactions: \n  create_dialog:
-            true\n  update_dialog: true\n  enable: true\n  disable: true\n  chgrp: true\n  chown: true\n  delete: true\n\n#
-            Filters -  List of criteria to filter the resource\n\nfilters: \n  state: true\n\n\n\n# Info Tabs - Which info
-            tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
+            true\n  update_dialog: true\n  enable: true\n  disable: true\n  chgrp: true\n  chown: true\n  delete: true\n  edit_labels:
+            true\n\n# Filters -  List of criteria to filter the resource\n\nfilters: \n  state: true\n\n\n\n# Info Tabs -
+            Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
             \     enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n      enabled: true\n      actions:\n
             \       chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n        chown: true\n        chgrp:
             true\n    roles_panel:\n      enabled: true\n    roles-affinity_panel:\n      enabled: true\n  vms:\n    enabled:
-            true\n\n"
+            true\n"
     "/etc/one/fireedge/sunstone/views/admin/vm-tab.yaml":
         class: Yaml
         owner: root
@@ -3214,7 +3341,7 @@ patches:
         mode: '0640'
         action: apply
         change:
-        -   path: &5
+        -   path: &6
             - info-tabs
             - storage
             - actions
@@ -3233,12 +3360,12 @@ patches:
                 enabled: true
             state: set
             extra: {}
-        -   path: *5
+        -   path: *6
             key: disk-attach-image
             value: true
             state: ins
             extra: {}
-        -   path: *5
+        -   path: *6
             key: disk-attach-volatile
             value: true
             state: ins
@@ -3532,6 +3659,12 @@ patches:
         mode: '0640'
         action: apply
         change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
         -   path: []
             key: create-tabs
             value:
@@ -3567,6 +3700,7 @@ patches:
               lock: true
               unlock: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -3646,6 +3780,12 @@ patches:
         mode: '0640'
         action: apply
         change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
         -   path: []
             key: instantiate-tabs
             value:
@@ -3678,6 +3818,7 @@ patches:
               chgrp: true
               lock: true
               unlock: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -3743,9 +3884,15 @@ patches:
         mode: '0640'
         action: apply
         change:
-        -   path:
+        -   path: &7
             - info-tabs
             key: nics
+            value:
+                enabled: true
+            state: ins
+            extra: {}
+        -   path: *7
+            key: template
             value:
                 enabled: true
             state: ins
@@ -3806,6 +3953,9 @@ patches:
               vms:
                 enabled: true
               nics:
+                enabled: true
+
+              template:
                 enabled: true
 
 
@@ -3888,6 +4038,14 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - actions
+            key: edit_labels
+            value: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the USER tab
@@ -3901,6 +4059,7 @@ patches:
             actions:
               create_dialog: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -3931,14 +4090,14 @@ patches:
         mode: '0640'
         action: apply
         change:
-        -   path: &6 []
+        -   path: &8 []
             key: actions
             old:
                 settings: true
                 instantiate: true
             state: rm
             extra: {}
-        -   path: *6
+        -   path: *8
             key: graphs
             old:
                 cpu: true
@@ -3949,7 +4108,7 @@ patches:
                 host-memory: true
             state: rm
             extra: {}
-        -   path: *6
+        -   path: *8
             key: cards
             value:
             -   id: virtual-machines
@@ -4110,7 +4269,7 @@ patches:
             old: false
             state: set
             extra: {}
-        -   path: &7
+        -   path: &9
             - info-tabs
             - sched_actions
             - actions
@@ -4118,10 +4277,23 @@ patches:
             old: true
             state: rm
             extra: {}
-        -   path: *7
+        -   path: *9
             key: perform_action
             old: true
             state: rm
+            extra: {}
+        -   path: &10
+            - info-tabs
+            key: networks
+            value:
+                enabled: true
+            state: ins
+            extra: {}
+        -   path: *10
+            key: template
+            value:
+                enabled: true
+            state: ins
             extra: {}
         content: |
             ---
@@ -4198,6 +4370,9 @@ patches:
                   disk-snapshot-revert: true
                   disk-snapshot-delete: true
 
+              networks:
+                enabled: true
+
               log:
                 enabled: true
 
@@ -4207,6 +4382,9 @@ patches:
                   sched-add: true
                   sched-update: true
                   sched-delete: true
+
+              template:
+                enabled: true
 
             # Dialogs
 
@@ -4807,6 +4985,12 @@ patches:
         action: apply
         change:
         -   path:
+            - actions
+            key: edit_labels
+            old: true
+            state: rm
+            extra: {}
+        -   path:
             - info-tabs
             - roles
             key: actions
@@ -4852,7 +5036,7 @@ patches:
             old: false
             state: set
             extra: {}
-        -   path: &8
+        -   path: &11
             - info-tabs
             - sched_actions
             - actions
@@ -4860,10 +5044,23 @@ patches:
             old: true
             state: rm
             extra: {}
-        -   path: *8
+        -   path: *11
             key: perform_action
             old: true
             state: rm
+            extra: {}
+        -   path: &12
+            - info-tabs
+            key: networks
+            value:
+                enabled: true
+            state: ins
+            extra: {}
+        -   path: *12
+            key: template
+            value:
+                enabled: true
+            state: ins
             extra: {}
         content: |
             ---
@@ -4885,7 +5082,6 @@ patches:
               chgrp: true
               share: true
               unshare: true
-              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -4940,6 +5136,9 @@ patches:
                   disk-snapshot-revert: true
                   disk-snapshot-delete: true
 
+              networks:
+                enabled: true
+
               log:
                 enabled: true
 
@@ -4950,6 +5149,9 @@ patches:
                   sched-update: true
                   sched-delete: true
 
+              template:
+                enabled: true
+
             # Dialogs
 
             dialogs:
@@ -4959,6 +5161,15 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - info-tabs
+            key: networks
+            value:
+                enabled: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the Service Template tab
@@ -5012,6 +5223,9 @@ patches:
                     chgrp: false
 
               roles:
+                enabled: true
+
+              networks:
                 enabled: true
 
               template:
@@ -5414,8 +5628,20 @@ patches:
         action: apply
         change:
         -   path:
+            - actions
+            key: edit_labels
+            old: true
+            state: rm
+            extra: {}
+        -   path: &13
             - info-tabs
             key: nics
+            value:
+                enabled: true
+            state: ins
+            extra: {}
+        -   path: *13
+            key: template
             value:
                 enabled: true
             state: ins
@@ -5438,7 +5664,6 @@ patches:
               chgrp: true
               lock: true
               unlock: true
-              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -5476,6 +5701,9 @@ patches:
               vms:
                 enabled: true
               nics:
+                enabled: true
+
+              template:
                 enabled: true
 
 
@@ -5910,7 +6138,7 @@ patches:
             old: false
             state: set
             extra: {}
-        -   path: &9
+        -   path: &14
             - info-tabs
             - sched_actions
             - actions
@@ -5918,10 +6146,23 @@ patches:
             old: true
             state: rm
             extra: {}
-        -   path: *9
+        -   path: *14
             key: perform_action
             old: true
             state: rm
+            extra: {}
+        -   path: &15
+            - info-tabs
+            key: networks
+            value:
+                enabled: true
+            state: ins
+            extra: {}
+        -   path: *15
+            key: template
+            value:
+                enabled: true
+            state: ins
             extra: {}
         content: |
             ---
@@ -5998,6 +6239,9 @@ patches:
                   disk-snapshot-revert: true
                   disk-snapshot-delete: true
 
+              networks:
+                enabled: true
+
               log:
                 enabled: true
 
@@ -6007,6 +6251,9 @@ patches:
                   sched-add: true
                   sched-update: true
                   sched-delete: true
+
+              template:
+                enabled: true
 
             # Dialogs
 
@@ -6025,7 +6272,7 @@ patches:
             value: true
             state: ins
             extra: {}
-        -   path: &10
+        -   path: &16
             - info-tabs
             - storage
             - actions
@@ -6044,12 +6291,12 @@ patches:
                 enabled: true
             state: set
             extra: {}
-        -   path: *10
+        -   path: *16
             key: disk-attach-image
             value: true
             state: ins
             extra: {}
-        -   path: *10
+        -   path: *16
             key: disk-attach-volatile
             value: true
             state: ins
@@ -6318,28 +6565,28 @@ patches:
         mode: '0640'
         action: apply
         change:
-        -   path: &11 []
+        -   path: &17 []
             key: ComponentsModule
             old:
                 name: ComponentsModule
                 entry: __HOST__/fireedge/modules/ComponentsModule/remoteEntry.js
             state: rm
             extra: {}
-        -   path: *11
+        -   path: *17
             key: ResourcesModule
             value:
                 name: ResourcesModule
                 entry: __HOST__/fireedge/modules/ResourcesModule/remoteEntry.js
             state: ins
             extra: {}
-        -   path: *11
+        -   path: *17
             key: ComponentsV2Module
             value:
                 name: ComponentsV2Module
                 entry: __HOST__/fireedge/modules/ComponentsV2Module/remoteEntry.js
             state: ins
             extra: {}
-        -   path: *11
+        -   path: *17
             key: StylesModule
             value:
                 name: StylesModule
@@ -6384,7 +6631,7 @@ patches:
         mode: '0640'
         action: apply
         change:
-        -   path: &12 []
+        -   path: &18 []
             key:
             old:
                 title: Instances
@@ -6422,7 +6669,7 @@ patches:
                     Component: ServiceDetail
             state: rm
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             old:
                 title: Templates
@@ -6483,7 +6730,7 @@ patches:
                     Component: VmGroups
             state: rm
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             old:
                 title: Storage
@@ -6559,7 +6806,7 @@ patches:
                     Component: BackupJobDetail
             state: rm
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             old:
                 title: Networks
@@ -6600,7 +6847,7 @@ patches:
                     Component: CreateSecurityGroup
             state: rm
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             old:
                 title: Infrastructure
@@ -6654,7 +6901,7 @@ patches:
                     Component: Zones
             state: rm
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             old:
                 title: System
@@ -6703,7 +6950,7 @@ patches:
                     Component: ACLs
             state: rm
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             value:
                 title: Instances
@@ -6741,7 +6988,7 @@ patches:
                     Component: ServiceDetail
             state: ins
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             value:
                 title: Templates
@@ -6805,7 +7052,7 @@ patches:
                     Component: VmGroups
             state: ins
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             value:
                 title: Storage
@@ -6884,7 +7131,7 @@ patches:
                     Component: BackupJobDetail
             state: ins
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             value:
                 title: Networks
@@ -6925,7 +7172,7 @@ patches:
                     Component: CreateSecurityGroup
             state: ins
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             value:
                 title: Infrastructure
@@ -6979,7 +7226,7 @@ patches:
                     Component: Zones
             state: ins
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             value:
                 title: System
@@ -7028,7 +7275,7 @@ patches:
                     Component: ACLs
             state: ins
             extra: {}
-        -   path: *12
+        -   path: *18
             key:
             value:
                 title: Create Ticket
@@ -9213,17 +9460,17 @@ patches:
         mode: '0640'
         action: apply
         change:
-        -   path: &13 []
+        -   path: &19 []
             key: :host
             old: 127.0.0.1
             state: rm
             extra: {}
-        -   path: *13
+        -   path: *19
             key: :port
             old: 5030
             state: rm
             extra: {}
-        -   path: *13
+        -   path: *19
             key: :server
             value:
                 :bind: 127.0.0.1
