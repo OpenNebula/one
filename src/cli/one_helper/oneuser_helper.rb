@@ -17,6 +17,7 @@
 require 'one_helper'
 require 'one_helper/onequota_helper'
 require 'opennebula/user'
+require 'opennebula/group'
 require 'opennebula/user_pool'
 
 require 'fileutils'
