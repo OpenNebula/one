@@ -128,6 +128,10 @@ leader)
             sudo -n systemctl start opennebula-gate
         fi
 
+        if systemctl is-enabled opennebula-form >/dev/null 2>&1; then
+            sudo -n systemctl start opennebula-form
+        fi
+
         # opennebula.service wants opennebula-hem.service
         if is_systemd_unit_startable opennebula-hem ; then
             # this is implicit dependency of the opennebula.service...
@@ -146,6 +150,10 @@ leader)
 
         if [ -e /usr/lib/one/onegate/onegate-server.rb ]; then
             sudo -n service opennebula-gate start
+        fi
+
+        if [ -e /usr/lib/one/oneform/oneform-server.rb ]; then
+            sudo -n service opennebula-form start
         fi
 
         if [ -e /usr/lib/one/onehem/onehem-server.rb ]; then
@@ -169,6 +177,12 @@ follower)
             sudo -n systemctl stop opennebula-gate
         fi
 
+        if systemctl is-enabled opennebula-form >/dev/null 2>&1 ||
+           systemctl is-active  opennebula-form >/dev/null 2>&1;
+        then
+            sudo -n systemctl stop opennebula-form
+        fi
+
         if systemctl is-enabled opennebula-hem >/dev/null 2>&1 ||
            systemctl is-active  opennebula-hem >/dev/null 2>&1;
         then
@@ -187,6 +201,10 @@ follower)
 
         if [ -e /usr/lib/one/onegate/onegate-server.rb ]; then
             sudo -n service opennebula-gate stop
+        fi
+
+        if [ -e /usr/lib/one/oneform/oneform-server.rb ]; then
+            sudo -n service opennebula-form stop
         fi
 
         if [ -e /usr/lib/one/onehem/onehem-server.rb ]; then
