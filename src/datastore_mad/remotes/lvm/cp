@@ -1,0 +1,82 @@
+#!/usr/bin/ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+require 'load_opennebula_paths'
+# %%RUBYGEMS_SETUP_END%%
+
+###############################################################################
+# This script is used to copy a VM image (SRC) to the image repository as DST
+# Several SRC types are supported
+###############################################################################
+#
+# ARGUMENTS: img_id
+# STDIN: Base64-encoded image + image datastore dump. Format:
+#     <DS_DRIVER_ACTION_DATA>
+#         <DATASTORE>...</DATASTORE>
+#         <IMAGE>...</IMAGE>
+#     </DS_DRIVER_ACTION_DATA>
+# RETURNS: "<IMAGE_SOURCE> raw"
+#
+###############################################################################
+
+require 'base64'
+require 'securerandom'
+require 'rexml/document'
+
+require_relative '../lvm'
+
+_arg_img_id = ARGV[0]
+
+daction64 = STDIN.read
+daction = Base64.decode64(daction64)
+delm = REXML::Document.new(daction).root
+
+lvmds = MAD::LVMDatastore.new(delm.elements['DATASTORE'])
+lvmimg = MAD::LVMImage.new(delm.elements['IMAGE'], lvmds)
+
+# Create and leave it active
+lvmimg.create(true)
+
+begin
+    tmppath = "/var/tmp/one_img#{lvmimg.id}.#{SecureRandom.hex(4)}"
+
+    downloader = "DRV_ACTION='#{daction64}' #{__dir__}/../downloader.sh --nodecomp '#{lvmimg.path}'"
+    download_cmd =
+        if lvmds.bridge
+            "#{downloader} - | ssh '#{lvmds.bridge}' dd of='#{tmppath}'"
+        else
+            "#{downloader} '#{tmppath}'"
+        end
+    MAD.run(nil, download_cmd, 'Error downloading image')
+
+    # Copy directly to device, or while converting it to raw if it's a qcow2
+    lvmds.run_bridge(<<~EOF, 'Error converting from qcow2 image')
+        trap "rm '#{tmppath}'" EXIT
+        if [ "$(qemu-img info '#{tmppath}' | awk '/^file format:/{printf $3}' || true)" = 'qcow2' ]; then
+                qemu-img convert -O raw '#{tmppath}' '#{lvmimg.lv.dev}'
+        else
+                dd if='#{tmppath}' of='#{lvmimg.lv.dev}' bs=64k conv=sparse
+        fi
+    EOF
+ensure
+    # In any case, deactivate the volume at the end
+    lvmimg.deactivate
+end
+
+puts "#{lvmimg.lv.lvfname} raw"

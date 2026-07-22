@@ -1,0 +1,52 @@
+#!/usr/bin/ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+require 'load_opennebula_paths'
+# %%RUBYGEMS_SETUP_END%%
+
+###############################################################################
+# This script resizes a VM disk.
+###############################################################################
+#
+# ARGUMENTS: host:remote_system_ds/disk.i new_size vm_id img_ds_id
+#   new_size is specified in MB
+# STDIN: -
+# RETURNS: -
+#
+###############################################################################
+
+require_relative '../../datastore/lvm'
+require_relative '../lib/tm_action'
+
+arg_src = ARGV[0]
+arg_newsize = ARGV[1]
+arg_vmid = ARGV[2]
+_arg_img_ds_id = ARGV[3]
+
+src = TransferManager::Action::Location.new(arg_src)
+
+lvmdisk = MAD::LVMVM.get_from_id(arg_vmid).disk(src.disk_id)
+old_size = MAD.run(src.host, MAD::LVMWrapper.lvmsync(
+                                 MAD::LV.get_size_sh(lvmdisk.lv.lvfname)
+                             )).stdout
+extra_size = arg_newsize.to_i - old_size.to_i/1024/1024
+MAD::LVMWrapper.with_lvm_lock(lvmdisk.lv.vgname) do
+    MAD.run(src.host, MAD::LVMWrapper.lvmsync(lvmdisk.lv.extend_sh(extra_size)),
+            "Error resizing disk #{src}")
+end

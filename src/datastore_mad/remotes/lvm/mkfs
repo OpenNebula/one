@@ -1,0 +1,54 @@
+#!/usr/bin/ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+require 'load_opennebula_paths'
+# %%RUBYGEMS_SETUP_END%%
+
+###############################################################################
+# This script is used to create an image of size (SIZE) and formatted as (FS).
+# Both attributes are taken from the IMAGE element in stdin.
+###############################################################################
+#
+# ARGUMENTS: img_id
+# STDIN: Base64-encoded image + image datastore dump. Format:
+#     <DS_DRIVER_ACTION_DATA>
+#         <DATASTORE>...</DATASTORE>
+#         <IMAGE>...</IMAGE>
+#     </DS_DRIVER_ACTION_DATA>
+# RETURNS: "<IMAGE_SOURCE>"
+#
+###############################################################################
+
+require 'base64'
+require 'pathname'
+
+require_relative '../lvm'
+
+_arg_imgid = ARGV[0] # redundant; it's also in STDIN's action
+
+daction64 = STDIN.read
+daction = Base64.decode64 daction64
+delm = REXML::Document.new(daction).root
+
+lvmids = MAD::LVMDatastore.new(delm.elements['DATASTORE'])
+lvmimg = MAD::LVMImage.new(delm.elements['IMAGE'], lvmids)
+
+lvmimg.create
+
+puts lvmimg.lv.lvfname

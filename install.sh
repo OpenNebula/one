@@ -439,6 +439,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/shared \
           $VAR_LOCATION/remotes/tm/fs_lvm \
           $VAR_LOCATION/remotes/tm/fs_lvm_ssh \
+          $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/tm/qcow2 \
           $VAR_LOCATION/remotes/tm/ssh \
           $VAR_LOCATION/remotes/tm/local \
@@ -453,6 +454,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
+          $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/datastore/dev \
           $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
@@ -637,6 +639,7 @@ INSTALL_FILES=(
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
     TM_FS_LVM_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/fs_lvm/fs_lvm.conf
     TM_FS_LVM_SSH_FILES:$VAR_LOCATION/remotes/tm/fs_lvm_ssh
+    TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_LOCAL_FILES:$VAR_LOCATION/remotes/tm/local
@@ -650,6 +653,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     DATASTORE_DRIVER_ETC_FS_SCRIPTS:$VAR_LOCATION/remotes/etc/datastore/fs
+    DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     DATASTORE_DRIVER_ETC_CEPH_SCRIPTS:$VAR_LOCATION/remotes/etc/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
@@ -1411,6 +1415,7 @@ IPAM_DRIVER_DUMMY_SCRIPTS="src/ipamm_mad/remotes/dummy/register_address_range \
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
 #   - SHARED TM, $VAR_LOCATION/tm/shared
 #   - FS_LVM TM, $VAR_LOCATION/tm/fs_lvm
+#   - LVM TM, $VAR_LOCATION/tm/lvm
 #   - QCOW2 TM, $VAR_LOCATION/tm/qcow2
 #   - SSH TM, $VAR_LOCATION/tm/ssh
 #   - DUMMY TM, $VAR_LOCATION/tm/dummy
@@ -1523,6 +1528,31 @@ TM_FS_LVM_SSH_FILES="src/tm_mad/fs_lvm_ssh/activate \
                      src/tm_mad/fs_lvm_ssh/snap_create_live \
                      src/tm_mad/fs_lvm_ssh/snap_delete \
                      src/tm_mad/fs_lvm_ssh/snap_revert"
+
+TM_LVM_FILES="src/tm_mad/lvm/activate \
+              src/tm_mad/lvm/clone \
+              src/tm_mad/lvm/context \
+              src/tm_mad/lvm/ln \
+              src/tm_mad/lvm/monitor \
+              src/tm_mad/lvm/mkswap \
+              src/tm_mad/lvm/mkimage \
+              src/tm_mad/lvm/mv \
+              src/tm_mad/lvm/mvds \
+              src/tm_mad/lvm/cpds \
+              src/tm_mad/lvm/premigrate \
+              src/tm_mad/lvm/postmigrate \
+              src/tm_mad/lvm/snap_create \
+              src/tm_mad/lvm/snap_create_live \
+              src/tm_mad/lvm/snap_delete \
+              src/tm_mad/lvm/snap_revert \
+              src/tm_mad/lvm/failmigrate \
+              src/tm_mad/lvm/delete \
+              src/tm_mad/lvm/resize \
+              src/tm_mad/lvm/restore \
+              src/tm_mad/lvm/prebackup_live \
+              src/tm_mad/lvm/prebackup \
+              src/tm_mad/lvm/postbackup_live \
+              src/tm_mad/lvm/postbackup"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/clone.replica \
@@ -1701,6 +1731,17 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/export"
 
 DATASTORE_DRIVER_ETC_FS_SCRIPTS="src/datastore_mad/remotes/fs/fs.conf"
+
+DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
+                         src/datastore_mad/remotes/lvm/mkfs \
+                         src/datastore_mad/remotes/lvm/stat \
+                         src/datastore_mad/remotes/lvm/rm \
+                         src/datastore_mad/remotes/lvm/monitor \
+                         src/datastore_mad/remotes/lvm/clone \
+                         src/datastore_mad/remotes/lvm/snap_delete \
+                         src/datastore_mad/remotes/lvm/snap_revert \
+                         src/datastore_mad/remotes/lvm/snap_flatten \
+                         src/datastore_mad/remotes/lvm/export"
 
 DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/mkfs \
