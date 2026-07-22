@@ -1,0 +1,36 @@
+NAME    = "<%= group[:router_template_name] %>"
+CONTEXT = [
+  NETWORK                        = "YES",
+  ONEAPP_VNF_DNS_ENABLED         = "YES",
+  ONEAPP_VNF_DNS_NAMESERVERS     = "1.1.1.1,8.8.8.8",
+  ONEAPP_VNF_DNS_USE_ROOTSERVERS = "NO",
+  ONEAPP_VNF_NAT4_ENABLED        = "YES",
+  ONEAPP_VNF_NAT4_INTERFACES_OUT = "eth0",
+  ONEAPP_VNF_ROUTER4_ENABLED     = "YES",
+  SSH_PUBLIC_KEY                 = "$USER[SSH_PUBLIC_KEY]",
+  TOKEN                          = "YES"
+]
+CPU = "1"
+DISK = [
+  IMAGE = "<%= group[:router_image_name] %>"
+]
+GRAPHICS = [
+  LISTEN = "0.0.0.0",
+  TYPE   = "vnc"
+]
+LXD_SECURITY_PRIVILEGED = "true"
+MEMORY = "512"
+NIC_DEFAULT = [
+  MODEL = "virtio"
+]
+SCHED_REQUIREMENTS = "<%= cluster[:deployment][:sched_requirements] %>"
+OS = [
+  ARCH            = "x86_64",
+  FIRMWARE_SECURE = "YES"
+]
+VROUTER = "YES"
+ONEKS = [
+  CLUSTER_ID   = <%= cluster[:id] %>,
+  CLUSTER_NAME = "<%= cluster[:uuid] %>",
+  TYPE         = "CLUSTER_ROUTER"
+]

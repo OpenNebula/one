@@ -116,6 +116,8 @@ if [ -z "$ROOT" ] ; then
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
     ONEFORM_LOCATION="$LIB_LOCATION/oneform"
     ONEHEM_LOCATION="$LIB_LOCATION/onehem"
+    ONEKS_LOCATION="$LIB_LOCATION/oneks"
+    ONEKS_SPECS_LOCATION="$VAR_LOCATION/oneks"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     RUN_LOCATION="/var/run/one"
@@ -202,6 +204,8 @@ else
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
     ONEFORM_LOCATION="$LIB_LOCATION/oneform"
     ONEHEM_LOCATION="$LIB_LOCATION/onehem"
+    ONEKS_LOCATION="$LIB_LOCATION/oneks"
+    ONEKS_SPECS_LOCATION="$VAR_LOCATION/oneks"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     INCLUDE_LOCATION="$ROOT/include"
@@ -515,6 +519,13 @@ ODS_DIRS="$ODS_LOCATION/app \
             $ODS_LOCATION/lib \
             $ODS_LOCATION/lib/helpers"
 
+ONEKS_DIRS="$ONEKS_LOCATION \
+            $ONEKS_LOCATION/config \
+            $ONEKS_LOCATION/app \
+            $ONEKS_LOCATION/lib \
+            $ONEKS_SPECS_LOCATION \
+            $LIB_LOCATION/ruby/opennebula/ks"
+
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/opennebula/flow \
@@ -539,7 +550,8 @@ elif [ "$ONEFORM" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $ONEFORM_DIRS $ANS_DIRS $LIB_OCA_CLIENT_DIRS"
 else
     MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS \
-                $FIREEDGE_DIRS $ONEFLOW_DIRS $ONEFORM_DIRS $ODS_DIRS $ANS_DIRS"
+                $FIREEDGE_DIRS $ONEFLOW_DIRS $ONEFORM_DIRS $ODS_DIRS $ANS_DIRS \
+                $ONEKS_DIRS"
 fi
 
 #-------------------------------------------------------------------------------
@@ -873,6 +885,26 @@ INSTALL_ONEHEM_FILES=(
 
 INSTALL_ONEHEM_ETC_FILES=(
     ONEHEM_ETC_FILES:$ETC_LOCATION
+)
+
+INSTALL_ONEKS_FILES=(
+    ONEKS_FILES:$ONEKS_LOCATION
+    ONEKS_CONFIG_FILES:$ONEKS_LOCATION/config
+    ONEKS_APP_FILES:$ONEKS_LOCATION/app
+    ONEKS_LIB_FILES:$ONEKS_LOCATION/lib
+    ONEKS_BIN_FILES:$BIN_LOCATION
+    ONEKS_SPECS_FILES:$ONEKS_SPECS_LOCATION
+    RUBY_OPENNEBULA_LIB_KS_FILES:$LIB_LOCATION/ruby/opennebula/ks
+    ONEKS_CLI_BIN_FILES:$BIN_LOCATION
+    ONEKS_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
+)
+
+INSTALL_ONEKS_ETC_FILES=(
+    ONEKS_ETC_FILES:$ETC_LOCATION
+    ONEKS_CLI_CONF_FILES:$ETC_LOCATION/cli
+    ONEKS_FIREEDGE_SUNSTONE_ADMIN_VIEW_FILES:$ETC_LOCATION/fireedge/sunstone/views/admin
+    ONEKS_FIREEDGE_SUNSTONE_USER_VIEW_FILES:$ETC_LOCATION/fireedge/sunstone/views/user
+    ONEKS_FIREEDGE_SUNSTONE_TAB_FILES:$ETC_LOCATION/fireedge/sunstone/tabs
 )
 
 INSTALL_ETC_FILES=(
@@ -2512,6 +2544,45 @@ ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
                           src/flow/lib/models/service.rb"
 
 #-----------------------------------------------------------------------------
+# OneKS files
+#-----------------------------------------------------------------------------
+
+ONEKS_FILES="src/oneks/oneks-server.rb \
+             src/oneks/etc/oneks-server.yaml"
+
+ONEKS_CONFIG_FILES="src/oneks/config/*"
+
+ONEKS_APP_FILES="src/oneks/app/*"
+
+ONEKS_LIB_FILES="src/oneks/lib/*"
+
+ONEKS_BIN_FILES="src/oneks/bin/oneks-server"
+
+ONEKS_ETC_FILES="src/oneks/etc/oneks-server.conf"
+
+ONEKS_SPECS_FILES="src/oneks/specs/*"
+
+RUBY_OPENNEBULA_LIB_KS_FILES="src/oneks/oca_ks/client.rb \
+                              src/oneks/oca_ks/clusters.rb \
+                              src/oneks/oca_ks/helpers.rb \
+                              src/oneks/oca_ks/nodegroups.rb"
+
+ONEKS_CLI_BIN_FILES="src/oneks/cli/oneks"
+
+ONEKS_CLI_LIB_FILES="src/oneks/cli/one_helper/oneks_helper.rb \
+                     src/oneks/cli/one_helper/oneks_cluster_helper.rb \
+                     src/oneks/cli/one_helper/oneks_group_helper.rb"
+
+ONEKS_CLI_CONF_FILES="src/oneks/cli/etc/ks_cluster.yaml \
+                      src/oneks/cli/etc/ks_group.yaml"
+
+ONEKS_FIREEDGE_SUNSTONE_ADMIN_VIEW_FILES="src/oneks/etc/fireedge/sunstone/views/admin/oneks-tab.yaml"
+
+ONEKS_FIREEDGE_SUNSTONE_USER_VIEW_FILES="src/oneks/etc/fireedge/sunstone/views/user/oneks-tab.yaml"
+
+ONEKS_FIREEDGE_SUNSTONE_TAB_FILES="src/oneks/etc/fireedge/sunstone/tabs/oneks-tab.yaml"
+
+#-----------------------------------------------------------------------------
 # OneForm files
 #-----------------------------------------------------------------------------
 
@@ -2923,6 +2994,7 @@ elif [ "$FIREEDGE_DEV" = "no" ]; then
                  ${INSTALL_ONEFORM_FILES[@]} \
                  ${INSTALL_ODS_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
+                 ${INSTALL_ONEKS_FILES[@]} \
                  ${INSTALL_ONEPROVISION_FILES[@]} \
                  ${INSTALL_ONECFG_FILES[@]}"
 else
@@ -2933,6 +3005,7 @@ else
                  ${INSTALL_ONEFORM_FILES[@]} \
                  ${INSTALL_ODS_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
+                 ${INSTALL_ONEKS_FILES[@]} \
                  ${INSTALL_ONEPROVISION_FILES[@]} \
                  ${INSTALL_ONECFG_FILES[@]}"
 fi
@@ -2963,7 +3036,8 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
                          ${INSTALL_ONEGATE_ETC_FILES[@]} \
                          ${INSTALL_ONEHEM_ETC_FILES[@]} \
                          ${INSTALL_ONEFLOW_ETC_FILES[@]} \
-                         ${INSTALL_ONEFORM_ETC_FILES[@]}"
+                         ${INSTALL_ONEFORM_ETC_FILES[@]} \
+                         ${INSTALL_ONEKS_ETC_FILES[@]}"
     fi
 
     for i in ${INSTALL_ETC_SET[@]}; do

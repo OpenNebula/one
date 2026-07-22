@@ -1,0 +1,33 @@
+NAME    = "<%= group[:group_template_name] %>"
+CONTEXT = [
+  BACKEND       = "YES",
+  NETWORK       = "YES",
+  GROW_FS       = "/",
+  SET_HOSTNAME  = "$NAME",
+  SSH_PUBLIC_KEY = "$USER[SSH_PUBLIC_KEY]",
+  TOKEN         = "YES"
+]
+CPU  = "<%= group[:user_inputs_values][:cpu] %>"
+VCPU = "<%= group[:user_inputs_values][:vcpu] %>"
+DISK = [
+  IMAGE = "<%= group[:group_image_name] %>",
+  SIZE  = "<%= group[:user_inputs_values][:disk_size] %>"
+]
+GRAPHICS = [
+  LISTEN = "0.0.0.0",
+  TYPE   = "vnc"
+]
+HYPERVISOR = "kvm"
+LXD_SECURITY_PRIVILEGED = "true"
+MEMORY = "<%= group[:user_inputs_values][:memory] %>"
+SCHED_REQUIREMENTS = "<%= cluster[:deployment][:sched_requirements] %>"
+OS = [
+  ARCH            = "x86_64",
+  FIRMWARE_SECURE = "YES"
+]
+ONEKS = [
+  CLUSTER_ID   = <%= cluster[:id] %>,
+  CLUSTER_NAME = "<%= cluster[:uuid] %>",
+  GROUP_ID     = "<%= group[:id] %>",
+  TYPE         = "<%= group[:type] %>"
+]

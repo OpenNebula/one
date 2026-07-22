@@ -1,0 +1,39 @@
+---
+:ID:
+  :desc: ONE identifier for OneKS Cluster
+  :size: 4
+  :adjust: true
+
+:USER:
+  :desc: Username of the OneKS Cluster owner
+  :size: 8
+  :left: true
+
+:GROUP:
+  :desc: Group of the OneKS Cluster
+  :size: 8
+  :left: true
+
+:NAME:
+  :desc: Name of the OneKS Cluster
+  :size: 15
+  :left: true
+  :expand: true
+
+:STATE:
+  :desc: State of the OneKS Cluster
+  :size: 20
+  :left: true
+  :adjust: true
+
+:REGTIME:
+  :desc: Registration time of the OneKS Cluster
+  :size: 15
+
+:default:
+- :ID
+- :USER
+- :GROUP
+- :NAME
+- :STATE
+- :REGTIME

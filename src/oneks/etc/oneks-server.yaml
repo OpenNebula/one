@@ -1,0 +1,112 @@
+:one_xmlrpc:
+  :required: true
+  :type: string
+
+:one_xmlrpc_tproxy:
+  :required: true
+  :type: string
+
+:server:
+  :required: true
+  :type: object
+  :allow_extra: true
+  :keys:
+    :environment:
+      :required: false
+      :type: string
+      :default: production
+      :allowed:
+        - production
+        - staging
+        - development
+    :bind:
+      :required: false
+      :type: address
+      :default: 127.0.0.1
+    :port:
+      :required: false
+      :type: integer
+      :default: 10780
+
+:subscriber_endpoint:
+  :required: true
+  :type: string
+
+:subscriber_timeout:
+  :required: true
+  :type: integer
+
+:kubectl_path:
+  :required: true
+  :type: string
+
+:kubeconfig_path:
+  :required: true
+  :type: string
+
+:k8s_timeout:
+  :required: true
+  :type: integer
+
+:readiness:
+  :required: false
+  :type: object
+  :allow_extra: true
+  :keys:
+    :external_url:
+      :required: false
+      :type: string
+      :default: https://get.rke2.io
+    :timeout:
+      :required: false
+      :type: integer
+      :default: 120
+
+:retries:
+  :required: true
+  :type: integer
+
+:default_cooldown:
+  :required: true
+  :type: integer
+
+:concurrency:
+  :required: true
+  :type: integer
+
+:base_name:
+  :required: true
+  :type: string
+
+:auth:
+  :required: true
+  :type: string
+:core_auth:
+  :required: true
+  :type: string
+  :allowed:
+    - cipher
+    - x509
+:expire_delta:
+  :required: false
+  :type: integer
+  :default: 3600
+
+:log:
+  :required: true
+  :type: object
+  :keys:
+    :level:
+      :required: true
+      :type: integer
+      :allowed:
+        - 0
+        - 1
+        - 2
+        - 3
+    :system:
+      :required: true
+      :type: string
+      :allowed:
+        - system
+        - file
