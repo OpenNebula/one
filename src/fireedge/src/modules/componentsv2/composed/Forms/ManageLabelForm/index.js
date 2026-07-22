@@ -50,6 +50,7 @@ import {
  * @param props.labels
  * @param props.getLabels
  * @param props.auth
+ * @param props.isEmbedded
  * @param props.isLoading
  * @param props.onClose
  * @param props.onCreate
@@ -62,6 +63,7 @@ export const ManageLabelForm = ({
   labels,
   getLabels,
   auth,
+  isEmbedded = false,
   isLoading = false,
   onClose,
   onCreate,
@@ -173,7 +175,85 @@ export const ManageLabelForm = ({
     [nameHeader, onClose, onDelete, onEdit, translate]
   )
 
-  return (
+  const content = (
+    <Box
+      sx={[
+        (theme) => getDialogContentStyles(theme),
+        (theme) => getManageStyles(theme),
+      ]}
+    >
+      <Box className="label-dialog-header">
+        <Box className="label-dialog-heading">
+          <Typography component="h2" className="label-dialog-title">
+            {translate(T.ManageLabels)}
+          </Typography>
+          <Typography className="label-dialog-description">
+            {translate(T.ManageLabelsConcept)}
+          </Typography>
+        </Box>
+        {!isEmbedded && (
+          <Button
+            type="transparent"
+            iconOnly={<Cancel />}
+            aria-label={translate(T.Close)}
+            tooltip={T.Close}
+            isDisabled={isLoading}
+            onClick={onClose}
+          />
+        )}
+      </Box>
+
+      <Box className="label-dialog-body">
+        <Box className="label-manage-toolbar">
+          <InputField
+            className="label-manage-search"
+            placeholder={`${translate(T.SearchLabelsInput)}...`}
+            startIcon={<Search width="16px" height="16px" />}
+            value={search}
+            inputProps={{ 'aria-label': translate(T.SearchLabelsInput) }}
+            onChange={setSearch}
+          />
+          <Button
+            className="label-manage-create"
+            type="primary"
+            isDisabled={isLoading}
+            onClick={() => {
+              onClose?.()
+              onCreate?.()
+            }}
+          >
+            {translate(T.Create)}
+          </Button>
+        </Box>
+
+        <Table
+          data={rows}
+          columns={columns}
+          getRowId={(row) => row.id}
+          isFullHeight={false}
+          {...(isEmbedded && { size: 'medium', defaultPageSize: 25 })}
+          isEmptyContentEnabled
+          emptyContentProps={{
+            size: 'small',
+            title: T.NoLabels,
+            subtitle: T.UserLabelsConcept,
+          }}
+        />
+      </Box>
+
+      {!isEmbedded && (
+        <Box className="label-dialog-actions with-border">
+          <Button type="secondary" isDisabled={isLoading} onClick={onClose}>
+            {translate(T.Done)}
+          </Button>
+        </Box>
+      )}
+    </Box>
+  )
+
+  return isEmbedded ? (
+    content
+  ) : (
     <Dialog
       open={open}
       onClose={isLoading ? undefined : onClose}
@@ -184,74 +264,7 @@ export const ManageLabelForm = ({
         },
       }}
     >
-      <Box
-        sx={[
-          (theme) => getDialogContentStyles(theme),
-          (theme) => getManageStyles(theme),
-        ]}
-      >
-        <Box className="label-dialog-header">
-          <Box className="label-dialog-heading">
-            <Typography component="h2" className="label-dialog-title">
-              {translate(T.ManageLabels)}
-            </Typography>
-            <Typography className="label-dialog-description">
-              {translate(T.ManageLabelsConcept)}
-            </Typography>
-          </Box>
-          <Button
-            type="transparent"
-            iconOnly={<Cancel />}
-            aria-label={translate(T.Close)}
-            tooltip={T.Close}
-            isDisabled={isLoading}
-            onClick={onClose}
-          />
-        </Box>
-
-        <Box className="label-dialog-body">
-          <Box className="label-manage-toolbar">
-            <InputField
-              className="label-manage-search"
-              placeholder={`${translate(T.SearchLabelsInput)}...`}
-              startIcon={<Search width="16px" height="16px" />}
-              value={search}
-              inputProps={{ 'aria-label': translate(T.SearchLabelsInput) }}
-              onChange={setSearch}
-            />
-            <Button
-              className="label-manage-create"
-              type="primary"
-              isDisabled={isLoading}
-              onClick={() => {
-                onClose?.()
-                onCreate?.()
-              }}
-            >
-              {translate(T.Create)}
-            </Button>
-          </Box>
-
-          <Table
-            data={rows}
-            columns={columns}
-            getRowId={(row) => row.id}
-            isFullHeight={false}
-            isEmptyContentEnabled
-            emptyContentProps={{
-              size: 'small',
-              title: T.NoLabels,
-              subtitle: T.UserLabelsConcept,
-            }}
-          />
-        </Box>
-
-        <Box className="label-dialog-actions with-border">
-          <Button type="secondary" isDisabled={isLoading} onClick={onClose}>
-            {translate(T.Done)}
-          </Button>
-        </Box>
-      </Box>
+      {content}
     </Dialog>
   )
 }
@@ -261,6 +274,7 @@ ManageLabelForm.propTypes = {
   labels: PropTypes.object,
   getLabels: PropTypes.func,
   auth: PropTypes.object,
+  isEmbedded: PropTypes.bool,
   isLoading: PropTypes.bool,
   onClose: PropTypes.func,
   onCreate: PropTypes.func,

@@ -16,7 +16,7 @@
 
 import { ReactElement, useMemo } from 'react'
 
-import { Settings as SettingsResource } from '@ResourcesModule'
+import { ManageLabels } from '@ComponentsV2Module'
 import { Box, useTheme } from '@mui/material'
 import { css } from '@emotion/css'
 
@@ -44,7 +44,7 @@ export const Settings = () => {
   return (
     <>
       <Box className={classes.labelsSection}>
-        <SettingsResource.NestedLabelTable />
+        <ManageLabels isEmbedded />
       </Box>
     </>
   )

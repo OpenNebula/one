@@ -104,6 +104,8 @@ export const createLabelColumn = ({
   id,
   ...(width !== null && { width }),
   accessorFn: (row) => getLabelText(row?.LABELS),
+  filterAccessorFn: (row) =>
+    getLabelTags(row?.LABELS).map(({ title }) => title),
   cell: ({ row }) => {
     const tags = getLabelTags(row.original?.LABELS)
 

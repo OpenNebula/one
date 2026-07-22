@@ -28,10 +28,9 @@ import { Checkbox } from '@modules/componentsv2/primitives/Buttons/Checkbox'
 import { MenuButton } from '@modules/componentsv2/primitives/Buttons/Menu'
 import { InputField } from '@modules/componentsv2/primitives/Fields/Default'
 import { CreateLabelForm } from '@modules/componentsv2/composed/Forms/CreateLabelForm'
-import { ManageLabelForm } from '@modules/componentsv2/composed/Forms/ManageLabelForm'
+import { ManageLabels } from '@modules/componentsv2/composed/LabelPanel/ManageLabels'
 import { useLabelOperations } from '@modules/componentsv2/composed/LabelPanel/hooks'
 import { getPanelStyles } from '@modules/componentsv2/composed/LabelPanel/styles'
-import { ResourceActionConfirmation } from '@modules/componentsv2/composed/ResourceActionConfirmation'
 import {
   filterLabelRows,
   getLabelRows,
@@ -297,50 +296,17 @@ export const LabelPanel = ({
     })
   }
 
-  const handleDelete = (row, onDeleted) => {
-    if (!canEditLabels) return
-
-    showModal({
-      isConfirmDialog: true,
-      dialogProps: {
-        title: T.DeleteLabel,
-        description: (
-          <ResourceActionConfirmation
-            description={T.DeleteLabelConcept}
-            resources={{ name: row.displayPath }}
-            resourceType={T.Labels}
-          />
-        ),
-        confirmLabel: T.Delete,
-        confirmButtonProps: { isDestructive: true },
-      },
-      onSubmit: async () => {
-        try {
-          const nextLabels = await operations.remove(row)
-
-          onDeleted?.(nextLabels)
-
-          return nextLabels
-        } catch {
-          return false
-        }
-      },
-    })
-  }
-
   const handleOpenManage = () => {
     if (!canEditLabels) return
 
     handleClose()
     showModal({
       isCustomDialog: true,
-      form: ManageLabelForm,
+      form: ManageLabels,
       customDialogProps: {
         getLabels: getCurrentLabels,
         auth,
-        onCreate: () => handleOpenCreate(null, false),
-        onEdit: (row) => handleOpenCreate(row, false),
-        onDelete: handleDelete,
+        onLabelsChange: handleLabelsChange,
       },
     })
   }
@@ -444,3 +410,5 @@ LabelPanel.propTypes = {
 }
 
 LabelPanel.displayName = 'LabelPanel'
+
+export { ManageLabels }

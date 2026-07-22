@@ -21,6 +21,9 @@ const getColumnValue = (row, { accessorFn, accessorKey } = {}) =>
   accessorFn?.(row) ??
   accessorKey?.split('.').reduce((value, key) => value?.[key], row)
 
+const getColumnFilterValue = (row, column) =>
+  column?.filterAccessorFn?.(row) ?? getColumnValue(row, column)
+
 const normalizeKey = (value) =>
   String(value ?? '')
     .replace(/[-_.\s]/g, '')
@@ -52,11 +55,18 @@ const getColumnFilterKeys = ({ id, accessorKey } = {}) => {
 const isFilterEnabled = (column, filters = {}) => {
   if (filters === true) return true
 
+  const filterKeys = getColumnFilterKeys(column)
+  const isLabelColumn = filterKeys.includes(normalizeKey('label'))
+
+  if (isLabelColumn && filters?.label !== false && filters?.labels !== false) {
+    return true
+  }
+
   const activeFilters = Object.entries(filters ?? {})
     .filter(([, enabled]) => enabled === true)
     .map(([key]) => normalizeKey(key))
 
-  return getColumnFilterKeys(column).some((key) => activeFilters.includes(key))
+  return filterKeys.some((key) => activeFilters.includes(key))
 }
 
 const normalizeSortValue = (value) => {
@@ -258,13 +268,17 @@ export const getTableFilterOptions = (data = [], filters = {}, columns = []) =>
       const options = []
 
       data?.forEach((row) => {
-        normalizeFilterValues(getColumnValue(row, column)).forEach((value) => {
-          const stringValue = String(value)
+        normalizeFilterValues(getColumnFilterValue(row, column)).forEach(
+          (value) => {
+            const stringValue = String(value)
 
-          if (!options.some((option) => String(option.value) === stringValue)) {
-            options.push({ text: getFilterOptionText(value), value })
+            if (
+              !options.some((option) => String(option.value) === stringValue)
+            ) {
+              options.push({ text: getFilterOptionText(value), value })
+            }
           }
-        })
+        )
       })
 
       return {
@@ -276,7 +290,7 @@ export const getTableFilterOptions = (data = [], filters = {}, columns = []) =>
             sensitivity: 'base',
           })
         ),
-        getValue: (row) => getColumnValue(row, column),
+        getValue: (row) => getColumnFilterValue(row, column),
       }
     })
 

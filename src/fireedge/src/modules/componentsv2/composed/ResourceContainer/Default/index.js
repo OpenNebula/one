@@ -80,6 +80,7 @@ export const ResourceContainer = forwardRef(
 
     useLayoutEffect(() => {
       setSearchExpression('')
+      setFilterExpression({})
       setSelectedItems([])
     }, [viewKey])
 

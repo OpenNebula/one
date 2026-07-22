@@ -16,7 +16,7 @@
 import { lazy, string, object, number } from 'yup'
 import { getObjectSchemaFromFields, arrayToOptions } from '@UtilsModule'
 import { INPUT_TYPES } from '@ConstantsModule'
-import { vnTable, vntemplayeTable as vntemplateTable } from '@ModelsModule'
+import { vnTable, vntemplateTable } from '@ModelsModule'
 
 const getSelectionTable = (table) => ({
   ...table,
