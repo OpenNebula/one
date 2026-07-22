@@ -1,0 +1,243 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    cluster.x-k8s.io/cluster-name: <%= cluster[:uuid] %>
+  name: <%= cluster[:uuid] %>
+stringData:
+  ONE_AUTH: <%= one_auth %>
+  ONE_XMLRPC: <%= one_xmlrpc %>
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: <%= cluster[:uuid] %>
+  name: <%= cluster[:uuid] %>-ccm
+stringData:
+  cloud-controller-manager.yaml: |
+    ---
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: cloud-config
+      namespace: kube-system
+    stringData:
+      config.yaml: |
+        opennebula:
+          endpoint:
+            ONE_XMLRPC: "<%= one_xmlrpc %>"
+            ONE_AUTH: "<%= one_auth %>"
+          publicNetwork:
+            name: "<%= cluster[:deployment][:networks][:public][:name] %>"
+          privateNetwork:
+            name: "<%= cluster[:deployment][:networks][:private][:name] %>"
+          virtualRouter:
+            templateName: "<%= group[:router_template_name] %>"
+    ---
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: opennebula-cloud-controller-manager
+      namespace: kube-system
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: system:opennebula-cloud-controller-manager
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cluster-admin
+    subjects:
+      - kind: ServiceAccount
+        name: opennebula-cloud-controller-manager
+        namespace: kube-system
+    ---
+    apiVersion: apps/v1
+    kind: DaemonSet
+    metadata:
+      labels:
+        k8s-app: cloud-controller-manager
+      name: cloud-controller-manager
+      namespace: kube-system
+    spec:
+      selector:
+        matchLabels:
+          k8s-app: cloud-controller-manager
+      template:
+        metadata:
+          labels:
+            k8s-app: cloud-controller-manager
+        spec:
+          serviceAccountName: opennebula-cloud-controller-manager
+          containers:
+            - name: cloud-controller-manager
+              image: "ghcr.io/opennebula/cloud-provider-opennebula:latest"
+              imagePullPolicy: IfNotPresent
+              command:
+                - /opennebula-cloud-controller-manager
+                - --cloud-provider=opennebula
+                - --cluster-name=<%= cluster[:uuid] %>
+                - --cloud-config=/etc/one/config.yaml
+                - --leader-elect=true
+                - --use-service-account-credentials
+                - --controllers=cloud-node,cloud-node-lifecycle,service-lb-controller
+              volumeMounts:
+                - name: cloud-config
+                  mountPath: /etc/one/
+                  readOnly: true
+          volumes:
+            - name: cloud-config
+              secret:
+                secretName: cloud-config
+          hostNetwork: true
+          tolerations:
+            - key: node.cloudprovider.kubernetes.io/uninitialized
+              value: "true"
+              effect: NoSchedule
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+            - key: node-role.kubernetes.io/master
+              operator: Exists
+              effect: NoSchedule
+          nodeSelector:
+            node-role.kubernetes.io/control-plane: "true"
+type: addons.cluster.x-k8s.io/resource-set
+---
+apiVersion: addons.cluster.x-k8s.io/v1beta1
+kind: ClusterResourceSet
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: <%= cluster[:uuid] %>
+  name: <%= cluster[:uuid] %>-crs-0
+spec:
+  clusterSelector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: <%= cluster[:uuid] %>
+  resources:
+  - kind: Secret
+    name: <%= cluster[:uuid] %>-ccm
+  strategy: Reconcile
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: <%= cluster[:uuid] %>
+  name: <%= cluster[:uuid] %>
+spec:
+  controlPlaneEndpoint:
+    host:
+    port: 6443
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: RKE2ControlPlane
+    name: <%= cluster[:uuid] %>
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: ONECluster
+    name: <%= cluster[:uuid] %>
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: RKE2ControlPlane
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    cluster.x-k8s.io/cluster-name: <%= cluster[:uuid] %>
+  name: <%= cluster[:uuid] %>
+spec:
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: ONEMachineTemplate
+      name: <%= cluster[:uuid] %>-cp
+  preRKE2Commands:
+  - (RETRY=60; while ! nslookup get.rke2.io; do ((--RETRY)) || break; sleep 5; done)
+  registrationMethod: internal-first
+  replicas: <%= group[:user_inputs_values][:count] %>
+  rolloutStrategy:
+    rollingUpdate:
+      maxSurge: 1
+    type: RollingUpdate
+  serverConfig:
+    cloudProviderName: external
+    cni: canal
+    disableComponents:
+      kubernetesComponents:
+      - cloudController
+  version: <%= cluster[:kubernetes_version] %>+rke2r1
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: ONECluster
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    cluster.x-k8s.io/cluster-name: <%= cluster[:uuid] %>
+  name: <%= cluster[:uuid] %>
+spec:
+  images:
+    - imageContent: |
+        PATH = "https://d24fmfybwxpuhu.cloudfront.net/service_VRouter-6.10.0-3-20250424.qcow2"
+        DEV_PREFIX = "vd"
+      imageName: '<%= group[:router_image_name] %>'
+    - imageContent: |
+        PATH = "https://d24fmfybwxpuhu.cloudfront.net/ubuntu2204-7.0.0-0-20250528.qcow2"
+        DEV_PREFIX = "vd"
+      imageName: '<%= group[:group_image_name] %>'
+  privateNetwork:
+    name: <%= cluster[:deployment][:networks][:private][:name].to_s.dump %>
+  publicNetwork:
+    floatingIP:
+    name: <%= cluster[:deployment][:networks][:public][:name].to_s.dump %>
+  secretName: <%= cluster[:uuid] %>
+  templates:
+    - templateContent: |
+<%= templates[:router].indent(8) %>
+      templateName: "<%= group[:router_template_name] %>"
+    - templateContent: |
+<%= templates[:controlplane].indent(8) %>
+      templateName: "<%= group[:group_template_name] %>"
+  virtualRouter:
+    listenerPorts:
+    - 6443
+    - 9345
+    templateName: "<%= group[:router_template_name] %>"
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: ONEMachineTemplate
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    cluster.x-k8s.io/cluster-name: <%= cluster[:uuid] %>
+  name: <%= cluster[:uuid] %>-cp
+spec:
+  template:
+    spec:
+      templateName: "<%= group[:group_template_name] %>"
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineHealthCheck
+metadata:
+  name: "<%= cluster[:uuid] %>-cp-mhc"
+spec:
+  clusterName: <%= cluster[:uuid] %>
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/control-plane: ""
+  nodeStartupTimeout: 15m
+  maxUnhealthy: 1
+  unhealthyConditions:
+  - type: Ready
+    status: "False"
+    timeout: 5m
+  - type: Ready
+    status: "Unknown"
+    timeout: 5m

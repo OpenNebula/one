@@ -1,0 +1,12 @@
+/var/log/one/oneks.log {
+    dateext
+    dateformat -%Y%m%d-%s
+    weekly
+    rotate 52
+    missingok
+    notifempty
+    copytruncate
+    compress
+    compressoptions -9
+    delaycompress
+}

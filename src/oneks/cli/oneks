@@ -1,0 +1,824 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2026, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    LIB_LOCATION      = '/usr/lib/one'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+else
+    LIB_LOCATION      = ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+end
+
+require 'load_opennebula_paths'
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+$LOAD_PATH << LIB_LOCATION      + '/oneks/lib'
+
+USER_AGENT = 'CLI'
+
+require 'json'
+require 'tempfile'
+require 'command_parser'
+require 'opennebula/ks/client'
+require 'one_helper'
+require 'one_helper/oneks_cluster_helper'
+require 'one_helper/oneks_group_helper'
+
+CLUSTER_ID = {
+    :name        => 'cluster_id',
+    :short       => '-c id',
+    :large       => '--cluster-id id',
+    :format      => Integer,
+    :description => 'OneKS Cluster ID'
+}
+
+WAIT = {
+    :name        => 'wait',
+    :large       => '--wait',
+    :description => 'Follow cluster logs after a successful cluster creation',
+    :default     => false
+}
+
+ALL_LOGS = {
+    :name        => 'all',
+    :short       => '-a',
+    :large       => '--all',
+    :description => 'Show the full cluster log history',
+    :default     => false
+}
+
+FOLLOW_LOGS = {
+    :name        => 'follow',
+    :short       => '-f',
+    :large       => '--follow',
+    :description => 'Poll cluster logs continuously',
+    :default     => false
+}
+
+KUBERNETES_VERSION = {
+    :name        => 'k8s_version',
+    :large       => '--k8s-version',
+    :description => 'Kubernetes version to upgrade the cluster to'
+}
+
+KUBECONFIG = {
+    :name        => 'kubeconfig',
+    :short       => '-k',
+    :large       => '--kubeconfig',
+    :description => 'Show the Cluster kubeconfig',
+    :default     => false
+}
+
+OPENNEBULA_CLUSTER = {
+    :name        => 'opennebula_cluster',
+    :large       => '--opennebula-cluster id',
+    :format      => Integer,
+    :description => 'OpenNebula cluster ID used by OneKS deployment placement'
+}
+
+PUBLIC_NETWORK = {
+    :name        => 'public_network',
+    :large       => '--public-network id',
+    :format      => Integer,
+    :description => 'Public network ID used by the OneKS readiness check service'
+}
+
+PRIVATE_NETWORK = {
+    :name        => 'private_network',
+    :large       => '--private-network id',
+    :format      => Integer,
+    :description => 'Private network ID used by the OneKS readiness check service'
+}
+
+TARGET = {
+    :name        => 'target',
+    :large       => '--target count',
+    :format      => Integer,
+    :description => 'Target number of nodes for group scaling'
+}
+
+CommandParser::CmdParser.new(ARGV) do
+    FORMAT = [OpenNebulaHelper::JSON, OpenNebulaHelper::YAML]
+
+    usage <<~USAGE
+        OneKS command-line interface for managing Kubernetes clusters in OpenNebula.
+
+        Usage:
+            oneks <command> <resource> [<args>] [<options>]
+
+        Run 'oneks help' to list available commands.
+        Run 'oneks <command> --help' for detailed command usage.
+    USAGE
+
+    version OpenNebulaHelper::ONE_VERSION
+
+    set :option, OneKS::Client::DEFAULT_OPTIONS
+    set :option, CommandParser::VERSION
+    set :option, CommandParser::HELP
+
+    kscluster = OneKSClusterHelper.new
+    ksgroup   = OneKSGroupHelper.new
+
+    supported_resources = ['cluster', 'group'].join(', ')
+
+    ############################################################################
+    # Formatters for arguments
+    ############################################################################
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc('GROUP') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'GROUP')
+    end
+
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc('USER') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'USER')
+    end
+
+    set :format, :resource_id, 'OneKS resource ID' do |arg|
+        if arg.to_s.match?(/^\d+$/)
+            [0, arg.to_i]
+        else
+            [-1, "Argument '#{arg}' is not a valid ID"]
+        end
+    end
+
+    set :format, :resource, 'Resource type: cluster(s), group(s)|nodegroup(s)' do |arg|
+        resource = arg.to_s.downcase
+
+        case resource
+        when 'cluster', 'clusters'
+            [0, 'cluster']
+        when 'group', 'groups', 'nodegroup', 'nodegroups'
+            [0, 'group']
+        else
+            [-1, "Invalid resource type '#{arg}'. Use 'cluster', 'group', or 'nodegroup'."]
+        end
+    end
+
+    set :format, :clusterid_list, OneKS::Client.list_to_id_desc('OneKS Clusters') do |arg|
+        OneKS::Client.list_to_id(arg, :clusters)
+    end
+
+    ########################################################################
+    # Commands for interacting with OneKS clusters
+    ########################################################################
+
+    list_desc = <<-EOT.unindent
+        List OneKS resources of the specified resource.
+        Supported resources: #{supported_resources}.
+
+        Examples:
+            # List all clusters
+            oneks list clusters
+
+            # List all nodegroups
+            oneks list groups
+
+    EOT
+
+    command :list,
+            list_desc,
+            :resource,
+            :options => FORMAT + CLIHelper::OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+        client   = OneKSHelper.client(options)
+        resource = args[0]
+
+        case resource
+        when 'cluster'
+            rc = kscluster.list(client, options)
+        when 'group'
+            rc = ksgroup.list(client, options)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        rc
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    top_desc = <<-EOT.unindent
+        List the available OneKS resources continuously.
+        Supported resources: #{supported_resources}.
+
+        Examples:
+            # List all clusters
+            oneks top clusters
+
+            # List all nodegroups
+            oneks top groups
+
+    EOT
+
+    command :top,
+            top_desc,
+            :resource,
+            :options => FORMAT + [CLIHelper::DELAY] do
+        client   = OneKSHelper.client(options)
+        resource = args[0]
+
+        Signal.trap('INT') { exit(1) }
+
+        case resource
+        when 'cluster'
+            rc = kscluster.top(client, options)
+        when 'group'
+            rc = ksgroup.top(client, options)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        rc
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    show_desc = <<-EOT.unindent
+        Show detailed information about a specific OneKS resource.
+        Supported resources: #{supported_resources}.
+
+        Examples:
+            # Show cluster details
+            oneks show cluster <cluster_id>
+
+            # Show nodegroup details
+            oneks show group <group_id>
+
+    EOT
+
+    command :show,
+            show_desc,
+            :resource,
+            :resource_id,
+            :options => FORMAT + [KUBECONFIG] do
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+
+        case resource
+        when 'cluster'
+            rc =
+                if options[:kubeconfig]
+                    kscluster.kubeconfig(client, resource_id, options)
+                else
+                    kscluster.show(client, resource_id, options)
+                end
+        when 'group'
+            if options[:kubeconfig]
+                STDERR.puts(
+                    "kubeconfig operation is not supported for #{resource}. " \
+                    'Only clusters expose kubeconfig.'
+                )
+                exit(-1)
+            end
+
+            rc = ksgroup.show(client, resource_id, options)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        rc
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    create_desc = <<-EOT.unindent
+        Create a specific OneKS resource.
+        Supported resources: #{supported_resources}.
+
+        Examples:
+            # Start creation in interactive mode
+            oneks create cluster
+            oneks create group --cluster-id <cluster_id>
+
+            # Create and wait for completion (only supported for cluster)
+            oneks create cluster --wait
+
+            # Create from a JSON file (non-interactive)
+            oneks create cluster --file spec.json
+            oneks create group --file spec.json
+
+            # Cluster specs use deployment.cluster.id and deployment.networks.*.id
+
+    EOT
+
+    command :create,
+            create_desc,
+            :resource,
+            :options => [OpenNebulaHelper::FILE, CLUSTER_ID, WAIT] do
+        client     = OneKSHelper.client(options)
+        resource   = args[0]
+        file       = options[:file]
+        cluster_id = options[:cluster_id]
+        body       = ODSHelper.read_json_input(file)
+
+        case resource
+        when 'cluster'
+            rc = kscluster.create(client, body, options)
+            return rc if kscluster.is_error?(rc)
+        when 'group'
+            if cluster_id.nil?
+                STDERR.puts 'A cluster ID is required for group creation'
+                STDERR.puts 'Usage: oneks create group --cluster-id <cluster_id>'
+                exit(-1)
+            end
+
+            if options[:wait]
+                STDERR.puts '--wait is only supported for cluster creation'
+                exit(-1)
+            end
+
+            rc = ksgroup.create(client, cluster_id, body)
+            return rc if ksgroup.is_error?(rc)
+        end
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    update_desc = <<-EOT.unindent
+        Update a specific OneKS resource by ID using the provided data.
+        Supported resources: #{supported_resources}.
+        Supported attrs: name, description.
+
+        If no input file is provided, the CLI opens the current resource
+        in your default editor to apply changes interactively.
+
+        Examples:
+            # Update a cluster using the editor
+            oneks update cluster <cluster_id>
+
+            # Update a cluster from a JSON file
+            oneks update cluster <cluster_id> --file data.json
+    EOT
+
+    command :update,
+            update_desc,
+            :resource,
+            :resource_id,
+            :options => [OpenNebulaHelper::FILE] do
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+        file        = options[:file]
+        body        = ODSHelper.read_json_input(file)
+
+        case resource
+        when 'cluster'
+            body ||= OneKSClusterHelper.update_from_editor(client, resource_id)
+            return body if kscluster.is_error?(body)
+
+            rc = kscluster.update(client, resource_id, body)
+            return rc if kscluster.is_error?(rc)
+        when 'group'
+            body ||= OneKSGroupHelper.update_from_editor(client, resource_id)
+            return body if ksgroup.is_error?(body)
+
+            rc = ksgroup.update(client, resource_id, body)
+            return rc if ksgroup.is_error?(rc)
+        end
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    rename_desc = <<-EOT.unindent
+        Rename a specific OneKS resource.
+
+        Examples:
+            # Rename a cluster
+            oneks rename cluster <cluster_id> --name <new_name>
+
+            # Rename a nodegroup
+            oneks rename group <group_id> --name <new_name>
+    EOT
+
+    command :rename, rename_desc, :resource, :resource_id, :name do
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+        name        = args[2]
+
+        case resource
+        when 'cluster'
+            rc = kscluster.rename(client, resource_id, name)
+        when 'group'
+            rc = ksgroup.rename(client, resource_id, name)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    chgrp_desc = <<-EOT.unindent
+        Change the group of a OneKS cluster.
+        Supported resources: cluster.
+
+        Examples:
+            # Change the group of a cluster
+            oneks chgrp cluster <cluster_id> <group_id>
+    EOT
+
+    command :chgrp, chgrp_desc, :resource, :resource_id, :groupid do
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+        group_id    = args[2].to_i
+
+        case resource
+        when 'cluster'
+            rc = kscluster.chgrp(client, resource_id, group_id)
+        when 'group'
+            STDERR.puts(
+                "chgrp operation is not supported for #{resource}. " \
+                'Only clusters support ownership and permission changes.'
+            )
+            exit(-1)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    chown_desc = <<-EOT.unindent
+        Change the owner of a OneKS cluster.
+        Supported resources: cluster.
+
+        Examples:
+            # Change the owner of a cluster
+            oneks chown cluster <cluster_id> <user_id>
+
+            # Change the owner and group of a cluster
+            oneks chown cluster <cluster_id> <user_id> <group_id>
+    EOT
+
+    command :chown, chown_desc, :resource, :resource_id, :userid, [:groupid, nil] do
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+        owner_id    = args[2].to_i
+        group_id    = args[3] ? args[3].to_i : nil
+
+        case resource
+        when 'cluster'
+            rc = kscluster.chown(client, resource_id, owner_id, group_id)
+        when 'group'
+            STDERR.puts(
+                "chown operation is not supported for #{resource}. " \
+                'Only clusters support ownership and permission changes.'
+            )
+            exit(-1)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    chmod_desc = <<-EOT.unindent
+        Change the permissions of a OneKS cluster.
+        Supported resources: cluster.
+
+        Examples:
+            # Change cluster permissions
+            oneks chmod cluster <cluster_id> 640
+    EOT
+
+    command :chmod, chmod_desc, :resource, :resource_id, :octet do
+        if !/\A\d+\z/.match(args[2])
+            STDERR.puts "Invalid '#{args[2]}' octed permissions"
+            exit(-1)
+        end
+
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+        octet       = OpenNebulaHelper.to_octet(args[2])
+
+        case resource
+        when 'cluster'
+            rc = kscluster.chmod(client, resource_id, octet)
+        when 'group'
+            STDERR.puts(
+                "chmod operation is not supported for #{resource}. " \
+                'Only clusters support ownership and permission changes.'
+            )
+            exit(-1)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    recover_desc = <<-EOT.unindent
+        Recover a specific OneKS resource by retrying the last failed action.
+        Supported resources: #{supported_resources}.
+
+        Examples:
+            # Recover a cluster
+            oneks recover cluster <cluster_id>
+
+            # Recover a nodegroup
+            oneks recover group <group_id>
+    EOT
+
+    command :recover, recover_desc, :resource, :resource_id do
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+
+        case resource
+        when 'cluster'
+            rc = kscluster.recover(client, [resource_id])
+        when 'group'
+            rc = ksgroup.recover(client, resource_id)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    delete_desc = <<-EOT.unindent
+        Delete a specific OneKS resource by ID.
+        Supported resources: #{supported_resources}.
+
+        Examples:
+            # Delete a cluster
+            oneks delete cluster <cluster_id>
+
+            # Delete a nodegroup
+            oneks delete group <group_id>
+    EOT
+
+    check_desc = <<-EOT.unindent
+        Run the OneKS readiness check service to validate public and private
+        network configurations before provisioning the Kubernetes cluster.
+        Networks can be provided directly or resolved from an existing cluster.
+
+        Examples:
+            # Run the check interactively
+            oneks check
+
+            # Check readiness with explicit deployment placement
+            oneks check --opennebula-cluster <one_cluster_id> \\
+                --public-network <network_id> --private-network <network_id>
+
+            # Check readiness using the configuration from an existing OneKS cluster
+            oneks check cluster <cluster_id>
+    EOT
+
+    command :check,
+            check_desc,
+            [:resource, nil],
+            [:resource_id, nil],
+            :options => [OPENNEBULA_CLUSTER, PUBLIC_NETWORK, PRIVATE_NETWORK] do
+        deployment_id   = options[:opennebula_cluster]
+        public_network  = options[:public_network]
+        private_network = options[:private_network]
+        resource        = args[0]
+        resource_id     = args[1]
+
+        body = {}
+
+        if deployment_id || public_network || private_network
+            missing = []
+
+            missing << '--opennebula-cluster' if deployment_id.nil?
+            missing << '--public-network'    if public_network.nil?
+            missing << '--private-network'   if private_network.nil?
+
+            unless missing.empty?
+                STDERR.puts(
+                    "#{missing.join(', ')} must be provided together."
+                )
+
+                exit(-1)
+            end
+
+            body = {
+                :cluster  => { :id => deployment_id },
+                :networks => {
+                    :public  => { :id => public_network },
+                    :private => { :id => private_network }
+                }
+            }
+        end
+
+        client = OneKSHelper.client(options)
+
+        if resource
+            unless resource == 'cluster'
+                STDERR.puts(
+                    "Check operation is not supported for #{resource}. " \
+                    "Use 'oneks check cluster <cluster_id>' instead."
+                )
+                exit(-1)
+            end
+
+            if resource_id.nil?
+                STDERR.puts 'A cluster ID is required'
+                STDERR.puts 'Usage: oneks check cluster <cluster_id>'
+                exit(-1)
+            end
+
+            if deployment_id || public_network || private_network
+                STDERR.puts 'Do not provide deployment options when using a cluster ID, ' \
+                            'the deployment defined by the cluster is used automatically.'
+                exit(-1)
+            end
+
+            body = { :cluster_id => resource_id }
+        end
+
+        kscluster.check(client, body)
+    rescue Interrupt
+        puts 'Aborting...'
+        exit(1)
+    end
+
+    command :delete,
+            delete_desc,
+            :resource,
+            :resource_id,
+            :options => [OpenNebulaHelper::FORCE] do
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+
+        case resource
+        when 'cluster'
+            rc = kscluster.delete(client, [resource_id], options)
+        when 'group'
+            if options[:force]
+                STDERR.puts '--force is only supported for cluster deletion'
+                exit(-1)
+            end
+
+            rc = ksgroup.delete(client, [resource_id])
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    logs_desc = <<-EOT.unindent
+        Show logs for a OneKS cluster by ID.
+        Supported resources: cluster.
+
+        Examples:
+            # Show cluster logs
+            oneks logs cluster <cluster_id>
+    EOT
+
+    command :logs,
+            logs_desc,
+            :resource,
+            :resource_id,
+            :options => [ALL_LOGS, FOLLOW_LOGS] do
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+
+        case resource
+        when 'cluster'
+            rc = kscluster.logs(client, resource_id, options)
+        when 'group'
+            STDERR.puts(
+                "Logs operation is not supported for #{resource}. " \
+                "Use 'oneks logs cluster <cluster_id>' instead."
+            )
+            exit(-1)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    upgrade_desc = <<-EOT.unindent
+        Upgrade a OneKS cluster by ID.
+        Supported resources: cluster.
+
+        Examples:
+            # Upgrade a cluster
+            oneks upgrade cluster <cluster_id>
+    EOT
+
+    command :upgrade,
+            upgrade_desc,
+            :resource,
+            :resource_id,
+            :options => [KUBERNETES_VERSION] do
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+
+        case resource
+        when 'cluster'
+            rc = kscluster.upgrade(client, resource_id, options)
+        when 'group'
+            STDERR.puts(
+                "Upgrade operation is not supported for #{resource}. " \
+                'Only clusters can be upgraded.'
+            )
+            exit(-1)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    scale_desc = <<-EOT.unindent
+        Scale a OneKS group to a desired target size.
+        Supported resources: group.
+
+        Examples:
+            # Scale a group to 2 nodes
+            oneks scale group <group_id> --target 2
+    EOT
+
+    command :scale,
+            scale_desc,
+            :resource,
+            :resource_id,
+            :options => [TARGET] do
+        client      = OneKSHelper.client(options)
+        resource    = args[0]
+        resource_id = args[1]
+        target      = options[:target]
+
+        case resource
+        when 'cluster'
+            STDERR.puts(
+                "Scale operation is not supported for #{resource}.\n" \
+                'To increase cluster capacity, create a new group using: ' \
+                "'oneks create group --cluster-id <cluster_id>'."
+            )
+            exit(-1)
+        when 'group'
+            rc = ksgroup.scale(client, resource_id, target)
+        end
+
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        0
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+end

@@ -1,0 +1,11 @@
+minimal:
+  label: "Minimal Control Plane"
+  description: |
+    <p>Single Control Plane node deployment with minimal resources.<br><strong>ONLY FOR development and testing.</strong></p>
+  override_defaults: false
+  defaults:
+    count: 1
+    cpu: 1
+    vcpu: 1
+    memory: 2048
+    disk_size: 4096

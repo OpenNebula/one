@@ -1,0 +1,50 @@
+---
+# This file describes the information and actions available in the ONEKS tab
+
+# Resource
+
+resource_name: "KUBERNETES"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true
+  recover: true
+  delete: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  id: true
+  name: true
+  state: true
+  version: true
+  locked: true
+  created: true
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        chgrp: true
+  nodegroup:
+    enabled: true
+    actions:
+      create_dialog: true
+  logs:
+    enabled: true
+  events:
+    enabled: true
+  kubeconfig:
+    enabled: true

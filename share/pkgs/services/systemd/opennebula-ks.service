@@ -1,0 +1,19 @@
+[Unit]
+Description=OpenNebula Kubernetes Service
+After=syslog.target network.target
+After=opennebula.service
+AssertFileNotEmpty=/var/lib/one/.one/oneks_auth
+
+[Service]
+Type=simple
+Group=oneadmin
+User=oneadmin
+ExecStart=/usr/bin/ruby /usr/lib/one/oneks/oneks-server.rb
+StartLimitInterval=60
+StartLimitBurst=3
+Restart=on-failure
+RestartSec=5
+SyslogIdentifier=opennebula-ks
+
+[Install]
+WantedBy=multi-user.target

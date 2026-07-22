@@ -1,0 +1,11 @@
+minimal:
+  label: "Minimal Node Group"
+  description: |
+    <p>Single worker node deployment with minimal resources.<br><strong>ONLY FOR development and testing.</strong></p>
+  override_defaults: false
+  defaults:
+    count: 1
+    cpu: 1
+    vcpu: 1
+    memory: 2048
+    disk_size: 4096

@@ -1,0 +1,17 @@
+- title: Kubernetes
+  icon: XrayView
+  routes:
+    - title: Create Kubernetes Cluster
+      path: /kubernetes/create
+      Component: CreateOneKsCluster
+    - title: Kubernetes Logs
+      path: /kubernetes/create_kubernetes_logs/:id
+      Component: CreateKubernetesLogs
+    - title: K8S Clusters
+      path: /kubernetes
+      icon: XrayView
+      sidebar: true
+      Component: OneKs
+    - title: k8S Clusters
+      path: /kubernetes/:id
+      Component: OneKsDetail
