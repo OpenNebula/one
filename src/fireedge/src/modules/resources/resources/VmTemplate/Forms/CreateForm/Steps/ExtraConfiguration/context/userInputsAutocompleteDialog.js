@@ -177,7 +177,7 @@ const PopUpDialog = ({ open, handleClose }) => {
                 <Typography variant="body2" component="div">
                   {item.text}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" color="text.disabled">
                   {item.value}
                 </Typography>
               </CardContent>

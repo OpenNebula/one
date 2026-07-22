@@ -42,68 +42,19 @@ export const getStyles = ({ theme }) => {
     },
   }
 
-  const dropdown = {
-    '& .dropdown': {
-      flex: '0 0 auto',
-      width: 'auto',
-      minWidth: 0,
+  const menuButton = {
+    '& .menu-button-container': {
+      display: 'flex',
+      height: '100%',
     },
 
-    '& .dropdown-input-wrapper .MuiInput-input': {
-      flex: '0 0 auto',
-      width: 'auto',
-      minWidth: 0,
-      fieldSizing: 'content',
+    '& .menu-button-container > button': {
+      height: '100%',
     },
   }
 
   return {
     ...baseStyles,
-    ...dropdown,
-  }
-}
-
-/**
- * @param {object} root0 - Params
- * @param {object} root0.theme - Current theme in use
- * @param {string} root0.label - Longest sort option label
- * @returns {object} - Sort dropdown popper styles
- */
-export const getPopperStyles = ({ theme, label = '' }) => {
-  const width = `calc(${label.length}ch + ${
-    theme.scale[1500] + theme.scale[500]
-  }px)`
-
-  return {
-    width: 'max-content',
-    minWidth: width,
-
-    '& .dropdown-menu-paper, & .MuiAutocomplete-listbox': {
-      width: '100%',
-      minWidth: width,
-    },
-
-    '& .dropdown-menu-option': {
-      minWidth: 'max-content',
-    },
-
-    '& .dropdown-option-starticon': {
-      width: `${theme.scale[500]}px`,
-      height: `${theme.scale[500]}px`,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-
-    '& .dropdown-option-starticon svg': {
-      width: `${theme.scale[500]}px`,
-      height: `${theme.scale[500]}px`,
-    },
-
-    '& .dropdown-option-text': {
-      flex: '0 0 auto',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    },
+    ...menuButton,
   }
 }

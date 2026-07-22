@@ -27,9 +27,10 @@ import {
   FormWithSchema,
   Button,
   ResourceLink,
+  Text,
 } from '@ComponentsV2Module'
 import { Legend } from '@modules/resources/Forms'
-import { Translate, useTranslation } from '@ProvidersModule'
+import { useTranslation } from '@ProvidersModule'
 
 import {
   FIELDS,
@@ -41,6 +42,8 @@ import {
   STYLE_BUTTONS,
   ICMP_STRING,
   ICMP_V6_STRING,
+  TEXT_VARIANTS,
+  TEXT_WEIGHTS,
 } from '@ConstantsModule'
 import { RULESECURITYGROUP_COLUMNS } from '@ModelsModule'
 
@@ -190,7 +193,12 @@ const RulesSection = memo(
               data-cy={getCyPath('add-rules')}
               sx={{ mt: '1em', ml: 'auto' }}
             >
-              <Translate word={T.AddRule} />
+              <Text
+                component="span"
+                value={T.AddRule}
+                variant={TEXT_VARIANTS.BODY_SMALL}
+                weight={TEXT_WEIGHTS.MEDIUM}
+              />
             </Button>
           </Stack>
         </FormProvider>

@@ -50,7 +50,7 @@ const HostListPreview = ({
 
   return (
     <Stack gap={1}>
-      <Box sx={{ color: 'text.secondary', fontWeight: 600 }}>{title}:</Box>
+      <Box sx={{ color: 'text.headings', fontWeight: 600 }}>{title}:</Box>
       {hostIds?.length > 0 ? (
         <Stack gap={1} sx={{ alignItems: 'flex-start' }}>
           {hostIds.map((hostId) => (
@@ -81,7 +81,7 @@ const HostListPreview = ({
         <Box
           sx={{
             alignItems: 'center',
-            color: 'text.secondary',
+            color: 'text.disabled',
             display: 'flex',
           }}
         >

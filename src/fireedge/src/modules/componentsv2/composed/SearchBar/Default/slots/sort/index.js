@@ -16,39 +16,10 @@
 
 import { forwardRef, Component, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Box, Popper } from '@mui/material'
-import {
-  getStyles,
-  getPopperStyles,
-} from '@modules/componentsv2/composed/SearchBar/Default/slots/sort/styles'
-import { Dropdown } from '@modules/componentsv2/primitives/Dropdown'
+import { Box } from '@mui/material'
+import { getStyles } from '@modules/componentsv2/composed/SearchBar/Default/slots/sort/styles'
+import { MenuButton } from '@modules/componentsv2/primitives/Buttons/Menu'
 import { Sort as SortIcon, SortDown, SortUp } from 'iconoir-react'
-
-const SortPopper = forwardRef(
-  (
-    { style: { width: anchorWidth, ...style } = {}, sortLabel = '', ...props },
-    ref
-  ) => (
-    <Popper
-      {...props}
-      ref={ref}
-      placement="bottom-start"
-      style={{
-        ...style,
-        minWidth:
-          typeof anchorWidth === 'number' ? `${anchorWidth}px` : anchorWidth,
-      }}
-      sx={(theme) => getPopperStyles({ theme, label: sortLabel })}
-    />
-  )
-)
-
-SortPopper.propTypes = {
-  sortLabel: PropTypes.string,
-  style: PropTypes.object,
-}
-
-SortPopper.displayName = 'SortPopper'
 
 /**
  * SortSlot component.
@@ -58,7 +29,7 @@ SortPopper.displayName = 'SortPopper'
  * @param {string} root0.hint - Hint text
  * @param {object} root0.children - Child elements
  * @param {string} root0.initialValue - Initial value
- * @returns {Component} - TextField component
+ * @returns {Component} - Sort menu button
  */
 export const SortSlot = forwardRef(
   (
@@ -72,27 +43,12 @@ export const SortSlot = forwardRef(
     },
     ref
   ) => {
-    const longestLabel = [placeholder, initialValue, ...options]
-      .map((option) =>
-        String((typeof option === 'object' ? option?.text : option) ?? '')
-      )
-      .reduce(
-        (longest, label) => (label.length > longest.length ? label : longest),
-        ''
-      )
-    const PopperComponent = useMemo(
-      () =>
-        forwardRef(function SortSlotPopper(props, popperRef) {
-          return (
-            <SortPopper {...props} ref={popperRef} sortLabel={longestLabel} />
-          )
-        }),
-      [longestLabel]
-    )
     const selectedValue =
       typeof initialValue === 'object'
         ? initialValue?.value ?? initialValue?.text
         : initialValue
+    const selectedLabel =
+      typeof initialValue === 'object' ? initialValue?.text : initialValue
     const sortOptions = useMemo(
       () =>
         options.map((option) => {
@@ -102,32 +58,22 @@ export const SortSlot = forwardRef(
             selectedValue != null &&
             String(optionValue) === String(selectedValue)
 
-          if (!isSelected) return option
-
           const DirectionIcon = sortDesc ? SortDown : SortUp
+          const optionTitle = typeof option === 'object' ? option?.text : option
 
           return {
-            ...(typeof option === 'object'
-              ? option
-              : { text: option, value: optionValue }),
-            startIcon: (
+            title: optionTitle,
+            dataCy: option?.dataCy,
+            isDisabled: option?.isDisabled,
+            isSelected,
+            startIcon: isSelected ? (
               <DirectionIcon width="16px" height="16px" strokeWidth={1.6} />
-            ),
+            ) : undefined,
+            onClick: () => onChange?.(option),
           }
         }),
-      [options, selectedValue, sortDesc]
+      [onChange, options, selectedValue, sortDesc]
     )
-    const handleChange = (option) => {
-      if (option && typeof option === 'object') {
-        const { startIcon, ...sortOption } = option
-
-        onChange?.(sortOption)
-
-        return
-      }
-
-      onChange?.(option)
-    }
 
     return (
       <Box
@@ -138,13 +84,13 @@ export const SortSlot = forwardRef(
         }
         ref={ref}
       >
-        <Dropdown
-          onChange={handleChange}
+        <MenuButton
+          dataCy="sort-by-button"
           startIcon={sortIcon}
-          placeholder={placeholder}
-          options={sortOptions}
-          initialValue={initialValue}
-          PopperComponent={PopperComponent}
+          placeholder={selectedLabel ?? placeholder}
+          options={[sortOptions]}
+          size="medium"
+          type="secondary"
           disableCloseOnSelect
         />
       </Box>
@@ -155,7 +101,7 @@ export const SortSlot = forwardRef(
 SortSlot.propTypes = {
   onChange: PropTypes.func,
   placeholder: PropTypes.string,
-  sortIcon: PropTypes.node,
+  sortIcon: PropTypes.oneOfType([PropTypes.node, PropTypes.elementType]),
   options: PropTypes.array,
   initialValue: PropTypes.any,
   sortDesc: PropTypes.bool,

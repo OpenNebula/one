@@ -15,8 +15,9 @@
  * ------------------------------------------------------------------------- */
 import { css } from '@emotion/css'
 import { AdornmentWithTooltip as Tooltip } from '@modules/componentsv2/composed/Forms/FormControl/Tooltip'
-import { isTranslationInput, findClosestValue, generateKey } from '@UtilsModule'
-import { useTranslation } from '@ProvidersModule'
+import { findClosestValue, generateKey } from '@UtilsModule'
+import { Text } from '@modules/componentsv2/primitives/Text'
+import { TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 
 import {
   Box,
@@ -104,7 +105,6 @@ export const RadioController = memo(
     readOnly = false,
     onConditionChange,
   }) => {
-    const { translate } = useTranslation()
     const theme = useTheme()
     const classes = useMemo(() => styles(theme), [theme])
 
@@ -164,9 +164,12 @@ export const RadioController = memo(
         sx={{ width: '100%' }}
       >
         {label && (
-          <legend>
-            {isTranslationInput(label) ? translate(label) : label}
-          </legend>
+          <Text
+            component="legend"
+            value={label}
+            variant={TEXT_VARIANTS.BODY_SMALL}
+            weight={TEXT_WEIGHTS.MEDIUM}
+          />
         )}
         <RadioGroup
           {...inputProps}
@@ -198,22 +201,24 @@ export const RadioController = memo(
                     />
                   </Box>
                   <Box className={clsx(classes.cell, classes.cellFull)}>
-                    <Box sx={{ fontWeight: 500 }}>{translate(text)}</Box>
+                    <Text
+                      component="span"
+                      value={text}
+                      variant={TEXT_VARIANTS.BODY_MEDIUM}
+                      weight={TEXT_WEIGHTS.MEDIUM}
+                    />
                     {description && (
-                      <Box
-                        component="p"
+                      <Text
+                        component="span"
+                        value={description}
+                        variant={TEXT_VARIANTS.CAPTION}
+                        weight={TEXT_WEIGHTS.REGULAR}
                         sx={{
+                          display: 'block',
                           m: 0,
                           mt: 0.5,
-                          fontSize: '0.75rem',
-                          color: 'text.secondary',
-                          lineHeight: 1.4,
                         }}
-                      >
-                        {isTranslationInput(description)
-                          ? translate(description)
-                          : description}
-                      </Box>
+                      />
                     )}
                   </Box>
                 </Box>

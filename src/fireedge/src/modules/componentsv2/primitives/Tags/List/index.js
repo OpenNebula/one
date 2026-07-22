@@ -68,6 +68,7 @@ TagList.propTypes = {
       isInteractive: PropTypes.bool,
       startIcon: PropTypes.node,
       endIcon: PropTypes.node,
+      endIconSize: PropTypes.number,
       isSelected: PropTypes.bool,
       titleClassName: PropTypes.string,
       customColor: PropTypes.shape({

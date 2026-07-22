@@ -17,11 +17,11 @@
 import { object, array, number } from 'yup'
 
 import { StatusCircle, StatusChip } from '@modules/resources/Status'
-import { Translate } from '@ProvidersModule'
+import { Text } from '@ComponentsV2Module'
 import { Field, stringToBoolean } from '@UtilsModule'
 
 import { getState } from '@ModelsModule'
-import { T, INPUT_TYPES } from '@ConstantsModule'
+import { T, INPUT_TYPES, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 
 export const PARENT = 'DISK'
 
@@ -45,14 +45,21 @@ const SIZE_FIELD = ({
   return {
     name: 'SIZE',
     label: isVolatile ? (
-      <>
-        {`DISK ${DISK_ID}: `}
-        <Translate word={T.VolatileDisk} />
-      </>
+      <Text
+        component="span"
+        value={`DISK ${DISK_ID}: ${T.VolatileDisk}`}
+        variant={TEXT_VARIANTS.BODY_SMALL}
+        weight={TEXT_WEIGHTS.MEDIUM}
+      />
     ) : (
       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
         <StatusCircle color={state?.color} tooltip={state?.name} />
-        {`DISK ${DISK_ID}: ${IMAGE}`}
+        <Text
+          component="span"
+          value={`DISK ${DISK_ID}: ${IMAGE}`}
+          variant={TEXT_VARIANTS.BODY_SMALL}
+          weight={TEXT_WEIGHTS.MEDIUM}
+        />
         {isPersistent && <StatusChip text="PERSISTENT" />}
       </span>
     ),

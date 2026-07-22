@@ -22,6 +22,7 @@
  * @param {boolean} root0.isClickable - Enable click handling without selection
  * @param {boolean} root0.isSelected - Selected state.
  * @param {object} root0.customColor - Optional custom tag colors.
+ * @param {number} root0.endIconSize - Optional end icon size in pixels.
  * Tracked internally by default or externally by parent.
  * @returns {object} - Button SX style
  */
@@ -32,6 +33,7 @@ export const getStyles = ({
   isClickable,
   isSelected,
   customColor,
+  endIconSize,
 }) => {
   const baseStyle = {
     pointerEvents: isClickable || isInteractive ? 'auto' : 'none',
@@ -60,6 +62,18 @@ export const getStyles = ({
         backgroundColor: 'currentColor',
       },
     },
+
+    ...(endIconSize && {
+      '& .MuiButton-endIcon': {
+        width: `${endIconSize}px`,
+        height: `${endIconSize}px`,
+
+        '& > svg': {
+          width: '100%',
+          height: '100%',
+        },
+      },
+    }),
 
     cursor: isClickable || isInteractive ? 'pointer' : 'default',
 

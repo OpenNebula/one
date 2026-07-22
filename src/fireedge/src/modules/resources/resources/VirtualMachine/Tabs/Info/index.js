@@ -152,6 +152,7 @@ export const Info = ({ data, config }) => {
                         tags={ips.map((ip) => ({
                           title: ip,
                           endIcon: isCopied(ip) ? <CopiedIcon /> : <CopyIcon />,
+                          endIconSize: 14,
                           onClick: () => copy(ip),
                         }))}
                       />

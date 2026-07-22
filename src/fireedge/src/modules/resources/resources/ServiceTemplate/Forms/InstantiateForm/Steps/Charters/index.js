@@ -31,8 +31,9 @@ import {
   TEMPLATE_SCHEDULE_TYPE_STRING,
   VM_ACTIONS,
   VM_ACTIONS_IN_CHARTER,
+  TEXT_VARIANTS,
+  TEXT_WEIGHTS,
 } from '@ConstantsModule'
-import { Translate } from '@ProvidersModule'
 import { sentenceCase, timeFromMilliseconds } from '@UtilsModule'
 
 import { Component, memo, useMemo } from 'react'
@@ -52,6 +53,7 @@ import {
   SubmitButton,
   Table,
   Tag,
+  Text,
 } from '@ComponentsV2Module'
 
 export const TAB_ID = 'SCHED_ACTION'
@@ -107,9 +109,12 @@ const ScheduleTimeCell = ({ getValue }) => {
 
   if (value?.relative) {
     return (
-      <>
-        {value.relative.time} <Translate word={value.relative.period} />
-      </>
+      <Text
+        component="span"
+        value={`${value.relative.time} ${value.relative.period}`}
+        variant={TEXT_VARIANTS.BODY_SMALL}
+        weight={TEXT_WEIGHTS.REGULAR}
+      />
     )
   }
 
@@ -164,7 +169,13 @@ const ScheduleActionMenu = memo(function ScheduleActionMenu({
       id: `instantiate-schedule-action-update-${ID}`,
       dialogProps: {
         title: (
-          <Translate word={T.UpdateScheduleAction} values={[titleAction]} />
+          <Text
+            component="span"
+            value={T.UpdateScheduleAction}
+            values={[titleAction]}
+            variant={TEXT_VARIANTS.H6}
+            weight={TEXT_WEIGHTS.SEMIBOLD}
+          />
         ),
         dataCy: 'modal-sched-actions',
       },
@@ -181,9 +192,12 @@ const ScheduleActionMenu = memo(function ScheduleActionMenu({
       isConfirmDialog: true,
       dialogProps: {
         title: (
-          <>
-            <Translate word={T.Delete} /> #{ID}
-          </>
+          <Text
+            component="span"
+            value={`${T.Delete} #${ID}`}
+            variant={TEXT_VARIANTS.H6}
+            weight={TEXT_WEIGHTS.SEMIBOLD}
+          />
         ),
         description: (
           <ResourceActionConfirmation
@@ -203,13 +217,27 @@ const ScheduleActionMenu = memo(function ScheduleActionMenu({
   const options = [
     {
       'data-cy': `${VM_ACTIONS.SCHED_ACTION_UPDATE}-${ID}`,
-      title: <Translate word={T.Edit} />,
+      title: (
+        <Text
+          component="span"
+          value={T.Edit}
+          variant={TEXT_VARIANTS.BODY_SMALL}
+          weight={TEXT_WEIGHTS.MEDIUM}
+        />
+      ),
       startIcon: <Edit width="16px" height="16px" />,
       onClick: handleOpenForm,
     },
     {
       'data-cy': `${VM_ACTIONS.SCHED_ACTION_DELETE}-${ID}`,
-      title: <Translate word={T.Delete} />,
+      title: (
+        <Text
+          component="span"
+          value={T.Delete}
+          variant={TEXT_VARIANTS.BODY_SMALL}
+          weight={TEXT_WEIGHTS.MEDIUM}
+        />
+      ),
       startIcon: <Trash width="16px" height="16px" />,
       onClick: handleOpenConfirm,
     },
@@ -252,7 +280,14 @@ const CreateCharterButton = memo(function CreateCharterButton({ onSubmit }) {
     <SubmitButton
       data-cy={VM_ACTIONS.CHARTER_CREATE}
       iconOnly={<Clock width="16px" height="16px" />}
-      tooltip={<Translate word={T.Charter} />}
+      tooltip={
+        <Text
+          component="span"
+          value={T.Charter}
+          variant={TEXT_VARIANTS.BODY_SMALL}
+          weight={TEXT_WEIGHTS.REGULAR}
+        />
+      }
       isDisabled={leases.length <= 0}
       type={STYLE_BUTTONS.TYPE.SECONDARY}
       onClick={handleOpenForm}
@@ -281,7 +316,14 @@ const getScheduleActionColumns = ({
   {
     header: T.Action,
     accessorKey: 'ACTION',
-    cell: ({ getValue }) => <Translate word={sentenceCase(getValue())} />,
+    cell: ({ getValue }) => (
+      <Text
+        component="span"
+        value={sentenceCase(getValue())}
+        variant={TEXT_VARIANTS.BODY_SMALL}
+        weight={TEXT_WEIGHTS.REGULAR}
+      />
+    ),
   },
   {
     header: T.Repeat,

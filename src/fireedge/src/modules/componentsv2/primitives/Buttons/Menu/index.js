@@ -71,6 +71,7 @@ const MenuButtonOption = ({
   isDisabled = false,
   onClose,
   nestedTrigger = 'click',
+  disableCloseOnSelect = false,
 }) => {
   const { translateText } = useTranslation()
   const optionRef = useRef(null)
@@ -90,6 +91,7 @@ const MenuButtonOption = ({
     isDestructive,
     isDisabled: optionDisabled,
     isSelected,
+    disableCloseOnSelect: optionDisableCloseOnSelect,
     options: nestedOptions,
     onMouseEnter,
     onMouseLeave,
@@ -98,6 +100,7 @@ const MenuButtonOption = ({
     ...rest
   } = option
   const hasNestedOptions = !!nestedOptions
+  const keepOpenOnSelect = disableCloseOnSelect || optionDisableCloseOnSelect
   const normalizedNestedOptions = normalizeOptionGroups(nestedOptions)
   const isOptionDisabled =
     isDisabled ||
@@ -253,7 +256,7 @@ const MenuButtonOption = ({
           }
 
           onClick?.(event)
-          onClose?.()
+          !keepOpenOnSelect && onClose?.()
         }}
         onMouseEnter={(event) => {
           onMouseEnter?.(event)
@@ -317,6 +320,7 @@ const MenuButtonOption = ({
                 isDisabled={isDisabled}
                 onClose={handleCloseAll}
                 nestedTrigger={nestedTrigger}
+                disableCloseOnSelect={keepOpenOnSelect}
               />
             ))
 
@@ -344,6 +348,7 @@ MenuButtonOption.propTypes = {
   isDisabled: PropTypes.bool,
   onClose: PropTypes.func,
   nestedTrigger: PropTypes.oneOf(['click', 'hover']),
+  disableCloseOnSelect: PropTypes.bool,
 }
 
 /**
@@ -356,6 +361,7 @@ MenuButtonOption.propTypes = {
  * @param {ReactNode} root0.startIcon - Start icon
  * @param {ReactNode} root0.endIcon - End icon
  * @param {ReactNode} root0.iconOnly - Only icon to render
+ * @param {boolean} root0.disableCloseOnSelect - Keep menu open after selecting an option
  * @param {string} root0.title - Button label
  * @param {string} root0.size - Size of button
  * @returns {Component} - Custom MUI Button component
@@ -370,6 +376,7 @@ export const MenuButton = forwardRef(
       type,
       isDisabled = false,
       options = [],
+      disableCloseOnSelect = false,
       placeholder = T.Options,
       size = 'small',
       sx,
@@ -393,11 +400,13 @@ export const MenuButton = forwardRef(
         startIcon: iconOnly ?? startIcon,
         isDisabled,
         isDestructive,
+        disableCloseOnSelect,
         options,
         sx,
       }),
       [
         iconOnly,
+        disableCloseOnSelect,
         isDestructive,
         isDisabled,
         options,
@@ -484,6 +493,7 @@ export const MenuButton = forwardRef(
                 isDisabled={isDisabled}
                 onClose={handleClose}
                 nestedTrigger={nestedTrigger}
+                disableCloseOnSelect={disableCloseOnSelect}
               />
             ))
 
@@ -510,6 +520,7 @@ MenuButton.propTypes = {
   options: PropTypes.array,
   size: PropTypes.string,
   isDisabled: PropTypes.bool,
+  disableCloseOnSelect: PropTypes.bool,
   type: PropTypes.string,
   placeholder: PropTypes.string,
   startIcon: PropTypes.node,

@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Typography } from '@mui/material'
-
 import {
   SCHEMA,
   FIELDS,
 } from '@modules/resources/resources/VirtualMachine/Forms/RecoverForm/schema'
-import { Translate } from '@ProvidersModule'
 import { createForm } from '@UtilsModule'
+import { Text } from '@ComponentsV2Module'
 
-import { T } from '@ConstantsModule'
+import { T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 
 const RecoverForm = createForm(SCHEMA, FIELDS, {
   description: (
-    <Typography variant="subtitle1" p="1rem">
-      <Translate word={T.RecoverDescription} />
-    </Typography>
+    <Text
+      value={T.RecoverDescription}
+      variant={TEXT_VARIANTS.BODY_MEDIUM}
+      weight={TEXT_WEIGHTS.REGULAR}
+      sx={{ p: '1rem' }}
+    />
   ),
 })
 

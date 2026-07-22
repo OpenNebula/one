@@ -28,11 +28,12 @@ import { STEP_ID as EXTRA_ID } from '@modules/resources/resources/ServiceTemplat
 
 import { SECTION_ID as EXTRA_SECTION_ID } from '@modules/resources/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/networking/extraDropdown'
 import { useModalsApi } from '@FeaturesModule'
-import { Translate } from '@ProvidersModule'
 import {
   RESTRICTED_ATTRIBUTES_TYPE,
   STYLE_BUTTONS,
   T,
+  TEXT_VARIANTS,
+  TEXT_WEIGHTS,
   VNET_THRESHOLD,
   VN_ACTIONS,
 } from '@ConstantsModule'
@@ -43,6 +44,7 @@ import {
   SubmitButton,
   Table,
   Tag,
+  Text,
 } from '@ComponentsV2Module'
 
 const SECTION_ID = 'AR'
@@ -103,7 +105,13 @@ const AddressRanges = ({ selectedNetwork }) => {
       dialogProps: {
         title: (
           <>
-            <Translate word={T.AddressRange} />: #{idx}
+            <Text
+              component="span"
+              value={T.AddressRange}
+              variant={TEXT_VARIANTS.H6}
+              weight={TEXT_WEIGHTS.SEMIBOLD}
+            />
+            : #{idx}
           </>
         ),
         dataCy: 'modal-update-ar',
@@ -120,7 +128,13 @@ const AddressRanges = ({ selectedNetwork }) => {
       dialogProps: {
         title: (
           <>
-            <Translate word={T.DeleteAddressRange} />: #{idx}
+            <Text
+              component="span"
+              value={T.DeleteAddressRange}
+              variant={TEXT_VARIANTS.H6}
+              weight={TEXT_WEIGHTS.SEMIBOLD}
+            />
+            : #{idx}
           </>
         ),
         description: (

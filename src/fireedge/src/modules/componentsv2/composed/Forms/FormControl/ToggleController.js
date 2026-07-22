@@ -19,7 +19,6 @@ import { TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 import {
   styled,
   FormControl,
-  Typography,
   ToggleButtonGroup,
   ToggleButton,
   FormHelperText,
@@ -30,13 +29,15 @@ import { useController } from 'react-hook-form'
 import { Text } from '@modules/componentsv2/primitives/Text'
 import { ErrorHelper } from '@modules/componentsv2/composed/Forms/FormControl/ErrorHelper'
 import { AdornmentWithTooltip as Tooltip } from '@modules/componentsv2/composed/Forms/FormControl/Tooltip'
-import { isTranslationInput, generateKey } from '@UtilsModule'
-import { useTranslation } from '@ProvidersModule'
+import { generateKey } from '@UtilsModule'
 
 const Label = styled('label')(({ theme, error }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: '1em',
+  '& .toggle-controller-label': {
+    color: error ? theme.palette.text.error : theme.palette.text.body,
+  },
   ...(error && {
     color: theme.palette.error.main,
   }),
@@ -57,7 +58,6 @@ export const ToggleController = memo(
     onConditionChange,
     defaultValue,
   }) => {
-    const { translate } = useTranslation()
     const {
       field: { ref, value: optionSelected, onChange, onBlur },
       fieldState: { error: { message } = {} },
@@ -96,7 +96,13 @@ export const ToggleController = memo(
       <FormControl fullWidth margin="dense">
         {label && (
           <Label htmlFor={cy} error={message}>
-            {isTranslationInput(label) ? translate(label) : label}
+            <Text
+              className="toggle-controller-label"
+              component="span"
+              value={label}
+              variant={TEXT_VARIANTS.BODY_SMALL}
+              weight={TEXT_WEIGHTS.MEDIUM}
+            />
             {tooltip && <Tooltip title={tooltip} />}
           </Label>
         )}
@@ -129,21 +135,18 @@ export const ToggleController = memo(
             >
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Text
-                  value={translate(text)}
+                  value={text}
                   variant={TEXT_VARIANTS.BODY_SMALL}
                   weight={TEXT_WEIGHTS.REGULAR}
                 />
 
                 {description && (
-                  <Typography
-                    variant="caption"
-                    display="block"
-                    color="text.secondary"
-                  >
-                    {isTranslationInput(description)
-                      ? translate(description)
-                      : description}
-                  </Typography>
+                  <Text
+                    component="span"
+                    value={description}
+                    variant={TEXT_VARIANTS.CAPTION}
+                    weight={TEXT_WEIGHTS.REGULAR}
+                  />
                 )}
               </Box>
             </ToggleButton>

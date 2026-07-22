@@ -23,6 +23,11 @@ export const getStyles = ({ theme }) => {
   const baseStyles = {
     display: 'flex',
     flex: '1 0 0',
+    height: '100%',
+
+    '& .MuiButton-root': {
+      height: '100%',
+    },
 
     fontSize: {
       xs: theme.fontSize.body.sm.mobile,

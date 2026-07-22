@@ -27,6 +27,7 @@ import { useTranslation } from '@ProvidersModule'
  * @param {string} root0.weight - Text weight
  * @param {string|Component} root0.component - Text HTML element or component
  * @param {*} root0.value - Text content
+ * @param {any|any[]} root0.values - Translation interpolation values
  * @returns {Component} - Custom MUI Text component
  */
 export const Text = forwardRef(
@@ -35,6 +36,7 @@ export const Text = forwardRef(
       variant = TEXT_VARIANTS.BODY_MEDIUM,
       weight = TEXT_WEIGHTS.REGULAR,
       value,
+      values = [],
       component,
       ...opts
     },
@@ -54,7 +56,7 @@ export const Text = forwardRef(
           ...(Array.isArray(sx) ? sx : [sx]),
         ].filter(Boolean)}
       >
-        {typeof value === 'string' ? translateText(value) : value}
+        {typeof value === 'string' ? translateText(value, values) : value}
       </MUITypography>
     )
   }
@@ -63,6 +65,7 @@ export const Text = forwardRef(
 Text.propTypes = {
   component: PropTypes.elementType,
   value: PropTypes.node,
+  values: PropTypes.any,
   variant: PropTypes.oneOf(Object.values(TEXT_VARIANTS)),
   weight: PropTypes.oneOf(Object.values(TEXT_WEIGHTS)),
 }

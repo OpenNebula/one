@@ -17,9 +17,9 @@
 import { T, UNITS, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 import { SystemAPI } from '@FeaturesModule'
 import { css } from '@emotion/css'
-import { Text } from '@ComponentsV2Module'
 import { formatNumberByCurrency } from '@UtilsModule'
 import { Typography, useTheme } from '@mui/material'
+import { Text } from '@ComponentsV2Module'
 import clsx from 'clsx'
 import PropTypes from 'prop-types'
 import { ReactElement, memo, useMemo } from 'react'
@@ -48,7 +48,6 @@ const useStyles = () => ({
     display: 'inline',
     marginLeft: '.5rem',
     textTransform: 'uppercase',
-    color: '#a0a0a0',
     fontSize: '.8rem',
   }),
   costUnit: css({
@@ -85,14 +84,18 @@ export const CapacityMemoryLabel = memo(({ data }) => {
   return (
     <>
       <Text
+        component="span"
         value={T.Capacity}
         variant={TEXT_VARIANTS.H6}
         weight={TEXT_WEIGHTS.BOLD}
       />
-      <Typography className={classes.cost}>
+      <Typography className={classes.cost} color="text.disabled">
         {`${(memory * memoryUnitCostMB + cpu * cpuCost).toFixed(6)}`}
       </Typography>
-      <Typography className={clsx(classes.cost, classes.costUnit)}>
+      <Typography
+        className={clsx(classes.cost, classes.costUnit)}
+        color="text.disabled"
+      >
         {`${T.CostPerHour}`}
       </Typography>
     </>
@@ -132,9 +135,13 @@ export const CapacityDisksLabel = memo(({ data }) => {
     <>
       <Typography
         className={classes.cost}
+        color="text.disabled"
         data-cy="legend-capacity-disks"
       >{`${formatNumberByCurrency(costinGbPerHour)}`}</Typography>
-      <Typography className={clsx(classes.cost, classes.costUnit)}>
+      <Typography
+        className={clsx(classes.cost, classes.costUnit)}
+        color="text.disabled"
+      >
         {`${T.CostPerHour}`}
       </Typography>
     </>

@@ -31,6 +31,7 @@ import { useControllableState } from '@HooksModule'
  * @param {string} root0.status - Tag status
  * @param {ReactNode} root0.startIcon - Start icon
  * @param {ReactNode} root0.endIcon - End icon
+ * @param {number} root0.endIconSize - End icon size in pixels
  * @param {boolean} root0.isSelected - Parent controlled selection state
  * @param {string} root0.titleClassName - Optional wrapped title class name
  * @param {object} root0.customColor - Optional custom tag colors
@@ -44,6 +45,7 @@ export const Tag = forwardRef(
       status = 'default',
       startIcon = null,
       endIcon = null,
+      endIconSize,
       isInteractive = false,
       isSelected,
       title = '',
@@ -97,6 +99,7 @@ export const Tag = forwardRef(
             isClickable: Boolean(onClick),
             isSelected: selected,
             customColor,
+            endIconSize,
             ...opts,
           })
         }
@@ -120,6 +123,7 @@ Tag.propTypes = {
   }),
   isInteractive: PropTypes.bool,
   endIcon: PropTypes.node,
+  endIconSize: PropTypes.number,
   startIcon: PropTypes.node,
   isSelected: PropTypes.bool,
   dataCy: PropTypes.string,

@@ -791,7 +791,7 @@ export default function GeneralDashboard() {
       case DASHBOARD_CARD_IDS.CLUSTER_CAPACITY:
         return (
           <DashboardCapacityCard
-            title={translate(T.ClusterCapacity)}
+            title={translate(T.Hosts)}
             titleTag={
               <Tag title={String(clusterCapacity.cluster?.NAME ?? '-')} />
             }

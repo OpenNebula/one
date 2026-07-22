@@ -478,6 +478,23 @@ export const SingleView = ({
                 />,
                 T.State,
               ],
+              [
+                vmIps.length ? (
+                  <TagList
+                    key="ips"
+                    max={1}
+                    tags={vmIps.map((ip) => ({
+                      title: ip,
+                      endIcon: isCopied(ip) ? <CopiedIcon /> : <CopyIcon />,
+                      endIconSize: 14,
+                      onClick: () => copy(ip),
+                    }))}
+                  />
+                ) : (
+                  '-'
+                ),
+                T.ip,
+              ],
               [hostName ?? T.Unknown, T.Hostname],
               [
                 `${selectedVm?.TEMPLATE?.CPU || '-'}/${
