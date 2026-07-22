@@ -192,8 +192,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def deactivate
-        # NIC_ALIAS are  not processed, skip
-        return 0 if @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+        return 0 if special_hotplug?
 
         lock
 
@@ -202,9 +201,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
 
         process do |nic|
-            if attach_nic_id && attach_nic_id != nic[:nic_id]
-                next
-            end
+            next if attach_nic_id.nil? || attach_nic_id != nic[:nic_id]
 
             @nic = nic
 
