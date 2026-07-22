@@ -18,7 +18,9 @@ const { createHash, createCipheriv } = require('crypto')
 const { defaults, httpCodes } = require('server/utils/constants')
 const { global } = require('window-or-global')
 const { parseLogFile } = require('server/utils/general')
-
+const {
+  getDefaultParamsOfOpennebulaCommand,
+} = require('server/utils/opennebula')
 const {
   httpResponse,
   executeCommand,
@@ -28,6 +30,9 @@ const { getSunstoneConfig } = require('server/utils/yml')
 const { Actions: userActions } = require('server/utils/constants/commands/user')
 const { Actions: vmActions } = require('server/utils/constants/commands/vm')
 const { createTokenServerAdmin } = require('server/routes/api/auth/utils')
+const {
+  Actions: ActionSystem,
+} = require('server/utils/constants/commands/system')
 
 const { USER_INFO } = userActions
 const { VM_INFO } = vmActions
@@ -41,7 +46,9 @@ const {
   defaultHash,
   keysRDP,
   keysVNC,
+  httpMethod,
 } = defaults
+const { GET } = httpMethod
 
 const appConfig = getSunstoneConfig()
 const prependCommand = appConfig.sunstone_prepend || ''
@@ -351,38 +358,91 @@ const encryptConnection = (data) => {
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ * @param {function(string, string): Function} oneConnection - One Connection
  */
-const vmLogs = async (res = {}, next = defaultEmptyFunction, params = {}) => {
+const vmLogs = async (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const { id } = params
   const rtnNotFound = httpResponse(notFound, `Log file not found`)
   const rtnError = httpResponse(internalServerError)
-  let rtn = rtnError
+
+  const { username, key, iv } = getSunstoneAuth()
+  if (!(username && key && iv)) {
+    res.locals.httpCode = rtnError
+    next()
+
+    return
+  }
+
+  const tokenWithServerAdmin = createTokenServerAdmin({
+    serverAdmin: username,
+    username,
+    key,
+    iv,
+  })
+
+  if (!tokenWithServerAdmin.token) {
+    res.locals.httpCode = rtnError
+    next()
+
+    return
+  }
 
   if (id !== undefined && id !== '' && Number.isInteger(Number(id))) {
     let logPath = `${global.paths.LOG_LOCATION}/${id}.log`
-    try {
-      const result = await parseLogFile(logPath)
-      rtn = httpResponse(ok, result)
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        try {
-          logPath = `${global.paths.LIB_LOCATION}/vms/${id}/vm.log`
-          const result = await parseLogFile(logPath)
-          rtn = httpResponse(ok, result)
-        } catch (error) {
-          if (error.code === 'ENOENT') {
-            rtn = rtnNotFound
+
+    const oneConnect = oneConnection(
+      `${username}:${username}`,
+      tokenWithServerAdmin.token
+    )
+
+    oneConnect({
+      action: ActionSystem.SYSTEM_CONFIG,
+      parameters: getDefaultParamsOfOpennebulaCommand(
+        ActionSystem.SYSTEM_CONFIG,
+        GET
+      ),
+      callback: async (err, value) => {
+        if (err) {
+          res.locals.httpCode = httpResponse(internalServerError, '', '')
+          next()
+
+          return
+        }
+
+        if (value?.OPENNEBULA_CONFIGURATION?.LOG?.USE_VMS_LOCATION === 'YES') {
+          try {
+            logPath = `${global.paths.LIB_LOCATION}/vms/${id}/vm.log`
+            const result = await parseLogFile(logPath)
+            res.locals.httpCode = httpResponse(ok, result)
+          } catch (error) {
+            if (error.code === 'ENOENT') {
+              res.locals.httpCode = rtnNotFound
+            }
+          }
+        } else {
+          try {
+            const result = await parseLogFile(logPath)
+            res.locals.httpCode = httpResponse(ok, result)
+          } catch (err) {
+            if (err.code === 'ENOENT') {
+              res.locals.httpCode = rtnNotFound
+            }
           }
         }
-      }
-    }
+        next()
+      },
+    })
   } else {
-    // There is no id in the request
-    rtn = httpResponse(badRequest, '', '')
+    res.locals.httpCode = httpResponse(badRequest, '', '')
+    next()
   }
-
-  res.locals.httpCode = rtn
-  next()
 }
 
 const functionRoutes = {
