@@ -1,0 +1,56 @@
+#!/usr/bin/ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+require 'load_opennebula_paths'
+# %%RUBYGEMS_SETUP_END%%
+
+###############################################################################
+#
+# ARGUMENTS: SOURCE DST remote_system_dir vmid dsid
+#  - SOURCE is the host where the VM is running
+#  - DST is the host where the VM is to be migrated
+#  - remote_system_dir is the path for the VM home in the system datastore
+#  - vmid is the id of the VM
+#  - dsid is the target datastore
+# STDIN: Base64-encoded VM template. Format:
+#     <VM>
+#         ...
+#     </VM>
+# RETURNS: -
+#
+###############################################################################
+
+require_relative '../../datastore/lvm'
+
+_arg_srchost = ARGV[0]
+arg_dsthost = ARGV[1]
+_arg_sysdir = ARGV[2]
+_arg_vmid = ARGV[3]
+_arg_sysds_id = ARGV[4]
+
+daction64 = STDIN.read
+daction = Base64.decode64 daction64
+delm = REXML::Document.new(daction).root
+
+lvmvm = MAD::LVMVM.new(delm)
+
+MAD.run(arg_dsthost, <<~EOF, "Error running failmigrate in #{arg_dsthost}")
+    #{lvmvm.activate_disks_sh(false)}
+    rm -rf '#{lvmvm.path}'
+EOF

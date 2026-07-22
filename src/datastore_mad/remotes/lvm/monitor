@@ -1,0 +1,58 @@
+#!/usr/bin/ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+require 'load_opennebula_paths'
+# %%RUBYGEMS_SETUP_END%%
+
+###############################################################################
+# This script is used to monitor the free and used space of an IMAGE datastore
+###############################################################################
+#
+# ARGUMENTS: img_ds_id
+# STDIN: Base64-encoded image datastore dump. Format:
+#     <DS_DRIVER_ACTION_DATA>
+#         <DATASTORE>...</DATASTORE>
+#     </DS_DRIVER_ACTION_DATA>
+# RETURNS: USED_MB=...\nTOTAL_MB=...\nFREE_MB=..."
+#
+###############################################################################
+
+require 'base64'
+
+require_relative '../lvm'
+
+_arg_imgds_id = ARGV[0] # redundant; it's also in STDIN's action
+
+daction64 = STDIN.read
+daction = Base64.decode64(daction64)
+delm = REXML::Document.new(daction).root
+
+lvmds = MAD::LVMDatastore.new(delm.elements['DATASTORE'])
+
+# The error can happen if the VG does not exist
+rc = lvmds.monitor
+
+(total_mb, free_mb) = rc.stdout.strip.split(':').map {|n| n.to_i }
+used_mb = total_mb - free_mb
+
+puts <<~EOF
+    USED_MB=#{used_mb}
+    FREE_MB=#{free_mb}
+    TOTAL_MB=#{total_mb}
+EOF
