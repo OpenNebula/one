@@ -46,7 +46,10 @@ export const AdornmentWithTooltip = memo(
           </Typography>
         }
       >
-        <InputAdornment position={position} style={{ cursor: 'help' }}>
+        <InputAdornment
+          position={position}
+          sx={{ cursor: 'help', color: 'text.action' }}
+        >
           {children ?? <HelpCircle />}
         </InputAdornment>
       </MuiTooltip>

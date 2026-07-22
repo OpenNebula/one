@@ -36,7 +36,7 @@ const Label = styled('label')(({ theme, error }) => ({
   alignItems: 'center',
   gap: '1em',
   '& .toggle-controller-label': {
-    color: error ? theme.palette.text.error : theme.palette.text.body,
+    color: error ? theme.palette.text.error : theme.palette.text.headings,
   },
   ...(error && {
     color: theme.palette.error.main,

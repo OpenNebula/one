@@ -64,6 +64,8 @@ export const getStyles = ({ theme }) => {
       width: '100%',
       minWidth: 0,
       minHeight: 0,
+      padding: `${theme.scale[100]}px`,
+      boxSizing: 'border-box',
     },
   }
 

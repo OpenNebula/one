@@ -193,7 +193,7 @@ const GroupBuilder = ({
         >
           {translate(T.AddGroup)}
         </Button>
-        <Button isDestructive onClick={onCancel} size="small" type="secondary">
+        <Button onClick={onCancel} size="small" type="secondary">
           {translate(T.Cancel)}
         </Button>
         {!hasEnoughRoles && (

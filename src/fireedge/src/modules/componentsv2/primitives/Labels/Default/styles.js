@@ -58,7 +58,7 @@ export const getStyles = ({ theme, isRequired, isOptional, tooltip }) => {
 
   const tooltipIcon = {
     '& .tooltip-icon': {
-      color: 'icon.information',
+      color: 'text.action',
       width: `${theme.scale[400]}px`,
       height: `${theme.scale[400]}px`,
       aspectRatio: '1/1',

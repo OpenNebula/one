@@ -36,7 +36,7 @@ export const Legend = forwardRef(
       )}
       {!!tooltip && (
         <Tooltip title={tooltip}>
-          <HelpCircle />
+          <HelpCircle className="form-legend-tooltip-icon" />
         </Tooltip>
       )}
     </Box>

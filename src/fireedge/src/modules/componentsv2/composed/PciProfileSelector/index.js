@@ -19,9 +19,13 @@ import { T, TEXT_WEIGHTS, TEXT_VARIANTS } from '@ConstantsModule'
 import { debounce } from 'lodash'
 import PropTypes from 'prop-types'
 import { Component, useState, useEffect } from 'react'
-import { Alert, Box } from '@mui/material'
+import { Box } from '@mui/material'
 import { FormWithSchema } from '@modules/componentsv2/composed'
-import { SubmitButton, Text } from '@modules/componentsv2/primitives'
+import {
+  AlertNotification,
+  SubmitButton,
+  Text,
+} from '@modules/componentsv2/primitives'
 import {
   PCI_PROFILE_FIELD,
   PCI_FILTER_FIELDS,
@@ -137,6 +141,10 @@ export const PciProfileSelector = ({
     }
   }, [resourcePciProfile, watchedPciProfileSelector])
 
+  const vGpuProfileLabel = translate(T.vGPUProfile)
+  const vGpuConceptDescription = translate(T.vGPUConcept)
+  const filterPciDevicesLabel = translate(T.FilterPCIDevices)
+
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)}>
       <FormProvider {...methods}>
@@ -150,15 +158,23 @@ export const PciProfileSelector = ({
             component="h6"
             variant={TEXT_VARIANTS.H6}
             weight={TEXT_WEIGHTS.SEMIBOLD}
-            value={translate(T.vGPUProfile)}
+            value={vGpuProfileLabel}
           />
           <FormWithSchema
             cy="pci-profile-selector"
             fields={PCI_PROFILE_FIELD(host)}
           />
-          <Alert severity="info" sx={{ mb: 2 }}>
-            {translate(T.vGPUConcept)}
-          </Alert>
+          <AlertNotification
+            type="primary"
+            status="information"
+            description={vGpuConceptDescription}
+            isDismissible={false}
+            style={{
+              boxSizing: 'border-box',
+              marginBottom: '16px',
+              width: '100%',
+            }}
+          />
         </Box>
         <Box
           sx={{
@@ -172,7 +188,7 @@ export const PciProfileSelector = ({
             component="h6"
             variant={TEXT_VARIANTS.H6}
             weight={TEXT_WEIGHTS.SEMIBOLD}
-            value={translate(T.FilterPCIDevices)}
+            value={filterPciDevicesLabel}
           />
           <FormWithSchema
             cy="pci-filter-selector"

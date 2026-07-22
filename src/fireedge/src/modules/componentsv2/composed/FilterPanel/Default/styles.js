@@ -123,6 +123,7 @@ export const getStyles = ({ theme }) => {
 
   const label = {
     '& .filterpanel-label': {
+      color: 'text.headings',
       fontSize: '0.8125rem',
       fontWeight: 500,
     },

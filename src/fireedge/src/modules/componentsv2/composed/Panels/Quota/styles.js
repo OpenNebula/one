@@ -32,12 +32,7 @@ export const getStyles = ({ theme }) => ({
   },
   gap: `${theme.scale[400]}px`,
   alignItems: 'stretch',
-  padding: `${theme.scale[200]}px`,
   overflow: 'visible',
-
-  borderRadius: `${theme.borderRadius?.['4xl']}px`,
-  border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-  bgcolor: 'surface.primary',
 
   '& .quota-controls-panel, & .quota-chart-panel': {
     minWidth: 0,

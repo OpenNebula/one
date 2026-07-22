@@ -37,6 +37,7 @@ export const getStyles = ({ theme }) => {
       borderBottom: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
       borderLeft: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
       bgcolor: 'surface.primary',
+      color: 'text.body',
       boxShadow:
         '-119px 0 33px 0 rgba(0, 0, 0, 0.00), -76px 0 30px 0 rgba(0, 0, 0, 0.01), -43px 0 26px 0 rgba(0, 0, 0, 0.02), -19px 0 19px 0 rgba(0, 0, 0, 0.03), -5px 0 10px 0 rgba(0, 0, 0, 0.04)',
     },
@@ -60,6 +61,7 @@ export const getStyles = ({ theme }) => {
       borderBottom: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
     },
     '& .documentationdrawer-guides': {
+      color: 'text.headings',
       fontSize: {
         xs: theme.fontSize.heading.h6.mobile,
         sm: theme.fontSize.heading.h6.tablet,
@@ -77,6 +79,7 @@ export const getStyles = ({ theme }) => {
       },
     },
     '& .documentationdrawer-title': {
+      color: 'text.headings',
       fontSize: {
         xs: theme.fontSize.heading.h4.mobile,
         sm: theme.fontSize.heading.h4.tablet,
@@ -99,6 +102,7 @@ export const getStyles = ({ theme }) => {
       gap: `${theme.scale[200]}px`,
       justifyContent: 'flex-start',
       alignSelf: 'stretch',
+      color: 'text.body',
       fontSize: {
         xs: theme.fontSize.body.sm.mobile,
         sm: theme.fontSize.body.sm.tablet,

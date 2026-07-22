@@ -33,5 +33,11 @@ export const getStyles = ({ type, theme, iconOnly, size }) => {
     margin: `${theme.scale[200]}px 0 ${theme.scale[200]}px 0`,
   }
 
-  return { ...baseStyle }
+  const tooltipIcon = {
+    '& .form-legend-tooltip-icon': {
+      color: 'text.action',
+    },
+  }
+
+  return { ...baseStyle, ...tooltipIcon }
 }

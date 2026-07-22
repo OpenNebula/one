@@ -386,12 +386,10 @@ export default {
       dialogMaxWidth: 'calc(100vw - 32px)',
       dialogMaxHeight: 'calc(100vh - 64px)',
       dialogContentOverflowY: 'auto',
+      hideActions: true,
       PaperProps: {
         sx: {
           overflow: 'hidden',
-          '& > .MuiDialogActions-root': {
-            display: 'none',
-          },
         },
       },
     },

@@ -27,6 +27,7 @@ import {
 import { Button } from '@modules/componentsv2/primitives/Buttons'
 import {
   useDialogStyles,
+  useContentWrapperStyles,
   useHeaderStyles,
   useDescriptionStyles,
   useActionsStyles,
@@ -44,6 +45,7 @@ import { T } from '@ConstantsModule'
  * @param {Function} root0.onCancel - Cancel action handler
  * @param {boolean} root0.isConfirmDisabled - Disable confirm button
  * @param {boolean} root0.isCancelDisabled - Disable cancel button
+ * @param {boolean} root0.hideActions - Hide dialog action buttons
  * @param {object} root0.confirmButtonProps - Additional props for confirm button
  * @param {object} root0.cancelButtonProps - Additional props for cancel button
  * @param {string|object} root0.dialogWidth - Dialog paper width
@@ -69,6 +71,7 @@ export const AlertDialog = forwardRef(
       onCancel = () => {},
       isConfirmDisabled = false,
       isCancelDisabled = false,
+      hideActions = false,
       confirmButtonProps = {},
       cancelButtonProps = {},
       dialogWidth,
@@ -86,6 +89,9 @@ export const AlertDialog = forwardRef(
   ) => {
     const headerText = title ?? T.DefaultConfirmationTitle
     const descriptionText = description ?? T.DefaultConfirmationBody
+    const hasScrollableContent = dialogContentOverflowY
+      ? dialogContentOverflowY !== 'visible'
+      : Boolean(dialogContentMaxHeight)
 
     return (
       <Dialog
@@ -105,55 +111,62 @@ export const AlertDialog = forwardRef(
         data-cy={dataCy}
         {...opts}
       >
-        <DialogTitle sx={(theme) => useHeaderStyles({ theme })}>
-          {headerText}
-        </DialogTitle>
-        <DialogContent
-          sx={(theme) => ({
-            padding: `${theme.scale[100]}px`,
-            boxSizing: 'border-box',
-            ...(dialogContentOverflowY && {
-              overflowY: dialogContentOverflowY,
-            }),
-            ...(dialogContentMaxHeight && {
-              maxHeight: dialogContentMaxHeight,
-              overflowY: dialogContentOverflowY ?? 'auto',
-            }),
-          })}
-        >
-          {children ??
-            (typeof descriptionText === 'string' ? (
-              <DialogContentText
-                sx={(theme) => useDescriptionStyles({ theme })}
+        <Box sx={(theme) => useContentWrapperStyles({ theme })}>
+          <DialogTitle sx={(theme) => useHeaderStyles({ theme })}>
+            {headerText}
+          </DialogTitle>
+          <DialogContent
+            sx={(theme) => ({
+              padding: hasScrollableContent
+                ? `${theme.scale[100]}px !important`
+                : 0,
+              margin: hasScrollableContent ? `-${theme.scale[100]}px` : 0,
+              boxSizing: 'border-box',
+              color: 'text.body',
+              overflowY: hasScrollableContent
+                ? dialogContentOverflowY ?? 'auto'
+                : 'visible',
+              ...(dialogContentMaxHeight && {
+                maxHeight: dialogContentMaxHeight,
+              }),
+            })}
+          >
+            {children ??
+              (typeof descriptionText === 'string' ? (
+                <DialogContentText
+                  sx={(theme) => useDescriptionStyles({ theme })}
+                >
+                  {descriptionText}
+                </DialogContentText>
+              ) : (
+                <Box sx={(theme) => useDescriptionStyles({ theme })}>
+                  {descriptionText}
+                </Box>
+              ))}
+          </DialogContent>
+          {!hideActions && (
+            <DialogActions sx={(theme) => useActionsStyles({ theme })}>
+              <Button
+                type="secondary"
+                onClick={onCancel}
+                isDisabled={isCancelDisabled}
+                data-cy="dg-cancel-button"
+                {...cancelButtonProps}
               >
-                {descriptionText}
-              </DialogContentText>
-            ) : (
-              <Box sx={(theme) => useDescriptionStyles({ theme })}>
-                {descriptionText}
-              </Box>
-            ))}
-        </DialogContent>
-        <DialogActions sx={(theme) => useActionsStyles({ theme })}>
-          <Button
-            type="secondary"
-            onClick={onCancel}
-            isDisabled={isCancelDisabled}
-            data-cy="dg-cancel-button"
-            {...cancelButtonProps}
-          >
-            {cancelLabel}
-          </Button>
-          <Button
-            type="primary"
-            onClick={onSubmit}
-            isDisabled={isConfirmDisabled}
-            data-cy="dg-accept-button"
-            {...confirmButtonProps}
-          >
-            {confirmLabel}
-          </Button>
-        </DialogActions>
+                {cancelLabel}
+              </Button>
+              <Button
+                type="primary"
+                onClick={onSubmit}
+                isDisabled={isConfirmDisabled}
+                data-cy="dg-accept-button"
+                {...confirmButtonProps}
+              >
+                {confirmLabel}
+              </Button>
+            </DialogActions>
+          )}
+        </Box>
       </Dialog>
     )
   }
@@ -169,6 +182,7 @@ AlertDialog.propTypes = {
   onCancel: PropTypes.func,
   isConfirmDisabled: PropTypes.bool,
   isCancelDisabled: PropTypes.bool,
+  hideActions: PropTypes.bool,
   confirmButtonProps: PropTypes.object,
   cancelButtonProps: PropTypes.object,
   dialogWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),

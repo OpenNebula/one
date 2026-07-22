@@ -49,13 +49,19 @@ export const getStyles = ({ theme }) => {
     '& .accordion-base': {
       display: 'flex',
       flexDirection: 'column',
-      padding: `${theme.scale[500]}px 0`,
+      padding: `${theme.scale[500]}px`,
       // gap: `${theme.scale[500]}px`, // TODO check with Andres
       gap: 0,
       alignItems: 'center',
       alignSelf: 'stretch',
+      backgroundColor: 'transparent',
+      boxShadow: 'none',
 
       borderBottom: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
+
+      '&::before': {
+        display: 'none',
+      },
 
       '&:hover': {
         '& .accordion-title': {
@@ -78,6 +84,16 @@ export const getStyles = ({ theme }) => {
       display: 'flex',
       width: '100%',
       padding: 0,
+
+      '& .MuiAccordionSummary-expandIconWrapper': {
+        display: 'flex',
+        color: 'icon.primary',
+
+        '& svg': {
+          width: `${theme.scale[500]}px`,
+          height: `${theme.scale[500]}px`,
+        },
+      },
     },
   }
 

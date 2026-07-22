@@ -188,7 +188,6 @@ export const getSelectableCardPanelStyles = ({
         minWidth: 0,
         order: isBottom ? 1 : 0,
         width: isBottom ? '100%' : 'auto',
-        backgroundColor: 'surface.primary',
       },
     },
   }

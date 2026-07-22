@@ -26,15 +26,10 @@ export const getStyles = ({ theme }) => ({
   height: '100%',
   minHeight: 0,
   boxSizing: 'border-box',
-  padding: `${theme.scale[500]}px`,
   flexDirection: 'column',
   alignItems: 'stretch',
   gap: `${theme.scale[500]}px`,
   overflow: 'auto',
-
-  borderRadius: `${theme.borderRadius?.['4xl']}px`,
-  border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-  bgcolor: 'surface.primary',
 
   '& .title': {
     marginBottom: `${theme.scale[500]}px`,

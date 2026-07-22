@@ -66,10 +66,10 @@ const UserItemDraggable = styled(ListItem)(({ theme }) => ({
     height: 10,
     background: `linear-gradient(
       to bottom,
-      ${theme.palette.action.active} 4px,
+      ${theme.palette.icon.action} 4px,
       transparent 4px,
       transparent 6px,
-      ${theme.palette.action.active} 6px
+      ${theme.palette.icon.action} 6px
     )`,
   },
 }))
@@ -104,8 +104,9 @@ const UserInputItem = forwardRef(
       <ListItemText
         inset={!error}
         primary={name}
-        primaryTypographyProps={{ variant: 'body1' }}
+        primaryTypographyProps={{ variant: 'body1', color: 'text.headings' }}
         secondary={getUserInputString(ui)}
+        secondaryTypographyProps={{ color: 'text.body' }}
       />
     </UserItemDraggable>
   )

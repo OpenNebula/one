@@ -49,7 +49,7 @@ const HostListPreview = ({
   const { translate } = useTranslation()
 
   return (
-    <Stack gap={1}>
+    <Stack gap={1} sx={{ color: 'text.body' }}>
       <Box sx={{ color: 'text.headings', fontWeight: 600 }}>{title}:</Box>
       {hostIds?.length > 0 ? (
         <Stack gap={1} sx={{ alignItems: 'flex-start' }}>
@@ -81,13 +81,16 @@ const HostListPreview = ({
         <Box
           sx={{
             alignItems: 'center',
-            color: 'text.disabled',
+            color: 'text.body',
             display: 'flex',
           }}
         >
           {emptyText}
           <Tooltip title={emptyTooltip}>
-            <Box component="span" sx={{ display: 'inline-flex', ml: 0.5 }}>
+            <Box
+              component="span"
+              sx={{ color: 'text.action', display: 'inline-flex', ml: 0.5 }}
+            >
               <InfoEmpty width="16px" height="16px" />
             </Box>
           </Tooltip>
@@ -138,7 +141,11 @@ const RoleConfigurationPreview = ({
         isDismissible={false}
         style={{ width: '100%', boxSizing: 'border-box' }}
       />
-      <Stack gap={2} data-cy="role-configuration-preview">
+      <Stack
+        gap={2}
+        data-cy="role-configuration-preview"
+        sx={{ color: 'text.body' }}
+      >
         <Box>
           <strong>{translate(T.Name)}:</strong> {name}
         </Box>

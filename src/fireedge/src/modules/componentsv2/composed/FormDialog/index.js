@@ -88,7 +88,12 @@ export const FormDialog = ({
         fallback={<SkeletonStepsForm />}
       >
         {(config) => (
-          <DefaultFormStepper {...config} onCancel={onClose} update={update} />
+          <DefaultFormStepper
+            {...config}
+            onCancel={onClose}
+            update={update}
+            isPopup
+          />
         )}
       </Steps>
     </Dialog>

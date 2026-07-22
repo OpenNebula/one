@@ -247,11 +247,7 @@ export const VdcZoneResourceTab = ({
         minHeight: 0,
         boxSizing: 'border-box',
         gap: `${theme.scale[400]}px`,
-        padding: `${theme.scale[200]}px`,
         overflow: 'auto',
-        borderRadius: `${theme.borderRadius?.['4xl']}px`,
-        border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-        bgcolor: 'surface.primary',
       })}
     >
       <ZoneSelector

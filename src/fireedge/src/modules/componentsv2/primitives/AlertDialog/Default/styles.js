@@ -33,6 +33,7 @@ export const useDialogStyles = ({
   dialogPaperOverflow,
 }) => ({
   '& .MuiBackdrop-root': {
+    backgroundColor: 'transparent',
     backdropFilter: 'blur(6px)',
     WebkitBackdropFilter: 'blur(6px)',
   },
@@ -40,8 +41,10 @@ export const useDialogStyles = ({
   '& .MuiDialog-paper': {
     bgcolor: 'surface.page',
     border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-    borderRadius: `${theme.borderRadius.xlg}px`,
-    padding: `${theme.scale[600]}px`,
+    borderRadius: `${theme.borderRadius?.['3xl']}px`,
+    boxShadow:
+      '0 4px 6px -4px rgba(0, 0, 0, 0.10), 0 10px 15px -13px rgba(0, 0, 0, 0.10)',
+    padding: `${theme.scale[600] - theme.scale[100]}px`,
     gap: 0,
     minWidth: dialogMinWidth,
     maxWidth: dialogMaxWidth,
@@ -49,6 +52,19 @@ export const useDialogStyles = ({
     ...(dialogMaxHeight && { maxHeight: dialogMaxHeight }),
     ...(dialogPaperOverflow && { overflow: dialogPaperOverflow }),
   },
+})
+
+/**
+ * @param {object} root0 - Params
+ * @param {object} root0.theme - Current theme in use
+ * @returns {object} - AlertDialog content wrapper SX style
+ */
+export const useContentWrapperStyles = ({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: 0,
+  padding: `${theme.scale[100]}px`,
+  boxSizing: 'border-box',
 })
 
 /**

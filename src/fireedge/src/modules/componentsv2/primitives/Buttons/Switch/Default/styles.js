@@ -52,6 +52,9 @@ export const getStyles = ({ theme, dimensions, hasLabel = true }) => {
       alignItems: 'center',
       gap: hasLabel ? `${theme.scale[200]}px` : 0,
     },
+    '& .switch-tooltip': {
+      color: 'text.action',
+    },
   }
 
   const switchRoot = {

@@ -230,6 +230,10 @@ export const getMenuStyles = ({ theme }) => {
     boxShadow:
       '0 4px 10px -4px rgba(0, 0, 0, 0.09), 0 2px 4px -16px rgba(0, 0, 0, 0.10)',
     marginTop: `${theme.scale[100]}px`,
+
+    '& .MuiAutocomplete-noOptions': {
+      color: 'text.body',
+    },
   }
 
   return {

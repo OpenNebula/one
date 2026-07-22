@@ -18,7 +18,7 @@
  * @returns {object} Form dialog backdrop styles
  */
 export const getBackdropStyles = () => ({
-  backgroundColor: 'rgba(0, 0, 0, 0.5) !important',
+  backgroundColor: 'transparent',
   backdropFilter: 'blur(6px)',
   WebkitBackdropFilter: 'blur(6px)',
 })
@@ -48,6 +48,11 @@ export const getStyles = ({ theme }) => ({
     minHeight: 0,
     maxHeight: 'none',
     overflowY: 'auto',
+  },
+
+  '& .form-stepper-root': {
+    width: '100%',
+    padding: 0,
   },
 
   '& .form-dialog-header': {

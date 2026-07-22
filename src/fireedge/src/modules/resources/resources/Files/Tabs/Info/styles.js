@@ -33,7 +33,7 @@ export const getStyles = ({ theme }) => {
       display: 'flex',
       flexDirection: 'column',
       width: '100%',
-      flex: '12 1 auto',
+      flex: '0 0 auto',
       gap: '16px',
     },
   }
@@ -73,7 +73,7 @@ export const getStyles = ({ theme }) => {
   const attributesContainer = {
     '& .attributesContainer': {
       display: 'flex',
-      flex: '3 1 0',
+      flex: '0 0 auto',
       width: '100%',
     },
   }

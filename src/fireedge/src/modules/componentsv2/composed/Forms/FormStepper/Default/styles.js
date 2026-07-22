@@ -20,9 +20,10 @@
  * @param {object} root0.theme - Current theme in use
  * @param {boolean} root0.iconOnly - Render icon only
  * @param {string} root0.size - Size of button
+ * @param {boolean} root0.isPopup - Whether the stepper is rendered in a popup
  * @returns {object} - Button SX style
  */
-export const getStyles = ({ type, theme, iconOnly, size }) => {
+export const getStyles = ({ type, theme, iconOnly, size, isPopup }) => {
   const footerBackgroundColor = theme.palette.surface.page
 
   const baseStyle = {
@@ -32,7 +33,9 @@ export const getStyles = ({ type, theme, iconOnly, size }) => {
     flexDirection: 'column',
     width: '1024px',
     maxWidth: '100%',
-    padding: '24px',
+    padding: `${
+      isPopup ? theme.scale[600] : theme.scale[600] - theme.scale[100]
+    }px`,
     alignSelf: 'center',
     '@media (max-width: 1199px), (max-height: 799px)': {
       width: '100%',
@@ -69,8 +72,17 @@ export const getStyles = ({ type, theme, iconOnly, size }) => {
     '& .form-stepper-content': {
       marginTop: `${theme.scale[800]}px`,
       paddingBottom: `${theme.scale[600]}px`,
+      marginBottom: `${theme.scale[800]}px`,
       color: 'text.body',
     },
+
+    ...(!isPopup && {
+      '& .form-stepper-content > *': {
+        padding: `${theme.scale[100]}px`,
+        boxSizing: 'border-box',
+        overflow: 'visible',
+      },
+    }),
 
     '& .form-stepper-content > *:has(.MuiTabs-root)': {
       marginTop: '32px',

@@ -99,6 +99,7 @@ const DefaultFormStepper = ({
   initialValues,
   saveState = false,
   update = false,
+  isPopup = false,
 }) => {
   const methods = useForm({
     mode: 'onSubmit',
@@ -123,6 +124,7 @@ const DefaultFormStepper = ({
         onCancel={onCancel}
         saveState={saveState}
         update={update}
+        isPopup={isPopup}
       />
     </FormProvider>
   )
@@ -137,6 +139,7 @@ DefaultFormStepper.propTypes = {
   resolver: PropTypes.func,
   saveState: PropTypes.bool,
   update: PropTypes.bool,
+  isPopup: PropTypes.bool,
 }
 
 const DisableStepContext = createContext(() => {})
@@ -171,6 +174,7 @@ export const useRegisterModifiedFields = () => useContext(ModifiedFieldsContext)
  * @param {Function} props.saveState - Use modifiedFields on Redux
  * @param {Function} props.onCancel - Cancel function
  * @param {boolean} props.update - Whether the form is used to update an existing resource
+ * @param {boolean} props.isPopup - Whether the stepper is rendered in a popup
  * @returns {ReactElement} Stepper form component
  */
 const FormStepper = ({
@@ -180,6 +184,7 @@ const FormStepper = ({
   onCancel,
   saveState = false,
   update = false,
+  isPopup = false,
 }) => {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
   const {
@@ -581,7 +586,10 @@ const FormStepper = ({
   return (
     <DisableStepContext.Provider value={disableStep}>
       <ModifiedFieldsContext.Provider value={registerModifiedFields}>
-        <Stack sx={(theme) => getStyles({ theme })}>
+        <Stack
+          className="form-stepper-root"
+          sx={(theme) => getStyles({ theme, isPopup })}
+        >
           {/* STEPPER */}
           {useMemo(
             () => (
@@ -673,6 +681,7 @@ FormStepper.propTypes = {
   onCancel: PropTypes.func,
   saveState: PropTypes.bool,
   update: PropTypes.bool,
+  isPopup: PropTypes.bool,
 }
 
 export { DefaultFormStepper, SkeletonStepsForm, FormStepper }

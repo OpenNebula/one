@@ -29,12 +29,7 @@ export const getStyles = ({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'stretch',
   gap: `${theme.scale[400]}px`,
-  padding: `${theme.scale[200]}px`,
   overflow: 'auto',
-
-  borderRadius: `${theme.borderRadius?.['4xl']}px`,
-  border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-  bgcolor: 'surface.primary',
 
   '& .user-groups-actions': {
     display: 'flex',
@@ -48,10 +43,6 @@ export const getStyles = ({ theme }) => ({
     flexDirection: 'column',
     flex: '0 0 auto',
     gap: `${theme.scale[300]}px`,
-    padding: `${theme.scale[400]}px`,
-    borderRadius: `${theme.borderRadius.xlg}px`,
-    border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-    bgcolor: 'surface.secondary',
   },
 
   '& .user-groups-section-title': {
