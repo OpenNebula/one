@@ -88,7 +88,7 @@ export const TYPE = {
   }),
   validation: string()
     .trim()
-    .default(() => IMAGE_TYPES_STR.OS),
+    .default(() => IMAGE_TYPES_STR.CONTEXT),
   grid: { md: 12 },
 }
 
