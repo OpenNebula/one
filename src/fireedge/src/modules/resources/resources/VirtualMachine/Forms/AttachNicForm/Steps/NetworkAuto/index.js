@@ -75,8 +75,7 @@ const NetworkAuto = (props) => ({
   content: () => Content(props),
   defaultDisabled: {
     condition: () =>
-      props?.defaultData?.NETWORK_MODE !== 'auto' ||
-      !props?.defaultData?.NETWORK_MODE,
+      props?.defaultData?.NETWORK_MODE?.toLowerCase?.() !== 'auto',
   },
 })
 

@@ -28,9 +28,8 @@ import {
   getRepeatInformation,
   getTypeScheduleAction,
   isRelative,
-  timeFromMilliseconds,
 } from '@ModelsModule'
-import { sentenceCase } from '@UtilsModule'
+import { sentenceCase, timeFromMilliseconds } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 
 const StyledTypography = styled(Typography)(({ theme }) => ({

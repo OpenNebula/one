@@ -65,7 +65,7 @@ const Steps = createSteps(
         { stripUnknown: true }
       )
 
-      rest.NETWORK_MODE = rest.NETWORK_MODE === 'auto' ? 'YES' : 'NO'
+      rest.NETWORK_MODE = rest.NETWORK_MODE?.toLowerCase?.() || 'network'
 
       const castedValue = schema.cast(
         {
@@ -112,9 +112,10 @@ const Steps = createSteps(
 
       const { PCI_ADDRESS, PCI_SELECTION_MODE, PCI_TYPE, ...rAdvanced } =
         advanced
+      const isDummy = rAdvanced.NETWORK_MODE === 'dummy'
 
       const pciAttrs = (() => {
-        if (PCI_TYPE === 'emulated' || !PCI_ADDRESS) return {}
+        if (isDummy || PCI_TYPE === 'emulated' || !PCI_ADDRESS) return {}
         const [deviceClassVendor, shortAddr] = PCI_ADDRESS.split('@')
         const [d, c, v] = deviceClassVendor.split(':')
 
@@ -130,13 +131,13 @@ const Steps = createSteps(
       })()
 
       return {
-        ...network,
+        ...(isDummy ? {} : network),
         ...qos,
         ...{
           ...rAdvanced,
           ...pciAttrs,
         },
-        ...networkAuto,
+        ...(isDummy ? {} : networkAuto),
         ...networkValues,
       }
     },

@@ -5972,6 +5972,21 @@ msgstr ""
 msgid "This field sets which attribute will be used to sort the suitable vnets for this VM"
 msgstr ""
 
+#. T.Dummy
+#: ./src/modules/constants/translates.js
+msgid "Dummy"
+msgstr ""
+
+#. T.DummyNetworkConcept
+#: ./src/modules/constants/translates.js
+msgid "Dummy network interface only visible to the guest."
+msgstr ""
+
+#. T.VirtualNetworkConcept
+#: ./src/modules/constants/translates.js
+msgid "Select a Virtual Network to attach the interface."
+msgstr ""
+
 #. T.AutomaticNetworkMode
 #: ./src/modules/constants/translates.js
 msgid "Automatic select virtual network"
@@ -5979,7 +5994,7 @@ msgstr ""
 
 #. T.NetworkModeConcept
 #: ./src/modules/constants/translates.js
-msgid "Thee Schedule will decide which is the best virtual network"
+msgid "The scheduler selects a Virtual Network based on rank and requirements."
 msgstr ""
 
 #. T.SkipNetworkContextualization

@@ -24,19 +24,16 @@ import {
   T,
   VM_SCHEDULE_TYPE_STRING,
 } from '@ConstantsModule'
-import {
-  dateToMilliseconds,
-  getPeriodicityByTimeInSeconds,
-  isDate,
-  isRelative,
-  timeFromMilliseconds,
-} from '@ModelsModule'
+import { getPeriodicityByTimeInSeconds, isRelative } from '@ModelsModule'
 import AlertText from '@modules/resources/resources/BackupJobs/Forms/SchedActionForm/AlertText'
 import {
   Field,
   arrayToOptions,
+  dateToMilliseconds,
+  isDate,
   sentenceCase,
   OPTION_SORTERS,
+  timeFromMilliseconds,
 } from '@UtilsModule'
 
 export const PERIODIC_FIELD_NAME = 'PERIODIC'

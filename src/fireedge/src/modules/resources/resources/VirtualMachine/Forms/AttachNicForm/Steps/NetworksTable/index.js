@@ -130,7 +130,10 @@ const NetworkStep = (props) => ({
   resolver: SCHEMA,
   content: Content,
   defaultDisabled: {
-    condition: () => props?.defaultData?.NETWORK_MODE === 'auto',
+    condition: () =>
+      ['auto', 'dummy'].includes(
+        props?.defaultData?.NETWORK_MODE?.toLowerCase?.()
+      ),
   },
 })
 

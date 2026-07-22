@@ -523,7 +523,7 @@ MenuButton.propTypes = {
   disableCloseOnSelect: PropTypes.bool,
   type: PropTypes.string,
   placeholder: PropTypes.string,
-  startIcon: PropTypes.node,
+  startIcon: PropTypes.oneOfType([PropTypes.node, PropTypes.elementType]),
   endIcon: PropTypes.node,
   iconOnly: PropTypes.node,
   dataCy: PropTypes.string,

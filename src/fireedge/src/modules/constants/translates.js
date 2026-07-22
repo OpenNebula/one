@@ -1547,9 +1547,12 @@ module.exports = {
   NetRank: 'Network Rank',
   NetRankTooltip:
     'This field sets which attribute will be used to sort the suitable vnets for this VM',
+  Dummy: 'Dummy',
+  DummyNetworkConcept: 'Dummy network interface only visible to the guest.',
+  VirtualNetworkConcept: 'Select a Virtual Network to attach the interface.',
   AutomaticNetworkMode: 'Automatic select virtual network',
   NetworkModeConcept:
-    'Thee Schedule will decide which is the best virtual network',
+    'The scheduler selects a Virtual Network based on rank and requirements.',
   SkipNetworkContextualization: 'Skip network contextualization',
   SkipNetworkContextualizationConcept:
     'A virtual router can be configured to route SDNAT traffic for this NIC IP address',

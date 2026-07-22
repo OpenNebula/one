@@ -124,14 +124,36 @@ const getPciModel = ({ columns, filterOn, hostId }) => ({
 /**
  * @param {object} [data] - VM or VM Template data
  * @param {boolean} [data.isAlias] - If it's an alias
- * @param {boolean} [data.disableNetworkAutoMode] - Disable the switch to enable network auto mode
+ * @param {boolean} [data.hasAlias] - If it has aliases
+ * @param {boolean} [data.disableNetworkAutoMode] - Disable automatic network mode
+ * @param {HYPERVISORS} [data.hypervisor] - VM hypervisor
  * @returns {Field[]} List of general fields
  */
 const GENERAL_FIELDS = ({
   isAlias = false,
+  hasAlias = false,
   disableNetworkAutoMode = false,
-} = {}) =>
-  [
+  hypervisor = HYPERVISORS.kvm,
+} = {}) => {
+  const networkModes = [
+    {
+      text: T.VirtualNetwork,
+      value: 'network',
+      description: T.VirtualNetworkConcept,
+    },
+    !disableNetworkAutoMode && {
+      text: T.Automatic,
+      value: 'auto',
+      description: T.NetworkModeConcept,
+    },
+    [HYPERVISORS.kvm, HYPERVISORS.dummy].includes(hypervisor) && {
+      text: T.Dummy,
+      value: 'dummy',
+      description: T.DummyNetworkConcept,
+    },
+  ].filter(Boolean)
+
+  return [
     isAlias && {
       name: 'EXTERNAL',
       label: T.SkipNetworkContextualization,
@@ -141,27 +163,34 @@ const GENERAL_FIELDS = ({
       grid: { sm: 6 },
     },
     !isAlias &&
-      !disableNetworkAutoMode && {
+      !hasAlias &&
+      networkModes.length > 1 && {
         name: 'NETWORK_MODE',
-        label: T.AutomaticNetworkMode,
-        tooltip: T.NetworkMoeConcept,
-        type: INPUT_TYPES.SWITCH,
-        validation: boolean()
-          .yesOrNo()
-          .afterSubmit((value) => (value ? 'auto' : '')),
-        grid: { sm: 6 },
+        label: T.NetworkMode,
+        type: INPUT_TYPES.RADIO,
+        optionsOnly: true,
+        notNull: true,
+        values: networkModes,
+        validation: string()
+          .trim()
+          .oneOf(networkModes.map(({ value }) => value))
+          .required()
+          .default(() => 'network')
+          .afterSubmit((value) => (value === 'network' ? undefined : value)),
+        grid: { md: 12 },
         stepControl: [
           {
-            condition: (value) => value === true,
+            condition: (value) => value !== 'network',
             steps: ['network'],
           },
           {
-            condition: (value) => value === false,
+            condition: (value) => value !== 'auto',
             steps: ['network-auto'],
           },
         ],
       },
   ].filter(Boolean)
+}
 
 const GUACAMOLE_CONNECTIONS = [
   {
@@ -346,7 +375,7 @@ const GUEST_FIELDS = [
  * @param {boolean} [data.hasAlias] - If has an alias
  * @param {boolean} [data.isPci] - If it's a PCI
  * @param {boolean} [data.isAlias] - If it's an alias
- * @param {boolean} [data.disableNetworkAutoMode] - Disable the switch to enable network auto mode
+ * @param {boolean} [data.disableNetworkAutoMode] - Disable automatic network mode
  * @param {number} data.hostId - Currenty scheduled host ID for the VM
  * @returns {Section[]} Sections
  */
@@ -379,6 +408,7 @@ const SECTIONS = ({
             isPci,
             isAlias,
             disableNetworkAutoMode,
+            hypervisor,
           }),
           filters
         ),
@@ -390,6 +420,24 @@ const SECTIONS = ({
   ]
 
   const GET_PCI_FIELDS = () => {
+    const deviceTypes = [
+      {
+        text: T.Emulated,
+        value: 'emulated',
+        description: T.EmulatedConcept,
+      },
+      {
+        text: T.SrIov,
+        value: 'vf',
+        description: T.SrIovConcept,
+      },
+      {
+        text: T.PciPassthrough,
+        value: 'pf',
+        description: T.PciPassthroughConcept,
+      },
+    ]
+
     const getTableHeaders = (filterType, mode) => {
       const headerMap = {
         automatic: [
@@ -481,27 +529,16 @@ const SECTIONS = ({
         label: T.DeviceType,
         type: INPUT_TYPES.RADIO,
         optionsOnly: true,
-        values: [
-          {
-            text: T.Emulated,
-            value: 'emulated',
-            description: T.EmulatedConcept,
-          },
-          {
-            text: T.SrIov,
-            value: 'vf',
-            description: T.SrIovConcept,
-          },
-          {
-            text: T.PciPassthrough,
-            value: 'pf',
-            description: T.PciPassthroughConcept,
-          },
-        ],
+        dependOf: 'NETWORK_MODE',
+        values: (networkMode) =>
+          networkMode === 'dummy' ? deviceTypes.slice(0, 1) : deviceTypes,
+        readOnly: (networkMode) =>
+          networkMode === 'dummy' || hasAlias || isAlias,
         validation: string()
           .trim()
+          .oneOf(deviceTypes.map(({ value }) => value))
           .required()
-          .default(() => 'automatic'),
+          .default(() => 'emulated'),
         grid: { md: 12 },
       },
 
@@ -511,9 +548,10 @@ const SECTIONS = ({
         type: INPUT_TYPES.TOGGLE,
         optionsOnly: true,
         notNull: true,
-        dependOf: 'PCI_TYPE',
-        htmlType: (PCI_TYPE = '') =>
-          PCI_TYPE === 'emulated' && INPUT_TYPES.HIDDEN,
+        dependOf: ['PCI_TYPE', 'NETWORK_MODE'],
+        htmlType: ([pciType, networkMode] = []) =>
+          (pciType === 'emulated' || networkMode === 'dummy') &&
+          INPUT_TYPES.HIDDEN,
         values: [
           {
             text: T.Automatic,
@@ -538,17 +576,19 @@ const SECTIONS = ({
         name: 'PCI_ADDRESS',
         label: '',
         type: INPUT_TYPES.TABLE,
-        dependOf: ['PCI_TYPE', 'PCI_SELECTION_MODE'],
+        dependOf: ['PCI_TYPE', 'PCI_SELECTION_MODE', 'NETWORK_MODE'],
         model: (deps = []) =>
           getPciModel({
             columns: getTableHeaders(deps?.[0], deps?.[1]),
-            filterOn: deps,
+            filterOn: deps.slice(0, 2),
             hostId,
           }),
         getRowId: getPciRowId,
         singleSelect: true,
         selectOnRowClick: true,
-        htmlType: (deps = []) => deps?.[0] === 'emulated' && INPUT_TYPES.HIDDEN,
+        htmlType: ([pciType, , networkMode] = []) =>
+          (pciType === 'emulated' || networkMode === 'dummy') &&
+          INPUT_TYPES.HIDDEN,
         validation: string()
           .trim()
           .notRequired()
@@ -573,8 +613,11 @@ const SECTIONS = ({
       {
         name: 'MODEL',
         label: T.HardwareModelToEmulate,
-        dependOf: ['PCI_TYPE'],
-        htmlType: (deps = []) => deps?.[0] !== 'emulated' && INPUT_TYPES.HIDDEN,
+        dependOf: ['PCI_TYPE', 'NETWORK_MODE'],
+        htmlType: ([pciType, networkMode] = []) =>
+          pciType !== 'emulated' &&
+          networkMode !== 'dummy' &&
+          INPUT_TYPES.HIDDEN,
         type: INPUT_TYPES.TEXT,
         fieldProps: {
           disabled: hasAlias || isAlias,
@@ -593,8 +636,11 @@ const SECTIONS = ({
         fieldProps: ([_, AUTO] = []) => ({
           disabled: AUTO || hasAlias || isAlias,
         }),
-        dependOf: ['PCI_TYPE'],
-        htmlType: (deps = []) => deps?.[0] !== 'emulated' && INPUT_TYPES.HIDDEN,
+        dependOf: ['PCI_TYPE', 'AUTO_VIRTIO_QUEUES', 'NETWORK_MODE'],
+        htmlType: ([pciType, , networkMode] = []) =>
+          pciType !== 'emulated' &&
+          networkMode !== 'dummy' &&
+          INPUT_TYPES.HIDDEN,
         value: (_, form) => {
           if (
             form?.getValues(`advanced.AUTO_VIRTIO_QUEUES`) &&
@@ -613,8 +659,11 @@ const SECTIONS = ({
         label: T.Auto,
         tooltip: T.AutoVirtioQueues,
         type: INPUT_TYPES.SWITCH,
-        dependOf: ['PCI_TYPE'],
-        htmlType: (deps = []) => deps?.[0] !== 'emulated' && INPUT_TYPES.HIDDEN,
+        dependOf: ['PCI_TYPE', 'NETWORK_MODE'],
+        htmlType: ([pciType, networkMode] = []) =>
+          pciType !== 'emulated' &&
+          networkMode !== 'dummy' &&
+          INPUT_TYPES.HIDDEN,
         validation: boolean()
           .notRequired()
           .default(() => false)

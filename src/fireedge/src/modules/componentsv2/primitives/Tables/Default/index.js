@@ -34,6 +34,7 @@ import {
   getTableFilterOptions,
   getTableSortOptions,
 } from '@UtilsModule'
+import { useAuth } from '@FeaturesModule'
 import { useResourceSingleViewContext, useTranslation } from '@ProvidersModule'
 
 /**
@@ -125,6 +126,7 @@ export const Table = ({
 }) => {
   const muiTheme = useTheme()
   const { translate } = useTranslation()
+  const { settings: { ROW_SIZE = 10 } = {} } = useAuth()
   const { openResourceSingleView } = useResourceSingleViewContext()
   const tableData = useMemo(() => [].concat(data ?? []).flat(), [data])
   const sortOptions = useMemo(() => getTableSortOptions(columns), [columns])
@@ -159,7 +161,7 @@ export const Table = ({
     rowSelection,
     onRowSelectionChange,
     getRowId,
-    defaultPageSize,
+    defaultPageSize: Number(ROW_SIZE) || defaultPageSize,
     globalFilter,
     onGlobalFilterChange: setGlobalFilter,
     sorting,
