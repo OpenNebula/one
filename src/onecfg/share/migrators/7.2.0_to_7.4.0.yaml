@@ -11172,6 +11172,8 @@ patches:
             actions:
               create_dialog: true
               recover: true
+              upgrade: true
+              edit_labels: true
               delete: true
 
             # Filters - List of criteria to filter the resources
