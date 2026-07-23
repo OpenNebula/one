@@ -18,26 +18,54 @@ import {
   DetailsDrawer,
   getLabelMenuButtonProps,
   InfoSlot,
+  ResourceActionConfirmation,
   SummarySlot,
+  StatusTag,
+  Tag,
   TabSlot,
   ToggleGroup,
 } from '@ComponentsV2Module'
 import { Box, useTheme } from '@mui/material'
-import { Component, useEffect, useMemo, useState } from 'react'
+import { Component, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { RefreshCircular, RefreshDouble, Cancel, Trash } from 'iconoir-react'
-import { ONEKS_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
 import {
-  createActions,
-  permissionsToOctal,
-  timeFromMilliseconds,
-  toSnakeCase,
-} from '@UtilsModule'
-import { getLabelTags, getVirtualOneKsStateControlPlane } from '@ModelsModule'
+  RefreshCircular,
+  RefreshDouble,
+  ArrowUpCircle,
+  Cancel,
+  Trash,
+} from 'iconoir-react'
+import { ONEKS_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
+import { createActions, permissionsToOctal, toSnakeCase } from '@UtilsModule'
+import { getLabelTags, getVirtualOneKsState } from '@ModelsModule'
 import { OneKsAPI, useModalsApi } from '@FeaturesModule'
 import { OneKs as OneKsResource } from '@ResourcesModule'
 
 const getDocument = (data) => data?.DOCUMENT ?? data ?? {}
+
+const isKubernetesVersionHigher = (candidate, current) => {
+  const candidateParts = String(candidate ?? '')
+    .match(/\d+/g)
+    ?.map(Number)
+  const currentParts = String(current ?? '')
+    .match(/\d+/g)
+    ?.map(Number)
+
+  if (!candidateParts?.length || !currentParts?.length) return false
+
+  for (
+    let index = 0;
+    index < Math.max(candidateParts.length, currentParts.length);
+    index += 1
+  ) {
+    const candidatePart = candidateParts[index] ?? 0
+    const currentPart = currentParts[index] ?? 0
+
+    if (candidatePart !== currentPart) return candidatePart > currentPart
+  }
+
+  return false
+}
 
 const getPermissionOctet = (permissions = {}, newPermission = {}) => {
   const [key, value] = Object.entries(newPermission)[0] ?? []
@@ -52,9 +80,6 @@ const getPermissionOctet = (permissions = {}, newPermission = {}) => {
     [fullPermissionName]: value,
   })
 }
-
-const formatTime = (time) =>
-  +time > 0 ? timeFromMilliseconds(+time).toFormat('ff') : '-'
 
 /**
  * @param {object} root0 - Params
@@ -72,8 +97,10 @@ export const SingleView = ({
 }) => {
   const { palette } = useTheme()
   const { showModal } = useModalsApi()
-  const [detailedData, setDetailedData] = useState()
-
+  const openUpgradeKsClusterForm =
+    OneKsResource.Forms.useUpgradeKsClusterFormModal()
+  const openDeleteKsClusterConfirmation =
+    OneKsResource.Forms.useDeleteKsClusterConfirmation()
   const selectedDocument = getDocument(selectedData)
   const selectedId = selectedDocument?.ID
   const {
@@ -84,42 +111,31 @@ export const SingleView = ({
     { id: selectedId, expand: true },
     { skip: !isOpen || selectedId === undefined }
   )
+  const { data: families = [], isLoading: isLoadingFamilies } =
+    OneKsAPI.useGetOneKsFamiliesQuery()
   const [recover, { isLoading: isRecovering }] =
     OneKsAPI.useRecoverOneKsClusterMutation()
   const [deleteOneKs, { isLoading: isDeleting }] =
     OneKsAPI.useDeleteOneKsClusterMutation()
   const [updateDocument, { isLoading: isUpdating }] =
     OneKsAPI.useUpdateOneKsDocumentMutation()
+  const [upgradeKubernetesVersion, { isLoading: isUpgrading }] =
+    OneKsAPI.useUpdateOneKsKubernetesVersionMutation()
   const [changePermissions, { isLoading: isChangingPermissions }] =
     OneKsAPI.useChangeOneKsClusterPermissionsMutation()
   const [changeOwnership, { isLoading: isChangingOwnership }] =
     OneKsAPI.useChangeOneKsClusterOwnershipMutation()
 
   const refreshedDocument = getDocument(refreshedData)
-  useEffect(() => {
-    if (!isOpen || selectedId === undefined) {
-      setDetailedData(undefined)
-
-      return
-    }
-
-    if (String(refreshedDocument?.ID) === String(selectedId)) {
-      setDetailedData(refreshedDocument)
-    }
-  }, [isOpen, refreshedDocument, selectedId])
-
   const data =
-    String(detailedData?.ID) === String(selectedId)
-      ? detailedData
+    String(refreshedDocument?.ID) === String(selectedId)
+      ? refreshedDocument
       : selectedDocument
 
   const { ID, TEMPLATE = {}, PERMISSIONS = {} } = data || {}
   const { CLUSTER_BODY = {} } = TEMPLATE
-  const modalLabel = `#${ID} ${data?.NAME}`.trim()
-  const { name: controlPlaneState } = useMemo(
-    () => getVirtualOneKsStateControlPlane(data),
-    [data]
-  )
+  const [controlPlane = {}] = [].concat(CLUSTER_BODY?.control_plane ?? [])
+  const { color: stateColor, name: stateName } = getVirtualOneKsState(data)
 
   const isActionsDisabled =
     ID === undefined ||
@@ -127,25 +143,11 @@ export const SingleView = ({
     isRecovering ||
     isDeleting ||
     isUpdating ||
+    isUpgrading ||
     isChangingPermissions ||
     isChangingOwnership
 
   const refreshCurrentData = async () => ID !== undefined && (await refetch())
-
-  const handleRefresh = () => refreshCurrentData()
-
-  const getConfirmationDescription = () =>
-    `OneKs: ${modalLabel}. ${T.DoYouWantProceed}`
-
-  const handleConfirmAction = ({ title, onSubmit }) =>
-    showModal({
-      isConfirmDialog: true,
-      dialogProps: {
-        title,
-        description: getConfirmationDescription(),
-      },
-      onSubmit,
-    })
 
   const handleRename = async (newName) => {
     await updateDocument({ id: ID, template: { name: newName } })
@@ -153,26 +155,69 @@ export const SingleView = ({
   }
 
   const handleRecover = () =>
-    handleConfirmAction({
-      title: T.Recover,
+    showModal({
+      isConfirmDialog: true,
+      dialogProps: {
+        title: T.Recover,
+        dataCy: 'modal-recover-oneks',
+        description: (
+          <ResourceActionConfirmation
+            description={T['resource.recover.confirmation']}
+            resources={data}
+            resourceType={T.KubernetesClusters}
+          />
+        ),
+        confirmLabel: T.Recover,
+      },
       onSubmit: async () => {
         await recover({ id: ID })
         await refreshCurrentData()
       },
     })
 
+  const { upgradeKubernetesVersions, highestSupportedKubernetesVersion } =
+    useMemo(() => {
+      const family = families.find(
+        ({ family: familyName }) => familyName === controlPlane?.family
+      )
+      const supportedVersions = family?.supported_k8s_versions ?? []
+      const highestSupportedVersion = supportedVersions.reduce(
+        (highestVersion, version) =>
+          !highestVersion || isKubernetesVersionHigher(version, highestVersion)
+            ? version
+            : highestVersion,
+        undefined
+      )
+
+      return {
+        upgradeKubernetesVersions: supportedVersions.filter((version) =>
+          isKubernetesVersionHigher(version, CLUSTER_BODY?.kubernetes_version)
+        ),
+        highestSupportedKubernetesVersion:
+          highestSupportedVersion ?? CLUSTER_BODY?.kubernetes_version,
+      }
+    }, [CLUSTER_BODY?.kubernetes_version, controlPlane?.family, families])
+
+  const handleUpgradeKubernetesVersion = async (template) => {
+    await upgradeKubernetesVersion({ id: ID, template }).unwrap()
+    await refreshCurrentData()
+  }
+
+  const handleOpenUpgradeKsClusterForm = () =>
+    openUpgradeKsClusterForm({
+      versions: upgradeKubernetesVersions,
+      highestSupportedVersion: highestSupportedKubernetesVersion,
+      onSubmit: handleUpgradeKubernetesVersion,
+    })
+
   const handleDelete = () =>
-    showModal({
-      name: T.Delete,
-      dialogProps: {
-        title: T.Delete,
-        dataCy: 'modal-delete-oneks',
-      },
-      form: OneKsResource.Forms.DeleteOneKsClusterForm(),
-      onSubmit: async (formData) => {
+    openDeleteKsClusterConfirmation({
+      title: T.Delete,
+      resources: data,
+      onSubmit: async (force) => {
         await deleteOneKs({
           id: ID,
-          ...(formData?.force ? { force: true } : {}),
+          ...(force ? { force: true } : {}),
         })
         handleClose()
       },
@@ -204,6 +249,14 @@ export const SingleView = ({
             tooltip: T.Recover,
             isDisabled: isActionsDisabled,
           },
+          {
+            accessor: ONEKS_ACTIONS.UPGRADE,
+            startIcon: <ArrowUpCircle width="16px" height="16px" />,
+            onClick: handleOpenUpgradeKsClusterForm,
+            value: ONEKS_ACTIONS.UPGRADE,
+            tooltip: T.Upgrade,
+            isDisabled: isActionsDisabled || isLoadingFamilies,
+          },
         ],
       }),
     ],
@@ -217,7 +270,7 @@ export const SingleView = ({
       },
       {
         startIcon: <RefreshDouble width="16px" height="16px" />,
-        onClick: handleRefresh,
+        onClick: refreshCurrentData,
         value: 'refresh',
         tooltip: T.Refresh,
         isDisabled: isActionsDisabled,
@@ -270,6 +323,10 @@ export const SingleView = ({
             title: data?.NAME,
             id: ID,
             tags: getLabelTags(data?.LABELS),
+            labels: [
+              [T.Owner, data?.UNAME],
+              [T.Group, data?.GNAME],
+            ],
             Toolbar: () => (
               <Box
                 sx={(theme) => ({
@@ -287,10 +344,37 @@ export const SingleView = ({
           SummarySlot,
           {
             labels: [
-              [CLUSTER_BODY?.kubernetes_version ?? '-', T.KubernetesVersion],
-              [controlPlaneState ?? '-', T.ControlPlane],
-              [`${CLUSTER_BODY?.node_groups?.length ?? 0}`, T.NodeGroups],
-              [formatTime(CLUSTER_BODY?.registration_time), T.CreationTime],
+              [
+                <StatusTag
+                  key={'oneks-state'}
+                  statusColor={stateColor}
+                  statusName={stateName ?? '-'}
+                />,
+                T.State,
+              ],
+              [
+                <Tag
+                  key={'oneks-control-plane-flavour'}
+                  title={controlPlane?.flavour ?? '-'}
+                  status={'default'}
+                />,
+                T.ControlPlane,
+              ],
+              [
+                String(
+                  [].concat(CLUSTER_BODY?.node_groups ?? []).filter(Boolean)
+                    .length
+                ),
+                T.NodeGroups,
+              ],
+              [
+                <Tag
+                  key={'oneks-kubernetes-version'}
+                  title={CLUSTER_BODY?.kubernetes_version ?? '-'}
+                  status={'default'}
+                />,
+                T.KubernetesVersion,
+              ],
             ],
           },
         ],
@@ -303,6 +387,7 @@ export const SingleView = ({
               selected: data,
               handleChangeOwnership,
               handleChangePermission,
+              isLoading: isFetching,
               isActionsDisabled,
               isMutating: isActionsDisabled,
             },

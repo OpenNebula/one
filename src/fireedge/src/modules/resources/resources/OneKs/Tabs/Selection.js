@@ -19,6 +19,7 @@ import { Component, useMemo } from 'react'
 import {
   Button,
   StatusTag,
+  Tag,
   TablePanel as SelectionTable,
 } from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
@@ -65,15 +66,37 @@ export const Selection = ({ data }) => {
         },
       },
       {
+        header: T.Type,
+        id: 'type',
+        accessorFn: (row) =>
+          [].concat(row?.TEMPLATE?.CLUSTER_BODY?.control_plane ?? [])[0]
+            ?.flavour ?? '',
+        cell: ({ row }) => {
+          const flavour = [].concat(
+            row?.original?.TEMPLATE?.CLUSTER_BODY?.control_plane ?? []
+          )[0]?.flavour
+
+          return flavour ? <Tag title={flavour} status="default" /> : '-'
+        },
+      },
+      {
         header: T.KubernetesVersion,
         id: 'version',
         accessorFn: (row) => row?.TEMPLATE?.CLUSTER_BODY?.kubernetes_version,
+        cell: ({ row }) => {
+          const version =
+            row?.original?.TEMPLATE?.CLUSTER_BODY?.kubernetes_version
+
+          return version ? <Tag title={version} status="default" /> : '-'
+        },
       },
       {
         header: T.NodeGroups,
         id: 'nodegroups',
         accessorFn: (row) =>
-          row?.TEMPLATE?.CLUSTER_BODY?.node_groups?.length ?? 0,
+          []
+            .concat(row?.TEMPLATE?.CLUSTER_BODY?.node_groups ?? [])
+            .filter(Boolean).length,
       },
       {
         accessorKey: 'ID',

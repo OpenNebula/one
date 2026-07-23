@@ -13,45 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-import { T } from '@ConstantsModule'
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
-import { BoxIso, ServerConnection } from 'iconoir-react'
+import { T } from '@ConstantsModule'
 import {
   Card,
-  IconSlot,
   LabelSlot,
   MetadataSlot,
   TimeSlot,
   TitleSlot,
 } from '@ComponentsV2Module'
-import { getLabelTags, getVirtualOneKsState } from '@ModelsModule'
+import { getNodeGroupState } from '@ModelsModule'
 
 /**
+ * Displays a OneKS Node Group as a selectable card.
+ *
  * @param {object} root0 - Params
- * @param {object} root0.data - OneKs data
+ * @param {object} root0.nodeGroup - Node Group data
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
  * @param {object} ref - Forwarded ref
- * @returns {Component} OneKs card component
+ * @returns {Component} Node Group card component
  */
-export const OneKsCard = forwardRef(
-  ({ data, isSelected, onCheck, onClick }, ref) => {
-    const { ID, NAME, UNAME, GNAME, LABELS, TEMPLATE = {} } = data || {}
-    const { CLUSTER_BODY = {} } = TEMPLATE
-    const controlPlanes = []
-      .concat(CLUSTER_BODY?.control_plane ?? [])
-      .filter(Boolean)
-    const nodeGroups = []
-      .concat(CLUSTER_BODY?.node_groups ?? [])
-      .filter(Boolean)
-    const [controlPlane] = controlPlanes
-    const { kubernetes_version: version } = CLUSTER_BODY
-    const labelTags = getLabelTags(LABELS)
-
-    const { color: stateColor, name: stateName } = getVirtualOneKsState(data)
+export const NodeGroupCard = forwardRef(
+  ({ nodeGroup = {}, isSelected, onCheck, onClick }, ref) => {
+    const {
+      id,
+      name,
+      state,
+      flavour,
+      registration_time: registrationTime,
+      vms = [],
+    } = nodeGroup
+    const { color, name: stateName } = getNodeGroupState(state) ?? {}
+    const nodes = [].concat(vms).filter(Boolean).length
 
     return (
       <Card
@@ -63,8 +59,8 @@ export const OneKsCard = forwardRef(
           [
             TitleSlot,
             {
-              title: NAME,
-              status: stateColor,
+              title: name,
+              status: color,
               statusName: stateName,
             },
           ],
@@ -72,47 +68,21 @@ export const OneKsCard = forwardRef(
             MetadataSlot,
             {
               labels: [
-                [T.ID, ID],
-                [T.Owner, UNAME],
-                [T.Group, GNAME],
-              ].filter(
-                ([, value]) =>
-                  value !== undefined && value !== null && value !== ''
-              ),
+                [T.ID, id === undefined || id === null ? undefined : `#${id}`],
+                [T.Nodes, String(nodes)],
+              ].filter(([, value]) => value !== undefined && value !== null),
             },
           ],
-          [
-            IconSlot,
-            {
-              items: [
-                {
-                  Icon: ServerConnection,
-                  label: T.ControlPlanes,
-                  value: controlPlanes.length,
-                },
-                {
-                  Icon: BoxIso,
-                  label: T.NodeGroups,
-                  value: nodeGroups.length,
-                },
-              ],
-            },
-          ],
-          (controlPlane?.flavour || version || labelTags.length > 0) && [
+          flavour && [
             LabelSlot,
             {
-              labels: [
-                controlPlane?.flavour && [controlPlane.flavour, 'default'],
-                version && [version, 'default'],
-              ].filter(Boolean),
-              tags: labelTags,
-              max: 2,
+              labels: [[flavour, 'default']],
             },
           ],
-          CLUSTER_BODY?.registration_time && [
+          registrationTime && [
             TimeSlot,
             {
-              time: CLUSTER_BODY.registration_time,
+              time: registrationTime,
               label: T.Created,
             },
           ],
@@ -122,11 +92,11 @@ export const OneKsCard = forwardRef(
   }
 )
 
-OneKsCard.propTypes = {
-  data: PropTypes.object,
+NodeGroupCard.propTypes = {
+  nodeGroup: PropTypes.object,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,
 }
 
-OneKsCard.displayName = 'OneKsCard'
+NodeGroupCard.displayName = 'NodeGroupCard'

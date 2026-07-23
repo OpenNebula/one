@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { Plus } from 'iconoir-react'
 import { T, ONEKS_OPERATIONS, PATH } from '@ConstantsModule'
 import * as OneKsForms from '@modules/resources/resources/OneKs/Forms'
@@ -24,24 +24,29 @@ import PropTypes from 'prop-types'
 import { Button } from '@ComponentsV2Module'
 
 /**
- * Generates the actions to operate resources on VM table.
+ * Returns the handler that opens the Create Node Group form.
  *
- * @param {object} props - datatable props
- * @param {string} props.id - Cluster id
- * @param {boolean} props.disabled - Disable action
- * @returns {object} - Actions
+ * @param {string} id - Cluster id
+ * @param {object[]} families - Node Group families
+ * @returns {Function} Create action handler
  */
-
-const AddNodeGroupAction = memo(({ id, disabled = false }) => {
+export const useAddNodeGroupAction = (id, families = []) => {
   const history = useHistory()
   const { showModal } = useModalsApi()
   const { enqueueSuccess, enqueueError } = useGeneralApi()
   const [createOneKsNodeGroup] = OneKsAPI.useCreateOneKsNodeGroupMutation()
 
-  const { data: families } = OneKsAPI.useGetOneKsNodegroupFamiliesQuery()
+  const familiesUserInputs = useMemo(
+    () => createFieldsFromOneKsOdsUserInputs(families),
+    [families]
+  )
 
-  const familiesUserInputs = createFieldsFromOneKsOdsUserInputs(families)
-
+  /**
+   * Creates a Node Group.
+   *
+   * @param {object} template - Node Group template
+   * @returns {Promise<void>} Creation result
+   */
   const handleCreateNodeGroup = async (template) => {
     try {
       await createOneKsNodeGroup({ id, template }).unwrap()
@@ -54,6 +59,11 @@ const AddNodeGroupAction = memo(({ id, disabled = false }) => {
     }
   }
 
+  /**
+   * Opens the Create Node Group form.
+   *
+   * @returns {void}
+   */
   const handleOpenForm = () =>
     showModal({
       isFormDialog: true,
@@ -68,20 +78,22 @@ const AddNodeGroupAction = memo(({ id, disabled = false }) => {
       onSubmit: handleCreateNodeGroup,
     })
 
-  return (
-    <Button
-      data-cy={`add-node-group`}
-      startIcon={<Plus />}
-      title={T.Create}
-      type={'secondary'}
-      isDisabled={disabled}
-      onClick={handleOpenForm}
-    />
-  )
-})
+  return handleOpenForm
+}
+
+const AddNodeGroupAction = memo(({ disabled = false, onClick }) => (
+  <Button
+    data-cy={`add-node-group`}
+    startIcon={<Plus />}
+    title={T.Create}
+    type={'secondary'}
+    isDisabled={disabled}
+    onClick={onClick}
+  />
+))
 AddNodeGroupAction.propTypes = {
-  id: PropTypes.string,
   disabled: PropTypes.bool,
+  onClick: PropTypes.func.isRequired,
 }
 AddNodeGroupAction.displayName = 'AddNodeGroupAction'
 

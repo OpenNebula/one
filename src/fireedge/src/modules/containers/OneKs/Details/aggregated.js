@@ -19,13 +19,20 @@ import {
   DetailsDrawer,
   InfoSlot,
   LabelButton,
+  ResourceActionConfirmation,
+  SummarySlot,
   TabSlot,
 } from '@ComponentsV2Module'
 
 import { OneKsAPI, useModalsApi } from '@FeaturesModule'
-import { Component } from 'react'
+import { Component, useMemo } from 'react'
 
-import { createActions, permissionsToOctal, toSnakeCase } from '@UtilsModule'
+import {
+  createActions,
+  getCommonValue,
+  permissionsToOctal,
+  toSnakeCase,
+} from '@UtilsModule'
 
 import {
   ONEKS_ACTIONS,
@@ -71,6 +78,8 @@ export const AggregatedView = ({
   availableActions = {},
 }) => {
   const { showModal } = useModalsApi()
+  const openDeleteKsClusterConfirmation =
+    OneKsResource.Forms.useDeleteKsClusterConfirmation()
 
   const [refresh, { isFetching }] = OneKsAPI.useLazyGetOneKsClusterQuery()
   const [recover, { isLoading: isRecovering }] =
@@ -89,27 +98,42 @@ export const AggregatedView = ({
     isChangingPermissions ||
     isChangingOwnership
 
+  const summary = useMemo(
+    () => ({
+      kubernetesVersion: getCommonValue(
+        selectedData,
+        (cluster) => cluster?.TEMPLATE?.CLUSTER_BODY?.kubernetes_version ?? '-'
+      ),
+      nodeGroups: selectedData.reduce(
+        (total, cluster) =>
+          total +
+          []
+            .concat(cluster?.TEMPLATE?.CLUSTER_BODY?.node_groups ?? [])
+            .filter(Boolean).length,
+        0
+      ),
+    }),
+    [selectedData]
+  )
+
   const handleRefresh = async () =>
-    await Promise.all(
-      selectedData.map(({ ID }) => refresh({ id: ID, expand: true }))
-    )
+    await Promise.all(selectedData.map(({ ID }) => refresh({ id: ID })))
 
-  const getConfirmationDescription = () =>
-    `${selectedData.length} OneKs. ${T.DoYouWantProceed}`
-
-  const handleConfirmAction = ({ title, onSubmit }) =>
+  const handleOpenRecoverForm = () =>
     showModal({
       isConfirmDialog: true,
       dialogProps: {
-        title,
-        description: getConfirmationDescription(),
+        title: T.RecoverSeveralOneKsClusters,
+        dataCy: 'modal-recover-oneks',
+        description: (
+          <ResourceActionConfirmation
+            description={T['resource.recover.confirmation']}
+            resources={selectedData}
+            resourceType={T.KubernetesClusters}
+          />
+        ),
+        confirmLabel: T.Recover,
       },
-      onSubmit,
-    })
-
-  const handleOpenRecoverForm = () =>
-    handleConfirmAction({
-      title: T.RecoverSeveralOneKsClusters,
       onSubmit: async () => {
         await Promise.all(selectedData.map(({ ID }) => recover({ id: ID })))
         await handleRefresh()
@@ -117,19 +141,15 @@ export const AggregatedView = ({
     })
 
   const handleOpenDeleteForm = () =>
-    showModal({
-      name: T.Delete,
-      dialogProps: {
-        title: T.DeleteSelected,
-        dataCy: 'modal-delete-oneks',
-      },
-      form: OneKsResource.Forms.DeleteOneKsClusterForm(),
-      onSubmit: async (formData) => {
+    openDeleteKsClusterConfirmation({
+      title: T.DeleteSelected,
+      resources: selectedData,
+      onSubmit: async (force) => {
         await Promise.all(
           selectedData.map(({ ID }) =>
             remove({
               id: ID,
-              ...(formData?.force ? { force: true } : {}),
+              ...(force ? { force: true } : {}),
             })
           )
         )
@@ -157,7 +177,7 @@ export const AggregatedView = ({
     await handleRefresh()
   }
 
-  const recoverButtons = createActions({
+  const [recoverButton] = createActions({
     filters: availableActions,
     actions: [
       {
@@ -165,6 +185,7 @@ export const AggregatedView = ({
         startIcon: <RefreshCircular width="16px" height="16px" />,
         onClick: handleOpenRecoverForm,
         value: ONEKS_ACTIONS.RECOVER,
+        title: T.Recover,
         isDisabled: isMutating,
         tooltip: T.Recover,
       },
@@ -187,7 +208,7 @@ export const AggregatedView = ({
         [
           InfoSlot,
           {
-            title: `${selectedData?.length} OneKs ${T.Selected}`,
+            title: `${selectedData?.length} ${T.KubernetesClusters} ${T.Selected}`,
             Toolbar: () => (
               <Box
                 sx={(theme) => ({
@@ -196,18 +217,17 @@ export const AggregatedView = ({
                   gap: `${theme.scale[500]}px`,
                 })}
               >
-                {recoverButtons.map(
-                  ({ value, startIcon, onClick, tooltip, isDisabled }) => (
-                    <Button
-                      key={value}
-                      type={STYLE_BUTTONS.TYPE.TRANSPARENT}
-                      size="medium"
-                      iconOnly={startIcon}
-                      tooltip={tooltip}
-                      onClick={onClick}
-                      isDisabled={isDisabled}
-                    />
-                  )
+                {recoverButton && (
+                  <Button
+                    type={STYLE_BUTTONS.TYPE.SECONDARY}
+                    size="small"
+                    startIcon={recoverButton.startIcon}
+                    onClick={recoverButton.onClick}
+                    isDisabled={recoverButton.isDisabled}
+                    tooltip={recoverButton.tooltip}
+                  >
+                    {recoverButton.title}
+                  </Button>
                 )}
 
                 <LabelButton
@@ -236,6 +256,15 @@ export const AggregatedView = ({
                 />
               </Box>
             ),
+          },
+        ],
+        [
+          SummarySlot,
+          {
+            labels: [
+              [summary.kubernetesVersion, T.KubernetesVersion],
+              [String(summary.nodeGroups), T.NodeGroups],
+            ],
           },
         ],
         [

@@ -14,21 +14,28 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { MoreVert } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { memo } from 'react'
+import { generatePath, useHistory } from 'react-router-dom'
+import { EditPencil, Expand, RefreshCircular, Trash } from 'iconoir-react'
+import { Button, ResourceActionConfirmation } from '@ComponentsV2Module'
+import { T, ONEKS_OPERATIONS, PATH } from '@ConstantsModule'
 import { OneKsAPI, useGeneralApi, useModalsApi } from '@FeaturesModule'
 import {
-  ScalingOneksNodeGroupsForm,
   EditOneKsNodeGroupForm,
+  ScaleKsGroupForm,
 } from '@modules/resources/resources/OneKs/Forms'
-import { generatePath, useHistory } from 'react-router-dom'
-import { useTranslation } from '@ProvidersModule'
-import { T, ONEKS_OPERATIONS, PATH } from '@ConstantsModule'
-import { MenuButton, ResourceActionConfirmation } from '@ComponentsV2Module'
+import { DIALOG_SIZE_PROPS } from '@modules/resources/resources/OneKs/Tabs/NodeGroups/styles'
 
-const RowAction = memo(({ node, id }) => {
-  const { translate } = useTranslation()
+/**
+ * Renders the actions for a selected Node Group.
+ *
+ * @param {object} root0 - Params
+ * @param {object} root0.node - Node Group data
+ * @param {string|number} root0.id - Cluster ID
+ * @returns {object} Node Group actions
+ */
+const NodeGroupActions = memo(({ node, id }) => {
   const history = useHistory()
   const { showModal } = useModalsApi()
   const { enqueueSuccess, enqueueError } = useGeneralApi()
@@ -37,24 +44,25 @@ const RowAction = memo(({ node, id }) => {
   const [recoverNodeGroup] = OneKsAPI.useRecoverOneKsNodeGroupMutation()
   const [updateNodeGroup] = OneKsAPI.useUpdateOneKsClusterNodeGroupsMutation()
   const nodeId = node?.id
+  const isDisabled = nodeId === undefined || nodeId === null
 
   const handleRemove = async () => {
     try {
       await deleteNodeGroup({ id, nodegroup_id: nodeId }).unwrap()
       enqueueSuccess(T.SuccessNodeGroupDeleted)
-    } catch (error) {
+    } catch {
       enqueueError(T.ErrorNodeGroupDeletion)
     }
   }
+
   const handleScaling = async (template) => {
     try {
       await scaleNodeGroup({ id, nodegroup_id: nodeId, template }).unwrap()
-      // Go to oneks logs
       history.push(generatePath(PATH.ONEKS.CREATE_CLOUD_LOGS, { id }), {
         operation: ONEKS_OPERATIONS.SCALING.name,
       })
       enqueueSuccess(T.SuccessNodeGroupScaled)
-    } catch (error) {
+    } catch {
       enqueueError(T.ErrorNodeGroupScaling)
     }
   }
@@ -62,30 +70,20 @@ const RowAction = memo(({ node, id }) => {
   const handleRecover = async () => {
     try {
       await recoverNodeGroup({ id, nodegroup_id: nodeId }).unwrap()
-      // Go to oneks logs
       history.push(generatePath(PATH.ONEKS.CREATE_CLOUD_LOGS, { id }), {
         operation: ONEKS_OPERATIONS.SCALING.name,
       })
       enqueueSuccess(T.SuccessNodeGroupRecovered)
-    } catch (error) {
+    } catch {
       enqueueError(T.ErrorNodeGroupRecovery)
     }
-  }
-
-  const oneksDialogSizeProps = {
-    dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
-    dialogMaxWidth: 'calc(100vw - 32px)',
-    dialogMaxHeight: 'calc(100vh - 64px)',
-    dialogPaperOverflow: 'visible',
-    dialogContentMaxHeight: '50vh',
-    dialogContentOverflowY: 'auto',
   }
 
   const handleEdit = async (template) => {
     try {
       await updateNodeGroup({ id, nodegroup_id: nodeId, template }).unwrap()
       enqueueSuccess(T.SuccessUpdateNodeGroup)
-    } catch (error) {
+    } catch {
       enqueueError(T.ErrorUpdateNodeGroup)
     }
   }
@@ -95,7 +93,7 @@ const RowAction = memo(({ node, id }) => {
       dialogProps: {
         title: T.EditNodeGroup,
         dataCy: 'modal-edit-node',
-        ...oneksDialogSizeProps,
+        ...DIALOG_SIZE_PROPS,
       },
       form: EditOneKsNodeGroupForm({
         initialValues: {
@@ -111,9 +109,9 @@ const RowAction = memo(({ node, id }) => {
       dialogProps: {
         title: T.ResizeNodeGroup,
         dataCy: 'modal-scaling-node',
-        ...oneksDialogSizeProps,
+        ...DIALOG_SIZE_PROPS,
       },
-      form: ScalingOneksNodeGroupsForm,
+      form: ScaleKsGroupForm,
       onSubmit: handleScaling,
     })
 
@@ -156,37 +154,54 @@ const RowAction = memo(({ node, id }) => {
       onSubmit: handleRemove,
     })
 
-  const options = [
-    {
-      'data-cy': `edit-${nodeId}`,
-      title: translate(T.EditNodeGroup),
-      onClick: handleOpenEditForm,
-    },
-    {
-      'data-cy': `scaling-${nodeId}`,
-      title: translate(T.ResizeNodeGroup),
-      onClick: handleOpenScalingForm,
-    },
-    {
-      'data-cy': `recover-${nodeId}`,
-      title: translate(T.RecoverNodeGroup),
-      onClick: handleOpenRecoverForm,
-    },
-    {
-      'data-cy': `delete-${nodeId}`,
-      title: translate(T.DeleteNodeGroup),
-      onClick: handleOpenRemoveForm,
-    },
-  ]
-
-  return <MenuButton iconOnly={<MoreVert />} options={[options]} />
+  return (
+    <>
+      <Button
+        data-cy={`edit-${nodeId}`}
+        title={T.Edit}
+        type="secondary"
+        size="small"
+        startIcon={<EditPencil width="16px" height="16px" />}
+        isDisabled={isDisabled}
+        onClick={handleOpenEditForm}
+      />
+      <Button
+        data-cy={`scaling-${nodeId}`}
+        title={T.Scale}
+        type="secondary"
+        size="small"
+        startIcon={<Expand width="16px" height="16px" />}
+        isDisabled={isDisabled}
+        onClick={handleOpenScalingForm}
+      />
+      <Button
+        data-cy={`recover-${nodeId}`}
+        title={T.Recover}
+        type="secondary"
+        size="small"
+        startIcon={<RefreshCircular width="16px" height="16px" />}
+        isDisabled={isDisabled}
+        onClick={handleOpenRecoverForm}
+      />
+      <Button
+        data-cy={`delete-${nodeId}`}
+        title={T.Delete}
+        type="primary"
+        size="small"
+        startIcon={<Trash width="16px" height="16px" />}
+        isDestructive
+        isDisabled={isDisabled}
+        onClick={handleOpenRemoveForm}
+      />
+    </>
+  )
 })
 
-RowAction.propTypes = {
-  node: PropTypes.object.isRequired,
+NodeGroupActions.propTypes = {
+  node: PropTypes.object,
   id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
 }
 
-RowAction.displayName = 'RowAction'
+NodeGroupActions.displayName = 'NodeGroupActions'
 
-export default RowAction
+export default NodeGroupActions

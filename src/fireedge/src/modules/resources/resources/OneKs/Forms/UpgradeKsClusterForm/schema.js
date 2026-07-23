@@ -13,49 +13,40 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { boolean, object } from 'yup'
 
-import { getValidationFromFields } from '@UtilsModule'
+import { BaseSchema, string } from 'yup'
+
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { AlertNotification } from '@ComponentsV2Module'
+import { Field, arrayToOptions, getObjectSchemaFromFields } from '@UtilsModule'
 
-import PropTypes from 'prop-types'
-
-const VisualAlert = ({ description }) => (
-  <AlertNotification
-    type="primary"
-    status="error"
-    description={description}
-    isDismissible={false}
-    style={{ width: '100%', boxSizing: 'border-box' }}
-  />
-)
-
-VisualAlert.propTypes = {
-  description: PropTypes.string,
-}
-VisualAlert.displayName = 'VisualAlert'
-
-const formFieldNames = {
-  force: 'force',
-}
-
-const ALERT_TEXT_FIELD = {
-  name: 'ALERT_TEXT',
-  type: INPUT_TYPES.TYPOGRAPHY,
+/**
+ * @param {object} root0 - Field options
+ * @param {string[]} root0.versions - Supported Kubernetes versions
+ * @returns {Field} Kubernetes version field
+ */
+const kubernetesVersionField = ({ versions = [] } = {}) => ({
+  name: 'kubernetes_version',
+  label: T.KubernetesVersion,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  values: () =>
+    arrayToOptions(versions, {
+      addEmpty: false,
+      getText: (version) => version,
+      getValue: (version) => version,
+    }),
+  validation: string().trim().required(),
   grid: { md: 12 },
-  text: <VisualAlert description={T.WarningDeleteOneKsCluster} />,
-  dependOf: [formFieldNames.force],
-}
+})
 
-const FORCE = {
-  name: formFieldNames.force,
-  label: T.Force,
-  type: INPUT_TYPES.CHECKBOX,
-  validation: boolean().default(() => false),
-  grid: { md: 12 },
-}
+/**
+ * @param {object} props - Form options
+ * @returns {Field[]} Upgrade form fields
+ */
+export const FIELDS = (props) => [kubernetesVersionField(props)]
 
-export const FIELDS = [ALERT_TEXT_FIELD, FORCE]
-
-export const SCHEMA = object(getValidationFromFields([FORCE]))
+/**
+ * @param {object} props - Form options
+ * @returns {BaseSchema} Upgrade form schema
+ */
+export const SCHEMA = (props) => getObjectSchemaFromFields(FIELDS(props))

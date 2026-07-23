@@ -59,7 +59,10 @@ export const showDataByState = (state) =>
  * @returns {object} State information from resource
  */
 export const getVirtualOneKsStateControlPlane = (oneks) => {
-  const { state: STATE } = oneks?.TEMPLATE?.CLUSTER_BODY?.control_plane ?? {}
+  const [controlPlane = {}] = [].concat(
+    oneks?.TEMPLATE?.CLUSTER_BODY?.control_plane ?? []
+  )
+  const { state: STATE } = controlPlane
 
   if (!ONEKS_STATE[STATE]) {
     return ONEKS_STATE.UNKNOWN

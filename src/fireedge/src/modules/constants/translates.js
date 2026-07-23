@@ -3226,6 +3226,7 @@ module.exports = {
   /* Kubernetes */
   Tags: 'Tags',
   ControlPlane: 'Control Plane',
+  ControlPlanes: 'Control Planes',
   Nodes: 'Nodes',
   Family: 'Family',
   Flavour: 'Flavour',
@@ -3233,20 +3234,32 @@ module.exports = {
   PublicNetwork: 'Public Network',
   PrivateNetwork: 'Private Network',
   WorkerNodes: 'Worker Nodes',
-  NodeGroups: 'Node groups',
+  NodeGroups: 'Node Groups',
   Events: 'Events',
   Replicas: 'Replicas',
   KubernetesVersion: 'K8s version',
+  KubernetesClusters: 'Kubernetes Clusters',
+  Upgrade: 'Upgrade',
+  UpgradeK8sCluster: 'Upgrade K8s Cluster',
   CreationTime: 'Creation Time',
   WarningDeleteOneKsCluster:
     'Deleting this cluster will permanently destroy all associated resources including node groups, workloads, persistent volumes, and configurations. This action is irreversible.',
   WarningScalingOneKsCluster:
     'Changes will trigger a rolling update. Existing pods will be rescheduled to new nodes.',
   AddNodeGroup: 'Add Node Group',
+  CreateNodeGroup: 'Create Node Group',
   DeleteNodeGroup: 'Delete Node Group',
   ResizeNodeGroup: 'Resize Node Group',
   EditNodeGroup: 'Edit Node Group',
   RecoverNodeGroup: 'Recover Node Group',
+  VmIds: 'VM IDs',
+  NoNodeGroups: 'No Node Groups',
+  NoNodeGroupsDescription:
+    'This cluster does not currently have any Node Groups.',
+  NoNodeGroupsUntilClusterRunning:
+    'This cluster does not currently have any Node Groups. Node Groups can be added once the cluster is running.',
+  NoNodeGroupSelected: 'No Node Group selected',
+  SelectNodeGroupConcept: 'Select a Node Group to view its virtual machines.',
   SelectPublicVirtualNetworks: 'Select a public virtual network',
   SelectPrivateVirtualNetworks: 'Select a private virtual network',
   'oneks.form.create.general.help.paragraph':
@@ -3267,6 +3280,10 @@ module.exports = {
     'This section shows the resources and settings used to deploy the control plane nodes in the Kubernetes cluster.',
   'oneks.form.create.kubernetes_version.info':
     'Select one kubernetes version to continue.',
+  'oneks.form.upgrade.kubernetes_version.help':
+    'Select a Kubernetes version to upgrade the cluster. The selected version must be higher than the current version, downgrades are not supported.',
+  'oneks.form.upgrade.kubernetes_version.up_to_date':
+    'This cluster is already updated to the highest supported Kubernetes version: %s.',
   'oneks.logs.create.logs':
     'Your cluster will appear in the clusters list with "Creating" status. The control plane nodes will be provisioned according to the selected flavour. This process typically takes 5–10 minutes.',
   'oneks.form.create_nodegroup.general.help.paragraph':
@@ -3277,6 +3294,7 @@ module.exports = {
     'Please, select a NodeGroup family. The family defines the purpose of the worker nodes and their configuration for this NodeGroup.',
   'oneks.form.create_nodegroup.flavour.help.paragraph':
     'Please, select a flavour. The flavour defines the specific configuration that will be used to deploy the worker nodes in this NodeGroup.',
+  KubeconfigNotAvailableYet: 'Kubeconfig not available yet',
   'oneks.tab.info.kubeconfig.help.paragraph':
     'The K8S cluster must be running to display the kubeconfig.',
   'oneks.tab.info.nodegroups.help.paragraph':
@@ -3298,6 +3316,15 @@ module.exports = {
   ErrorNodeGroupRecovery: 'Error recovering node group',
   SuccessUpdateNodeGroup: 'Node group updated',
   ErrorUpdateNodeGroup: 'Error updating node group',
+
+  /* OneKs states */
+  BOOTSTRAPPING: 'Bootstrapping',
+  BOOTSTRAPPING_FAILURE: 'Bootstrapping Failure',
+  PROVISIONING: 'Provisioning',
+  PROVISIONING_FAILURE: 'Provisioning Failure',
+  UPGRADING: 'Upgrading',
+  UPGRADING_FAILURE: 'Upgrading Failure',
+  WARNING: 'Warning',
 
   /* User Inputs kubernetes */
   count: 'Count',

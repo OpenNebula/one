@@ -15,7 +15,13 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
 
-import { List, ResourceContainer, Table } from '@ComponentsV2Module'
+import {
+  List,
+  ResourceContainer,
+  StatusTag,
+  Table,
+  Tag,
+} from '@ComponentsV2Module'
 import { RESOURCE_NAMES, TABLE_VIEW_MODE, T } from '@ConstantsModule'
 import {
   OneKsAPI,
@@ -24,7 +30,7 @@ import {
   useGeneral,
   useViews,
 } from '@FeaturesModule'
-import { getVirtualOneKsState } from '@ModelsModule'
+import { createLabelColumn, getVirtualOneKsState } from '@ModelsModule'
 import {
   getTableSortOptions,
   sortTableData,
@@ -39,32 +45,63 @@ const getDocument = (data) => data?.DOCUMENT ?? data ?? {}
 const toId = (id) => String(id)
 
 const formatTime = (time) =>
-  +time > 0 ? timeFromMilliseconds(+time).toFormat('ff') : '-'
+  +time > 0 ? timeFromMilliseconds(+time).toRelative() : '-'
 
 const columns = [
-  { header: T.ID, accessorKey: 'ID' },
-  { header: T.Name, accessorKey: 'NAME' },
+  { header: T.ID, id: 'id', accessorKey: 'ID', grow: false },
+  { header: T.Name, id: 'name', accessorKey: 'NAME', truncate: true },
   {
     header: T.State,
-    id: 'STATE',
+    id: 'state',
     accessorFn: (row) => getVirtualOneKsState(row)?.name ?? '',
+    cell: ({ row }) => {
+      const { color, name } = getVirtualOneKsState(row.original) ?? {}
+
+      return <StatusTag statusColor={color} statusName={name} />
+    },
+  },
+  {
+    header: T.Type,
+    id: 'type',
+    accessorFn: (row) =>
+      [].concat(row?.TEMPLATE?.CLUSTER_BODY?.control_plane ?? [])[0]?.flavour ??
+      '',
+    cell: ({ row }) => {
+      const flavour = [].concat(
+        row?.original?.TEMPLATE?.CLUSTER_BODY?.control_plane ?? []
+      )[0]?.flavour
+
+      return flavour ? <Tag title={flavour} status="default" /> : '-'
+    },
   },
   {
     header: T.KubernetesVersion,
-    id: 'VERSION',
+    id: 'version',
     accessorFn: (row) => row?.TEMPLATE?.CLUSTER_BODY?.kubernetes_version ?? '',
+    cell: ({ row }) => {
+      const version = row?.original?.TEMPLATE?.CLUSTER_BODY?.kubernetes_version
+
+      return version ? <Tag title={version} status="default" /> : '-'
+    },
   },
   {
     header: T.NodeGroups,
-    id: 'NODEGROUPS',
-    accessorFn: (row) => row?.TEMPLATE?.CLUSTER_BODY?.node_groups?.length ?? 0,
-  },
-  {
-    header: T.CreationTime,
-    id: 'CREATED',
+    id: 'node_groups',
     accessorFn: (row) =>
-      formatTime(row?.TEMPLATE?.CLUSTER_BODY?.registration_time),
+      [].concat(row?.TEMPLATE?.CLUSTER_BODY?.node_groups ?? []).filter(Boolean)
+        .length,
   },
+  { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
+  { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
+  {
+    header: T.Created,
+    id: 'registration_time',
+    accessorFn: (row) => row?.TEMPLATE?.CLUSTER_BODY?.registration_time ?? 0,
+    cell: ({ row }) =>
+      formatTime(row?.original?.TEMPLATE?.CLUSTER_BODY?.registration_time),
+    grow: false,
+  },
+  createLabelColumn({ grow: false }),
 ]
 
 /**
@@ -115,8 +152,9 @@ export function OneKs() {
             ID,
             NAME,
             state?.name,
+            [].concat(CLUSTER_BODY?.control_plane ?? [])[0]?.flavour,
             CLUSTER_BODY?.kubernetes_version,
-            CLUSTER_BODY?.node_groups?.length,
+            [].concat(CLUSTER_BODY?.node_groups ?? []).filter(Boolean).length,
             registrationTime && formatTime(registrationTime),
             registrationTime &&
               timeFromMilliseconds(+registrationTime).toRelative(),

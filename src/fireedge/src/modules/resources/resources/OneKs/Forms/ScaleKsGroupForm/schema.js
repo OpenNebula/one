@@ -17,24 +17,8 @@ import { number, object } from 'yup'
 
 import { getValidationFromFields } from '@UtilsModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { AlertNotification } from '@ComponentsV2Module'
-
-import PropTypes from 'prop-types'
-
-const VisualAlert = ({ description }) => (
-  <AlertNotification
-    type="primary"
-    status="information"
-    description={description}
-    isDismissible={false}
-    style={{ width: '100%', boxSizing: 'border-box' }}
-  />
-)
-
-VisualAlert.propTypes = {
-  description: PropTypes.string,
-}
-VisualAlert.displayName = 'VisualAlert'
+import { scale } from '@StylesModule'
+import { Typography } from '@mui/material'
 
 const formFieldNames = {
   target: 'target',
@@ -44,7 +28,11 @@ const ALERT_TEXT_FIELD = {
   name: 'ALERT_TEXT',
   type: INPUT_TYPES.TYPOGRAPHY,
   grid: { md: 12 },
-  text: <VisualAlert description={T.WarningScalingOneKsCluster} />,
+  text: (
+    <Typography variant="body1" sx={{ mb: `${scale[200]}px` }}>
+      {T.WarningScalingOneKsCluster}
+    </Typography>
+  ),
   dependOf: [formFieldNames.target],
 }
 

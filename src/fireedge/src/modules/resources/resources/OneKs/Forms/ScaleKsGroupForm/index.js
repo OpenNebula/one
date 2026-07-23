@@ -16,6 +16,6 @@
 import { createForm } from '@UtilsModule'
 import { SCHEMA, FIELDS } from './schema'
 
-const ScalingOneksNodeGroupsForm = createForm(SCHEMA, FIELDS)
+const ScaleKsGroupForm = createForm(SCHEMA, FIELDS)
 
-export default ScalingOneksNodeGroupsForm
+export default ScaleKsGroupForm

@@ -305,6 +305,7 @@ export const EventsViewer = ({ events = [], isLoading = false }) => {
                 <Button
                   data-cy={order === 'asc' ? 'sort-desc' : 'sort-asc'}
                   iconOnly={order === 'asc' ? <SortDown /> : <SortUp />}
+                  size="medium"
                   title={T.Sort}
                   type={STYLE_BUTTONS.TYPE.SECONDARY}
                   onClick={toggleSort}
@@ -323,6 +324,7 @@ export const EventsViewer = ({ events = [], isLoading = false }) => {
           data={tableData}
           isRowsSelectable={false}
           isLoading={isLoading}
+          size="medium"
           defaultPageSize={10}
           pageSizeOptions={[5, 10, 25]}
         />

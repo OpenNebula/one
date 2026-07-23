@@ -16,7 +16,6 @@
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 import { EventsViewer } from '@ComponentsV2Module'
-import { OneKsAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
 
 /**
@@ -27,15 +26,10 @@ import { T } from '@ConstantsModule'
  * @returns {ReactElement} Events tab
  */
 const Events = ({ data: tabData }) => {
-  const id = tabData?.selected?.ID ?? tabData?.id
-  const { data: cluster = {}, isFetching } = OneKsAPI.useGetOneKsClusterQuery(
-    { id },
-    { skip: !id }
-  )
-  const { DOCUMENT } = cluster
-  const events = DOCUMENT?.TEMPLATE?.CLUSTER_BODY?.historic || []
+  const cluster = tabData?.selected ?? {}
+  const events = cluster?.TEMPLATE?.CLUSTER_BODY?.historic ?? []
 
-  return <EventsViewer events={events} isLoading={isFetching} />
+  return <EventsViewer events={events} isLoading={tabData?.isLoading} />
 }
 
 Events.propTypes = {

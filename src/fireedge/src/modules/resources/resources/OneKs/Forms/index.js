@@ -19,20 +19,10 @@ import { ReactElement } from 'react'
 
 /**
  * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const DeleteOneKsClusterForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'OneKs/Forms/DeleteOneKsClusterForm' }, configProps)
-
-/**
- * @param {ConfigurationProps} configProps - Configuration
  * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
  */
-const ScalingOneksNodeGroupsForm = (configProps) =>
-  AsyncLoadForm(
-    { formPath: 'OneKs/Forms/ScalingOneksNodeGroupsForm' },
-    configProps
-  )
+const ScaleKsGroupForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'OneKs/Forms/ScaleKsGroupForm' }, configProps)
 
 /**
  * @param {ConfigurationProps} configProps - Configuration
@@ -59,9 +49,11 @@ const EditOneKsNodeGroupForm = (configProps) =>
   AsyncLoadForm({ formPath: 'OneKs/Forms/EditOneKsNodeGroupForm' }, configProps)
 
 export {
-  DeleteOneKsClusterForm,
-  ScalingOneksNodeGroupsForm,
+  ScaleKsGroupForm,
   CreateOneKsClusterForm,
   CreateOneKsNodeGroupForm,
   EditOneKsNodeGroupForm,
 }
+
+export { useDeleteKsClusterConfirmation } from './DeleteKsClusterForm'
+export { useUpgradeKsClusterFormModal } from './UpgradeKsClusterForm'

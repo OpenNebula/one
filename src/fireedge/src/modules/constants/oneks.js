@@ -29,6 +29,7 @@
 export const ONEKS_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
   RECOVER: 'recover',
+  UPGRADE: 'upgrade',
   DELETE: 'delete',
 }
 
@@ -51,7 +52,7 @@ export const ONEKS_STATE = {
     finalState: false,
   },
   BOOTSTRAPPING: {
-    name: 'READY',
+    name: 'BOOTSTRAPPING',
     color: 'information',
     finalState: false,
   },

@@ -17,10 +17,8 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 import { OneKsAPI } from '@FeaturesModule'
-import { AlertNotification, CodeSnippet } from '@ComponentsV2Module'
+import { CodeSnippet, EmptyContent } from '@ComponentsV2Module'
 import { T } from '@ConstantsModule'
-import { useTranslation } from '@ProvidersModule'
-import { isEmpty } from 'lodash'
 
 /**
  * Renders configuration tab.
@@ -30,15 +28,7 @@ import { isEmpty } from 'lodash'
  * @returns {Component} Configuration tab
  */
 const KubernetesConfig = ({ data: tabData }) => {
-  const { translate } = useTranslation()
   const id = tabData?.selected?.ID ?? tabData?.id
-  const { data: cluster = {} } = OneKsAPI.useGetOneKsClusterQuery(
-    { id, expand: true },
-    { skip: !id }
-  )
-
-  const { DOCUMENT = {} } = cluster
-
   const { data = {}, error } = OneKsAPI.useGetKubeConfigQuery(
     { id, expand: true },
     {
@@ -46,19 +36,11 @@ const KubernetesConfig = ({ data: tabData }) => {
     }
   )
 
-  if (isEmpty(DOCUMENT) || !data?.kubeconfig || error) {
+  if (!data?.kubeconfig || error) {
     return (
-      <AlertNotification
-        type="primary"
-        status="information"
-        description={translate(T['oneks.tab.info.kubeconfig.help.paragraph'])}
-        isDismissible={false}
-        style={{
-          gridColumn: '1 / -1',
-          marginTop: '1em',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
+      <EmptyContent
+        title={T.KubeconfigNotAvailableYet}
+        subtitle={T['oneks.tab.info.kubeconfig.help.paragraph']}
       />
     )
   }

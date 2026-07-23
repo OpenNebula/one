@@ -32,9 +32,9 @@ export const getStyles = ({ theme }) => ({
     width: '100%',
     minWidth: 0,
 
-    '& > div': {
-      height: 'auto',
-      minHeight: '40px',
+    '& > div, & .searchbar-slot': {
+      height: `${theme.scale[800]}px`,
+      minHeight: `${theme.scale[800]}px`,
     },
 
     '& .searchbar-slots': {
@@ -45,29 +45,14 @@ export const getStyles = ({ theme }) => ({
       },
     },
 
-    '& .events-date-filter': {
-      height: '100%',
-
-      '& .datepicker-wrapper': {
-        height: '100%',
-      },
-
-      '& .react-datepicker__input-container': {
-        height: '100%',
-      },
-
-      '& .datepicker-input': {
-        height: '100%',
-
-        '& .MuiFormControl-root': {
-          height: '100%',
-        },
-
-        '& .MuiInput-root': {
-          minHeight: '40px',
-        },
-      },
+    '& .searchbar-slots:has(.search-slot)': {
+      margin: 0,
     },
+
+    '& .events-date-filter, & .events-date-filter > div, & .datepicker-wrapper, & .react-datepicker__input-container, & .datepicker-input, & .datepicker-input .MuiFormControl-root, & .datepicker-input .MuiInput-root':
+      {
+        height: '100%',
+      },
   },
 
   '& .events-table-container': {

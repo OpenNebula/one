@@ -42,6 +42,7 @@ export const getStyles = ({ theme }) => {
     '& .permsInfoContainer': {
       display: 'flex',
       gap: '16px',
+      alignItems: 'stretch',
     },
   }
 
@@ -49,7 +50,39 @@ export const getStyles = ({ theme }) => {
     '& .detailsContainer': {
       display: 'flex',
       flex: '1 1 0',
+      flexDirection: 'column',
       gap: '16px',
+      alignSelf: 'stretch',
+      minWidth: 0,
+
+      '& > *': {
+        flex: '1 1 0',
+        width: '100%',
+        minHeight: 0,
+      },
+    },
+  }
+
+  const endpoint = {
+    '& .oneks-endpoint': {
+      minWidth: 0,
+      maxWidth: '100%',
+
+      '& .MuiButton-root': {
+        minWidth: 0,
+        maxWidth: '100%',
+        userSelect: 'text',
+        WebkitUserSelect: 'text',
+      },
+
+      '& .tag-title': {
+        minWidth: 0,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        userSelect: 'text',
+        WebkitUserSelect: 'text',
+      },
     },
   }
 
@@ -59,6 +92,12 @@ export const getStyles = ({ theme }) => {
       flex: '1 1 0',
       gap: '16px',
       flexDirection: 'column',
+      alignSelf: 'stretch',
+      minWidth: 0,
+
+      '& > *': {
+        width: '100%',
+      },
     },
   }
 
@@ -75,6 +114,7 @@ export const getStyles = ({ theme }) => {
     ...mainContainer,
     ...permsInfoContainer,
     ...detailsContainer,
+    ...endpoint,
     ...permissionsOwnershipContainer,
     ...controlPlaneContainer,
   }

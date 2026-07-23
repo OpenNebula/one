@@ -17,18 +17,23 @@
 import { Component, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Box, Stack } from '@mui/material'
+import { Check as CopiedIcon, Copy as CopyIcon } from 'iconoir-react'
 import {
   DetailsCard,
   OwnershipTab,
   PermissionsTab,
   ResourceLink,
   StatusTag,
+  Tag,
 } from '@ComponentsV2Module'
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T, UNITS } from '@ConstantsModule'
+import { ClusterAPI, VmAPI, VnAPI } from '@FeaturesModule'
+import { useClipboard } from '@HooksModule'
 import {
   aggregateOwnership,
   aggregatePermissions,
   isValidOneKsResourceId,
+  prettyBytes,
   timeFromMilliseconds,
 } from '@UtilsModule'
 import {
@@ -41,27 +46,64 @@ import { getStyles } from '@modules/resources/resources/OneKs/Tabs/Info/styles'
 const formatTime = (time) =>
   +time > 0 ? timeFromMilliseconds(+time).toFormat('ff') : '-'
 
-const getFormattedData = (dataObj) =>
-  getValidKeys(dataObj).map((key) => [T[key] || key, dataObj[key] ?? '-'])
+const getResourceId = (resource) =>
+  typeof resource === 'object' ? resource?.id ?? resource?.ID : resource
 
-const VmLinks = ({ ids = [] }) => {
-  const validIds = ids.filter(isValidOneKsResourceId)
+const getResourceName = (resource) =>
+  typeof resource === 'object' ? resource?.name ?? resource?.NAME : undefined
 
-  if (!validIds.length) return '-'
+const formatCapacity = (key, value) => {
+  if (value === undefined || value === null || value === '') return '-'
+
+  if (key === 'memory' || key === 'disk_size') {
+    const numericValue = Number(value)
+
+    return Number.isFinite(numericValue)
+      ? prettyBytes(numericValue, UNITS.MB)
+      : value
+  }
+
+  if (key === 'cpu') return `${value} ${T.CPU}`
+
+  return value
+}
+
+const getFormattedCapacityData = (dataObj) =>
+  getValidKeys(dataObj)
+    .filter((key) => key !== 'vcpu')
+    .map((key) => [T[key] || key, formatCapacity(key, dataObj[key])])
+
+const VmLinks = ({ ids = [], vms = [] }) => {
+  const vmsById = new Map(vms.map((vm) => [String(vm?.ID), vm?.NAME]))
+  const validVms = []
+    .concat(ids)
+    .filter((vm) => isValidOneKsResourceId(getResourceId(vm)))
+
+  if (!validVms.length) return '-'
 
   return (
     <Stack direction="row" flexWrap="wrap" gap={1}>
-      {validIds.map((id) => (
-        <ResourceLink key={id} resource={RESOURCE_NAMES.VM} data={id}>
-          {id}
-        </ResourceLink>
-      ))}
+      {validVms.map((vm) => {
+        const id = getResourceId(vm)
+        const name = vmsById.get(String(id)) ?? getResourceName(vm) ?? '-'
+
+        return (
+          <ResourceLink
+            key={id}
+            resource={RESOURCE_NAMES.VM}
+            data={{ ID: id, NAME: name }}
+          >
+            {`#${id} ${name}`}
+          </ResourceLink>
+        )
+      })}
     </Stack>
   )
 }
 
 VmLinks.propTypes = {
   ids: PropTypes.array,
+  vms: PropTypes.array,
 }
 
 /**
@@ -84,42 +126,75 @@ export const Info = ({ data, config }) => {
     ownership_panel: ownershipPanel,
     permissions_panel: permissionsPanel,
   } = config || {}
+  const { copy, isCopied } = useClipboard()
 
-  const aSelected = [].concat(selected).filter(Boolean)
+  const selectedResources = useMemo(
+    () => [].concat(selected).filter(Boolean),
+    [selected]
+  )
 
   const aggregatedPermissions = useMemo(
-    () => aggregatePermissions(aSelected),
-    [aSelected]
+    () => aggregatePermissions(selectedResources),
+    [selectedResources]
   )
 
   const aggregatedOwnership = useMemo(
-    () => aggregateOwnership(aSelected),
-    [aSelected]
+    () => aggregateOwnership(selectedResources),
+    [selectedResources]
   )
 
-  const cluster = aSelected.length === 1 ? aSelected[0] : {}
+  const cluster = selectedResources.length === 1 ? selectedResources[0] : {}
   const { ID, NAME, TEMPLATE = {} } = cluster
   const { CLUSTER_BODY = {} } = TEMPLATE
-  const controlPlane = CLUSTER_BODY?.control_plane ?? {}
+  const deployment = CLUSTER_BODY?.deployment ?? {}
+  const [controlPlane = {}] = [].concat(CLUSTER_BODY?.control_plane ?? [])
 
-  const { color: stateColor, name: stateName } = useMemo(
-    () => getVirtualOneKsState(cluster),
-    [cluster]
+  const { color: stateColor, name: stateName } = getVirtualOneKsState(cluster)
+  const { color: cpStateColor, name: cpStateName } =
+    getVirtualOneKsStateControlPlane(cluster)
+
+  const publicNetwork =
+    getResourceId(deployment?.networks?.public) ??
+    getResourceId(CLUSTER_BODY?.public_network)
+  const privateNetwork =
+    getResourceId(deployment?.networks?.private) ??
+    getResourceId(CLUSTER_BODY?.private_network)
+  const targetClusterId =
+    getResourceId(deployment?.cluster) ??
+    getResourceId(CLUSTER_BODY?.cluster) ??
+    getResourceId(CLUSTER_BODY?.cluster_id)
+  const hasTargetCluster = isValidOneKsResourceId(targetClusterId)
+  const hasPublicNetwork = isValidOneKsResourceId(publicNetwork)
+  const hasPrivateNetwork = isValidOneKsResourceId(privateNetwork)
+  const { data: targetCluster = {} } = ClusterAPI.useGetClusterQuery(
+    { id: targetClusterId },
+    { skip: !hasTargetCluster }
   )
-
-  const { color: cpStateColor, name: cpStateName } = useMemo(
-    () => getVirtualOneKsStateControlPlane(cluster),
-    [cluster]
+  const { data: publicVnet = {} } = VnAPI.useGetVNetworkQuery(
+    { id: publicNetwork },
+    { skip: !hasPublicNetwork }
   )
-
-  const publicNetwork = CLUSTER_BODY?.public_network ?? ''
-  const privateNetwork = CLUSTER_BODY?.private_network ?? ''
+  const { data: privateVnet = {} } = VnAPI.useGetVNetworkQuery(
+    { id: privateNetwork },
+    { skip: !hasPrivateNetwork }
+  )
   const vms = controlPlane?.vms ?? []
+  const vmIds = useMemo(
+    () => [].concat(vms).map(getResourceId).filter(isValidOneKsResourceId),
+    [vms]
+  )
+  const vmIdsKey = vmIds.join(',')
+  const { data: controlPlaneVms = [] } = VmAPI.useGetVmInfosetQuery(
+    { ids: vmIdsKey, extended: 0 },
+    { skip: !vmIdsKey }
+  )
   const userInputs = controlPlane?.user_inputs_values ?? {}
+  const endpoint = controlPlane?.endpoint ? String(controlPlane.endpoint) : ''
 
   const info = [
     [T.ID, ID],
     [T.Name, NAME],
+    CLUSTER_BODY?.description && [T.Description, CLUSTER_BODY.description],
     [
       T.State,
       <StatusTag
@@ -129,32 +204,72 @@ export const Info = ({ data, config }) => {
         statusName={stateName}
       />,
     ],
-    [T.KubernetesVersion, CLUSTER_BODY?.kubernetes_version ?? '-'],
-    [T.CreationTime, formatTime(CLUSTER_BODY?.registration_time)],
-    [T.Flavour, controlPlane?.flavour ?? '-'],
-    isValidOneKsResourceId(publicNetwork) && [
+    [
+      T.KubernetesVersion,
+      <Tag
+        key="oneks-kubernetes-version"
+        title={CLUSTER_BODY?.kubernetes_version ?? '-'}
+        status="default"
+      />,
+    ],
+    [
+      T.Endpoint,
+      endpoint ? (
+        <Box key="oneks-endpoint" className="oneks-endpoint">
+          <Tag
+            title={endpoint}
+            endIcon={isCopied(endpoint) ? <CopiedIcon /> : <CopyIcon />}
+            onClick={() => copy(endpoint)}
+            type="button"
+          />
+        </Box>
+      ) : (
+        '-'
+      ),
+    ],
+    hasTargetCluster && [
+      T.Cluster,
+      <ResourceLink
+        key="oneks-cluster"
+        resource={RESOURCE_NAMES.CLUSTER}
+        data={{ ID: targetClusterId, NAME: targetCluster?.NAME ?? '-' }}
+      >
+        {`#${targetClusterId} ${targetCluster?.NAME ?? '-'}`}
+      </ResourceLink>,
+    ],
+    hasPublicNetwork && [
       T.PublicNetwork,
       <ResourceLink
         key="oneks-public-network"
         resource={RESOURCE_NAMES.VNET}
-        data={publicNetwork}
+        data={{ ID: publicNetwork, NAME: publicVnet?.NAME ?? '-' }}
       >
-        {publicNetwork}
+        {`#${publicNetwork} ${publicVnet?.NAME ?? '-'}`}
       </ResourceLink>,
     ],
-    isValidOneKsResourceId(privateNetwork) && [
+    hasPrivateNetwork && [
       T.PrivateNetwork,
       <ResourceLink
         key="oneks-private-network"
         resource={RESOURCE_NAMES.VNET}
-        data={privateNetwork}
+        data={{ ID: privateNetwork, NAME: privateVnet?.NAME ?? '-' }}
       >
-        {privateNetwork}
+        {`#${privateNetwork} ${privateVnet?.NAME ?? '-'}`}
       </ResourceLink>,
     ],
+    [T.CreationTime, formatTime(CLUSTER_BODY?.registration_time)],
   ].filter(Boolean)
 
   const controlPlaneInfo = [
+    [T.Name, controlPlane?.name ?? '-'],
+    [
+      T.Flavour,
+      <Tag
+        key="oneks-control-plane-flavour"
+        title={controlPlane?.flavour ?? '-'}
+        status="default"
+      />,
+    ],
     [
       T.State,
       <StatusTag
@@ -164,16 +279,15 @@ export const Info = ({ data, config }) => {
         statusName={cpStateName}
       />,
     ],
-    [T.Endpoint, controlPlane?.endpoint ?? '-'],
-    [T.VirtualMachines, <VmLinks key="oneks-vms" ids={vms} />],
-    ...getFormattedData(userInputs),
+    [T.VmIds, <VmLinks key="oneks-vms" ids={vms} vms={controlPlaneVms} />],
+    ...getFormattedCapacityData(userInputs),
   ]
 
   return (
     <Box sx={(theme) => getStyles({ theme })}>
       <Box className="mainContainer">
         <Box className="permsInfoContainer">
-          {informationPanel?.enabled && aSelected.length === 1 && (
+          {informationPanel?.enabled && selectedResources.length === 1 && (
             <Box className="detailsContainer">
               <DetailsCard title={T.Information} options={info} />
             </Box>
@@ -213,7 +327,7 @@ export const Info = ({ data, config }) => {
           </Box>
         </Box>
       </Box>
-      {informationPanel?.enabled && aSelected.length === 1 && (
+      {informationPanel?.enabled && selectedResources.length === 1 && (
         <Box className="controlPlaneContainer">
           <DetailsCard title={T.ControlPlane} options={controlPlaneInfo} />
         </Box>
