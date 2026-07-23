@@ -816,6 +816,7 @@ INSTALL_FIREEDGE_ETC_FILES=(
   FIREEDGE_ETC_FILES:$ETC_LOCATION
   FIREEDGE_SUNSTONE_ETC:$ETC_LOCATION/fireedge/sunstone
   FIREEDGE_SUNSTONE_ETC_PROFILES:$ETC_LOCATION/fireedge/sunstone/profiles
+  FIREEDGE_SUNSTONE_ETC_TABS:$ETC_LOCATION/fireedge/sunstone/tabs
   FIREEDGE_SUNSTONE_ETC_VIEW:$ETC_LOCATION/fireedge/sunstone/views
   FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN:$ETC_LOCATION/fireedge/sunstone/views/admin
   FIREEDGE_SUNSTONE_ETC_VIEW_USER:$ETC_LOCATION/fireedge/sunstone/views/user
@@ -902,9 +903,6 @@ INSTALL_ONEKS_FILES=(
 INSTALL_ONEKS_ETC_FILES=(
     ONEKS_ETC_FILES:$ETC_LOCATION
     ONEKS_CLI_CONF_FILES:$ETC_LOCATION/cli
-    ONEKS_FIREEDGE_SUNSTONE_ADMIN_VIEW_FILES:$ETC_LOCATION/fireedge/sunstone/views/admin
-    ONEKS_FIREEDGE_SUNSTONE_USER_VIEW_FILES:$ETC_LOCATION/fireedge/sunstone/views/user
-    ONEKS_FIREEDGE_SUNSTONE_TAB_FILES:$ETC_LOCATION/fireedge/sunstone/tabs
 )
 
 INSTALL_ETC_FILES=(
@@ -2433,6 +2431,8 @@ FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
 FIREEDGE_SUNSTONE_ETC_PROFILES="src/fireedge/etc/sunstone/profiles/windows_optimized.yaml \
                                 src/fireedge/etc/sunstone/profiles/base.template"
 
+FIREEDGE_SUNSTONE_ETC_TABS="src/fireedge/etc/sunstone/tabs/*.yaml"
+
 FIREEDGE_SUNSTONE_ETC_VIEW="src/fireedge/etc/sunstone/views/sunstone-views.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/views/admin/dashboard-tab.yaml \
@@ -2462,7 +2462,8 @@ FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/views/admin/dashboar
                                 src/fireedge/etc/sunstone/views/admin/zone-tab.yaml \
                                 src/fireedge/etc/sunstone/views/admin/marketplace-tab.yaml \
                                 src/fireedge/etc/sunstone/views/admin/driver-tab.yaml \
-                                src/fireedge/etc/sunstone/views/admin/provider-tab.yaml"
+                                src/fireedge/etc/sunstone/views/admin/provider-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/oneks-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/views/user/dashboard-tab.yaml \
                                 src/fireedge/etc/sunstone/views/user/vm-tab.yaml \
@@ -2475,7 +2476,8 @@ FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/views/user/dashboard-
                                 src/fireedge/etc/sunstone/views/user/service-tab.yaml \
                                 src/fireedge/etc/sunstone/views/user/vnet-tab.yaml \
                                 src/fireedge/etc/sunstone/views/user/vnet-template-tab.yaml \
-                                src/fireedge/etc/sunstone/views/user/group-tab.yaml"
+                                src/fireedge/etc/sunstone/views/user/group-tab.yaml \
+                                src/fireedge/etc/sunstone/views/user/oneks-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/views/groupadmin/dashboard-tab.yaml \
                                 src/fireedge/etc/sunstone/views/groupadmin/vm-tab.yaml \
@@ -2573,12 +2575,6 @@ ONEKS_CLI_LIB_FILES="src/oneks/cli/one_helper/oneks_helper.rb \
 
 ONEKS_CLI_CONF_FILES="src/oneks/cli/etc/ks_cluster.yaml \
                       src/oneks/cli/etc/ks_group.yaml"
-
-ONEKS_FIREEDGE_SUNSTONE_ADMIN_VIEW_FILES="src/oneks/etc/fireedge/sunstone/views/admin/oneks-tab.yaml"
-
-ONEKS_FIREEDGE_SUNSTONE_USER_VIEW_FILES="src/oneks/etc/fireedge/sunstone/views/user/oneks-tab.yaml"
-
-ONEKS_FIREEDGE_SUNSTONE_TAB_FILES="src/oneks/etc/fireedge/sunstone/tabs/oneks-tab.yaml"
 
 #-----------------------------------------------------------------------------
 # OneForm files
