@@ -320,8 +320,6 @@ Request::ErrorCode TemplateAPI::instantiate_helper(int oid,
                                                    int& vid,
                                                    RequestAttributes& att)
 {
-    std::string memory, cpu;
-
     PoolObjectAuth perms;
 
     Nebula& nd = Nebula::instance();
@@ -420,13 +418,7 @@ Request::ErrorCode TemplateAPI::instantiate_helper(int oid,
         return Request::AUTHORIZATION;
     }
 
-    extended_tmpl.get("MEMORY", memory);
-    extended_tmpl.get("CPU", cpu);
-
-    extended_tmpl.add("RUNNING_MEMORY", memory);
-    extended_tmpl.add("RUNNING_CPU", cpu);
-    extended_tmpl.add("RUNNING_VMS", 1);
-    extended_tmpl.add("VMS", 1);
+    extended_tmpl.update_quota_attributes();
 
     QuotaVirtualMachine::add_running_quota_generic(extended_tmpl);
 
