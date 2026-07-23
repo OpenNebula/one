@@ -345,6 +345,13 @@
   mode: '0640'
   src: src/form/etc/oneform-server.conf
 
+- name: /etc/one/oneks-server.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+  src: ./src/oneks/etc/oneks-server.conf
+
 ### Dir: /var/lib/one/remotes/etc/ #########################
 
 - name: /var/lib/one/remotes/etc/datastore/datastore.conf

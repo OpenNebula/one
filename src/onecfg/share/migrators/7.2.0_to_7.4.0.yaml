@@ -4115,14 +4115,6 @@ patches:
                 order: 10
                 size: full
                 to: true
-            -   id: cpu-chart
-                order: 20
-                size: half
-                to: false
-            -   id: memory-chart
-                order: 30
-                size: half
-                to: false
             state: ins
             extra: {}
         content: |
@@ -4139,14 +4131,6 @@ patches:
                 order: 10
                 size: full
                 to: true
-              - id: cpu-chart
-                order: 20
-                size: half
-                to: false
-              - id: memory-chart
-                order: 30
-                size: half
-                to: false
     "/etc/one/fireedge/sunstone/views/cloud/marketplace-app-tab.yaml":
         class: Yaml
         owner: root
@@ -10991,10 +10975,144 @@ patches:
             # - :networks: [0, vnet1]
             #
             # The simplest example of an OneGate proxy config applied to all VNETs:
+            # When a FQDN is configured for :remote_addr:, the host resolver will resolve
+            # it to an IP.
             # :tproxy:
             # - :service_port: 5030
-            #   :remote_addr: 10.11.12.13 # HA VIP
+            #   :remote_addr: 10.11.12.13 # HA VIP or FQDN
             #   :remote_port: 5030
+    "/etc/one/cli/ks_cluster.yaml":
+        class: Yaml::Strict
+        owner: root
+        group: root
+        mode: '0644'
+        action: create
+        content: |
+            ---
+            :ID:
+              :desc: ONE identifier for OneKS Cluster
+              :size: 4
+              :adjust: true
+
+            :USER:
+              :desc: Username of the OneKS Cluster owner
+              :size: 8
+              :left: true
+
+            :GROUP:
+              :desc: Group of the OneKS Cluster
+              :size: 8
+              :left: true
+
+            :NAME:
+              :desc: Name of the OneKS Cluster
+              :size: 15
+              :left: true
+              :expand: true
+
+            :STATE:
+              :desc: State of the OneKS Cluster
+              :size: 20
+              :left: true
+              :adjust: true
+
+            :REGTIME:
+              :desc: Registration time of the OneKS Cluster
+              :size: 15
+
+            :default:
+            - :ID
+            - :USER
+            - :GROUP
+            - :NAME
+            - :STATE
+            - :REGTIME
+    "/etc/one/cli/ks_group.yaml":
+        class: Yaml::Strict
+        owner: root
+        group: root
+        mode: '0644'
+        action: create
+        content: |
+            ---
+            :ID:
+              :desc: ONE identifier for OneKS group
+              :size: 4
+              :adjust: true
+
+            :USER:
+              :desc: Username of the OneKS group owner
+              :size: 8
+              :left: true
+
+            :GROUP:
+              :desc: Group of the OneKS group
+              :size: 8
+              :left: true
+
+            :NAME:
+              :desc: Name of the OneKS group
+              :size: 15
+              :left: true
+              :expand: true
+
+            :FLAVOUR:
+              :desc: Flavour of the OneKS group
+              :size: 15
+              :left: true
+
+            :CLUSTER:
+              :desc: Parent cluster ID of the OneKS group
+              :size: 4
+
+            :ROLE:
+              :desc: Role of the OneKS group
+              :size: 15
+              :left: true
+
+            :STATE:
+              :desc: State of the OneKS group
+              :size: 20
+              :left: true
+              :adjust: true
+
+            :REGTIME:
+              :desc: Registration time of the OneKS group
+              :size: 15
+
+            :default:
+            - :ID
+            - :USER
+            - :GROUP
+            - :NAME
+            - :ROLE
+            - :FLAVOUR
+            - :STATE
+            - :REGTIME
+    "/etc/one/fireedge/sunstone/tabs/oneks-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |-
+            - title: Kubernetes
+              icon: XrayView
+              routes:
+                - title: Create Kubernetes Cluster
+                  path: /kubernetes/create
+                  Component: CreateOneKsCluster
+                - title: Kubernetes Logs
+                  path: /kubernetes/create_kubernetes_logs/:id
+                  Component: CreateKubernetesLogs
+                - title: K8S Clusters
+                  path: /kubernetes
+                  icon: XrayView
+                  sidebar: true
+                  Component: OneKs
+                - title: k8S Clusters
+                  path: /kubernetes/:id
+                  Component: OneKsDetail
     "/etc/one/fireedge/sunstone/views/admin/dashboard-tab.yaml":
         class: Yaml
         owner: root
@@ -11027,14 +11145,6 @@ patches:
                 order: 40
                 size: quarter
                 to: true
-              - id: cpu-chart
-                order: 50
-                size: half
-                to: false
-              - id: memory-chart
-                order: 60
-                size: half
-                to: false
               - id: cluster-capacity
                 order: 70
                 size: wide
@@ -11043,6 +11153,63 @@ patches:
                 order: 80
                 size: narrow
                 to: true
+    "/etc/one/fireedge/sunstone/views/admin/oneks-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |-
+            ---
+            # This file describes the information and actions available in the ONEKS tab
+
+            # Resource
+
+            resource_name: "KUBERNETES"
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              create_dialog: true
+              recover: true
+              delete: true
+
+            # Filters - List of criteria to filter the resources
+
+            filters:
+              id: true
+              name: true
+              state: true
+              version: true
+              locked: true
+              created: true
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+                permissions_panel:
+                  enabled: true
+                  actions:
+                    chmod: true
+                ownership_panel:
+                  enabled: true
+                  actions:
+                    chown: true
+                    chgrp: true
+              nodegroup:
+                enabled: true
+                actions:
+                  create_dialog: true
+              logs:
+                enabled: true
+              events:
+                enabled: true
+              kubeconfig:
+                enabled: true
     "/etc/one/fireedge/sunstone/views/groupadmin/dashboard-tab.yaml":
         class: Yaml
         owner: root
@@ -11071,14 +11238,6 @@ patches:
                 order: 40
                 size: third
                 to: true
-              - id: cpu-chart
-                order: 50
-                size: half
-                to: false
-              - id: memory-chart
-                order: 60
-                size: half
-                to: false
               - id: system
                 order: 80
                 size: full
@@ -11111,14 +11270,6 @@ patches:
                 order: 40
                 size: third
                 to: true
-              - id: cpu-chart
-                order: 50
-                size: half
-                to: false
-              - id: memory-chart
-                order: 60
-                size: half
-                to: false
     "/etc/one/fireedge/sunstone/views/user/group-tab.yaml":
         class: Yaml
         owner: root
@@ -11190,6 +11341,63 @@ patches:
                   add_vlan_rule: false
                   update_vlan_rule: false
                   delete_vlan_rule: false
+    "/etc/one/fireedge/sunstone/views/user/oneks-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            ---
+            # This file describes the information and actions available in the ONEKS tab
+
+            # Resource
+
+            resource_name: "KUBERNETES"
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              create_dialog: true
+              recover: true
+              delete: true
+
+            # Filters - List of criteria to filter the resources
+
+            filters:
+              id: true
+              name: true
+              state: true
+              version: true
+              locked: true
+              created: true
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+                permissions_panel:
+                  enabled: true
+                  actions:
+                    chmod: true
+                ownership_panel:
+                  enabled: true
+                  actions:
+                    chown: true
+                    chgrp: true
+              nodegroup:
+                enabled: true
+                actions:
+                  create_dialog: true
+              logs:
+                enabled: true
+              events:
+                enabled: true
+              kubeconfig:
+                enabled: true
     "/etc/one/fireedge/sunstone/views/user/vnet-template-tab.yaml":
         class: Yaml
         owner: root
@@ -11273,6 +11481,108 @@ patches:
                 enabled: true
               configuration:
                 enabled: true
+    "/etc/one/oneks-server.conf":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            ################################################################################
+            # Server Configuration
+            ################################################################################
+
+            # OpenNebula daemon contact information
+            :one_xmlrpc: http://localhost:2633/RPC2
+
+            # OpenNebula XML-RPC endpoint exposed through the TPROXY network.
+            # This endpoint is used by workloads that must reach OpenNebula through
+            # the cluster router, so TPROXY must be enabled in OpenNebula networking
+            # configuration file VAR_LOCATION/remotes/etc/vnm/OpenNebulaNetwork.conf
+            :one_xmlrpc_tproxy: http://169.254.16.9:2633/RPC2
+
+            # Server configuration where OneKS server will run
+            :server:
+              :environment: production
+              :bind: 127.0.0.1
+              :port: 10780
+
+            # Subscribe endpoint for OpenNebula events (must match those in oned.conf)
+            :subscriber_endpoint: 'tcp://localhost:2101'
+
+            # Default receive timeout, in seconds, for OpenNebula event subscribers
+            :subscriber_timeout: 10
+
+            ################################################################################
+            # Kubernetes Configuration
+            ################################################################################
+
+            # Path to the kubectl binary used for Kubernetes operations
+            :kubectl_path: '/var/lib/rancher/rke2/bin/kubectl'
+
+            # Path to the kubeconfig file used by kubectl commands
+            :kubeconfig_path: '/etc/rancher/rke2/rke2.yaml'
+
+            # Timeout, in seconds, while waiting for Kubernetes command execution results
+            :k8s_timeout: 15
+
+            ################################################################################
+            # Cluster Readiness Check
+            ################################################################################
+
+            # Cluster Readiness Check configuration. Comment out this section to disable it.
+            # When enabled, users can run environment validation checks through OneKS.
+            # The check deploys the OneKS appliance from the default control plane family
+            # in the image datastore selected by the deployment being checked.
+            #   external_url       : public URL used to validate DNS resolution and outbound
+            #                        Internet access
+            #   timeout            : maximum time, in seconds, to wait for the probe VM and
+            #                        each check
+            :readiness:
+              :external_url: 'https://get.rke2.io'
+              :timeout: 60
+
+            ################################################################################
+            # Defaults
+            ################################################################################
+
+            # Default retries in case of aborting call
+            :retries: 5
+
+            # Default cooldown period after a scale operation, in seconds
+            :default_cooldown: 300
+
+            # Number of threads to make actions with clusters
+            # Tune this depending of the load you will have
+            :concurrency: 10
+
+            # Base prefix used when generating names for created resources
+            :base_name: 'oneks'
+
+            #############################################################
+            # Auth
+            #############################################################
+
+            # Authentication driver to communicate with OpenNebula core
+            #   - cipher, for symmetric cipher encryption of tokens
+            #   - x509, for x509 certificate encryption of tokens
+            :auth: opennebula
+            :core_auth: cipher
+            :expire_delta: 3600
+
+            ################################################################################
+            # Log
+            ################################################################################
+
+            # Log debug level
+            #   0 = ERROR, 1 = WARNING, 2 = INFO, 3 = DEBUG
+            #
+            # System
+            #   - file: log to log file
+            #   - syslog: log to syslog
+            :log:
+              :level: 3
+              :system: file
     "/var/lib/one/remotes/etc/onebex/onebex-server.conf":
         class: Yaml
         owner: root
