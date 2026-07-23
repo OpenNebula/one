@@ -157,8 +157,8 @@ const RESTIC_MAX_WIOPS = {
 /** @type {Field} - Backup CPU quota field */
 const RESTIC_CPU_QUOTA = {
   name: 'RESTIC_CPU_QUOTA',
-  label: T.MaximumWriteIOPS,
-  tooltip: T.MaximumWriteIOPSConcept,
+  label: T.CPUQuota,
+  tooltip: T.CPUQuotaConcept,
   dependOf: '$general.STORAGE_BACKEND',
   type: INPUT_TYPES.TEXT,
   htmlType: (type) =>
