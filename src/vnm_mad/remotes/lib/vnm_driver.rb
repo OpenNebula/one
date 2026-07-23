@@ -374,14 +374,6 @@ module VNMMAD
             SSHCommand.run(cmd, hostname, nil, stdin, 60)
         end
 
-        def special_hotplug?
-            ['NIC_ALIAS', 'PCI'].each do |nic_type|
-                return true if @vm["TEMPLATE/#{nic_type}[ATTACH='YES']/NIC_ID"]
-            end
-
-            false
-        end
-
         private
 
         # returns files sorted alphabetically
