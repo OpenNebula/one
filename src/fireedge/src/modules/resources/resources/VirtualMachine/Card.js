@@ -157,7 +157,7 @@ VirtualMachineCard.propTypes = {
   LABELS: PropTypes.object,
   TEMPLATE: PropTypes.object,
   USER_TEMPLATE: PropTypes.object,
-  HISTORY_RECORDS: PropTypes.object,
+  HISTORY_RECORDS: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   STATE: PropTypes.string,
   LCM_STATE: PropTypes.string,
   isSelected: PropTypes.bool,

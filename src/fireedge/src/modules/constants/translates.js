@@ -1509,6 +1509,13 @@ module.exports = {
   Storage: 'Storage',
   Disk: 'Disk',
   Disks: 'Disks',
+  BackupDisks: 'Backup disks',
+  IncludeAllVmDisks: 'Backup all VM disks',
+  IncludeAllVmDisksHint:
+    'Includes all VM disk in the backup. Turn this off to choose specific disks',
+  IncludeVolatileVmDisks: 'Include volatile VM disks',
+  IncludeVolatileVmDisksHint: 'Includes volatile VM disks in the backup',
+  SelectVmDisks: 'Choose disks to backup',
   DisksAttached: 'Disks attached',
   NoDisks: 'No disks',
   AttachedDisksWillAppearHere:

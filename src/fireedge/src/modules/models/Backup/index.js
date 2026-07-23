@@ -14,3 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/models/Backup/general'
+export * from '@modules/models/Backup/table'

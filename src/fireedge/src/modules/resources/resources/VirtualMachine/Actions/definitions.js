@@ -363,10 +363,11 @@ export default {
         initialValues: vm,
       }),
     dialogProps: {
-      dialogWidth: { xs: 'calc(100vw - 32px)', sm: '520px' },
+      dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
       dialogMaxWidth: 'calc(100vw - 32px)',
-      dialogPaperOverflow: 'visible',
-      dialogContentOverflowY: 'visible',
+      dialogMaxHeight: 'calc(100vh - 64px)',
+      dialogContentMaxHeight: 'calc(100vh - 220px)',
+      dialogContentOverflowY: 'auto',
     },
   },
   [VM_ACTION_ENUM.BACKUP_CREATE]: {

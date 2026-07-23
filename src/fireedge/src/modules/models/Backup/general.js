@@ -37,6 +37,32 @@ export const getBackupDiskIds = (backup = {}) =>
   [].concat(backup?.BACKUP_DISK_IDS?.ID ?? []).filter(Boolean)
 
 /**
+ * Normalizes the comma-separated or array representation used by backup
+ * configuration disk IDs.
+ *
+ * @param {string|number|(string|number)[]} diskIds - Backup disk IDs
+ * @returns {string[]} Normalized unique disk IDs
+ */
+export const normalizeBackupDiskIds = (diskIds) => [
+  ...new Set(
+    []
+      .concat(diskIds ?? [])
+      .flatMap((diskId) => String(diskId).split(','))
+      .map((diskId) => diskId.trim())
+      .filter(Boolean)
+  ),
+]
+
+/**
+ * Serializes backup disk IDs as expected by the OpenNebula template API.
+ *
+ * @param {string|number|(string|number)[]} diskIds - Backup disk IDs
+ * @returns {string} Comma-separated disk IDs
+ */
+export const serializeBackupDiskIds = (diskIds) =>
+  normalizeBackupDiskIds(diskIds).join(',')
+
+/**
  * @param {object} backup - Backup image resource
  * @returns {string[]} VM IDs associated with the backup
  */
