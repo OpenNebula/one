@@ -91,6 +91,7 @@ export const TagsInput = forwardRef(
       label,
       placeholder,
       hint,
+      tooltip,
       error,
       isReadOnly = false,
       freeSolo = true,
@@ -284,6 +285,7 @@ export const TagsInput = forwardRef(
               label={label}
               placeholder={hasSelectedValues ? undefined : placeholderText}
               hint={hint}
+              tooltip={tooltip}
               error={error}
               inputProps={{
                 ...inputProps,
@@ -327,6 +329,7 @@ TagsInput.propTypes = {
   label: PropTypes.string,
   placeholder: PropTypes.string,
   hint: PropTypes.string,
+  tooltip: PropTypes.any,
   error: PropTypes.string,
   freeSolo: PropTypes.bool,
   isReadOnly: PropTypes.bool,

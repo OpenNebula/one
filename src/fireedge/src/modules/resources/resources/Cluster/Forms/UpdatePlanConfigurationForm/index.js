@@ -16,6 +16,7 @@
 import {
   SCHEMA,
   FIELDS,
+  SECTIONS,
 } from '@modules/resources/resources/Cluster/Forms/UpdatePlanConfigurationForm/schema'
 import { FormWithSchema } from '@ComponentsV2Module'
 import { createForm } from '@UtilsModule'
@@ -99,13 +100,18 @@ const FORM_ROOT_SX = {
 }
 
 const UpdatePlanConfigurationFormContent = () => (
-  <FormWithSchema
-    cy="form-dg"
-    fields={FIELDS}
-    rootProps={{ sx: FORM_ROOT_SX }}
-    gridContainerSx={FORM_GRID_CONTAINER_SX}
-    gridItemSx={FORM_GRID_ITEM_SX}
-  />
+  <>
+    {SECTIONS.map(({ id, ...section }) => (
+      <FormWithSchema
+        key={id}
+        cy="form-dg"
+        rootProps={{ sx: FORM_ROOT_SX }}
+        gridContainerSx={FORM_GRID_CONTAINER_SX}
+        gridItemSx={FORM_GRID_ITEM_SX}
+        {...section}
+      />
+    ))}
+  </>
 )
 
 const UpdatePlanConfigurationForm = createForm(SCHEMA, FIELDS, {

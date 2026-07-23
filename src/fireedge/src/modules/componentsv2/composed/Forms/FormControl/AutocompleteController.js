@@ -60,11 +60,7 @@ export const AutocompleteController = memo(
     const resolvedPlaceholder = placeholder || `${T.Enter} ${trLabel}`
     const trHint =
       hint ??
-      (tooltip
-        ? translate(tooltip)
-        : multiple
-        ? translate(T.PressKeysToAddAValue, ['ENTER'])
-        : undefined)
+      (multiple ? translate(T.PressKeysToAddAValue, ['ENTER']) : undefined)
     const resolvedFreeSolo = freeSolo ?? !optionsOnly
 
     const {
@@ -187,6 +183,7 @@ export const AutocompleteController = memo(
         onChange={handleChange}
         label={trLabel}
         hint={trHint}
+        tooltip={tooltip}
         placeholder={resolvedPlaceholder}
         options={values}
         rowsDisplayed={rowsDisplayed}
@@ -206,7 +203,8 @@ export const AutocompleteController = memo(
         initialValue={resolvedValue}
         onChange={handleChange}
         label={trLabel}
-        hint={hint}
+        hint={trHint}
+        tooltip={tooltip}
         placeholder={resolvedPlaceholder}
         menuTitle={menuTitle}
         options={values}

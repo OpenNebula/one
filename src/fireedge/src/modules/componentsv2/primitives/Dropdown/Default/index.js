@@ -87,6 +87,7 @@ export const Dropdown = forwardRef(
       error,
       freeSolo = false,
       hint,
+      tooltip,
       initialValue,
       isOutlined = true,
       isDefaultOpen = false,
@@ -279,6 +280,7 @@ export const Dropdown = forwardRef(
             isDisabled={isDisabled}
             isOutlined={isOutlined}
             hint={hint}
+            tooltip={tooltip}
             error={error}
             endIcon={() =>
               endIcon ? (
@@ -367,6 +369,7 @@ Dropdown.propTypes = {
   placeholder: PropTypes.string,
   error: PropTypes.string,
   hint: PropTypes.string,
+  tooltip: PropTypes.any,
   label: PropTypes.string,
   menuTitle: PropTypes.string,
   isDefaultOpen: PropTypes.bool,

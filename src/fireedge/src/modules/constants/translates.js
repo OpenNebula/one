@@ -943,9 +943,20 @@ module.exports = {
   DiskWeightConcept: 'Relative importance of the disk usage across the hosts',
   NetWeightConcept: 'Relative importance of the network usage across the hosts',
   PredictiveWeightConcept:
-    'Weight of forecasted resource usage in the scheduling process. For example, the value 0.3 means that the predicted resource usage is accounted with 30% and current usage with 70%.',
+    'Controls how much DRS relies on predicted resource usage when computing the optimization plan: 0 – Use only current monitored metrics. 1 – Use only predicted metrics. 0–1 – Blend monitored and predicted values. Higher values make DRS more proactive by anticipating future workload changes.',
   MigrationThresholdConcept:
-    'Specifies the maximal allowed number of virtual machine migrations, can be set to unlimited or a absolute number.',
+    'Maximum number of migrations performed during a single optimization cycle. This limit applies to all migrations combined, including host and datastore migrations.',
+  MigrationThresholds: 'Migration thresholds',
+  HostMigrationThreshold: 'Host migrations',
+  HostMigrationThresholdConcept:
+    'Maximum number of host migrations performed during a single optimization cycle. Host migrations count towards the overall migration threshold.',
+  DsMigrationThreshold: 'Datastore migrations',
+  DsMigrationThresholdConcept:
+    'Maximum number of datastore migrations performed during a single optimization cycle. Datastore migrations count towards the overall migration threshold.',
+  DRSPolicyConcept:
+    'Selects the optimization objective for the cluster: Pack – Consolidate VMs onto fewer hosts to reduce the number of active servers and save energy. Balance – Distribute workloads across hosts to minimize resource contention and improve performance.',
+  DRSAutomationConcept:
+    'Determines how DRS applies optimization recommendations: Manual – Generate recommendations only. Migrations must be approved manually. Partial – Generate migration plans automatically, but require administrator approval before execution. Full – Automatically generate and execute migration plans.',
 
   /* sections - infrastructure */
   Cluster: 'Cluster',
@@ -1787,7 +1798,7 @@ module.exports = {
   Policy: 'Policy',
   Policies: 'Policies',
   Automation: 'Automation',
-  MigrationThreshold: 'Migration threshold',
+  MigrationThreshold: 'Total migrations',
   VmAffinity: 'VM Affinity',
   RolesAffinity: 'Roles Affinity',
   RoleElasticity: 'Role Elasticity',

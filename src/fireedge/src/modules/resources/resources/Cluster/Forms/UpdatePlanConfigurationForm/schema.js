@@ -38,9 +38,56 @@ const POLICY_TEXT_OPTIONS = {
   [PACK]: T.PolicyPack,
 }
 
+const MIGRATION_THRESHOLD_FIELDS = [
+  'MIGRATION_THRESHOLD',
+  'HOST_MIGRATION_THRESHOLD',
+  'DS_MIGRATION_THRESHOLD',
+]
+
 const INPUTS = {
   MIGRATION_THRESHOLD: {
     label: T.MigrationThreshold,
+    tooltip: T.MigrationThresholdConcept,
+    fieldProps: { type: 'number' },
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    htmlType: INPUT_TYPES.AUTOCOMPLETE,
+    values: arrayToOptions(['Unlimited'], {
+      addEmpty: false,
+      getValue: (_opt) => -1,
+      addDescription: true,
+      getDescription: (_opt) => T.MigrationThresholdConcept,
+    }),
+    optionsOnly: false,
+    freeSolo: true,
+    validation: number()
+      .positive()
+      .min(-1)
+      .required()
+      .default(() => -1),
+  },
+  HOST_MIGRATION_THRESHOLD: {
+    label: T.HostMigrationThreshold,
+    tooltip: T.HostMigrationThresholdConcept,
+    fieldProps: { type: 'number' },
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    htmlType: INPUT_TYPES.AUTOCOMPLETE,
+    values: arrayToOptions(['Unlimited'], {
+      addEmpty: false,
+      getValue: (_opt) => -1,
+      addDescription: true,
+      getDescription: (_opt) => T.MigrationThresholdConcept,
+    }),
+    optionsOnly: false,
+    freeSolo: true,
+    validation: number()
+      .positive()
+      .min(-1)
+      .required()
+      .default(() => -1),
+  },
+  DS_MIGRATION_THRESHOLD: {
+    label: T.DsMigrationThreshold,
+    tooltip: T.DsMigrationThresholdConcept,
     fieldProps: { type: 'number' },
     type: INPUT_TYPES.AUTOCOMPLETE,
     htmlType: INPUT_TYPES.AUTOCOMPLETE,
@@ -71,6 +118,7 @@ const INPUTS = {
   },
   POLICY: {
     label: T.Policy,
+    tooltip: T.DRSPolicyConcept,
     type: INPUT_TYPES.AUTOCOMPLETE,
     values: arrayToOptions(Object.values(DRS_POLICY), {
       addEmpty: false,
@@ -88,6 +136,7 @@ const INPUTS = {
   },
   AUTOMATION: {
     label: T.Automation,
+    tooltip: T.DRSAutomationConcept,
     type: INPUT_TYPES.AUTOCOMPLETE,
     htmlType: INPUT_TYPES.AUTOCOMPLETE,
     values: arrayToOptions(Object.values(DRS_AUTOMATION), {
@@ -165,5 +214,24 @@ const generateSliderInputs = function* (inputs) {
 }
 
 export const FIELDS = [...generateSliderInputs(INPUTS)]
+
+const getFieldsByName = (fieldNames) =>
+  fieldNames
+    .map((fieldName) => FIELDS.find(({ name }) => name === fieldName))
+    .filter(Boolean)
+
+export const SECTIONS = [
+  {
+    id: 'migration-thresholds',
+    legend: T.MigrationThresholds,
+    fields: getFieldsByName(MIGRATION_THRESHOLD_FIELDS),
+  },
+  {
+    id: 'optimization-plan',
+    fields: FIELDS.filter(
+      ({ name }) => !MIGRATION_THRESHOLD_FIELDS.includes(name)
+    ),
+  },
+]
 
 export const SCHEMA = getObjectSchemaFromFields(FIELDS)
