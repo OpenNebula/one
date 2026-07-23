@@ -334,7 +334,10 @@ void LifeCycleManager::trigger_deploy_success(int vid)
 
             vm->get_capacity(sr);
 
-            hpool->del_capacity(vm->get_previous_hid(), sr);
+            if ( vm->get_hid() != vm->get_previous_hid() )
+            {
+                hpool->del_capacity(vm->get_previous_hid(), sr);
+            }
 
             vm->set_state(VirtualMachine::RUNNING);
 

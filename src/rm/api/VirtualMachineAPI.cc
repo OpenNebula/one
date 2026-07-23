@@ -1009,7 +1009,8 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
     }
 
     // Check the host has enough capacity
-    if (check_host(hid, enforce, vm.get(), att.resp_msg) == false)
+    if (c_hid != hid &&
+        check_host(hid, enforce, vm.get(), att.resp_msg) == false)
     {
         return Request::ACTION;
     }
