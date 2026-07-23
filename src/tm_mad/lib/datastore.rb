@@ -238,6 +238,7 @@ module TransferManager
         #
         # The slice can set the following resources:
         #   - CPUQuota
+        #   - MemoryMax
         #   - IOReadIOPSMax
         #   - IOWriteIOPSMax
         #
@@ -253,8 +254,9 @@ module TransferManager
             riops = Integer(self["TEMPLATE/#{@mad}_MAX_RIOPS", -1])
             wiops = Integer(self["TEMPLATE/#{@mad}_MAX_WIOPS", -1])
             cpuq  = Integer(self["TEMPLATE/#{@mad}_CPU_QUOTA", -1])
+            mem   = Integer(self["TEMPLATE/#{@mad}_MEMORY_MAX_MB", -1])
 
-            return cmd if riops == -1 && wiops == -1 && cpuq == -1
+            return cmd if riops == -1 && wiops == -1 && cpuq == -1 && mem == -1
 
             vm_path = Pathname.new(vm_dir)
             bpath   = vm_path.cleanpath
@@ -269,6 +271,7 @@ module TransferManager
             slice =<<~EOS
                 [Slice]
                 CPUQuota=#{cpuq == -1? '': "#{cpuq}%"}
+                MemoryMax=#{mem == -1? '': "#{mem}M"}
                 IOReadIOPSMax=#{riops == -1? '': "#{bpath} #{riops}"}
                 IOWriteIOPSMax=#{wiops == -1? '': "#{bpath} #{wiops}"}
             EOS
