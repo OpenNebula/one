@@ -848,6 +848,8 @@ void LifeCycleManager::trigger_prolog_failure(int vid)
             case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
             case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
             case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
+            {
+                const bool same_host = vm->get_hid() == vm->get_previous_hid();
 
                 // Close current history record
                 vm->set_prolog_etime(t);
@@ -875,7 +877,10 @@ void LifeCycleManager::trigger_prolog_failure(int vid)
 
                 vm->get_capacity(sr);
 
-                hpool->del_capacity(vm->get_hid(), sr);
+                if ( !same_host )
+                {
+                    hpool->del_capacity(vm->get_hid(), sr);
+                }
 
                 // Clone previous history record into a new one
                 vm->cp_previous_history();
@@ -883,7 +888,10 @@ void LifeCycleManager::trigger_prolog_failure(int vid)
                 vm->set_stime(t);
                 vm->set_prolog_stime(t);
 
-                hpool->add_capacity(vm->get_hid(), sr);
+                if ( !same_host )
+                {
+                    hpool->add_capacity(vm->get_hid(), sr);
+                }
 
                 vm->set_vm_info();
 
@@ -893,6 +901,7 @@ void LifeCycleManager::trigger_prolog_failure(int vid)
 
                 trigger_prolog_success(vm->get_oid());
                 break;
+            }
 
             case VirtualMachine::PROLOG_RESUME_FAILURE:
             case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
