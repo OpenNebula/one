@@ -14,7 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { InteractiveGrid, SubmitButton } from '@ComponentsV2Module'
+import {
+  InteractiveGrid,
+  OpenNebulaLogo,
+  SubmitButton,
+} from '@ComponentsV2Module'
 import {
   Box,
   Container,
@@ -23,7 +27,6 @@ import {
   useTheme,
 } from '@mui/material'
 import { Translate, useTranslation } from '@ProvidersModule'
-import { OpenNebulaLogo } from '@ResourcesModule'
 import { storage } from '@UtilsModule'
 import { JWT_NAME, T, STYLE_BUTTONS } from '@ConstantsModule'
 import { AuthSlice } from '@FeaturesModule'

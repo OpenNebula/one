@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { Box, Drawer } from '@mui/material'
 import { getStyles } from '@modules/componentsv2/primitives/Sidebar/Default/styles'
 import { SidebarItem } from '@modules/componentsv2/primitives/Sidebar/Default/sidebarItem'
-import { OpenNebulaIcon } from '@modules/componentsv2/primitives/Icons'
+import { OpenNebulaLogo } from '@modules/componentsv2/composed/OpenNebulaLogo'
 import { SidebarUserMenu } from '@modules/componentsv2/primitives/Sidebar/Default/userMenu'
 import { SidebarRoleMenu } from '@modules/componentsv2/primitives/Sidebar/Default/roleMenu'
 import {
@@ -151,7 +151,7 @@ export const Sidebar = forwardRef(
               to={`/${RESOURCE_NAMES.DASHBOARD}`}
               aria-label={T.Dashboard}
             >
-              <OpenNebulaIcon withText={open} />
+              <OpenNebulaLogo withText={open} />
             </Box>
             {open && (
               <Box className="sidebar-fixed-toggle-container">

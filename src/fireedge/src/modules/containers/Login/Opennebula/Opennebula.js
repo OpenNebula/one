@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { useTranslation } from '@ProvidersModule'
-import { InteractiveGrid, OpenNebulaIcon } from '@ComponentsV2Module'
+import { InteractiveGrid, OpenNebulaLogo } from '@ComponentsV2Module'
 import { T } from '@ConstantsModule'
 import { AuthAPI, useAuth, useAuthApi } from '@FeaturesModule'
 import { Form } from '@modules/containers/Login/Opennebula/Form'
@@ -237,7 +237,7 @@ export function OpenNebulaLoginHandler({ data = {} }) {
       disableGutters={isMobile}
     >
       <InteractiveGrid data-cy="opennebula-brand-grid">
-        <OpenNebulaIcon withText width={100} height={40} />
+        <OpenNebulaLogo withText width={100} height={40} />
       </InteractiveGrid>
 
       <Box className={`${classes.login} ${loginStepClass}`}>
