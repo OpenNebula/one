@@ -23,14 +23,6 @@ cards:
     order: 40
     size: quarter
     to: true
-  - id: cpu-chart
-    order: 50
-    size: half
-    to: false
-  - id: memory-chart
-    order: 60
-    size: half
-    to: false
   - id: cluster-capacity
     order: 70
     size: wide

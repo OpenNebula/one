@@ -11,11 +11,3 @@ cards:
     order: 10
     size: full
     to: true
-  - id: cpu-chart
-    order: 20
-    size: half
-    to: false
-  - id: memory-chart
-    order: 30
-    size: half
-    to: false
