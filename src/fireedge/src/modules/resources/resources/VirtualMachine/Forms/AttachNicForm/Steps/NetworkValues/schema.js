@@ -36,6 +36,20 @@ import {
 const filterByHypAndDriver = (fields, { hypervisor, driver }) =>
   filterFieldsByDriver(filterFieldsByHypervisor(fields, hypervisor), driver)
 
+const disableForDummy = (fields) =>
+  fields.map((field) => {
+    if (field.name === 'MAC') return field
+
+    return {
+      ...field,
+      dependOf: '$advanced.NETWORK_MODE',
+      fieldProps: (networkMode) => ({
+        ...field.fieldProps,
+        isDisabled: networkMode === 'dummy',
+      }),
+    }
+  })
+
 /** @type {Field[]} List of IPv4 fields */
 const OVERRIDE_IPV4_FIELDS = [
   {
@@ -172,7 +186,7 @@ const SECTIONS = ({
       id: 'override-ipv4',
       legend: T.OverrideNetworkValuesIPv4,
       fields: disableFields(
-        filterByHypAndDriver(OVERRIDE_IPV4_FIELDS, filters),
+        disableForDummy(filterByHypAndDriver(OVERRIDE_IPV4_FIELDS, filters)),
         'NIC',
         oneConfig,
         adminGroup
@@ -182,7 +196,7 @@ const SECTIONS = ({
       id: 'override-ipv6',
       legend: T.OverrideNetworkValuesIPv6,
       fields: disableFields(
-        filterByHypAndDriver(OVERRIDE_IPV6_FIELDS, filters),
+        disableForDummy(filterByHypAndDriver(OVERRIDE_IPV6_FIELDS, filters)),
         'NIC',
         oneConfig,
         adminGroup

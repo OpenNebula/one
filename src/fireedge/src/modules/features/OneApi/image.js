@@ -43,7 +43,6 @@ import {
 
 const { IMAGE } = ONE_RESOURCES
 const { IMAGE_POOL } = ONE_RESOURCES_POOL
-const IMAGE_POOL_QUERIES = ['getImages', 'getFiles', 'getBackups']
 const imageDetailAndPoolTags = (id) => [
   { type: IMAGE, id },
   { type: IMAGE_POOL, id: `${id}` },
@@ -222,13 +221,7 @@ const imageApi = oneApi.injectEndpoints({
       providesTags: (_, __, { id }) =>
         withProfileLabelsTags([{ type: IMAGE, id }]),
       onCacheEntryAdded: UpdateFromSocket({
-        updateQueryData: (
-          updateFn,
-          rtkResource = 'getImages',
-          params = undefined
-        ) => imageApi.util.updateQueryData(rtkResource, params, updateFn),
         resource: 'IMAGE',
-        rtkResources: IMAGE_POOL_QUERIES,
       }),
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {

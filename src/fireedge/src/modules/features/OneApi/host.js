@@ -200,8 +200,6 @@ const hostApi = oneApi.injectEndpoints({
         }
       },
       onCacheEntryAdded: UpdateFromSocket({
-        updateQueryData: (updateFn) =>
-          hostApi.util.updateQueryData('getHosts', undefined, updateFn),
         resource: 'HOST',
       }),
     }),

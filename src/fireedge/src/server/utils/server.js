@@ -183,10 +183,61 @@ const validateAuthWebsocket = (server = {}) => {
  * @returns {object} request data
  */
 const getResourceDataForRequest = (server = {}) => {
-  const { id, resource } = server?.handshake?.query ?? {}
-  const { aud: username } = validateAuthWebsocket(server)
+  const { id, resource, pool, zone } = server?.handshake?.query ?? {}
+  const { aud: username } = validateAuthWebsocket(server) ?? {}
 
-  return { id, resource, username }
+  return { id, resource, pool: pool === 'true', username, zone }
+}
+
+/**
+ * Stores the resource IDs returned by an authenticated pool request.
+ *
+ * @param {string} username - OpenNebula username
+ * @param {string} resource - Resource name
+ * @param {Array<object>} resources - Resources visible to the user
+ * @param {string|number} zone - OpenNebula zone ID
+ */
+const fillResourcePoolForHookConnection = (
+  username = '',
+  resource = '',
+  resources = [],
+  zone = '0'
+) => {
+  if (!username || !resource || !Array.isArray(resources)) return
+
+  global.users ??= {}
+  global.users[username] ??= {}
+  global.users[username].resourcePoolsHooks ??= {}
+
+  const zoneId = zone && zone !== 'undefined' ? `${zone}` : '0'
+  const poolsByZone = (global.users[username].resourcePoolsHooks[zoneId] ??= {})
+
+  poolsByZone[resource.toLowerCase()] = new Set(
+    resources
+      .map(({ ID }) => ID)
+      .filter((id) => id !== undefined && id !== null)
+      .map(String)
+  )
+}
+
+/**
+ * Returns the resource IDs authorized by the latest pool request.
+ *
+ * @param {string} username - OpenNebula username
+ * @param {string} resource - Resource name
+ * @param {string|number} zone - OpenNebula zone ID
+ * @returns {Set<string>|undefined} Authorized resource IDs
+ */
+const getResourcePoolForHookConnection = (
+  username = '',
+  resource = '',
+  zone = '0'
+) => {
+  const zoneId = zone && zone !== 'undefined' ? `${zone}` : '0'
+
+  return global.users?.[username]?.resourcePoolsHooks?.[zoneId]?.[
+    resource.toLowerCase()
+  ]
 }
 
 /**
@@ -199,20 +250,18 @@ const middlewareValidateResourceForHookConnection = (
   server = {},
   next = () => undefined
 ) => {
-  const { id, resource, username } = getResourceDataForRequest(server)
-
-  if (
+  const { id, resource, pool, username, zone } =
+    getResourceDataForRequest(server)
+  const resourcePool =
+    pool && getResourcePoolForHookConnection(username, resource, zone)
+  const canSubscribeToPool = pool && resourcePool instanceof Set
+  const canSubscribeToResource =
     id &&
-    resource &&
-    username &&
-    global &&
-    global.users &&
-    global.users[username] &&
-    global.users[username].resourcesHooks &&
-    global.users[username].resourcesHooks[resource.toLowerCase()] >= 0 &&
+    global.users?.[username]?.resourcesHooks?.[resource.toLowerCase()] >= 0 &&
     global.users[username].resourcesHooks[resource.toLowerCase()] ===
       parseInt(id, 10)
-  ) {
+
+  if (resource && username && (canSubscribeToPool || canSubscribeToResource)) {
     next()
   } else {
     server.disconnect(true)
@@ -1046,6 +1095,8 @@ module.exports = {
   getRequestFiles,
   getRequestParameters,
   getResourceDataForRequest,
+  fillResourcePoolForHookConnection,
+  getResourcePoolForHookConnection,
   middlewareValidateAuthWebsocket,
   middlewareValidateResourceForHookConnection,
   defaultError,

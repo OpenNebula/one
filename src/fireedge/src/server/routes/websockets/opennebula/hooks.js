@@ -21,6 +21,7 @@ const {
   middlewareValidateResourceForHookConnection,
   getResourceDataForRequest,
   getDataZone,
+  getResourcePoolForHookConnection,
 } = require('server/utils/server')
 
 const DEFAULT_ERROR_CONFIG = {
@@ -40,7 +41,8 @@ const main = (app = {}, type = '') => {
       .use(middlewareValidateAuthWebsocket)
       .use(middlewareValidateResourceForHookConnection)
       .on('connection', (server = {}) => {
-        const { id, resource } = getResourceDataForRequest(server)
+        const { id, resource, pool, username } =
+          getResourceDataForRequest(server)
         const { zone: queryZone } = server?.handshake?.query ?? {}
         const zone = queryZone && queryZone !== 'undefined' ? queryZone : '0'
         const dataZone = getDataZone(zone)
@@ -52,7 +54,11 @@ const main = (app = {}, type = '') => {
         if (zeromqData) {
           const zeromqSock = new Subscriber()
           zeromqSock.connect(zeromqData)
-          zeromqSock.subscribe(`EVENT ${resource.toUpperCase()} ${id}`)
+          zeromqSock.subscribe(
+            pool
+              ? `EVENT ${resource.toUpperCase()} `
+              : `EVENT ${resource.toUpperCase()} ${id}`
+          )
 
           server.on('disconnect', () => {
             try {
@@ -66,8 +72,16 @@ const main = (app = {}, type = '') => {
               for await (const [commandBuf, encodedMessageBuf] of zeromqSock) {
                 const command = commandBuf.toString()
                 const encodedMessage = encodedMessageBuf.toString()
+                const resourceId = command.split(/\s+/)[2]?.split('/')[0]
+                const resourcePool =
+                  pool &&
+                  getResourcePoolForHookConnection(username, resource, zone)
 
-                if (command && encodedMessage) {
+                if (
+                  command &&
+                  encodedMessage &&
+                  (!pool || resourcePool?.has(resourceId))
+                ) {
                   const xmlMessage = Buffer.from(
                     encodedMessage,
                     'base64'

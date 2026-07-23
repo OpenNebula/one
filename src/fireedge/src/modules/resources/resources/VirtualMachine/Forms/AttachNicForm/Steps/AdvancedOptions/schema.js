@@ -187,6 +187,10 @@ const GENERAL_FIELDS = ({
             condition: (value) => value !== 'auto',
             steps: ['network-auto'],
           },
+          {
+            condition: (value) => value === 'dummy',
+            steps: ['qos'],
+          },
         ],
       },
   ].filter(Boolean)

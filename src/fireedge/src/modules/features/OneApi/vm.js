@@ -53,7 +53,11 @@ import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from '@modules/features/OneApi/resources'
-import { UpdateFromSocket } from '@modules/features/OneApi/socket'
+import {
+  UpdatePoolFromSocket,
+  UpdateFromSocket,
+  updateResourcePoolQueries,
+} from '@modules/features/OneApi/socket'
 
 const { actions: guacamoleActions } = GuacamoleSlice
 const { VM, HOST } = ONE_RESOURCES
@@ -165,6 +169,9 @@ const vmApi = oneApi.injectEndpoints({
               ]
             : [VM_POOL]
         ),
+      onCacheEntryAdded: UpdatePoolFromSocket({
+        resource: 'VM',
+      }),
     }),
 
     getVmInfoset: builder.query({
@@ -225,36 +232,30 @@ const vmApi = oneApi.injectEndpoints({
           { type: VM, id },
           { type: VM_POOL, id },
         ]),
-      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ id }, { dispatch, getState, queryFulfilled }) {
         try {
           const { data: resourceFromQuery } = await queryFulfilled
 
-          dispatch(
-            vmApi.util.updateQueryData(
-              'getVms',
-              undefined,
-              updateResourceOnPool({ id, resourceFromQuery })
-            )
-          )
+          updateResourcePoolQueries({
+            resource: 'VM',
+            id,
+            updateRecipe: updateResourceOnPool({ id, resourceFromQuery }),
+            state: getState(),
+            dispatch,
+          })
         } catch {
           // if the query fails, we want to remove the resource from the pool
-          dispatch(
-            vmApi.util.updateQueryData(
-              'getVms',
-              undefined,
-              removeResourceOnPool({ id })
-            )
-          )
+          updateResourcePoolQueries({
+            resource: 'VM',
+            id,
+            updateRecipe: removeResourceOnPool({ id }),
+            state: getState(),
+            dispatch,
+          })
         }
       },
       onCacheEntryAdded: UpdateFromSocket({
-        updateQueryData: (
-          updateFn,
-          rtkResource = 'getVms',
-          params = undefined
-        ) => vmApi.util.updateQueryData(rtkResource, params, updateFn),
         resource: 'VM',
-        rtkResources: ['getVms', 'getVmsPaginated'],
       }),
     }),
     getGuacamoleSessionFile: builder.query({

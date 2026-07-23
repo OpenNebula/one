@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ThunkAction, ThunkDispatch } from 'redux-thunk'
+import { ThunkDispatch } from 'redux-thunk'
 import socketIO, { Socket } from 'socket.io-client'
 
 import { SOCKETS, WEBSOCKET_URL } from '@ConstantsModule'
 import { updateResourceOnPool } from '@modules/features/OneApi/common'
+import { oneApi } from '@modules/features/OneApi/oneApi'
+
+const poolConnections = new Map()
 
 /**
- * @typedef {'VM'|'HOST'|'IMAGE'|'NET'} HookObjectName
+ * @typedef {'VM'|'HOST'|'IMAGE'|'NET'|'VNET'} HookObjectName
  * - Hook object name to update from socket
  */
 
@@ -84,19 +87,119 @@ const getResourceValueFromEventState = (data) => {
 }
 
 /**
+ * Updates every cached pool query that contains the resource.
+ *
+ * @param {object} params - Parameters
+ * @param {HookObjectName} params.resource - Resource type
+ * @param {string|number} params.id - Resource ID
+ * @param {Function} params.updateRecipe - RTK Query cache update recipe
+ * @param {object} params.state - Redux state
+ * @param {ThunkDispatch} params.dispatch - Redux dispatch
+ */
+const updateResourcePoolQueries = ({
+  resource,
+  id,
+  updateRecipe,
+  state,
+  dispatch,
+}) => {
+  const poolTag = { type: `${resource}_POOL`, id: `${id}` }
+
+  oneApi.util
+    .selectInvalidatedBy(state, [poolTag])
+    .forEach(({ endpointName, originalArgs }) =>
+      dispatch(
+        oneApi.util.updateQueryData(endpointName, originalArgs, updateRecipe)
+      )
+    )
+}
+
+/**
+ * Creates one shared socket per resource pool and zone.
+ *
+ * @param {object} params - Parameters
+ * @param {HookObjectName} params.resource - Resource name to subscribe
+ * @returns {function(
+ * object,
+ * { dispatch: ThunkDispatch }
+ * ):Promise} Function to update pool data from the socket
+ */
+const UpdatePoolFromSocket =
+  ({ resource }) =>
+  async (_, { cacheEntryRemoved, cacheDataLoaded, getState, dispatch }) => {
+    let connection
+    let connectionKey
+    let acquired = false
+
+    try {
+      await cacheDataLoaded
+
+      const { zone } = getState().general
+      connectionKey = `${zone}:${resource}`
+      connection = poolConnections.get(connectionKey)
+
+      if (!connection) {
+        const socket = createWebsocket(SOCKETS.HOOKS, {
+          zone,
+          resource,
+          pool: true,
+        })
+
+        const listener = ({ data } = {}) => {
+          const value = getResourceValueFromEventState(data)
+          const id = data?.HOOK_MESSAGE?.RESOURCE_ID ?? value?.ID
+          if (!value || id === undefined || id === null) return
+
+          updateResourcePoolQueries({
+            resource,
+            id,
+            updateRecipe: updateResourceOnPool({
+              id,
+              resourceFromQuery: value,
+            }),
+            state: getState(),
+            dispatch,
+          })
+        }
+
+        socket.on(SOCKETS.HOOKS, listener)
+        socket.open()
+
+        connection = { socket, references: 0 }
+        poolConnections.set(connectionKey, connection)
+      }
+
+      connection.references += 1
+      acquired = true
+      await cacheEntryRemoved
+    } catch {
+      // The query cache can be removed before its initial request completes.
+    } finally {
+      if (acquired) {
+        connection.references -= 1
+        if (
+          connection.references === 0 &&
+          poolConnections.get(connectionKey) === connection
+        ) {
+          connection.socket.close()
+          poolConnections.delete(connectionKey)
+        }
+      }
+    }
+  }
+
+/**
  * Creates a function to update the data from socket.
  *
  * @param {object} params - Parameters
- * @param {function(Function):ThunkAction} params.updateQueryData - Api
  * @param {HookObjectName} params.resource - Resource name to subscribe
- * @param {Array<string>} params.rtkResources - List of RTK resources to update
  * @returns {function(
  * { id: string },
  * { dispatch: ThunkDispatch }
  * ):Promise} Function to update data from socket
  */
 const UpdateFromSocket =
-  ({ updateQueryData, resource, rtkResources = [] }) =>
+  ({ resource }) =>
   async (
     { id },
     { cacheEntryRemoved, cacheDataLoaded, updateCachedData, getState, dispatch }
@@ -105,7 +208,6 @@ const UpdateFromSocket =
 
     const query = { zone, resource, id }
     const socket = createWebsocket(SOCKETS.HOOKS, query)
-    const queries = getState().oneApi.queries
 
     try {
       await cacheDataLoaded
@@ -115,25 +217,13 @@ const UpdateFromSocket =
         if (!value) return
 
         const update = updateResourceOnPool({ id, resourceFromQuery: value })
-        Object.keys(queries).forEach((key) => {
-          const matched = rtkResources
-            .map((rsc) => {
-              const regex = new RegExp(`\\b${rsc}\\s*\\(`)
-
-              return key.match(regex)
-                ? { searchText: rsc, foundText: key }
-                : null
-            })
-            .find(Boolean)
-
-          const found = queries[matched?.foundText]
-          if (found) {
-            const args = found?.originalArgs
-            dispatch(updateQueryData(update, matched.searchText, args))
-          }
+        updateResourcePoolQueries({
+          resource,
+          id,
+          updateRecipe: update,
+          state: getState(),
+          dispatch,
         })
-
-        // dispatch(updateQueryData(update))
 
         updateCachedData((draft) => {
           Object.assign(draft, value)
@@ -147,4 +237,9 @@ const UpdateFromSocket =
     socket.close()
   }
 
-export { createWebsocket, UpdateFromSocket }
+export {
+  createWebsocket,
+  updateResourcePoolQueries,
+  UpdateFromSocket,
+  UpdatePoolFromSocket,
+}

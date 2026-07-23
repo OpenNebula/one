@@ -33,7 +33,7 @@ import {
 } from '@ComponentsV2Module'
 import { PLAN_STATE, T } from '@ConstantsModule'
 import { DatastoreAPI, HostAPI, useModalsApi, VmAPI } from '@FeaturesModule'
-import { timeFromSeconds } from '@ModelsModule'
+import { timeFromSeconds } from '@UtilsModule'
 import { StatusCircle } from '@modules/resources/Status'
 
 const getPlanActions = (data = {}) =>

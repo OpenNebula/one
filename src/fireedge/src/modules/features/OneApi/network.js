@@ -129,8 +129,6 @@ const vNetworkApi = oneApi.injectEndpoints({
         }
       },
       onCacheEntryAdded: UpdateFromSocket({
-        updateQueryData: (updateFn) =>
-          vNetworkApi.util.updateQueryData('getVNetworks', undefined, updateFn),
         resource: 'VNET',
       }),
     }),

@@ -64,6 +64,10 @@ const QOSOptions = (props) => ({
   resolver: () => SCHEMA(props),
   optionsValidate: { abortEarly: false },
   content: () => Content(props),
+  defaultDisabled: {
+    condition: () =>
+      props?.defaultData?.NETWORK_MODE?.toLowerCase?.() === 'dummy',
+  },
 })
 
 Content.propTypes = {

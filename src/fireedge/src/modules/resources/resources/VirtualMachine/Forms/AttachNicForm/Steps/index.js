@@ -132,13 +132,13 @@ const Steps = createSteps(
 
       return {
         ...(isDummy ? {} : network),
-        ...qos,
+        ...(isDummy ? {} : qos),
         ...{
           ...rAdvanced,
           ...pciAttrs,
         },
         ...(isDummy ? {} : networkAuto),
-        ...networkValues,
+        ...(isDummy ? { MAC: networkValues?.MAC } : networkValues),
       }
     },
   }

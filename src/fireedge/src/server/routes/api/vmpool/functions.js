@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const { defaults, httpCodes } = require('server/utils/constants')
-const { httpResponse } = require('server/utils/server')
+const {
+  httpResponse,
+  fillResourcePoolForHookConnection,
+} = require('server/utils/server')
 const { Actions: vmActions } = require('server/utils/constants/commands/vm')
 
 const {
@@ -221,13 +224,15 @@ const showback = (
  * @param {object} params - Parameters of the request
  * @param {object} userData - Data about the user
  * @param {Function} oneConnection - Function to connect to the XML API
+ * @param {object} req - HTTP request
  */
 const fetchPaginatedPool = async (
   res = {},
   next = defaultEmptyFunction,
   params = {},
   userData = {},
-  oneConnection = defaultEmptyFunction
+  oneConnection = defaultEmptyFunction,
+  req = {}
 ) => {
   const {
     extended = 0,
@@ -316,6 +321,7 @@ const fetchPaginatedPool = async (
 
   try {
     const results = await runBatches()
+    fillResourcePoolForHookConnection(user, 'VM', results, req?.query?.zone)
     responseHttp(res, next, httpResponse(ok, results))
   } catch (error) {
     responseHttp(res, next, httpResponse(internalServerError, error))
