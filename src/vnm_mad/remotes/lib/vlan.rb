@@ -97,8 +97,7 @@ module VNMMAD
         def deactivate
             lock
 
-            # NIC_ALIAS are  not processed, skip
-            return 0 if @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+            return 0 if special_hotplug?
 
             @bridges = list_bridges
 
