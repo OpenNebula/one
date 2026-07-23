@@ -16,8 +16,9 @@
 
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
-import { Typography as MUITypography, Box, Stack, Tooltip } from '@mui/material'
+import { Typography as MUITypography, Box, Stack } from '@mui/material'
 import { getStyles } from '@modules/componentsv2/primitives/Labels/Default/styles'
+import { Tooltip } from '@modules/componentsv2/primitives/Tooltip'
 import { HelpCircle as TooltipIcon } from 'iconoir-react'
 import { T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
@@ -52,7 +53,7 @@ export const Label = forwardRef(
         </MUITypography>
 
         {tooltip && (
-          <Tooltip arrow title={translate(tooltip)}>
+          <Tooltip title={tooltip}>
             <TooltipIcon className="tooltip-icon" />
           </Tooltip>
         )}

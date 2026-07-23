@@ -123,7 +123,7 @@ export const GetChartDefs = (
     </defs>
     {coordinateType === 'CARTESIAN' ? (
       <CartesianGrid
-        stroke={theme?.palette?.border?.disabled2}
+        stroke={theme?.palette?.graphs?.grid}
         strokeDasharray="4 4"
       />
     ) : (

@@ -22,6 +22,7 @@
 export const Graphs = ({ palette }) => ({
   legend: palette.text.disabled,
   tooltip: palette.border.information,
+  grid: palette.surface.mute,
   vm: {
     cpu: {
       real: palette.text.information,

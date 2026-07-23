@@ -138,20 +138,12 @@ export const ChartRenderer = ({
     paginatedData
   )
 
-  // Translate columns in tables
-  const tableColumnsTranslated = tableColumns?.map((column) => ({
-    ...column,
-    headerName: column.headerName,
-  }))
+  const tableData = datasets.flatMap((dataset) => dataset.data)
 
   return (
     <ResponsiveContainer height="100%" width="100%">
       {chartType === CHART_TYPES.TABLE ? (
-        <Table
-          columns={tableColumnsTranslated}
-          data={datasets}
-          selectedItems={selectedMetrics}
-        />
+        <Table columns={tableColumns} data={tableData} isFullHeight />
       ) : (
         <ChartComponent {...chartConfig}>
           {coordinateType === 'CARTESIAN'
@@ -180,13 +172,13 @@ export const ChartRenderer = ({
                 interval={0}
                 dataKey={groupBy}
                 tick={<CustomXAxisTick fill={theme.palette.graphs.legend} />}
-                axisLine={{ stroke: theme.palette.graphs.legend }}
-                tickLine={{ stroke: theme.palette.graphs.legend }}
+                axisLine={{ stroke: theme.palette.graphs.grid }}
+                tickLine={{ stroke: theme.palette.graphs.grid }}
               />
               <YAxis
                 tick={{ fill: theme.palette.graphs.legend }}
-                axisLine={{ stroke: theme.palette.graphs.legend }}
-                tickLine={{ stroke: theme.palette.graphs.legend }}
+                axisLine={{ stroke: theme.palette.graphs.grid }}
+                tickLine={{ stroke: theme.palette.graphs.grid }}
               />
             </>
           )}

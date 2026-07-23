@@ -341,12 +341,12 @@ const Graph = ({
         {
           grid: {
             show: showGrid && gridOrientation !== 'horizontal',
-            ...(gridColor && { stroke: gridColor }),
+            stroke: gridColor ?? theme.palette.graphs.grid,
             ...(gridWidth !== undefined && { width: gridWidth }),
           },
           ticks: {
             show: showXAxisTicks,
-            ...(tickColor && { stroke: tickColor }),
+            stroke: tickColor ?? theme.palette.graphs.grid,
           },
           stroke: axisColor ?? theme?.palette?.graphs?.axis?.color,
           values: (_, ticks) =>
@@ -357,10 +357,13 @@ const Graph = ({
         {
           grid: {
             show: showGrid && gridOrientation !== 'vertical',
-            ...(gridColor && { stroke: gridColor }),
+            stroke: gridColor ?? theme.palette.graphs.grid,
             ...(gridWidth !== undefined && { width: gridWidth }),
           },
-          ticks: { show: true, ...(tickColor && { stroke: tickColor }) },
+          ticks: {
+            show: true,
+            stroke: tickColor ?? theme.palette.graphs.grid,
+          },
           stroke: axisColor ?? theme?.palette?.graphs?.axis?.color,
           values: (_, ticks) => minMaxTick(ticks, (yV) => interpolationY(yV)),
         },

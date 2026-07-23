@@ -120,7 +120,7 @@ const TableViewModeButtonGroup = () => {
   return (
     <ButtonGroup
       buttons={TABLE_VIEW_MODES.map(({ icon, label, value }) => ({
-        title: <Translate word={label} />,
+        title: label,
         startIcon: icon,
         dataCy: `settings-ui-ROW_STYLE-${value}`,
         selected: value === selectedViewMode,

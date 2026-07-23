@@ -14,6 +14,24 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /**
+ * @param {object} palette - Theme palette
+ * @returns {object} - Browser autofill overrides
+ */
+const getAutofillStyles = (palette) => ({
+  backgroundColor: `transparent !important`,
+  backgroundClip: 'text !important',
+  backgroundImage: 'none !important',
+  boxShadow: 'none !important',
+  caretColor: `${palette.text.body} !important`,
+  color: `${palette.text.body} !important`,
+  filter: 'none',
+  transition: 'background-color 9999s ease-out 0s',
+  WebkitBackgroundClip: 'text !important',
+  WebkitBoxShadow: 'none !important',
+  WebkitTextFillColor: `${palette.text.body} !important`,
+})
+
+/**
  * @param {object} root0 - Params
  * @param {object} root0.palette - Theme palette
  * @param {object} root0.fonts - Fonts
@@ -24,6 +42,10 @@ export const Components = ({ palette, fonts, defaultTheme }) => ({
   MuiCssBaseline: {
     styleOverrides: {
       '@font-face': fonts.inter,
+      'input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active, textarea:-webkit-autofill, textarea:-webkit-autofill:hover, textarea:-webkit-autofill:focus, textarea:-webkit-autofill:active, select:-webkit-autofill, select:-webkit-autofill:hover, select:-webkit-autofill:focus, select:-webkit-autofill:active':
+        getAutofillStyles(palette),
+      'input:autofill, input:autofill:hover, input:autofill:focus, input:autofill:active, textarea:autofill, textarea:autofill:hover, textarea:autofill:focus, textarea:autofill:active, select:autofill, select:autofill:hover, select:autofill:focus, select:autofill:active':
+        getAutofillStyles(palette),
       '*::-webkit-scrollbar': {
         width: 14,
       },

@@ -124,7 +124,7 @@ export const SingleView = ({
           />
         ),
         confirmLabel: title,
-        ...(title === T.Delete && {
+        ...([T.Delete, T.Cancel].includes(title) && {
           confirmButtonProps: {
             isDestructive: true,
           },
@@ -254,11 +254,22 @@ export const SingleView = ({
       },
       {
         accessor: BACKUPJOB_ACTIONS.CANCEL,
-        startIcon: <CancelIcon width="16px" height="16px" />,
+        startIcon: (
+          <CancelIcon
+            width="16px"
+            height="16px"
+            style={{
+              color: isActionsDisabled
+                ? palette.text.disabled
+                : palette.icon.error,
+            }}
+          />
+        ),
         onClick: handleCancel,
         value: BACKUPJOB_ACTIONS.CANCEL,
         isDisabled: isActionsDisabled,
         tooltip: T.Cancel,
+        isDestructive: true,
       },
     ],
   })

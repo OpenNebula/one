@@ -419,7 +419,13 @@ export const FormWithSchema = ({
       )}
     </Box>
   ) : (
-    <Grid container spacing={1} alignContent="flex-start" sx={gridContainerSx}>
+    <Grid
+      container
+      spacing={1}
+      alignContent="flex-start"
+      alignItems="flex-start"
+      sx={gridContainerSx}
+    >
       {getFields?.map?.((field) => renderField(field))}
     </Grid>
   )

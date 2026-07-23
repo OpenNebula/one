@@ -344,6 +344,117 @@ export const getStyles = ({ theme }) => {
     },
   }
 
+  const timePicker = {
+    width: `${theme.scale[1500]}px`,
+    marginLeft: `${theme.scale[400]}px`,
+    boxSizing: 'border-box',
+    borderLeft: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
+    bgcolor: 'surface.primary',
+    fontFamily: 'Inter',
+
+    '& .react-datepicker__header--time': {
+      padding: `${theme.scale[200]}px ${theme.scale[300]}px`,
+      borderBottom: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
+      bgcolor: 'surface.primary',
+    },
+
+    '& .react-datepicker-time__header': {
+      margin: 0,
+      color: 'text.action',
+      fontSize: {
+        xs: theme.fontSize.body.sm.mobile,
+        sm: theme.fontSize.body.sm.tablet,
+        md: theme.fontSize.body.sm.desktop,
+      },
+      fontWeight: {
+        xs: theme.fontWeight.heading.h5.mobile,
+        sm: theme.fontWeight.heading.h5.tablet,
+        md: theme.fontWeight.heading.h5.desktop,
+      },
+      lineHeight: {
+        xs: theme.lineHeight.body.sm.mobile,
+        sm: theme.lineHeight.body.sm.tablet,
+        md: theme.lineHeight.body.sm.desktop,
+      },
+    },
+
+    '& .react-datepicker__time': {
+      borderRadius: 0,
+      bgcolor: 'surface.primary',
+    },
+
+    '& .react-datepicker__time .react-datepicker__time-box': {
+      width: '100%',
+      borderRadius: 0,
+      bgcolor: 'surface.primary',
+    },
+
+    '& .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list':
+      {
+        boxSizing: 'border-box',
+        scrollbarColor: `${theme.palette.surface.disabled2} transparent`,
+        bgcolor: 'surface.primary',
+      },
+
+    '& .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item':
+      {
+        height: `${theme.scale[700]}px`,
+        padding: `0 ${theme.scale[300]}px`,
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'text.body',
+        bgcolor: 'surface.primary',
+        fontSize: {
+          xs: theme.fontSize.body.sm.mobile,
+          sm: theme.fontSize.body.sm.tablet,
+          md: theme.fontSize.body.sm.desktop,
+        },
+        fontWeight: {
+          xs: theme.fontWeight.body.sm.mobile,
+          sm: theme.fontWeight.body.sm.tablet,
+          md: theme.fontWeight.body.sm.desktop,
+        },
+        lineHeight: {
+          xs: theme.lineHeight.body.sm.mobile,
+          sm: theme.lineHeight.body.sm.tablet,
+          md: theme.lineHeight.body.sm.desktop,
+        },
+
+        '&:hover': {
+          color: 'text.action',
+          bgcolor: 'surface.actionHover4',
+        },
+
+        '&.react-datepicker__time-list-item--selected': {
+          color: 'text.onAction',
+          bgcolor: 'surface.action',
+          fontWeight: {
+            xs: theme.fontWeight.heading.h5.mobile,
+            sm: theme.fontWeight.heading.h5.tablet,
+            md: theme.fontWeight.heading.h5.desktop,
+          },
+
+          '&:hover': {
+            color: 'text.onAction2',
+            bgcolor: 'surface.actionHover',
+          },
+        },
+
+        '&.react-datepicker__time-list-item--disabled': {
+          cursor: 'default',
+          color: 'text.onDisabled',
+          bgcolor: 'surface.disabled',
+
+          '&:hover': {
+            color: 'text.onDisabled',
+            bgcolor: 'surface.disabled',
+          },
+        },
+      },
+  }
+
   const calendarContainer = {
     '& .react-datepicker-popper': {
       width: '100%',
@@ -361,6 +472,10 @@ export const getStyles = ({ theme }) => {
 
         '& .react-datepicker__month-container': {
           ...calendar,
+        },
+
+        '& .react-datepicker__time-container': {
+          ...timePicker,
         },
       },
     },

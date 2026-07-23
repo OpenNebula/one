@@ -443,9 +443,13 @@ const Chartist = ({
           gap: 12,
         },
         {
-          grid: { show: true, dash: [8, 8] },
+          grid: {
+            show: true,
+            dash: [8, 8],
+            stroke: theme.palette.graphs.grid,
+          },
           stroke: theme?.palette?.grey[500],
-          ticks: { show: true },
+          ticks: { show: true, stroke: theme.palette.graphs.grid },
           values: (_, ticks) => minMaxTick(ticks, (yV) => interpolationY(yV)),
         },
       ],

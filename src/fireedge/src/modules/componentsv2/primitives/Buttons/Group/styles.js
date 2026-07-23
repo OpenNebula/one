@@ -100,6 +100,9 @@ export const getStyles = ({ theme }) => {
         '> *': {
           color: 'text.onDisabled',
         },
+        '& .buttongroup-button-icon': {
+          color: 'icon.onDisabled',
+        },
       },
 
       '> *': {

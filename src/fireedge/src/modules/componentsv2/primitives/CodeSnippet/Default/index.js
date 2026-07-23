@@ -44,7 +44,6 @@ export const CodeSnippet = forwardRef(
           getStyles({
             theme,
             isDisabled,
-            hasTitle: Boolean(title),
             ...opts,
           })
         }

@@ -32,7 +32,7 @@ import {
   STYLE_BUTTONS,
   T,
 } from '@ConstantsModule'
-import { Box } from '@mui/material'
+import { Box, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
 import {
   Cancel as CancelIcon,
@@ -63,6 +63,7 @@ export const AggregatedView = ({
   availableActions = {},
 }) => {
   const { showModal } = useModalsApi()
+  const { palette } = useTheme()
 
   const [refresh, { isFetching }] = BackupJobAPI.useLazyGetBackupJobQuery()
   const [lock, { isLoading: isLocking }] =
@@ -106,7 +107,7 @@ export const AggregatedView = ({
           />
         ),
         confirmLabel: `${title}`.startsWith(T.Delete) ? T.Delete : title,
-        ...(`${title}`.startsWith(T.Delete) && {
+        ...((`${title}`.startsWith(T.Delete) || title === T.Cancel) && {
           confirmButtonProps: {
             isDestructive: true,
           },
@@ -189,11 +190,20 @@ export const AggregatedView = ({
       },
       {
         accessor: BACKUPJOB_ACTIONS.CANCEL,
-        startIcon: <CancelIcon width="16px" height="16px" />,
+        startIcon: (
+          <CancelIcon
+            width="16px"
+            height="16px"
+            style={{
+              color: isMutating ? palette.text.disabled : palette.icon.error,
+            }}
+          />
+        ),
         onClick: handleCancel,
         value: BACKUPJOB_ACTIONS.CANCEL,
         isDisabled: isMutating,
         tooltip: T.Cancel,
+        isDestructive: true,
       },
     ],
   })

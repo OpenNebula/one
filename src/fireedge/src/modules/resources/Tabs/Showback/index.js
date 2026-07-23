@@ -15,12 +15,15 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { LoadingDisplay } from '@modules/resources/LoadingState'
-import MultiChart from '@modules/resources/Charts/MultiChart'
-import { transformApiResponseToDataset } from '@modules/resources/Charts/MultiChart/helpers/scripts'
 import { VmAPI, useAuth } from '@FeaturesModule'
 import { Component, useState, useEffect } from 'react'
 import { DateTime } from 'luxon'
-import { DateRangeFilter, ShowbackTab } from '@ComponentsV2Module'
+import {
+  DateRangeFilter,
+  MultiChart,
+  ShowbackTab,
+  transformApiResponseToDataset,
+} from '@ComponentsV2Module'
 import { getMonthName } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 import { mapValues } from 'lodash'
@@ -41,16 +44,16 @@ const keyMap = {
 }
 
 const DataGridColumns = [
-  { field: 'OID', headerName: 'ID', flex: 1 },
-  { field: 'NAME', headerName: 'Name', flex: 1 },
-  { field: 'UNAME', headerName: 'Owner', flex: 1 },
-  { field: 'totalCost', headerName: 'Cost', flex: 1, type: 'number' },
-  { field: 'hours', headerName: 'Hours', flex: 1, type: 'number' },
+  { accessorKey: 'OID', header: 'ID' },
+  { accessorKey: 'NAME', header: 'Name' },
+  { accessorKey: 'UNAME', header: 'Owner' },
+  { accessorKey: 'totalCost', header: 'Cost' },
+  { accessorKey: 'hours', header: 'Hours' },
 ]
 
 const smallTableColumns = [
-  { field: 'MONTH', headerName: 'Month', flex: 1 },
-  { field: 'totalCost', headerName: 'Total Cost', flex: 1, type: 'number' },
+  { accessorKey: 'MONTH', header: 'Month' },
+  { accessorKey: 'totalCost', header: 'Total Cost' },
 ]
 
 const metricKeys = ['cpuCost', 'memoryCost', 'diskCost', 'totalCost']
@@ -203,6 +206,14 @@ const generateShowbackInfoTab = ({ groups }) => {
     const metricNamesTranslated = mapValues(metricNames, (value, key) =>
       translate(value)
     )
+    const dataGridColumnsTranslated = DataGridColumns.map((column) => ({
+      ...column,
+      header: translate(column.header),
+    }))
+    const smallTableColumnsTranslated = smallTableColumns.map((column) => ({
+      ...column,
+      header: translate(column.header),
+    }))
 
     return (
       <ShowbackTab
@@ -218,7 +229,7 @@ const generateShowbackInfoTab = ({ groups }) => {
           <MultiChart
             datasets={topChartsData}
             chartType={'table'}
-            tableColumns={smallTableColumns}
+            tableColumns={smallTableColumnsTranslated}
             groupBy={'MONTH'}
             metricNames={topMetricNamesTranslated}
           />
@@ -243,7 +254,7 @@ const generateShowbackInfoTab = ({ groups }) => {
             ]}
             chartType={'table'}
             ItemsPerPage={7}
-            tableColumns={DataGridColumns}
+            tableColumns={dataGridColumnsTranslated}
             groupBy={'MONTH'}
             metricNames={metricNamesTranslated}
           />
