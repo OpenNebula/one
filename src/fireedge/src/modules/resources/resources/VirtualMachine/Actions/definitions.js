@@ -357,6 +357,7 @@ export default {
   },
   [VM_ACTION_ENUM.BACKUP_CONFIGURE]: {
     useMutation: VmAPI.useUpdateConfigurationMutation,
+    params: { replace: 0 },
     form: (vm) =>
       Forms.BackupConfigForm({
         stepProps: { vm },

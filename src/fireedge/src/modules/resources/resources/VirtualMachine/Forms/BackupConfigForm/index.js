@@ -25,8 +25,19 @@ import { normalizeBackupDiskIds } from '@ModelsModule'
 import { ReactElement } from 'react'
 
 import PropTypes from 'prop-types'
-import { get, omit, set } from 'lodash'
+import { get, omit, pick, pickBy } from 'lodash'
 import { reach } from 'yup'
+
+const UPDATE_CONF_TEMPLATE_ATTRIBUTES = [
+  'OS',
+  'FEATURES',
+  'INPUT',
+  'GRAPHICS',
+  'VIDEO',
+  'RAW',
+  'CONTEXT',
+  'CPU_MODEL',
+]
 
 /**
  * @param {object} props - Component props
@@ -68,15 +79,28 @@ const BackupConfigForm = createForm(SCHEMA, undefined, {
 
     return knownTemplate
   },
-  transformBeforeSubmit: (formData) => {
+  transformBeforeSubmit: (formData, initialValues) => {
     const includeAllDisks = get(formData, INCLUDE_ALL_DISKS_FIELD)
     const diskIds = get(formData, DISK_IDS_FIELD)
-    const template = omit(formData, INCLUDE_ALL_DISKS_FIELD)
+    const currentBackupConfig = get(initialValues, 'BACKUPS.BACKUP_CONFIG', {})
+    const backupConfig = {
+      ...(typeof currentBackupConfig === 'object' ? currentBackupConfig : {}),
+      ...omit(formData?.BACKUP_CONFIG, '_INCLUDE_ALL_VM_DISKS'),
+    }
 
     if (includeAllDisks) {
-      template.BACKUP_CONFIG = omit(template.BACKUP_CONFIG, 'DISK_IDS')
+      delete backupConfig.DISK_IDS
     } else {
-      set(template, DISK_IDS_FIELD, diskIds)
+      backupConfig.DISK_IDS = diskIds
+    }
+
+    const currentTemplate = initialValues?.TEMPLATE ?? {}
+    const template = {
+      ...pickBy(
+        pick(currentTemplate, UPDATE_CONF_TEMPLATE_ATTRIBUTES),
+        (value) => value !== undefined && value !== null && value !== ''
+      ),
+      BACKUP_CONFIG: backupConfig,
     }
 
     return { template: jsonToXml(template) }
