@@ -9701,8 +9701,18 @@ patches:
             old: "/usr/lib/one/python/pulp/solverdir/cbc/linux/64/cbc"
             state: set
             extra: {}
-        -   path:
+        -   path: &20
             - OPTIMIZE
+            key: HOST_MIGRATION_THRESHOLD
+            value: -1
+            state: ins
+            extra: {}
+        -   path: *20
+            key: DS_MIGRATION_THRESHOLD
+            value: 0
+            state: ins
+            extra: {}
+        -   path: *20
             key: PRIORITIZE_STORAGE_MIGRATIONS
             value: 'NO'
             state: ins
@@ -9721,20 +9731,25 @@ patches:
             \        - CPU: Relative importance of the total CPU.\n#         - MEMORY: Relative importance of total memory.\n#\n#
             OPTIMIZATION: The optimization settings\n#    - POLICY: \n#         - \"BALANCE\": Specifies that VMs should be
             distributed to ensure an even load across hosts.\n#         - \"PACK\": Indicates that VMs should be placed onto
-            the minimum number of hosts.\n#    - MIGRATION_THRESHOLD: Sets the threshold for the number of VMs that can be
-            migrated.\n#      Default is -1 that means no migration threshold is configured.\n#    - WEIGHTS:\n#         -
-            CPU_USAGE: Relative importance of the CPU usage metric.\n#         - CPU: Relative importance of the total CPU.\n#
-            \        - MEMORY: Relative importance of total memory.\n#         - DISK: Relative importance of disk usage (read
-            and written).\n#         - NET: Relative importanve of network usage (transmitted and received)\n#\n#  PREDICTIVE:
-            Integrates both current and forecasted resource usage into scheduling decisions.\n#  A value of 0.3 means that
-            30% of the optimization is based on predicted resource usage,\n#  with the remaining 70% derived from current
-            resource usage.\n#\n#  MEMORY_SYSTEM_DS_SCALE: This factor scales the VM usage of the system DS with\n#  the memory
-            size. This factor can be use to make the scheduler consider the\n#  overhead of checkpoint files:\n#       system_ds_usage
-            = system_ds_usage + memory_system_ds_scale * memory\n#\n#  DIFFERENT_VNETS: When set (YES) the NICs of a VM will
-            be forced to be in\n#  different Virtual Networks.\n#*******************************************************************************\n\nDEFAULT_SCHED:\n
+            the minimum number of hosts.\n#    - MIGRATION_THRESHOLD: Sets the maximum combined number of host and\n#      datastore
+            migrations. Default is -1 that means no migration\n#      threshold is configured and imposed.\n#    - HOST_MIGRATION_THRESHOLD:
+            Sets the maximum number of VM\n#      migrations allowed between hosts. Default is -1 that means no\n#      host
+            migration threshold is configured and imposed.\n#    - DS_MIGRATION_THRESHOLD: Sets the maximum number of VM migrations\n#
+            \     allowed between datastores. Default is 0 that means migrations\n#      between datastores are not allowed.
+            Use -1 for unlimited\n#      storage migrations.\n#    - WEIGHTS:\n#         - CPU_USAGE: Relative importance
+            of the CPU usage metric.\n#         - CPU: Relative importance of the total CPU.\n#         - MEMORY: Relative
+            importance of total memory.\n#         - DISK: Relative importance of disk usage (read and written).\n#         -
+            NET: Relative importanve of network usage (transmitted and received)\n#\n#  PREDICTIVE: Integrates both current
+            and forecasted resource usage into scheduling decisions.\n#  A value of 0.3 means that 30% of the optimization
+            is based on predicted resource usage,\n#  with the remaining 70% derived from current resource usage.\n#\n#  MEMORY_SYSTEM_DS_SCALE:
+            This factor scales the VM usage of the system DS with\n#  the memory size. This factor can be use to make the
+            scheduler consider the\n#  overhead of checkpoint files:\n#       system_ds_usage = system_ds_usage + memory_system_ds_scale
+            * memory\n#\n#  DIFFERENT_VNETS: When set (YES) the NICs of a VM will be forced to be in\n#  different Virtual
+            Networks.\n#*******************************************************************************\n\nDEFAULT_SCHED:\n
             \ SOLVER: \"CBC\"\n  SOLVER_PATH: \"/usr/lib/one/python/pulp/solverdir/cbc/linux/$arch/cbc\"\n\nPLACE:\n  POLICY:
-            \"BALANCE\"\n  WEIGHTS:\n    CPU: 1\n\nOPTIMIZE:\n  POLICY: \"BALANCE\"\n  MIGRATION_THRESHOLD: -1\n  PRIORITIZE_STORAGE_MIGRATIONS:
-            \"NO\"\n  WEIGHTS:\n    CPU_USAGE: 1\n\nPREDICTIVE: 0\n\nMEMORY_SYSTEM_DS_SCALE: 0\n\nDIFFERENT_VNETS: YES"
+            \"BALANCE\"\n  WEIGHTS:\n    CPU: 1\n\nOPTIMIZE:\n  POLICY: \"BALANCE\"\n  MIGRATION_THRESHOLD: -1\n  HOST_MIGRATION_THRESHOLD:
+            -1\n  DS_MIGRATION_THRESHOLD: 0\n  PRIORITIZE_STORAGE_MIGRATIONS: \"NO\"\n  WEIGHTS:\n    CPU_USAGE: 1\n\nPREDICTIVE:
+            0\n\nMEMORY_SYSTEM_DS_SCALE: 0\n\nDIFFERENT_VNETS: YES"
     "/etc/one/onehem-server.conf":
         class: Yaml
         owner: root
