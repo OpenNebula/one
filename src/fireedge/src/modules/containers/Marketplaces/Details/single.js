@@ -190,6 +190,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Enable} ${T.Marketplace}`,
+        dataCy: `modal-${MARKETPLACE_ACTIONS.ENABLE}`,
         description: (
           <ResourceActionConfirmation
             description={T['resource.enable.confirmation']}
@@ -207,6 +208,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Disable} ${T.Marketplace}`,
+        dataCy: `modal-${MARKETPLACE_ACTIONS.DISABLE}`,
         description: (
           <ResourceActionConfirmation
             description={T['resource.disable.confirmation']}
@@ -224,6 +226,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Delete} ${T.Marketplace}`,
+        dataCy: `modal-${MARKETPLACE_ACTIONS.DELETE}`,
         description: (
           <ResourceActionConfirmation
             description={T['resource.delete.confirmation']}
@@ -276,6 +279,7 @@ export const SingleView = ({
             isTitleEditDisabled: isActionsDisabled,
             title: marketplace?.NAME,
             id: marketplace?.ID,
+            dataCy: 'marketplace-info',
             tags: getLabelTags(marketplace?.LABELS),
             labels: [
               [T.Owner, marketplace?.UNAME],
@@ -299,6 +303,7 @@ export const SingleView = ({
                         startIcon: <OnTag width="16px" height="16px" />,
                         onClick: handleEnableForm,
                         value: 'enable',
+                        dataCy: `action-${MARKETPLACE_ACTIONS.ENABLE}`,
                         tooltip: T.Enable,
                         isDisabled: isActionsDisabled,
                       },
@@ -306,6 +311,7 @@ export const SingleView = ({
                         startIcon: <OffTag width="16px" height="16px" />,
                         onClick: handleDisableForm,
                         value: 'disable',
+                        dataCy: `action-${MARKETPLACE_ACTIONS.DISABLE}`,
                         tooltip: T.Disable,
                         isDisabled: isActionsDisabled,
                       },
@@ -327,6 +333,7 @@ export const SingleView = ({
                         startIcon: <Edit width="16px" height="16px" />,
                         onClick: handleUpdate,
                         value: 'update',
+                        'data-cy': `action-${MARKETPLACE_ACTIONS.UPDATE_DIALOG}`,
                         tooltip: T.Update,
                         isDisabled: isActionsDisabled,
                       },
@@ -353,6 +360,7 @@ export const SingleView = ({
                         ),
                         onClick: handleDeleteForm,
                         value: 'delete',
+                        'data-cy': `action-marketplace_${MARKETPLACE_ACTIONS.DELETE}`,
                         tooltip: T.Delete,
                         isDestructive: true,
                         isDisabled: isActionsDisabled,

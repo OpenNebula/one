@@ -30,22 +30,22 @@ import { createSteps } from '@UtilsModule'
  */
 const Steps = createSteps([General, Configuration], {
   transformInitialValue: (marketplace, schema) => {
-    const knownTemplate = schema.cast(
-      {
-        [GENERAL_ID]: {
-          NAME: marketplace.NAME,
-          DESCRIPTION: marketplace.TEMPLATE.DESCRIPTION,
-          MARKET_MAD: marketplace.MARKET_MAD,
-        },
-        [CONFIGURATION_ID]: {
-          ...marketplace.TEMPLATE,
-          BRIDGE_LIST: marketplace?.TEMPLATE.BRIDGE_LIST?.split(' '),
-        },
+    const initialFormData = {
+      [GENERAL_ID]: {
+        NAME: marketplace.NAME,
+        DESCRIPTION: marketplace.TEMPLATE.DESCRIPTION,
+        MARKET_MAD: marketplace.MARKET_MAD,
       },
-      {
-        stripUnknown: true,
-      }
-    )
+      [CONFIGURATION_ID]: {
+        ...marketplace.TEMPLATE,
+        BRIDGE_LIST: marketplace?.TEMPLATE.BRIDGE_LIST?.split(' '),
+      },
+    }
+
+    const knownTemplate = schema.cast(initialFormData, {
+      stripUnknown: true,
+      context: initialFormData,
+    })
 
     return knownTemplate
   },

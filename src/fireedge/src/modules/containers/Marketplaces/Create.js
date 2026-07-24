@@ -102,7 +102,7 @@ export function CreateMarketplace() {
           }}
           fallback={<SkeletonStepsForm />}
         >
-          {(config) => <DefaultFormStepper {...config} />}
+          {(config) => <DefaultFormStepper {...config} update={!!marketplaceId} />}
         </Marketplace.Forms.CreateForm>
       ) : (
         <SkeletonStepsForm />

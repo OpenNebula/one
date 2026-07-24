@@ -71,7 +71,7 @@ const CapacityPanel = ({ vm = {}, actions, oneConfig, adminGroup }) => {
   const info = [
     {
       icon: <Server />,
-      name: T.PhysicalCpu,
+      name: T.CPU,
       value: CPU,
       dataCy: 'cpu',
     },

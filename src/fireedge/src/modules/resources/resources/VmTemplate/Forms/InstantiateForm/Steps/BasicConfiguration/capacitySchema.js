@@ -40,7 +40,7 @@ const TRANSLATES = {
     label: T.Memory,
     tooltip: T.MemoryConcept,
   },
-  CPU: { name: 'CPU', label: T.PhysicalCpuWithPercent, tooltip: T.CpuConcept },
+  CPU: { name: 'CPU', label: T.CPU, tooltip: T.CpuConcept },
   VCPU: {
     name: 'VCPU',
     label: T.VirtualCpuWithDecimal,

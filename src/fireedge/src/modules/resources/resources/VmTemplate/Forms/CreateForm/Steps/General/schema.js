@@ -128,7 +128,7 @@ const SECTIONS = (
     },
     !features?.hide_cpu && {
       id: 'capacity',
-      legend: T.PhysicalCpu,
+      legend: T.CPUShares,
       fields: disableFields(
         filterFieldsByHypervisor(CPU_FIELDS, hypervisor),
         '',

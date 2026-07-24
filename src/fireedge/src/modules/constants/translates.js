@@ -1499,6 +1499,7 @@ module.exports = {
   ClusterCapacity: 'Cluster capacity',
   CostPerHour: '/Hour',
   PhysicalCpu: 'Physical CPU',
+  CPUShares: 'CPU Shares',
   PhysicalCpuWithPercent: 'Physical CPU',
   VirtualCpu: 'Virtual CPU',
   VirtualCpuWithDecimal: 'Virtual CPU',
@@ -1769,6 +1770,7 @@ module.exports = {
   CpuConcept: `
     Defines the relative share of CPU time assigned to this VM.
     A higher value gives the VM more processing power compared to others on the same host.
+    The value will be multiplied by 100 as libvirt CPU shares, and the resulting value will be deducted from the Allocated CPU of the assigned host during the deployment phase.
     `,
   MaxVirtualCpu: 'Max Virtual CPU',
   MaxVirtualCpuConcept: `

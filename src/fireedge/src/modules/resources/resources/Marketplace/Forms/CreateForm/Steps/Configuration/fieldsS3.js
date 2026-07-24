@@ -17,6 +17,12 @@ import { INPUT_TYPES, T, MARKET_TYPES } from '@ConstantsModule'
 import { string, boolean, number } from 'yup'
 import { Field, arrayToOptions } from '@UtilsModule'
 
+const isAwsEnabled = (aws) => aws === true || String(aws).toUpperCase() === 'YES'
+
+const shouldUseSignatureVersion = (context, parent) =>
+  context?.general?.MARKET_MAD === MARKET_TYPES.S3.value &&
+  !isAwsEnabled(parent?.AWS ?? context?.configuration?.AWS)
+
 /** @type {Field} AWS field */
 const AWS = {
   name: 'AWS',
@@ -134,16 +140,19 @@ const SIGNATURE_VERSION = {
   values: arrayToOptions(['s3', 'v2', 'v4']),
   validation: string()
     .trim()
-    .default(() => 's3')
-    .when([AWS.name], {
-      is: (aws) => aws,
-      then: (schema) => schema.required(),
+    .notRequired()
+    .test({
+      name: 'signature-version-required',
+      message: ({ path }) => `${path} ${T['validation.mixed.required']}`,
+      test(value) {
+        return (
+          !shouldUseSignatureVersion(this.options?.context, this.parent) ||
+          !!value
+        )
+      },
     })
-    .afterSubmit((value, { context }) =>
-      context?.general?.MARKET_MAD === MARKET_TYPES.S3.value &&
-      !context?.configuration?.AWS
-        ? value
-        : undefined
+    .afterSubmit((value, { context, parent }) =>
+      shouldUseSignatureVersion(context, parent) ? value : undefined
     )
     .default(() => undefined),
   grid: { md: 12 },
@@ -158,7 +167,7 @@ const FORCE_PATH_STYLE = {
     .trim()
     .afterSubmit((value, { context }) =>
       context?.general?.MARKET_MAD === MARKET_TYPES.S3.value &&
-      !context?.configuration?.AWS
+      !isAwsEnabled(context?.configuration?.AWS)
         ? 'YES'
         : undefined
     )

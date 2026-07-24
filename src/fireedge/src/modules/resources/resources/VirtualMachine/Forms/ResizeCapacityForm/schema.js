@@ -41,7 +41,7 @@ const MEMORY = {
 
 const PHYSICAL_CPU = {
   name: 'CPU',
-  label: T.PhysicalCpuWithPercent,
+  label: T.CPU,
   tooltip: T.CpuConcept,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',

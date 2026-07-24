@@ -137,7 +137,7 @@ export const MEMORY_FIELDS = [MEMORY, ...HR_MEMORY_FIELDS, ...MOD_MEMORY_FIELDS]
 /** @type {Field} Physical CPU field */
 export const PHYSICAL_CPU = generateCapacityInput({
   name: 'CPU',
-  label: T.PhysicalCpuWithPercent,
+  label: T.CPU,
   tooltip: T.CpuConcept,
   validation: number()
     .positive()
@@ -208,7 +208,7 @@ export const MEMORY_COST = generateCostCapacityInput({
 /** @type {Field} CPU cost field */
 export const CPU_COST = generateCostCapacityInput({
   name: 'CPU_COST',
-  label: T.PhysicalCpu,
+  label: T.CPU,
   tooltip: T.CostCpuConcept,
   dependOf: [PHYSICAL_CPU.name, 'CPU_COST'],
   validation: commonValidation,

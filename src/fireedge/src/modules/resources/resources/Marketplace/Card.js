@@ -35,6 +35,7 @@ import {
  *
  * @param {object} root0 - Params
  * @param {object} root0.marketplace - Marketplace data
+ * @param {string} root0.dataCy - Cypress selector
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
@@ -42,7 +43,7 @@ import {
  * @returns {Component} MarketplaceCard component
  */
 export const MarketplaceCard = forwardRef(
-  ({ marketplace = {}, isSelected, onCheck, onClick }, ref) => {
+  ({ marketplace = {}, dataCy, isSelected, onCheck, onClick }, ref) => {
     const { ID, NAME, UNAME, GNAME, MARKET_MAD, MARKETPLACEAPPS, ZONE_ID } =
       marketplace
 
@@ -57,6 +58,7 @@ export const MarketplaceCard = forwardRef(
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -114,6 +116,7 @@ export const MarketplaceCard = forwardRef(
 
 MarketplaceCard.propTypes = {
   marketplace: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

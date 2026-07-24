@@ -124,6 +124,7 @@ export function Marketplaces() {
 
   return (
     <ResourceContainer
+      dataCy={marketplaceTable.dataCy}
       resourceName={T.Marketplaces}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -139,6 +140,7 @@ export function Marketplaces() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={marketplaceTable.dataCy}
                 columns={marketplaceTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -165,6 +167,7 @@ export function Marketplaces() {
                   return (
                     <Marketplace.Card
                       key={id}
+                      dataCy={`${marketplaceTable.dataCy}-${id}`}
                       marketplace={marketplace}
                       isSelected={selectedItems?.includes(id)}
                       onCheck={() =>
