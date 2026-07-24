@@ -62,6 +62,7 @@ class Restic
                 raise StandardError, "Wrong restic datastore configuration: #{e.message}"
             end
         end
+
     end
 
     def self.mk_repo_id(backupjob_id)
@@ -141,7 +142,6 @@ class Restic
 
         raise StandardError, 'Invalid value for RESTIC_PRUNE_MAX_UNUSED' \
             unless @max_unused.nil? || @max_unused.match(/^\d+[kKmMgGtT%]?$|^unlimited$/)
-
     rescue StandardError => e
         raise StandardError, "Wrong restic datastore configuration: #{e.message}"
     end
@@ -155,8 +155,8 @@ class Restic
         backend_options(cmd, opts)
 
         # Add connectins and compression options if different from defaults
-        if cmd.match(/^backup|^restore|^dump/)
-            opts['compression'] = @comp if @comp != 'auto'
+        if cmd.match(/^backup|^restore|^dump/) && (@comp != 'auto')
+            opts['compression'] = @comp
         end
 
         %("$RESTIC_BIN" #{opts_to_str(opts)} '--repo=#{@repo}' #{cmd})
@@ -605,240 +605,250 @@ class Restic
 
 end
 
-class Restic::SFTP < Restic
+class Restic
 
-    DOWNLOAD_SSH_OPTS = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
+    # Restic SFTP backend.
+    class SFTP < Restic
 
-    def initialize(action, opts = {})
-        super
+        DOWNLOAD_SSH_OPTS = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
 
-        @host_type = :hypervisor if @host_type == :auto
-        @repo_type = if @repo_type == :auto && @host_type == :frontend
-                         :sftp
-                     elsif @repo_type == :auto
-                         :local
-                     else
-                         @repo_type
-                     end
+        def initialize(action, opts = {})
+            super
 
-        @restic_bin = RESTIC_BIN_PATHS[@host_type]
+            @host_type = :hypervisor if @host_type == :auto
+            @repo_type = if @repo_type == :auto && @host_type == :frontend
+                             :sftp
+                         elsif @repo_type == :auto
+                             :local
+                         else
+                             @repo_type
+                         end
 
-        @user = safe_get("#{@prefix}TEMPLATE/RESTIC_SFTP_USER", 'oneadmin')
-        @sftp = @doc.elements["#{@prefix}TEMPLATE/RESTIC_SFTP_SERVER"].text
-        base  = @doc.elements["#{@prefix}BASE_PATH"].text
+            @restic_bin = RESTIC_BIN_PATHS[@host_type]
 
-        @default_rhost = @sftp
+            @user = safe_get("#{@prefix}TEMPLATE/RESTIC_SFTP_USER", 'oneadmin')
+            @sftp = @doc.elements["#{@prefix}TEMPLATE/RESTIC_SFTP_SERVER"].text
+            base  = @doc.elements["#{@prefix}BASE_PATH"].text
 
-        @path = if @repo_id.nil?
-                    Pathname.new(base).cleanpath.to_s
-                else
-                    Pathname.new("#{base}/#{@repo_id}").cleanpath.to_s
-                end
+            @default_rhost = @sftp
 
-        @repo = case @repo_type
-                when :sftp
-                    "sftp:#{@user}@#{@sftp}:#{@path}"
-                when :local
-                    @path
-                else
-                    raise StandardError, 'Unknown Restic repo type'
-                end
+            @path = if @repo_id.nil?
+                        Pathname.new(base).cleanpath.to_s
+                    else
+                        Pathname.new("#{base}/#{@repo_id}").cleanpath.to_s
+                    end
 
-        create_repo_if_not_exists if @options[:create_repo] && @repo_id
-    end
+            @repo = case @repo_type
+                    when :sftp
+                        "sftp:#{@user}@#{@sftp}:#{@path}"
+                    when :local
+                        @path
+                    else
+                        raise StandardError, 'Unknown Restic repo type'
+                    end
 
-    def repo_command(name, script, opts = {})
-        TransferManager::Action.ssh name,
-                                    :host     => "#{@user}@#{@sftp}",
-                                    :forward  => true,
-                                    :cmds     => script,
-                                    :nostdout => opts.fetch(:nostdout, false),
-                                    :nostderr => opts.fetch(:nostderr, false)
-    end
-
-    def downloader_commands(tmp_path, tmp_dir)
-        [
-            "ssh #{DOWNLOAD_SSH_OPTS} '#{@user}@#{@sftp}' cat '#{tmp_path}'",
-            "ssh #{DOWNLOAD_SSH_OPTS} '#{@user}@#{@sftp}' rm -rf '#{tmp_dir}/'"
-        ]
-    end
-
-    def monitor_stats(opts = {})
-        one_version = File.open(opts[:version_file], &:gets).strip
-
-        script = <<~EOS
-            set -e -o pipefail; shopt -qs failglob
-
-            mkdir -p '#{@path}/'
-
-            # Check if the correct restic binary is available.
-            [[ -x /var/tmp/one/datastore/restic/restic ]] && \
-            [[ -f /var/tmp/one/VERSION ]] && \
-            [[ '#{one_version}' = $(head -1 /var/tmp/one/VERSION) ]] && \
-            echo true || echo false
-
-            # Collect filesystem stats.
-            df -PBM '#{@path}/' | tail -1
-        EOS
-
-        rc = SSHCommand.run '/bin/bash -s',
-                            "#{@user}@#{@sftp}",
-                            nil,
-                            script,
-                            nil
-
-        raise StandardError, "Error parsing repo stats: #{rc.stderr}" \
-            if rc.code != 0
-
-        stdout_lines = rc.stdout.lines
-
-        raise StandardError, "Error parsing repo stats: #{rc.stdout}" \
-            if stdout_lines.size < 2
-
-        restic_found = stdout_lines[-2].strip
-        stats        = stdout_lines[-1].split
-
-        raise StandardError, "Error parsing repo stats: #{rc.stdout}" \
-            if stats.size < 4
-
-        if restic_found == 'false'
-            sync_manager = HostSyncManager.new
-            sync_manager.update_remotes "#{@user}@#{@sftp}",
-                                        nil,
-                                        :rsync,
-                                        ['VERSION', 'datastore/restic/restic']
+            create_repo_if_not_exists if @options[:create_repo] && @repo_id
         end
 
-        {
-            :used_mb  => stats[2],
-            :total_mb => stats[1],
-            :free_mb  => stats[3]
-        }
-    end
+        def repo_command(name, script, opts = {})
+            TransferManager::Action.ssh name,
+                                        :host     => "#{@user}@#{@sftp}",
+                                        :forward  => true,
+                                        :cmds     => script,
+                                        :nostdout => opts.fetch(:nostdout, false),
+                                        :nostderr => opts.fetch(:nostderr, false)
+        end
 
-    private
+        def downloader_commands(tmp_path, tmp_dir)
+            [
+                "ssh #{DOWNLOAD_SSH_OPTS} '#{@user}@#{@sftp}' cat '#{tmp_path}'",
+                "ssh #{DOWNLOAD_SSH_OPTS} '#{@user}@#{@sftp}' rm -rf '#{tmp_dir}/'"
+            ]
+        end
 
-    def backend_options(cmd, opts)
-        return unless cmd.match(/^backup|^restore|^dump/)
+        def monitor_stats(opts = {})
+            one_version = File.open(opts[:version_file], &:gets).strip
 
-        opts['option'] = "sftp.connections=#{@conns}" if @conns != 5
+            script = <<~EOS
+                set -e -o pipefail; shopt -qs failglob
+
+                mkdir -p '#{@path}/'
+
+                # Check if the correct restic binary is available.
+                [[ -x /var/tmp/one/datastore/restic/restic ]] && \
+                [[ -f /var/tmp/one/VERSION ]] && \
+                [[ '#{one_version}' = $(head -1 /var/tmp/one/VERSION) ]] && \
+                echo true || echo false
+
+                # Collect filesystem stats.
+                df -PBM '#{@path}/' | tail -1
+            EOS
+
+            rc = SSHCommand.run '/bin/bash -s',
+                                "#{@user}@#{@sftp}",
+                                nil,
+                                script,
+                                nil
+
+            raise StandardError, "Error parsing repo stats: #{rc.stderr}" \
+                if rc.code != 0
+
+            stdout_lines = rc.stdout.lines
+
+            raise StandardError, "Error parsing repo stats: #{rc.stdout}" \
+                if stdout_lines.size < 2
+
+            restic_found = stdout_lines[-2].strip
+            stats        = stdout_lines[-1].split
+
+            raise StandardError, "Error parsing repo stats: #{rc.stdout}" \
+                if stats.size < 4
+
+            if restic_found == 'false'
+                sync_manager = HostSyncManager.new
+                sync_manager.update_remotes "#{@user}@#{@sftp}",
+                                            nil,
+                                            :rsync,
+                                            ['VERSION', 'datastore/restic/restic']
+            end
+
+            {
+                :used_mb  => stats[2],
+                :total_mb => stats[1],
+                :free_mb  => stats[3]
+            }
+        end
+
+        private
+
+        def backend_options(cmd, opts)
+            return unless cmd.match(/^backup|^restore|^dump/)
+
+            opts['option'] = "sftp.connections=#{@conns}" if @conns != 5
+        end
+
     end
 
 end
 
-class Restic::S3 < Restic
+class Restic
 
-    def initialize(action, opts = {})
-        super
+    # Restic S3 backend.
+    class S3 < Restic
 
-        @host_type  = :frontend if @host_type == :auto
-        @repo_type  = :s3
+        def initialize(action, opts = {})
+            super
 
-        @restic_bin = RESTIC_BIN_PATHS[@host_type]
+            @host_type  = :frontend if @host_type == :auto
+            @repo_type  = :s3
 
-        @s3_key    = safe_get("#{@prefix}TEMPLATE/RESTIC_S3_ACCESS_KEY_ID", nil)
-        @s3_secret = safe_get("#{@prefix}TEMPLATE/RESTIC_S3_SECRET_ACCESS_KEY", nil)
-        @s3_region = safe_get("#{@prefix}TEMPLATE/RESTIC_S3_REGION", 'us-east-1')
-        @s3_bucket = safe_get("#{@prefix}TEMPLATE/RESTIC_S3_BUCKET", nil)
+            @restic_bin = RESTIC_BIN_PATHS[@host_type]
 
-        @s3_endpoint = safe_get(
-            "#{@prefix}TEMPLATE/RESTIC_S3_ENDPOINT",
-            's3.amazonaws.com'
-        ).sub(%r{/*\z}, '')
+            @s3_key    = safe_get("#{@prefix}TEMPLATE/RESTIC_S3_ACCESS_KEY_ID", nil)
+            @s3_secret = safe_get("#{@prefix}TEMPLATE/RESTIC_S3_SECRET_ACCESS_KEY", nil)
+            @s3_region = safe_get("#{@prefix}TEMPLATE/RESTIC_S3_REGION", 'us-east-1')
+            @s3_bucket = safe_get("#{@prefix}TEMPLATE/RESTIC_S3_BUCKET", nil)
 
-        @s3_force_path = safe_get(
-            "#{@prefix}TEMPLATE/RESTIC_S3_FORCE_PATH_STYLE",
-            'no'
-        ).downcase == 'yes'
+            @s3_endpoint = safe_get(
+                "#{@prefix}TEMPLATE/RESTIC_S3_ENDPOINT",
+                's3.amazonaws.com'
+            ).sub(%r{/*\z}, '')
 
-        @s3_cacert       = safe_get("#{@prefix}TEMPLATE/RESTIC_S3_CACERT", nil)
-        @s3_insecure_tls = safe_get(
-            "#{@prefix}TEMPLATE/RESTIC_S3_INSECURE_TLS",
-            'no'
-        ).downcase == 'yes'
+            @s3_force_path = safe_get(
+                "#{@prefix}TEMPLATE/RESTIC_S3_FORCE_PATH_STYLE",
+                'no'
+            ).downcase == 'yes'
 
-        raise StandardError, 'Missing RESTIC_S3_ACCESS_KEY_ID' if @s3_key.nil?
-        raise StandardError, 'Missing RESTIC_S3_SECRET_ACCESS_KEY' if @s3_secret.nil?
-        raise StandardError, 'Missing RESTIC_S3_BUCKET' if @s3_bucket.nil?
+            @s3_cacert       = safe_get("#{@prefix}TEMPLATE/RESTIC_S3_CACERT", nil)
+            @s3_insecure_tls = safe_get(
+                "#{@prefix}TEMPLATE/RESTIC_S3_INSECURE_TLS",
+                'no'
+            ).downcase == 'yes'
 
-        @path = @repo_id.to_s
+            raise StandardError, 'Missing RESTIC_S3_ACCESS_KEY_ID' if @s3_key.nil?
+            raise StandardError, 'Missing RESTIC_S3_SECRET_ACCESS_KEY' if @s3_secret.nil?
+            raise StandardError, 'Missing RESTIC_S3_BUCKET' if @s3_bucket.nil?
 
-        @repo = if @s3_endpoint.start_with?('s3:')
-                  [@s3_endpoint, @s3_bucket, @path].reject(&:empty?).join('/')
-                else
-                  ["s3:#{@s3_endpoint}", @s3_bucket, @path].reject(&:empty?).join('/')
-                end
+            @path = @repo_id.to_s
 
-        create_repo_if_not_exists if @options[:create_repo] && @repo_id
-    end
+            @repo = if @s3_endpoint.start_with?('s3:')
+                        [@s3_endpoint, @s3_bucket, @path].reject(&:empty?).join('/')
+                    else
+                        ["s3:#{@s3_endpoint}", @s3_bucket, @path].reject(&:empty?).join('/')
+                    end
 
-    def confinement_env
-        super + [
-            'AWS_ACCESS_KEY_ID',
-            'AWS_SECRET_ACCESS_KEY',
-            'AWS_DEFAULT_REGION',
-            'AWS_REGION'
-        ]
-    end
-
-    def repo_command(_name, script, _opts = {})
-        LocalCommand.run '/bin/bash -s', nil, script
-    end
-
-    def downloader_commands(tmp_path, tmp_dir)
-        [
-            "cat '#{tmp_path}'",
-            "rm -rf '#{tmp_dir}/'"
-        ]
-    end
-
-    def monitor_stats(opts = {})
-        ipool = OpenNebula::ImagePool.new(OpenNebula::Client.new)
-        rc    = ipool.info_all
-
-        raise StandardError, rc.message if OpenNebula.is_error?(rc)
-
-        used_mb  = ipool.inject(0) do |sum, image|
-            next sum unless image['DATASTORE_ID'].to_i == opts[:ds_id].to_i
-            next sum unless image['TYPE'].to_i == 6 # BACKUP
-
-            sum + image['SIZE'].to_i
+            create_repo_if_not_exists if @options[:create_repo] && @repo_id
         end
 
-        total_mb = safe_get("#{@prefix}TEMPLATE/TOTAL_MB", 1048576).to_i
-        free_mb  = [total_mb - used_mb, 0].max
+        def confinement_env
+            super + [
+                'AWS_ACCESS_KEY_ID',
+                'AWS_SECRET_ACCESS_KEY',
+                'AWS_DEFAULT_REGION',
+                'AWS_REGION'
+            ]
+        end
 
-        {
-            :used_mb  => used_mb,
-            :total_mb => total_mb,
-            :free_mb  => free_mb
-        }
-    end
+        def repo_command(_name, script, _opts = {})
+            LocalCommand.run '/bin/bash -s', nil, script
+        end
 
-    private
+        def downloader_commands(tmp_path, tmp_dir)
+            [
+                "cat '#{tmp_path}'",
+                "rm -rf '#{tmp_dir}/'"
+            ]
+        end
 
-    def backend_options(_cmd, opts)
-        options = []
-        options << 's3.bucket-lookup=path' if @s3_force_path
-        opts['option'] = [opts['option'], *options].compact unless options.empty?
-        opts['cacert'] = @s3_cacert unless @s3_cacert.nil? || @s3_cacert.empty?
-        opts['insecure-tls'] = nil if @s3_insecure_tls
-    end
+        def monitor_stats(opts = {})
+            ipool = OpenNebula::ImagePool.new(OpenNebula::Client.new)
+            rc    = ipool.info_all
 
-    def backend_env_sh
-        [
-            %(export AWS_ACCESS_KEY_ID='#{@s3_key}'),
-            %(export AWS_SECRET_ACCESS_KEY='#{@s3_secret}'),
-            %(export AWS_DEFAULT_REGION='#{@s3_region}'),
-            %(export AWS_REGION='#{@s3_region}')
-        ]
-    end
+            raise StandardError, rc.message if OpenNebula.is_error?(rc)
 
-    def backend_env_rb
-        ENV['AWS_ACCESS_KEY_ID']     = @s3_key
-        ENV['AWS_SECRET_ACCESS_KEY'] = @s3_secret
-        ENV['AWS_DEFAULT_REGION']    = @s3_region
-        ENV['AWS_REGION']            = @s3_region
+            used_mb  = ipool.inject(0) do |sum, image|
+                next sum unless image['DATASTORE_ID'].to_i == opts[:ds_id].to_i
+                next sum unless image['TYPE'].to_i == 6 # BACKUP
+
+                sum + image['SIZE'].to_i
+            end
+
+            total_mb = safe_get("#{@prefix}TEMPLATE/TOTAL_MB", 1048576).to_i
+            free_mb  = [total_mb - used_mb, 0].max
+
+            {
+                :used_mb  => used_mb,
+                :total_mb => total_mb,
+                :free_mb  => free_mb
+            }
+        end
+
+        private
+
+        def backend_options(_cmd, opts)
+            options = []
+            options << 's3.bucket-lookup=path' if @s3_force_path
+            opts['option'] = [opts['option'], *options].compact unless options.empty?
+            opts['cacert'] = @s3_cacert unless @s3_cacert.nil? || @s3_cacert.empty?
+            opts['insecure-tls'] = nil if @s3_insecure_tls
+        end
+
+        def backend_env_sh
+            [
+                %(export AWS_ACCESS_KEY_ID='#{@s3_key}'),
+                %(export AWS_SECRET_ACCESS_KEY='#{@s3_secret}'),
+                %(export AWS_DEFAULT_REGION='#{@s3_region}'),
+                %(export AWS_REGION='#{@s3_region}')
+            ]
+        end
+
+        def backend_env_rb
+            ENV['AWS_ACCESS_KEY_ID']     = @s3_key
+            ENV['AWS_SECRET_ACCESS_KEY'] = @s3_secret
+            ENV['AWS_DEFAULT_REGION']    = @s3_region
+            ENV['AWS_REGION']            = @s3_region
+        end
+
     end
 
 end
