@@ -97,6 +97,21 @@ msgstr ""
 msgid "Apply labels"
 msgstr ""
 
+#. T.Changes
+#: ./src/modules/constants/translates.js
+msgid "changes"
+msgstr ""
+
+#. T.ChooseLabelVisibility
+#: ./src/modules/constants/translates.js
+msgid "Choose who can see and use this label."
+msgstr ""
+
+#. T.CreateNew
+#: ./src/modules/constants/translates.js
+msgid "Create New"
+msgstr ""
+
 #. T.DeleteLabel
 #: ./src/modules/constants/translates.js
 msgid "Delete label"
@@ -110,6 +125,16 @@ msgstr ""
 #. T.DeleteTheFollowingLabel
 #: ./src/modules/constants/translates.js
 msgid "Delete the following label"
+msgstr ""
+
+#. T.EditLabel
+#: ./src/modules/constants/translates.js
+msgid "Edit Label"
+msgstr ""
+
+#. T.ExampleProduction
+#: ./src/modules/constants/translates.js
+msgid "e.g. production"
 msgstr ""
 
 #. T.Apply, T.ApplyPlan
@@ -137,14 +162,89 @@ msgstr ""
 msgid "Group labels"
 msgstr ""
 
+#. T.GroupLabelVisibilityConcept
+#: ./src/modules/constants/translates.js
+msgid "Shared with everyone in %s"
+msgstr ""
+
 #. T.GroupLabelsConcept
 #: ./src/modules/constants/translates.js
 msgid "Group labels are shared among all members of a group. They can be seen and used by any group member, but only group admins have the ability to apply, edit, or remove them."
 msgstr ""
 
+#. T.Items
+#: ./src/modules/constants/translates.js
+msgid "Items"
+msgstr ""
+
+#. T.LabelNameFormat
+#: ./src/modules/constants/translates.js
+msgid "Name must only contain alphanumeric characters, \"-\", \"_\" and no spaces"
+msgstr ""
+
+#. T.LabelNotFound
+#: ./src/modules/constants/translates.js
+msgid "Label not found"
+msgstr ""
+
+#. T.LabelsConcept
+#: ./src/modules/constants/translates.js
+msgid "Labels organize resources across all views."
+msgstr ""
+
+#. T.ManageLabelsConcept
+#: ./src/modules/constants/translates.js
+msgid "Labels organize resources across all views. Group labels are shared with everyone in the group."
+msgstr ""
+
+#. T.MissingLabelName
+#: ./src/modules/constants/translates.js
+msgid "Missing label name"
+msgstr ""
+
+#. T.MyLabels
+#: ./src/modules/constants/translates.js
+msgid "My Labels"
+msgstr ""
+
 #. T.NoLabels
 #: ./src/modules/constants/translates.js
 msgid "No labels"
+msgstr ""
+
+#. T.Private
+#: ./src/modules/constants/translates.js
+msgid "Private"
+msgstr ""
+
+#. T.PrivateLabelConcept
+#: ./src/modules/constants/translates.js
+msgid "Only you can see and use it"
+msgstr ""
+
+#. T.SearchLabelsInput
+#: ./src/modules/constants/translates.js
+msgid "Search labels"
+msgstr ""
+
+#. T.SelectParentLabel
+#: ./src/modules/constants/translates.js
+msgid "Select a parent label"
+msgstr ""
+
+#. T.UpdatedLabel
+#: ./src/modules/constants/translates.js
+msgid "Updated label"
+msgstr ""
+
+#. T.Visibility
+#: ./src/modules/constants/translates.js
+msgid "Visibility"
+msgstr ""
+
+#. T.YourGroup
+#: ./src/modules/constants/translates.js
+msgid "your group"
 msgstr ""
 
 #. T.NoContent
@@ -157,6 +257,16 @@ msgstr ""
 msgid "There is no content"
 msgstr ""
 
+#. T.NoAttributes
+#: ./src/modules/constants/translates.js
+msgid "No attributes"
+msgstr ""
+
+#. T.NoAttributesDescription
+#: ./src/modules/constants/translates.js
+msgid "Enter a key and value, then click the + button to add a custom attribute."
+msgstr ""
+
 #. T.NoSecurityGroupsToAdd
 #: ./src/modules/constants/translates.js
 msgid "No security groups to add"
@@ -165,6 +275,16 @@ msgstr ""
 #. T.NoSecurityGroupsToAddDescription
 #: ./src/modules/constants/translates.js
 msgid "There are no security groups available to attach to this NIC."
+msgstr ""
+
+#. T.NoSecurityGroups
+#: ./src/modules/constants/translates.js
+msgid "No security groups"
+msgstr ""
+
+#. T.SecurityGroupsWillAppearHere
+#: ./src/modules/constants/translates.js
+msgid "Security groups attached to this NIC will appear here."
 msgstr ""
 
 #. T.All
@@ -672,6 +792,11 @@ msgstr ""
 msgid "Deploy"
 msgstr ""
 
+#. T.Deploying
+#: ./src/modules/constants/translates.js
+msgid "Deploying"
+msgstr ""
+
 #. T.DeployServiceTemplate
 #: ./src/modules/constants/translates.js
 msgid "Deploy Service Template"
@@ -707,7 +832,7 @@ msgstr ""
 msgid "Disable"
 msgstr ""
 
-#. T.Disabled
+#. T.Disabled, T.DISABLED
 #: ./src/modules/constants/translates.js
 msgid "Disabled"
 msgstr ""
@@ -762,7 +887,7 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-#. T.Enabled
+#. T.Enabled, T.ENABLED
 #: ./src/modules/constants/translates.js
 msgid "Enabled"
 msgstr ""
@@ -840,6 +965,11 @@ msgstr ""
 #. T.MigrateLive, T.MIGRATE_LIVE
 #: ./src/modules/constants/translates.js
 msgid "Migrate live"
+msgstr ""
+
+#. T.Off
+#: ./src/modules/constants/translates.js
+msgid "Off"
 msgstr ""
 
 #. T.Offline
@@ -1762,7 +1892,7 @@ msgstr ""
 msgid "Ends"
 msgstr ""
 
-#. T.Warning
+#. T.Warning, T.WARNING
 #: ./src/modules/constants/translates.js
 msgid "Warning"
 msgstr ""
@@ -2112,7 +2242,7 @@ msgstr ""
 msgid "In Total"
 msgstr ""
 
-#. T.Used
+#. T.Used, T.USED
 #: ./src/modules/constants/translates.js
 msgid "Used"
 msgstr ""
@@ -2400,6 +2530,41 @@ msgstr ""
 #. T.Updated
 #: ./src/modules/constants/translates.js
 msgid "Updated"
+msgstr ""
+
+#. T.UpdatedJustNow
+#: ./src/modules/constants/translates.js
+msgid "Updated just now"
+msgstr ""
+
+#. T.UpdatedMinuteAgo
+#: ./src/modules/constants/translates.js
+msgid "Updated %s minute ago"
+msgstr ""
+
+#. T.UpdatedMinutesAgo
+#: ./src/modules/constants/translates.js
+msgid "Updated %s minutes ago"
+msgstr ""
+
+#. T.UpdatedHourAgo
+#: ./src/modules/constants/translates.js
+msgid "Updated %s hour ago"
+msgstr ""
+
+#. T.UpdatedHoursAgo
+#: ./src/modules/constants/translates.js
+msgid "Updated %s hours ago"
+msgstr ""
+
+#. T.UpdatedDayAgo
+#: ./src/modules/constants/translates.js
+msgid "Updated %s day ago"
+msgstr ""
+
+#. T.UpdatedDaysAgo
+#: ./src/modules/constants/translates.js
+msgid "Updated %s days ago"
 msgstr ""
 
 #. T.Updating
@@ -3402,6 +3567,11 @@ msgstr ""
 msgid "vCPU"
 msgstr ""
 
+#. T.VcpuUnits
+#: ./src/modules/constants/translates.js
+msgid "vCPU units"
+msgstr ""
+
 #. T.CPULower
 #: ./src/modules/constants/translates.js
 msgid "Cpu"
@@ -3649,12 +3819,47 @@ msgstr ""
 
 #. T.PredictiveWeightConcept
 #: ./src/modules/constants/translates.js
-msgid "Weight of forecasted resource usage in the scheduling process. For example, the value 0.3 means that the predicted resource usage is accounted with 30% and current usage with 70%."
+msgid "Controls how much DRS relies on predicted resource usage when computing the optimization plan: 0 – Use only current monitored metrics. 1 – Use only predicted metrics. 0–1 – Blend monitored and predicted values. Higher values make DRS more proactive by anticipating future workload changes."
 msgstr ""
 
 #. T.MigrationThresholdConcept
 #: ./src/modules/constants/translates.js
-msgid "Specifies the maximal allowed number of virtual machine migrations, can be set to unlimited or a absolute number."
+msgid "Maximum number of migrations performed during a single optimization cycle. This limit applies to all migrations combined, including host and datastore migrations."
+msgstr ""
+
+#. T.MigrationThresholds
+#: ./src/modules/constants/translates.js
+msgid "Migration thresholds"
+msgstr ""
+
+#. T.HostMigrationThreshold
+#: ./src/modules/constants/translates.js
+msgid "Host migrations"
+msgstr ""
+
+#. T.HostMigrationThresholdConcept
+#: ./src/modules/constants/translates.js
+msgid "Maximum number of host migrations performed during a single optimization cycle. Host migrations count towards the overall migration threshold."
+msgstr ""
+
+#. T.DsMigrationThreshold
+#: ./src/modules/constants/translates.js
+msgid "Datastore migrations"
+msgstr ""
+
+#. T.DsMigrationThresholdConcept
+#: ./src/modules/constants/translates.js
+msgid "Maximum number of datastore migrations performed during a single optimization cycle. Datastore migrations count towards the overall migration threshold."
+msgstr ""
+
+#. T.DRSPolicyConcept
+#: ./src/modules/constants/translates.js
+msgid "Selects the optimization objective for the cluster: Pack – Consolidate VMs onto fewer hosts to reduce the number of active servers and save energy. Balance – Distribute workloads across hosts to minimize resource contention and improve performance."
+msgstr ""
+
+#. T.DRSAutomationConcept
+#: ./src/modules/constants/translates.js
+msgid "Determines how DRS applies optimization recommendations: Manual – Generate recommendations only. Migrations must be approved manually. Partial – Generate migration plans automatically, but require administrator approval before execution. Full – Automatically generate and execute migration plans."
 msgstr ""
 
 #. T.Cluster, T.cluster.form.create.general.help.title
@@ -3735,6 +3940,11 @@ msgstr ""
 #. T.NumberProvisions
 #: ./src/modules/constants/translates.js
 msgid "Number of associated provisions"
+msgstr ""
+
+#. T.AssociatedProvisions
+#: ./src/modules/constants/translates.js
+msgid "Associated Provisions"
 msgstr ""
 
 #. T.attribute.delete.confirmation
@@ -3972,6 +4182,11 @@ msgstr ""
 msgid "Monitored"
 msgstr ""
 
+#. T.Unreachable
+#: ./src/modules/constants/translates.js
+msgid "Unreachable"
+msgstr ""
+
 #. T.Network
 #: ./src/modules/constants/translates.js
 msgid "Network"
@@ -3990,6 +4205,21 @@ msgstr ""
 #. T.VirtualNetworks
 #: ./src/modules/constants/translates.js
 msgid "Virtual networks"
+msgstr ""
+
+#. T.IPsInUse
+#: ./src/modules/constants/translates.js
+msgid "IPs in use"
+msgstr ""
+
+#. T.NoNetworksYet
+#: ./src/modules/constants/translates.js
+msgid "No networks yet"
+msgstr ""
+
+#. T.NoNetworksInService
+#: ./src/modules/constants/translates.js
+msgid "This service does not currently have any networks"
 msgstr ""
 
 #. T.RoleNetwork
@@ -4067,6 +4297,16 @@ msgstr ""
 msgid "Backups"
 msgstr ""
 
+#. T.NoBackups
+#: ./src/modules/constants/translates.js
+msgid "No backups"
+msgstr ""
+
+#. T.VmBackupsWillAppearHere
+#: ./src/modules/constants/translates.js
+msgid "Backups created for this virtual machine will appear here."
+msgstr ""
+
 #. T.BackupDatastore
 #: ./src/modules/constants/translates.js
 msgid "Backup Datastore"
@@ -4085,6 +4325,21 @@ msgstr ""
 #. T.Datastore
 #: ./src/modules/constants/translates.js
 msgid "Datastore"
+msgstr ""
+
+#. T.DatastoreDriver
+#: ./src/modules/constants/translates.js
+msgid "Datastore driver"
+msgstr ""
+
+#. T.TotalSize
+#: ./src/modules/constants/translates.js
+msgid "Total size"
+msgstr ""
+
+#. T.OnDatastores
+#: ./src/modules/constants/translates.js
+msgid "on datastores"
 msgstr ""
 
 #. T.NumberOfDatastores
@@ -4345,6 +4600,11 @@ msgstr ""
 #. T.Transfer
 #: ./src/modules/constants/translates.js
 msgid "Transfer"
+msgstr ""
+
+#. T.TransferDriver
+#: ./src/modules/constants/translates.js
+msgid "Transfer driver"
 msgstr ""
 
 #. T.CustomDSMAD
@@ -5722,6 +5982,11 @@ msgstr ""
 msgid "Capacity"
 msgstr ""
 
+#. T.ClusterCapacity
+#: ./src/modules/constants/translates.js
+msgid "Cluster capacity"
+msgstr ""
+
 #. T.CostPerHour
 #: ./src/modules/constants/translates.js
 msgid "/Hour"
@@ -5730,6 +5995,11 @@ msgstr ""
 #. T.PhysicalCpu, T.PhysicalCpuWithPercent
 #: ./src/modules/constants/translates.js
 msgid "Physical CPU"
+msgstr ""
+
+#. T.CPUShares
+#: ./src/modules/constants/translates.js
+msgid "CPU Shares"
 msgstr ""
 
 #. T.VirtualCpu, T.VirtualCpuWithDecimal, T.vcpu
@@ -5822,6 +6092,36 @@ msgstr ""
 msgid "Disks"
 msgstr ""
 
+#. T.BackupDisks
+#: ./src/modules/constants/translates.js
+msgid "Backup disks"
+msgstr ""
+
+#. T.IncludeAllVmDisks
+#: ./src/modules/constants/translates.js
+msgid "Backup all VM disks"
+msgstr ""
+
+#. T.IncludeAllVmDisksHint
+#: ./src/modules/constants/translates.js
+msgid "Includes all VM disk in the backup. Turn this off to choose specific disks"
+msgstr ""
+
+#. T.IncludeVolatileVmDisks
+#: ./src/modules/constants/translates.js
+msgid "Include volatile VM disks"
+msgstr ""
+
+#. T.IncludeVolatileVmDisksHint
+#: ./src/modules/constants/translates.js
+msgid "Includes volatile VM disks in the backup"
+msgstr ""
+
+#. T.SelectVmDisks
+#: ./src/modules/constants/translates.js
+msgid "Choose disks to backup"
+msgstr ""
+
 #. T.DisksAttached
 #: ./src/modules/constants/translates.js
 msgid "Disks attached"
@@ -5885,6 +6185,16 @@ msgstr ""
 #. T.DiskSnapshot, T.DISK_SNAPSHOT
 #: ./src/modules/constants/translates.js
 msgid "Disk snapshot"
+msgstr ""
+
+#. T.NoDiskSnapshots
+#: ./src/modules/constants/translates.js
+msgid "No disk snapshots"
+msgstr ""
+
+#. T.DiskSnapshotsWillAppearHere
+#: ./src/modules/constants/translates.js
+msgid "Snapshots created for this disk will appear here."
 msgstr ""
 
 #. T.DiskSize
@@ -6227,6 +6537,16 @@ msgstr ""
 msgid "Snapshot in progress. Please, press refresh to update the status of the snapshot."
 msgstr ""
 
+#. T.NoSnapshots
+#: ./src/modules/constants/translates.js
+msgid "No snapshots"
+msgstr ""
+
+#. T.VmSnapshotsWillAppearHere
+#: ./src/modules/constants/translates.js
+msgid "System snapshots created for this virtual machine will appear here."
+msgstr ""
+
 #. T.VmSnapshotNotAvailable
 #: ./src/modules/constants/translates.js
 msgid "Taking snapshots is not available."
@@ -6315,6 +6635,16 @@ msgstr ""
 #. T.History
 #: ./src/modules/constants/translates.js
 msgid "History"
+msgstr ""
+
+#. T.NoHistory
+#: ./src/modules/constants/translates.js
+msgid "No history records"
+msgstr ""
+
+#. T.VmHistoryWillAppearHere
+#: ./src/modules/constants/translates.js
+msgid "Virtual machine history records will appear here."
 msgstr ""
 
 #. T.RequestId
@@ -6604,7 +6934,7 @@ msgstr ""
 
 #. T.CpuConcept
 #: ./src/modules/constants/translates.js
-msgid "\n    Defines the relative share of CPU time assigned to this VM.\n    A higher value gives the VM more processing power compared to others on the same host.\n    "
+msgid "\n    Defines the relative share of CPU time assigned to this VM.\n    A higher value gives the VM more processing power compared to others on the same host.\n    The value will be multiplied by 100 as libvirt CPU shares, and the resulting value will be deducted from the Allocated CPU of the assigned host during the deployment phase.\n    "
 msgstr ""
 
 #. T.MaxVirtualCpu
@@ -6714,7 +7044,7 @@ msgstr ""
 
 #. T.MigrationThreshold
 #: ./src/modules/constants/translates.js
-msgid "Migration threshold"
+msgid "Total migrations"
 msgstr ""
 
 #. T.VmAffinity
@@ -9029,7 +9359,7 @@ msgstr ""
 
 #. T.CannotModifySharedWithLeases
 #: ./src/modules/constants/translates.js
-msgid "Cannot modify shared field"
+msgid "Shared can only be updated when the address range has no leases"
 msgstr ""
 
 #. T.SLAAC
@@ -9277,6 +9607,21 @@ msgstr ""
 msgid "Total rules"
 msgstr ""
 
+#. T.UpdatedVms
+#: ./src/modules/constants/translates.js
+msgid "Updated VMs"
+msgstr ""
+
+#. T.OutdatedVms
+#: ./src/modules/constants/translates.js
+msgid "Outdated VMs"
+msgstr ""
+
+#. T.ErrorVms
+#: ./src/modules/constants/translates.js
+msgid "Error VMs"
+msgstr ""
+
 #. T.SearchHosts
 #: ./src/modules/constants/translates.js
 msgid "Search hosts"
@@ -9335,6 +9680,16 @@ msgstr ""
 #. T.AllocatedCpu, T.ReservedCpu
 #: ./src/modules/constants/translates.js
 msgid "Allocated CPU"
+msgstr ""
+
+#. T.CpuAllocated
+#: ./src/modules/constants/translates.js
+msgid "CPU allocated"
+msgstr ""
+
+#. T.MemoryAllocated
+#: ./src/modules/constants/translates.js
+msgid "Memory allocated"
 msgstr ""
 
 #. T.RealMemory
@@ -12042,6 +12397,11 @@ msgstr ""
 msgid "Control Plane"
 msgstr ""
 
+#. T.ControlPlanes
+#: ./src/modules/constants/translates.js
+msgid "Control Planes"
+msgstr ""
+
 #. T.Nodes
 #: ./src/modules/constants/translates.js
 msgid "Nodes"
@@ -12079,7 +12439,7 @@ msgstr ""
 
 #. T.NodeGroups
 #: ./src/modules/constants/translates.js
-msgid "Node groups"
+msgid "Node Groups"
 msgstr ""
 
 #. T.Events
@@ -12095,6 +12455,21 @@ msgstr ""
 #. T.KubernetesVersion
 #: ./src/modules/constants/translates.js
 msgid "K8s version"
+msgstr ""
+
+#. T.KubernetesClusters
+#: ./src/modules/constants/translates.js
+msgid "Kubernetes Clusters"
+msgstr ""
+
+#. T.Upgrade
+#: ./src/modules/constants/translates.js
+msgid "Upgrade"
+msgstr ""
+
+#. T.UpgradeK8sCluster
+#: ./src/modules/constants/translates.js
+msgid "Upgrade K8s Cluster"
 msgstr ""
 
 #. T.CreationTime
@@ -12117,6 +12492,11 @@ msgstr ""
 msgid "Add Node Group"
 msgstr ""
 
+#. T.CreateNodeGroup
+#: ./src/modules/constants/translates.js
+msgid "Create Node Group"
+msgstr ""
+
 #. T.DeleteNodeGroup
 #: ./src/modules/constants/translates.js
 msgid "Delete Node Group"
@@ -12135,6 +12515,36 @@ msgstr ""
 #. T.RecoverNodeGroup
 #: ./src/modules/constants/translates.js
 msgid "Recover Node Group"
+msgstr ""
+
+#. T.VmIds
+#: ./src/modules/constants/translates.js
+msgid "VM IDs"
+msgstr ""
+
+#. T.NoNodeGroups
+#: ./src/modules/constants/translates.js
+msgid "No Node Groups"
+msgstr ""
+
+#. T.NoNodeGroupsDescription
+#: ./src/modules/constants/translates.js
+msgid "This cluster does not currently have any Node Groups."
+msgstr ""
+
+#. T.NoNodeGroupsUntilClusterRunning
+#: ./src/modules/constants/translates.js
+msgid "This cluster does not currently have any Node Groups. Node Groups can be added once the cluster is running."
+msgstr ""
+
+#. T.NoNodeGroupSelected
+#: ./src/modules/constants/translates.js
+msgid "No Node Group selected"
+msgstr ""
+
+#. T.SelectNodeGroupConcept
+#: ./src/modules/constants/translates.js
+msgid "Select a Node Group to view its virtual machines."
 msgstr ""
 
 #. T.SelectPublicVirtualNetworks
@@ -12192,6 +12602,16 @@ msgstr ""
 msgid "Select one kubernetes version to continue."
 msgstr ""
 
+#. T.oneks.form.upgrade.kubernetes_version.help
+#: ./src/modules/constants/translates.js
+msgid "Select a Kubernetes version to upgrade the cluster. The selected version must be higher than the current version, downgrades are not supported."
+msgstr ""
+
+#. T.oneks.form.upgrade.kubernetes_version.up_to_date
+#: ./src/modules/constants/translates.js
+msgid "This cluster is already updated to the highest supported Kubernetes version: %s."
+msgstr ""
+
 #. T.oneks.logs.create.logs
 #: ./src/modules/constants/translates.js
 msgid "Your cluster will appear in the clusters list with \"Creating\" status. The control plane nodes will be provisioned according to the selected flavour. This process typically takes 5–10 minutes."
@@ -12215,6 +12635,11 @@ msgstr ""
 #. T.oneks.form.create_nodegroup.flavour.help.paragraph
 #: ./src/modules/constants/translates.js
 msgid "Please, select a flavour. The flavour defines the specific configuration that will be used to deploy the worker nodes in this NodeGroup."
+msgstr ""
+
+#. T.KubeconfigNotAvailableYet
+#: ./src/modules/constants/translates.js
+msgid "Kubeconfig not available yet"
 msgstr ""
 
 #. T.oneks.tab.info.kubeconfig.help.paragraph
@@ -12312,6 +12737,36 @@ msgstr ""
 msgid "Error updating node group"
 msgstr ""
 
+#. T.BOOTSTRAPPING
+#: ./src/modules/constants/translates.js
+msgid "Bootstrapping"
+msgstr ""
+
+#. T.BOOTSTRAPPING_FAILURE
+#: ./src/modules/constants/translates.js
+msgid "Bootstrapping Failure"
+msgstr ""
+
+#. T.PROVISIONING
+#: ./src/modules/constants/translates.js
+msgid "Provisioning"
+msgstr ""
+
+#. T.PROVISIONING_FAILURE
+#: ./src/modules/constants/translates.js
+msgid "Provisioning Failure"
+msgstr ""
+
+#. T.UPGRADING
+#: ./src/modules/constants/translates.js
+msgid "Upgrading"
+msgstr ""
+
+#. T.UPGRADING_FAILURE
+#: ./src/modules/constants/translates.js
+msgid "Upgrading Failure"
+msgstr ""
+
 #. T.count
 #: ./src/modules/constants/translates.js
 msgid "Count"
@@ -12330,6 +12785,11 @@ msgstr ""
 #. T.PENDING
 #: ./src/modules/constants/translates.js
 msgid "Pending"
+msgstr ""
+
+#. T.READY
+#: ./src/modules/constants/translates.js
+msgid "Ready"
 msgstr ""
 
 #. T.STOPPED

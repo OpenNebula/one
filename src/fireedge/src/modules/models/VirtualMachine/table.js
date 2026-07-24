@@ -355,17 +355,18 @@ export const VM_PCI_COLUMNS = [
     header: T.Name,
     id: 'name',
     truncate: true,
-    accessorKey: 'DEVICE_NAME',
+    accessorFn: (pci) =>
+      pci?.DEVICE_NAME ?? pci?.PCI_DEVICE_NAME ?? pci?.DEVICE,
   },
   {
     header: T.Vendor,
     id: 'vendor',
-    accessorKey: 'VENDOR_NAME',
+    accessorFn: (pci) => pci?.VENDOR_NAME ?? pci?.VENDOR,
   },
   {
     header: T.Class,
     id: 'class',
-    accessorKey: 'CLASS_NAME',
+    accessorFn: (pci) => pci?.CLASS_NAME ?? pci?.CLASS,
   },
   {
     header: T.NumaNode,
@@ -621,41 +622,43 @@ export const vmpcisTable = createTable(
     } = VmAPI.useGetVmQuery(args, {
       ...options,
       selectFromResult: ({ data, isFetching, isLoading }) => ({
-        data: getPcis(data)
-          ?.map(({ SHORT_ADDRESS, PCI_ID } = {}) => ({ SHORT_ADDRESS, PCI_ID }))
-          ?.filter(Boolean),
+        data: getPcis(data),
         isFetching,
         isLoading,
       }),
     })
 
     const {
-      data: hostPcis,
+      data: pcis,
       isFetching: isFetchingHosts,
       isLoading: isLoadingHosts,
     } = HostAPI.useGetHostsQuery(undefined, {
       ...options,
-      skip: options?.skip || !vmPcis,
-      selectFromResult: ({ data, isFetching, isLoading }) => ({
-        data: []
-          .concat(data)
-          ?.map(getPciDevices)
-          ?.flat()
-          ?.map((d) => {
-            const vmPci = vmPcis?.find(
-              (p) => p?.SHORT_ADDRESS === d?.SHORT_ADDRESS
-            )
+      skip: options?.skip || !vmPcis?.length,
+      selectFromResult: ({ data, isFetching, isLoading }) => {
+        const hostPcis = [].concat(data).map(getPciDevices).flat()
 
-            return vmPci ? { ...d, PCI_ID: vmPci.PCI_ID } : null
-          })
-          ?.filter(Boolean),
-        isFetching,
-        isLoading,
-      }),
+        return {
+          data: vmPcis?.map((vmPci) => {
+            const hostPci =
+              vmPci?.SHORT_ADDRESS &&
+              hostPcis.find(
+                (pci) => pci?.SHORT_ADDRESS === vmPci?.SHORT_ADDRESS
+              )
+
+            return {
+              ...hostPci,
+              ...vmPci,
+            }
+          }),
+          isFetching,
+          isLoading,
+        }
+      },
     })
 
     return {
-      data: hostPcis,
+      data: pcis,
       isFetching: isFetchingVm || isFetchingHosts,
       isLoading: isLoadingVm || isLoadingHosts,
     }

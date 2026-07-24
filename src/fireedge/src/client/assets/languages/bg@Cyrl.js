@@ -1,0 +1,2 @@
+lang="bg@Cyrl"
+locale={}
