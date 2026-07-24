@@ -2440,7 +2440,9 @@ Bash symbols must be escaped on STDIN passing'
                 when 'g'
                     ret += rwx * 10
                 else
+                    # rubocop:disable Lint/UselessNumericOperation
                     ret += rwx * 1
+                    # rubocop:enable Lint/UselessNumericOperation
                 end
             end
 

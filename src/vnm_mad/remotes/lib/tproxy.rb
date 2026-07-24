@@ -51,10 +51,16 @@ module VNMMAD
                         remote_ip = Resolv.getaddress(conf[:remote_addr])
                         next unless remote_ip =~ Resolv::IPv4::Regex
 
-                        OpenNebula::DriverLogger.log_info "Resolved remote_addr #{conf[:remote_addr]} to #{remote_ip}"
+                        OpenNebula::DriverLogger.log_info(
+                            "Resolved remote_addr #{conf[:remote_addr]} "\
+                            "to #{remote_ip}"
+                        )
                         conf[:remote_addr] = remote_ip
                     rescue Resolv::ResolvError
-                        OpenNebula::DriverLogger.log_warning "Can't resolve remote_addr #{conf[:remote_addr]}. Skipping."
+                        OpenNebula::DriverLogger.log_warning(
+                            "Can't resolve remote_addr #{conf[:remote_addr]}. "\
+                            'Skipping.'
+                        )
                         next
                     end
                 end
