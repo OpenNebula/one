@@ -27,6 +27,12 @@ module Migrator
             @fops.chown(dir, 'oneadmin', 'oneadmin')
             @fops.chmod(dir, 0o750)
         end
+
+        ['/etc/one/fireedge/sunstone/tabs'].each do |dir|
+            @fops.mkdir(dir)
+            @fops.chown(dir, 'root', 'oneadmin')
+            @fops.chmod(dir, 0o750)
+        end
     end
 
     # Upgrade steps
