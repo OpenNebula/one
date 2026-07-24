@@ -47,7 +47,8 @@ class Sudoers
                 '/var/tmp/one/vnm/ip_netns_exec ip link *',
                 '/var/tmp/one/vnm/ip_netns_exec ip -j link show *',
                 '/var/tmp/one/vnm/ip_netns_exec ip route *',
-                '/var/tmp/one/vnm/ip_netns_exec sysctl -w net.ipv4.conf.*.arp_ignore=0'
+                '/var/tmp/one/vnm/ip_netns_exec sysctl -w ' \
+                'net.ipv4.conf.all.arp_ignore=0 net.ipv4.conf.default.arp_ignore=0'
             ],
             :LVM => [
                 'lvcreate', 'lvremove', 'lvs', 'vgdisplay', 'lvchange', 'lvscan', 'lvextend',

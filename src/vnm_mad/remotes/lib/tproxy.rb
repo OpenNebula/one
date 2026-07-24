@@ -110,15 +110,21 @@ module VNMMAD
             ip_link_set("dev #{brdev}b master #{brdev} up")
 
             ip_netns_add(brdev)
+
+            # Loosen inherited ARP strictness before the veth device is moved
+            # into the namespace, so it re-inherits arp_ignore=0 from the
+            # namespace conf.default. The sysctl arguments must stay fixed
+            # (no device names): sudo-rs forbids wildcards inside sudoers
+            # command arguments.
+            ip_netns_exec(brdev, 'sysctl -w net.ipv4.conf.all.arp_ignore=0 ' \
+                                 'net.ipv4.conf.default.arp_ignore=0')
+
             ip_link_set_netns(brdev)
 
             ip_netns_exec(brdev, "ip address replace 169.254.16.9/32 dev #{brdev}a")
             ip_netns_exec(brdev, "ip link set dev #{brdev}a up")
 
             ip_netns_exec(brdev, "ip route replace default dev #{brdev}a")
-
-            ip_netns_exec(brdev, 'sysctl -w net.ipv4.conf.all.arp_ignore=0')
-            ip_netns_exec(brdev, "sysctl -w net.ipv4.conf.#{brdev.tr('.', '/')}a.arp_ignore=0")
 
             # Prevent ARP requests from being propagated to other HV machines.
             # It reduces network traffic and ensures that the closest HV handles
