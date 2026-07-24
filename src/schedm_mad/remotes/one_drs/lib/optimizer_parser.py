@@ -73,6 +73,8 @@ class OptimizerParser:
         "OPTIMIZE": {
             "POLICY": "BALANCE",
             "MIGRATION_THRESHOLD": -1,
+            "HOST_MIGRATION_THRESHOLD": -1,
+            "DS_MIGRATION_THRESHOLD": 0,
             "WEIGHTS": {
                 "CPU_USAGE": 1,
             },
@@ -270,12 +272,25 @@ class OptimizerParser:
                 )
                 criteria = self._normalize_weights(weights)
             allowed_migrations = -1
+            allowed_host_migrations = -1
+            allowed_storage_migrations = 0
             migration_priority = None
         else:
             cluster_config = self._parse_cluster()
-            policy = cluster_config.get("POLICY", self.config["MODE"]["POLICY"])
+            policy = cluster_config.get(
+                "POLICY", self.config["MODE"]["POLICY"]
+            )
             allowed_migrations = cluster_config.get(
-                "MIGRATION_THRESHOLD", self.config["MODE"]["MIGRATION_THRESHOLD"]
+                "MIGRATION_THRESHOLD",
+                self.config["MODE"]["MIGRATION_THRESHOLD"]
+            )
+            allowed_host_migrations = cluster_config.get(
+                "HOST_MIGRATION_THRESHOLD",
+                self.config["MODE"]["HOST_MIGRATION_THRESHOLD"],
+            )
+            allowed_storage_migrations = cluster_config.get(
+                "DS_MIGRATION_THRESHOLD",
+                self.config["MODE"]["DS_MIGRATION_THRESHOLD"],
             )
             smp = self.config["MODE"].get("PRIORITIZE_STORAGE_MIGRATIONS", "")
             if smp is True or str(smp).upper() == "YES":
@@ -307,7 +322,18 @@ class OptimizerParser:
                 vm_reqs_dict[vm_req.id], host_ids=new_host_ids
             )
 
-        migrations = allowed_migrations if allowed_migrations != -1 else None
+        if allowed_migrations == -1:
+            migrations = None
+        else:
+            migrations = allowed_migrations
+        if allowed_host_migrations == -1:
+            host_migrations = None
+        else:
+            host_migrations = allowed_host_migrations
+        if allowed_storage_migrations == -1:
+            storage_migrations = None
+        else:
+            storage_migrations = allowed_storage_migrations
 
         used_local_dstores = self._used_local_dstores
         used_shared_dstores = self._used_shared_dstores
@@ -332,7 +358,8 @@ class OptimizerParser:
             criteria=criteria,
             preemptive=False,
             allowed_migrations=migrations,
-            allowed_storage_migrations=migrations,
+            allowed_host_migrations=host_migrations,
+            allowed_storage_migrations=storage_migrations,
             migration_priority=migration_priority,
             solver=self.config["SOLVER"],
         )
@@ -651,6 +678,7 @@ class OptimizerParser:
         return alloc
 
     def _parse_cluster(self) -> dict:
+        result = {}
         one_drs = next(
             (
                 child
@@ -667,14 +695,14 @@ class OptimizerParser:
                 "PREDICTIVE": self.config["PREDICTIVE"],
             }
 
-        migration_threshold = next(
-            (
-                max(-1, int(child.text))
-                for child in one_drs.children
-                if child.qname.upper() == "MIGRATION_THRESHOLD"
-            ),
-            -1,
-        )
+        for child in one_drs.children:
+            name = child.qname.upper()
+            if name == "MIGRATION_THRESHOLD":
+                result["MIGRATION_THRESHOLD"] = max(-1, int(child.text))
+            elif name == "HOST_MIGRATION_THRESHOLD":
+                result["HOST_MIGRATION_THRESHOLD"] = max(-1, int(child.text))
+            elif name == "DS_MIGRATION_THRESHOLD":
+                result["DS_MIGRATION_THRESHOLD"] = max(-1, int(child.text))
         policy = next(
             (
                 child.text
@@ -693,12 +721,12 @@ class OptimizerParser:
         )
         weights = self._get_weights(one_drs)
 
-        return {
+        result |= {
             "POLICY": policy,
-            "MIGRATION_THRESHOLD": migration_threshold,
             "WEIGHTS": weights,
             "PREDICTIVE": predictive,
         }
+        return result
 
     @staticmethod
     def _build_pci_devices_requirements(pci_list) -> list[PCIDeviceRequirement]:

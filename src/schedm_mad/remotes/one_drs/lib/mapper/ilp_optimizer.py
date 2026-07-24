@@ -84,6 +84,7 @@ class ILPOptimizer(Mapper):
         "_ns_migr",
         "_n_migr_ub",
         "_ns_migr_ub",
+        "_nt_migr_ub",
         "_max_n_migr_vms",
         "_max_ns_migr_vms",
         "_w_migr",
@@ -133,6 +134,7 @@ class ILPOptimizer(Mapper):
         _ns_migr: dict[tuple[int, int], Union[LinExpr, float]]
         _n_migr_ub: Optional[int]
         _ns_migr_ub: Optional[int]
+        _nt_migr_ub: Optional[int]
         _max_n_migr_vms: int
         _max_ns_migr_vms: int
         _w_migr: float
@@ -152,6 +154,7 @@ class ILPOptimizer(Mapper):
         criteria: Any,
         # migrations: Optional[bool] = None,
         allowed_migrations: Optional[int] = None,
+        allowed_host_migrations: Optional[int] = None,
         allowed_storage_migrations: Optional[int] = 0,
         migration_priority: Optional[Literal["host", "storage"]] = None,
         balance_constraints: Optional[Mapping[str, float]] = None,
@@ -219,10 +222,13 @@ class ILPOptimizer(Mapper):
             self._migrations = not all_waiting
         else:
             self._migrations = bool(migrations)
-        # The number of total allowed host and storage migrations.
-        self._n_migr_ub = allowed_migrations
+
+        # The number of allowed host migrations.
+        self._n_migr_ub = allowed_host_migrations
         # The number of allowed storage migrations.
         self._ns_migr_ub = 0 if all_waiting else allowed_storage_migrations
+        # The number of allowed total host and storage migrations.
+        self._nt_migr_ub = allowed_migrations
 
         if migration_priority == "host":
             self._w_migr = 0.9
@@ -985,22 +991,34 @@ class ILPOptimizer(Mapper):
                 f"vm_{vm_id}_nic_{nic_id}_vnet_{vnet_id}_cluster_constraint"
             )
 
+        # The number of host migrations.
+        sum_n_migr: Optional[LinExpr] = None
+        # The number of storage migrations.
         sum_ns_migr: Optional[LinExpr] = None
 
         if self._n_migr_ub is not None:
-            sum_ns_migr = sum_(self._ns_migr.values())
+            sum_n_migr = sum_(self._n_migr.values())
             model += (
-                sum_(self._n_migr.values()) + sum_ns_migr <= self._n_migr_ub,
-                f"max_number_of_all_migrations_{self._n_migr_ub}_constraint"
+                sum_n_migr <= self._n_migr_ub,
+                f"max_number_of_host_migrations_{self._n_migr_ub}_constraint"
             )
 
         if self._ns_migr_ub is not None:
-            if sum_ns_migr is None:
-                sum_ns_migr = sum_(self._ns_migr.values())
+            sum_ns_migr = sum_(self._ns_migr.values())
             model += (
                 sum_ns_migr <= self._ns_migr_ub,
                 f"max_number_of_storage_migrations_{self._ns_migr_ub}_"
                 f"constraint"
+            )
+
+        if self._nt_migr_ub is not None:
+            if sum_n_migr is None:
+                sum_n_migr = sum_(self._n_migr.values())
+            if sum_ns_migr is None:
+                sum_ns_migr = sum_(self._ns_migr.values())
+            model += (
+                sum_n_migr + sum_ns_migr <= self._nt_migr_ub,
+                f"max_number_of_all_migrations_{self._nt_migr_ub}_constraint"
             )
 
         # A VM cannot change both host and datastore during one

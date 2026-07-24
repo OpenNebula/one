@@ -170,6 +170,16 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
         return -1;
     }
 
+    if (!validate_field("HOST_MIGRATION_THRESHOLD", std::regex(R"(^(-1||\d+(\.\d+)?)$)")))
+    {
+        return -1;
+    }
+
+    if (!validate_field("DS_MIGRATION_THRESHOLD", std::regex(R"(^(-1||\d+(\.\d+)?)$)")))
+    {
+        return -1;
+    }
+
     static std::vector<std::string> numeric_attr = {
         "CPU_USAGE_WEIGHT",
         "CPU_WEIGHT",
