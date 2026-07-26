@@ -15,6 +15,7 @@
 # governing permissions and  limitations under the License.                  #
 # -------------------------------------------------------------------------- #
 
+require 'fileutils'
 require 'json'
 require 'nokogiri'
 require 'yaml'
@@ -42,9 +43,43 @@ module Migrator
 
         feature_7490_vnet_template_id
 
+        feature_server_auth_files
+
         log_time
 
         true
+    end
+
+    # Server auth files are only written when the DB is bootstrapped, so
+    # upgraded installations lack the ones added after their bootstrap.
+    # They all hold the same serveradmin secret, copy it from a sibling.
+    def feature_server_auth_files
+        auth_dir = File.join(VAR_LOCATION, '.one')
+
+        source = ['sunstone_auth', 'onegate_auth', 'oneflow_auth'].find do |name|
+            File.exist?(File.join(auth_dir, name))
+        end
+
+        if source.nil?
+            puts 'Could not find an existing server auth file in ' <<
+                 "#{auth_dir}, skipping."
+            return
+        end
+
+        source = File.join(auth_dir, source)
+
+        ['oneform_auth', 'oneks_auth'].each do |name|
+            target = File.join(auth_dir, name)
+
+            next if File.exist?(target)
+
+            begin
+                FileUtils.cp(source, target, :preserve => true)
+            rescue StandardError => e
+                puts "Error copying #{source} to #{target}: #{e.message}"
+                puts 'Please copy the file manually.'
+            end
+        end
     end
 
     # Backfill UUID for existing OneKS groups
