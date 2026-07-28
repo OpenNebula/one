@@ -63,7 +63,7 @@ export default {
     form: (vm) =>
       Forms.UpdateConfigurationForm({
         stepProps: { hypervisor: getHypervisor(vm), vm },
-        initialValues: vm,
+        initialValues: { ...vm, _HYPERVISOR: getHypervisor(vm) },
       }),
     dialogProps: {
       dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
