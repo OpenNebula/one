@@ -268,6 +268,112 @@ patches:
 
             # Uncoment this line if you want to force crl checking
             #:check_crl: true
+    "/etc/one/cli/ks_cluster.yaml":
+        class: Yaml::Strict
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+            ---
+            :ID:
+              :desc: ONE identifier for OneKS Cluster
+              :size: 4
+              :adjust: true
+
+            :USER:
+              :desc: Username of the OneKS Cluster owner
+              :size: 8
+              :left: true
+
+            :GROUP:
+              :desc: Group of the OneKS Cluster
+              :size: 8
+              :left: true
+
+            :NAME:
+              :desc: Name of the OneKS Cluster
+              :size: 15
+              :left: true
+              :expand: true
+
+            :STATE:
+              :desc: State of the OneKS Cluster
+              :size: 20
+              :left: true
+              :adjust: true
+
+            :REGTIME:
+              :desc: Registration time of the OneKS Cluster
+              :size: 15
+
+            :default:
+            - :ID
+            - :USER
+            - :GROUP
+            - :NAME
+            - :STATE
+            - :REGTIME
+    "/etc/one/cli/ks_group.yaml":
+        class: Yaml::Strict
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+            ---
+            :ID:
+              :desc: ONE identifier for OneKS group
+              :size: 4
+              :adjust: true
+
+            :USER:
+              :desc: Username of the OneKS group owner
+              :size: 8
+              :left: true
+
+            :GROUP:
+              :desc: Group of the OneKS group
+              :size: 8
+              :left: true
+
+            :NAME:
+              :desc: Name of the OneKS group
+              :size: 15
+              :left: true
+              :expand: true
+
+            :FLAVOUR:
+              :desc: Flavour of the OneKS group
+              :size: 15
+              :left: true
+
+            :CLUSTER:
+              :desc: Parent cluster ID of the OneKS group
+              :size: 4
+
+            :ROLE:
+              :desc: Role of the OneKS group
+              :size: 15
+              :left: true
+
+            :STATE:
+              :desc: State of the OneKS group
+              :size: 20
+              :left: true
+              :adjust: true
+
+            :REGTIME:
+              :desc: Registration time of the OneKS group
+              :size: 15
+
+            :default:
+            - :ID
+            - :USER
+            - :GROUP
+            - :NAME
+            - :ROLE
+            - :FLAVOUR
+            - :STATE
+            - :REGTIME
     "/etc/one/cli/oneacct.yaml":
         class: Yaml::Strict
         owner: root
@@ -1971,6 +2077,29 @@ patches:
                       <timer name='rtc' tickpolicy='catchup'/>
                     </clock>
                   VALIDATE: "Yes"
+    "/etc/one/fireedge/sunstone/tabs/oneks-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        content: |-
+            - title: Kubernetes
+              icon: XrayView
+              routes:
+                - title: Create Kubernetes Cluster
+                  path: /kubernetes/create
+                  Component: CreateOneKsCluster
+                - title: Kubernetes Logs
+                  path: /kubernetes/create_kubernetes_logs/:id
+                  Component: CreateKubernetesLogs
+                - title: K8S Clusters
+                  path: /kubernetes
+                  icon: XrayView
+                  sidebar: true
+                  Component: OneKs
+                - title: k8S Clusters
+                  path: /kubernetes/:id
+                  Component: OneKsDetail
     "/etc/one/fireedge/sunstone/views/sunstone-views.yaml":
         class: Yaml
         owner: root
@@ -2079,6 +2208,7 @@ patches:
               delete: true
               lock: true
               unlock: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2122,15 +2252,15 @@ patches:
         content: "---\n# This file describes the information and actions available in the Backup Jobs tab\n\n# Resource\n\nresource_name:
             \"BACKUPJOBS\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog:
             true\n  update_dialog: true\n  delete: true\n  chown: true\n  chgrp: true\n  lock: true\n  unlock: true\n  start:
-            true\n  cancel: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n\n# Info Tabs - Which
-            info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
-            \     enabled: true\n      actions:\n        rename: true\n        priority: true\n    permissions_panel:\n      enabled:
-            true\n      actions:\n        chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n        chown:
-            true\n        chgrp: true\n    attributes_panel:\n      enabled: true\n      actions:\n        copy: true\n        add:
-            true\n        edit: true\n        delete: true\n\n  vms:\n    enabled: true\n  sched_actions:\n    enabled: true\n
-            \   actions:\n      sched_action_create: true\n      sched_action_update: true\n      sched_action_delete: true\n
-            \ \n\n# Dialogs\ndialogs:\n  create_dialog:\n    general: true\n    vms: true\n    datastores: true\n    sched_actions:
-            true"
+            true\n  cancel: true\n  edit_labels: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n\n#
+            Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n
+            \   information_panel:\n      enabled: true\n      actions:\n        rename: true\n        priority: true\n    permissions_panel:\n
+            \     enabled: true\n      actions:\n        chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n
+            \       chown: true\n        chgrp: true\n    attributes_panel:\n      enabled: true\n      actions:\n        copy:
+            true\n        add: true\n        edit: true\n        delete: true\n\n  vms:\n    enabled: true\n  sched_actions:\n
+            \   enabled: true\n    actions:\n      sched_action_create: true\n      sched_action_update: true\n      sched_action_delete:
+            true\n  \n\n# Dialogs\ndialogs:\n  create_dialog:\n    general: true\n    vms: true\n    datastores: true\n    sched_actions:
+            true\n"
     "/etc/one/fireedge/sunstone/views/admin/cluster-tab.yaml":
         class: Yaml
         owner: root
@@ -2139,14 +2269,15 @@ patches:
         content: "---\n# This file describes the information and actions available in the CLUSTER tab\n\n# Resource\n\nresource_name:
             \"CLUSTER\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog:
             true\n  create_cloud_dialog: true\n  create_cloud_dialog_logs: true\n  update_dialog: true\n  deprovision: true\n
-            \ retry: true\n  delete: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n\n# Info Tabs
-            - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
-            \     enabled: true\n      actions:\n        rename: true\n    overcommitment:\n      enabled: true\n      actions:\n
-            \       update_cpu: true\n        update_memory: true\n    attributes_panel:\n      enabled: true\n      actions:\n
-            \       copy: true\n        add: true\n        edit: true\n        delete: true\n\n  host:\n    enabled: true\n
-            \   provision:\n      actions:\n        add: true\n        delete: true\n  vnet:\n    enabled: true\n    provision:\n
-            \     actions:\n        add: true\n        delete: true\n        delete_ar: true\n        \n  datastore:\n    enabled:
-            true\n  drs:\n    enabled: true\n  events:\n    enabled: true  \n  logs:\n    enabled: true  \n"
+            \ retry: true\n  delete: true\n  edit_labels: true\n\n# Filters - List of criteria to filter the resources\n\nfilters:\n\n#
+            Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n
+            \   information_panel:\n      enabled: true\n      actions:\n        rename: true\n    overcommitment:\n      enabled:
+            true\n      actions:\n        update_cpu: true\n        update_memory: true\n    attributes_panel:\n      enabled:
+            true\n      actions:\n        copy: true\n        add: true\n        edit: true\n        delete: true\n\n  host:\n
+            \   enabled: true\n    provision:\n      actions:\n        add: true\n        delete: true\n  vnet:\n    enabled:
+            true\n    provision:\n      actions:\n        add: true\n        delete: true\n        delete_ar: true\n        \n
+            \ datastore:\n    enabled: true\n  drs:\n    enabled: true\n  events:\n    enabled: true  \n  logs:\n    enabled:
+            true  \n"
     "/etc/one/fireedge/sunstone/views/admin/dashboard-tab.yaml":
         class: Yaml
         owner: root
@@ -2178,14 +2309,6 @@ patches:
                 order: 40
                 size: quarter
                 to: true
-              - id: cpu-chart
-                order: 50
-                size: half
-                to: false
-              - id: memory-chart
-                order: 60
-                size: half
-                to: false
               - id: cluster-capacity
                 order: 70
                 size: wide
@@ -2261,7 +2384,7 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        content: |-
+        content: |
             ---
             # This file describes the information and actions available in the DRIVER tab
 
@@ -2275,6 +2398,7 @@ patches:
               enable: true
               disable: true
               sync: true
+              edit_labels: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -2294,7 +2418,7 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        content: |-
+        content: |
             ---
             # This file describes the information and actions available in the FILE tab
 
@@ -2314,6 +2438,7 @@ patches:
               chown: true
               chgrp: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2439,6 +2564,7 @@ patches:
               offline: true
               flush: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2496,7 +2622,7 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        content: |-
+        content: |
             ---
             # This file describes the information and actions available in the IMAGE tab
 
@@ -2519,6 +2645,7 @@ patches:
               chown: true
               chgrp: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2652,6 +2779,7 @@ patches:
               delete: true
               disable: true
               enable: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2685,12 +2813,70 @@ patches:
 
               apps:
                 enabled: true
-    "/etc/one/fireedge/sunstone/views/admin/provider-tab.yaml":
+    "/etc/one/fireedge/sunstone/views/admin/oneks-tab.yaml":
         class: Yaml
         owner: root
         group: oneadmin
         mode: '0640'
         content: |-
+            ---
+            # This file describes the information and actions available in the ONEKS tab
+
+            # Resource
+
+            resource_name: "KUBERNETES"
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              create_dialog: true
+              recover: true
+              upgrade: true
+              edit_labels: true
+              delete: true
+
+            # Filters - List of criteria to filter the resources
+
+            filters:
+              id: true
+              name: true
+              state: true
+              version: true
+              locked: true
+              created: true
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+                permissions_panel:
+                  enabled: true
+                  actions:
+                    chmod: true
+                ownership_panel:
+                  enabled: true
+                  actions:
+                    chown: true
+                    chgrp: true
+              nodegroup:
+                enabled: true
+                actions:
+                  create_dialog: true
+              logs:
+                enabled: true
+              events:
+                enabled: true
+              kubeconfig:
+                enabled: true
+    "/etc/one/fireedge/sunstone/views/admin/provider-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        content: |
             ---
             # This file describes the information and actions available in the PROVIDER tab
 
@@ -2706,6 +2892,7 @@ patches:
               delete: true
               chown: true
               chgrp: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2762,6 +2949,7 @@ patches:
               chown: true
               chgrp: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -2876,6 +3064,9 @@ patches:
                   disk-snapshot-revert: true
                   disk-snapshot-delete: true
 
+              networks:
+                enabled: true
+
               log:
                 enabled: true
 
@@ -2885,6 +3076,9 @@ patches:
                   sched-add: true
                   sched-update: true
                   sched-delete: true
+
+              template:
+                enabled: true
 
             # Dialogs
 
@@ -2950,6 +3144,9 @@ patches:
               roles:
                 enabled: true
 
+              networks:
+                enabled: true
+
               template:
                 enabled: true
 
@@ -2992,6 +3189,7 @@ patches:
             actions:
               create_dialog: true
               logout: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -3108,13 +3306,13 @@ patches:
         mode: '0640'
         content: "---\n# This file describe the information add actions available in the VM GROUP TEMPLATES tab\n\n# Resource\n\nresource_name:
             \"VM-GROUP\"\n\n# Actions - Which buttons are visible to operate over the resource\n\nactions: \n  create_dialog:
-            true\n  update_dialog: true\n  enable: true\n  disable: true\n  chgrp: true\n  chown: true\n  delete: true\n\n#
-            Filters -  List of criteria to filter the resource\n\nfilters: \n  state: true\n\n\n\n# Info Tabs - Which info
-            tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
+            true\n  update_dialog: true\n  enable: true\n  disable: true\n  chgrp: true\n  chown: true\n  delete: true\n  edit_labels:
+            true\n\n# Filters -  List of criteria to filter the resource\n\nfilters: \n  state: true\n\n\n\n# Info Tabs -
+            Which info tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
             \     enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n      enabled: true\n      actions:\n
             \       chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n        chown: true\n        chgrp:
             true\n    roles_panel:\n      enabled: true\n    roles-affinity_panel:\n      enabled: true\n  vms:\n    enabled:
-            true\n\n"
+            true\n"
     "/etc/one/fireedge/sunstone/views/admin/vm-tab.yaml":
         class: Yaml
         owner: root
@@ -3411,6 +3609,7 @@ patches:
               lock: true
               unlock: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -3507,6 +3706,7 @@ patches:
               chgrp: true
               lock: true
               unlock: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -3628,6 +3828,9 @@ patches:
               nics:
                 enabled: true
 
+              template:
+                enabled: true
+
 
             # Dialogs
 
@@ -3721,6 +3924,7 @@ patches:
             actions:
               create_dialog: true
               delete: true
+              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -3763,14 +3967,6 @@ patches:
                 order: 10
                 size: full
                 to: true
-              - id: cpu-chart
-                order: 20
-                size: half
-                to: false
-              - id: memory-chart
-                order: 30
-                size: half
-                to: false
     "/etc/one/fireedge/sunstone/views/cloud/marketplace-app-tab.yaml":
         class: Yaml
         owner: root
@@ -3920,6 +4116,9 @@ patches:
                   disk-snapshot-revert: true
                   disk-snapshot-delete: true
 
+              networks:
+                enabled: true
+
               log:
                 enabled: true
 
@@ -3929,6 +4128,9 @@ patches:
                   sched-add: true
                   sched-update: true
                   sched-delete: true
+
+              template:
+                enabled: true
 
             # Dialogs
 
@@ -4224,14 +4426,6 @@ patches:
                 order: 40
                 size: third
                 to: true
-              - id: cpu-chart
-                order: 50
-                size: half
-                to: false
-              - id: memory-chart
-                order: 60
-                size: half
-                to: false
               - id: system
                 order: 80
                 size: full
@@ -4576,7 +4770,6 @@ patches:
               chgrp: true
               share: true
               unshare: true
-              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -4631,6 +4824,9 @@ patches:
                   disk-snapshot-revert: true
                   disk-snapshot-delete: true
 
+              networks:
+                enabled: true
+
               log:
                 enabled: true
 
@@ -4640,6 +4836,9 @@ patches:
                   sched-add: true
                   sched-update: true
                   sched-delete: true
+
+              template:
+                enabled: true
 
             # Dialogs
 
@@ -4703,6 +4902,9 @@ patches:
                     chgrp: false
 
               roles:
+                enabled: true
+
+              networks:
                 enabled: true
 
               template:
@@ -5120,7 +5322,6 @@ patches:
               chgrp: true
               lock: true
               unlock: true
-              edit_labels: true
 
             # Filters - List of criteria to filter the resources
 
@@ -5158,6 +5359,9 @@ patches:
               vms:
                 enabled: true
               nics:
+                enabled: true
+
+              template:
                 enabled: true
 
 
@@ -5317,14 +5521,6 @@ patches:
                 order: 40
                 size: third
                 to: true
-              - id: cpu-chart
-                order: 50
-                size: half
-                to: false
-              - id: memory-chart
-                order: 60
-                size: half
-                to: false
     "/etc/one/fireedge/sunstone/views/user/file-tab.yaml":
         class: Yaml
         owner: root
@@ -5586,6 +5782,62 @@ patches:
 
               template:
                 enabled: true
+    "/etc/one/fireedge/sunstone/views/user/oneks-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        content: |
+            ---
+            # This file describes the information and actions available in the ONEKS tab
+
+            # Resource
+
+            resource_name: "KUBERNETES"
+
+            # Actions - Which buttons are visible to operate over the resources
+
+            actions:
+              create_dialog: true
+              recover: true
+              delete: true
+
+            # Filters - List of criteria to filter the resources
+
+            filters:
+              id: true
+              name: true
+              state: true
+              version: true
+              locked: true
+              created: true
+
+            # Info Tabs - Which info tabs are used to show extended information
+
+            info-tabs:
+              info:
+                enabled: true
+                information_panel:
+                  enabled: true
+                permissions_panel:
+                  enabled: true
+                  actions:
+                    chmod: true
+                ownership_panel:
+                  enabled: true
+                  actions:
+                    chown: true
+                    chgrp: true
+              nodegroup:
+                enabled: true
+                actions:
+                  create_dialog: true
+              logs:
+                enabled: true
+              events:
+                enabled: true
+              kubeconfig:
+                enabled: true
     "/etc/one/fireedge/sunstone/views/user/sec-group-tab.yaml":
         class: Yaml
         owner: root
@@ -5724,6 +5976,9 @@ patches:
                   disk-snapshot-revert: true
                   disk-snapshot-delete: true
 
+              networks:
+                enabled: true
+
               log:
                 enabled: true
 
@@ -5733,6 +5988,9 @@ patches:
                   sched-add: true
                   sched-update: true
                   sched-delete: true
+
+              template:
+                enabled: true
 
             # Dialogs
 
@@ -8421,20 +8679,25 @@ patches:
             \        - CPU: Relative importance of the total CPU.\n#         - MEMORY: Relative importance of total memory.\n#\n#
             OPTIMIZATION: The optimization settings\n#    - POLICY: \n#         - \"BALANCE\": Specifies that VMs should be
             distributed to ensure an even load across hosts.\n#         - \"PACK\": Indicates that VMs should be placed onto
-            the minimum number of hosts.\n#    - MIGRATION_THRESHOLD: Sets the threshold for the number of VMs that can be
-            migrated.\n#      Default is -1 that means no migration threshold is configured.\n#    - WEIGHTS:\n#         -
-            CPU_USAGE: Relative importance of the CPU usage metric.\n#         - CPU: Relative importance of the total CPU.\n#
-            \        - MEMORY: Relative importance of total memory.\n#         - DISK: Relative importance of disk usage (read
-            and written).\n#         - NET: Relative importanve of network usage (transmitted and received)\n#\n#  PREDICTIVE:
-            Integrates both current and forecasted resource usage into scheduling decisions.\n#  A value of 0.3 means that
-            30% of the optimization is based on predicted resource usage,\n#  with the remaining 70% derived from current
-            resource usage.\n#\n#  MEMORY_SYSTEM_DS_SCALE: This factor scales the VM usage of the system DS with\n#  the memory
-            size. This factor can be use to make the scheduler consider the\n#  overhead of checkpoint files:\n#       system_ds_usage
-            = system_ds_usage + memory_system_ds_scale * memory\n#\n#  DIFFERENT_VNETS: When set (YES) the NICs of a VM will
-            be forced to be in\n#  different Virtual Networks.\n#*******************************************************************************\n\nDEFAULT_SCHED:\n
+            the minimum number of hosts.\n#    - MIGRATION_THRESHOLD: Sets the maximum combined number of host and\n#      datastore
+            migrations. Default is -1 that means no migration\n#      threshold is configured and imposed.\n#    - HOST_MIGRATION_THRESHOLD:
+            Sets the maximum number of VM\n#      migrations allowed between hosts. Default is -1 that means no\n#      host
+            migration threshold is configured and imposed.\n#    - DS_MIGRATION_THRESHOLD: Sets the maximum number of VM migrations\n#
+            \     allowed between datastores. Default is 0 that means migrations\n#      between datastores are not allowed.
+            Use -1 for unlimited\n#      storage migrations.\n#    - WEIGHTS:\n#         - CPU_USAGE: Relative importance
+            of the CPU usage metric.\n#         - CPU: Relative importance of the total CPU.\n#         - MEMORY: Relative
+            importance of total memory.\n#         - DISK: Relative importance of disk usage (read and written).\n#         -
+            NET: Relative importanve of network usage (transmitted and received)\n#\n#  PREDICTIVE: Integrates both current
+            and forecasted resource usage into scheduling decisions.\n#  A value of 0.3 means that 30% of the optimization
+            is based on predicted resource usage,\n#  with the remaining 70% derived from current resource usage.\n#\n#  MEMORY_SYSTEM_DS_SCALE:
+            This factor scales the VM usage of the system DS with\n#  the memory size. This factor can be use to make the
+            scheduler consider the\n#  overhead of checkpoint files:\n#       system_ds_usage = system_ds_usage + memory_system_ds_scale
+            * memory\n#\n#  DIFFERENT_VNETS: When set (YES) the NICs of a VM will be forced to be in\n#  different Virtual
+            Networks.\n#*******************************************************************************\n\nDEFAULT_SCHED:\n
             \ SOLVER: \"CBC\"\n  SOLVER_PATH: \"/usr/lib/one/python/pulp/solverdir/cbc/linux/$arch/cbc\"\n\nPLACE:\n  POLICY:
-            \"BALANCE\"\n  WEIGHTS:\n    CPU: 1\n\nOPTIMIZE:\n  POLICY: \"BALANCE\"\n  MIGRATION_THRESHOLD: -1\n  PRIORITIZE_STORAGE_MIGRATIONS:
-            \"NO\"\n  WEIGHTS:\n    CPU_USAGE: 1\n\nPREDICTIVE: 0\n\nMEMORY_SYSTEM_DS_SCALE: 0\n\nDIFFERENT_VNETS: YES"
+            \"BALANCE\"\n  WEIGHTS:\n    CPU: 1\n\nOPTIMIZE:\n  POLICY: \"BALANCE\"\n  MIGRATION_THRESHOLD: -1\n  HOST_MIGRATION_THRESHOLD:
+            -1\n  DS_MIGRATION_THRESHOLD: 0\n  PRIORITIZE_STORAGE_MIGRATIONS: \"NO\"\n  WEIGHTS:\n    CPU_USAGE: 1\n\nPREDICTIVE:
+            0\n\nMEMORY_SYSTEM_DS_SCALE: 0\n\nDIFFERENT_VNETS: YES"
     "/etc/one/onehem-server.conf":
         class: Yaml
         owner: root
@@ -8924,6 +9187,107 @@ patches:
             #   - syslog: log to syslog
             :log:
               :level: 2
+              :system: file
+    "/etc/one/oneks-server.conf":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        content: |
+            ################################################################################
+            # Server Configuration
+            ################################################################################
+
+            # OpenNebula daemon contact information
+            :one_xmlrpc: http://localhost:2633/RPC2
+
+            # OpenNebula XML-RPC endpoint exposed through the TPROXY network.
+            # This endpoint is used by workloads that must reach OpenNebula through
+            # the cluster router, so TPROXY must be enabled in OpenNebula networking
+            # configuration file VAR_LOCATION/remotes/etc/vnm/OpenNebulaNetwork.conf
+            :one_xmlrpc_tproxy: http://169.254.16.9:2633/RPC2
+
+            # Server configuration where OneKS server will run
+            :server:
+              :environment: production
+              :bind: 127.0.0.1
+              :port: 10780
+
+            # Subscribe endpoint for OpenNebula events (must match those in oned.conf)
+            :subscriber_endpoint: 'tcp://localhost:2101'
+
+            # Default receive timeout, in seconds, for OpenNebula event subscribers
+            :subscriber_timeout: 10
+
+            ################################################################################
+            # Kubernetes Configuration
+            ################################################################################
+
+            # Path to the kubectl binary used for Kubernetes operations
+            :kubectl_path: '/var/lib/rancher/rke2/bin/kubectl'
+
+            # Path to the kubeconfig file used by kubectl commands
+            :kubeconfig_path: '/etc/rancher/rke2/rke2.yaml'
+
+            # Timeout, in seconds, while waiting for Kubernetes command execution results
+            :k8s_timeout: 15
+
+            ################################################################################
+            # Cluster Readiness Check
+            ################################################################################
+
+            # Cluster Readiness Check configuration. Comment out this section to disable it.
+            # When enabled, users can run environment validation checks through OneKS.
+            # The check deploys the OneKS appliance from the default control plane family
+            # in the image datastore selected by the deployment being checked.
+            #   external_url       : public URL used to validate DNS resolution and outbound
+            #                        Internet access
+            #   timeout            : maximum time, in seconds, to wait for the probe VM and
+            #                        each check
+            :readiness:
+              :external_url: 'https://get.rke2.io'
+              :timeout: 60
+
+            ################################################################################
+            # Defaults
+            ################################################################################
+
+            # Default retries in case of aborting call
+            :retries: 5
+
+            # Default cooldown period after a scale operation, in seconds
+            :default_cooldown: 300
+
+            # Number of threads to make actions with clusters
+            # Tune this depending of the load you will have
+            :concurrency: 10
+
+            # Base prefix used when generating names for created resources
+            :base_name: 'oneks'
+
+            #############################################################
+            # Auth
+            #############################################################
+
+            # Authentication driver to communicate with OpenNebula core
+            #   - cipher, for symmetric cipher encryption of tokens
+            #   - x509, for x509 certificate encryption of tokens
+            :auth: opennebula
+            :core_auth: cipher
+            :expire_delta: 3600
+
+            ################################################################################
+            # Log
+            ################################################################################
+
+            # Log debug level
+            #   0 = ERROR, 1 = WARNING, 2 = INFO, 3 = DEBUG
+            #
+            # System
+            #   - file: log to log file
+            #   - syslog: log to syslog
+            :log:
+              :level: 3
               :system: file
     "/var/lib/one/remotes/etc/datastore/datastore.conf":
         class: Augeas::Shell
@@ -9675,9 +10039,11 @@ patches:
             # - :networks: [0, vnet1]
             #
             # The simplest example of an OneGate proxy config applied to all VNETs:
+            # When a FQDN is configured for :remote_addr:, the host resolver will resolve
+            # it to an IP.
             # :tproxy:
             # - :service_port: 5030
-            #   :remote_addr: 10.11.12.13 # HA VIP
+            #   :remote_addr: 10.11.12.13 # HA VIP or FQDN
             #   :remote_port: 5030
     "/var/lib/one/remotes/etc/onebex/onebex-server.conf":
         class: Yaml
