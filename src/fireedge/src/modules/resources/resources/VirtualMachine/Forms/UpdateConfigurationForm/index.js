@@ -35,6 +35,7 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
   ContentForm,
   transformInitialValue: (vmTemplate, schema) => {
     const template = vmTemplate?.TEMPLATE ?? {}
+    const hypervisor = vmTemplate?._HYPERVISOR
     const context = template?.CONTEXT ?? {}
     const bootOrder = template?.OS?.BOOT
     const nics = [].concat(template?.NIC ?? []).flat()
@@ -101,7 +102,7 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
 
       if (template.RAW.DATA) {
         // DATA exists, so we add TYPE and transform DATA
-        knownTemplate.RAW.TYPE = template.HYPERVISOR
+        knownTemplate.RAW.TYPE = hypervisor
         knownTemplate.RAW.DATA = template.RAW.DATA
       } else {
         // DATA doesn't exist, remove RAW from template
