@@ -17,7 +17,8 @@ import { ReactElement } from 'react'
 import { useHistory } from 'react-router'
 
 import { jsonToXml } from '@UtilsModule'
-import { DefaultFormStepper, SkeletonStepsForm, Files } from '@ResourcesModule'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
+import { Files } from '@ResourcesModule'
 
 import { useGeneralApi, DatastoreAPI, ImageAPI } from '@FeaturesModule'
 

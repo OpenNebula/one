@@ -16,7 +16,7 @@
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
 import { AuthAPI } from '@FeaturesModule'
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 import { Box, useTheme } from '@mui/material'
 import { LogOut as LogOutIcon } from 'iconoir-react'
 import { memo, useMemo } from 'react'

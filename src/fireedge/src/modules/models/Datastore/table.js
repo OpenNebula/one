@@ -23,7 +23,7 @@ import {
 import { createTable } from '@UtilsModule'
 import { DatastoreAPI } from '@FeaturesModule'
 import { createLabelColumn } from '@modules/models/labels'
-import { ProgressBar, StatusTag, Tag } from '@ComponentsV2Module'
+import { ProgressBar, StatusTag, Tag } from '@ComponentsModule'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const DATASTORE_COLUMNS = [

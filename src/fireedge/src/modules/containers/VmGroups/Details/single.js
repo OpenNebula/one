@@ -23,7 +23,7 @@ import {
   ToggleGroup,
   ButtonGroup,
   ResourceActionConfirmation,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { Component } from 'react'
 import { RESOURCE_NAMES, T, PATH } from '@ConstantsModule'
 import { Box, useTheme } from '@mui/material'

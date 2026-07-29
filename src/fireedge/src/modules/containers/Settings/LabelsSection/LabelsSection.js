@@ -16,7 +16,7 @@
 
 import { ReactElement, useMemo } from 'react'
 
-import { ManageLabels } from '@ComponentsV2Module'
+import { ManageLabels } from '@ComponentsModule'
 import { Box, useTheme } from '@mui/material'
 import { css } from '@emotion/css'
 

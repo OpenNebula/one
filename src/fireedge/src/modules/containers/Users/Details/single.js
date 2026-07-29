@@ -21,7 +21,7 @@ import {
   ToggleGroup,
   TabSlot,
   ButtonGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { T, USER_ACTIONS } from '@ConstantsModule'
 import { UserAPI, useModalsApi } from '@FeaturesModule'

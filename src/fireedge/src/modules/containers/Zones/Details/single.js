@@ -22,7 +22,7 @@ import {
   TabSlot,
   ToggleGroup,
   StatusTag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { Box } from '@mui/material'
 import { Component } from 'react'

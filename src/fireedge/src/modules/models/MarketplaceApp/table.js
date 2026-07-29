@@ -22,7 +22,7 @@ import {
 } from '@UtilsModule'
 import { MarketplaceAppAPI } from '@FeaturesModule'
 import { T, UNITS } from '@ConstantsModule'
-import { StatusTag, Tag } from '@ComponentsV2Module'
+import { StatusTag, Tag } from '@ComponentsModule'
 import { Box } from '@mui/material'
 import { createLabelColumn } from '@modules/models/labels'
 

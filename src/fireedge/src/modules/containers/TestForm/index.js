@@ -19,7 +19,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { object } from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { FormWithSchema } from '@ResourcesModule'
+import { FormWithSchema } from '@ComponentsModule'
 
 /**
  * @returns {ReactElement}

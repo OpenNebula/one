@@ -13,26 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { VDCsTable, VDCTabs } from '@ResourcesModule'
+import { PATH, RESOURCE_NAMES } from '@ConstantsModule'
+import { createResourceDetailRoute } from '@modules/containers/ResourceSingleView/route'
 
-import { ReactElement } from 'react'
-import { Redirect, useParams } from 'react-router-dom'
-
-/**
- * Displays the detail information about a VDC.
- *
- * @returns {ReactElement} VDC detail component.
- */
-export function VDCDetail() {
-  const { id } = useParams()
-
-  if (Number.isNaN(+id)) {
-    return <Redirect to="/" />
-  }
-
-  return (
-    <>
-      <VDCTabs id={id} singleActions={VDCsTable.Actions} />
-    </>
-  )
-}
+export const VDCDetail = createResourceDetailRoute(
+  RESOURCE_NAMES.VDC,
+  PATH.SYSTEM.VDCS.LIST,
+  'VDCDetail'
+)

@@ -14,9 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { FormWithSchema } from '@ResourcesModule'
 import { Translate, useTranslation } from '@ProvidersModule'
-import { Button, SubmitButton } from '@ComponentsV2Module'
+import { Button, FormWithSchema, SubmitButton } from '@ComponentsModule'
 import { AUTH_APPS, STYLE_BUTTONS, T } from '@ConstantsModule'
 import {
   TfaAPI,

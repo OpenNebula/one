@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 import { Cancel } from 'iconoir-react'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
-import { Button, DetailsDrawer, SkeletonLoading } from '@ComponentsV2Module'
+import { Button, DetailsDrawer, SkeletonLoading } from '@ComponentsModule'
 import { getResourceSingleView } from '@modules/containers/ResourceSingleView/registry'
 import { getResourceName } from '@modules/containers/ResourceSingleView/stack'
 

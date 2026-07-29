@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { css } from '@emotion/css'
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 import { UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
 import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
 import {

@@ -22,7 +22,7 @@ import {
   TabSlot,
   ButtonGroup,
   Button,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { ImageAPI, useModalsApi } from '@FeaturesModule'
 import { Component, useMemo } from 'react'
