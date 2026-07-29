@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { List, Table, ResourceContainer } from '@ComponentsV2Module'
+import { List, Table, ResourceContainer } from '@ComponentsModule'
 import { VirtualMachine } from '@ResourcesModule'
 import { T, TABLE_VIEW_MODE, VM_POOL_PAGINATION_SIZE } from '@ConstantsModule'
 import {

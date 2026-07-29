@@ -14,14 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useEffect, ReactElement, useMemo } from 'react'
-import { SubmitButton, Text } from '@ComponentsV2Module'
+import { FormWithSchema, SubmitButton, Text } from '@ComponentsModule'
 import PropTypes from 'prop-types'
 
 import { Box, Stack, useTheme } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { FormWithSchema } from '@ResourcesModule'
 import { T, STYLE_BUTTONS, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 import { css } from '@emotion/css'
 

@@ -16,11 +16,8 @@
 import { ReactElement } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { useGeneralApi, VnTemplateAPI, useSystemData } from '@FeaturesModule'
-import {
-  DefaultFormStepper,
-  SkeletonStepsForm,
-  VnTemplate,
-} from '@ResourcesModule'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
+import { VnTemplate } from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'
 

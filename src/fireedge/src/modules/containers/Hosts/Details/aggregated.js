@@ -24,9 +24,9 @@ import {
   StatusTag,
   TabSlot,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { getHostState } from '@ModelsModule'
-import { ChangeClusterForm, Host } from '@ResourcesModule'
+import { Cluster, Host } from '@ResourcesModule'
 import { Box, useTheme } from '@mui/material'
 import { Component, useMemo } from 'react'
 import PropTypes from 'prop-types'
@@ -114,7 +114,7 @@ export const AggregatedView = ({
         )
         await handleRefresh()
       },
-      form: ChangeClusterForm(),
+      form: Cluster.Forms.ChangeClusterForm(),
     })
 
   const handleConfirmAction = ({ title, description, onSubmit }) =>

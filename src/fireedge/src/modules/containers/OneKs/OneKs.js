@@ -21,7 +21,7 @@ import {
   StatusTag,
   Table,
   Tag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { RESOURCE_NAMES, TABLE_VIEW_MODE, T } from '@ConstantsModule'
 import {
   OneKsAPI,

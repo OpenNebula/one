@@ -19,7 +19,7 @@ import { DriverAPI } from '@FeaturesModule'
 import { createTable } from '@UtilsModule'
 import { getDriverState } from '@modules/models/Driver/general'
 import { Stack } from '@mui/material'
-import { StatusTag } from '@ComponentsV2Module'
+import { StatusTag } from '@ComponentsModule'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const DRIVER_COLUMNS = [

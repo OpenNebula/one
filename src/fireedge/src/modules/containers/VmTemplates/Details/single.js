@@ -24,7 +24,7 @@ import {
   ButtonGroup,
   ResourceActionConfirmation,
   Tag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { Component } from 'react'
 import { prettyBytes, timeFromMilliseconds } from '@UtilsModule'

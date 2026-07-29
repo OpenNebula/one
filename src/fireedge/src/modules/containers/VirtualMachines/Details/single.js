@@ -26,7 +26,7 @@ import {
   TagList,
   AlertNotification,
   getLabelMenuButtonProps,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { useModalsApi, VmAPI, ImageAPI, useGeneral } from '@FeaturesModule'
 import { useClipboard } from '@HooksModule'
 import { Component, useMemo } from 'react'

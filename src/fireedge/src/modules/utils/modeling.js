@@ -362,7 +362,7 @@ export const getAvailableInfoTabs = (
     ?.filter(Boolean)
 
 /**
- * Filters the available V2 tabs using the view configuration.
+ * Filters the available design-system tabs using the view configuration.
  *
  * @param {object} configTabs - Info tabs from view yaml
  * @param {object} tabs - Candidate tabs keyed by tab name

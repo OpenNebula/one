@@ -18,7 +18,7 @@
 import { createTable, getTotalOfResources } from '@UtilsModule'
 import { GroupAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
-import { ProgressBar } from '@ComponentsV2Module'
+import { ProgressBar } from '@ComponentsModule'
 
 import { getGroupQuotaUsage } from '@modules/models/Group/general'
 

@@ -35,7 +35,7 @@ export const TestComponents = () => {
   const { ResourceSingleView, openResourceSingleView } = useResourceSingleView()
 
   useEffect(() => {
-    import('@ComponentsV2Module').then((mod) => {
+    import('@ComponentsModule').then((mod) => {
       setModule(mod)
     })
   }, [])

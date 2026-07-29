@@ -14,5 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/containers/ServiceTemplates/Create'
+export * from '@modules/containers/ServiceTemplates/Detail'
 export * from '@modules/containers/ServiceTemplates/Instantiate'
 export * from '@modules/containers/ServiceTemplates/ServiceTemplates'

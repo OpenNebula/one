@@ -22,7 +22,7 @@ import {
   TabSlot,
   Button,
   ResourceActionConfirmation,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { useModalsApi, ServiceTemplateAPI } from '@FeaturesModule'
 import { Component, useMemo } from 'react'

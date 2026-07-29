@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { FormDialog, List, Table, ResourceContainer } from '@ComponentsV2Module'
+import { FormDialog, List, Table, ResourceContainer } from '@ComponentsModule'
 
 import { T, TABLE_VIEW_MODE, RESOURCE_NAMES } from '@ConstantsModule'
 import {

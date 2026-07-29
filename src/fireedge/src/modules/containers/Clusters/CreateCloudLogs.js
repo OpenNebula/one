@@ -23,7 +23,7 @@ import {
   ProgressBar,
   StatusTag,
   Text,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { Box, Stack } from '@mui/material'
 import { ProvisionAPI } from '@FeaturesModule'
 import {

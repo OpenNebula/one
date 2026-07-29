@@ -13,26 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
+import { PATH, RESOURCE_NAMES } from '@ConstantsModule'
+import { createResourceDetailRoute } from '@modules/containers/ResourceSingleView/route'
 
-import { ServiceTabs } from '@ResourcesModule'
-
-/**
- * Displays the detail information about a Service.
- *
- * @returns {ReactElement} Service detail component.
- */
-export function ServiceDetail() {
-  const { id } = useParams()
-
-  if (Number.isNaN(+id)) {
-    return <Redirect to="/" />
-  }
-
-  return (
-    <>
-      <ServiceTabs id={id} />
-    </>
-  )
-}
+export const ServiceDetail = createResourceDetailRoute(
+  RESOURCE_NAMES.SERVICE,
+  PATH.INSTANCE.SERVICES.LIST,
+  'ServiceDetail'
+)

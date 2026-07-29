@@ -21,7 +21,7 @@ import {
   LabelButton,
   SummarySlot,
   TabSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { RESOURCE_NAMES, STYLE_BUTTONS, T } from '@ConstantsModule'
 import { Provider } from '@ResourcesModule'
 import { aggregateMetrics } from '@UtilsModule'

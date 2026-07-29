@@ -28,7 +28,7 @@ import {
 } from '@mui/material'
 import { RestClient, requestConfig } from '@UtilsModule'
 
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 
 /**
  * @param {object} props - Component props

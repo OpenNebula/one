@@ -23,7 +23,7 @@ import {
   SummarySlot,
   TabSlot,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { unset } from 'lodash'
 import { Box, useTheme } from '@mui/material'
 import { Component, useMemo } from 'react'

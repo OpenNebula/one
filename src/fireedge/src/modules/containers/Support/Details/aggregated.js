@@ -20,7 +20,7 @@ import {
   SummarySlot,
   TabSlot,
   Button,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { Component, useMemo } from 'react'
 import { SEVERITIES, STYLE_BUTTONS, T, TICKET_FIELDS } from '@ConstantsModule'
 import { Box } from '@mui/material'

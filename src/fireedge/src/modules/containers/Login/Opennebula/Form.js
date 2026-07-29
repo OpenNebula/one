@@ -20,12 +20,11 @@ import { useEffect, useMemo } from 'react'
 import { Box, Divider, Link, Stack, useTheme } from '@mui/material'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
-import { FormWithSchema } from '@ResourcesModule'
 import { Translate } from '@ProvidersModule'
 import { getDigits } from '@UtilsModule'
 import { DEFAULT_OTP_LENGTH, INPUT_TYPES, T } from '@ConstantsModule'
 
-import { SubmitButton } from '@ComponentsV2Module'
+import { FormWithSchema, SubmitButton } from '@ComponentsModule'
 import { styles } from '@modules/containers/Login/styles'
 
 const getErrorMessage = (error) =>

@@ -22,7 +22,7 @@ export const DRIVER_STATES = {
   },
   DISABLED: {
     name: 'DISABLED',
-    color: 'disable',
+    color: 'default',
   },
 }
 

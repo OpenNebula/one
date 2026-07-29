@@ -22,7 +22,7 @@ import {
   ListItemText,
   useTheme,
 } from '@mui/material'
-import { Text } from '@ComponentsV2Module'
+import { Text } from '@ComponentsModule'
 
 import {
   SUPPORT_WEBSITE,

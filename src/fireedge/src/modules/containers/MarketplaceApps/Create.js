@@ -18,11 +18,8 @@ import { useHistory, useLocation } from 'react-router'
 
 import { useGeneralApi, MarketplaceAppAPI } from '@FeaturesModule'
 
-import {
-  DefaultFormStepper,
-  SkeletonStepsForm,
-  MarketplaceApp,
-} from '@ResourcesModule'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
+import { MarketplaceApp } from '@ResourcesModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 
 /**

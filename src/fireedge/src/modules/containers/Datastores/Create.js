@@ -18,11 +18,8 @@ import { useHistory, useLocation } from 'react-router'
 
 import { DatastoreAPI, useGeneralApi } from '@FeaturesModule'
 import { jsonToXml } from '@UtilsModule'
-import {
-  DefaultFormStepper,
-  SkeletonStepsForm,
-  Datastore,
-} from '@ResourcesModule'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
+import { Datastore } from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'
 
