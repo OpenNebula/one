@@ -18,7 +18,10 @@ import SingleBar from '@modules/componentsv2/composed/Charts/SingleBar'
 import Chartist from '@modules/componentsv2/composed/Charts/Chartist'
 import Graph from '@modules/componentsv2/composed/Charts/Graph'
 import MultiChart from '@modules/componentsv2/composed/Charts/MultiChart'
-import { transformApiResponseToDataset } from '@modules/componentsv2/composed/Charts/MultiChart/helpers/scripts'
+import {
+  filterDataset,
+  transformApiResponseToDataset,
+} from '@modules/componentsv2/composed/Charts/MultiChart/helpers/scripts'
 
 export {
   CircleChart,
@@ -26,5 +29,6 @@ export {
   Chartist,
   MultiChart,
   Graph,
+  filterDataset,
   transformApiResponseToDataset,
 }

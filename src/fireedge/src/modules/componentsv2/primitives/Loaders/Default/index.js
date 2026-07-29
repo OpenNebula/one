@@ -32,6 +32,8 @@ const getDimensions = (theme, size) => {
     large: theme.scale[900],
     medium: theme.scale[800],
     small: theme.scale[600],
+    xsmall: theme.scale[500],
+    'x-small': theme.scale[500],
     'extra-small': theme.scale[500],
   }
 
@@ -53,8 +55,15 @@ export const Loader = forwardRef(
     const dimensions = getDimensions(theme, size)
 
     return (
-      <Box ref={ref} sx={getStyles({ theme, type, dimensions })}>
-        <LoaderCircleSvg viewBoxSide={dimensions} />
+      <Box
+        ref={ref}
+        role="status"
+        aria-label={ariaLabel}
+        aria-busy="true"
+        {...opts}
+        sx={[getStyles({ theme, type, dimensions }), opts.sx]}
+      >
+        <LoaderCircleSvg />
       </Box>
     )
   }
@@ -62,7 +71,14 @@ export const Loader = forwardRef(
 
 Loader.propTypes = {
   type: PropTypes.oneOf(['primary', 'secondary']),
-  size: PropTypes.oneOf(['large', 'medium', 'small', 'xsmall', 'x-small']),
+  size: PropTypes.oneOf([
+    'large',
+    'medium',
+    'small',
+    'xsmall',
+    'x-small',
+    'extra-small',
+  ]),
   ariaLabel: PropTypes.string,
 }
 

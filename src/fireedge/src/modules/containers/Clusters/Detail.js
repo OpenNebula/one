@@ -13,26 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ClustersTable, ClusterTabs } from '@ResourcesModule'
+import { PATH, RESOURCE_NAMES } from '@ConstantsModule'
+import { createResourceDetailRoute } from '@modules/containers/ResourceSingleView/route'
 
-import { ReactElement } from 'react'
-import { Redirect, useParams } from 'react-router-dom'
-
-/**
- * Displays the detail information about a Cluster.
- *
- * @returns {ReactElement} Cluster detail component.
- */
-export function ClusterDetail() {
-  const { id } = useParams()
-
-  if (Number.isNaN(+id)) {
-    return <Redirect to="/" />
-  }
-
-  return (
-    <>
-      <ClusterTabs id={id} singleActions={ClustersTable.Actions} />
-    </>
-  )
-}
+export const ClusterDetail = createResourceDetailRoute(
+  RESOURCE_NAMES.CLUSTER,
+  PATH.INFRASTRUCTURE.CLUSTERS.LIST,
+  'ClusterDetail'
+)

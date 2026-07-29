@@ -26,11 +26,8 @@ import {
   DatastoreAPI,
 } from '@FeaturesModule'
 
-import {
-  DefaultFormStepper,
-  SkeletonStepsForm,
-  ServiceTemplate,
-} from '@ResourcesModule'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { ServiceTemplate } from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'
 

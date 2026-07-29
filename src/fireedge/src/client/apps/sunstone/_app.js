@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import {
-  AuthLayout,
-  ModalHost,
-  Notifier,
+import AuthLayout from 'client/apps/sunstone/components/AuthLayout'
+import ModalHost from 'client/apps/sunstone/components/ModalHost'
+import Notifier, {
   NotifierUpload,
-} from '@ResourcesModule'
+} from 'client/apps/sunstone/components/Notifier'
 import { isDevelopment, processTabManifest } from '@UtilsModule'
 import { Sidebar } from '@ComponentsV2Module'
 import { ENDPOINTS, getEndpointsByView } from 'client/apps/sunstone/routes'

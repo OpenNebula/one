@@ -18,7 +18,8 @@ import { useHistory } from 'react-router'
 
 import { UserAPI, useGeneralApi } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm, User } from '@ResourcesModule'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { User } from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'
 const { useAllocateUserMutation } = UserAPI

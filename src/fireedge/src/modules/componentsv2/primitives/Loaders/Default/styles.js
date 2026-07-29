@@ -32,6 +32,16 @@ const getSvgFill = (theme, type) => {
   return svgFill
 }
 
+const DOT_COUNT = 8
+const ANIMATION_DURATION_MS = 1200
+const DOT_DELAY_MS = ANIMATION_DURATION_MS / DOT_COUNT
+const DOT_ANIMATION_STYLES = Object.fromEntries(
+  Array.from({ length: DOT_COUNT }, (_, index) => [
+    `& .loader-circle-svg circle:nth-of-type(${index + 1})`,
+    { animationDelay: `${(index - DOT_COUNT) * DOT_DELAY_MS}ms` },
+  ])
+)
+
 /**
  * @param {object} root0 - Params
  * @param {object} root0.theme - Current theme in use
@@ -49,11 +59,29 @@ export const getStyles = ({ theme, type, dimensions }) => {
 
   const svgContainer = {
     '& .loader-circle-svg': {
+      display: 'block',
+      width: '100%',
+      height: '100%',
       fill: 'none',
     },
     '& .loader-circle-svg circle': {
       fill: svgFill,
       color: svgFill,
+      opacity: 0,
+      willChange: 'opacity',
+      animation: `loader-dot-fade ${ANIMATION_DURATION_MS}ms linear infinite`,
+    },
+    ...DOT_ANIMATION_STYLES,
+    '@keyframes loader-dot-fade': {
+      '0%': { opacity: 1 },
+      '25%': { opacity: 0.65 },
+      '45%, 100%': { opacity: 0 },
+    },
+    '@media (prefers-reduced-motion: reduce)': {
+      '& .loader-circle-svg circle': {
+        animation: 'none',
+        opacity: 1,
+      },
     },
   }
 

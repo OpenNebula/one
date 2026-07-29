@@ -13,26 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
+import { PATH, RESOURCE_NAMES } from '@ConstantsModule'
+import { createResourceDetailRoute } from '@modules/containers/ResourceSingleView/route'
 
-import { BackupTabs } from '@ResourcesModule'
-
-/**
- * Displays the detail information about a Virtual Machine.
- *
- * @returns {ReactElement} Virtual Machine detail component.
- */
-export function BackupDetail() {
-  const { id } = useParams()
-
-  if (Number.isNaN(+id)) {
-    return <Redirect to="/" />
-  }
-
-  return (
-    <>
-      <BackupTabs id={id} />
-    </>
-  )
-}
+export const BackupDetail = createResourceDetailRoute(
+  RESOURCE_NAMES.BACKUP,
+  PATH.STORAGE.BACKUPS.LIST,
+  'BackupDetail'
+)

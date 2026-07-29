@@ -13,30 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PATH } from '@ConstantsModule'
-import { ReactElement } from 'react'
-import { Redirect, useHistory, useParams } from 'react-router-dom'
+import { PATH, RESOURCE_NAMES } from '@ConstantsModule'
+import { createResourceDetailRoute } from '@modules/containers/ResourceSingleView/route'
 
-import { SingleView } from '@modules/containers/Hosts/Details/single'
-
-/**
- * Displays the detail information about a Host.
- *
- * @returns {ReactElement} Host detail component.
- */
-export function HostDetail() {
-  const { id } = useParams()
-  const history = useHistory()
-
-  if (Number.isNaN(+id)) {
-    return <Redirect to="/" />
-  }
-
-  return (
-    <SingleView
-      isOpen
-      selectedHost={{ ID: id }}
-      handleClose={() => history.push(PATH.INFRASTRUCTURE.HOSTS.LIST)}
-    />
-  )
-}
+export const HostDetail = createResourceDetailRoute(
+  RESOURCE_NAMES.HOST,
+  PATH.INFRASTRUCTURE.HOSTS.LIST,
+  'HostDetail'
+)

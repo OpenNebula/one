@@ -15,11 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import { useHistory } from 'react-router'
-import {
-  DefaultFormStepper,
-  SkeletonStepsForm,
-  BackupJobs,
-} from '@ResourcesModule'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { BackupJobs } from '@ResourcesModule'
 
 import { jsonToXml } from '@UtilsModule'
 import { BackupJobAPI, useGeneralApi } from '@FeaturesModule'

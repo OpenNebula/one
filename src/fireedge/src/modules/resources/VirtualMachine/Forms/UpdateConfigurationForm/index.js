@@ -1,0 +1,168 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2026, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+import ContentForm from '@modules/resources/VirtualMachine/Forms/UpdateConfigurationForm/content'
+import { SCHEMA } from '@modules/resources/VirtualMachine/Forms/UpdateConfigurationForm/schema'
+import {
+  createForm,
+  decodeBase64,
+  getUnknownAttributes,
+  jsonToXml,
+} from '@UtilsModule'
+import { set } from 'lodash'
+import { reach } from 'yup'
+
+const omitEmptyValues = (values = {}) =>
+  Object.fromEntries(
+    Object.entries(values).filter(
+      ([, value]) => value !== undefined && value !== null && value !== ''
+    )
+  )
+
+const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
+  ContentForm,
+  transformInitialValue: (vmTemplate, schema) => {
+    const template = vmTemplate?.TEMPLATE ?? {}
+    const hypervisor = vmTemplate?._HYPERVISOR
+    const context = template?.CONTEXT ?? {}
+    const bootOrder = template?.OS?.BOOT
+    const nics = [].concat(template?.NIC ?? []).flat()
+    const knownTemplate = schema.cast(
+      { ...vmTemplate, ...template },
+      { stripUnknown: true, context: { ...template } }
+    )
+
+    // Get the custom vars from the context
+    const knownContext = reach(schema, 'CONTEXT').cast(context, {
+      stripUnknown: true,
+      context: { ...template },
+    })
+
+    // Merge known and unknown context custom vars
+    knownTemplate.CONTEXT = {
+      ...knownContext,
+      ...getUnknownAttributes(context, knownContext),
+    }
+
+    // Keep updateconf attributes supported by core but not exposed in this
+    // form, otherwise replace mode would remove them.
+    if (template.FEATURES) {
+      knownTemplate.FEATURES = {
+        ...template.FEATURES,
+        ...knownTemplate.FEATURES,
+      }
+    }
+
+    if (template.GRAPHICS) {
+      knownTemplate.GRAPHICS = {
+        ...template.GRAPHICS,
+        ...knownTemplate.GRAPHICS,
+      }
+    }
+
+    // Decode script base 64
+    if (template?.CONTEXT?.START_SCRIPT_BASE64) {
+      knownTemplate.CONTEXT = {
+        ...knownTemplate?.CONTEXT,
+        START_SCRIPT: decodeBase64(template?.CONTEXT?.START_SCRIPT_BASE64),
+        ENCODE_START_SCRIPT: true,
+      }
+    } else if (template?.CONTEXT?.START_SCRIPT) {
+      knownTemplate.CONTEXT = {
+        ...knownTemplate?.CONTEXT,
+        START_SCRIPT: vmTemplate?.TEMPLATE?.CONTEXT?.START_SCRIPT,
+        ENCODE_START_SCRIPT: false,
+      }
+    }
+
+    if (template.CPU_MODEL) {
+      knownTemplate.CPU_MODEL = { ...template.CPU_MODEL }
+    }
+
+    if (template.OS) {
+      // Clone template.OS to ensure its mutable
+      knownTemplate.OS = { ...template.OS }
+    }
+
+    if (template.RAW) {
+      // Clone template.RAW to ensure its mutable
+      knownTemplate.RAW = { ...template.RAW }
+
+      if (template.RAW.DATA) {
+        // DATA exists, so we add TYPE and transform DATA
+        knownTemplate.RAW.TYPE = hypervisor
+        knownTemplate.RAW.DATA = template.RAW.DATA
+      } else {
+        // DATA doesn't exist, remove RAW from template
+        delete knownTemplate.RAW
+      }
+    }
+
+    // Easy compatibility with the bootOrder component by specifying the same form paths as in the VM Template
+    !!bootOrder && set(knownTemplate, 'extra.OS.BOOT', bootOrder)
+    !!template?.DISK &&
+      set(
+        knownTemplate,
+        'extra.DISK',
+        []
+          .concat(template?.DISK ?? [])
+          ?.flat()
+          ?.map((disk) => ({
+            ...disk,
+            NAME: `DISK${disk?.DISK_ID}`,
+          }))
+      )
+    !!nics?.length && set(knownTemplate, 'extra.NIC', nics)
+
+    return knownTemplate
+  },
+  transformBeforeSubmit: (formData, initialValues) => {
+    const { extra, ...restFormData } = formData
+    // Encode script on base 64, if needed, on context section
+    const updatedFormData = {
+      ...restFormData,
+      OS: {
+        ...restFormData.OS,
+        BOOT: extra?.OS?.BOOT ?? restFormData.OS?.BOOT,
+      },
+    }
+
+    if (updatedFormData?.CONTEXT?.ENCODE_START_SCRIPT) {
+      updatedFormData.CONTEXT.START_SCRIPT_BASE64 = btoa(
+        updatedFormData?.CONTEXT?.START_SCRIPT
+      )
+      delete updatedFormData?.CONTEXT?.START_SCRIPT
+      if (initialValues?.TEMPLATE?.CONTEXT?.START_SCRIPT) {
+        updatedFormData.CONTEXT.START_SCRIPT =
+          initialValues.TEMPLATE.CONTEXT.START_SCRIPT
+      }
+    }
+    if (updatedFormData.CONTEXT) {
+      delete updatedFormData.CONTEXT.ENCODE_START_SCRIPT
+      updatedFormData.CONTEXT = omitEmptyValues(updatedFormData.CONTEXT)
+    }
+
+    // If initial CONTEXT is empty, no context data should be sent (it will cause a core error). The Configuration tab is disabled in that case, but we need to ensure that when update another tab, no context data is sent.
+    if (!initialValues?.TEMPLATE?.CONTEXT) {
+      delete updatedFormData?.CONTEXT
+    }
+
+    return {
+      template: jsonToXml(updatedFormData),
+    }
+  },
+})
+
+export default UpdateConfigurationForm
