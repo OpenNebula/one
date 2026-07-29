@@ -21,7 +21,7 @@ import {
 import { SupportAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
 import { getSupportState } from '@modules/models/Support/general'
-import { StatusTag } from '@ComponentsModule'
+import { StatusTag } from '@ComponentsV2Module'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const SUPPORT_COLUMNS = [

@@ -18,7 +18,7 @@ import {
   InteractiveGrid,
   OpenNebulaLogo,
   SubmitButton,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import {
   Box,
   Container,

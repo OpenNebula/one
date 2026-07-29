@@ -22,7 +22,7 @@ import {
   ResourceActionConfirmation,
   SummarySlot,
   TabSlot,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import {
   CLUSTER_ACTIONS,
   RESOURCE_NAMES,

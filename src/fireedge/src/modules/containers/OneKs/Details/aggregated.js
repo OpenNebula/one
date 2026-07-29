@@ -22,7 +22,7 @@ import {
   ResourceActionConfirmation,
   SummarySlot,
   TabSlot,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 
 import { OneKsAPI, useModalsApi } from '@FeaturesModule'
 import { Component, useMemo } from 'react'

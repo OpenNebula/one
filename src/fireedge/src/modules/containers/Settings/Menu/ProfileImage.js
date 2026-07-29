@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
-import { SubmitButton } from '@ComponentsModule'
+import { SubmitButton } from '@ComponentsV2Module'
 import { css } from '@emotion/css'
 import { useAuth, useGeneralApi, UserAPI } from '@FeaturesModule'
 import { jsonToXml } from '@UtilsModule'

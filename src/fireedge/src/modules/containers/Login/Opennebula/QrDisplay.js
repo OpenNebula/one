@@ -17,7 +17,7 @@
 import { Stack, Box, Link, Typography } from '@mui/material'
 import { Translate, useTranslation } from '@ProvidersModule'
 import { getDigits } from '@UtilsModule'
-import { OtpInput, StepList, SubmitButton } from '@ComponentsModule'
+import { OtpInput, StepList, SubmitButton } from '@ComponentsV2Module'
 import {
   AUTH_APPS,
   DEFAULT_OTP_LENGTH,

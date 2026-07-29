@@ -18,8 +18,7 @@ import { useHistory, useLocation } from 'react-router'
 
 import { VdcAPI, ZoneAPI, useGeneralApi } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { Vdc } from '@ResourcesModule'
+import { DefaultFormStepper, SkeletonStepsForm, Vdc } from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'
 

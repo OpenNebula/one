@@ -13,11 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PATH, RESOURCE_NAMES } from '@ConstantsModule'
-import { createResourceDetailRoute } from '@modules/containers/ResourceSingleView/route'
+import { DatastoresTable, DatastoreTabs } from '@ResourcesModule'
 
-export const DatastoreDetail = createResourceDetailRoute(
-  RESOURCE_NAMES.DATASTORE,
-  PATH.STORAGE.DATASTORES.LIST,
-  'DatastoreDetail'
-)
+import { ReactElement } from 'react'
+import { Redirect, useParams } from 'react-router-dom'
+
+/**
+ * Displays the detail information about a Datastore.
+ *
+ * @returns {ReactElement} Datastore detail component.
+ */
+export function DatastoreDetail() {
+  const { id } = useParams()
+
+  if (Number.isNaN(+id)) {
+    return <Redirect to="/" />
+  }
+
+  return (
+    <>
+      <DatastoreTabs id={id} singleActions={DatastoresTable.Actions} />
+    </>
+  )
+}

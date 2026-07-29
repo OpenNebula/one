@@ -17,8 +17,7 @@ import { ReactElement } from 'react'
 import { generatePath, useHistory, useLocation } from 'react-router-dom'
 import { OneKsAPI, useGeneralApi } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { OneKs } from '@ResourcesModule'
+import { DefaultFormStepper, OneKs, SkeletonStepsForm } from '@ResourcesModule'
 
 import { createFieldsFromOneKsOdsUserInputs } from '@UtilsModule'
 import { T, ONEKS_OPERATIONS, PATH } from '@ConstantsModule'

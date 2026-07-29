@@ -23,7 +23,7 @@ import {
   ButtonGroup,
   Button,
   ResourceActionConfirmation,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { useModalsApi, VmTemplateAPI, VrTemplateAPI } from '@FeaturesModule'
 import { Component, useMemo } from 'react'
 import { prettyBytes, aggregateLockState, aggregateMetrics } from '@UtilsModule'

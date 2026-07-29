@@ -24,7 +24,7 @@ import {
   Button,
   Tooltip,
   ResourceActionConfirmation,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { useModalsApi, VmTemplateAPI } from '@FeaturesModule'
 import { Component, useMemo } from 'react'
 import { prettyBytes, aggregateLockState, aggregateMetrics } from '@UtilsModule'

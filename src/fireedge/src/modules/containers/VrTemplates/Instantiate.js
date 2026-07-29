@@ -25,8 +25,11 @@ import {
   VrTemplateAPI,
 } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { VrTemplate } from '@ResourcesModule'
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+  VrTemplate,
+} from '@ResourcesModule'
 
 import { jsonToXml } from '@UtilsModule'
 

@@ -25,7 +25,7 @@ import { ImageAPI } from '@FeaturesModule'
 import { getImageState } from '@modules/models/Image/general'
 import { T } from '@ConstantsModule'
 import { createLabelColumn } from '@modules/models/labels'
-import { StatusTag, Tag } from '@ComponentsModule'
+import { StatusTag, Tag } from '@ComponentsV2Module'
 import { Box } from '@mui/material'
 import { getBackupRunningVms } from '@modules/models/Backup/general'
 

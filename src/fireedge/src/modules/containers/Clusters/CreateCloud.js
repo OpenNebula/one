@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { Cluster } from '@ResourcesModule'
+import {
+  Cluster,
+  DefaultFormStepper,
+  SkeletonStepsForm,
+} from '@ResourcesModule'
 
 import { createFieldsFromDeploymentConfs } from '@UtilsModule'
 import { ReactElement } from 'react'

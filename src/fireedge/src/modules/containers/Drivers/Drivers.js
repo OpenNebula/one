@@ -13,271 +13,241 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
+/* eslint-disable react/prop-types */
 import {
-  Button,
-  ResourceActionConfirmation,
-  ResourceContainer,
-  Table,
-} from '@ComponentsModule'
+  GlobalLabel,
+  DriversTable,
+  DriverTabs,
+  MultipleTags,
+  ResourcesBackButton,
+  SubmitButton,
+} from '@ResourcesModule'
+import { useTranslation } from '@ProvidersModule'
+import { Driver, RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
+import { useAuth, useGeneral, useGeneralApi, DriverAPI } from '@FeaturesModule'
+import { Chip, Stack } from '@mui/material'
+import { MuiProvider, SunstoneTheme } from '@StylesModule'
 import {
-  DRIVER_ACTIONS,
-  RESOURCE_NAMES,
-  STATES,
-  T,
-  TABLE_VIEW_MODE,
-} from '@ConstantsModule'
+  Cancel,
+  Collapse,
+  Expand,
+  NavArrowLeft,
+  RefreshDouble,
+} from 'iconoir-react'
+import { Row } from 'opennebula-react-table'
+import PropTypes from 'prop-types'
 import {
-  DriverAPI,
-  useFunctionality,
-  useFunctionalityApi,
-  useModalsApi,
-  useViews,
-} from '@FeaturesModule'
-import { driverTable } from '@ModelsModule'
-import { getActionsAvailable } from '@UtilsModule'
-import { ReactElement, useCallback, useMemo } from 'react'
-import { DriverDetails } from '@modules/containers/Drivers/Details'
+  memo,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 /**
- * Displays the driver pool with the design system resource flow.
+ * Displays a list of Drivers with a split pane between the list and selected row(s).
  *
- * @returns {ReactElement} Driver list and details
+ * @returns {ReactElement} Drivers list and selected row(s)
  */
 export function Drivers() {
-  const {
-    searchExpression,
-    sortExpression,
-    filterExpression,
-    selectedItems = [],
-  } = useFunctionality()
-  const { setSelectedItems } = useFunctionalityApi()
-  const { getResourceView } = useViews()
-  const { showModal } = useModalsApi()
-  const resourceView = getResourceView(RESOURCE_NAMES.DRIVER)
-  const availableActions = useMemo(
-    () => getActionsAvailable(resourceView?.actions),
-    [resourceView?.actions]
-  )
+  const [selectedRows, setSelectedRows] = useState(() => [])
+  const actions = DriversTable.Actions({ selectedRows, setSelectedRows })
+  const { zone } = useGeneral()
 
-  const {
-    data = [],
-    isFetching: isRefreshing,
-    refetch: refresh,
-    error,
-  } = driverTable.useData()
-  const [enable, { isLoading: isEnabling }] =
-    DriverAPI.useEnableDriverMutation()
-  const [disable, { isLoading: isDisabling }] =
-    DriverAPI.useDisableDriverMutation()
-  const [sync, { isLoading: isSyncing }] = DriverAPI.useSyncDriversMutation()
+  const refetchRef = useRef(null)
+  const handleRefetch = useCallback((refresh) => {
+    refetchRef.current = refresh
+  }, [])
 
-  const filterOptions = useMemo(
-    () => driverTable.filterOptions(data, resourceView?.filters),
-    [data, resourceView?.filters]
-  )
-  const items = useMemo(() => {
-    const search = String(searchExpression ?? '').toLowerCase()
-    const searched = search
-      ? data.filter(({ name, description, state }) =>
-          [name, description, state].some((value) =>
-            String(value ?? '')
-              .toLowerCase()
-              .includes(search)
-          )
-        )
-      : data
-    const filtered = driverTable.filterData(
-      searched,
-      filterExpression,
-      filterOptions
-    )
-
-    return driverTable.sortData(filtered, sortExpression)
-  }, [data, filterExpression, filterOptions, searchExpression, sortExpression])
-
-  const selectedDrivers = useMemo(
-    () =>
-      items.filter(({ name }) => selectedItems.includes(String(name))) ?? [],
-    [items, selectedItems]
-  )
-  const rowSelection = useMemo(
-    () => Object.fromEntries(selectedItems.map((name) => [String(name), true])),
-    [selectedItems]
-  )
-
-  const handleRowSelectionChange = useCallback(
-    (updater) => {
-      const next =
-        typeof updater === 'function' ? updater(rowSelection) : updater
-      setSelectedItems(Object.keys(next).filter((name) => next[name]))
-    },
-    [rowSelection, setSelectedItems]
-  )
-  const handleSelect = (name) => {
-    const id = String(name)
-    setSelectedItems(
-      selectedItems.length === 1 && selectedItems[0] === id ? [] : [id]
-    )
-  }
-  const handleClose = () => setSelectedItems([])
-
-  const confirmAction = useCallback(
-    ({ title, mutation, resources = selectedDrivers }) => {
-      showModal({
-        isConfirmDialog: true,
-        dialogProps: {
-          title,
-          description: (
-            <ResourceActionConfirmation
-              description={T.DoYouWantProceed}
-              resources={resources.map(({ name }) => ({
-                ID: name,
-                NAME: name,
-              }))}
-              resourceType={T.Drivers}
-            />
-          ),
-          confirmLabel: title,
-        },
-        onSubmit: mutation,
-      })
-    },
-    [selectedDrivers, showModal]
-  )
-
-  const selectedCount = selectedDrivers.length
-  const isMutating = isEnabling || isDisabling || isSyncing
-  const extraSlots = useMemo(
-    () => [
-      [
-        () => (
-          <>
-            {availableActions.includes(DRIVER_ACTIONS.SYNC) && (
-              <Button
-                type="secondary"
-                size="medium"
-                isDisabled={selectedCount > 0 || isMutating}
-                onClick={() =>
-                  confirmAction({
-                    title: T.Synchronize,
-                    resources: [],
-                    mutation: () => sync(),
-                  })
-                }
-              >
-                {T.Synchronize}
-              </Button>
-            )}
-            {availableActions.includes(DRIVER_ACTIONS.ENABLE) && (
-              <Button
-                type="secondary"
-                size="medium"
-                isDisabled={
-                  selectedCount === 0 ||
-                  isMutating ||
-                  selectedDrivers.every(({ state }) => state === STATES.ENABLED)
-                }
-                onClick={() =>
-                  confirmAction({
-                    title: T.Enable,
-                    mutation: () =>
-                      Promise.all(
-                        selectedDrivers.map(({ name }) =>
-                          enable({ name: name.toLowerCase() })
-                        )
-                      ),
-                  })
-                }
-              >
-                {T.Enable}
-              </Button>
-            )}
-            {availableActions.includes(DRIVER_ACTIONS.DISABLE) && (
-              <Button
-                type="secondary"
-                size="medium"
-                isDisabled={
-                  selectedCount === 0 ||
-                  isMutating ||
-                  selectedDrivers.every(
-                    ({ state }) => state === STATES.DISABLED
-                  )
-                }
-                onClick={() =>
-                  confirmAction({
-                    title: T.Disable,
-                    mutation: () =>
-                      Promise.all(
-                        selectedDrivers.map(({ name }) =>
-                          disable({ name: name.toLowerCase() })
-                        )
-                      ),
-                  })
-                }
-              >
-                {T.Disable}
-              </Button>
-            )}
-          </>
-        ),
-        {},
-        { display: 'flex', gap: 1 },
-      ],
-    ],
-    [
-      availableActions,
-      confirmAction,
-      disable,
-      enable,
-      isMutating,
-      selectedCount,
-      selectedDrivers,
-      sync,
-    ]
-  )
+  const handleUseRefetch = useCallback(() => {
+    if (typeof refetchRef.current === 'function') {
+      refetchRef.current()
+    }
+  }, [])
 
   return (
-    <ResourceContainer
-      dataCy={driverTable.dataCy}
-      resourceName={T.Drivers}
-      onRefresh={refresh}
-      isRefreshing={isRefreshing}
-      sortOptions={driverTable.sortOptions()}
-      filterOptions={filterOptions}
-      extraSlots={extraSlots}
-      viewMode={TABLE_VIEW_MODE.LIST}
-      count={items.length}
-      selectedCount={selectedCount}
-      unavailableMessage={
-        error?.status === 500 ? T.CannotConnectOneForm : undefined
-      }
-      onSelectAll={(checked) =>
-        setSelectedItems(checked ? items.map(({ name }) => String(name)) : [])
-      }
-    >
-      <Table
-        dataCy={driverTable.dataCy}
-        columns={driverTable.columns()}
-        data={items}
-        isLoading={isRefreshing}
-        isRowsSelectable
-        isMultiRowSelection
-        isCopyColumn
-        rowSelection={rowSelection}
-        onRowSelectionChange={handleRowSelectionChange}
-        getRowId={(row) => String(row.name)}
-        onRowClick={(row) => handleSelect(row.name)}
-        size="medium"
-        defaultPageSize={25}
-        isFullHeight
-      />
-      <DriverDetails
-        selectedDriver={
-          selectedDrivers.length === 1 ? selectedDrivers[0] : undefined
-        }
-        handleClose={handleClose}
-      />
-    </ResourceContainer>
+    <MuiProvider theme={SunstoneTheme}>
+      <>
+        <ResourcesBackButton
+          selectedRows={selectedRows}
+          setSelectedRows={setSelectedRows}
+          zone={zone}
+          actions={actions}
+          table={(props) => (
+            <DriversTable.Table
+              onSelectedRowsChange={props.setSelectedRows}
+              globalActions={props.actions}
+              useUpdateMutation={props.useUpdateMutation}
+              onRowClick={props.resourcesBackButtonClick}
+              zoneId={props.zone}
+              initialState={{
+                selectedRowIds: props.selectedRowsTable,
+              }}
+              handleRefetch={handleRefetch}
+            />
+          )}
+          simpleGroupsTags={(props) => (
+            <GroupedTags
+              tags={props.selectedRows}
+              handleElement={props.handleElement}
+              onDelete={props.handleUnselectRow}
+            />
+          )}
+          info={(props) => {
+            const propsInfo = {
+              driver: props?.selectedRows?.[0]?.original,
+              selectedRows: props?.selectedRows,
+            }
+            props?.gotoPage && (propsInfo.gotoPage = props.gotoPage)
+            props?.unselect && (propsInfo.unselect = props.unselect)
+            propsInfo.handleUseRefetch = handleUseRefetch
+
+            return <InfoTabs {...propsInfo} />
+          }}
+        />
+      </>
+    </MuiProvider>
   )
 }
+
+/**
+ * Displays details of a Driver.
+ *
+ * @param {Driver} driver - Host to display
+ * @param {Function} [gotoPage] - Function to navigate to a page of a Host
+ * @param {Function} [unselect] - Function to unselect a Host
+ * @param {object[]} [selectedRows] - Selected rows (for Labels)
+ * @returns {ReactElement} Host details
+ */
+const InfoTabs = memo(
+  ({ driver, gotoPage, unselect, selectedRows, handleUseRefetch }) => {
+    const { translate } = useTranslation()
+    const [getDriver, { data: lazyData, isFetching }] =
+      DriverAPI.useLazyGetDriverQuery()
+    const name = driver?.name ?? lazyData?.name
+
+    const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+    const { FULL_SCREEN_INFO } = fireedge
+    const { fullViewMode } = SERVER_CONFIG
+    const fullModeDefault =
+      FULL_SCREEN_INFO !== undefined
+        ? FULL_SCREEN_INFO === 'true'
+        : fullViewMode
+
+    const { isFullMode } = useGeneral()
+    const { setFullMode } = useGeneralApi()
+
+    useEffect(() => {
+      !isFullMode && gotoPage()
+    }, [])
+
+    return (
+      <Stack overflow="auto">
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          gap={1}
+          mx={1}
+          mb={1}
+        >
+          <Stack direction="row">
+            {fullModeDefault && (
+              <SubmitButton
+                data-cy="detail-back"
+                icon={<NavArrowLeft />}
+                tooltip={translate(T.Back)}
+                isSubmitting={isFetching}
+                onClick={() => unselect()}
+              />
+            )}
+          </Stack>
+
+          <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+            {fullModeDefault && (
+              <GlobalLabel
+                selectedRows={selectedRows}
+                type={RESOURCE_NAMES?.DRIVER}
+              />
+            )}
+            {!fullModeDefault && (
+              <SubmitButton
+                data-cy="detail-full-mode"
+                icon={isFullMode ? <Collapse /> : <Expand />}
+                tooltip={translate(T.FullScreen)}
+                isSubmitting={isFetching}
+                onClick={() => {
+                  setFullMode(!isFullMode)
+                }}
+              />
+            )}
+            <SubmitButton
+              data-cy="detail-refresh"
+              icon={<RefreshDouble />}
+              tooltip={translate(T.Refresh)}
+              isSubmitting={isFetching}
+              onClick={async () => {
+                await getDriver({ name: name?.toLowerCase() })
+                handleUseRefetch && (await handleUseRefetch())
+              }}
+            />
+            {typeof unselect === 'function' && (
+              <SubmitButton
+                data-cy="unselect"
+                icon={<Cancel />}
+                tooltip={translate(T.Close)}
+                onClick={() => unselect()}
+              />
+            )}
+          </Stack>
+        </Stack>
+        <DriverTabs name={name} />
+      </Stack>
+    )
+  }
+)
+
+InfoTabs.propTypes = {
+  driver: PropTypes.object,
+  gotoPage: PropTypes.func,
+  unselect: PropTypes.func,
+}
+
+InfoTabs.displayName = 'InfoTabs'
+
+/**
+ * Displays a list of tags that represent the selected rows.
+ *
+ * @param {Row[]} tags - Row(s) to display as tags
+ * @returns {ReactElement} List of tags
+ */
+const GroupedTags = ({
+  tags = [],
+  handleElement = true,
+  onDelete = () => undefined,
+}) => (
+  <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
+    <MultipleTags
+      limitTags={10}
+      tags={tags?.map((props) => {
+        const { original, id, toggleRowSelected, gotoPage } = props
+        const clickElement = handleElement
+          ? {
+              onClick: gotoPage,
+              onDelete: () => onDelete(id) || toggleRowSelected(false),
+            }
+          : {}
+
+        return <Chip key={id} label={original?.NAME ?? id} {...clickElement} />
+      })}
+    />
+  </Stack>
+)
+
+GroupedTags.propTypes = {
+  tags: PropTypes.array,
+  handleElement: PropTypes.bool,
+  onDelete: PropTypes.func,
+}
+GroupedTags.displayName = 'GroupedTags'

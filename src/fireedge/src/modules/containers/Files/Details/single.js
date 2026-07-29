@@ -24,7 +24,7 @@ import {
   TabSlot,
   Tag,
   ToggleGroup,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { unset } from 'lodash'
 
 import { getImageState, getLabelTags } from '@ModelsModule'

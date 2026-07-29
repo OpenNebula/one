@@ -17,7 +17,7 @@
 import { createTable } from '@UtilsModule'
 import { UserAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
-import { ProgressBar, Tag } from '@ComponentsModule'
+import { ProgressBar, Tag } from '@ComponentsV2Module'
 
 import { getUserQuotaUsage } from '@modules/models/User/general'
 

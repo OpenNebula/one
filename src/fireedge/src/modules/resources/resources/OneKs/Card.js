@@ -1,0 +1,132 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2026, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+
+import { T } from '@ConstantsModule'
+import { Component, forwardRef } from 'react'
+import PropTypes from 'prop-types'
+import { BoxIso, ServerConnection } from 'iconoir-react'
+import {
+  Card,
+  IconSlot,
+  LabelSlot,
+  MetadataSlot,
+  TimeSlot,
+  TitleSlot,
+} from '@ComponentsV2Module'
+import { getLabelTags, getVirtualOneKsState } from '@ModelsModule'
+
+/**
+ * @param {object} root0 - Params
+ * @param {object} root0.data - OneKs data
+ * @param {boolean} root0.isSelected - Whether card is selected
+ * @param {Function} root0.onCheck - Check handler
+ * @param {Function} root0.onClick - Click handler
+ * @param {object} ref - Forwarded ref
+ * @returns {Component} OneKs card component
+ */
+export const OneKsCard = forwardRef(
+  ({ data, isSelected, onCheck, onClick }, ref) => {
+    const { ID, NAME, UNAME, GNAME, LABELS, TEMPLATE = {} } = data || {}
+    const { CLUSTER_BODY = {} } = TEMPLATE
+    const controlPlanes = []
+      .concat(CLUSTER_BODY?.control_plane ?? [])
+      .filter(Boolean)
+    const nodeGroups = []
+      .concat(CLUSTER_BODY?.node_groups ?? [])
+      .filter(Boolean)
+    const [controlPlane] = controlPlanes
+    const { kubernetes_version: version } = CLUSTER_BODY
+    const labelTags = getLabelTags(LABELS)
+
+    const { color: stateColor, name: stateName } = getVirtualOneKsState(data)
+
+    return (
+      <Card
+        ref={ref}
+        onCheck={onCheck}
+        onClick={onClick}
+        isSelected={isSelected}
+        slots={[
+          [
+            TitleSlot,
+            {
+              title: NAME,
+              status: stateColor,
+              statusName: stateName,
+            },
+          ],
+          [
+            MetadataSlot,
+            {
+              labels: [
+                [T.ID, ID],
+                [T.Owner, UNAME],
+                [T.Group, GNAME],
+              ].filter(
+                ([, value]) =>
+                  value !== undefined && value !== null && value !== ''
+              ),
+            },
+          ],
+          [
+            IconSlot,
+            {
+              items: [
+                {
+                  Icon: ServerConnection,
+                  label: T.ControlPlanes,
+                  value: controlPlanes.length,
+                },
+                {
+                  Icon: BoxIso,
+                  label: T.NodeGroups,
+                  value: nodeGroups.length,
+                },
+              ],
+            },
+          ],
+          (controlPlane?.flavour || version || labelTags.length > 0) && [
+            LabelSlot,
+            {
+              labels: [
+                controlPlane?.flavour && [controlPlane.flavour, 'default'],
+                version && [version, 'default'],
+              ].filter(Boolean),
+              tags: labelTags,
+              max: 2,
+            },
+          ],
+          CLUSTER_BODY?.registration_time && [
+            TimeSlot,
+            {
+              time: CLUSTER_BODY.registration_time,
+              label: T.Created,
+            },
+          ],
+        ].filter(Boolean)}
+      />
+    )
+  }
+)
+
+OneKsCard.propTypes = {
+  data: PropTypes.object,
+  isSelected: PropTypes.bool,
+  onCheck: PropTypes.func,
+  onClick: PropTypes.func,
+}
+
+OneKsCard.displayName = 'OneKsCard'

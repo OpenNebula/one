@@ -23,7 +23,7 @@ import {
   ResourceActionConfirmation,
   SummarySlot,
   TabSlot,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { Box } from '@mui/material'
 import { Component, useMemo } from 'react'
 import PropTypes from 'prop-types'

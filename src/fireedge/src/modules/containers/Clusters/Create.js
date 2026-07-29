@@ -18,8 +18,11 @@ import { useHistory, useLocation } from 'react-router'
 
 import { ClusterAPI, SystemAPI, useGeneralApi } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { Cluster } from '@ResourcesModule'
+import {
+  Cluster,
+  DefaultFormStepper,
+  SkeletonStepsForm,
+} from '@ResourcesModule'
 
 import { jsonToXml } from '@UtilsModule'
 import { T, PATH } from '@ConstantsModule'

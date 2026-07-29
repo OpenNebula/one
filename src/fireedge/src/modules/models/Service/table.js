@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { createTable, timeFromMilliseconds } from '@UtilsModule'
 import { ServiceAPI, VmAPI, oneApi } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
-import { StatusTag } from '@ComponentsModule'
+import { StatusTag } from '@ComponentsV2Module'
 import {
   getRoleVms,
   getServiceState,

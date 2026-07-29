@@ -48,7 +48,13 @@ import {
   STATIC_FILES_URL,
   DEFAULT_TEMPLATE_LOGO,
 } from '@ConstantsModule'
-import { Image, ProgressBar, StatusTag, Tag, TagList } from '@ComponentsModule'
+import {
+  Image,
+  ProgressBar,
+  StatusTag,
+  Tag,
+  TagList,
+} from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
 import { scale } from '@StylesModule'
 

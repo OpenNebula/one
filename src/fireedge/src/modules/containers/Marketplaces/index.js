@@ -14,5 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/containers/Marketplaces/Create'
-export * from '@modules/containers/Marketplaces/Detail'
 export * from '@modules/containers/Marketplaces/Marketplaces'

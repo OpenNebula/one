@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
-import { List, ResourceContainer, Table } from '@ComponentsModule'
+import { List, ResourceContainer, Table } from '@ComponentsV2Module'
 import { DetailsDrawer } from '@modules/containers/BackupJobs/Details'
 import { RESOURCE_NAMES, TABLE_VIEW_MODE, T } from '@ConstantsModule'
 import {

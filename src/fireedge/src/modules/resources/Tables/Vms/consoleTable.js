@@ -1,0 +1,204 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2026, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+import { ReactElement, useEffect, useMemo } from 'react'
+
+import { useAuth, useViews, VmAPI } from '@FeaturesModule'
+
+import {
+  RESOURCE_NAMES,
+  STATES,
+  T,
+  VM_EXTENDED_POOL,
+  VM_POOL_PAGINATION_SIZE,
+  VM_STATES,
+} from '@ConstantsModule'
+import { getVirtualMachineState } from '@ModelsModule'
+import { StatusCircle } from '@modules/resources/Status'
+import EnhancedTable, {
+  createColumns,
+} from '@modules/resources/Tables/Enhanced'
+import WrapperRow from '@modules/resources/Tables/Enhanced/WrapperRow'
+import VmColumns from '@modules/resources/Tables/Vms/columns'
+import VmConsoleRow from '@modules/resources/Tables/Vms/consoleRow'
+import RowAction from '@modules/resources/Tables/Vms/rowActions'
+import { getResourceLabels } from '@UtilsModule'
+
+const DEFAULT_DATA_CY = 'vms'
+
+const listHeader = [
+  {
+    header: '',
+    id: 'status-icon',
+    accessor: (vm) => {
+      const {
+        color: stateColor,
+        name: stateName,
+        displayName: stateDisplayName,
+      } = getVirtualMachineState(vm)
+
+      return (
+        <StatusCircle
+          color={stateColor}
+          tooltip={stateDisplayName ?? stateName}
+        />
+      )
+    },
+  },
+  { header: T.ID, id: 'id', accessor: 'ID' },
+  { header: T.Name, id: 'name', accessor: 'NAME' },
+  {
+    header: T.ConsoleAccess,
+    id: 'consoles',
+    accessor: (vm) => <RowAction vm={vm} />,
+  },
+]
+
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Virtual Machines table
+ */
+const VmsConsoleTable = (props) => {
+  const {
+    rootProps = {},
+    searchProps = {},
+    initialState = {},
+    host,
+    backupjobs,
+    backupjobsState,
+    filterData = [],
+    filterLoose = true,
+    enabledFullScreen = false,
+    handleRefetch,
+    ...rest
+  } = props ?? {}
+  const { labels } = useAuth()
+
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
+  initialState.filters = useMemo(
+    () => initialState.filters ?? [],
+    [initialState.filters]
+  )
+
+  const { view, getResourceView } = useViews()
+
+  const { data, refetch, isFetching } = VmAPI.useGetVmsPaginatedQuery(
+    { extended: VM_EXTENDED_POOL ? 1 : 0, pageSize: VM_POOL_PAGINATION_SIZE },
+    {
+      selectFromResult: (result) => ({
+        ...result,
+        data:
+          result?.data
+            ?.filter((vm) => {
+              // this filters data for host
+              if (host?.ID) {
+                if (
+                  host?.ERROR_VMS?.ID ||
+                  host?.UPDATED_VMS?.ID ||
+                  host?.UPDATING_VMS?.ID
+                ) {
+                  return [
+                    host?.ERROR_VMS.ID ?? [],
+                    host?.UPDATED_VMS.ID ?? [],
+                    host?.UPDATING_VMS.ID ?? [],
+                  ]
+                    .flat()
+                    .includes(vm.ID)
+                }
+
+                return [host?.VMS?.ID ?? []].flat().includes(vm.ID)
+              }
+
+              // this filters data for backupjobs
+              if (backupjobs?.ID) {
+                if (backupjobsState) {
+                  return [backupjobs?.[backupjobsState]?.ID ?? []]
+                    .flat()
+                    .includes(vm.ID)
+                } else {
+                  return [
+                    (backupjobs?.TEMPLATE?.BACKUP_VMS &&
+                      backupjobs?.TEMPLATE?.BACKUP_VMS.split(',')) ??
+                      [],
+                  ]
+                    .flat()
+                    .includes(vm.ID)
+                }
+              }
+
+              // This is for return data without filters
+              return true
+            })
+            ?.filter(({ ID }) =>
+              filterData?.length ? filterData?.includes(ID) : filterLoose
+            )
+            ?.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE) ??
+          [],
+      }),
+    }
+  )
+
+  useEffect(() => {
+    if (handleRefetch && refetch) {
+      handleRefetch(refetch)
+    }
+  }, [handleRefetch, refetch])
+
+  const fmtData = useMemo(
+    () =>
+      data?.map((row) => ({
+        ...row,
+        TEMPLATE: {
+          ...(row?.TEMPLATE ?? {}),
+          LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.VM, true),
+        },
+      })),
+    [data, labels]
+  )
+
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.VM)?.filters,
+        columns: VmColumns,
+      }),
+    [view]
+  )
+
+  const { component, header } = WrapperRow(VmConsoleRow, enabledFullScreen)
+
+  return (
+    <EnhancedTable
+      columns={columns}
+      data={fmtData}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.ID)}
+      initialState={initialState}
+      RowComponent={component}
+      headerList={header && listHeader}
+      enabledFullScreen={enabledFullScreen}
+      resourceType={RESOURCE_NAMES.VM}
+      {...rest}
+    />
+  )
+}
+
+VmsConsoleTable.displayName = 'VmsConsoleTable'
+
+export default VmsConsoleTable

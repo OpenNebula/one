@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { FormWithSchema } from '@ResourcesModule'
 import { useTranslation } from '@ProvidersModule'
-import { FormWithSchema, SubmitButton } from '@ComponentsModule'
+import { SubmitButton } from '@ComponentsV2Module'
 import {
   AUTH_DRIVER,
   ONEADMIN_ID,

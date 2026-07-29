@@ -22,7 +22,7 @@ import {
   ResourceContainer,
   Table,
   TitleSlot,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { RESOURCE_NAMES, T, TABLE_VIEW_MODE } from '@ConstantsModule'
 import {
   useFunctionality,

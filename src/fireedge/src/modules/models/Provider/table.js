@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { Image } from '@ComponentsModule'
+import { Image } from '@ComponentsV2Module'
 import { ProviderAPI } from '@FeaturesModule'
 import { createTable, timeFromMilliseconds } from '@UtilsModule'
 import { getLogoSource } from '@modules/models/Provider/general'

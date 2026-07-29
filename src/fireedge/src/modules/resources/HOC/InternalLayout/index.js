@@ -1,0 +1,90 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2026, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
+import { Box, Container, useTheme } from '@mui/material'
+import PropTypes from 'prop-types'
+import { useMemo, useRef } from 'react'
+import { CSSTransition } from 'react-transition-group'
+import { Header } from '@ComponentsV2Module'
+import internalStyles from '@modules/resources/HOC/InternalLayout/styles'
+import { footer } from '@StylesModule'
+
+const InternalLayout = ({ children, ...route }) => {
+  const theme = useTheme()
+  const classes = useMemo(() => internalStyles(theme), [theme])
+  const container = useRef()
+
+  if (route.disableLayout) {
+    return (
+      <Box data-cy="main-layout" className={classes.root}>
+        <Box
+          component="main"
+          sx={{ height: '100vh', width: '100%', pb: `${footer.regular}px` }}
+        >
+          {children}
+        </Box>
+      </Box>
+    )
+  }
+
+  return (
+    <Box
+      data-cy="main-layout"
+      className={classes.root}
+      sx={{
+        pt: 'var(--sidebar-header-height, 0px)',
+        pl: 'var(--sidebar-width, 0px)',
+        transition: 'margin-left 0.2s ease', // Makes it a bit less snappy
+      }}
+    >
+      <Box component="main" className={classes.main}>
+        <CSSTransition
+          in
+          classNames={{
+            appear: classes.appear,
+            appearActive: classes.appearActive,
+            enter: classes.enter,
+            enterActive: classes.enterActive,
+            enterDone: classes.enterDone,
+            exit: classes.exit,
+            exitActive: classes.exitActive,
+            exitDone: classes.exitDone,
+          }}
+          timeout={300}
+          unmountOnExit
+        >
+          <Container
+            ref={container}
+            className={
+              route.removeStyles ? classes.noScrollable : classes.scrollable
+            }
+            maxWidth={route.removeStyles ? false : 'xl'}
+          >
+            <Header />
+            {children}
+          </Container>
+        </CSSTransition>
+      </Box>
+    </Box>
+  )
+}
+
+InternalLayout.propTypes = {
+  disableLayout: PropTypes.bool,
+  children: PropTypes.any,
+}
+
+export default InternalLayout

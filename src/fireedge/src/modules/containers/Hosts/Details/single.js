@@ -25,7 +25,7 @@ import {
   TabSlot,
   Tag,
   ToggleGroup,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { getHostState, getLabelTags } from '@ModelsModule'
 import { Box, useTheme } from '@mui/material'
 import { Component } from 'react'

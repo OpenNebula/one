@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { TagList } from '@ComponentsModule'
+import { TagList } from '@ComponentsV2Module'
 import { cleanLabelPath } from '@UtilsModule'
 
 /* eslint-disable jsdoc/require-jsdoc */

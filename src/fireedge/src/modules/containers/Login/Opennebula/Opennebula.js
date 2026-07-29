@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { useTranslation } from '@ProvidersModule'
-import { InteractiveGrid, OpenNebulaLogo } from '@ComponentsModule'
+import { InteractiveGrid, OpenNebulaLogo } from '@ComponentsV2Module'
 import { T } from '@ConstantsModule'
 import { AuthAPI, useAuth, useAuthApi } from '@FeaturesModule'
 import { Form } from '@modules/containers/Login/Opennebula/Form'

@@ -23,7 +23,7 @@ import {
   SummarySlot,
   TabSlot,
   ToggleGroup,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { useModalsApi, VmAPI } from '@FeaturesModule'
 import { Box, useTheme } from '@mui/material'
 import { Component, useCallback, useMemo } from 'react'

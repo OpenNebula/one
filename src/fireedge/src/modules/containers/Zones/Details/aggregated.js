@@ -21,7 +21,7 @@ import {
   LabelButton,
   SummarySlot,
   TabSlot,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 
 import { getZoneState } from '@ModelsModule'
 import { Zone } from '@ResourcesModule'

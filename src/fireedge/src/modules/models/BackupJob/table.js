@@ -22,7 +22,7 @@ import {
   getBackupJobStatus,
   getBackupJobState,
 } from '@modules/models/BackupJob/general'
-import { StatusTag } from '@ComponentsModule'
+import { StatusTag } from '@ComponentsV2Module'
 import { Box } from '@mui/material'
 import { createLabelColumn } from '@modules/models/labels'
 

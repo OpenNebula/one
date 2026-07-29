@@ -17,11 +17,12 @@
 import { ReactElement } from 'react'
 import { useHistory } from 'react-router'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { SupportAPI, SystemAPI, useGeneralApi } from '@FeaturesModule'
-import { Support } from '@ResourcesModule'
+import { DefaultFormStepper, Form, SkeletonStepsForm } from '@ResourcesModule'
 
 import { PATH, T } from '@ConstantsModule'
+
+const { Support } = Form
 
 /**
  * Displays the creation form for a support ticket.
@@ -58,12 +59,9 @@ export function CreateTicket() {
 
   return (
     <>
-      <Support.Forms.CreateForm
-        onSubmit={onSubmit}
-        fallback={<SkeletonStepsForm />}
-      >
+      <Support.CreateForm onSubmit={onSubmit} fallback={<SkeletonStepsForm />}>
         {(config) => <DefaultFormStepper {...config} />}
-      </Support.Forms.CreateForm>
+      </Support.CreateForm>
     </>
   )
 }

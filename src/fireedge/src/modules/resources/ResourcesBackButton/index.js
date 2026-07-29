@@ -1,0 +1,307 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2026, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+import { SERVER_CONFIG } from '@ConstantsModule'
+import { useAuth, useGeneral, useGeneralApi } from '@FeaturesModule'
+import SplitPane from '@modules/resources/SplitPane'
+import { GlobalActions } from '@modules/resources/Tables/Enhanced/Utils'
+import Pagination from '@modules/resources/Tables/Enhanced/pagination'
+import EnhancedTableStyles from '@modules/resources/Tables/Enhanced/styles'
+import { Box, useMediaQuery, useTheme } from '@mui/material'
+import PropTypes from 'prop-types'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+
+const heightGutterRow = 40
+
+const defaultPropsResize = `1fr ${heightGutterRow}px 0fr`
+
+const Switch = memo(({ valid, invalid, condition }) =>
+  condition ? valid : invalid
+)
+
+Switch.propTypes = {
+  valid: PropTypes.any,
+  invalid: PropTypes.any,
+  condition: PropTypes.bool,
+}
+Switch.displayName = 'Switch'
+
+const ResourcesBackButton = memo(
+  ({
+    selectedRows = [],
+    table = () => undefined,
+    info = () => undefined,
+    simpleGroupsTags = () => undefined,
+    setSelectedRows = () => undefined,
+    customGlobalActions = null,
+    actions = [],
+    ...restProps
+  }) => {
+    // Get styles
+    const theme = useTheme()
+    const styles = useMemo(
+      () =>
+        EnhancedTableStyles({
+          ...theme,
+          readOnly: false,
+        }),
+      [theme]
+    )
+
+    // Check height in order to adjust info tab
+    const upExtraLarge = useMediaQuery(
+      `(min-height: ${theme?.heightBreakpoints.extraLarge})`
+    )
+    const upLarge = useMediaQuery(
+      `(min-height: ${theme?.heightBreakpoints.large})`
+    )
+    const upMedium = useMediaQuery(
+      `(min-height: ${theme?.heightBreakpoints.medium})`
+    )
+    const upSmall = useMediaQuery(
+      `(min-height: ${theme?.heightBreakpoints.small})`
+    )
+    const upTiny = useMediaQuery(
+      `(min-height: ${theme?.heightBreakpoints.tiny})`
+    )
+
+    const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+    const { FULL_SCREEN_INFO, ROW_STYLE } = fireedge
+    const { fullViewMode, rowStyle } = SERVER_CONFIG
+
+    const { setTableViewMode, setFullMode } = useGeneralApi()
+    const { isFullMode } = useGeneral()
+
+    useEffect(() => {
+      setTableViewMode(ROW_STYLE || rowStyle)
+    }, [ROW_STYLE, rowStyle])
+
+    const [showInfo, setShowInfo] = useState(() => false)
+    const [propsResize, setPropsResize] = useState(() => defaultPropsResize)
+    const [pageIndex, setPageIndex] = useState(() => 0)
+
+    const countSelectedRows = selectedRows?.length
+    const moreThanOneSelected = countSelectedRows > 1
+    const hasSelectedRows = countSelectedRows > 0
+    const hasCustomGlobalActions = typeof customGlobalActions === 'function'
+
+    useEffect(() => {
+      const viewMode =
+        FULL_SCREEN_INFO === 'true' ||
+        (typeof FULL_SCREEN_INFO === 'boolean' && FULL_SCREEN_INFO) ||
+        fullViewMode === 'true' ||
+        (typeof fullViewMode === 'boolean' && fullViewMode) ||
+        false
+
+      setFullMode(viewMode)
+
+      setTableViewMode(ROW_STYLE || rowStyle)
+    }, [])
+
+    useEffect(() => {
+      showInfo && hasSelectedRows
+        ? setPropsResize(`1fr ${heightGutterRow}px 1fr`)
+        : setPropsResize(defaultPropsResize)
+
+      !isFullMode && setPageIndex(0)
+    }, [showInfo, hasSelectedRows])
+
+    useEffect(() => {
+      !hasSelectedRows && setShowInfo(false)
+    }, [selectedRows])
+
+    const selectedRowsTable = useMemo(
+      () =>
+        selectedRows?.reduce((res, { id }) => ({ ...res, [id]: true }), {}) ||
+        [],
+      [selectedRows]
+    )
+
+    const handleUnselectRow = useCallback(
+      (id) => {
+        const newRows = selectedRows.filter((item) => item?.id !== id)
+        setSelectedRows(newRows)
+      },
+      [selectedRows]
+    )
+
+    const unselect = useCallback(() => {
+      setSelectedRows([])
+      setShowInfo(false)
+    }, [selectedRows])
+
+    const props = {
+      ...restProps,
+      actions,
+      moreThanOneSelected,
+      selectedRows,
+      selectedRowsTable,
+      setSelectedRows,
+      handleElement: !isFullMode,
+      gotoPage: !isFullMode && selectedRows?.[0]?.gotoPage,
+      unselect,
+      handleUnselectRow,
+      tags: selectedRows,
+      resourcesBackButtonClick: useCallback(() => setShowInfo(true)),
+      sx: { flex: 1, minHeight: 0 },
+    }
+
+    return (
+      <SplitPane gridTemplateRows={propsResize} rowMinSize={heightGutterRow}>
+        {({ getGridProps, GutterComponent }) => (
+          <Switch
+            condition={isFullMode}
+            valid={
+              <Box
+                height={1}
+                sx={{
+                  paddingBottom: '0rem',
+                  overflow: hasSelectedRows ? 'auto' : 'hidden',
+                }}
+              >
+                <Switch
+                  condition={showInfo && hasSelectedRows}
+                  valid={
+                    <>
+                      <Switch
+                        condition={hasCustomGlobalActions}
+                        valid={customGlobalActions?.({
+                          actions,
+                          selectedRows,
+                          setSelectedRows,
+                        })}
+                        invalid={
+                          <GlobalActions
+                            className={styles.actions}
+                            globalActions={actions}
+                            selectedRows={selectedRows}
+                            onSelectedRowsChange={setSelectedRows}
+                          />
+                        }
+                      />
+                      <Switch
+                        condition={moreThanOneSelected}
+                        valid={
+                          <Pagination
+                            styles={styles.pagination}
+                            handleChangePage={(index) => setPageIndex(index)}
+                            count={countSelectedRows}
+                            showPageCount={true}
+                            useTableProps={{
+                              state: {
+                                pageIndex,
+                                pageSize: 1,
+                              },
+                            }}
+                          />
+                        }
+                        invalid=""
+                      />
+                      {info({
+                        ...props,
+                        selectedRows: [selectedRows[pageIndex]],
+                      })}
+                    </>
+                  }
+                  invalid={table({ ...props, enabledFullScreen: isFullMode })}
+                />
+              </Box>
+            }
+            invalid={
+              <Box
+                id="boxWithProps"
+                height={1}
+                sx={{
+                  display: 'grid',
+                  gridTemplateRows:
+                    hasSelectedRows && showInfo
+                      ? propsResize
+                      : defaultPropsResize + ' !important',
+                  paddingBottom: '0rem',
+                  overflow: 'hidden',
+                }}
+                {...(hasSelectedRows && showInfo && getGridProps())}
+              >
+                {/* Table should scroll, not the entire Box */}
+                <Box sx={{ flex: 1, overflow: 'auto' }}>{table(props)}</Box>
+
+                <Switch
+                  condition={showInfo}
+                  valid={<GutterComponent direction="row" track={1} />}
+                  invalid=""
+                />
+
+                <Switch
+                  condition={hasSelectedRows && showInfo}
+                  valid={
+                    <Box sx={{ flexShrink: 0, minHeight: 0 }}>
+                      <Switch
+                        condition={moreThanOneSelected}
+                        valid={
+                          <Box
+                            sx={{
+                              height: upExtraLarge
+                                ? '700px'
+                                : upLarge
+                                ? '500px'
+                                : upMedium
+                                ? '400px'
+                                : upSmall
+                                ? '250px'
+                                : upTiny
+                                ? '200px'
+                                : '150px',
+                              overflow: 'auto',
+                            }}
+                          >
+                            {simpleGroupsTags(props)}
+                          </Box>
+                        }
+                        invalid={
+                          <Box
+                            sx={{
+                              height: '100%',
+                              overflow: 'auto',
+                            }}
+                          >
+                            {info(props)}
+                          </Box>
+                        }
+                      />
+                    </Box>
+                  }
+                  invalid=""
+                />
+              </Box>
+            }
+          />
+        )}
+      </SplitPane>
+    )
+  }
+)
+
+ResourcesBackButton.propTypes = {
+  selectedRows: PropTypes.array,
+  table: PropTypes.func,
+  info: PropTypes.func,
+  simpleGroupsTags: PropTypes.func,
+  setSelectedRows: PropTypes.func,
+  actions: PropTypes.array,
+  customGlobalActions: PropTypes.func,
+}
+ResourcesBackButton.displayName = 'ResourcesBackButton'
+
+export default ResourcesBackButton

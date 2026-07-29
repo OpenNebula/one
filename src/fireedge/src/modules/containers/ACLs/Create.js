@@ -15,8 +15,12 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { ACLs } from '@ResourcesModule'
+import {
+  ACLsTable,
+  DefaultFormStepper,
+  SkeletonStepsForm,
+  ACLs,
+} from '@ResourcesModule'
 
 import { createAclObjectFromString } from '@ModelsModule'
 
@@ -97,7 +101,7 @@ export function CreateACL() {
   return (
     <>
       {shouldSelectCreateType ? (
-        <ACLs.CreateAction />
+        <ACLsTable.CreateAction />
       ) : version &&
         users &&
         groups &&

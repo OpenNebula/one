@@ -13,36 +13,48 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-import '@modules/resources/initialize'
-
-export * from '@modules/resources/VirtualMachine/Consoles'
-
-export * as ACLs from '@modules/resources/ACLs'
-export * as BackupJobs from '@modules/resources/BackupJobs'
-export * as Backups from '@modules/resources/Backups'
-export * as Cluster from '@modules/resources/Cluster'
-export * as Datastore from '@modules/resources/Datastore'
-export * as Files from '@modules/resources/Files'
-export * as Group from '@modules/resources/Group'
-export * as Host from '@modules/resources/Host'
-export * as Image from '@modules/resources/Image'
-export * as Marketplace from '@modules/resources/Marketplace'
-export * as MarketplaceApp from '@modules/resources/MarketplaceApp'
-export * as OneKs from '@modules/resources/OneKs'
-export * as Provider from '@modules/resources/Providers'
-export * as SecurityGroup from '@modules/resources/SecurityGroups'
-export * as Service from '@modules/resources/Service'
-export * as ServiceTemplate from '@modules/resources/ServiceTemplate'
-export * as Settings from '@modules/resources/Settings'
-export * as Support from '@modules/resources/Support'
-export * as User from '@modules/resources/User'
-export * as Vdc from '@modules/resources/Vdc'
-export * as VirtualMachine from '@modules/resources/VirtualMachine'
-export * as VirtualNetwork from '@modules/resources/VirtualNetwork'
-export * as VirtualRouter from '@modules/resources/VirtualRouter'
-export * as VmGroup from '@modules/resources/VmGroup'
-export * as VmTemplate from '@modules/resources/VmTemplate'
-export * as VnTemplate from '@modules/resources/VnTemplate'
-export * as VrTemplate from '@modules/resources/VrTemplate'
-export * as Zone from '@modules/resources/Zone'
+export * from '@modules/resources/Alerts'
+export * from '@modules/resources/Buttons'
+export * from '@modules/resources/Cards'
+export * from '@modules/resources/Charts'
+export * from '@modules/resources/resources/VirtualMachine/Consoles'
+export * from '@modules/resources/DebugLog'
+export * from '@modules/resources/Dialogs'
+export { default as FloatingActionButton } from '@modules/resources/Fab'
+export { default as Footer } from '@modules/resources/Footer'
+export * from '@modules/resources/Forms'
+export {
+  FormStepper,
+  DefaultFormStepper,
+  SkeletonStepsForm,
+} from '@ComponentsV2Module'
+export * from '@modules/resources/Header'
+export * from '@modules/resources/HOC'
+export * from '@modules/resources/Icons'
+export { default as ResourceImage } from '@modules/resources/Image'
+export * from '@modules/resources/List'
+export { default as LoadingScreen } from '@modules/resources/LoadingScreen'
+export * from '@modules/resources/LoadingState'
+export { default as MultipleTags } from '@modules/resources/MultipleTags'
+export {
+  default as Notifier,
+  NotifierUpload,
+} from '@modules/resources/Notifier'
+export { default as NumberEasing } from '@modules/resources/NumberEasing'
+export { default as ResourcesBackButton } from '@modules/resources/ResourcesBackButton'
+export * from '@modules/resources/Route'
+export { default as Search } from '@modules/resources/Search'
+export { default as Sidebar } from '@modules/resources/Sidebar'
+export { default as SpeedDial } from '@modules/resources/SpeedDial'
+export {
+  Gutter,
+  default as SplitGrid,
+  useSplitGrid,
+} from '@modules/resources/SplitPane'
+export * from '@modules/resources/Status'
+export * from '@modules/resources/Tables'
+export * from '@modules/resources/Tabs'
+export { default as Timer } from '@modules/resources/Timer'
+export * from '@modules/resources/Tooltip'
+export * from '@modules/resources/Typography'
+export * from '@modules/resources/resources'

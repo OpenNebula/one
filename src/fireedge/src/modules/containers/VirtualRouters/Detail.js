@@ -13,11 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PATH, RESOURCE_NAMES } from '@ConstantsModule'
-import { createResourceDetailRoute } from '@modules/containers/ResourceSingleView/route'
+import { ReactElement } from 'react'
+import { Redirect, useParams } from 'react-router-dom'
+import { VrsTable, VrTabs } from '@ResourcesModule'
 
-export const VirtualRouterDetail = createResourceDetailRoute(
-  RESOURCE_NAMES.VROUTER,
-  PATH.INSTANCE.VROUTERS.LIST,
-  'VirtualRouterDetail'
-)
+/**
+ * Displays the detail information about a Service Template.
+ *
+ * @returns {ReactElement} Service Template detail component.
+ */
+export function VirtualRouterDetail() {
+  const { id } = useParams()
+
+  if (Number.isNaN(+id)) {
+    return <Redirect to="/" />
+  }
+
+  return (
+    <>
+      <VrTabs id={id} singleActions={VrsTable.Actions} />
+    </>
+  )
+}

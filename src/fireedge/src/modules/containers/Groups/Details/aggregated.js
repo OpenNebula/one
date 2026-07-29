@@ -21,7 +21,7 @@ import {
   ResourceActionConfirmation,
   SummarySlot,
   TabSlot,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { GroupAPI, useModalsApi } from '@FeaturesModule'
 import { Group } from '@ResourcesModule'

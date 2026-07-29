@@ -1,0 +1,86 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2026, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+import ContentForm, {
+  CUSTOM_ATTRS_ID,
+} from '@modules/resources/Forms/VNetwork/AddRangeForm/content'
+import { SCHEMA } from '@modules/resources/Forms/VNetwork/AddRangeForm/schema'
+import { createForm } from '@UtilsModule'
+
+// List of attributes that can't be changed in update operation
+const IMMUTABLE_ATTRS = [
+  'AR_ID',
+  'TYPE',
+  'IP',
+  'IP_END',
+  'IP6',
+  'IP6_END',
+  'MAC',
+  'MAC_END',
+  'IP6_GLOBAL',
+  'IP6_GLOBAL_END',
+  'GLOBAL_PREFIX',
+  'ULA_PREFIX',
+  'USED_LEASES',
+  'PARENT_NETWORK_AR_ID',
+  'LEASES',
+  'IPAM_MAD',
+]
+const sharedRemoveData = ['MAC']
+const removeSharedData = (data) => {
+  Object.keys(data).forEach((attr) => {
+    if (sharedRemoveData.some((prefix) => attr.startsWith(prefix))) {
+      delete data[attr]
+    }
+  })
+
+  return data
+}
+
+const cleanSharedData = (data) => {
+  if (data?.SHARED === 'YES') {
+    removeSharedData(data)
+    if (data.LEASES?.LEASE) {
+      removeSharedData(data.LEASES.LEASE)
+    }
+  }
+
+  return data
+}
+
+const AddRangeForm = createForm(SCHEMA, undefined, {
+  ContentForm,
+  transformInitialValue: (addressRange) => {
+    if (!addressRange) return {}
+
+    const mutableAttrs = {}
+    for (const attr of Object.keys(addressRange)) {
+      !IMMUTABLE_ATTRS[attr] && (mutableAttrs[attr] = addressRange[attr])
+    }
+
+    if (mutableAttrs?.SHARED === 'NO') mutableAttrs.SHARED = false
+
+    return { ...mutableAttrs }
+  },
+  transformBeforeSubmit: (formData) => {
+    const filteredData = cleanSharedData(formData)
+
+    const { [CUSTOM_ATTRS_ID]: customAttrs = {}, ...rest } = filteredData ?? {}
+
+    return { ...customAttrs, ...rest }
+  },
+})
+
+export default AddRangeForm

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useTranslation } from '@ProvidersModule'
-import { DateRangeFilter, SubmitButton } from '@ComponentsModule'
+import { DateRangeFilter, SubmitButton } from '@ComponentsV2Module'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
 import { VmAPI, useGeneralApi } from '@FeaturesModule'

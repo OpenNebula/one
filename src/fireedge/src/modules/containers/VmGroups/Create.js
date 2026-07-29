@@ -15,8 +15,11 @@
  * ------------------------------------------------------------------------- */
 import { Component, useCallback, useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router'
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { VmGroup } from '@ResourcesModule'
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+  VmGroup,
+} from '@ResourcesModule'
 
 import { jsonToXml, isDevelopment } from '@UtilsModule'
 import { VmGroupAPI, useGeneralApi } from '@FeaturesModule'

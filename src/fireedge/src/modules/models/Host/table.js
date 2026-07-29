@@ -18,7 +18,7 @@ import { getHostState, getAllocatedInfo } from '@modules/models/Host/general'
 import { T } from '@ConstantsModule'
 import { createTable, getTotalOfResources } from '@UtilsModule'
 import { HostAPI } from '@FeaturesModule'
-import { ProgressBar, StatusTag, Tag } from '@ComponentsModule'
+import { ProgressBar, StatusTag, Tag } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
 
 /* eslint-disable jsdoc/require-jsdoc */

@@ -14,6 +14,5 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/containers/VmTemplates/Create'
-export * from '@modules/containers/VmTemplates/Detail'
 export * from '@modules/containers/VmTemplates/Instantiate'
 export * from '@modules/containers/VmTemplates/VmTemplates'

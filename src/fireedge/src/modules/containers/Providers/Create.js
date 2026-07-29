@@ -18,8 +18,11 @@ import { useHistory, useLocation } from 'react-router'
 
 import { useGeneralApi, ProviderAPI, DriverAPI } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { Provider } from '@ResourcesModule'
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+  Provider,
+} from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'
 

@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { FormWithSchema } from '@ResourcesModule'
 import { Translate, useResourceSingleViewContext } from '@ProvidersModule'
 import { jsonToXml } from '@UtilsModule'
-import { ButtonGroup, FormWithSchema } from '@ComponentsModule'
+import { ButtonGroup } from '@ComponentsV2Module'
 import {
   RESOURCE_NAMES,
   SCHEMES,

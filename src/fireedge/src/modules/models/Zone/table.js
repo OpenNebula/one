@@ -17,7 +17,7 @@ import { createTable } from '@UtilsModule'
 import { ZoneAPI } from '@FeaturesModule'
 import { getZoneState } from '@modules/models/Zone/general'
 import { T } from '@ConstantsModule'
-import { StatusTag } from '@ComponentsModule'
+import { StatusTag } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
 
 /* eslint-disable jsdoc/require-jsdoc */

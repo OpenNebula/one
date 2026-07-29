@@ -22,7 +22,7 @@ import {
   LabelButton,
   ResourceActionConfirmation,
   TabSlot,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { BackupJobAPI, useModalsApi } from '@FeaturesModule'
 import { Component } from 'react'
 import { aggregateLockState, createActions } from '@UtilsModule'

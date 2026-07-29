@@ -27,9 +27,7 @@ import {
   PATH as COMMON_PATH,
 } from 'client/router/common'
 
-import InternalLayout from 'client/router/InternalLayout'
-import NoAuthRoute from 'client/router/NoAuthRoute'
-import ProtectedRoute from 'client/router/ProtectedRoute'
+import { InternalLayout, NoAuthRoute, ProtectedRoute } from '@ResourcesModule'
 
 const renderRoute = () => {
   const RouteRenderer = ({ Component, ...route }) => (

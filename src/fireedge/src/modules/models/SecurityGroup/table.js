@@ -18,7 +18,7 @@ import { createTable } from '@UtilsModule'
 import { SecurityGroupAPI, VmAPI } from '@FeaturesModule'
 import { VM_COLUMNS } from '@modules/models/VirtualMachine/table'
 import { createLabelColumn } from '@modules/models/labels'
-import { Tag } from '@ComponentsModule'
+import { Tag } from '@ComponentsV2Module'
 
 /* eslint-disable jsdoc/require-jsdoc */
 export const getSecurityGroupRulesCount = (securityGroup) =>

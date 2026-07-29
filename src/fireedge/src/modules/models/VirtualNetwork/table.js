@@ -22,7 +22,7 @@ import {
   getVNManager,
 } from '@modules/models/VirtualNetwork/general'
 import { T, VNET_THRESHOLD } from '@ConstantsModule'
-import { ProgressBar, StatusTag, Tag } from '@ComponentsModule'
+import { ProgressBar, StatusTag, Tag } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
 
 /* eslint-disable jsdoc/require-jsdoc */

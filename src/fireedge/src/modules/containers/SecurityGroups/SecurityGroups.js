@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
-import { List, Table, ResourceContainer } from '@ComponentsModule'
+import { List, Table, ResourceContainer } from '@ComponentsV2Module'
 import { RESOURCE_NAMES, T, TABLE_VIEW_MODE } from '@ConstantsModule'
 import {
   useFunctionalityApi,

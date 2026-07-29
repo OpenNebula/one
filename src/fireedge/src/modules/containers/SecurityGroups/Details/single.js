@@ -22,7 +22,7 @@ import {
   TabSlot,
   ToggleGroup,
   ResourceActionConfirmation,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 
 import { Component, useMemo } from 'react'
 

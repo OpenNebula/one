@@ -1,0 +1,82 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2026, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+import PropTypes from 'prop-types'
+import { Fragment, memo, ReactElement, useMemo } from 'react'
+
+import { Stack } from '@mui/material'
+import { Filter } from 'iconoir-react'
+import { UseFiltersInstanceProps } from 'opennebula-react-table'
+
+import { T } from '@ConstantsModule'
+import HeaderPopover from '@modules/resources/Header/Popover'
+import { Translate } from '@ProvidersModule'
+
+/**
+ * Render all selected filters.
+ *
+ * @returns {ReactElement} Component JSX
+ */
+const GlobalFilter = memo(
+  (tableProps) => {
+    /** @type {UseFiltersInstanceProps} */
+    const { rows, columns } = tableProps
+
+    const columnsCanFilter = useMemo(
+      () => columns.filter(({ canFilter }) => canFilter),
+      []
+    )
+
+    if (columnsCanFilter.length === 0) {
+      return null
+    }
+
+    return (
+      <Stack direction="row" gap="0.5em" flexWrap="wrap">
+        <HeaderPopover
+          id="filter-by-button"
+          icon={<Filter />}
+          headerTitle={<Translate word={T.FilterBy} />}
+          buttonLabel={<Translate word={T.Filter} />}
+          buttonProps={{
+            'data-cy': 'filter-by-button',
+            disableElevation: true,
+            disabled: rows?.length === 0,
+          }}
+          popperProps={{ placement: 'bottom-end' }}
+        >
+          {() => (
+            <Stack sx={{ width: { xs: '100%', md: 500 } }}>
+              {columnsCanFilter.map((column, idx) => (
+                <Fragment key={idx}>{column.render('Filter')}</Fragment>
+              ))}
+            </Stack>
+          )}
+        </HeaderPopover>
+      </Stack>
+    )
+  },
+  (next, prev) =>
+    next.rows === prev.rows && next.state.filters === prev.state.filters
+)
+
+GlobalFilter.propTypes = {
+  preFilteredRows: PropTypes.array,
+  state: PropTypes.object,
+}
+
+GlobalFilter.displayName = 'GlobalFilter'
+
+export default GlobalFilter

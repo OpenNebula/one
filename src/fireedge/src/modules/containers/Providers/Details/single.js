@@ -23,7 +23,7 @@ import {
   Tag,
   ToggleGroup,
   ResourceActionConfirmation,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import {
   LOGO_DRIVERS_IMAGES_URL,
   PROVIDER_ACTIONS,

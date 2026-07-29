@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { List, ResourceContainer, Table, Text } from '@ComponentsModule'
+import { List, ResourceContainer, Table, Text } from '@ComponentsV2Module'
 import { ReactElement, useCallback, useMemo, useState } from 'react'
 import { Box, Divider } from '@mui/material'
 import {

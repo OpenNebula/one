@@ -17,8 +17,11 @@ import { ReactElement, useEffect } from 'react'
 import { useStore } from 'react-redux'
 import { useHistory, useLocation } from 'react-router'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { VrTemplate } from '@ResourcesModule'
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+  VrTemplate,
+} from '@ResourcesModule'
 
 import {
   deepmerge,

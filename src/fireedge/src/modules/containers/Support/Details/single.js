@@ -20,7 +20,7 @@ import {
   SummarySlot,
   TabSlot,
   ToggleGroup,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'

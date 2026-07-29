@@ -22,7 +22,7 @@ import {
   ButtonGroup,
   Button,
   ResourceActionConfirmation,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { T, STYLE_BUTTONS, USER_ACTIONS } from '@ConstantsModule'
 import { UserAPI, useModalsApi } from '@FeaturesModule'
 import { getUserState } from '@ModelsModule'

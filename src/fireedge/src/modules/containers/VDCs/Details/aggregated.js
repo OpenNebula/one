@@ -22,7 +22,7 @@ import {
   ResourceActionConfirmation,
   SummarySlot,
   TabSlot,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import { RESOURCE_NAMES, STYLE_BUTTONS, T } from '@ConstantsModule'
 import { VdcAPI, useModalsApi } from '@FeaturesModule'
 import {

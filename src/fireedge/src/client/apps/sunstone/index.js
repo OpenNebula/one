@@ -30,7 +30,7 @@ import { Store } from 'redux'
 import { Providers } from '@StylesModule'
 import { TranslationProvider } from '@ProvidersModule'
 import { buildTranslationLocale } from '@UtilsModule'
-import { SnackbarProvider } from '@ComponentsModule'
+import { SnackbarProvider } from '@ComponentsV2Module'
 import App, { APP_NAME as SunstoneAppName } from 'client/apps/sunstone/_app'
 import { APP_URL } from '@ConstantsModule'
 

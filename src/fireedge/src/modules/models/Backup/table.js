@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { Tag } from '@ComponentsModule'
+import { Tag } from '@ComponentsV2Module'
 import { T, UNITS } from '@ConstantsModule'
 import { getDiskName, getDiskType } from '@modules/models/Image/general'
 import { prettyBytes, stringToBoolean } from '@UtilsModule'

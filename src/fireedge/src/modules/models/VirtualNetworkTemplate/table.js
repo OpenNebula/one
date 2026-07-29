@@ -16,7 +16,7 @@
 import { createTable, getLockIcon, timeFromMilliseconds } from '@UtilsModule'
 import { VnTemplateAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
-import { Tag } from '@ComponentsModule'
+import { Tag } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
 import { Box } from '@mui/material'
 

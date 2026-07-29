@@ -19,8 +19,11 @@ import { useHistory, useLocation } from 'react-router'
 
 import { useGeneralApi, MarketplaceAPI, SystemAPI } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { Marketplace } from '@ResourcesModule'
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+  Marketplace,
+} from '@ResourcesModule'
 
 import { jsonToXml } from '@UtilsModule'
 
@@ -99,9 +102,7 @@ export function CreateMarketplace() {
           }}
           fallback={<SkeletonStepsForm />}
         >
-          {(config) => (
-            <DefaultFormStepper {...config} update={!!marketplaceId} />
-          )}
+          {(config) => <DefaultFormStepper {...config} update={!!marketplaceId} />}
         </Marketplace.Forms.CreateForm>
       ) : (
         <SkeletonStepsForm />

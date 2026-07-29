@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import { Box, Paper, Divider, useTheme } from '@mui/material'
-import { Text } from '@ComponentsModule'
+import { Text } from '@ComponentsV2Module'
 import {
   COMMUNITY_WEBSITE,
   T,

@@ -29,8 +29,11 @@ import {
   VmTemplateAPI,
 } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { VmTemplate } from '@ResourcesModule'
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+  VmTemplate,
+} from '@ResourcesModule'
 
 import {
   jsonToXml,

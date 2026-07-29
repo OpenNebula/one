@@ -16,7 +16,7 @@
 import { createTable, getTotalOfResources } from '@UtilsModule'
 import { ClusterAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
-import { Tag } from '@ComponentsModule'
+import { Tag } from '@ComponentsV2Module'
 import { createLabelColumn } from '@modules/models/labels'
 
 /* eslint-disable jsdoc/require-jsdoc */

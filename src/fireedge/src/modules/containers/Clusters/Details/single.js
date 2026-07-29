@@ -22,7 +22,7 @@ import {
   SummarySlot,
   TabSlot,
   ToggleGroup,
-} from '@ComponentsModule'
+} from '@ComponentsV2Module'
 import {
   CLUSTER_ACTIONS,
   CLUSTER_CLOUD_OPERATIONS,

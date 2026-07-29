@@ -19,8 +19,11 @@ import { useHistory, useLocation } from 'react-router'
 import { VirtualNetworks } from '@modules/containers/VirtualNetworks/VirtualNetworks'
 import { useSystemData, useGeneralApi, VnAPI } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
-import { VirtualNetwork } from '@ResourcesModule'
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+  VirtualNetwork,
+} from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'
 

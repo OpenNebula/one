@@ -17,7 +17,7 @@ import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { Box, Paper } from '@mui/material'
-import { Text } from '@ComponentsModule'
+import { Text } from '@ComponentsV2Module'
 
 import Form from '@modules/containers/Support/Authentication/Form'
 import { T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'

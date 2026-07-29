@@ -19,7 +19,7 @@ import { Cancel } from 'iconoir-react'
 import { ReactElement, useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 
-import { Button, Table, Text } from '@ComponentsModule'
+import { Button, Table, Text } from '@ComponentsV2Module'
 import { PATH, T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 import { vmtemplateTable } from '@ModelsModule'
 import { VirtualMachines } from '@modules/containers/VirtualMachines/VirtualMachines'
