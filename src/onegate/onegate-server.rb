@@ -1019,6 +1019,7 @@ put '/service/role/:role' do
 
     check_vm_in_service(source_vm['ID'], service_id, client)
 
+    request.body.rewind
     cardinality = JSON.parse(request.body.read)["cardinality"]
     body_json = {
           :cardinality => cardinality,
