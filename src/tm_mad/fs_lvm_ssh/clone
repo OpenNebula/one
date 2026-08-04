@@ -175,7 +175,13 @@ CLONE_CMD=$(cat <<EOF
     rm -f "$DST_PATH"
     ln -s "$DEV" "$DST_PATH"
 
-    $SSH -n $SRC_HOST "$TAR -cSO $SRC_PATH 2> /dev/null" | $TAR -xO 2> /dev/null > "$DEV"
+    # Sparse seeks are safe on new thin LVs, but thick LVs may retain old data.
+    if [ "$LVM_THIN_ENABLE" = 'yes' ]; then
+        $SSH -n $SRC_HOST "$TAR -cSO $SRC_PATH 2> /dev/null" | $TAR -xO 2> /dev/null > "$DEV"
+    else
+        $SSH -n $SRC_HOST "$TAR -cSO $SRC_PATH 2> /dev/null" | $TAR -xO 2> /dev/null | \
+            $DD of="$DEV" bs=${DD_BLOCK_SIZE:-64k} conv=fdatasync
+    fi
 EOF
 )
 
