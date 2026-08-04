@@ -1720,14 +1720,6 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    ssh_desc = <<-EOT.unindent
-        SSH into VM
-
-        Options example:
-
-        '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
-    EOT
-
     pci_attach_desc = <<-EOT.unindent
         Attaches a PCI to a VM.
 
@@ -1790,6 +1782,14 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    ssh_desc = <<-EOT.unindent
+        SSH into VM
+
+        Options example:
+
+        '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    EOT
+
     command :ssh,
             ssh_desc,
             :vmid,
@@ -1818,15 +1818,7 @@ CommandParser::CmdParser.new(ARGV) do
                 exit(-1)
             end
 
-            if options[:nic_id]
-                nic = vm.retrieve_xmlelements(
-                    "//TEMPLATE/NIC[NIC_ID=\"#{options[:nic_id]}\"]"
-                )[0]
-            else
-                nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[SSH="YES"]')[0]
-            end
-
-            nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[1]')[0] if nic.nil?
+            nic = helper.ssh_nic(vm, options[:nic_id])
 
             if nic.nil?
                 STDERR.puts 'No NIC found'
