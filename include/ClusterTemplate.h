@@ -27,7 +27,7 @@ class ClusterTemplate : public Template
 {
 public:
     ClusterTemplate():
-        Template(false, '=', "TEMPLATE") {};
+        Template(true, '=', "TEMPLATE") {};
 
     ~ClusterTemplate() {};
 
