@@ -162,7 +162,11 @@ EOF
 
             # Temporally enable source LV to copy from it
             ${SUDO} ${LVCHANGE} -ay -K '${SRC_VG_NAME}/${LV_NAME}'
-            ${DD} if=${SRC_DEV} of=${DST_DEV} bs=${DD_BLOCK_SIZE:-64k} conv=sparse,fdatasync
+            if [ "$LVM_THIN_ENABLE" = 'yes' ]; then
+                ${DD} if=${SRC_DEV} of=${DST_DEV} bs=${DD_BLOCK_SIZE:-64k} conv=sparse,fdatasync
+            else
+                ${DD} if=${SRC_DEV} of=${DST_DEV} bs=${DD_BLOCK_SIZE:-64k} conv=fdatasync
+            fi
             ${SUDO} ${LVCHANGE} -an '${SRC_VG_NAME}/${LV_NAME}'
 
             ${SYNC}
@@ -178,6 +182,16 @@ EOF
             set -e -o pipefail
             ${SYNC}
             ${SUDO} ${LVSCAN}
+
+            if [ "$ZERO_LVM_ON_DELETE" = 'yes' ] && [ "$LVM_THIN_ENABLE" != 'yes' ]; then
+                LVSIZE=\$(${SUDO} ${LVS} --nosuffix --noheadings --units B -o lv_size \
+                    "${SRC_DEV}" | tr -d '[:blank:]')
+                ${SUDO} ${LVCHANGE} -ay "${SRC_DEV}"
+                ${DD} if=/dev/zero of="${SRC_DEV}" bs=${DD_BLOCK_SIZE:-64k} \
+                    iflag=count_bytes count="\$LVSIZE"
+                ${SUDO} ${LVCHANGE} -an "${SRC_DEV}"
+            fi
+
             ${SUDO} ${LVREMOVE} -y ${SRC_DEV}
             # Remove src pool if it does not have any more LVs
             if [ -n "\$($SUDO $LVS --noheading -S 'vg_name = $SRC_VG_NAME && lv_name = $POOL_NAME')" ] &&
