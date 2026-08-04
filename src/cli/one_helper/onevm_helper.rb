@@ -610,15 +610,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             options[:cmd].nil? ? cmd = '' : cmd = options[:cmd]
 
             # Get NIC to connect
-            if options[:nic_id]
-                nic = vm.retrieve_xmlelements(
-                    "//TEMPLATE/NIC[NIC_ID=\"#{options[:nic_id]}\"]"
-                )[0]
-            else
-                nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[SSH="YES"]')[0]
-            end
-
-            nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[1]')[0] if nic.nil?
+            nic = ssh_nic(vm, options[:nic_id])
 
             if nic.nil?
                 STDERR.puts 'No NIC found'
@@ -655,6 +647,33 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         else
             nil
         end
+    end
+
+    def ssh_nic(vm, nic_id)
+        if nic_id
+            nic = vm.retrieve_xmlelements(
+                "//TEMPLATE/NIC[NIC_ID=\"#{nic_id}\"]"
+            )[0]
+            return nic unless nic.nil?
+
+            nic = vm.retrieve_xmlelements(
+                "//TEMPLATE/PCI[TYPE=\"NIC\"][NIC_ID=\"#{nic_id}\"]"
+            )[0]
+        else
+            nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[SSH="YES"]')[0]
+            return nic unless nic.nil?
+
+            nic = vm.retrieve_xmlelements(
+                '//TEMPLATE/PCI[TYPE="NIC"][SSH="YES"]'
+            )[0]
+        end
+
+        return nic unless nic.nil?
+
+        nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[1]')[0]
+        return nic unless nic.nil?
+
+        vm.retrieve_xmlelements('//TEMPLATE/PCI[TYPE="NIC"][NIC_ID>-1]')[0]
     end
 
     private
