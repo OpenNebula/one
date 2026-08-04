@@ -40,6 +40,10 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
+DRIVER_PATH=$(dirname $0)
+
+source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
+
 . $TMCOMMON
 
 POOL_NAME="lv-one-$VMID-pool"
@@ -47,7 +51,6 @@ VG_NAME="vg-one-$DSID"
 
 #--------------------------------------------------------------------------------
 # Obtain original system directory (srcpath) for system DS migrations
-DRIVER_PATH=$(dirname $0)
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
@@ -75,6 +78,13 @@ if [ "$ORIG_DS_ID" != "$DSID" ]; then
                     FDS=(\$FDS_RAW)
                     OLD_VG_NAME="\${FDS[0]}"
                     POOL_NAME="\${FDS[1]}"
+
+                    if [ "$ZERO_LVM_ON_DELETE" = 'yes' ] && [ -z "\$POOL_NAME" ]; then
+                        LVSIZE=\$($SUDO $LVS --nosuffix --noheadings --units B -o lv_size \
+                            "\$DEVICE" | tr -d '[:blank:]')
+                        $DD if=/dev/zero of="\$DEVICE" bs=${DD_BLOCK_SIZE:-64k} \
+                            iflag=count_bytes count="\$LVSIZE"
+                    fi
 
                     # Remove LV on origin host
                     $SUDO $LVREMOVE -y \$DEVICE
