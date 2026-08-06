@@ -31,6 +31,11 @@ module OneKS
         READY_STATE    = 'RUNNING'
         VM_API_UPDATE  = 'EVENT API one.vm.update'
 
+        # Marketplace app pool is empty on a fresh frontend until the
+        # marketplace drivers complete their first monitor cycle
+        MARKET_TIMEOUT  = 300
+        MARKET_INTERVAL = 15
+
         def initialize(opts: {})
             super(
                 :opts => {
@@ -231,6 +236,11 @@ module OneKS
                     end
                 end
 
+                rc = wait_for_appliance(
+                    client, appliance_id, opts[:market_timeout] || MARKET_TIMEOUT
+                )
+                return rc if OpenNebula.is_error?(rc)
+
                 rc = OneHelper::Marketplace.import(
                     client, appliance_name, appliance_id, datastore_id
                 )
@@ -242,6 +252,37 @@ module OneKS
                     "OneKS appliance requirement failed: #{e.message}",
                     OpenNebula::Error::EACTION
                 )
+            end
+
+            private
+
+            # Waits until the appliance is available in the marketplace
+            # @param client [OpenNebula::Client]
+            # @param app_id [String] Marketplace appliance import ID
+            # @param timeout [Integer] Maximum time to wait in seconds
+            # @return [true, OpenNebula::Error]
+            def wait_for_appliance(client, app_id, timeout)
+                deadline = Time.now + timeout
+
+                loop do
+                    exists = OneHelper::Marketplace.exists?(client, app_id)
+                    return exists if OpenNebula.is_error?(exists)
+                    return true if exists
+
+                    return OpenNebula::Error.new(
+                        "Marketplace appliance '#{app_id}' not found " \
+                        "after #{timeout}s",
+                        OpenNebula::Error::EACTION
+                    ) if Time.now >= deadline
+
+                    Log.info(
+                        COMP,
+                        "Waiting for Marketplace appliance '#{app_id}' " \
+                        'to be available'
+                    )
+
+                    sleep MARKET_INTERVAL
+                end
             end
 
         end
