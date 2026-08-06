@@ -2658,7 +2658,7 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<pae/>" << endl;
         }
 
-        if ( acpi && (arch != "aarch64" || is_uefi ))
+        if ( acpi && (arch != "aarch64" || is_uefi || is_efi_auto) )
         {
             file << "\t\t<acpi/>" << endl;
         }
