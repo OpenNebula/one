@@ -1872,7 +1872,7 @@ Bash symbols must be escaped on STDIN passing'
             res=parse_user_object(obj)
             return [-1, "#{section.capitalize} \"#{obj}\" malformed"] unless res
 
-            user, object=*res
+            user, object = res
 
             template<<"#{section.upcase}=[\n"
             if section.upcase == 'NIC' && ['auto', 'dummy'].include?(object.downcase)
