@@ -605,6 +605,8 @@ class ExecDriver < VirtualMachineDriver
         post << action.data[:tm_command]
         failed << action.data[:tm_command]
 
+        same_host = action.data[:host] == action.data[:dest_host]
+
         steps = [
             # Execute a pre-migrate TM setup
             {
@@ -621,54 +623,63 @@ class ExecDriver < VirtualMachineDriver
                         :no_fail    => true
                     }
                 ]
-            },
+            }
+        ]
+
+        unless same_host
             # Execute pre-boot networking setup on migrating host
-            {
+            steps << {
                 :driver      => :vnm,
                 :action      => :pre,
                 :destination => true
-            },
-            # Migrate the Virtual Machine
-            {
-                :driver     => :vmm,
-                :action     => :migrate,
-                :parameters => [:deploy_id, :dest_host, :host],
-                :fail_actions => [
-                    {
-                        :driver     => :tm,
-                        :action     => :tm_failmigrate,
-                        :parameters => failed.split,
-                        :stdin      => action.data[:vm],
-                        :no_fail    => true
-                    }
-                ]
-            },
+            }
+        end
+
+        # Migrate the Virtual Machine
+        steps << {
+            :driver     => :vmm,
+            :action     => :migrate,
+            :parameters => [:deploy_id, :dest_host, :host],
+            :fail_actions => [
+                {
+                    :driver     => :tm,
+                    :action     => :tm_failmigrate,
+                    :parameters => failed.split,
+                    :stdin      => action.data[:vm],
+                    :no_fail    => true
+                }
+            ]
+        }
+
+        unless same_host
             # Execute networking clean up operations
             # NOTE: VM is now in the new host. If we fail from now on, oned will
             # assume that the VM is in the previous host but it is in fact
             # migrated. Log errors will be shown in vm.log
-            {
+            steps << {
                 :driver       => :vnm,
                 :action       => :clean,
                 :parameters   => [:host],
                 :no_fail      => true
-            },
+            }
+
             # Execute post-boot networking setup on migrating host
-            {
+            steps << {
                 :driver       => :vnm,
                 :action       => :post,
                 :parameters   => [:deploy_id, :host],
                 :destination  => true,
                 :no_fail      => true
-            },
-            {
-                :driver     => :tm,
-                :action     => :tm_postmigrate,
-                :parameters => post.split,
-                :stdin      => action.data[:vm],
-                :no_fail    => true
             }
-        ]
+        end
+
+        steps << {
+            :driver     => :tm,
+            :action     => :tm_postmigrate,
+            :parameters => post.split,
+            :stdin      => action.data[:vm],
+            :no_fail    => true
+        }
 
         action.run(steps)
     end
@@ -999,15 +1010,15 @@ class ExecDriver < VirtualMachineDriver
         end
 
         begin
-            source   = xml_data.elements["#{base_tmpl}/BRIDGE"]
-            mac      = xml_data.elements["#{base_tmpl}/MAC"]
-            target   = xml_data.elements["#{base_tmpl}/TARGET"]
-            vn_mad   = xml_data.elements["#{base_tmpl}/VN_MAD"]
+            source = xml_data.elements["#{base_tmpl}/BRIDGE"]
+            mac    = xml_data.elements["#{base_tmpl}/MAC"]
+            target = xml_data.elements["#{base_tmpl}/TARGET"]
+            vn_mad = xml_data.elements["#{base_tmpl}/VN_MAD"]
 
-            source   = source.text.strip if source
-            mac      = mac.text.strip if mac
-            target   = target.text.strip if target
-            vn_mad   = vn_mad.text.strip if vn_mad
+            source = source.text.strip if source
+            mac    = mac.text.strip if mac
+            target = target.text.strip if target
+            vn_mad = vn_mad.text.strip if vn_mad
         rescue StandardError
             send_message(action, RESULT[:failure], id,
                          'Missing VN_MAD, BRIDGE, TARGET or MAC in VM NIC')
