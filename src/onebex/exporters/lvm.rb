@@ -285,8 +285,10 @@ module OneBEX
                 sorted.each do |extent|
                     last = merged.last
 
-                    if extent[:start] <= last[:end]
-                        last[:end] = [last[:end], extent[:end]].max
+                    if extent[:start] <= last[:start] + last[:length]
+                        new_end = [last[:start]  + last[:length],
+                                   extent[:start] + extent[:length]].max
+                        last[:length] = new_end - last[:start]
                     else
                         merged << extent.dup
                     end
