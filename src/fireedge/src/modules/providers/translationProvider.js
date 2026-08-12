@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,         *
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
  * See the License for the specific language governing permissions and       *
- * limitations under the License.                                            *
+ * limitations under the License.                                           *
  * ------------------------------------------------------------------------- */
 import { Settings } from 'luxon'
 import PropTypes from 'prop-types'
@@ -99,6 +99,13 @@ const loadMessages = (locale) => {
 /**
  * Provides the active locale and translation function.
  *
+ * When the server preloads a locale catalog into `window.locale` (via the
+ * `preload-locale` script tag in App.js), the provider initialises with
+ * those messages immediately, eliminating the first-render flash of
+ * untranslated text. The async `loadMessages` call still runs to ensure
+ * the full catalog is loaded; if the preloaded catalog is already complete,
+ * the state simply updates to the same value.
+ *
  * @param {object} props - Provider props
  * @param {any} props.children - Application tree
  * @returns {ReactElement} Translation context provider
@@ -109,11 +116,17 @@ export const TranslationProvider = ({ children }) => {
     settings.LANG ?? settings.FIREEDGE?.LANG ?? DEFAULT_LANGUAGE
   const fallbackLocale = LANGUAGES[DEFAULT_LANGUAGE] ? DEFAULT_LANGUAGE : 'en'
   const locale = LANGUAGES[requestedLocale] ? requestedLocale : fallbackLocale
+
+  // Use server-side preloaded translations if available to eliminate
+  // the first-render flash of untranslated (English) text.
+  const preloadedMessages = root.locale ?? {}
+  const hasPreloaded = Object.keys(preloadedMessages).length > 0
+
   const [state, setState] = useState({
     error: null,
-    isLoading: true,
+    isLoading: !hasPreloaded,
     locale,
-    messages: {},
+    messages: preloadedMessages,
   })
 
   useEffect(() => {
