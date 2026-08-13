@@ -54,7 +54,7 @@ done < <(onevm show -x $VM_ID | $XPATH \
 ORIG_DS_ID="${XPATH_ELEMENTS[j++]}"
 
 if [ "$ORIG_DS_ID" != "$DS_ID" ]; then
-    SRC_PATH="${DST_PATH}/../../${ORIG_DS_ID}/${VM_ID}"
+    SRC_PATH="${DS_DIR}/${ORIG_DS_ID}/${VM_ID}"
 
     CMD=$(cat <<EOF
         set -ex -o pipefail
