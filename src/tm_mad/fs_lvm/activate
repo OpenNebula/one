@@ -19,14 +19,11 @@
 # This script is used for one-shot LVM volumes activation
 # in case of virtualization host reboot.
 
+DRIVER_PATH=$(dirname "$0")
+source "${DRIVER_PATH}/../../scripts_common.sh"
+
 TIMEOUT=${TIMEOUT:-90}    # wait time for VG one to be ready
 HOSTNAME=$(hostname -f)
-
-if [ -z "${ONE_LOCATION}" ]; then
-    DATASTORES=${DATASTORES:-/var/lib/one/datastores}
-else
-    DATASTORES=${DATASTORES:-${ONE_LOCATION}/var/datastores}
-fi
 
 # check for LVM utils
 PATH="${PATH}:/sbin:/bin:/usr/sbin:/usr/bin" which vgdisplay >/dev/null 2>&1
@@ -51,7 +48,7 @@ while true; do
 done
 
 # list directories of the virtual machines originally running on this host
-DIRS=$(find -L "${DATASTORES}" \
+DIRS=$(find -L "${DS_DIR}" \
         -name .host \
         -type f \
         -exec grep -lxF "${HOSTNAME}" {} \; \

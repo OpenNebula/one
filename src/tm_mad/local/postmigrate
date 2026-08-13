@@ -44,7 +44,7 @@ dst    = TransferManager::Action::Location.new([arg_dsthost, arg_dstpath])
 
 # Obtain original system directory (srcpath) for system DS migrations
 orig_dsid = postmg.vm['/VM/HISTORY_RECORDS/HISTORY[last()-1]/DS_ID']
-srcpath   = "#{arg_dstpath}/../../#{orig_dsid}/#{arg_vmid}"
+srcpath   = File.join(DS_DIR, orig_dsid, arg_vmid)
 
 #--------------------------------------------------------------------------------
 

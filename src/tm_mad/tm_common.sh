@@ -16,22 +16,12 @@
 
 export LANG=C
 
-# ------------------------------------------------------------------------------
-# Set enviroment for the tm drivers (bash-based)
-# ------------------------------------------------------------------------------
 if [ -z "$ONE_LOCATION" ]; then
-    ONE_LOCAL_VAR=/var/lib/one
-    ONE_LIB=/usr/lib/one
-    DS_DIR=/var/lib/one/datastores
+    . /usr/lib/one/sh/scripts_common.sh
 else
-    ONE_LOCAL_VAR=$ONE_LOCATION/var
-    ONE_LIB=$ONE_LOCATION/lib
-    DS_DIR=$ONE_LOCATION/var/datastores
+    . "$ONE_LOCATION/lib/sh/scripts_common.sh"
 fi
 
-ONE_SH=$ONE_LIB/sh
-
-. $ONE_SH/scripts_common.sh
 
 # ------------------------------------------------------------------------------
 # Function to get hosts and paths from arguments

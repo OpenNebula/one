@@ -61,6 +61,18 @@ WGET=${WGET:-wget}
 # Used for log messages
 SCRIPT_NAME=`basename -- $0`
 
+
+# ------------------------------------------------------------------------------
+# Set environment for the drivers (bash-based)
+# ------------------------------------------------------------------------------
+if [ -z "$ONE_LOCATION" ]; then
+    ONE_LOCAL_VAR=/var/lib/one
+else
+    ONE_LOCAL_VAR="$ONE_LOCATION/var"
+fi
+DS_DIR="${DS_DIR:-$ONE_LOCAL_VAR/datastores}"
+
+
 # ------------------------------------------------------------------------------
 # Path manipulation functions
 # ------------------------------------------------------------------------------
@@ -1430,11 +1442,6 @@ function send_to_monitor {
 # For security (to prevent other files from being modified), only this exact command is allowed
 # by sudoers. The sed expression is passed as stdin.
 SUDO_SED_FSTAB='flock -w 5 /etc/fstab sudo sed -i -f /proc/self/fd/0 /etc/fstab'
-if [ -z "$ONE_LOCATION" ]; then
-    DS_DIR=/var/lib/one/datastores
-else
-    DS_DIR=$ONE_LOCATION/var/datastores
-fi
 
 #-------------------------------------------------------------------------------
 # Return a command that upon execution will undo local setup for no-longer-used AutoNFS datastores,

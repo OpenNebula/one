@@ -63,7 +63,7 @@ ORIG_DS_ID="${XPATH_ELEMENTS[j++]}"
 #--------------------------------------------------------------------------------
 
 if [ "$ORIG_DS_ID" != "$DSID" ]; then
-    SRC_PATH="$(realpath -m "${DST_PATH}/../../${ORIG_DS_ID}/${VMID}")"
+    SRC_PATH="${DS_DIR}/${ORIG_DS_ID}/${VMID}"
 
     PRE_CMD=$(cat <<EOF
         set -e -o pipefail
