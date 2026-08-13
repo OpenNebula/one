@@ -28,7 +28,15 @@ class Replicator
 
     SSH_OPTIONS = '-o stricthostkeychecking=no -o passwordauthentication=no'
     ONE_AUTH    = '/var/lib/one/.one/one_auth'
-    FED_ATTRS   = ['MODE', 'ZONE_ID', 'SERVER_ID', 'MASTER_ONED']
+    FED_ATTRS   = ['MODE', 'ZONE_ID', 'SERVER_ID', 'MASTER_ONED',
+                   'MASTER_ONED_GRPC']
+    HA_ATTRS    = {
+        'RAFT' => ['LIMIT_PURGE', 'LOG_RETENTION', 'LOG_PURGE_TIMEOUT',
+                   'ELECTION_TIMEOUT_MS', 'BROADCAST_TIMEOUT_MS',
+                   'XMLRPC_TIMEOUT_MS'],
+        'RAFT_LEADER_HOOK'   => ['COMMAND', 'ARGUMENTS'],
+        'RAFT_FOLLOWER_HOOK' => ['COMMAND', 'ARGUMENTS']
+    }
 
     FILES = [
         { :name    => 'monitord.conf',
@@ -99,9 +107,10 @@ class Replicator
     # Process files and folders
     #
     # @param sync_database [Boolean] True to sync database
-    def process_files(sync_database)
+    # @param keep_ha       [Boolean] True to keep local HA configuration
+    def process_files(sync_database, keep_ha = false)
         # Files to be copied
-        copy_onedconf
+        copy_onedconf(keep_ha)
 
         FILES.each do |file|
             copy_and_check(file[:name], file[:service])
@@ -216,8 +225,10 @@ class Replicator
     # oned.conf file on distributed environments will always be different,
     # due to the federation section.
     # Replace oned.conf based on a remote server's version maintaining
-    # the old FEDERATION section
-    def copy_onedconf
+    # the old FEDERATION section and, optionally, the local HA parameters.
+    #
+    # @param keep_ha [Boolean] True to keep local HA configuration
+    def copy_onedconf(keep_ha)
         puts 'Checking oned.conf'
 
         # Create temporarhy files
@@ -266,6 +277,19 @@ class Replicator
             fed_attrs << l_aug.get("FEDERATION/#{attr}")
         end
 
+        ha_attrs = {}
+
+        if keep_ha
+            HA_ATTRS.each do |section, attrs|
+                ha_attrs[section] = attrs.map do |attr|
+                    l_aug.get("#{section}/#{attr}")
+                end
+
+                l_aug.rm(section)
+                r_aug.rm(section)
+            end
+        end
+
         # Remove federation section
         l_aug.rm('FEDERATION')
         r_aug.rm('FEDERATION')
@@ -284,6 +308,12 @@ class Replicator
 
         FED_ATTRS.zip(fed_attrs) do |name, value|
             r_aug.set("FEDERATION/#{name}", value)
+        end
+
+        ha_attrs.each do |section, values|
+            HA_ATTRS[section].zip(values) do |name, value|
+                r_aug.set("#{section}/#{name}", value) unless value.nil?
+            end
         end
 
         r_aug.save
