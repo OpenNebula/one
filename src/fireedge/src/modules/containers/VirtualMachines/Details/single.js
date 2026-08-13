@@ -531,7 +531,7 @@ export const SingleView = ({
         [
           TabSlot,
           {
-            tabs: VirtualMachine.Tabs,
+            tabs: VirtualMachine.Tabs.Single,
             resourceId: VirtualMachine.RID,
             tabProps: {
               selectedVm,
