@@ -36,6 +36,18 @@ module TransferManager
                 super(vm_xml, vm_dir, disks)
             end
 
+            # Generate snapshot cleanup commands after the backup upload.
+            # @param disks [Array<String>] disk IDs included in the backup
+            # @param success [Boolean] whether the backup upload succeeded
+            # @return [String] shell commands
+            def backup_snapshots_cleanup_sh(disks, success)
+                @disks.compact.each_with_object('') do |disk, script|
+                    next unless disks.include?(disk.id.to_s)
+
+                    script << disk.backup_snapshots_cleanup_sh(success)
+                end
+            end
+
         end
 
         # Ceph disks
@@ -110,7 +122,9 @@ module TransferManager
                 ['fs', 'swap'].include?(@type)
             end
 
-            # @param filter [nil, {type: [:prefix, :eq], text: String}]
+            # @param filter [nil, Hash] snapshot filter:
+            #   - :prefix and :eq match against the String in :text
+            #   - :increment_ne matches incremental snapshot IDs not equal to :id
             def rm_snaps_sh(filter = nil, image = @rbd_image)
                 jqfilter =
                     if filter.nil?
@@ -119,6 +133,10 @@ module TransferManager
                         ".name | startswith(\"#{filter[:text]}\")"
                     elsif filter[:type] == :eq
                         ".name == \"#{filter[:text]}\""
+                    elsif filter[:type] == :increment_ne
+                        "(.name | test(\"^#{INC_SNAP_PREFIX}[0-9]+$\")) and " \
+                            "((.name | sub(\"^#{INC_SNAP_PREFIX}\"; \"\") | " \
+                            "tonumber) != #{filter[:id]})"
                     end
                 rmfilter = "| select(#{jqfilter})" if jqfilter
 
@@ -232,9 +250,6 @@ module TransferManager
                         )
                     end
 
-                    old_snapshot = "one_backup_#{@vm_backup_config[:last_increment]}"
-                    snap_clup << rm_snaps_sh({ :type => :eq, :text => old_snapshot })
-
                     # On abort remove only the new snapshot, the previous one
                     # is still the base for the next increment
                     snap_abort << rm_snaps_sh({ :type => :eq, :text => "one_backup_#{incid}" })
@@ -248,6 +263,21 @@ module TransferManager
                     :snapshot_abort => snap_abort,
                     :cleanup        => snap_clup + expo_clup
                 }
+            end
+
+            # Keep the snapshot matching the upload outcome and remove all stale ones.
+            # @param success [Boolean] whether the backup upload succeeded
+            # @return [String] shell commands
+            def backup_snapshots_cleanup_sh(success)
+                return '' unless @vm_backup_config[:mode] == :increment
+
+                last_increment = @vm_backup_config[:last_increment]
+                snapshot_id    = success ? last_increment + 1 : last_increment
+
+                rm_snaps_sh(
+                    :type => :increment_ne,
+                    :id   => snapshot_id
+                )
             end
 
             # @param target [String] the RBD image name where to import
