@@ -302,6 +302,7 @@ export const CompactToolbar = ({ children, resetKey }) => {
             }}
           >
             <MenuButton
+              dataCy="compact-toolbar-overflow"
               iconOnly={<MoreVert width="16px" height="16px" />}
               placeholder={T.More}
               size="medium"
@@ -360,6 +361,7 @@ export const CompactToolbarOverflow = ({
       }}
     >
       <MenuButton
+        dataCy="compact-toolbar-overflow"
         iconOnly={<MoreVert width="16px" height="16px" />}
         placeholder={T.More}
         size={size}

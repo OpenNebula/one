@@ -74,11 +74,16 @@ export const Backup = ({ data, config }) => {
 
   return (
     <Box sx={(theme) => getStyles({ theme })}>
-      <Button {...configureBackupOption} type={STYLE_BUTTONS.TYPE.SECONDARY} />
+      <Button
+        {...configureBackupOption}
+        dataCy="backup-vm"
+        type={STYLE_BUTTONS.TYPE.SECONDARY}
+      />
       <Box className="table-container">
         <Table
           columns={vmbackupsTable.columns()}
           data={backups}
+          dataCy={vmbackupsTable.dataCy}
           isLoading={isFetchingBackups || isPerformingAction}
           emptyContentProps={{
             title: T.NoBackups,

@@ -332,6 +332,7 @@ export const SingleView = ({
             isTitleEditable: true,
             onTitleChange: handleRename,
             isTitleEditDisabled: isPerformingAction,
+            dataCy: 'vm-info',
             icon: `${STATIC_FILES_URL}/${vmLogo}`,
             title: selectedVm?.NAME,
             id: vmId,
@@ -356,12 +357,14 @@ export const SingleView = ({
                 />
 
                 <MenuButton
+                  dataCy="action-vm-host"
                   placeholder={T.VMActions}
                   options={[generalOptions]}
                   compactable
                 />
 
                 <MenuButton
+                  dataCy="action-vm-manage"
                   placeholder={T.VMState}
                   options={[stateOptions]}
                   compactable

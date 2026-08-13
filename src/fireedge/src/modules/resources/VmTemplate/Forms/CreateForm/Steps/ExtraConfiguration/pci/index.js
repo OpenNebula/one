@@ -351,6 +351,7 @@ const PciDevices = ({ oneConfig, adminGroup }) => {
   return (
     <Box>
       <Button
+        dataCy="action-pci-attach"
         startIcon={<Plus />}
         title={T.AttachPci}
         type={STYLE_BUTTONS.TYPE.SECONDARY}

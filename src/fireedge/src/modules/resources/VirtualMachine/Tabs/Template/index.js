@@ -36,8 +36,20 @@ export const Template = ({ data, config }) => {
   return (
     <Box sx={(theme) => getStyles({ theme })}>
       <Box className="code-container">
-        {fTemplate && <TemplateTab title={T.Template} code={fTemplate} />}
-        {fUTemplate && <TemplateTab title={T.UserTemplate} code={fUTemplate} />}
+        {fTemplate && (
+          <TemplateTab
+            title={T.Template}
+            code={fTemplate}
+            dataCy="tab-accordion-template"
+          />
+        )}
+        {fUTemplate && (
+          <TemplateTab
+            title={T.UserTemplate}
+            code={fUTemplate}
+            dataCy="tab-accordion-usertemplate"
+          />
+        )}
       </Box>
     </Box>
   )

@@ -76,6 +76,7 @@ const getAttachDiskOptions = ({
 
     return {
       eACTION,
+      dataCy: actionType ? `action-${actionType}` : undefined,
       title,
       tooltip: action?.tooltip ?? title,
       isDisabled:
@@ -176,6 +177,9 @@ const SnapshotDialog = ({
         id: 'actions',
         grow: false,
         cell: ({ row }) => {
+          const snapshot = row?.original
+          const diskId = disk?.DISK_ID
+          const snapshotId = snapshot?.SNAPSHOT_ID ?? snapshot?.ID
           const snapshotContext = getSnapshotContext(disk, row?.original)
           const snapshotOptions =
             VirtualMachine.Actions.Utils.generateMenuOptions({
@@ -187,10 +191,21 @@ const SnapshotDialog = ({
               viewConfig: config,
               showModal,
               onSuccess,
-            })
+            })?.map((option) => {
+              const actionType = VM_ACTIONS?.[option?.eACTION]
+
+              return {
+                ...option,
+                dataCy:
+                  actionType && diskId !== undefined && snapshotId !== undefined
+                    ? `${actionType}-${diskId}-${snapshotId}`
+                    : option?.dataCy,
+              }
+            }) ?? []
 
           return (
             <MenuButton
+              dataCy={`disk-snapshot-actions-${diskId}-${snapshotId}`}
               iconOnly={<MoreVert />}
               options={[closeAfterRun(snapshotOptions, onClose)]}
             />
@@ -223,6 +238,7 @@ const SnapshotDialog = ({
           </Stack>
           <Button
             aria-label={T.Close}
+            dataCy="modal-close-button"
             iconOnly={<Cancel />}
             onClick={onClose}
             title={T.Close}
@@ -230,6 +246,7 @@ const SnapshotDialog = ({
           />
         </Stack>
         <Table
+          dataCy="disk-snapshots"
           columns={columns}
           data={snapshots}
           isLoading={isLoading}
@@ -313,6 +330,7 @@ export const Storage = ({ data, config }) => {
 
           if (isContextDisk(disk)) return null
 
+          const diskId = disk?.DISK_ID
           const snapshots = getDiskSnapshots(disk)
           const storageOptions =
             VirtualMachine.Actions.Utils.generateMenuOptions({
@@ -324,18 +342,30 @@ export const Storage = ({ data, config }) => {
               viewConfig: config,
               showModal,
               onSuccess: handleActionSuccess,
-            })
+            })?.map((option) => {
+              const actionType = VM_ACTIONS?.[option?.eACTION]
+
+              return {
+                ...option,
+                dataCy:
+                  actionType && diskId !== undefined
+                    ? `${actionType}-${diskId}`
+                    : option?.dataCy,
+              }
+            }) ?? []
           const snapshotOption =
             snapshots.length > 0
               ? {
                   title: T.ViewSnapshots,
                   tooltip: T.ViewSnapshots,
+                  dataCy: `disk-snapshots-${diskId}`,
                   onClick: () => openSnapshotDialog(disk),
                 }
               : undefined
 
           return (
             <MenuButton
+              dataCy={`disk-actions-${diskId}`}
               iconOnly={<MoreVert />}
               options={[[snapshotOption, ...storageOptions].filter(Boolean)]}
             />
@@ -363,9 +393,14 @@ export const Storage = ({ data, config }) => {
 
   return (
     <Box sx={(theme) => getStyles({ theme })}>
-      <MenuButton placeholder={T.AttachDisk} options={[attachDiskOptions]} />
+      <MenuButton
+        dataCy="action-disk-attach"
+        placeholder={T.AttachDisk}
+        options={[attachDiskOptions]}
+      />
       <Box className="table-container">
         <Table
+          dataCy="disk"
           columns={columns}
           data={disks}
           isLoading={isFetchingDisks || isPerformingAction}

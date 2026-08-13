@@ -57,6 +57,7 @@ export const FIELDS = ({ backupDiskIds = [], vmsId = [] } = {}) => [
     selectOnRowClick: true,
     getRowId: (row) => String(row?.DISK_ID),
     fieldProps: {
+      dataCy: 'disk',
       filter: (disks, selectedImage) => {
         const diskIds = getBackupDiskIds(backupDiskIds, selectedImage)
         const diskIdSet = new Set(diskIds.map(String))

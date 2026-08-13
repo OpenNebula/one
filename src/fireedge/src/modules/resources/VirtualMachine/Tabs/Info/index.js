@@ -167,6 +167,7 @@ export const Info = ({ data, config }) => {
                       'dd/MM/yyyy, HH:mm:ss'
                     )
                   ),
+                  'starttime',
                 ],
                 [
                   T.EndTime,
@@ -177,6 +178,7 @@ export const Info = ({ data, config }) => {
                         )
                       )
                     : '-',
+                  'endtime',
                 ],
                 [T.Hypervisor, hypervisor ?? '-'],
                 [T.Host, hostName ?? T.Unknown, T.Hostname],
@@ -226,20 +228,27 @@ export const Info = ({ data, config }) => {
               isLoading={isLoadingExtended}
               title={T.Capacity}
               options={[
-                [T.CPU, extendedVmData?.TEMPLATE?.CPU ?? '-'],
-                [`${T.Cost} ${T.CPU}`, extendedVmData?.TEMPLATE?.CPU_COST || 0],
-                [T.VCPU, extendedVmData?.TEMPLATE?.VCPU || '-'],
+                [T.CPU, extendedVmData?.TEMPLATE?.CPU ?? '-', 'cpu'],
+                [
+                  `${T.Cost} ${T.CPU}`,
+                  extendedVmData?.TEMPLATE?.CPU_COST || 0,
+                  'cpucost',
+                ],
+                [T.VCPU, extendedVmData?.TEMPLATE?.VCPU || '-', 'vcpu'],
                 [
                   `${T.Cost} ${T.Memory}`,
                   extendedVmData?.TEMPLATE?.MEMORY_COST || 0,
+                  'memorycost',
                 ],
                 [
                   T.Memory,
                   prettyBytes(extendedVmData?.TEMPLATE?.MEMORY ?? 0, UNITS.MB),
+                  'memory',
                 ],
                 [
                   `${T.Cost} ${T.Disk}`,
                   extendedVmData?.TEMPLATE?.DISK_COST || 0,
+                  'diskcost',
                 ],
               ]}
               actions={capacityPanel?.actions}

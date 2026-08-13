@@ -124,13 +124,16 @@ const Content = ({ hypervisor, oneConfig, adminGroup, vm }) => {
           <Tabs
             type="line"
             defaultSelect={0}
-            options={tabs.map(({ title, icon, getError, disabled }, idx) => ({
-              title,
-              startIcon: icon,
-              error: !!getError?.(errors),
-              value: idx,
-              disabled,
-            }))}
+            options={tabs.map(
+              ({ id, title, icon, getError, disabled }, idx) => ({
+                id,
+                title,
+                startIcon: icon,
+                error: !!getError?.(errors),
+                value: idx,
+                disabled,
+              })
+            )}
             onChange={(idx) => setSelected(idx)}
           />
         </Box>

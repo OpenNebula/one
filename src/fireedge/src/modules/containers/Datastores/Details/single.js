@@ -129,12 +129,14 @@ export const SingleView = ({
     description = T['resource.action.confirmation'],
     confirmLabel,
     confirmButtonProps,
+    dataCy,
     onSubmit,
   }) =>
     showModal({
       isConfirmDialog: true,
       dialogProps: {
         title,
+        dataCy,
         description: (
           <ResourceActionConfirmation
             description={description}
@@ -229,6 +231,7 @@ export const SingleView = ({
       title: T.Enable,
       description: T['resource.enable.confirmation'],
       confirmLabel: T.Enable,
+      dataCy: `modal-${DATASTORE_ACTIONS.ENABLE}`,
       onSubmit: async () => {
         await enable(ID)
         await refreshCurrentData()
@@ -240,6 +243,7 @@ export const SingleView = ({
       title: T.Disable,
       description: T['resource.disable.confirmation'],
       confirmLabel: T.Disable,
+      dataCy: `modal-${DATASTORE_ACTIONS.DISABLE}`,
       onSubmit: async () => {
         await disable(ID)
         await refreshCurrentData()
@@ -254,6 +258,7 @@ export const SingleView = ({
       confirmButtonProps: {
         isDestructive: true,
       },
+      dataCy: `modal-${DATASTORE_ACTIONS.DELETE}`,
       onSubmit: async () => {
         await remove({ id: ID })
         handleClose()
@@ -318,6 +323,7 @@ export const SingleView = ({
         value: DATASTORE_ACTIONS.ENABLE,
         isDisabled: isActionsDisabled,
         tooltip: T.Enable,
+        dataCy: `action-${DATASTORE_ACTIONS.ENABLE}`,
       },
       {
         accessor: DATASTORE_ACTIONS.DISABLE,
@@ -326,6 +332,7 @@ export const SingleView = ({
         value: DATASTORE_ACTIONS.DISABLE,
         isDisabled: isActionsDisabled,
         tooltip: T.Disable,
+        dataCy: `action-${DATASTORE_ACTIONS.DISABLE}`,
       },
     ],
   })
@@ -348,6 +355,7 @@ export const SingleView = ({
         onClick: handleChangeClusterForm,
         value: DATASTORE_ACTIONS.CHANGE_CLUSTER,
         tooltip: T.SelectCluster,
+        'data-cy': `action-datastore-${DATASTORE_ACTIONS.CHANGE_CLUSTER}`,
         isDisabled: isActionsDisabled,
       },
     ],
@@ -392,6 +400,7 @@ export const SingleView = ({
             onClick: handleDelete,
             value: DATASTORE_ACTIONS.DELETE,
             tooltip: T.Delete,
+            'data-cy': 'action-datastore-delete',
             isDestructive: true,
             isDisabled: isActionsDisabled,
           },
@@ -424,6 +433,7 @@ export const SingleView = ({
               [T.Group, data?.GNAME],
               [T.Cluster, [data?.CLUSTERS?.ID ?? []].flat().join(', ')],
             ],
+            dataCy: 'datastore',
             tags: getLabelTags(data?.LABELS),
             Toolbar: () => (
               <Box

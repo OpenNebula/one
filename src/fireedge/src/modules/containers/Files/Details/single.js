@@ -133,12 +133,14 @@ export const SingleView = ({
     description,
     confirmLabel,
     confirmButtonProps,
+    dataCy,
     onSubmit,
   }) =>
     showModal({
       isConfirmDialog: true,
       dialogProps: {
         title,
+        dataCy,
         description,
         confirmLabel,
         confirmButtonProps,
@@ -177,6 +179,7 @@ export const SingleView = ({
     handleConfirmAction({
       title: T.Enable,
       description: T['resource.enable.confirmation'],
+      dataCy: `modal-${IMAGE_ACTIONS.ENABLE}`,
       onSubmit: async () => {
         await enable(ID)
         await refreshCurrentData()
@@ -187,6 +190,7 @@ export const SingleView = ({
     handleConfirmAction({
       title: T.Disable,
       description: T['resource.disable.confirmation'],
+      dataCy: `modal-${IMAGE_ACTIONS.DISABLE}`,
       onSubmit: async () => {
         await disable(ID)
         await refreshCurrentData()
@@ -198,6 +202,7 @@ export const SingleView = ({
       title: `${T.Lock} ${T.File}`,
       description: getResourceConfirmation(T['resource.lock.confirmation']),
       confirmLabel: T.Lock,
+      dataCy: `modal-${IMAGE_ACTIONS.LOCK}`,
       onSubmit: async () => {
         await lock({ id: ID })
         await refreshCurrentData()
@@ -209,6 +214,7 @@ export const SingleView = ({
       title: `${T.Unlock} ${T.File}`,
       description: getResourceConfirmation(T['resource.unlock.confirmation']),
       confirmLabel: T.Unlock,
+      dataCy: `modal-${IMAGE_ACTIONS.UNLOCK}`,
       onSubmit: async () => {
         await unlock({ id: ID })
         await refreshCurrentData()
@@ -223,6 +229,7 @@ export const SingleView = ({
       confirmButtonProps: {
         isDestructive: true,
       },
+      dataCy: `modal-${IMAGE_ACTIONS.DELETE}`,
       onSubmit: async () => {
         await deleteImage({ id: ID })
         handleClose()
@@ -296,6 +303,7 @@ export const SingleView = ({
         value: IMAGE_ACTIONS.ENABLE,
         isDisabled: isActionsDisabled,
         tooltip: T.Enable,
+        dataCy: `action-${IMAGE_ACTIONS.ENABLE}`,
       },
       {
         accessor: IMAGE_ACTIONS.DISABLE,
@@ -304,6 +312,7 @@ export const SingleView = ({
         value: IMAGE_ACTIONS.DISABLE,
         isDisabled: isActionsDisabled,
         tooltip: T.Disable,
+        dataCy: `action-${IMAGE_ACTIONS.DISABLE}`,
       },
     ],
   })
@@ -318,6 +327,7 @@ export const SingleView = ({
         value: IMAGE_ACTIONS.LOCK,
         isDisabled: isActionsDisabled,
         tooltip: T.Lock,
+        dataCy: `action-${IMAGE_ACTIONS.LOCK}`,
       },
       {
         accessor: IMAGE_ACTIONS.UNLOCK,
@@ -326,6 +336,7 @@ export const SingleView = ({
         value: IMAGE_ACTIONS.UNLOCK,
         isDisabled: isActionsDisabled,
         tooltip: T.Unlock,
+        dataCy: `action-${IMAGE_ACTIONS.UNLOCK}`,
       },
     ],
   })
@@ -362,6 +373,7 @@ export const SingleView = ({
             tooltip: T.Delete,
             isDestructive: true,
             isDisabled: isActionsDisabled,
+            'data-cy': `action-${IMAGE_ACTIONS.DELETE}`,
           },
         ],
       }),
@@ -393,6 +405,7 @@ export const SingleView = ({
               [T.Datastore, DATASTORE],
             ],
             tags: getLabelTags(data?.LABELS),
+            dataCy: 'file',
             Toolbar: () => (
               <Box
                 sx={(theme) => ({

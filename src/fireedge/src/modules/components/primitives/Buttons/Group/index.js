@@ -59,9 +59,19 @@ const ButtonGroupItem = ({ button = {}, isSelected = false, onToggle }) => {
       isDisabled,
       isDestructive,
       isSelected,
+      dataCy,
       onClick,
     }),
-    [isDestructive, isDisabled, isSelected, onClick, startIcon, title, tooltip]
+    [
+      dataCy,
+      isDestructive,
+      isDisabled,
+      isSelected,
+      onClick,
+      startIcon,
+      title,
+      tooltip,
+    ]
   )
   const isCompacted = useCompactToolbarAction(_id, compactOption, compactable)
 

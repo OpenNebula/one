@@ -282,12 +282,14 @@ const LogsViewer = ({
               placeholder: T.Search,
               onChange: setFilterValue,
               isDisabled: !hasLogs,
+              dataCy: 'log-search',
             },
             { flex: 10 },
           ],
           [
             () => (
               <MenuButton
+                dataCy="filter-by-level"
                 iconOnly={<Filter />}
                 placeholder={level ? level.toUpperCase() : T['logs.level']}
                 isDisabled={!hasLogs}

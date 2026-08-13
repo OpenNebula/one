@@ -58,6 +58,7 @@ export const getFields = (app) => [
     singleSelect: true,
     selectOnRowClick: true,
     fieldProps: {
+      dataCy: datastoreTable.dataCy,
       defaultPageSize: 5,
       isEnableSearchBar: true,
       isEnableSort: true,

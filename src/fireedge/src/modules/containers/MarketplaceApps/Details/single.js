@@ -249,6 +249,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Delete} ${T.App}`,
+        dataCy: 'modal-delete',
         description: (
           <ResourceActionConfirmation
             description={T['resource.delete.confirmation']}
@@ -272,6 +273,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Enable} ${T.App}`,
+        dataCy: 'modal-enable',
         description: (
           <ResourceActionConfirmation
             description={T['resource.enable.confirmation']}
@@ -289,6 +291,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Disable} ${T.App}`,
+        dataCy: 'modal-disable',
         description: (
           <ResourceActionConfirmation
             description={T['resource.disable.confirmation']}
@@ -306,6 +309,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Lock} ${T.App}`,
+        dataCy: 'modal-lock',
         description: (
           <ResourceActionConfirmation
             description={T['resource.lock.confirmation']}
@@ -323,6 +327,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Unlock} ${T.App}`,
+        dataCy: 'modal-unlock',
         description: (
           <ResourceActionConfirmation
             description={T['resource.unlock.confirmation']}
@@ -340,6 +345,7 @@ export const SingleView = ({
       isFormDialog: true,
       dialogProps: {
         title: T.DownloadAppToOpenNebula,
+        dataCy: 'modal-export',
         steps: MarketplaceApp.Forms.ExportForm,
         stepProps: marketplaceApp,
         initialValues: marketplaceApp,
@@ -405,6 +411,7 @@ export const SingleView = ({
                         onClick: handleEnableForm,
                         value: 'enable',
                         tooltip: T.Enable,
+                        dataCy: 'action-marketapp-enable',
                         isDisabled: isActionsDisabled,
                       },
                       canDisable && {
@@ -412,6 +419,7 @@ export const SingleView = ({
                         onClick: handleDisableForm,
                         value: 'disable',
                         tooltip: T.Disable,
+                        dataCy: 'action-marketapp-disable',
                         isDisabled: isActionsDisabled,
                       },
                     ].filter(Boolean)}
@@ -426,6 +434,7 @@ export const SingleView = ({
                         onClick: handleLockForm,
                         value: 'lock',
                         tooltip: T.Lock,
+                        dataCy: 'action-marketapp-lock',
                         isDisabled: isActionsDisabled,
                       },
                       canUnlock && {
@@ -433,6 +442,7 @@ export const SingleView = ({
                         onClick: handleUnlockForm,
                         value: 'unlock',
                         tooltip: T.Unlock,
+                        dataCy: 'action-marketapp-unlock',
                         isDisabled: isActionsDisabled,
                       },
                     ].filter(Boolean)}
@@ -447,6 +457,7 @@ export const SingleView = ({
                         onClick: handleExportForm,
                         value: 'export',
                         tooltip: T.Import,
+                        'data-cy': 'action-marketapp-export',
                         isDisabled: isActionsDisabled,
                       },
                       canDownload && {
@@ -456,6 +467,7 @@ export const SingleView = ({
                         onClick: handleDownload,
                         value: 'download',
                         tooltip: T.DownloadApp,
+                        'data-cy': 'action-marketapp-download',
                         isDisabled: isActionsDisabled,
                       },
                     ].filter(Boolean),
@@ -491,6 +503,7 @@ export const SingleView = ({
                         onClick: handleDeleteForm,
                         value: 'delete',
                         tooltip: T.Delete,
+                        'data-cy': 'action-marketapp-delete',
                         isDestructive: true,
                         isDisabled: isActionsDisabled,
                       },

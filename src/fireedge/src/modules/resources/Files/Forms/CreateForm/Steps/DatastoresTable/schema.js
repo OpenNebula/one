@@ -26,6 +26,7 @@ const fileDatastoreTable = {
     datastoreTable
       .columns()
       .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
+  dataCy: datastoreTable.dataCy,
   useData: () =>
     datastoreTable.useData(undefined, {
       selectFromResult: (result) => ({

@@ -74,6 +74,7 @@ export const FormDialog = ({
           {typeof title === 'string' ? translateText(title) : title}
         </Typography>
         <Button
+          dataCy="modal-close-button"
           type="transparent"
           iconOnly={<Cancel />}
           onClick={onClose}

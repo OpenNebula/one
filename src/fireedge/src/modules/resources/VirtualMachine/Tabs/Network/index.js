@@ -489,6 +489,10 @@ export const Network = ({ data, config }) => {
             if (option?.eACTION === VM_ACTION_ENUM.UPDATE_NIC) {
               return {
                 ...option,
+                dataCy:
+                  nic?.NIC_ID !== undefined
+                    ? `update-nic-${nic.NIC_ID}`
+                    : option?.dataCy,
                 onClick: () => openUpdateNicForm(nic, option),
               }
             }
@@ -496,6 +500,10 @@ export const Network = ({ data, config }) => {
             if (option?.eACTION === VM_ACTION_ENUM.DETACH_NIC) {
               return {
                 ...option,
+                dataCy:
+                  nic?.NIC_ID !== undefined
+                    ? `detach-nic-${nic.NIC_ID}`
+                    : option?.dataCy,
                 onClick: () => openDetachNicConfirm(nic, option),
               }
             }
@@ -505,6 +513,7 @@ export const Network = ({ data, config }) => {
 
         return (
           <MenuButton
+            dataCy={`nic-actions-${nic?.NIC_ID}`}
             iconOnly={<MoreVert />}
             options={[
               [
@@ -560,6 +569,7 @@ export const Network = ({ data, config }) => {
       />
       <Box className="table-container">
         <Table
+          dataCy="nic"
           columns={columns}
           data={primaryNics}
           isLoading={isFetchingNics || isPerformingAction}

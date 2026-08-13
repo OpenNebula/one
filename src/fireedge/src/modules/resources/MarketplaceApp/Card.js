@@ -33,6 +33,7 @@ import { getLockIcon, prettyBytes } from '@UtilsModule'
  *
  * @param {object} root0 - Params
  * @param {object} root0.marketplaceApp - Marketplace App data
+ * @param {string} root0.dataCy - Cypress selector
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
@@ -40,7 +41,7 @@ import { getLockIcon, prettyBytes } from '@UtilsModule'
  * @returns {Component} MarketplaceAppsCard component
  */
 export const MarketplaceAppsCard = forwardRef(
-  ({ marketplaceApp = {}, isSelected, onCheck, onClick }, ref) => {
+  ({ marketplaceApp = {}, dataCy, isSelected, onCheck, onClick }, ref) => {
     const {
       ID,
       NAME,
@@ -60,6 +61,7 @@ export const MarketplaceAppsCard = forwardRef(
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -126,6 +128,7 @@ export const MarketplaceAppsCard = forwardRef(
 
 MarketplaceAppsCard.propTypes = {
   marketplaceApp: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

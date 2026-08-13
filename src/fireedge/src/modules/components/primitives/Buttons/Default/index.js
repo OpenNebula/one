@@ -71,6 +71,7 @@ export const Button = forwardRef(
       ...buttonProps
     } = opts
     const { onClick, title } = buttonProps
+    const optionDataCy = buttonProps?.['data-cy'] ?? dataCy
     const compactId = useCompactToolbarId('compact-button')
 
     const rawContent =
@@ -84,9 +85,19 @@ export const Button = forwardRef(
         startIcon: iconOnly ?? startIcon,
         isDisabled,
         isDestructive,
+        dataCy: optionDataCy,
         onClick,
       }),
-      [iconOnly, isDestructive, isDisabled, onClick, startIcon, title, tooltip]
+      [
+        iconOnly,
+        isDestructive,
+        isDisabled,
+        onClick,
+        optionDataCy,
+        startIcon,
+        title,
+        tooltip,
+      ]
     )
     const isCompacted = useCompactToolbarAction(
       compactId,

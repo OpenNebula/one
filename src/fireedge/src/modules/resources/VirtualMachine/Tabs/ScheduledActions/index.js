@@ -115,6 +115,8 @@ export const ScheduledActions = ({ data, config }) => {
 
     return {
       title: T.SCHED_ACTION_DELETE,
+      dataCy:
+        schedule?.ID !== undefined ? `${actionType}-${schedule.ID}` : undefined,
       tooltip: isDisabled ? T.DetachRestricted : T.SCHED_ACTION_DELETE,
       isDisabled,
       onClick: () => openDeleteScheduleActionConfirm(schedule),
@@ -139,17 +141,26 @@ export const ScheduledActions = ({ data, config }) => {
             showModal,
             onSuccess: handleActionSuccess,
           })
+        const updateScheduleActionType = VM_ACTIONS.SCHED_ACTION_UPDATE
         const deleteScheduleActionOption = getDeleteScheduleActionOption(
           row?.original
         )
 
         return (
           <MenuButton
+            dataCy={`sched-actions-${row?.original?.ID}`}
             iconOnly={<MoreVert />}
             options={[
-              [updateScheduleActionOption, deleteScheduleActionOption].filter(
-                Boolean
-              ),
+              [
+                updateScheduleActionOption && {
+                  ...updateScheduleActionOption,
+                  dataCy:
+                    row?.original?.ID !== undefined
+                      ? `${updateScheduleActionType}-${row.original.ID}`
+                      : updateScheduleActionOption?.dataCy,
+                },
+                deleteScheduleActionOption,
+              ].filter(Boolean),
             ]}
           />
         )
@@ -171,6 +182,7 @@ export const ScheduledActions = ({ data, config }) => {
       <MenuButton placeholder={T.AddAction} options={[attachDiskOptions]} />
       <Box className="table-container">
         <Table
+          dataCy="sched"
           columns={columns}
           data={history}
           isLoading={isFetchingScheduledActions || isPerformingAction}

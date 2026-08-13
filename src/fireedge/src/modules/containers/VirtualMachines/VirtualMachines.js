@@ -168,6 +168,7 @@ export function VirtualMachines() {
 
   return (
     <ResourceContainer
+      dataCy={vmsTable.dataCy}
       resourceName={T.VirtualMachines}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -185,6 +186,7 @@ export function VirtualMachines() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={vmsTable.dataCy}
                 columns={vmsTable.columns()}
                 data={visibleItems}
                 isLoading={isRefreshing}
@@ -225,6 +227,7 @@ export function VirtualMachines() {
                   }) => (
                     <VirtualMachine.Card
                       key={ID}
+                      dataCy={`${vmsTable.dataCy}-${ID}`}
                       NAME={NAME}
                       ID={ID}
                       GNAME={GNAME}

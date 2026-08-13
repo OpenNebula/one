@@ -64,6 +64,7 @@ export const VirtualMachineCard = forwardRef((data = {}, ref) => {
     STATE,
     LCM_STATE,
     LABELS,
+    dataCy,
     TEMPLATE = {},
     USER_TEMPLATE,
     isSelected,
@@ -86,6 +87,7 @@ export const VirtualMachineCard = forwardRef((data = {}, ref) => {
   return (
     <Card
       ref={ref}
+      dataCy={dataCy}
       onCheck={onCheck}
       onClick={onClick}
       isSelected={isSelected}
@@ -155,6 +157,7 @@ VirtualMachineCard.propTypes = {
   UNAME: PropTypes.string,
   STIME: PropTypes.string,
   LABELS: PropTypes.object,
+  dataCy: PropTypes.string,
   TEMPLATE: PropTypes.object,
   USER_TEMPLATE: PropTypes.object,
   HISTORY_RECORDS: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),

@@ -401,6 +401,7 @@ export const MenuButton = forwardRef(
         isDisabled,
         isDestructive,
         disableCloseOnSelect,
+        dataCy,
         options,
         sx,
       }),
@@ -411,6 +412,7 @@ export const MenuButton = forwardRef(
         isDisabled,
         options,
         placeholder,
+        dataCy,
         startIcon,
         sx,
         tooltip,
@@ -444,6 +446,7 @@ export const MenuButton = forwardRef(
                 tooltip: translatedPlaceholder,
                 isSelectable: false,
                 isSelected: open,
+                dataCy,
               }
             : {
                 type:

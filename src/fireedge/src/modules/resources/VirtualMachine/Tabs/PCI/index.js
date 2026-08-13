@@ -163,6 +163,7 @@ export const PCI = ({ data, config }) => {
         <Table
           columns={columns}
           data={pcis}
+          dataCy={vmpcisTable.dataCy}
           isLoading={isFetchingPcis || isPerformingAction}
           emptyContentProps={{
             title: T.NoPciDevices,

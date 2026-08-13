@@ -69,6 +69,7 @@ export const CapacityPanel = forwardRef(
                     onClick: handleEdit,
                     tooltip: T.Resize,
                     value: 'resize',
+                    'data-cy': 'resize-capacity',
                     isDisabled,
                     sx: CAPACITY_ACTION_SX,
                   },
@@ -79,7 +80,7 @@ export const CapacityPanel = forwardRef(
         </Box>
       )}
       <Box className="capacity-container">
-        {[].concat(options)?.map(([label, value], idx) => (
+        {[].concat(options)?.map(([label, value, dataCy], idx) => (
           <Box key={idx} className="capacity-detail--row">
             <SkeletonLoading
               className="capacity-loading-row"
@@ -89,7 +90,9 @@ export const CapacityPanel = forwardRef(
             >
               <>
                 <Box className="capacity-detail--label">{label}</Box>
-                <Box className="capacity-detail--value">{value}</Box>
+                <Box className="capacity-detail--value" data-cy={dataCy}>
+                  {value}
+                </Box>
               </>
             </SkeletonLoading>
           </Box>

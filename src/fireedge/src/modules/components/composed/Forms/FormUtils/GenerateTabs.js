@@ -181,7 +181,8 @@ const UserInputsTabs = ({
       <Tabs
         type="line"
         defaultSelect={0}
-        options={tabs.map(({ title, getError }, idx) => ({
+        options={tabs.map(({ id, title, getError }, idx) => ({
+          id,
           title,
           value: idx,
           error: !!getError?.(stepErrors),

@@ -59,20 +59,44 @@ export const Snapshot = ({ data, config }) => {
       id: 'actions',
       grow: false,
       cell: ({ row }) => {
+        const snapshot = row?.original
+        const id = snapshot?.SNAPSHOT_ID ?? snapshot?.ID
         const snapshotOptions =
           VirtualMachine.Actions.Utils.generateMenuOptions({
             keys: VirtualMachine.Actions.Groups.Snapshot,
             actions,
             vm: selectedVm,
-            paramsContext: row?.original,
-            formContext: row?.original,
+            paramsContext: snapshot,
+            formContext: snapshot,
             viewConfig: config,
             showModal,
             onSuccess: handleActionSuccess,
-          })
+          })?.map((option) => {
+            if (option?.eACTION === VM_ACTION_ENUM.SNAPSHOT_REVERT) {
+              return {
+                ...option,
+                dataCy:
+                  id !== undefined ? `snapshot-revert-${id}` : option?.dataCy,
+              }
+            }
+
+            if (option?.eACTION === VM_ACTION_ENUM.SNAPSHOT_DELETE) {
+              return {
+                ...option,
+                dataCy:
+                  id !== undefined ? `snapshot-delete-${id}` : option?.dataCy,
+              }
+            }
+
+            return option
+          }) ?? []
 
         return (
-          <MenuButton iconOnly={<MoreVert />} options={[snapshotOptions]} />
+          <MenuButton
+            dataCy={`snapshot-actions-${id}`}
+            iconOnly={<MoreVert />}
+            options={[snapshotOptions]}
+          />
         )
       },
     },
@@ -99,12 +123,14 @@ export const Snapshot = ({ data, config }) => {
         >
           <Button
             {...createVmSnapshotButtonProps}
+            dataCy="snapshot-create"
             type={STYLE_BUTTONS.TYPE.SECONDARY}
           />
         </Box>
       </Tooltip>
       <Box className="table-container">
         <Table
+          dataCy="snapshots"
           columns={columns}
           data={snapshots}
           isLoading={isFetchingSnapshots || isPerformingAction}

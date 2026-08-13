@@ -19,26 +19,29 @@ import { CodeSnippet } from '@modules/components/primitives/CodeSnippet/Default'
 import { Box } from '@mui/material'
 import { getStyles } from '@modules/components/composed/Panels/Template/styles'
 
-export const TemplateTab = forwardRef(({ template, code, title }, ref) => {
-  const fCode = code ?? JSON.stringify(template, null, 2)
+export const TemplateTab = forwardRef(
+  ({ template, code, title, dataCy }, ref) => {
+    const fCode = code ?? JSON.stringify(template, null, 2)
 
-  return (
-    <Box
-      sx={(theme) =>
-        getStyles({
-          theme,
-        })
-      }
-      ref={ref}
-    >
-      <CodeSnippet title={title} code={fCode} />
-    </Box>
-  )
-})
+    return (
+      <Box
+        sx={(theme) =>
+          getStyles({
+            theme,
+          })
+        }
+        ref={ref}
+      >
+        <CodeSnippet title={title} code={fCode} dataCy={dataCy} />
+      </Box>
+    )
+  }
+)
 
 TemplateTab.propTypes = {
   template: PropTypes.object,
   code: PropTypes.any,
+  dataCy: PropTypes.string,
   title: PropTypes.string,
 }
 TemplateTab.displayName = 'TemplateTab'

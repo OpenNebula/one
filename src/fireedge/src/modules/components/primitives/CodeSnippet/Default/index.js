@@ -34,12 +34,13 @@ import { T, STYLE_BUTTONS, TEXT_WEIGHTS, TEXT_VARIANTS } from '@ConstantsModule'
  * @returns {Component} - Custom MUI CodeSnippet component
  */
 export const CodeSnippet = forwardRef(
-  ({ title, code = '', isDisabled = false, ...opts }, ref) => {
+  ({ title, code = '', isDisabled = false, dataCy, ...opts }, ref) => {
     const { copy, isCopied } = useClipboard()
 
     return (
       <Box
         ref={ref}
+        data-cy={dataCy}
         sx={(theme) =>
           getStyles({
             theme,
@@ -82,6 +83,7 @@ export const CodeSnippet = forwardRef(
 
 CodeSnippet.propTypes = {
   code: PropTypes.string,
+  dataCy: PropTypes.string,
   title: PropTypes.string,
   isDisabled: PropTypes.bool,
 }

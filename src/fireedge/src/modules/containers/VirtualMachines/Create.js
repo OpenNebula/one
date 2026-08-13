@@ -107,6 +107,7 @@ export function CreateVm() {
           <Table
             columns={vmtemplateTable.columns()}
             data={templates}
+            dataCy={vmtemplateTable.dataCy}
             isLoading={isRefreshing}
             isRowsSelectable
             isMultiRowSelection={false}

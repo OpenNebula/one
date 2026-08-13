@@ -108,7 +108,11 @@ export const Configuration = ({ data, config }) => {
 
   return (
     <Box sx={(theme) => getStyles({ theme })}>
-      <Button {...updateConfAction} type={STYLE_BUTTONS.TYPE.SECONDARY} />
+      <Button
+        {...updateConfAction}
+        dataCy="update-conf"
+        type={STYLE_BUTTONS.TYPE.SECONDARY}
+      />
       <Box className="card-container">
         {cards?.map((card, idx) => (
           <DetailsCard key={idx} {...card} />

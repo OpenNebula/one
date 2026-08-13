@@ -130,6 +130,7 @@ const Content = ({ data, app: { backupIds = [] } = {} }) => {
     <Table
       columns={BACKUP_COLUMNS}
       data={backups}
+      dataCy={STEP_ID}
       defaultPageSize={5}
       getRowId={(row) => String(row.ID)}
       isEnableFilters={true}

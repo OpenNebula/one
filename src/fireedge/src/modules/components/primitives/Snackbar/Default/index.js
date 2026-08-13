@@ -105,6 +105,7 @@ export const Snackbar = forwardRef(
     return (
       <Box
         ref={ref}
+        data-cy={opts?.['data-cy'] ?? `snackbar-${status}`}
         sx={(theme) =>
           getStyles({
             theme,

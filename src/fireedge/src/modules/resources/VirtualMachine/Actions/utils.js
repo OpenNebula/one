@@ -120,6 +120,7 @@ const generateOption = ({
   return {
     eACTION,
     title,
+    dataCy: actionType ? `action-${actionType}` : undefined,
     ...optionProps,
     tooltip,
     isDisabled: isDisabledByOption || isDisabledByView || isDisabledByState,

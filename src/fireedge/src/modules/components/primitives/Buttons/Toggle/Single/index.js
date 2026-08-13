@@ -64,7 +64,8 @@ export const Toggle = forwardRef(
   ) => {
     const { translate } = useTranslation()
     const compactId = useCompactToolbarId('compact-toggle')
-    const { 'aria-label': ariaLabel, ...boxProps } = opts
+    const { 'aria-label': ariaLabel, dataCy, ...boxProps } = opts
+    const optionDataCy = boxProps?.['data-cy'] ?? dataCy
     const tooltipTitle = tooltip ?? title
     const accessibleLabel = translate(
       ariaLabel ??
@@ -98,9 +99,18 @@ export const Toggle = forwardRef(
         startIcon,
         isDisabled,
         isSelected: effectiveSelected,
+        dataCy: optionDataCy,
         onClick,
       }),
-      [effectiveSelected, isDisabled, onClick, startIcon, text, tooltipTitle]
+      [
+        effectiveSelected,
+        isDisabled,
+        onClick,
+        optionDataCy,
+        startIcon,
+        text,
+        tooltipTitle,
+      ]
     )
     const isCompacted = useCompactToolbarAction(
       compactId,
@@ -133,6 +143,7 @@ export const Toggle = forwardRef(
           aria-disabled={isDisabled}
           aria-label={accessibleLabel}
           tabIndex={isDisabled ? -1 : 0}
+          data-cy={optionDataCy}
           {...boxProps}
         >
           {startIcon &&
@@ -159,6 +170,7 @@ Toggle.propTypes = {
   isSelectable: PropTypes.bool,
   isSelected: PropTypes.bool,
   compactable: PropTypes.bool,
+  dataCy: PropTypes.string,
   onClick: PropTypes.func,
   onChange: PropTypes.func,
   sx: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.func]),
