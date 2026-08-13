@@ -57,6 +57,12 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Also sync database'
     }
 
+    KEEP_HA = {
+        :name  => 'keep_ha',
+        :large => '--keep-ha',
+        :description => 'Keep local HA configuration parameters'
+    }
+
     before_proc do
         helper.set_client(options)
     end
@@ -247,7 +253,7 @@ CommandParser::CmdParser.new(ARGV) do
         This command must be executed under root
     EOT
 
-    command :serversync, sync_desc, :server, :options => [DATABASE] do
+    command :serversync, sync_desc, :server, :options => [DATABASE, KEEP_HA] do
         begin
             require 'augeas'
         rescue Gem::LoadError
@@ -264,7 +270,7 @@ CommandParser::CmdParser.new(ARGV) do
         end
 
         server = Replicator.new('/var/lib/one/.ssh/id_rsa', args[0])
-        server.process_files(options[:db])
+        server.process_files(options[:db], options[:keep_ha])
 
         0
     end
