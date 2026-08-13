@@ -1358,13 +1358,26 @@ class ExecDriver < VirtualMachineDriver
 
         vm_xml = xml_data.elements['/VMM_DRIVER_ACTION_DATA/VM']
 
-        cleanup_steps = [
+        failure_vm_xml = REXML::Document.new(vm_xml.to_s).root
+        failure_vm_xml.add_element('BACKUP_RESULT').text = 'FAILURE'
+
+        success_cleanup_steps = [
             # Cleanup backup and tmp files
             {
                 :driver     => :tm,
                 :action     => post_name,
                 :parameters => post_tm,
                 :stdin      => vm_xml
+            }
+        ]
+
+        failure_cleanup_steps = [
+            # Cleanup backup and tmp files
+            {
+                :driver     => :tm,
+                :action     => post_name,
+                :parameters => post_tm,
+                :stdin      => failure_vm_xml
             }
         ]
 
@@ -1377,7 +1390,7 @@ class ExecDriver < VirtualMachineDriver
                 :action       => pre_name,
                 :parameters   => pre_tm,
                 :stdin        => vm_xml,
-                :fail_actions => cleanup_steps
+                :fail_actions => failure_cleanup_steps
             },
             # Upload backup files to repo
             {
@@ -1390,9 +1403,9 @@ class ExecDriver < VirtualMachineDriver
                       #{vm_xml}
                     </DS_DRIVER_ACTION_DATA>
                 EOF
-                :fail_actions => cleanup_steps
+                :fail_actions => failure_cleanup_steps
             }
-        ] + cleanup_steps
+        ] + success_cleanup_steps
 
         action.run(steps)
     end

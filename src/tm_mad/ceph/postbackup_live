@@ -24,7 +24,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'rexml/document'
 
 require_relative '../lib/tm_action'
-require_relative '../lib/datastore'
+require_relative '../lib/ceph'
 
 #-------------------------------------------------------------------------------
 # BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id bjid vmid dsid
@@ -34,7 +34,7 @@ TransferManager::Datastore.load_env
 vm_xml = STDIN.read
 
 dir       = ARGV[0].split ':'
-_disks    = ARGV[1].split ':'
+disks     = ARGV[1].split ':'
 _deployid = ARGV[2]
 _bjid     = ARGV[3]
 vmid      = ARGV[4]
@@ -52,9 +52,13 @@ bck_dir = if base_path
 
 xml_data = REXML::Document.new(vm_xml)
 rhost    = xml_data.elements['VM/BACKUPS/BACKUP_CONFIG/LAST_BRIDGE']&.text || dir[0]
+result   = xml_data.elements['VM/BACKUP_RESULT']&.text || 'SUCCESS'
 
 rm_script = "rm -rf #{bck_dir}"
 rm_script << "; rm -rf #{base_path}/#{vmid}\n" if base_path
+
+vm = TransferManager::Ceph::VM.new(vm_xml, rdir)
+rm_script << "\n#{vm.backup_snapshots_cleanup_sh(disks, result == 'SUCCESS')}"
 
 rc = TransferManager::Action.ssh('postbackup',
                                  :host => rhost,
