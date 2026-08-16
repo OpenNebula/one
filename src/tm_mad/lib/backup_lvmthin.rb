@@ -40,10 +40,11 @@ require 'fileutils'
 require 'tempfile'
 require 'open3'
 require 'rexml/document'
-require 'json'
 require 'English'
 require 'CommandManager'
 require 'DriverLogger'
+
+require_relative 'onebex'
 
 # A helper module for running shell commands and handling LVM operations.
 module LVMHelper
@@ -162,22 +163,6 @@ class ExtentWriter
 
 end
 
-# --- Main ---
-
-def write_exports(exports_path, disk_id, data)
-    exports = if File.exist?(exports_path) && !File.empty?(exports_path)
-                  JSON.parse(File.read(exports_path))
-              else
-                  {}
-              end
-
-    exports[disk_id.to_s] = data
-
-    File.open(exports_path, 'w') do |f|
-        f.write(JSON.pretty_generate(exports))
-    end
-end
-
 def main(origin_lv, from_snap_lv, to_snap_lv, output_file, opts = {})
     interactive       = opts[:interactive]
     interactive_ready = false
@@ -211,7 +196,7 @@ def main(origin_lv, from_snap_lv, to_snap_lv, output_file, opts = {})
 
         exports_path = File.join(File.dirname(output_file), 'interactive_exports.json')
 
-        write_exports(
+        TransferManager::OneBEX.write_exports(
             exports_path,
             disk_id,
             :source   => source_dev,
