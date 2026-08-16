@@ -25,7 +25,6 @@ module TransferManager
     # OneBEX client used by interactive backups.
     class OneBEX
 
-        # Remote TM scripts run with /var/tmp/one/tm/lib as their installed libdir.
         REMOTE_LIB_DIR = '/var/tmp/one/tm/lib'
 
         CONFIG_FILE = File.expand_path(
@@ -89,9 +88,47 @@ module TransferManager
             ].shelljoin
         end
 
+        def self.write_exports(exports_path, disk_id, data)
+            exports = if File.exist?(exports_path) && !File.empty?(exports_path)
+                          JSON.parse(File.read(exports_path))
+                      else
+                          {}
+                      end
+
+            exports[disk_id.to_s] = data
+
+            File.open(exports_path, 'w') do |f|
+                f.write(JSON.pretty_generate(exports))
+            end
+        end
+
+        def self.write_exports_sh(backup_dir, disk_id, data)
+            exports_path = "#{backup_dir}/interactive_exports.json"
+            code = <<~RUBY
+                TransferManager::OneBEX.write_exports(
+                    ARGV[0],
+                    ARGV[1],
+                    JSON.parse(ARGV[2])
+                )
+            RUBY
+
+            [
+                'ruby',
+                '-I',
+                REMOTE_LIB_DIR,
+                '-r',
+                'onebex',
+                '-e',
+                code,
+                exports_path,
+                disk_id.to_s,
+                JSON.generate(data)
+            ].shelljoin
+        end
+
         # Starts the OneBEX server, writes the exports, and waits for completion.
         def start(exports = nil)
-            write_exports(exports) if exports
+            write_all_exports(exports) if exports
 
             start_server unless running?
 
@@ -102,7 +139,7 @@ module TransferManager
 
         private
 
-        def write_exports(exports)
+        def write_all_exports(exports)
             File.open("#{@backup_dir}/interactive_exports.json", 'w') do |f|
                 f.write(JSON.pretty_generate(exports))
             end

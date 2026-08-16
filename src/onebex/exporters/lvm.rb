@@ -163,6 +163,7 @@ module OneBEX
 
             # ----------------------------------------------------------------
             # Finish LVM exporter
+            # Completes the export; LVM device cleanup is handled by TM scripts.
             # ----------------------------------------------------------------
             def finish(_xfr)
                 true
@@ -283,10 +284,12 @@ module OneBEX
                 merged = [sorted.shift.dup]
 
                 sorted.each do |extent|
-                    last = merged.last
+                    last       = merged.last
+                    last_end   = last[:start] + last[:length]
+                    extent_end = extent[:start] + extent[:length]
 
-                    if extent[:start] <= last[:end]
-                        last[:end] = [last[:end], extent[:end]].max
+                    if extent[:start] <= last_end
+                        last[:length] = [last_end, extent_end].max - last[:start]
                     else
                         merged << extent.dup
                     end

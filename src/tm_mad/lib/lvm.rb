@@ -16,9 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'json'
 require 'rexml/document'
-require 'shellwords'
 
 require_relative 'backup'
 require_relative 'datastore'
@@ -259,8 +257,9 @@ module TransferManager
 
                     expo_cmd << ds.cmd_confinement(<<~EOF, backup_dir)
                         #{lvm_lock_sh("sudo lvchange -K -ay #{orig}").strip}
-                        #{write_exports(
+                        #{TransferManager::OneBEX.write_exports_sh(
                             backup_dir,
+                            @id,
                             :source   => orig,
                             :target   => ddst,
                             :exporter => 'lvm',
@@ -286,8 +285,9 @@ module TransferManager
 
                     expo_cmd << ds.cmd_confinement(<<~EOF, backup_dir)
                         #{lvm_lock_sh("sudo lvchange -K -ay #{snap_path}").strip}
-                        #{write_exports(
+                        #{TransferManager::OneBEX.write_exports_sh(
                             backup_dir,
+                            @id,
                             :source   => snap_path,
                             :target   => dexp,
                             :exporter => 'lvm',
@@ -335,24 +335,6 @@ module TransferManager
                     :cleanup       => snap_clup,
                     :start_onebex  => true
                 }
-            end
-
-            def write_exports(backup_dir, data)
-                exports_path = "#{backup_dir}/interactive_exports.json"
-                json_data    = Shellwords.escape(JSON.generate(data))
-
-                <<~EOF
-                    ruby -rjson - #{exports_path} #{@id} #{json_data} <<'RUBY'
-                        path, disk_id, data = ARGV
-                        content = File.exist?(path) ? File.read(path) : ''
-                        exports = content.empty? ? {} : JSON.parse(content)
-                        exports[disk_id.to_s] = JSON.parse(data)
-
-                        File.open(path, 'w') do |f|
-                            f.write(JSON.pretty_generate(exports))
-                        end
-                    RUBY
-                EOF
             end
 
             # Process:
