@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, Container, Skeleton, Stack } from '@mui/material'
+import { Box, Container, Stack } from '@mui/material'
 import { ReactElement, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory, useParams } from 'react-router'
 import { useLocation } from 'react-router-dom'
+import { SkeletonLoading } from '@ComponentsV2Module'
 
 import {
   GuacamoleActionButtons,
@@ -35,19 +36,19 @@ import { sentenceCase } from '@UtilsModule'
 
 const HeaderVmInfoSkeleton = () => (
   <Stack direction="row" alignItems="center" gap="0.75em" flexGrow={1}>
-    <Skeleton variant="rounded" width={38} height={38} />
+    <SkeletonLoading loading variant="rounded" width={38} height={38} />
     <Stack gap="0.35em" minWidth={0} flexGrow={1}>
-      <Skeleton height={30} sx={{ width: { xs: '100%', sm: '60%' } }} />
-      <Skeleton height={16} sx={{ width: { xs: '80%', sm: '35%' } }} />
+      <SkeletonLoading loading height={30} width={{ xs: '100%', sm: '60%' }} />
+      <SkeletonLoading loading height={16} width={{ xs: '80%', sm: '35%' }} />
     </Stack>
   </Stack>
 )
 
 const GuacamoleActionsSkeleton = () => (
   <Stack direction="row" alignItems="center" gap="0.5em" flexWrap="wrap">
-    <Skeleton variant="rounded" width={74} height={34} />
-    <Skeleton variant="rounded" width={112} height={34} />
-    <Skeleton variant="rounded" width={36} height={34} />
+    <SkeletonLoading loading variant="rounded" width={74} height={34} />
+    <SkeletonLoading loading variant="rounded" width={112} height={34} />
+    <SkeletonLoading loading variant="rounded" width={36} height={34} />
   </Stack>
 )
 
@@ -56,18 +57,16 @@ const GuacamoleDisplaySkeleton = () => (
     sx={{
       width: '100%',
       height: '100%',
-      minHeight: 0,
+      minHeight: '16rem',
       display: 'flex',
     }}
   >
-    <Skeleton
+    <SkeletonLoading
+      loading
       variant="rounded"
-      sx={(theme) => ({
-        width: '100%',
-        height: '100%',
-        minHeight: '16rem',
-        borderRadius: `${theme.borderRadius?.xlg ?? 8}px`,
-      })}
+      width="100%"
+      height="100%"
+      borderRadius="xlg"
     />
   </Box>
 )

@@ -15,7 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { memo, JSXElementConstructor } from 'react'
 
-import { useMediaQuery, styled, Skeleton } from '@mui/material'
+import { useMediaQuery, styled } from '@mui/material'
+import { SkeletonLoading } from '@modules/componentsv2/primitives/Loaders'
 
 const ControlWrapper = styled('div')(({ theme }) => ({
   marginBlock: '1em',
@@ -38,13 +39,30 @@ const SkeletonStepsForm = memo(() => {
 
   return (
     <div>
-      <Skeleton variant="rectangular" height={120} width="100%" />
+      <SkeletonLoading
+        loading
+        variant="rectangular"
+        height={120}
+        width="100%"
+      />
       <ControlWrapper>
-        <Skeleton variant="rectangular" height={35} width={95} />
-        {isMobile && <Skeleton variant="rectangular" height={8} width="100%" />}
-        <Skeleton variant="rectangular" height={35} width={95} />
+        <SkeletonLoading loading variant="rectangular" height={35} width={95} />
+        {isMobile && (
+          <SkeletonLoading
+            loading
+            variant="rectangular"
+            height={8}
+            width="100%"
+          />
+        )}
+        <SkeletonLoading loading variant="rectangular" height={35} width={95} />
       </ControlWrapper>
-      <Skeleton variant="rectangular" height={200} width="100%" />
+      <SkeletonLoading
+        loading
+        variant="rectangular"
+        height={200}
+        width="100%"
+      />
     </div>
   )
 })

@@ -48,7 +48,7 @@ export const getStyles = ({ theme }) => {
       justifyContent: 'center',
       alignItems: 'flex-start',
       alignSelf: 'stretch',
-      gap: `${theme.scale[600]}px`,
+      gap: `${theme.scale[200]}px`,
       flex: '1 1 auto',
       minWidth: 0,
 

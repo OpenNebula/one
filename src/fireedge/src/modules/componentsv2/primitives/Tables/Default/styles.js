@@ -317,6 +317,10 @@ export const getStyles = ({
       padding: paddingScale(theme, size),
       bgcolor: 'surface.primary',
     },
+
+    '& .selection-hint': {
+      marginBottom: `${theme.scale[400]}px`,
+    }
   }
 
   return {

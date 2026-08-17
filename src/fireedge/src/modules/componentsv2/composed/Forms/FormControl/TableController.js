@@ -20,6 +20,7 @@ import { Table } from '@modules/componentsv2/primitives/Tables'
 import { Legend } from '@modules/componentsv2/composed/Forms/FormStepper/Legend'
 import { ErrorHelper } from '@modules/componentsv2/composed/Forms/FormControl/ErrorHelper'
 import { generateKey } from '@UtilsModule'
+import { TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 
 const defaultGetRowId = (item) =>
   typeof item === 'object' ? item?.id ?? item?.ID : item
@@ -121,7 +122,21 @@ export const TableController = memo(
 
     return (
       <>
-        {!!label && <Legend title={label} tooltip={tooltip} />}
+        {!!label && (
+          <Legend
+            title={label}
+            tooltip={tooltip}
+            disableDivider
+            disableGutters
+            titleProps={{
+              variant: TEXT_VARIANTS.BODY_MEDIUM,
+              weight: TEXT_WEIGHTS.SEMIBOLD,
+              sx: {
+                color: 'text.headings',
+              },
+            }}
+          />
+        )}
         {error && (
           <ErrorHelper data-cy={`${cy}-error`} label={error?.message} mb={2} />
         )}

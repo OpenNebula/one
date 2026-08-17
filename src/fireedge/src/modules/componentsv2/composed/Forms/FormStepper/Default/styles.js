@@ -66,7 +66,7 @@ export const getStyles = ({ type, theme, iconOnly, size, isPopup }) => {
     '& .form-stepper-buttons-progress': {
       display: 'flex',
       flexDirection: 'row',
-      gap: '20px',
+      gap: `${theme.scale[200]}px`,
     },
 
     '& .form-stepper-content': {

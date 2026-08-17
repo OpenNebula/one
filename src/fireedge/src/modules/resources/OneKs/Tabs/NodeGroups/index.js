@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Box, LinearProgress, Stack } from '@mui/material'
-import { EmptyContent, List, Table } from '@ComponentsV2Module'
+import { Box, Stack } from '@mui/material'
+import { EmptyContent, List, SkeletonLoading, Table } from '@ComponentsV2Module'
 import { T, RESOURCE_NAMES } from '@ConstantsModule'
 import { OneKsAPI } from '@FeaturesModule'
 import { getVirtualOneKsState, showDataByState, vmsTable } from '@ModelsModule'
@@ -80,7 +80,11 @@ const NodeGroups = ({ data }) => {
       String(selectedId) === String(nodeGroupId) ? undefined : nodeGroupId
     )
 
-  if (isLoading) return <LinearProgress />
+  if (isLoading) {
+    return (
+      <SkeletonLoading loading variant="rectangular" width="100%" height={4} />
+    )
+  }
 
   if (!hasNodeGroups) {
     return (

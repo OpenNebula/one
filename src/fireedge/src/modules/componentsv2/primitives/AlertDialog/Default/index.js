@@ -145,7 +145,10 @@ export const AlertDialog = forwardRef(
               ))}
           </DialogContent>
           {!hideActions && (
-            <DialogActions sx={(theme) => useActionsStyles({ theme })}>
+            <DialogActions
+              disableSpacing
+              sx={(theme) => useActionsStyles({ theme })}
+            >
               <Button
                 type="secondary"
                 onClick={onCancel}

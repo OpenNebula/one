@@ -14,17 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { css } from '@emotion/css'
-import { SubmitButton } from '@ComponentsV2Module'
+import { SkeletonLoading, SubmitButton } from '@ComponentsV2Module'
 import { UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
 import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
-import {
-  Box,
-  Skeleton,
-  Stack,
-  TextField,
-  Typography,
-  useTheme,
-} from '@mui/material'
+import { Box, Stack, TextField, Typography, useTheme } from '@mui/material'
 import { Edit } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { ReactElement, memo, useEffect, useMemo, useState } from 'react'
@@ -153,8 +146,13 @@ export const StaticComponent = memo(
       <Stack className={classes.staticField}>
         {formState.isSubmitting ? (
           <>
-            <Skeleton variant="text" width="100%" height={36} />
-            <Skeleton variant="circular" width={28} height={28} />
+            <SkeletonLoading loading variant="text" width="100%" height={36} />
+            <SkeletonLoading
+              loading
+              variant="circular"
+              width={28}
+              height={28}
+            />
           </>
         ) : (
           <>

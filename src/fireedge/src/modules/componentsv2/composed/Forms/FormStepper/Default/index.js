@@ -59,6 +59,19 @@ import { getStyles } from '@modules/componentsv2/composed/Forms/FormStepper/Defa
 import { useHistory } from 'react-router-dom'
 
 const FIRST_STEP = 0
+const TEXT_INPUT_SELECTOR = [
+  'input:not([type])',
+  'input[type="text"]',
+  'input[type="search"]',
+  'input[type="email"]',
+  'input[type="url"]',
+  'input[type="tel"]',
+  'input[type="number"]',
+  'input[type="password"]',
+  'textarea',
+]
+  .map((selector) => `${selector}:not([disabled]):not([readonly])`)
+  .join(',')
 
 /**
  * Init the status of the steps.
@@ -204,6 +217,7 @@ const FormStepper = ({
   const dispatch = useDispatch()
   const currentState = useSelector((state) => state)
   const modifiedFieldsCallbacks = useRef(new Set())
+  const formContentRef = useRef(null)
 
   // State to control the status of each step. Object because idx could change when disable steps.
   const [stepStatuses, setStepStatuses] = useState(() =>
@@ -583,6 +597,18 @@ const FormStepper = ({
       ? Documentation
       : { content: Documentation }
 
+  useEffect(() => {
+    const focusTimer = setTimeout(() => {
+      const formContent = formContentRef.current
+
+      if (!formContent || formContent.contains(document.activeElement)) return
+
+      formContent.querySelector(TEXT_INPUT_SELECTOR)?.focus()
+    }, 0)
+
+    return () => clearTimeout(focusTimer)
+  }, [activeStep, stepId])
+
   return (
     <DisableStepContext.Provider value={disableStep}>
       <ModifiedFieldsContext.Provider value={registerModifiedFields}>
@@ -612,7 +638,7 @@ const FormStepper = ({
           )}
           {/* FORM CONTENT */}
           {Content && (
-            <Box className="form-stepper-content">
+            <Box ref={formContentRef} className="form-stepper-content">
               <Content
                 data={formData[stepId]}
                 setFormData={setFormData}

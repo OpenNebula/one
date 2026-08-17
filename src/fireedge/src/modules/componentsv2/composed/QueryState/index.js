@@ -15,11 +15,11 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { Component, useEffect } from 'react'
-import { Box } from '@mui/material'
 import { useGeneralApi } from '@FeaturesModule'
+import { useTranslation } from '@ProvidersModule'
 import { T } from '@ConstantsModule'
 import { EmptyContent } from '@modules/componentsv2/composed/EmptyContent'
-import { Loader } from '@modules/componentsv2/primitives/Loaders'
+import { SkeletonLoading } from '@modules/componentsv2/primitives/Loaders'
 
 /**
  * Renders a display message based on the presence of an error.
@@ -32,6 +32,7 @@ import { Loader } from '@modules/componentsv2/primitives/Loaders'
  */
 export const QueryState = ({ isLoading, error, isEmpty }) => {
   const { enqueueError } = useGeneralApi()
+  const { translate } = useTranslation()
 
   useEffect(() => {
     if (error && error.length > 0) {
@@ -41,15 +42,12 @@ export const QueryState = ({ isLoading, error, isEmpty }) => {
 
   if (isLoading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
+      <SkeletonLoading
+        loading
         width="100%"
         height="100%"
-      >
-        <Loader size="large" />
-      </Box>
+        ariaLabel={translate(T.Loading)}
+      />
     )
   }
 

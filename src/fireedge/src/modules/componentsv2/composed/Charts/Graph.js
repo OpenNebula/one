@@ -20,7 +20,8 @@ import { DateTime } from 'luxon'
 
 import { timeFromSeconds } from '@ModelsModule'
 import { wheelZoomPlugin } from '@modules/componentsv2/composed/Charts/Plugins'
-import { CircularProgress, Stack, useTheme, Typography } from '@mui/material'
+import { SkeletonLoading } from '@modules/componentsv2/primitives/Loaders'
+import { Stack, useTheme, Typography } from '@mui/material'
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import UplotReact from 'uplot-react'
 import { T } from '@ConstantsModule'
@@ -453,9 +454,7 @@ const Graph = ({
       justifyContent="center"
     >
       {isFetching ? (
-        <Stack direction="row" justifyContent="center" alignItems="center">
-          <CircularProgress color="secondary" />
-        </Stack>
+        <SkeletonLoading loading width="100%" height="100%" />
       ) : !data?.length ? (
         <Stack direction="row" justifyContent="center" alignItems="center">
           <Typography
