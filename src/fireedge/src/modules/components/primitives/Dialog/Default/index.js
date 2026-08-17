@@ -27,7 +27,7 @@ import { useTranslation } from '@ProvidersModule'
 
 /**
  * @param {object} root0 - Props
- * @param {string} root0.title - Dialog title
+ * @param {string|object} root0.title - Dialog title
  * @param {Component} root0.children - Dialog content
  * @param {Component} root0.actions - Dialog actions
  * @param {string} root0.dataCy - Cypress selector
@@ -37,6 +37,7 @@ import { useTranslation } from '@ProvidersModule'
 export const Dialog = forwardRef(
   ({ title, children, actions, dataCy, ...opt }, ref) => {
     const { translate } = useTranslation()
+    const dialogTitle = typeof title === 'string' ? translate(title) : title
 
     return (
       <MuiDialog
@@ -45,7 +46,7 @@ export const Dialog = forwardRef(
         data-cy={dataCy}
         sx={(theme) => getStyles({ theme })}
       >
-        {title && <DialogTitle>{translate(title)}</DialogTitle>}
+        {dialogTitle && <DialogTitle>{dialogTitle}</DialogTitle>}
         <DialogContent>{children}</DialogContent>
         <DialogActions>{actions}</DialogActions>
       </MuiDialog>
@@ -54,7 +55,7 @@ export const Dialog = forwardRef(
 )
 
 Dialog.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   children: PropTypes.node,
   actions: PropTypes.node,
   dataCy: PropTypes.string,
