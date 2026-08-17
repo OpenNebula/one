@@ -69,6 +69,28 @@ export const ACL_RESOURCES = {
   BACKUPJOB: { name: 'BACKUPJOB', value: 0x100000000000000n },
 }
 
+// Resources represented by the Create and View sections of the Group form
+export const GROUP_PERMISSION_RESOURCES = [
+  'VM',
+  'VROUTER',
+  'DOCUMENT',
+  'TEMPLATE',
+  'VMGROUP',
+  'DATASTORE',
+  'IMAGE',
+  'MARKETPLACE',
+  'MARKETPLACEAPP',
+  'NET',
+  'VNTEMPLATE',
+  'SECGROUP',
+  'CLUSTER',
+  'HOST',
+  'ZONE',
+  'USER',
+  'GROUP',
+  'VDC',
+]
+
 // Hex values for different right types
 export const ACL_RIGHTS = {
   USE: { name: 'USE', value: 0x1 },

@@ -25,12 +25,16 @@ import {
   useGeneralApi,
 } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm, QueryState } from '@ComponentsV2Module'
 import { Group } from '@ResourcesModule'
 
 import { jsonToXml } from '@UtilsModule'
 
-import { createStringACL, createAclObjectFromString } from '@ModelsModule'
+import {
+  createStringACL,
+  createAclObjectFromString,
+  getGroupPermissionChanges,
+} from '@ModelsModule'
 
 import { ACL_RIGHTS, ACL_TYPE_ID, T, PATH } from '@ConstantsModule'
 
@@ -49,12 +53,19 @@ export function CreateGroup() {
   const [addAdminToGroup] = GroupAPI.useAddAdminToGroupMutation()
   const [createUser] = UserAPI.useAllocateUserMutation()
   const [createAcl] = AclAPI.useAllocateAclMutation()
+  const [removeAcl] = AclAPI.useRemoveAclMutation()
 
   const { data: views } = SystemAPI.useGetSunstoneAvailableViewsQuery()
 
   const { data: version } = SystemAPI.useGetOneVersionQuery()
 
   const { data: group } = GroupAPI.useGetGroupQuery({ id: groupId })
+
+  const {
+    data: acls,
+    isError: isAclsError,
+    error: aclsError,
+  } = AclAPI.useGetAclsQuery(undefined, { skip: !groupId })
 
   const updateTemplate = async (props, id) => {
     // Create group template with advanced options
@@ -70,8 +81,22 @@ export function CreateGroup() {
       }
 
       // Update group with template
-      await updateGroup(params)
+      await updateGroup(params).unwrap()
     }
+  }
+
+  const updatePermissions = async (props, id) => {
+    const { allocations, removals } = getGroupPermissionChanges(
+      acls,
+      id,
+      props?.permissions
+    )
+
+    // Allocate replacement rules first to avoid temporarily revoking access.
+    await Promise.all(allocations.map((acl) => createAcl(acl).unwrap()))
+    await Promise.all(
+      removals.map((aclId) => removeAcl({ id: aclId }).unwrap())
+    )
   }
 
   const onSubmit = async (props) => {
@@ -136,15 +161,17 @@ export function CreateGroup() {
         }
 
         // Update group template with advanced options
-        updateTemplate(props, newGroupId)
+        await updateTemplate(props, newGroupId)
 
         // Only show group message
         enqueueSuccess(T.SuccessGroupCreated, newGroupId)
       } else {
         // Update case. Only update template
 
-        // Update group template with advanced options
-        updateTemplate(props, groupId)
+        await Promise.all([
+          updateTemplate(props, groupId),
+          updatePermissions(props, groupId),
+        ])
 
         // Only show group message
         enqueueSuccess(T.SuccessGroupUpdated, groupId)
@@ -171,9 +198,9 @@ export function CreateGroup() {
           >
             {(config) => <DefaultFormStepper {...config} />}
           </Group.Forms.CreateForm>
-        ) : group ? (
+        ) : group && acls && !isAclsError ? (
           <Group.Forms.UpdateForm
-            initialValues={group}
+            initialValues={{ group, acls }}
             onSubmit={onSubmit}
             stepProps={{
               views,
@@ -183,6 +210,8 @@ export function CreateGroup() {
           >
             {(config) => <DefaultFormStepper {...config} update />}
           </Group.Forms.UpdateForm>
+        ) : isAclsError ? (
+          <QueryState error={aclsError?.data} />
         ) : (
           <SkeletonStepsForm />
         )

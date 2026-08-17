@@ -14,6 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+import Permissions, {
+  STEP_ID as PERMISSIONS_ID,
+} from '@modules/resources/Group/Forms/CreateForm/Steps/Permissions'
+
 import Views, {
   STEP_ID as VIEWS_ID,
 } from '@modules/resources/Group/Forms/CreateForm/Steps/Views'
@@ -23,16 +27,22 @@ import System, {
 } from '@modules/resources/Group/Forms/CreateForm/Steps/System'
 
 import { createSteps } from '@UtilsModule'
+import { getGroupPermissionFormValues } from '@ModelsModule'
+import { ACL_RESOURCES } from '@ConstantsModule'
 
 /**
  * Create steps for Groups Update Form:
- * 1. Advanced options: Options that will be set on group template
- * 1.1. Views: Views of the group
- * 1.2. Default options
+ * 1. Permissions: Set permissions about some resources for the group
+ * 2. Advanced options: Options that will be set on group template
+ * 2.1. Views: Views of the group
+ * 2.2. Default options
  */
-const Steps = createSteps([Views, System], {
-  transformInitialValue: (group, schema) => {
+const Steps = createSteps([Permissions, Views, System], {
+  transformInitialValue: (initialValues, schema) => {
+    const group = initialValues?.group ?? initialValues
+    const acls = initialValues?.acls ?? []
     const objectSchema = {
+      [PERMISSIONS_ID]: getGroupPermissionFormValues(acls, group?.ID),
       [VIEWS_ID]: {
         VIEWS: group?.TEMPLATE?.FIREEDGE?.VIEWS?.split(',').reduce(
           (acc, view) => ({ ...acc, [view]: true }),
@@ -59,10 +69,26 @@ const Steps = createSteps([Views, System], {
 
   transformBeforeSubmit: (formData) => {
     // Get data from steps
+    const { [PERMISSIONS_ID]: permissionsData } = formData
     const { [VIEWS_ID]: views } = formData
     const { [SYSTEM_ID]: system } = formData
 
     const response = {}
+
+    // Permissions
+    const createResources = Object.entries(permissionsData?.create ?? {})
+      .filter((resource) => resource[1])
+      .map((resource) => ACL_RESOURCES[resource[0]])
+      .filter(Boolean)
+    const viewResources = Object.entries(permissionsData?.view ?? {})
+      .filter((resource) => resource[1])
+      .map((resource) => ACL_RESOURCES[resource[0]])
+      .filter(Boolean)
+
+    response.permissions = {
+      view: viewResources,
+      create: createResources,
+    }
 
     // Views
     response.views = {
