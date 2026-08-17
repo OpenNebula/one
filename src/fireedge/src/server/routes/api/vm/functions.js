@@ -70,13 +70,17 @@ const saveAsTemplate = (
 ) => {
   let rtn = httpResponse(badRequest, '', '')
   const { id, name, persistent } = params
-  if (id && name) {
+  const { user, password } = userData
+
+  if (id && name && user && password) {
     let message = ''
     const paramsCommand = ['save', `${id}`, `${name}`]
 
     if (persistent && persistent === 'true') {
       paramsCommand.push('--persistent')
     }
+
+    paramsCommand.push('--user', user, '--password', password)
 
     const executedCommand = executeCommand(
       defaultCommandVM,
