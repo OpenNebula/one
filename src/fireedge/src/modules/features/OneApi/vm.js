@@ -37,7 +37,6 @@ import {
   RESOURCE_NAMES,
   VM as VmType,
 } from '@ConstantsModule'
-import { http } from '@UtilsModule'
 import { GuacamoleSlice } from '@modules/features/Guacamole/slice'
 import {
   removeLockLevelOnResource,
@@ -478,20 +477,11 @@ const vmApi = oneApi.injectEndpoints({
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
        */
-      queryFn: async ({ id, name, persistent }) => {
-        try {
-          const response = await http.request({
-            url: `/api/vm/save/${id}`,
-            method: 'POST',
-            data: { name, persistent },
-          })
+      query: (params) => {
+        const name = ExtraActions.VM_SAVEASTEMPLATE
+        const command = { name, ...ExtraCommands[name] }
 
-          return { data: response.data }
-        } catch (axiosError) {
-          const { response } = axiosError
-
-          return { error: { status: response?.status, data: response?.data } }
-        }
+        return { params, command }
       },
     }),
     deploy: builder.mutation({
