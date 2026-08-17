@@ -14,11 +14,39 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { Component, ReactNode, forwardRef, isValidElement } from 'react'
+import {
+  Component,
+  ReactNode,
+  forwardRef,
+  isValidElement,
+  useCallback,
+  useRef,
+  useState,
+} from 'react'
 import PropTypes from 'prop-types'
 import { Tooltip as MUITooltip, useTheme } from '@mui/material'
 import { getStyles } from '@modules/components/primitives/Tooltip/Default/styles'
 import { useTranslation } from '@ProvidersModule'
+
+const normalizeText = (text) => `${text ?? ''}`.replace(/\s+/g, ' ').trim()
+
+const isElementOverflowing = (element) =>
+  element?.scrollWidth > element?.clientWidth ||
+  element?.scrollHeight > element?.clientHeight
+
+const isTextOverflowing = (element) =>
+  [element, ...Array.from(element?.querySelectorAll?.('*') ?? [])].some(
+    isElementOverflowing
+  )
+
+const shouldShowTextTooltip = (element, title) => {
+  const displayedText = element?.innerText ?? element?.textContent ?? ''
+
+  return (
+    normalizeText(title) !== normalizeText(displayedText) ||
+    isTextOverflowing(element)
+  )
+}
 
 /**
  * Tooltip component displays contextual information on hover.
@@ -33,16 +61,51 @@ export const Tooltip = forwardRef(
   ({ title = '', placement, children, ...opts }, ref) => {
     const theme = useTheme()
     const { translate } = useTranslation()
+    const triggerRef = useRef(null)
+    const [isOpen, setIsOpen] = useState(false)
+    const translatedTitle = typeof title === 'string' ? translate(title) : title
+    const isTextTitle = ['string', 'number'].includes(typeof translatedTitle)
+    const isControlled = opts.open !== undefined
+    const handleRef = useCallback(
+      (element) => {
+        triggerRef.current = element
+
+        if (typeof ref === 'function') {
+          ref(element)
+        } else if (ref) {
+          ref.current = element
+        }
+      },
+      [ref]
+    )
 
     // Check children is a valid element to avoid errors in MUI Tooltip component
     if (!isValidElement(children)) {
       return children ?? null
     }
 
+    const handleOpen = (event) => {
+      if (isTextTitle && !isControlled) {
+        const element = triggerRef.current ?? event?.target
+
+        setIsOpen(shouldShowTextTooltip(element, translatedTitle))
+      }
+
+      opts.onOpen?.(event)
+    }
+
+    const handleClose = (event) => {
+      if (isTextTitle && !isControlled) {
+        setIsOpen(false)
+      }
+
+      opts.onClose?.(event)
+    }
+
     return (
       <MUITooltip
-        ref={ref}
-        title={typeof title === 'string' ? translate(title) : title}
+        ref={handleRef}
+        title={translatedTitle}
         arrow={false}
         componentsProps={{
           tooltip: {
@@ -51,6 +114,9 @@ export const Tooltip = forwardRef(
         }}
         {...(placement && { placement })}
         {...opts}
+        {...(isTextTitle && !isControlled && { open: isOpen })}
+        onOpen={handleOpen}
+        onClose={handleClose}
       >
         {children}
       </MUITooltip>

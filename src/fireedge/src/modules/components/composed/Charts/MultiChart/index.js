@@ -22,7 +22,7 @@ import {
   ExportButton,
   NavigationController,
 } from '@modules/components/composed/Charts/MultiChart/helpers/subComponents'
-import { Loader, Text } from '@modules/components/primitives'
+import { SkeletonLoading, Text } from '@modules/components/primitives'
 import { T } from '@ConstantsModule'
 import {
   GetChartDefs,
@@ -48,7 +48,7 @@ const ChartState = ({ isLoading, error }) => (
     gap={2}
   >
     {isLoading ? (
-      <Loader size="medium" />
+      <SkeletonLoading loading width="100%" height="100%" />
     ) : (
       <Text
         value={error || T.NoDataAvailable}

@@ -35,11 +35,10 @@ import {
   IconButton,
   Typography,
   Box,
-  CircularProgress,
 } from '@mui/material'
 import { Trash as DeleteIcon, Download } from 'iconoir-react'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
-import { Button } from '@ComponentsModule'
+import { Button, SkeletonLoading } from '@ComponentsModule'
 
 /**
  * @param {object} root0 - Props
@@ -122,7 +121,12 @@ const PopUpDialog = ({ open, handleClose }) => {
             isDisabled={isFetching}
             startIcon={
               isFetching ? (
-                <CircularProgress size={20} color="inherit" />
+                <SkeletonLoading
+                  loading
+                  variant="circular"
+                  width={20}
+                  height={20}
+                />
               ) : (
                 <Download />
               )

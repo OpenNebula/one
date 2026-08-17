@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { Box, Skeleton } from '@mui/material'
+import { Box } from '@mui/material'
 import { Cpu as PciIcon, Plus } from 'iconoir-react'
 import { useEffect, useMemo } from 'react'
 import { useFieldArray } from 'react-hook-form'
@@ -27,6 +27,7 @@ import {
   LabelSlot,
   MetadataSlot,
   ResourceActionConfirmation,
+  SkeletonLoading,
   TitleSlot,
 } from '@ComponentsModule'
 
@@ -341,9 +342,10 @@ const PciDevices = ({ oneConfig, adminGroup }) => {
 
   if (isFetchingHosts) {
     return (
-      <Skeleton
+      <SkeletonLoading
+        loading
         variant="text"
-        sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}
+        width={{ xs: '100%', sm: '50%', md: '25%' }}
       />
     )
   }

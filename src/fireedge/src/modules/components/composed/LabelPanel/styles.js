@@ -224,14 +224,14 @@ export const getDialogContentStyles = (theme) => ({
     gap: `${theme.scale[500]}px`,
     minHeight: 0,
     padding: `${theme.scale[500]}px 0`,
-    overflowY: 'auto',
+    overflowY: 'visible',
   },
 
   '& .label-dialog-actions': {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    gap: `${theme.scale[300]}px`,
+    gap: `${theme.scale[200]}px`,
   },
 
   '& .label-dialog-actions.with-border': {
@@ -247,6 +247,7 @@ export const getCreateFormStyles = (theme) => ({
   display: 'flex',
   flexDirection: 'column',
   gap: `${theme.scale[500]}px`,
+  margin: `${theme.scale[100]}px`,
 
   '& .label-form-nest': {
     width: 'fit-content',

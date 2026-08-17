@@ -69,6 +69,7 @@ export const AutocompleteController = memo(
     } = useController({ name, control, defaultValue })
 
     const formContext = useFormContext()
+    const { clearErrors } = formContext
 
     const watch = useWatch({
       name: dependencies,
@@ -92,17 +93,22 @@ export const AutocompleteController = memo(
           : getOptionValue(nextValue)
 
         onChange(valueToChange)
+        clearErrors(name)
 
         if (typeof onConditionChange === 'function') {
           onConditionChange(valueToChange)
         }
       },
-      [onChange, onConditionChange, multiple]
+      [clearErrors, multiple, name, onChange, onConditionChange]
     )
 
     const handleInputChange = useCallback(
       (_, newInputValue, reason) => {
-        if (reason !== 'input' || !resolvedFreeSolo) return
+        if (reason !== 'input') return
+
+        clearErrors(name)
+
+        if (!resolvedFreeSolo || multiple) return
 
         onChange(newInputValue)
 
@@ -110,7 +116,14 @@ export const AutocompleteController = memo(
           onConditionChange(newInputValue)
         }
       },
-      [onChange, onConditionChange, resolvedFreeSolo]
+      [
+        clearErrors,
+        multiple,
+        name,
+        onChange,
+        onConditionChange,
+        resolvedFreeSolo,
+      ]
     )
 
     useEffect(() => {
@@ -194,6 +207,7 @@ export const AutocompleteController = memo(
         separators={separators}
         isReadOnly={readOnly}
         isDisableEnter={disableEnter}
+        onInputChange={handleInputChange}
       />
     ) : (
       <Dropdown

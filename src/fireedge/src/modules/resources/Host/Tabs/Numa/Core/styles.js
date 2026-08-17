@@ -25,7 +25,7 @@ export const getStyles = ({ theme }) => ({
   gap: `${theme.scale[200]}px`,
   minWidth: 0,
   padding: `${theme.scale[300]}px`,
-  borderRadius: `${theme.borderRadius.xl}px`,
+  borderRadius: `${theme.borderRadius.xlg}px`,
   border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
   bgcolor: 'surface.mute',
 

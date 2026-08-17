@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import {
-  Button,
-  CircularProgress,
-  IconButton,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import { Button, IconButton, Tooltip, Typography } from '@mui/material'
 import { forwardRef, memo, cloneElement } from 'react'
 import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
+import { SkeletonLoading } from '@modules/components/primitives/Loaders'
 
 const ButtonComponent = forwardRef(
   (
@@ -96,7 +91,12 @@ export const SubmitButton = memo(
           disabled={disabled || isSubmitting}
           icon={
             loadOnIcon && isSubmitting ? (
-              <CircularProgress size={progressSize} />
+              <SkeletonLoading
+                loading
+                variant="circular"
+                width={progressSize}
+                height={progressSize}
+              />
             ) : (
               icon
             )
@@ -106,7 +106,12 @@ export const SubmitButton = memo(
           {...props}
         >
           {!loadOnIcon && isSubmitting && (
-            <CircularProgress size={progressSize} />
+            <SkeletonLoading
+              loading
+              variant="circular"
+              width={progressSize}
+              height={progressSize}
+            />
           )}
           {(!isSubmitting || loadOnIcon) &&
             (icon

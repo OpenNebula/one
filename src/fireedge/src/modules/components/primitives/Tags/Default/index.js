@@ -22,8 +22,9 @@ import {
   createElement,
 } from 'react'
 import PropTypes from 'prop-types'
-import { Button as MUIButton } from '@mui/material'
+import { Box, Button as MUIButton } from '@mui/material'
 import { getStyles } from '@modules/components/primitives/Tags/Default/styles'
+import { Tooltip } from '@modules/components/primitives/Tooltip'
 import { useControllableState } from '@HooksModule'
 
 /**
@@ -84,29 +85,42 @@ export const Tag = forwardRef(
     )
 
     return (
-      <MUIButton
-        ref={ref}
-        disableRipple
-        onClick={handleClick}
-        startIcon={renderIcon(startIcon)}
-        endIcon={renderIcon(endIcon)}
-        data-cy={dataCy}
-        sx={(theme) =>
-          getStyles({
-            theme,
-            status,
-            isInteractive,
-            isClickable: Boolean(onClick),
-            isSelected: selected,
-            customColor,
-            endIconSize,
-            ...opts,
-          })
-        }
-        {...opts}
-      >
-        {content}
-      </MUIButton>
+      <Tooltip title={title}>
+        <Box
+          component="span"
+          sx={{
+            display: 'inline-flex',
+            flex: '0 1 auto',
+            minWidth: 0,
+            maxWidth: '100%',
+            width: 'fit-content',
+          }}
+        >
+          <MUIButton
+            ref={ref}
+            disableRipple
+            onClick={handleClick}
+            startIcon={renderIcon(startIcon)}
+            endIcon={renderIcon(endIcon)}
+            data-cy={dataCy}
+            sx={(theme) =>
+              getStyles({
+                theme,
+                status,
+                isInteractive,
+                isClickable: Boolean(onClick),
+                isSelected: selected,
+                customColor,
+                endIconSize,
+                ...opts,
+              })
+            }
+            {...opts}
+          >
+            {content}
+          </MUIButton>
+        </Box>
+      </Tooltip>
     )
   }
 )

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, CircularProgress, useTheme } from '@mui/material'
+import { Box, useTheme } from '@mui/material'
 import {
   Camera,
   CloudDownload,
@@ -31,7 +31,7 @@ import { GuacamoleSession, INPUT_TYPES, T, VM_ACTIONS } from '@ConstantsModule'
 import { VmAPI, useModalsApi } from '@FeaturesModule'
 import { createForm, downloadFile, getValidationFromFields } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
-import { ButtonGroup, ToggleGroup } from '@ComponentsModule'
+import { ButtonGroup, SkeletonLoading, ToggleGroup } from '@ComponentsModule'
 
 const ICON_SIZE = '16px'
 const LOADING_SIZE = 20
@@ -344,7 +344,12 @@ const GuacamoleActionButtons = (session) => {
           {
             startIcon:
               reconnecting || isLoading ? (
-                <CircularProgress size={LOADING_SIZE} />
+                <SkeletonLoading
+                  loading
+                  variant="circular"
+                  width={LOADING_SIZE}
+                  height={LOADING_SIZE}
+                />
               ) : (
                 <Refresh {...getIconProps()} />
               ),
@@ -374,7 +379,12 @@ const GuacamoleActionButtons = (session) => {
                 {
                   startIcon:
                     sshReconnecting || isLoading ? (
-                      <CircularProgress size={LOADING_SIZE} />
+                      <SkeletonLoading
+                        loading
+                        variant="circular"
+                        width={LOADING_SIZE}
+                        height={LOADING_SIZE}
+                      />
                     ) : (
                       <Code {...getIconProps()} />
                     ),

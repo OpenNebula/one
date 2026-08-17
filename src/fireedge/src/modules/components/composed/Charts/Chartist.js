@@ -24,9 +24,9 @@ import {
   tooltipPlugin,
 } from '@modules/components/composed/Charts/Plugins'
 import { Dropdown } from '@modules/components/primitives/Dropdown'
+import { SkeletonLoading } from '@modules/components/primitives/Loaders'
 import { Text } from '@modules/components/primitives/Text/Default'
 import {
-  CircularProgress,
   List,
   ListItem,
   Paper,
@@ -571,9 +571,7 @@ const Chartist = ({
         </ListItem>
         <ListItem ref={chartRef} className={classes.placeholder}>
           {isFetching ? (
-            <Stack direction="row" justifyContent="center" alignItems="center">
-              <CircularProgress color="secondary" />
-            </Stack>
+            <SkeletonLoading loading width="100%" height="100%" />
           ) : transformData == null ||
             !transformData?.dataset?.length > 0 ||
             []

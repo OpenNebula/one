@@ -29,12 +29,13 @@ import {
   NetworksDropdown,
 } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Roles/dropdowns'
 
-import { Skeleton, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 import { T } from '@ConstantsModule'
 import {
   CollapsiblePanel,
   FormWithSchema,
   SelectableCardPanel,
+  SkeletonLoading,
 } from '@ComponentsModule'
 import { useSelectableCardPanel } from '@HooksModule'
 import { vmtemplateTable } from '@ModelsModule'
@@ -109,8 +110,18 @@ const Content = ({ standaloneModal = false }) => {
   if (!wRoles?.length || !roles?.length) {
     return (
       <Stack direction="row" spacing={2}>
-        <Skeleton variant="rectangular" width="25%" height={300} />
-        <Skeleton variant="rectangular" width="75%" height={300} />
+        <SkeletonLoading
+          loading
+          variant="rectangular"
+          width="25%"
+          height={300}
+        />
+        <SkeletonLoading
+          loading
+          variant="rectangular"
+          width="75%"
+          height={300}
+        />
       </Stack>
     )
   }

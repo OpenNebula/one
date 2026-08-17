@@ -185,7 +185,7 @@ export const OwnershipTab = forwardRef(
               </Box>
               <Button
                 type="transparent"
-                iconOnly={<Edit />}
+                iconOnly={<Edit width="16px" height="16px" />}
                 title={T.Edit}
                 aria-label={`${T.Edit} ${row.original.label}`}
                 dataCy={`ownership-${type}-edit`}

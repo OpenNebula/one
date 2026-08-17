@@ -64,6 +64,7 @@ const getPlaceholderMinWidth = (text) => {
  * @param {Array} root0.defaultValue - Initial selected values for uncontrolled mode
  * @param {Array} root0.options - Autocomplete options
  * @param {Function} root0.onChange - Selected values change handler
+ * @param {Function} root0.onInputChange - Input text change handler
  * @param {Function} root0.onBlur - Blur handler
  * @param {string} root0.label - Field label
  * @param {string} root0.placeholder - Field placeholder
@@ -87,6 +88,7 @@ export const TagsInput = forwardRef(
       defaultValue = [],
       options = [],
       onChange,
+      onInputChange,
       onBlur,
       label,
       placeholder,
@@ -162,7 +164,9 @@ export const TagsInput = forwardRef(
       setInputValue('')
     }
 
-    const handleInputChange = (_, nextInputValue, reason) => {
+    const handleInputChange = (event, nextInputValue, reason) => {
+      onInputChange?.(event, nextInputValue, reason)
+
       if (reason !== 'input') {
         setInputValue(nextInputValue)
 
@@ -325,6 +329,7 @@ TagsInput.propTypes = {
   defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   options: PropTypes.array,
   onChange: PropTypes.func,
+  onInputChange: PropTypes.func,
   onBlur: PropTypes.func,
   label: PropTypes.string,
   placeholder: PropTypes.string,

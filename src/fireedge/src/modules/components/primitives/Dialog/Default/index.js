@@ -48,7 +48,7 @@ export const Dialog = forwardRef(
       >
         {dialogTitle && <DialogTitle>{dialogTitle}</DialogTitle>}
         <DialogContent>{children}</DialogContent>
-        <DialogActions>{actions}</DialogActions>
+        <DialogActions disableSpacing>{actions}</DialogActions>
       </MuiDialog>
     )
   }

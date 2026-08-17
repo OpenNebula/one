@@ -55,6 +55,6 @@ export const getStyles = ({ theme }) => ({
 
   '& .MuiDialogActions-root': {
     padding: 0,
-    gap: `${theme.scale[300]}px`,
+    gap: `${theme.scale[200]}px`,
   },
 })

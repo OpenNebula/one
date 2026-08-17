@@ -154,7 +154,17 @@ export const CreateLabelForm = ({
   }
 
   return (
-    <Dialog open={open} onClose={isLoading ? undefined : onClose}>
+    <Dialog
+      open={open}
+      onClose={isLoading ? undefined : onClose}
+      PaperProps={{
+        sx: {
+          '& .MuiDialogContent-root': {
+            padding: 0,
+          },
+        },
+      }}
+    >
       <Box sx={(theme) => getDialogContentStyles(theme)}>
         <Box className="label-dialog-header">
           <Box className="label-dialog-heading">
