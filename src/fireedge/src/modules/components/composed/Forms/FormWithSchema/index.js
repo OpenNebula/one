@@ -70,6 +70,88 @@ const NOT_DEPEND_ATTRIBUTES = [
   'text',
 ]
 
+/**
+ * Returns the numeric minimum declared by a Yup validation schema.
+ *
+ * Conditional and lazy schemas are resolved with the current form values
+ * before reading their validation tests.
+ *
+ * @param {object} validation - Yup validation schema
+ * @param {object} options - Yup resolve options
+ * @returns {number|undefined} Numeric minimum
+ */
+const getValidationMinimum = (validation, options) => {
+  try {
+    const resolvedValidation = validation?.resolve?.(options) ?? validation
+    const description = resolvedValidation?.describe?.()
+
+    if (description?.type !== 'number') return undefined
+
+    const minimumTest = description.tests?.find(({ name }) => name === 'min')
+    const minimum = minimumTest?.params?.min ?? minimumTest?.params?.more
+    const numericMinimum = Number(minimum)
+
+    return minimum !== undefined && Number.isFinite(numericMinimum)
+      ? numericMinimum
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Returns the field props with the configured or validated numeric minimum.
+ *
+ * @param {object} params - Field parameters
+ * @param {string} params.inputName - Full input name
+ * @param {object} params.formValues - Current form values
+ * @param {string} params.htmlType - Native input type
+ * @param {object} params.validation - Yup validation schema
+ * @param {object|boolean} params.fieldProps - Input field props
+ * @returns {object|undefined} Field props including the minimum
+ */
+const getFieldPropsWithMinimum = ({
+  inputName,
+  formValues,
+  htmlType,
+  validation,
+  fieldProps,
+}) => {
+  const configuredFieldProps =
+    fieldProps && typeof fieldProps === 'object' ? fieldProps : {}
+  const configuredMinimum =
+    configuredFieldProps.inputProps?.min ?? configuredFieldProps.min
+  const isNumericInput =
+    htmlType === 'number' || configuredFieldProps.type === 'number'
+
+  if (!isNumericInput && configuredMinimum === undefined) return undefined
+
+  const parentSeparator = inputName.lastIndexOf('.')
+  const parentName =
+    parentSeparator >= 0 ? inputName.slice(0, parentSeparator) : ''
+  const parentValues = parentName ? get(formValues, parentName) : formValues
+  const validationMinimum =
+    configuredMinimum === undefined
+      ? getValidationMinimum(validation, {
+          value: get(formValues, inputName),
+          parent: parentValues,
+          context: formValues,
+        })
+      : undefined
+  const minimum = configuredMinimum ?? validationMinimum
+
+  if (minimum === undefined) return undefined
+
+  return {
+    ...configuredFieldProps,
+    min: minimum,
+    inputProps: {
+      ...configuredFieldProps.inputProps,
+      min: minimum,
+    },
+  }
+}
+
 const INPUT_CONTROLLER = {
   [INPUT_TYPES.TEXT]: TextController,
   [INPUT_TYPES.PASSWORD]: PasswordController,
@@ -578,6 +660,15 @@ const FieldComponent = memo(
 
     function* generateInputs() {
       for (let i = 0; i < splits; i++) {
+        const inputName = addIdToName(name, id, i)
+        const fieldPropsWithMinimum = getFieldPropsWithMinimum({
+          inputName,
+          formValues: formContext.getValues(),
+          htmlType,
+          validation: fieldProps.validation,
+          fieldProps: fieldProps.fieldProps,
+        })
+
         yield (
           <Fragment key={`${key}-split-${i}`}>
             {legend && (
@@ -601,11 +692,14 @@ const FieldComponent = memo(
                 control: formContext.control,
                 cy: dataCy,
                 dependencies: nameOfDependField,
-                name: addIdToName(name, id, i),
+                name: inputName,
                 type: htmlType === false ? undefined : htmlType,
                 dependOf,
                 onConditionChange: handleConditionChange,
                 ...fieldProps,
+                ...(fieldPropsWithMinimum && {
+                  fieldProps: fieldPropsWithMinimum,
+                }),
               })}
             </Grid>
           </Fragment>
