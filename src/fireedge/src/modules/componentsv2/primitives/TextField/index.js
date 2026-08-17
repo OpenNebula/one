@@ -22,6 +22,15 @@ import { adornments } from '@modules/componentsv2/primitives/TextField/adornment
 import { useControllableState } from '@HooksModule'
 import { useTranslation } from '@ProvidersModule'
 
+const isNegativeValue = (value) => {
+  const normalizedValue = String(value ?? '').trim()
+
+  return (
+    normalizedValue.startsWith('-') ||
+    (normalizedValue !== '' && Number(normalizedValue) < 0)
+  )
+}
+
 /**
  * TextField input component .
  *
@@ -66,6 +75,13 @@ export const TextField = forwardRef(
       onChange,
     })
 
+    const numericMinimum = Number(inputProps?.min)
+    const preventNegative =
+      opts.type === 'number' &&
+      inputProps?.min !== undefined &&
+      Number.isFinite(numericMinimum) &&
+      numericMinimum >= 0
+
     return (
       <Box
         className="textfield-container"
@@ -83,6 +99,8 @@ export const TextField = forwardRef(
       >
         <MUITextField
           onChange={(event) => {
+            if (preventNegative && isNegativeValue(event?.target?.value)) return
+
             setCurrentValue(event?.target?.value)
           }}
           value={currentValue}
