@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
+import { ReactElement, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Stack, Box } from '@mui/material'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -37,6 +37,8 @@ import { jsonToXml } from '@UtilsModule'
  */
 export const UpdateNumaForm = ({ host }) => {
   const { TEMPLATE } = host
+  const pinPolicy = TEMPLATE?.PIN_POLICY
+  const isolatedCpus = TEMPLATE?.ISOLCPUS ?? ''
 
   const { enqueueError, enqueueSuccess } = useGeneralApi()
   const [updateUserTemplate] = HostAPI.useUpdateHostMutation()
@@ -44,11 +46,18 @@ export const UpdateNumaForm = ({ host }) => {
   const { watch, handleSubmit, reset, formState, ...methods } = useForm({
     reValidateMode: 'onSubmit',
     defaultValues: {
-      PIN_POLICY: TEMPLATE?.PIN_POLICY,
-      ISOLATION: TEMPLATE?.ISOLCPUS,
+      PIN_POLICY: pinPolicy,
+      ISOLATION: isolatedCpus,
     },
     resolver: yupResolver(FORM_SCHEMA_NUMA),
   })
+
+  useEffect(() => {
+    reset({
+      PIN_POLICY: pinPolicy,
+      ISOLATION: isolatedCpus,
+    })
+  }, [host.ID, pinPolicy, isolatedCpus, reset])
 
   const onSubmit = async (formData) => {
     try {
