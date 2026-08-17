@@ -46,9 +46,6 @@ export const getStyles = ({ theme }) => {
 
   const slots = {
     '& .searchbar-slots': {
-      '&:has(.search-slot)': {
-        margin: `${theme.scale[100]}px`, // Compensate for the 'focus outline' by the search bar
-      },
       display: 'flex',
       flexDirection: 'row',
       flex: '1 0 0',

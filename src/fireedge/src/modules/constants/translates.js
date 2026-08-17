@@ -90,6 +90,8 @@ module.exports = {
   NumberOfResourcesSelected: 'All %s resources are selected',
   SelectAllResources: 'Select all %s resources',
   SelectAll: 'Select all',
+  SelectOne: 'Select one',
+  SelectOneOrMore: 'Select one or more',
   SelectAImage: 'Select a image',
   Placeholder: 'Placeholder',
   Enter: 'Enter',

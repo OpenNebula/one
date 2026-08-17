@@ -20,17 +20,32 @@
  * @param {object} root0.theme - Current theme in use
  * @param {boolean} root0.iconOnly - Render icon only
  * @param {string} root0.size - Size of button
+ * @param {boolean} root0.disableDivider - Hide the bottom divider
+ * @param {boolean} root0.disableGutters - Remove margin and padding
  * @returns {object} - Button SX style
  */
-export const getStyles = ({ type, theme, iconOnly, size }) => {
+export const getStyles = ({
+  type,
+  theme,
+  iconOnly,
+  size,
+  disableDivider,
+  disableGutters,
+}) => {
   const baseStyle = {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottom: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-    padding: `${theme.scale[200]}px 0 ${theme.scale[200]}px 0`,
-    margin: `${theme.scale[200]}px 0 ${theme.scale[200]}px 0`,
+    borderBottom: disableDivider
+      ? 'none'
+      : `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
+    padding: disableGutters
+      ? 0
+      : `${theme.scale[200]}px 0 ${theme.scale[200]}px 0`,
+    margin: disableGutters
+      ? 0
+      : `${theme.scale[200]}px 0 ${theme.scale[200]}px 0`,
   }
 
   const tooltipIcon = {

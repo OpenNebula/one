@@ -23,15 +23,31 @@ import { Text } from '@modules/components/primitives/Text'
 import { TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 
 export const Legend = forwardRef(
-  ({ 'data-cy': dataCy, title, tooltip, ...rest }, ref) => (
-    <Box data-cy={dataCy} sx={(theme) => getStyles({ theme })} {...rest}>
+  (
+    {
+      'data-cy': dataCy,
+      title,
+      tooltip,
+      disableDivider = false,
+      disableGutters = false,
+      titleProps = {},
+      ...rest
+    },
+    ref
+  ) => (
+    <Box
+      data-cy={dataCy}
+      sx={(theme) => getStyles({ theme, disableDivider, disableGutters })}
+      {...rest}
+    >
       {isValidElement(title) ? (
         title
       ) : (
         <Text
-          value={title}
           variant={TEXT_VARIANTS.H6}
           weight={TEXT_WEIGHTS.BOLD}
+          {...titleProps}
+          value={title}
         />
       )}
       {!!tooltip && (
@@ -48,6 +64,8 @@ Legend.propTypes = {
   title: PropTypes.any,
   tooltip: PropTypes.string,
   disableGutters: PropTypes.bool,
+  disableDivider: PropTypes.bool,
+  titleProps: PropTypes.object,
 }
 
 Legend.displayName = 'FieldsetLegend'

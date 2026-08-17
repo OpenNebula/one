@@ -29,11 +29,13 @@ import { SearchBar } from '@modules/components/composed/SearchBar'
 import { FilterPanel } from '@modules/components/composed/FilterPanel'
 import { EmptyContent } from '@modules/components/composed/EmptyContent'
 import { SkeletonLoading } from '@modules/components/primitives/Loaders'
+import { Text } from '@modules/components/primitives/Text'
 import {
   filterTableData,
   getTableFilterOptions,
   getTableSortOptions,
 } from '@UtilsModule'
+import { T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 import { useAuth } from '@FeaturesModule'
 import { useResourceSingleViewContext, useTranslation } from '@ProvidersModule'
 
@@ -151,6 +153,7 @@ export const Table = ({
   const theadRef = useRef(null)
   const [theadHeight, setTheadHeight] = useState(0)
   const [columnLayout, setColumnLayout] = useState(null)
+  const selectionHint = isMultiRowSelection ? T.SelectOneOrMore : T.SelectOne
 
   const { table } = initTable({
     data: filteredData,
@@ -608,6 +611,14 @@ export const Table = ({
         })
       }
     >
+      {isRowsSelectable && (
+        <Text
+          className="selection-hint"
+          value={selectionHint}
+          variant={TEXT_VARIANTS.CAPTION}
+          weight={TEXT_WEIGHTS.REGULAR}
+        />
+      )}
       {hasToolbar && (
         <Box className="table-toolbar">
           {hasSearchToolbar && (
