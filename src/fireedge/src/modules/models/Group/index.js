@@ -14,4 +14,5 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/models/Group/general'
+export * from '@modules/models/Group/permissions'
 export * from '@modules/models/Group/table'

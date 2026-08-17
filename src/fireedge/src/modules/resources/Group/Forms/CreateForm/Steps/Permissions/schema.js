@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { INPUT_TYPES, T } from '@ConstantsModule'
+import { GROUP_PERMISSION_RESOURCES, INPUT_TYPES, T } from '@ConstantsModule'
 import { getObjectSchemaFromFields } from '@UtilsModule'
 import { boolean, object } from 'yup'
 
@@ -161,7 +161,7 @@ const VIEW_VNTEMPLATE = {
   grid: { md: 12 },
 }
 
-const PERMISSIONS_VIEW_FIELDS = [
+const VIEW_FIELDS = [
   VIEW_VM,
   VIEW_VROUTER,
   VIEW_DOCUMENT,
@@ -181,6 +181,10 @@ const PERMISSIONS_VIEW_FIELDS = [
   VIEW_GROUP,
   VIEW_VDC,
 ]
+
+const PERMISSIONS_VIEW_FIELDS = GROUP_PERMISSION_RESOURCES.map((resource) =>
+  VIEW_FIELDS.find(({ name }) => name === `view.${resource}`)
+)
 
 const PERMISSIONS_VIEW_SCHEMA = getObjectSchemaFromFields(
   PERMISSIONS_VIEW_FIELDS
@@ -332,7 +336,7 @@ const CREATE_VNTEMPLATE = {
   grid: { md: 12 },
 }
 
-const PERMISSIONS_CREATE_FIELDS = [
+const CREATE_FIELDS = [
   CREATE_VM,
   CREATE_VROUTER,
   CREATE_DOCUMENT,
@@ -352,6 +356,11 @@ const PERMISSIONS_CREATE_FIELDS = [
   CREATE_GROUP,
   CREATE_VDC,
 ]
+
+const PERMISSIONS_CREATE_FIELDS = GROUP_PERMISSION_RESOURCES.map((resource) =>
+  CREATE_FIELDS.find(({ name }) => name === `create.${resource}`)
+)
+
 const PERMISSIONS_CREATE_SCHEMA = getObjectSchemaFromFields(
   PERMISSIONS_CREATE_FIELDS
 )
