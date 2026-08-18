@@ -70,6 +70,7 @@ const EString<ImageManagerMessages> image_msg_t::_type_str(
     {"SNAP_FLATTEN", ImageManagerMessages::SNAP_FLATTEN},
     {"INCREMENT_FLATTEN", ImageManagerMessages::INCREMENT_FLATTEN},
     {"RESTORE", ImageManagerMessages::RESTORE},
+    {"RESIZE", ImageManagerMessages::RESIZE},
     {"LOG", ImageManagerMessages::LOG},
 });
 
