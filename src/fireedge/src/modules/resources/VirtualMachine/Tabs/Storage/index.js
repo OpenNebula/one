@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 
 import { VM_ACTION_ENUM, VM_ACTIONS, T } from '@ConstantsModule'
-import { Button, Dialog, Table, MenuButton, Tag, Text  } from '@ComponentsV2Module'
-import { Box, Stack, Typography } from '@mui/material'
+import { Button, Table, MenuButton, Tag } from '@ComponentsV2Module'
+import { Box, Dialog, Stack, Typography } from '@mui/material'
 import { isVmAvailableAction, vmdisksTable } from '@ModelsModule'
 import PropTypes from 'prop-types'
 import { Component, useCallback, useMemo, useState } from 'react'
@@ -202,33 +202,24 @@ const SnapshotDialog = ({
   )
 
   return (
-    <Dialog
-      maxWidth={false}
-      onClose={onClose}
-      open
-      PaperProps={{
-        sx: {
-          '&&': {
-            width: {
-              xs: 'calc(100vw - 32px)',
-              md: '960px',
-              lg: '1200px',
-            },
-            maxWidth: 'calc(100vw - 32px)',
-          },
-        },
-      }}
-      title={
+    <Dialog open onClose={onClose} fullWidth maxWidth="md">
+      <Stack
+        direction="column"
+        sx={(theme) => ({
+          gap: `${theme.scale[300]}px`,
+          padding: `${theme.scale[500]}px`,
+        })}
+      >
         <Stack
           alignItems="flex-start"
-          component="span"
           direction="row"
           justifyContent="space-between"
-          width="100%"
         >
-          <Stack component="span" direction="column">
-            <Box component="span">{T.Snapshots}</Box>
-            <Text component="span" value={`${T.Disk} #${disk?.DISK_ID}`} />
+          <Stack direction="column">
+            <Typography variant="h5">{T.Snapshots}</Typography>
+            <Typography color="text.secondary">
+              {`${T.Disk} #${disk?.DISK_ID}`}
+            </Typography>
           </Stack>
           <Button
             aria-label={T.Close}
@@ -239,22 +230,21 @@ const SnapshotDialog = ({
             type="transparent"
           />
         </Stack>
-      }
-    >
-      <Table
-        dataCy="disk-snapshots"
-        columns={columns}
-        data={snapshots}
-        isLoading={isLoading}
-        emptyContentProps={{
-          title: T.NoDiskSnapshots,
-          subtitle: T.DiskSnapshotsWillAppearHere,
-        }}
-        size="medium"
-        isEnableSearchBar
-        isEnableSort
-        isEnableFilters
-      />
+        <Table
+          dataCy="disk-snapshots"
+          columns={columns}
+          data={snapshots}
+          isLoading={isLoading}
+          emptyContentProps={{
+            title: T.NoDiskSnapshots,
+            subtitle: T.DiskSnapshotsWillAppearHere,
+          }}
+          size="medium"
+          isEnableSearchBar
+          isEnableSort
+          isEnableFilters
+        />
+      </Stack>
     </Dialog>
   )
 }
