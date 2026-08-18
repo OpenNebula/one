@@ -169,6 +169,12 @@ export const getStyles = ({
         maxWidth: '100%',
       },
 
+      '&.table-measuring-columns [data-column-content]': {
+        width: 'max-content',
+        maxWidth: 'none',
+        overflow: 'visible',
+      },
+
       '& .menu-button-container': {
         display: 'flex',
         width: 'fit-content',
