@@ -211,15 +211,18 @@ export const Table = ({
     }
     const measure = () => {
       const nextAvailableWidth = scrollElement.clientWidth
+      const contentElements = tableNode.querySelectorAll(
+        '[data-column-content]'
+      )
 
       if (availableWidth !== nextAvailableWidth) {
         observedWidthsRef.current = {}
         availableWidth = nextAvailableWidth
       }
 
-      tableNode
-        .querySelectorAll('[data-column-content]')
-        .forEach((contentElement) => {
+      tableNode.classList.add('table-measuring-columns')
+      try {
+        contentElements.forEach((contentElement) => {
           const columnId = contentElement.dataset.columnContent
           const cellElement = contentElement.closest('th, td')
           const cellStyles = cellElement
@@ -229,21 +232,16 @@ export const Table = ({
             ? parseFloat(cellStyles.paddingLeft) +
               parseFloat(cellStyles.paddingRight)
             : 0
-          const { width, maxWidth, overflow } = contentElement.style
-
-          contentElement.style.width = 'max-content'
-          contentElement.style.maxWidth = 'none'
-          contentElement.style.overflow = 'visible'
           const contentWidth = contentElement.getBoundingClientRect().width
-          contentElement.style.width = width
-          contentElement.style.maxWidth = maxWidth
-          contentElement.style.overflow = overflow
 
           observedWidthsRef.current[columnId] = Math.max(
             observedWidthsRef.current[columnId] ?? 0,
             contentWidth + horizontalPadding
           )
         })
+      } finally {
+        tableNode.classList.remove('table-measuring-columns')
+      }
 
       const nextLayout = calculateColumnLayout(
         tableColumns,
@@ -273,30 +271,27 @@ export const Table = ({
       cancelAnimationFrame(animationFrame)
       animationFrame = requestAnimationFrame(measure)
     }
-    const resizeObserver = new ResizeObserver(scheduleMeasure)
-    const observeElements = () => {
-      resizeObserver.disconnect()
-      resizeObserver.observe(scrollElement)
-      tableNode.querySelectorAll('[data-column-content]').forEach((element) => {
-        resizeObserver.observe(element)
-        element
-          .querySelectorAll('*')
-          .forEach((child) => resizeObserver.observe(child))
-      })
-    }
-    const mutationObserver = new MutationObserver(() => {
-      observeElements()
-      scheduleMeasure()
-    })
+    const scheduleFreshMeasure = () => {
+      if (!isActive) return
 
-    observeElements()
+      observedWidthsRef.current = {}
+      scheduleMeasure()
+    }
+    const resizeObserver = new ResizeObserver(() => {
+      if (scrollElement.clientWidth !== availableWidth) scheduleMeasure()
+    })
+    const mutationObserver = new MutationObserver(scheduleFreshMeasure)
+
+    resizeObserver.observe(scrollElement)
     mutationObserver.observe(tableNode, {
       childList: true,
       characterData: true,
       subtree: true,
     })
     measure()
-    document.fonts?.ready?.then(scheduleMeasure)
+    if (document.fonts?.status === 'loading') {
+      document.fonts.ready.then(scheduleFreshMeasure)
+    }
 
     return () => {
       isActive = false
@@ -304,14 +299,7 @@ export const Table = ({
       resizeObserver.disconnect()
       mutationObserver.disconnect()
     }
-  }, [
-    filteredData,
-    globalFilter,
-    muiTheme.scale,
-    size,
-    tableColumns,
-    visibleRowIdsKey,
-  ])
+  }, [muiTheme.scale, size, tableColumns, visibleRowIdsKey])
 
   const shouldUseMeasuredTableWidth =
     columnLayout &&
