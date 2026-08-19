@@ -22,6 +22,7 @@ import { Component } from 'react'
 import { getStyles } from '@modules/resources/VirtualMachine/Tabs/PCI/styles'
 import * as VirtualMachine from '@modules/resources/VirtualMachine'
 import { Trash } from 'iconoir-react'
+import Graphs from '@modules/resources/VirtualMachine/Tabs/PCI/graphs'
 import { useGeneralApi, useModalsApi, useSystemData } from '@FeaturesModule'
 import { isVmAvailableAction, vmpcisTable } from '@ModelsModule'
 
@@ -173,6 +174,9 @@ export const PCI = ({ data, config }) => {
           isEnableSort
           isEnableFilters
         />
+      </Box>
+      <Box className="graph-container">
+        <Graphs id={selectedVm?.ID} />
       </Box>
     </Box>
   )
