@@ -40,7 +40,12 @@ import {
   useGeneralApi,
   useModalsApi,
 } from '@FeaturesModule'
-import { getHypervisor, isVmAvailableAction, vmnicsTable } from '@ModelsModule'
+import {
+  getHypervisor,
+  isVmAvailableAction,
+  vmnicsTable,
+  getVmHostId,
+} from '@ModelsModule'
 import { jsonToXml } from '@UtilsModule'
 
 const ALIAS_DIALOG_PROPS = {
@@ -560,6 +565,7 @@ export const Network = ({ data, config }) => {
               steps: actions?.[VM_ACTION_ENUM.ATTACH_NIC]?.form,
               stepProps: {
                 hypervisor: getHypervisor(selectedVm),
+                hostId: getVmHostId(selectedVm),
                 nics,
               },
             },

@@ -85,6 +85,12 @@ export const getVmHostname = (vm) => getActiveHistory(vm)?.HOSTNAME
 
 /**
  * @param {VM} vm - Virtual machine
+ * @returns {string|undefined} VM host ID from active history record
+ */
+export const getVmHostId = (vm) => getActiveHistory(vm)?.HID
+
+/**
+ * @param {VM} vm - Virtual machine
  * @returns {string|undefined} VM cluster ID from active history record
  */
 export const getVmClusterId = (vm) => getActiveHistory(vm)?.CID

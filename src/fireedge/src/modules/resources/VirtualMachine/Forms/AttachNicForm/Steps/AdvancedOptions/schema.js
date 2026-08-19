@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { boolean, string, ObjectSchema } from 'yup'
 import { AlertNotification } from '@ComponentsModule'
+import { useTranslation } from '@ProvidersModule'
 import { uniqWith } from 'lodash'
 
 import {
@@ -396,6 +397,7 @@ const SECTIONS = ({
   disableNetworkAutoMode,
   hostId,
 } = {}) => {
+  const { translate } = useTranslation()
   const filters = { driver, hypervisor }
 
   let general = []
@@ -507,7 +509,7 @@ const SECTIONS = ({
           <AlertNotification
             type="primary"
             status="information"
-            description="The scheduler picks the best available function on the selected device. Addresses show the device without the function suffix (.x). Leave unselected to let the scheduler choose freely."
+            description={translate(T.PciAutomaticSchedulingConcept)}
             isDismissible={false}
             style={{ width: '100%', boxSizing: 'border-box' }}
           />
@@ -518,8 +520,8 @@ const SECTIONS = ({
         return (
           <AlertNotification
             type="primary"
-            status="warning"
-            description="Pins this NIC to a specific function on a specific device. Select a full PCI address from the list."
+            status="infomration"
+            description={translate(T.PciManualSchedulingConcept)}
             isDismissible={false}
             style={{ width: '100%', boxSizing: 'border-box' }}
           />
