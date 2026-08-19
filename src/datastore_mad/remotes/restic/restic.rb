@@ -184,7 +184,7 @@ class Restic
     end
 
     def confinement_env
-        ['SSH_AUTH_SOCK', 'RESTIC_PASSWORD', 'GOMAXPROCS']
+        ['SSH_AUTH_SOCK', 'RESTIC_BIN', 'RESTIC_PASSWORD', 'GOMAXPROCS']
     end
 
     def repo_command(_name, _script, _opts = {})

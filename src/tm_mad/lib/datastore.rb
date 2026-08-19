@@ -17,7 +17,6 @@
 #--------------------------------------------------------------------------- #
 require 'securerandom'
 require 'pathname'
-require 'shellwords'
 require 'opennebula'
 require 'rexml/document'
 require 'rexml/xpath'
@@ -219,17 +218,32 @@ module TransferManager
         #  @param[String] cmd is the command to execute
         #  @param[String] vm_dir_path used to set IO limits on the system ds
         #  block device
+        #  @param[Array<String>] env_a names of all environment variables needed
+        #  by the command; only variables in this list are propagated
         def cmd_confinement(cmd, vm_dir, env_a = [])
             ccmd = systemd_cmd(cmd, vm_dir, env_a)
 
             return ccmd if ccmd != cmd
 
-            nice_cmd(cmd)
+            nice_cmd(cmd, env_a)
         end
 
-        def confined_cmd_arg(cmd)
-            "bash -c #{Shellwords.escape(cmd)}\n"
+        # Converts datastore XML into a hash.
+        # Returns an empty string for missing entries.
+        def xml_to_hash
+            doc = REXML::Document.new(@ds.to_xml)
+            hash = {}
+
+            REXML::XPath.each(doc, '//*') do |elem|
+                next if elem.text.nil? || elem.text.strip.empty?
+
+                hash[elem.xpath] = elem.text.strip
+            end
+
+            hash
         end
+
+        private
 
         # Confine the datastore command in a systemd slice.
         #  @param[String] cmd is the command to execute
@@ -261,9 +275,6 @@ module TransferManager
             vm_path = Pathname.new(vm_dir)
             bpath   = vm_path.cleanpath
 
-            env_opts = ''
-            env_a.each {|e| env_opts += " --setenv=\"#{e}=$#{e}\"" }
-
             # Create a slice for backup processes (per backup datastore)
             spath = '~/.config/systemd/user'
             sname = "backup.#{@ds.id}.slice"
@@ -284,13 +295,13 @@ module TransferManager
                  systemctl --user daemon-reload
                 ) #{FD}> #{spath}/.lock
 
-                #{SYSTEMD_RUN} #{env_opts} --slice=#{sname} #{confined_cmd_arg(cmd)}
+                #{confined_cmd_pipe(cmd, "#{SYSTEMD_RUN} --slice=#{sname}", env_a)}
             EOS
         end
 
         # Generate a "nice" command
         #  @param[String] cmd is the command to execute
-        def nice_cmd(cmd)
+        def nice_cmd(cmd, env_a)
             return cmd if @mad.empty?
 
             ionice = Integer(self["TEMPLATE/#{@mad}_IONICE", -1])
@@ -302,22 +313,40 @@ module TransferManager
 
             rcmd << "#{NICE} -n #{nice} " if nice != -1
             rcmd << "#{IONICE} -c2 -n#{ionice} " if ionice != -1
-            rcmd << confined_cmd_arg(cmd)
+            confined_cmd_pipe(cmd, rcmd.rstrip, env_a)
         end
 
-        # Converts datastore XML into a hash.
-        # Returns an empty string for missing entries.
-        def xml_to_hash
-            doc = REXML::Document.new(@ds.to_xml)
-            hash = {}
+        # Pipe a command and its environment to a confinement runner through
+        # stdin, preventing their values from being exposed as process arguments.
+        # The runner is the command that applies the configured limits and starts
+        # the receiving shell, such as systemd-run or nice/ionice.
+        #  @param[String] cmd is the command to execute
+        #  @param[String] runner applies the limits to the receiving shell
+        #  @param[Array<String>] env_a variable names to propagate
+        def confined_cmd_pipe(cmd, runner, env_a)
+            env_a.each do |name|
+                next if name.match?(/^[A-Za-z_][A-Za-z0-9_]*$/)
 
-            REXML::XPath.each(doc, '//*') do |elem|
-                next if elem.text.nil? || elem.text.strip.empty?
-
-                hash[elem.xpath] = elem.text.strip
+                raise ArgumentError, "Invalid environment variable: #{name}"
             end
 
-            hash
+            delimiter = "ONE_CONFINEMENT_#{SecureRandom.hex(8)}"
+
+            script = +"{\n    set +x\n"
+            script << "    printf 'set +x\\n'\n"
+
+            env_a.each do |name|
+                script << "    printf 'export %s=%q\\n' #{name} \"${#{name}-}\"\n"
+            end
+
+            script << "    cat <<'#{delimiter}'\n"
+            script << cmd
+            script << "\n" unless cmd.end_with?("\n")
+            script << "#{delimiter}\n} | (\n"
+            script << "    unset #{env_a.join(' ')}\n" unless env_a.empty?
+            script << "    exec #{runner} bash\n)\n"
+
+            script
         end
 
     end
