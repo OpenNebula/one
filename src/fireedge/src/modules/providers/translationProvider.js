@@ -28,7 +28,7 @@ import root from 'window-or-global'
 
 import { DEFAULT_LANGUAGE, LANGUAGES, LANGUAGES_URL } from '@ConstantsModule'
 import { useAuth } from '@FeaturesModule'
-import { isDevelopment } from '@UtilsModule'
+import { decodeEntities, isDevelopment } from '@UtilsModule'
 import { getSharedTranslationContext } from '@modules/providers/translationContext'
 import {
   formatTranslation,
@@ -45,7 +45,8 @@ const TranslationContext = getSharedTranslationContext({
   isLoading: false,
   locale: DEFAULT_LANGUAGE,
   messages: {},
-  translate: (message, values) => formatTranslation({}, message, values),
+  translate: (message, values) =>
+    decodeEntities(formatTranslation({}, message, values)),
   translateText: (message, values) =>
     formatTranslationText({}, message, values),
 })
@@ -139,7 +140,8 @@ export const TranslationProvider = ({ children }) => {
   }, [locale])
 
   const translate = useCallback(
-    (message, values) => formatTranslation(state.messages, message, values),
+    (message, values) =>
+      decodeEntities(formatTranslation(state.messages, message, values)),
     [state.messages]
   )
   const translateText = useCallback(
