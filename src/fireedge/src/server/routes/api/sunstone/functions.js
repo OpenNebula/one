@@ -31,6 +31,7 @@ const {
 const { defaultEmptyFunction } = defaults
 const { ok, internalServerError, notFound } = httpCodes
 const httpInternalError = httpResponse(internalServerError, '', '')
+const { writeInLogger } = require('server/utils/logger')
 
 /**
  * Get information of opennebula group.
@@ -128,14 +129,34 @@ const getViews = (
     oneConnect({
       action: ActionsUser.USER_INFO,
       parameters: [-1, false],
-      callback: (err = {}, dataUser = {}) => {
+      callback: (err, dataUser = {}) => {
+        if (err) {
+          writeInLogger(err, {
+            format: 'Error retrieving User information for UI views: %s',
+            level: 2,
+          })
+          responseHttp(res, next, httpInternalError)
+          
+          return
+        }
+
         // Check that the user has info and a group
         if (dataUser && dataUser.USER && dataUser.USER.GID) {
           // Get info about the user group
           getInfoGroup(
             oneConnect,
             dataUser.USER.GID,
-            (err = {}, vmgroupData = {}) => {
+            (err, vmgroupData = {}) => {
+              if (err) {
+                writeInLogger(err, {
+                  format: 'Error retrieving Group information for UI views: %s',
+                  level: 2,
+                })
+                responseHttp(res, next, httpInternalError)
+
+                return
+              }
+
               // Check that the group has info
               if (vmgroupData && vmgroupData.GROUP && vmgroupData.GROUP.NAME) {
                 // Check if the user is admin of the group
