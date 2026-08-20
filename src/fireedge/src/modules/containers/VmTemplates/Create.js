@@ -288,7 +288,7 @@ export function CreateVmTemplate() {
         <VmTemplate.Forms.CreateForm
           initialValues={formattedTemplate}
           stepProps={{
-            formattedTemplate,
+            apiTemplateDataExtended: formattedTemplate,
             oneConfig,
             adminGroup,
             store,
