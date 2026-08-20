@@ -1043,6 +1043,19 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm,
             }
         }
 
+        if (update_backups && disk->is_persistent())
+        {
+            long long original_size;
+            long long size;
+
+            if (disk->vector_value("SIZE", size) == 0 &&
+                disk->vector_value("ORIGINAL_SIZE", original_size) == 0 &&
+                size > original_size)
+            {
+                imagem->set_image_size(image_id, size);
+            }
+        }
+
         const Snapshots * snaps = disk->get_snapshots();
 
         if (snaps != nullptr && disk->persistent_snapshots())
