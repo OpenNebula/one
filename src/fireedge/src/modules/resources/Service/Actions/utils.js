@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
 import { ROLE_ACTIONS, SERVICE_ACTIONS, T } from '@ConstantsModule'
-import { ResourceActionConfirmation } from '@ComponentsV2Module'
+import { ResourceActionConfirmation } from '@ComponentsModule'
 
 const resolveHandler =
   (action, paramsContext) =>

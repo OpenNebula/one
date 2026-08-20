@@ -20,7 +20,7 @@ import {
   STYLE_BUTTONS,
   ATTR_CONF_CAN_BE_UPDATED,
 } from '@ConstantsModule'
-import { Button, DetailsCard } from '@ComponentsV2Module'
+import { Button, DetailsCard } from '@ComponentsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Component } from 'react'

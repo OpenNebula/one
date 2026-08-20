@@ -25,7 +25,7 @@ import {
   TabSlot,
   Tag,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { Box, useTheme } from '@mui/material'
 import { Component, useMemo } from 'react'
 import PropTypes from 'prop-types'

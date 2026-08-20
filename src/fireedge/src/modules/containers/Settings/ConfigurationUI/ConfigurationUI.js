@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { Translate, useResourceSingleViewContext } from '@ProvidersModule'
 import { jsonToXml } from '@UtilsModule'
-import { ButtonGroup, FormWithSchema } from '@ComponentsV2Module'
+import { ButtonGroup, FormWithSchema } from '@ComponentsModule'
 import {
   RESOURCE_NAMES,
   SCHEMES,

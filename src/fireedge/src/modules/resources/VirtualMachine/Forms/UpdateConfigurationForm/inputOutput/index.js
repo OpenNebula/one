@@ -17,7 +17,7 @@ import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 
 import InputsSection from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/inputOutput/inputsSection'
 import VideoSection from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/inputOutput/videoSection'

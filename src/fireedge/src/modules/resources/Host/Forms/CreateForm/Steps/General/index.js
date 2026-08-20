@@ -17,7 +17,7 @@ import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 import PropTypes from 'prop-types'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { Step } from '@UtilsModule'
 import { T, CUSTOM_HOST_HYPERVISOR } from '@ConstantsModule'
 

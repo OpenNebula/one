@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { Button, TablePanel as SelectionTable } from '@ComponentsV2Module'
+import { Button, TablePanel as SelectionTable } from '@ComponentsModule'
 import { RESOURCE_NAMES, STYLE_BUTTONS, T } from '@ConstantsModule'
 import { useFunctionalityApi } from '@FeaturesModule'
 import { VDC_LIST_COLUMNS } from '@ModelsModule'

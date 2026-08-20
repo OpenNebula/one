@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
 import { SCHEMA, FIELDS } from './schema'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 
 export const STEP_ID = 'provider'
 

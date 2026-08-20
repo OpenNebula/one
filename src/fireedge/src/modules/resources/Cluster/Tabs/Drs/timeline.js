@@ -31,7 +31,7 @@ import {
   ResourceActionConfirmation,
   SubmitButton,
   Table,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { PLAN_STATE, T } from '@ConstantsModule'
 import { DatastoreAPI, HostAPI, useModalsApi, VmAPI } from '@FeaturesModule'
 import { timeFromSeconds } from '@UtilsModule'

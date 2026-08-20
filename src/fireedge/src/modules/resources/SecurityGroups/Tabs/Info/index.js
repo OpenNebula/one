@@ -20,7 +20,7 @@ import {
   AttributesPanel,
   PermissionsTab,
   OwnershipTab,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { RulesSecGroups } from '@modules/resources/SecurityGroups/RulesSecGroups'
 import { getStyles } from '@modules/resources/SecurityGroups/Tabs/Info/styles'
 import { aggregatePermissions, aggregateOwnership } from '@UtilsModule'

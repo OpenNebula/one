@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { OwnershipTab, PermissionsTab } from '@ComponentsV2Module'
+import { OwnershipTab, PermissionsTab } from '@ComponentsModule'
 import { Stack } from '@mui/material'
 import { Component, useMemo } from 'react'
 import PropTypes from 'prop-types'

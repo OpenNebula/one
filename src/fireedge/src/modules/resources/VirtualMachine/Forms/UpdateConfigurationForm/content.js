@@ -28,7 +28,7 @@ import InputOutput from '@modules/resources/VirtualMachine/Forms/UpdateConfigura
 
 import { HYPERVISORS, T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
-import { Tabs } from '@ComponentsV2Module'
+import { Tabs } from '@ComponentsModule'
 import { Box } from '@mui/material'
 
 const TABS_CONTAINER_SX = {

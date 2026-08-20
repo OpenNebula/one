@@ -29,7 +29,7 @@ import {
 } from '@modules/resources/Group/Tabs/common'
 
 import { VLANRule, GROUP_ACTIONS, T } from '@ConstantsModule'
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 
 const { ADD_VLAN_RULE, UPDATE_VLAN_RULE, DELETE_VLAN_RULE } = GROUP_ACTIONS
 

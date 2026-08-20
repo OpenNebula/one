@@ -24,7 +24,7 @@ import {
   OwnershipTab,
   StatusTag,
   TagList,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { Box } from '@mui/material'
 import { Copy as CopyIcon, Check as CopiedIcon } from 'iconoir-react'
 import {

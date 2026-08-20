@@ -24,7 +24,7 @@ import {
   TitleSlot,
   MetadataSlot,
   TimeSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { getBackupRunningVms, getImageState, getLabelTags } from '@ModelsModule'
 import { getImageTypeLabel, getLockIcon, prettyBytes } from '@UtilsModule'

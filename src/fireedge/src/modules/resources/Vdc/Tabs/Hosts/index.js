@@ -17,7 +17,7 @@
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { HostAPI } from '@FeaturesModule'
 import { getAllocatedInfo, getHostState } from '@ModelsModule'
-import { ProgressBar, StatusTag } from '@ComponentsV2Module'
+import { ProgressBar, StatusTag } from '@ComponentsModule'
 import { Component } from 'react'
 
 import {

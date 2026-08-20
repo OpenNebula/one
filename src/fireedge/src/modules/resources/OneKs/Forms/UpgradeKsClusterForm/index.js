@@ -26,7 +26,7 @@ import {
 import { FormProvider, useForm } from 'react-hook-form'
 import { Box, Typography } from '@mui/material'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { useModalsApi } from '@FeaturesModule'
 import { useTranslation } from '@ProvidersModule'

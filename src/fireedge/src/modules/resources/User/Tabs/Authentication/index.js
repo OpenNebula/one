@@ -18,7 +18,7 @@ import { Component, useCallback, useEffect, useState } from 'react'
 
 import { T } from '@ConstantsModule'
 import { UserAPI, useGeneralApi } from '@FeaturesModule'
-import { AuthenticationTab, QueryState } from '@ComponentsV2Module'
+import { AuthenticationTab, QueryState } from '@ComponentsModule'
 import {
   getUserId,
   userTabPropTypes,

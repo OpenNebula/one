@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { List, Table, ResourceContainer } from '@ComponentsV2Module'
+import { List, Table, ResourceContainer } from '@ComponentsModule'
 import { RESOURCE_NAMES, T, TABLE_VIEW_MODE } from '@ConstantsModule'
 import {
   useFunctionality,

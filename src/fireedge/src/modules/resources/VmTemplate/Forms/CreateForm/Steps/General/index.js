@@ -18,7 +18,7 @@ import { useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
 import { useWatch, useFormContext } from 'react-hook-form'
 import { useViews, useGeneralApi, SystemAPI } from '@FeaturesModule'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import useStyles from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/General/styles'
 
 import {

@@ -22,7 +22,7 @@ import {
   DetailsCard,
   OwnershipTab,
   PermissionsTab,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import {
   aggregateOwnership,

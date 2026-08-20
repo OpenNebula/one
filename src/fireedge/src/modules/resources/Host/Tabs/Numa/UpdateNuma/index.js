@@ -25,7 +25,7 @@ import {
   FORM_FIELDS_NUMA,
   FORM_SCHEMA_NUMA,
 } from '@modules/resources/Host/Tabs/Numa/UpdateNuma/schema'
-import { FormWithSchema, SubmitButton } from '@ComponentsV2Module'
+import { FormWithSchema, SubmitButton } from '@ComponentsModule'
 import { T, Host } from '@ConstantsModule'
 
 import { jsonToXml } from '@UtilsModule'

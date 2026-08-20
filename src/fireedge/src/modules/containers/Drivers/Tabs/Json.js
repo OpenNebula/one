@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { DetailsCard } from '@ComponentsV2Module'
+import { DetailsCard } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'

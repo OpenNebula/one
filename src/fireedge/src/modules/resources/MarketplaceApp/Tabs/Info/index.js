@@ -21,7 +21,7 @@ import {
   PermissionsTab,
   StatusTag,
   Tag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'

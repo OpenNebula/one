@@ -24,7 +24,7 @@ import {
   Table,
   Tag,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { BackupJobAPI, useModalsApi } from '@FeaturesModule'
 import { TEMPLATE_SCHEDULE_TYPE_STRING, T, VM_ACTIONS } from '@ConstantsModule'
 import * as BackupJobs from '@modules/resources/BackupJobs'

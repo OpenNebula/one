@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 import { ADVANCED_PARAMS_FIELDS } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/advancedParams/schema'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { Box, Stack } from '@mui/material'
 import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra'
 

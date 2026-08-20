@@ -19,7 +19,7 @@ import {
   Button,
   DetailsCard,
   TablePanel as SelectionTable,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { RESOURCE_NAMES, STYLE_BUTTONS, T } from '@ConstantsModule'
 import { GroupAPI, useFunctionalityApi } from '@FeaturesModule'
 import { GROUP_LIST_COLUMNS } from '@ModelsModule'

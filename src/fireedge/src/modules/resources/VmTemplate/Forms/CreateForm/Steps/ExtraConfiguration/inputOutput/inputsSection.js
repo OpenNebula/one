@@ -32,7 +32,7 @@ import {
   busTypeIcons,
 } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
 import { T, HYPERVISORS, STYLE_BUTTONS } from '@ConstantsModule'
-import { SubmitButton, FormWithSchema, Legend } from '@ComponentsV2Module'
+import { SubmitButton, FormWithSchema, Legend } from '@ComponentsModule'
 
 export const SECTION_ID = 'INPUT'
 

@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import { ReactElement, useMemo } from 'react'
-import { Table, Tag } from '@ComponentsV2Module'
+import { Table, Tag } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { prettyBytes, timeFromMilliseconds } from '@UtilsModule'
 import { getBackupIncrements } from '@ModelsModule'

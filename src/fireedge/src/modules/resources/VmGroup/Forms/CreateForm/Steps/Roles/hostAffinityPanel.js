@@ -26,7 +26,7 @@ import {
   StatusTag,
   Table,
   Tooltip,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 /**
  * HostAffinityPanel component.

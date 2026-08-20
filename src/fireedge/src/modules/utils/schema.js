@@ -364,7 +364,9 @@ export const schemaUserInput = ({
         validation: array(string().trim())
           .concat(requiredSchema(mandatory, array()))
           .default(defaultValues)
-          .afterSubmit((value) => value?.length ? value.join(',') : undefined)
+          .afterSubmit((value) =>
+            value?.length ? value.join(',') : undefined
+          ),
       }
     }
     default:

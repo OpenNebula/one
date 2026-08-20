@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T, VM_ACTIONS, VM_ACTION_ENUM, STYLE_BUTTONS } from '@ConstantsModule'
-import { Table, Button, ResourceActionConfirmation } from '@ComponentsV2Module'
+import { Table, Button, ResourceActionConfirmation } from '@ComponentsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Component } from 'react'

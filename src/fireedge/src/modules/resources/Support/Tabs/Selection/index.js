@@ -18,7 +18,7 @@ import {
   Button,
   StatusTag,
   TablePanel as SelectionTable,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { SEVERITIES, STYLE_BUTTONS, T, TICKET_FIELDS } from '@ConstantsModule'
 import { Component } from 'react'
 import PropTypes from 'prop-types'

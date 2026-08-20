@@ -29,7 +29,7 @@ import {
   VmTemplateAPI,
 } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { VmTemplate } from '@ResourcesModule'
 
 import {

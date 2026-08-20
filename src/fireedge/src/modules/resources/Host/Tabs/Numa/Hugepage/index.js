@@ -21,7 +21,7 @@ import { useTranslation } from '@ProvidersModule'
 import { getStyles } from '@modules/resources/Host/Tabs/Numa/Hugepage/styles'
 
 import { T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
-import { Text } from '@ComponentsV2Module'
+import { Text } from '@ComponentsModule'
 
 /**
  * @param {object} props - Props

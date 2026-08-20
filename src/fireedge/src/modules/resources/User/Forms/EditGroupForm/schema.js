@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { array, lazy, object, string } from 'yup'
 
-import { ProgressBar } from '@ComponentsV2Module'
+import { ProgressBar } from '@ComponentsModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
 import { GroupAPI } from '@FeaturesModule'
 import { getGroupQuotaUsage } from '@ModelsModule'

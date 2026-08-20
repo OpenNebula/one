@@ -18,7 +18,7 @@ import { T } from '@ConstantsModule'
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import { getLabelSlotLabels, getZoneState } from '@ModelsModule'
-import { Card, LabelSlot, TitleSlot, MetadataSlot } from '@ComponentsV2Module'
+import { Card, LabelSlot, TitleSlot, MetadataSlot } from '@ComponentsModule'
 
 /**
  * HostCard component displays a Host as a card.

@@ -21,7 +21,7 @@ import {
   FormDialog,
   FormStepper,
   FormWithSchema,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { useModals, useModalsApi } from '@FeaturesModule'
 import PropTypes from 'prop-types'
 

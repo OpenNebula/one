@@ -25,7 +25,7 @@ import { getRepeatInformation } from '@ModelsModule'
 import { timeFromMilliseconds } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 
-import { AlertNotification } from '@ComponentsV2Module'
+import { AlertNotification } from '@ComponentsModule'
 import { DateTime } from 'luxon'
 import PropTypes from 'prop-types'
 

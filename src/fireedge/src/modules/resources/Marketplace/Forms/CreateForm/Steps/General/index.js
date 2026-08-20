@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { Box, Stack } from '@mui/material'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { SCHEMA, FIELDS, COLUMNS } from './schema'
 

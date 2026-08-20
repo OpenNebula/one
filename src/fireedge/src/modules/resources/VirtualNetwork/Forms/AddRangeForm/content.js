@@ -19,7 +19,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { Box } from '@mui/material'
 import { unset } from 'lodash'
 
-import { AttributesPanel, FormWithSchema } from '@ComponentsV2Module'
+import { AttributesPanel, FormWithSchema } from '@ComponentsModule'
 import {
   FIELDS,
   MUTABLE_FIELDS,

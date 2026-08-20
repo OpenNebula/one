@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useEffect, ReactElement, useMemo } from 'react'
-import { FormWithSchema, SubmitButton, Text } from '@ComponentsV2Module'
+import { FormWithSchema, SubmitButton, Text } from '@ComponentsModule'
 import PropTypes from 'prop-types'
 
 import { Box, Stack, useTheme } from '@mui/material'

@@ -16,7 +16,7 @@
 
 import { Component, forwardRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { ResourceLink, Table } from '@ComponentsV2Module'
+import { ResourceLink, Table } from '@ComponentsModule'
 import { RULESECURITYGROUP_COLUMNS } from '@ModelsModule'
 import { T, RESOURCE_NAMES } from '@ConstantsModule'
 /**

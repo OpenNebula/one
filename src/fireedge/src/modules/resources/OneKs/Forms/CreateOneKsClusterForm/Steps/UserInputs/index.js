@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
-import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsModule'
 import { STEP_ID as FAMILY_ID } from '@modules/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/Family'
 import { STEP_ID as FLAVOURS_ID } from '@modules/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/Flavours'
 import { useFormContext, useController } from 'react-hook-form'

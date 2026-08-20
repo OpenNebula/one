@@ -22,7 +22,7 @@ import {
   Button,
   Tag,
   Image,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import {
   T,
   UNITS,

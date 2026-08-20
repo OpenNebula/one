@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { ACLs } from '@ResourcesModule'
 
 import { createAclObjectFromString } from '@ModelsModule'

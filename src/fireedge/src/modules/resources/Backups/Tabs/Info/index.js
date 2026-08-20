@@ -25,7 +25,7 @@ import {
   ResourceLink,
   StatusTag,
   Tag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import {
   aggregateOwnership,

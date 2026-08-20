@@ -19,7 +19,7 @@ import { Box, Popover } from '@mui/material'
 import { Cancel } from 'iconoir-react'
 import { useTranslation } from '@ProvidersModule'
 import { T } from '@ConstantsModule'
-import { Button, InputField } from '@ComponentsV2Module'
+import { Button, InputField } from '@ComponentsModule'
 
 const getInputValue = ({ state, getConcatenatedValues }) => {
   if (state.globalIds.length > 1) {

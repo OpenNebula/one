@@ -18,7 +18,7 @@ import { Stack } from '@mui/material'
 import { T } from '@ConstantsModule'
 import { SCHEMA, FIELDS, COLUMNS } from './schema'
 
-import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsModule'
 
 export const STEP_ID = 'general'
 

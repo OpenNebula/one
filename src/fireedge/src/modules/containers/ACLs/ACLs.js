@@ -18,7 +18,7 @@ import {
   ResourceActionConfirmation,
   ResourceContainer,
   Table,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { RESOURCE_NAMES, T, TABLE_VIEW_MODE } from '@ConstantsModule'
 import {
   AclAPI,

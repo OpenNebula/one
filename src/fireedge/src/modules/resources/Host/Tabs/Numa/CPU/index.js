@@ -27,7 +27,7 @@ import {
 import { getColorFromString } from '@ModelsModule'
 
 import { getStyles } from '@modules/resources/Host/Tabs/Numa/CPU/styles'
-import { Text } from '@ComponentsV2Module'
+import { Text } from '@ComponentsModule'
 
 /**
  * @param {object} props - Props

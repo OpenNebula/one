@@ -26,7 +26,7 @@ import {
   MenuButton,
   ResourceActionConfirmation,
   Table,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { Box, Dialog, Stack, Typography } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Component, useMemo, useState } from 'react'

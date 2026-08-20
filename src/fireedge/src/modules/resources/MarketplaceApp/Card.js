@@ -24,7 +24,7 @@ import {
   MetadataSlot,
   TimeSlot,
   TitleSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { getLabelTags, getMarketplaceAppState } from '@ModelsModule'
 import { getLockIcon, prettyBytes } from '@UtilsModule'
 

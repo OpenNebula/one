@@ -16,7 +16,7 @@
 import { ObjectSchema, string } from 'yup'
 
 import { DatastoreAPI, SystemAPI } from '@FeaturesModule'
-import { StatusTag } from '@ComponentsV2Module'
+import { StatusTag } from '@ComponentsModule'
 import {
   Field,
   arrayToOptions,

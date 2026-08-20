@@ -18,7 +18,7 @@ import {
   FIELDS,
 } from '@modules/resources/VirtualMachine/Forms/RecoverForm/schema'
 import { createForm } from '@UtilsModule'
-import { Text } from '@ComponentsV2Module'
+import { Text } from '@ComponentsModule'
 
 import { T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 

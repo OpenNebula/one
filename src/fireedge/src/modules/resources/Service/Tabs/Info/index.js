@@ -19,7 +19,7 @@ import {
   OwnershipTab,
   PermissionsTab,
   StatusTag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import {
   getServiceState,

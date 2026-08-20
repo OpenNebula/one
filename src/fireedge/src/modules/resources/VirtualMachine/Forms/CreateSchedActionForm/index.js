@@ -24,7 +24,7 @@ import {
 import { DateTime } from 'luxon'
 
 import { createForm, dateToMilliseconds, isDate } from '@UtilsModule'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 
 import {
   BACKUPJOB_SCHED_FIELDS,

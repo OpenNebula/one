@@ -16,7 +16,7 @@
 import { useState, useEffect, useMemo, Component } from 'react'
 import PropTypes from 'prop-types'
 import { Search as SearchIcon } from 'iconoir-react'
-import { TextField } from '@ComponentsV2Module'
+import { TextField } from '@ComponentsModule'
 import { findNodePathByLabel } from '@modules/resources/Settings/NestedLabelTree/utils'
 import { debounce } from 'lodash'
 import { T } from '@ConstantsModule'

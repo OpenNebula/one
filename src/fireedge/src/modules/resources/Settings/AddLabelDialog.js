@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 import PropTypes from 'prop-types'
 import { Component, useState, useEffect } from 'react'
 import {

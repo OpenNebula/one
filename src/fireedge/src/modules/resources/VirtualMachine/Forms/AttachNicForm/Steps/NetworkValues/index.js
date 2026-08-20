@@ -21,7 +21,7 @@ import {
   SCHEMA,
   SECTIONS,
 } from '@modules/resources/VirtualMachine/Forms/AttachNicForm/Steps/NetworkValues/schema'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { Step } from '@UtilsModule'
 import { T, Nic, HYPERVISORS } from '@ConstantsModule'
 

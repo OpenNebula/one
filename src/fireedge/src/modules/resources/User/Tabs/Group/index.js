@@ -28,7 +28,7 @@ import {
   QueryState,
   Table,
   UserGroupsTab,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import {
   getUserId,
   userTabPropTypes,

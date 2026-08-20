@@ -18,7 +18,7 @@ import { Redirect, useHistory, useLocation } from 'react-router'
 
 import { VnTemplateAPI, useGeneralApi, useSystemData } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { VnTemplate } from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'

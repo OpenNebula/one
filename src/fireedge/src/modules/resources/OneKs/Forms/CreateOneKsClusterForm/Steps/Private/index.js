@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { SCHEMA, FIELDS } from './schema'
 import { useMemo } from 'react'

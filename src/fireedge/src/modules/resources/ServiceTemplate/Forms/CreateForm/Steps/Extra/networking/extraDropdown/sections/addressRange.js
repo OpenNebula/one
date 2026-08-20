@@ -45,7 +45,7 @@ import {
   Table,
   Tag,
   Text,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 const SECTION_ID = 'AR'
 const FORM_DIALOG_SIZE = {

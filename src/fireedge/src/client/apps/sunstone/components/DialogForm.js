@@ -19,7 +19,7 @@ import { AnySchema } from 'yup'
 
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { AlertDialog } from '@ComponentsV2Module'
+import { AlertDialog } from '@ComponentsModule'
 
 /**
  * Creates dialog with a form inside.

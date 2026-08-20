@@ -23,7 +23,7 @@ import {
   DetailsCard,
   ResourceActionConfirmation,
   SubmitButton,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { DRS_AUTOMATION, DRS_CONFIG_ATTRIBUTES, T } from '@ConstantsModule'
 import {
   ClusterAPI,

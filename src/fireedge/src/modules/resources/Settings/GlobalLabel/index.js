@@ -20,7 +20,7 @@ import { Settings } from 'iconoir-react'
 import { UseFiltersInstanceProps } from 'opennebula-react-table'
 import { T } from '@ConstantsModule'
 import { Translate } from '@ProvidersModule'
-import { HeaderPopover } from '@ComponentsV2Module'
+import { HeaderPopover } from '@ComponentsModule'
 import NestedLabelTree from '@modules/resources/Settings/NestedLabelTree'
 import { LABEL_COLUMN_ID } from '@modules/resources/Settings/constants'
 

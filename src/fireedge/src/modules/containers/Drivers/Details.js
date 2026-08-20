@@ -20,7 +20,7 @@ import {
   InfoSlot,
   TabSlot,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { LOGO_DRIVERS_IMAGES_URL, RESOURCE_NAMES } from '@ConstantsModule'
 import { DriverAPI } from '@FeaturesModule'
 import { getLabelTags } from '@ModelsModule'

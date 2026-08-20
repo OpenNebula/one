@@ -23,7 +23,7 @@ import {
   useSystemData,
 } from '@FeaturesModule'
 import { jsonToXml } from '@UtilsModule'
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { Image } from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'

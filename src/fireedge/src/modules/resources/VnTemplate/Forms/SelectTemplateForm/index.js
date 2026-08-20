@@ -16,7 +16,7 @@
 import { ReactElement, useCallback, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 import { vntemplateTable } from '@ModelsModule'
 
 /**

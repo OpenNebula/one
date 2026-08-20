@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { Translate, useTranslation } from '@ProvidersModule'
 import { timeToString } from '@UtilsModule'
-import { FormWithSchema, SubmitButton } from '@ComponentsV2Module'
+import { FormWithSchema, SubmitButton } from '@ComponentsModule'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
 import {

@@ -18,7 +18,7 @@ import { Box, Container, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
 import { useMemo, useRef } from 'react'
 import { CSSTransition } from 'react-transition-group'
-import { Header } from '@ComponentsV2Module'
+import { Header } from '@ComponentsModule'
 import internalStyles from 'client/router/InternalLayout/styles'
 import { footer } from '@StylesModule'
 

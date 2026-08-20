@@ -21,7 +21,7 @@ import {
   MetadataSlot,
   TimeSlot,
   TitleSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { Component, forwardRef } from 'react'
 import { getLabelTags, getLogoSource } from '@ModelsModule'
 import PropTypes from 'prop-types'

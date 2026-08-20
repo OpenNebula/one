@@ -21,7 +21,7 @@ import {
   getDatastoreState,
   getDatastoreType,
 } from '@ModelsModule'
-import { ProgressBar, StatusTag } from '@ComponentsV2Module'
+import { ProgressBar, StatusTag } from '@ComponentsModule'
 import { Component } from 'react'
 
 import {

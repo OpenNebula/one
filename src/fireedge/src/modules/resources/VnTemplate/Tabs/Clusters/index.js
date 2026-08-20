@@ -24,7 +24,7 @@ import {
   MenuButton,
   ResourceActionConfirmation,
   TablePanel,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { ChangeClusterForm } from '@modules/resources/Cluster/Forms'
 import { STYLE_BUTTONS, T, VN_TEMPLATE_ACTIONS } from '@ConstantsModule'
 import { ClusterAPI, VnTemplateAPI, useModalsApi } from '@FeaturesModule'

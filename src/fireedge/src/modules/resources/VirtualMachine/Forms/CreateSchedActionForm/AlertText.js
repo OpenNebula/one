@@ -23,7 +23,7 @@ import {
 } from '@ConstantsModule'
 import { getRepeatInformation } from '@ModelsModule'
 import { useTranslation } from '@ProvidersModule'
-import { AlertNotification } from '@ComponentsV2Module'
+import { AlertNotification } from '@ComponentsModule'
 import { Box } from '@mui/material'
 import { DateTime } from 'luxon'
 import PropTypes from 'prop-types'

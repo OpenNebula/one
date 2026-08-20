@@ -16,7 +16,7 @@
 import { ReactElement, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Box, Stack } from '@mui/material'
-import { EmptyContent, List, SkeletonLoading, Table } from '@ComponentsV2Module'
+import { EmptyContent, List, SkeletonLoading, Table } from '@ComponentsModule'
 import { T, RESOURCE_NAMES } from '@ConstantsModule'
 import { OneKsAPI } from '@FeaturesModule'
 import { getVirtualOneKsState, showDataByState, vmsTable } from '@ModelsModule'

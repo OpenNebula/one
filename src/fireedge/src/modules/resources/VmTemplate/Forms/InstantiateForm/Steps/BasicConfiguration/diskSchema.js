@@ -16,7 +16,7 @@
 /* eslint-disable react/prop-types */
 import { object, array, number } from 'yup'
 
-import { Badge, Tag, Text, Tooltip } from '@ComponentsV2Module'
+import { Badge, Tag, Text, Tooltip } from '@ComponentsModule'
 import { Field, stringToBoolean } from '@UtilsModule'
 
 import { getState } from '@ModelsModule'

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { DetailsCard, StatusTag } from '@ComponentsV2Module'
+import { DetailsCard, StatusTag } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { getDriverState } from '@ModelsModule'
 import PropTypes from 'prop-types'

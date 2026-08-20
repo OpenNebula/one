@@ -25,7 +25,7 @@ import {
   ResourceActionConfirmation,
   TablePanel,
   Tag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { useModalsApi } from '@FeaturesModule'
 
 import { mapNameByIndex } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/addresses/schema'

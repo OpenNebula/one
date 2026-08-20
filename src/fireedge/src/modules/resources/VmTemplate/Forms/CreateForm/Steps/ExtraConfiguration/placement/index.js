@@ -17,7 +17,7 @@ import PropTypes from 'prop-types'
 import { NetworkAlt as PlacementIcon } from 'iconoir-react'
 import { useEffect } from 'react'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 
 import {
   STEP_ID as EXTRA_ID,

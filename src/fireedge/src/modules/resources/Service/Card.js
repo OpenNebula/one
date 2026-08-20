@@ -24,7 +24,7 @@ import {
   MetadataSlot,
   TitleSlot,
   TimeSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import {
   getLabelSlotLabels,
   getServiceState,

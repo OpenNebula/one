@@ -20,7 +20,7 @@ import { Trash, UndoAction } from 'iconoir-react'
 
 import { IMAGE_ACTIONS, T } from '@ConstantsModule'
 import { ImageAPI, useModalsApi } from '@FeaturesModule'
-import { ResourceActionConfirmation, SubmitButton } from '@ComponentsV2Module'
+import { ResourceActionConfirmation, SubmitButton } from '@ComponentsModule'
 import { Translate, useTranslation } from '@ProvidersModule'
 
 const SnapshotFlattenAction = memo(({ id, snapshot, isDisabled = false }) => {

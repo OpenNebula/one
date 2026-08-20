@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
-import { TablePanel } from '@ComponentsV2Module'
+import { TablePanel } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { VrAPI } from '@FeaturesModule'
 import { getTotalOfResources } from '@UtilsModule'

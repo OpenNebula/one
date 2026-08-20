@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Box, Link, Stack } from '@mui/material'
-import { AlertNotification } from '@ComponentsV2Module'
+import { AlertNotification } from '@ComponentsModule'
 import { generateDocLink } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 import { T, ACL_TYPE_ID, ACL_RESOURCES } from '@ConstantsModule'

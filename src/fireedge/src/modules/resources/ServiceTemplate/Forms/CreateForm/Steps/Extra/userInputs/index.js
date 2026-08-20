@@ -25,7 +25,7 @@ import {
   CollapsiblePanel,
   FormWithSchema,
   SelectableCardPanel,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { useSelectableCardPanel } from '@HooksModule'
 
 export const TAB_ID = 'user_inputs'

@@ -24,7 +24,7 @@ import {
   StatusTag,
   TabSlot,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { getHostState } from '@ModelsModule'
 import { Cluster, Host } from '@ResourcesModule'
 import { Box, useTheme } from '@mui/material'

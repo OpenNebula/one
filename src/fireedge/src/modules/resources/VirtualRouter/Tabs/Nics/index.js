@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
-import { TablePanel, TagList } from '@ComponentsV2Module'
+import { TablePanel, TagList } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { getVirtualRouterNics } from '@ModelsModule'
 

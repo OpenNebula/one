@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { LogsViewer } from '@ComponentsV2Module'
+import { LogsViewer } from '@ComponentsModule'
 import { ProvisionAPI } from '@FeaturesModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'

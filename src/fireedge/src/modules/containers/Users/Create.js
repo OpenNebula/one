@@ -18,7 +18,7 @@ import { useHistory } from 'react-router'
 
 import { UserAPI, useGeneralApi } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { User } from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'

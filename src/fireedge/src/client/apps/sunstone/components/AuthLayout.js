@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 
 import { useAuthApi, oneApi, useAuth } from '@FeaturesModule'
-import { Loader } from '@ComponentsV2Module'
+import { Loader } from '@ComponentsModule'
 
 /**
  * Renders loading screen while validate JWT.

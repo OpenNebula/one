@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { VM_ACTION_ENUM, VM_ACTIONS, T } from '@ConstantsModule'
-import { Button, Table, MenuButton, Tag } from '@ComponentsV2Module'
+import { Button, Table, MenuButton, Tag } from '@ComponentsModule'
 import { Box, Dialog, Stack, Typography } from '@mui/material'
 import { isVmAvailableAction, vmdisksTable } from '@ModelsModule'
 import PropTypes from 'prop-types'

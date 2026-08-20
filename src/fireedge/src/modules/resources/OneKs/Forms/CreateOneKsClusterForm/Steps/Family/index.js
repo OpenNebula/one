@@ -22,7 +22,7 @@ import { sanitize } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 
 import { Grid, useTheme, Stack, Typography } from '@mui/material'
-import { AlertNotification } from '@ComponentsV2Module'
+import { AlertNotification } from '@ComponentsModule'
 import styles from '@modules/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/styles'
 import { useFormContext, useController } from 'react-hook-form'
 

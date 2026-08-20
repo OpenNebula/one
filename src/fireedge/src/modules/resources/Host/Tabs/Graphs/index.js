@@ -17,7 +17,7 @@ import { Box, Grid, useTheme } from '@mui/material'
 import { prettyBytes } from '@UtilsModule'
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
-import { Chartist } from '@ComponentsV2Module'
+import { Chartist } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 
 /**

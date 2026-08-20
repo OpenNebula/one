@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
 import { GROUP_LIST_COLUMNS, groupTable } from '@ModelsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { boolean, string, ObjectSchema } from 'yup'
-import { AlertNotification } from '@ComponentsV2Module'
+import { AlertNotification } from '@ComponentsModule'
 import { useTranslation } from '@ProvidersModule'
 import { uniqWith } from 'lodash'
 

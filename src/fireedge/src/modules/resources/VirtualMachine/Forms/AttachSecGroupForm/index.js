@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { EmptyContent, FormWithSchema } from '@ComponentsV2Module'
+import { EmptyContent, FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { securitygroupTable } from '@ModelsModule'
 import { createForm } from '@UtilsModule'

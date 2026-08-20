@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
 import { T } from '@ConstantsModule'
 import { decodeBase64 } from '@UtilsModule'
-import { TemplateTab } from '@ComponentsV2Module'
+import { TemplateTab } from '@ComponentsModule'
 
 const getStyles = ({ theme }) => ({
   display: 'flex',

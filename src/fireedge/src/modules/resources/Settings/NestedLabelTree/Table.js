@@ -19,7 +19,7 @@ import {
   SubmitButton,
   Table,
   Tag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { useLabelTree } from '@modules/resources/Settings/NestedLabelTree/reducer'
 import { useModalsApi, useAuth } from '@FeaturesModule'
 import { labelsToArray } from '@modules/resources/Settings/NestedLabelTree/utils'

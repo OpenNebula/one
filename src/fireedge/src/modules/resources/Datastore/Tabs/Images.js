@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
 
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 import {
   DATASTORE_TYPES,
   IMAGE_TYPES_FOR_BACKUPS,

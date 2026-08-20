@@ -17,7 +17,7 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 
-import { EmptyContent } from '@ComponentsV2Module'
+import { EmptyContent } from '@ComponentsModule'
 import { InformationPanel } from '@modules/resources/Host/Tabs/Numa/Information'
 
 import { getHostNuma } from '@ModelsModule'

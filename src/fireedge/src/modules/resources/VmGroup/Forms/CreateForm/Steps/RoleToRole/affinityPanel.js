@@ -20,7 +20,7 @@ import { Group, Plus } from 'iconoir-react'
 import { AffinityGroup } from './affinityGroup'
 import { useTranslation } from '@ProvidersModule'
 import { T } from '@ConstantsModule'
-import { Button, Checkbox } from '@ComponentsV2Module'
+import { Button, Checkbox } from '@ComponentsModule'
 
 const GROUP_TYPES = {
   AFFINED: {

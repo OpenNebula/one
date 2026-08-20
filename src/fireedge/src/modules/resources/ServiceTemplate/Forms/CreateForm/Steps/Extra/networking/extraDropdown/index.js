@@ -17,7 +17,7 @@
 /* eslint-disable react/prop-types */
 
 import { Stack } from '@mui/material'
-import { CollapsiblePanel } from '@ComponentsV2Module'
+import { CollapsiblePanel } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 
 import {

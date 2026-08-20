@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 import { T } from '@ConstantsModule'
 import { VmAPI } from '@FeaturesModule'
-import { Chartist } from '@ComponentsV2Module'
+import { Chartist } from '@ComponentsModule'
 import { prettyBytes } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 

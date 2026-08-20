@@ -21,7 +21,7 @@ import { OneKsAPI, useGeneralApi, useModalsApi } from '@FeaturesModule'
 import { createFieldsFromOneKsOdsUserInputs } from '@UtilsModule'
 import { generatePath, useHistory } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import { Button } from '@ComponentsV2Module'
+import { Button } from '@ComponentsModule'
 
 /**
  * Returns the handler that opens the Create Node Group form.

@@ -19,7 +19,7 @@ import { useHistory, useLocation } from 'react-router'
 
 import { useGeneralApi, MarketplaceAPI, SystemAPI } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { Marketplace } from '@ResourcesModule'
 
 import { jsonToXml } from '@UtilsModule'

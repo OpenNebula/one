@@ -22,7 +22,7 @@ import NumaHugepage from '@modules/resources/Host/Tabs/Numa/Hugepage'
 import { getStyles } from '@modules/resources/Host/Tabs/Numa/Information/styles'
 import { T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
-import { Text } from '@ComponentsV2Module'
+import { Text } from '@ComponentsModule'
 
 /**
  * @param {object} props - Props

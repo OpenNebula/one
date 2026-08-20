@@ -19,7 +19,7 @@ import {
   ResourceActionConfirmation,
   ResourceContainer,
   Table,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import {
   DRIVER_ACTIONS,
   RESOURCE_NAMES,
@@ -40,7 +40,7 @@ import { ReactElement, useCallback, useMemo } from 'react'
 import { DriverDetails } from '@modules/containers/Drivers/Details'
 
 /**
- * Displays the driver pool with the Components V2 resource flow.
+ * Displays the driver pool with the design system resource flow.
  *
  * @returns {ReactElement} Driver list and details
  */

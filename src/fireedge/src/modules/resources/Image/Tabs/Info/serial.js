@@ -25,14 +25,14 @@ import {
   Table,
   ToggleGroup,
   Tooltip,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { useClipboard } from '@HooksModule'
 import { getFooterStyles } from './styles'
 
 const OPTIONS = ['auto', '-']
 
 /**
- * Render a v2 panel for editing the image serial attribute.
+ * Render a design-system panel for editing the image serial attribute.
  *
  * @param {object} props - Props
  * @param {Function} props.handleEditAttribute - Function to edit the attribute

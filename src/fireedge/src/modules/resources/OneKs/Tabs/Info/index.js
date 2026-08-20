@@ -25,7 +25,7 @@ import {
   ResourceLink,
   StatusTag,
   Tag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { RESOURCE_NAMES, T, UNITS } from '@ConstantsModule'
 import { ClusterAPI, VmAPI, VnAPI } from '@FeaturesModule'
 import { useClipboard } from '@HooksModule'

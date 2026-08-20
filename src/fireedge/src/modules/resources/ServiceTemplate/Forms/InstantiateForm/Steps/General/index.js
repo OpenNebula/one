@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { SCHEMA, NAME_FIELD, INSTANCE_FIELD } from './schema'
 

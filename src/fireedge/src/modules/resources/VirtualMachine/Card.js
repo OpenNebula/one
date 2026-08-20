@@ -23,7 +23,7 @@ import {
   MetadataSlot,
   LabelSlot,
   TimeSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import {
   T,
   UNITS,

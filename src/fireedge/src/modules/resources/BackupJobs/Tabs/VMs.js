@@ -25,7 +25,7 @@ import {
   Typography,
 } from '@mui/material'
 import { RefreshDouble } from 'iconoir-react'
-import { AlertNotification, Button, Table, Tooltip } from '@ComponentsV2Module'
+import { AlertNotification, Button, Table, Tooltip } from '@ComponentsModule'
 import { BACKUPJOB_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
 import { BackupJobAPI } from '@FeaturesModule'
 import { getBackupJobVmIds, vmsTable } from '@ModelsModule'

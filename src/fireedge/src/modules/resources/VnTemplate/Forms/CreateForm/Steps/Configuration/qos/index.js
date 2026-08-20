@@ -23,7 +23,7 @@ import {
 import { DataTransferBoth as QoSIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 
-import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 
 const QoSContent = ({ oneConfig, adminGroup }) => (

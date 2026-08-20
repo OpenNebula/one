@@ -17,7 +17,7 @@ import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 import { DataTransferBoth as IOIcon } from 'iconoir-react'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { useEffect } from 'react'
 
 import {

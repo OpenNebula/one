@@ -29,7 +29,7 @@ import {
   Tag,
   TextField,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { DatastoreAPI, HostAPI } from '@FeaturesModule'
 import {
   CAPACITY_ACTION_GROUP_SX,

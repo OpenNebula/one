@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
 import { Box } from '@mui/material'
-import { LogsViewer } from '@ComponentsV2Module'
+import { LogsViewer } from '@ComponentsModule'
 import { SERVICE_LOG_SEVERITY, T } from '@ConstantsModule'
 import { timeFromMilliseconds } from '@UtilsModule'
 import { getTabStyles } from '@modules/resources/Service/Tabs/styles'

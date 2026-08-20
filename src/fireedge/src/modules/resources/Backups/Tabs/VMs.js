@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import { ReactElement, useMemo } from 'react'
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 import { RESOURCE_NAMES, T, VM_EXTENDED_POOL } from '@ConstantsModule'
 import { getBackupVmIds, vmsTable } from '@ModelsModule'
 

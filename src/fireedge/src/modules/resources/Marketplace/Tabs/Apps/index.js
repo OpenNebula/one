@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import { Component, useCallback, useMemo } from 'react'
-import { TablePanel } from '@ComponentsV2Module'
+import { TablePanel } from '@ComponentsModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { marketplaceAppTable } from '@ModelsModule'
 

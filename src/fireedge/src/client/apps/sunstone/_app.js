@@ -19,7 +19,7 @@ import Notifier, {
   NotifierUpload,
 } from 'client/apps/sunstone/components/Notifier'
 import { isDevelopment, processTabManifest } from '@UtilsModule'
-import { Sidebar } from '@ComponentsV2Module'
+import { Sidebar } from '@ComponentsModule'
 import { ENDPOINTS, getEndpointsByView } from 'client/apps/sunstone/routes'
 import Router from 'client/router'
 import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'

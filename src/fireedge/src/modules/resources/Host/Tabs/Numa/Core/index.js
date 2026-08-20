@@ -20,7 +20,7 @@ import { useTranslation } from '@ProvidersModule'
 import { T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 import NumaCoreCPU from '@modules/resources/Host/Tabs/Numa/CPU'
 import { getStyles } from '@modules/resources/Host/Tabs/Numa/Core/styles'
-import { Text } from '@ComponentsV2Module'
+import { Text } from '@ComponentsModule'
 
 /**
  * @param {object} props - Props

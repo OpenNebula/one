@@ -27,7 +27,7 @@ import {
 } from '@FeaturesModule'
 
 import { Typography, Box } from '@mui/material'
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { ServiceTemplate } from '@ResourcesModule'
 
 import { T, PATH } from '@ConstantsModule'

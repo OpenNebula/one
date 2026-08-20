@@ -24,7 +24,7 @@ import {
   TEXT_WEIGHTS,
 } from '@ConstantsModule'
 import { getNumaMemory } from '@ModelsModule'
-import { ProgressBar, Text } from '@ComponentsV2Module'
+import { ProgressBar, Text } from '@ComponentsModule'
 import { getStyles } from '@modules/resources/Host/Tabs/Numa/Memory/styles'
 
 /**

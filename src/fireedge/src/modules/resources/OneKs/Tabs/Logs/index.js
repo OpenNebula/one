@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { LogsViewer } from '@ComponentsV2Module'
+import { LogsViewer } from '@ComponentsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Component } from 'react'

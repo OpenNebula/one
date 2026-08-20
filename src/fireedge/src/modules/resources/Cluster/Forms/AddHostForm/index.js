@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { createForm } from '@UtilsModule'
 import {
   FIELDS,

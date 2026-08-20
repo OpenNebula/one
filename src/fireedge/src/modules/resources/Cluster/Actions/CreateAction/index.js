@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { CreateTypeDialog, OpenNebulaLogo } from '@ComponentsV2Module'
+import { CreateTypeDialog, OpenNebulaLogo } from '@ComponentsModule'
 import { useTranslation } from '@ProvidersModule'
 import { T, PATH } from '@ConstantsModule'
 import { Cloud, City } from 'iconoir-react'

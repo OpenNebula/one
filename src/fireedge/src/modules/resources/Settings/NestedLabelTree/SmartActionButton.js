@@ -16,7 +16,7 @@
 import { Component, useCallback } from 'react'
 import { useModalsApi } from '@FeaturesModule'
 import PropTypes from 'prop-types'
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 import { Settings, Check, Plus, Filter } from 'iconoir-react'
 import { T, STYLE_BUTTONS, LABEL_DELIMITER, PATH } from '@ConstantsModule'
 import { useLabelMutations } from '@modules/resources/Settings/NestedLabelTree/handlers'

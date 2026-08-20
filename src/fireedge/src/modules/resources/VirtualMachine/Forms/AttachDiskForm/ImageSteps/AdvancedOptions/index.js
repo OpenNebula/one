@@ -17,7 +17,7 @@ import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import {
   SCHEMA,
   SECTIONS,

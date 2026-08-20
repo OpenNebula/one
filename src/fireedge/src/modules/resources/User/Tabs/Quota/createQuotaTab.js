@@ -19,7 +19,7 @@ import {
   MultiChart,
   QuotaTab,
   transformApiResponseToDataset,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { QuotaControls } from '@modules/resources/User/Tabs/Quota/Components'
 
 import {

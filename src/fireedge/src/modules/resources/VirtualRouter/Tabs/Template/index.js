@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { TemplateTab } from '@ComponentsV2Module'
+import { TemplateTab } from '@ComponentsModule'
 import PropTypes from 'prop-types'
 import { Component } from 'react'
 

@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import { useHistory } from 'react-router'
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { BackupJobs } from '@ResourcesModule'
 
 import { jsonToXml } from '@UtilsModule'

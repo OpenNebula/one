@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { jsonToXml, createForm } from '@UtilsModule'
 import { PCI_FIELDS, PCI_SCHEMA } from './schema'
 

@@ -16,7 +16,7 @@
 import { createTable, timeFromMilliseconds } from '@UtilsModule'
 import { OneKsAPI } from '@FeaturesModule'
 import { T } from '@ConstantsModule'
-import { StatusTag, Tag } from '@ComponentsV2Module'
+import { StatusTag, Tag } from '@ComponentsModule'
 import { getVirtualOneKsState } from '@modules/models/OneKs/general'
 import { createLabelColumn } from '@modules/models/labels'
 

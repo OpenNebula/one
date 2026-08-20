@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { ResourceActionConfirmation } from '@ComponentsV2Module'
+import { ResourceActionConfirmation } from '@ComponentsModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
 import { getValidationFromFields } from '@UtilsModule'
 import PropTypes from 'prop-types'

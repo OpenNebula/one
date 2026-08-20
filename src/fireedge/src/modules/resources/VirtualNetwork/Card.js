@@ -23,7 +23,7 @@ import {
   MetadataSlot,
   ProgressBarSlot,
   TitleSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import {
   getLabelTags,
   getLeasesInfo,

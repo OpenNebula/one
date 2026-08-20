@@ -48,7 +48,7 @@ import {
   Legend,
   SubmitButton,
   FormWithSchema,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { useGeneralApi } from '@FeaturesModule'

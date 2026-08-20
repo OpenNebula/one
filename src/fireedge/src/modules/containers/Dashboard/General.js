@@ -38,7 +38,7 @@ import {
   DashboardSystemCard,
   Tag,
   Text,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import {
   DASHBOARD_CARD_IDS,
   getDashboardCards,

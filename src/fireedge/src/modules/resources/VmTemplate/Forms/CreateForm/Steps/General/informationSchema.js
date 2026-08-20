@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, boolean } from 'yup'
 
-import { Image } from '@ComponentsV2Module'
+import { Image } from '@ComponentsModule'
 import { SystemAPI, LogoAPI } from '@FeaturesModule'
 import { Field, arrayToOptions } from '@UtilsModule'
 import {

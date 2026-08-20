@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { transformApiResponseToDataset } from '@ComponentsV2Module'
+import { transformApiResponseToDataset } from '@ComponentsModule'
 
 /**
  * Computes metrics for a given record.

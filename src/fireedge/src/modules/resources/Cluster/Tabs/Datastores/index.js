@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
 
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { DatastoreAPI } from '@FeaturesModule'
 import { datastoreTable } from '@ModelsModule'

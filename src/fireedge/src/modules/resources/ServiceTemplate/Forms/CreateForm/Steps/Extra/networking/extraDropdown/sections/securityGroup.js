@@ -29,7 +29,7 @@ import { Plus as AddIcon, Trash as TrashIcon } from 'iconoir-react'
 
 import { SecurityGroupAPI, useModalsApi } from '@FeaturesModule'
 
-import { SubmitButton, Table } from '@ComponentsV2Module'
+import { SubmitButton, Table } from '@ComponentsModule'
 
 const SECTION_ID = 'SECURITY_GROUPS'
 const FORM_DIALOG_SIZE = {

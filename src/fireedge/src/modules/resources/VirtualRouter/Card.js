@@ -23,7 +23,7 @@ import {
   LabelSlot,
   MetadataSlot,
   TitleSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import {
   getLabelTags,
   getVirtualRouterTotalNics,

@@ -19,7 +19,7 @@
 import { useFormContext, useFieldArray } from 'react-hook-form'
 import { useEffect } from 'react'
 import { Autocomplete, TextField } from '@mui/material'
-import { Checkbox, CollapsiblePanel, Table } from '@ComponentsV2Module'
+import { Checkbox, CollapsiblePanel, Table } from '@ComponentsModule'
 
 import { STEP_ID as ROLES_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Roles'
 

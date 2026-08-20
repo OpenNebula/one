@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import { Component } from 'react'
-import { TablePanel, TagList } from '@ComponentsV2Module'
+import { TablePanel, TagList } from '@ComponentsModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { useResourceSingleViewContext } from '@ProvidersModule'
 

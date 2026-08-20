@@ -20,7 +20,7 @@ import { generatePath, useHistory } from 'react-router-dom'
 
 import { Box } from '@mui/material'
 
-import { PciProfileSelector, Table } from '@ComponentsV2Module'
+import { PciProfileSelector, Table } from '@ComponentsModule'
 import {
   CLUSTER_CLOUD_OPERATIONS,
   PATH,

@@ -19,7 +19,7 @@ import { Cancel, Group, Trash } from 'iconoir-react'
 import { Component } from 'react'
 import { useTranslation } from '@ProvidersModule'
 import { T } from '@ConstantsModule'
-import { Button, CollapsiblePanel, Tag, Tooltip } from '@ComponentsV2Module'
+import { Button, CollapsiblePanel, Tag, Tooltip } from '@ComponentsModule'
 
 const EMPTY_ICON_SIZE = '24px'
 

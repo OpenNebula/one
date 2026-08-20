@@ -24,7 +24,7 @@ import {
   ResourceActionConfirmation,
   TablePanel,
   Tag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { useAddressRangeFormModal } from '@modules/resources/VirtualNetwork/Forms'
 import {
   RESTRICTED_ATTRIBUTES_TYPE,

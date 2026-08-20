@@ -20,7 +20,7 @@ import { T } from '@ConstantsModule'
 import { EditGroupForm } from '@modules/resources/User/Forms'
 
 import { useModalsApi } from '@FeaturesModule'
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 
 const getGroupId = (group) => (typeof group === 'object' ? group?.ID : group)
 

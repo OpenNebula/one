@@ -18,7 +18,7 @@ import { WarningTriangle as WarningIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { memo } from 'react'
 
-import { Tag } from '@ComponentsV2Module'
+import { Tag } from '@ComponentsModule'
 import RelativeTime from '@modules/resources/BackupJobs/Components/RelativeTime'
 
 import { T, TEMPLATE_SCHEDULE_TYPE_STRING } from '@ConstantsModule'

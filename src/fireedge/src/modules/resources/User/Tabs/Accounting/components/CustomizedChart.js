@@ -17,7 +17,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 import { mapValues } from 'lodash'
-import { MultiChart, Table } from '@ComponentsV2Module'
+import { MultiChart, Table } from '@ComponentsModule'
 import { useTranslation } from '@ProvidersModule'
 
 const commonStyles = {

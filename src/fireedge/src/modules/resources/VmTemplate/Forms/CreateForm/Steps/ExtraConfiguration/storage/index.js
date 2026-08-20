@@ -30,7 +30,7 @@ import {
   MetadataSlot,
   ResourceActionConfirmation,
   TitleSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { T, VM_ACTION_ENUM } from '@ConstantsModule'
 import { useGeneralApi, useModalsApi } from '@FeaturesModule'

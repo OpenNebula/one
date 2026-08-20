@@ -24,7 +24,7 @@ import {
 } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { useModalsApi } from '@FeaturesModule'
 import {

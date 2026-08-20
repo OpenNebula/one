@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types'
 import { useMemo } from 'react'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import {
   SCHEMA,
   SECTIONS,

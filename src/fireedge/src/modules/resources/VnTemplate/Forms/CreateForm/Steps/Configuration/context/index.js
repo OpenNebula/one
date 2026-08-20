@@ -23,7 +23,7 @@ import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { reach } from 'yup'
 
-import { AttributesPanel, FormWithSchema } from '@ComponentsV2Module'
+import { AttributesPanel, FormWithSchema } from '@ComponentsModule'
 import { useGeneralApi } from '@FeaturesModule'
 import { getUnknownVars } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/utils'
 import { T } from '@ConstantsModule'

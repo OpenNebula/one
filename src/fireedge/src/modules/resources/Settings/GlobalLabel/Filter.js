@@ -22,7 +22,7 @@ import { Check as CheckIcon, Lock as LockIcon } from 'iconoir-react'
 
 import { AuthAPI } from '@FeaturesModule'
 
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 import { Translate, useTranslation } from '@ProvidersModule'
 import { ColorDot } from '@modules/resources/Settings/GlobalLabel/ColorDot'
 import {

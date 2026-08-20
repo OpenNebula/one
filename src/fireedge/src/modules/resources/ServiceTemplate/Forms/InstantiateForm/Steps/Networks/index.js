@@ -30,7 +30,7 @@ import {
   CollapsiblePanel,
   FormWithSchema,
   SelectableCardPanel,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { Stack } from '@mui/material'
 import { T } from '@ConstantsModule'
 

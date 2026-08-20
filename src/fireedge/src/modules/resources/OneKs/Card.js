@@ -25,7 +25,7 @@ import {
   MetadataSlot,
   TimeSlot,
   TitleSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { getLabelTags, getVirtualOneKsState } from '@ModelsModule'
 
 /**

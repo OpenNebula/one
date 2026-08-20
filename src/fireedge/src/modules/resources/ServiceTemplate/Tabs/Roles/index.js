@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import { Component } from 'react'
-import { Image, TablePanel, Tag } from '@ComponentsV2Module'
+import { Image, TablePanel, Tag } from '@ComponentsModule'
 import {
   DEFAULT_TEMPLATE_LOGO,
   RESOURCE_NAMES,

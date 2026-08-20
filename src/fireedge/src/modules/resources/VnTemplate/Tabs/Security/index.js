@@ -24,7 +24,7 @@ import {
   MenuButton,
   ResourceActionConfirmation,
   TablePanel,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { ChangeForm } from '@modules/resources/SecurityGroups/Forms'
 import { STYLE_BUTTONS, T, VN_TEMPLATE_ACTIONS } from '@ConstantsModule'
 import { SecurityGroupAPI, VnTemplateAPI, useModalsApi } from '@FeaturesModule'

@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { Server as ClusterIcon } from 'iconoir-react'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 
 import {
   FIELDS,

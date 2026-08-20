@@ -23,7 +23,7 @@ import {
   MenuButton,
   ResourceActionConfirmation,
   TablePanel,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { ChangeClusterForm } from '@modules/resources/Cluster/Forms'
 import { STYLE_BUTTONS, T, VN_ACTIONS } from '@ConstantsModule'
 import { ClusterAPI, useModalsApi } from '@FeaturesModule'

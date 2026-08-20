@@ -19,7 +19,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { Box } from '@mui/material'
 import { unset } from 'lodash'
 
-import { AttributesPanel } from '@ComponentsV2Module'
+import { AttributesPanel } from '@ComponentsModule'
 import { cleanEmpty, cloneObject, set } from '@UtilsModule'
 import { T } from '@ConstantsModule'
 

@@ -44,7 +44,7 @@ import {
   ResourceIDAutocomplete,
 } from '@modules/resources/User/Tabs/Quota/Components/helpers/subcomponents'
 
-import { Dropdown, SubmitButton, Tooltip } from '@ComponentsV2Module'
+import { Dropdown, SubmitButton, Tooltip } from '@ComponentsModule'
 
 import { mapValues, map } from 'lodash'
 

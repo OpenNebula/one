@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { Component } from 'react'
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 import { getHostWilds } from '@ModelsModule'
 import { T } from '@ConstantsModule'
 

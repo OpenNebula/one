@@ -29,7 +29,7 @@ import {
   ResourceActionConfirmation,
   SkeletonLoading,
   TitleSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import {
   STEP_ID as EXTRA_ID,

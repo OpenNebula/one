@@ -17,7 +17,7 @@
 import { RESOURCE_NAMES, T, VNET_THRESHOLD } from '@ConstantsModule'
 import { VnAPI } from '@FeaturesModule'
 import { getLeasesInfo, getVirtualNetworkState } from '@ModelsModule'
-import { ProgressBar, StatusTag } from '@ComponentsV2Module'
+import { ProgressBar, StatusTag } from '@ComponentsModule'
 import { Component } from 'react'
 
 import {

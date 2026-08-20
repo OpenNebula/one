@@ -16,7 +16,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { DetailsDrawerStackProvider } from '@ComponentsV2Module'
+import { DetailsDrawerStackProvider } from '@ComponentsModule'
 import { SystemAPI, useViews } from '@FeaturesModule'
 import { buildBreadcrumbMap } from '@UtilsModule'
 import { ResourceSingleViewDrawer } from '@modules/containers/ResourceSingleView/Drawer'

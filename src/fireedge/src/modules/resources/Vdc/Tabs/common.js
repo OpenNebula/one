@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { Component, useEffect, useMemo, useState } from 'react'
-import { Dropdown, QueryState, Table } from '@ComponentsV2Module'
+import { Dropdown, QueryState, Table } from '@ComponentsModule'
 import { ALL_SELECTED, T } from '@ConstantsModule'
 import { VdcAPI, ZoneAPI } from '@FeaturesModule'
 import { Box } from '@mui/material'

@@ -21,7 +21,7 @@ import { useGeneralApi } from '@FeaturesModule'
 
 import { SSH_PUBLIC_KEY, SCRIPT_FIELDS, OTHER_FIELDS } from './schema'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
-import { SubmitButton, FormWithSchema, Legend } from '@ComponentsV2Module'
+import { SubmitButton, FormWithSchema, Legend } from '@ComponentsModule'
 
 import { disableFields } from '@UtilsModule'
 

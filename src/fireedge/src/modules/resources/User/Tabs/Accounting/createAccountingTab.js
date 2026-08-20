@@ -31,7 +31,7 @@ import {
   filterDataset,
   AccountingTab,
   DateRangeFilter,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 const ACTION_ADD = 'add'
 const ACTION_REMOVE = 'remove'

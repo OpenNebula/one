@@ -17,11 +17,7 @@
 import PropTypes from 'prop-types'
 import { Component } from 'react'
 import { Box } from '@mui/material'
-import {
-  TablePanel as SelectionTable,
-  Button,
-  Image,
-} from '@ComponentsV2Module'
+import { TablePanel as SelectionTable, Button, Image } from '@ComponentsModule'
 import {
   T,
   UNITS,

@@ -19,7 +19,7 @@ import { HostAPI } from '@FeaturesModule'
 import { Box } from '@mui/material'
 import { getHostPcis } from '@ModelsModule'
 import { T } from '@ConstantsModule'
-import { Table, PciProfileSelector } from '@ComponentsV2Module'
+import { Table, PciProfileSelector } from '@ComponentsModule'
 
 /**
  * @param {object} root0 - Params

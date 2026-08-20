@@ -27,7 +27,7 @@ import {
   StatusTag,
   TextField,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { ClusterAPI, ProvisionAPI } from '@FeaturesModule'
 import { cloneObject, filterAttributes, jsonToXml, set } from '@UtilsModule'

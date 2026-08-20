@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { Box, Link, Stack } from '@mui/material'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { T, MARKET_TYPES } from '@ConstantsModule'
 import { SCHEMA, FIELDS } from './schema'
 import { useFormContext } from 'react-hook-form'

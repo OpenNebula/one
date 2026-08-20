@@ -23,7 +23,7 @@ import {
   ButtonGroup,
   Button,
   ResourceActionConfirmation,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { useModalsApi, VmGroupAPI } from '@FeaturesModule'
 import { Component, useMemo } from 'react'
 import { aggregateLockState } from '@UtilsModule'

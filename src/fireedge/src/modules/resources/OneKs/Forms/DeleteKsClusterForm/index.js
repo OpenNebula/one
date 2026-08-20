@@ -16,7 +16,7 @@
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { ReactElement, useCallback, useRef, useState } from 'react'
-import { Checkbox, ResourceActionConfirmation } from '@ComponentsV2Module'
+import { Checkbox, ResourceActionConfirmation } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { useModalsApi } from '@FeaturesModule'
 

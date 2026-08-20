@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { DetailsCard, OwnershipTab, PermissionsTab } from '@ComponentsV2Module'
+import { DetailsCard, OwnershipTab, PermissionsTab } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { timeToString } from '@UtilsModule'
 import { Box } from '@mui/material'

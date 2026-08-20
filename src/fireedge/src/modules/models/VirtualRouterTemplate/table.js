@@ -27,7 +27,7 @@ import {
   STATIC_FILES_URL,
   DEFAULT_TEMPLATE_LOGO,
 } from '@ConstantsModule'
-import { Image, Tag } from '@ComponentsV2Module'
+import { Image, Tag } from '@ComponentsModule'
 import { createLabelColumn } from '@modules/models/labels'
 import { Box } from '@mui/material'
 import { scale } from '@StylesModule'

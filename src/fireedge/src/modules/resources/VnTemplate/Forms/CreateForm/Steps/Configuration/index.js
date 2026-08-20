@@ -26,7 +26,7 @@ import { FIELDS_INSTANTIATE } from '@modules/resources/VnTemplate/Forms/CreateFo
 import Context from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/context'
 import QoS from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/qos'
 import Security from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/security'
-import { FormWithSchema, Tabs } from '@ComponentsV2Module'
+import { FormWithSchema, Tabs } from '@ComponentsModule'
 
 import { useViews } from '@FeaturesModule'
 import { SCHEMA } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/schema'

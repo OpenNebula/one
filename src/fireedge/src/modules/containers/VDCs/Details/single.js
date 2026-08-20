@@ -21,7 +21,7 @@ import {
   ResourceActionConfirmation,
   TabSlot,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { PATH, RESOURCE_NAMES, T } from '@ConstantsModule'
 import { VdcAPI, useModalsApi } from '@FeaturesModule'

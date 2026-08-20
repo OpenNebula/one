@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
-import { EventsViewer } from '@ComponentsV2Module'
+import { EventsViewer } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 
 /**

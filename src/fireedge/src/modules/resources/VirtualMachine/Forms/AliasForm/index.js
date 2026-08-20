@@ -30,7 +30,7 @@ import {
   MetadataSlot,
   ResourceActionConfirmation,
   TitleSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { mapNameByIndex } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/schema'
 
 const AttachAliasForm = createAsyncForm(() =>

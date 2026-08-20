@@ -29,7 +29,7 @@ import {
   Legend,
   ResourceLink,
   Text,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { useTranslation } from '@ProvidersModule'
 
 import {

@@ -18,7 +18,7 @@ import { ElectronicsChip as NumaIcon } from 'iconoir-react'
 import { useEffect } from 'react'
 import { useWatch, useFormContext } from 'react-hook-form'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import {
   STEP_ID as EXTRA_ID,
   TabType,

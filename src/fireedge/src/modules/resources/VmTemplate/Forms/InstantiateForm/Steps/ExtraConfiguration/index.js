@@ -30,7 +30,7 @@ import Scheduling from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/Ext
 import Storage from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/storage'
 import Pci from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/pci'
 import { Box } from '@mui/material'
-import { Tabs } from '@ComponentsV2Module'
+import { Tabs } from '@ComponentsModule'
 
 import { RESOURCE_NAMES, T, VmTemplate } from '@ConstantsModule'
 

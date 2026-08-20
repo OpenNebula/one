@@ -25,7 +25,7 @@ import {
   QueryState,
   Table,
   UserGroupsTab,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { getVdcId, vdcTabPropTypes } from '@modules/resources/Vdc/Tabs/common'
 

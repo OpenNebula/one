@@ -17,7 +17,7 @@ import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { VIDEO_FIELDS } from './schema'
 import { T, COMMON_RESOLUTIONS } from '@ConstantsModule'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { useFormContext } from 'react-hook-form'
 export const SECTION_ID = 'VIDEO'
 

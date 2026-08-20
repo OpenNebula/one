@@ -18,7 +18,7 @@ import { memo } from 'react'
 import { T } from '@ConstantsModule'
 import { EditAdminsForm, EditUsersForm } from '@modules/resources/Group/Forms'
 import { useModalsApi } from '@FeaturesModule'
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 
 const getUserId = (user) => (typeof user === 'object' ? user?.ID : user)
 

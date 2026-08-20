@@ -20,7 +20,7 @@ import {
   ResourceActionConfirmation,
   TabSlot,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import { PATH, T } from '@ConstantsModule'
 import { GroupAPI, useModalsApi } from '@FeaturesModule'

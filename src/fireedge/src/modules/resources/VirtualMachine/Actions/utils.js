@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
 import { T, VM_ACTIONS, _APPS, PATH } from '@ConstantsModule'
-import { ResourceActionConfirmation } from '@ComponentsV2Module'
+import { ResourceActionConfirmation } from '@ComponentsModule'
 import {
   getVmActionAvailableStates,
   isVmAvailableAction,

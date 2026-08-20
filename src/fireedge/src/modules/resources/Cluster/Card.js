@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { Card, LabelSlot, MetadataSlot, TitleSlot } from '@ComponentsV2Module'
+import { Card, LabelSlot, MetadataSlot, TitleSlot } from '@ComponentsModule'
 import { Component, forwardRef } from 'react'
 import { getTotalOfResources } from '@UtilsModule'
 import { getLabelTags } from '@ModelsModule'

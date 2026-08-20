@@ -25,7 +25,11 @@ import {
   useGeneralApi,
 } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm, QueryState } from '@ComponentsV2Module'
+import {
+  DefaultFormStepper,
+  QueryState,
+  SkeletonStepsForm,
+} from '@ComponentsModule'
 import { Group } from '@ResourcesModule'
 
 import { jsonToXml } from '@UtilsModule'

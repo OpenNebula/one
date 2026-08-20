@@ -19,7 +19,7 @@ import {
   CreateStepsCallback,
 } from '@UtilsModule'
 import { ReactElement } from 'react'
-import { getChangeGroupForm, getChangeUserForm } from '@ComponentsV2Module'
+import { getChangeGroupForm, getChangeUserForm } from '@ComponentsModule'
 
 /**
  * @param {object} configProps - Configuration

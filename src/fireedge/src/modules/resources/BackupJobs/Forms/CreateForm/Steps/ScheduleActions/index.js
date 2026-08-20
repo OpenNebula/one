@@ -19,7 +19,7 @@ import {
   Button,
   ResourceActionConfirmation,
   ToggleGroup,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { useModalsApi } from '@FeaturesModule'
 import ScheduleActionCard from '@modules/resources/BackupJobs/Components/ScheduleActionCard'
 import { T } from '@ConstantsModule'

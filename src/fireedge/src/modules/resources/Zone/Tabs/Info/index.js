@@ -18,7 +18,7 @@ import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 
-import { AttributesPanel, Table } from '@ComponentsV2Module'
+import { AttributesPanel, Table } from '@ComponentsModule'
 
 import { getStyles } from '@modules/resources/Host/Tabs/Info/styles'
 

@@ -23,7 +23,7 @@ import {
   TICKET_FIELDS,
 } from '@ConstantsModule'
 import { Box } from '@mui/material'
-import { DetailsCard, StatusTag } from '@ComponentsV2Module'
+import { DetailsCard, StatusTag } from '@ComponentsModule'
 import { Component, isValidElement } from 'react'
 import { getSupportState } from '@ModelsModule'
 import { getStyles } from '@modules/resources/Support/Tabs/Info/styles'

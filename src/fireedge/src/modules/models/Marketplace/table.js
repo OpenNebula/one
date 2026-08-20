@@ -19,7 +19,7 @@ import {
 } from '@modules/models/Marketplace/general'
 import { createTable, getTotalOfResources } from '@UtilsModule'
 import { MarketplaceAPI } from '@FeaturesModule'
-import { ProgressBar, StatusTag, Tag } from '@ComponentsV2Module'
+import { ProgressBar, StatusTag, Tag } from '@ComponentsModule'
 import { MARKET_THRESHOLD, T } from '@ConstantsModule'
 import { createLabelColumn } from '@modules/models/labels'
 

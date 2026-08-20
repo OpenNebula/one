@@ -24,7 +24,7 @@ import { TreeItem } from '@mui/lab'
 import { Box } from '@mui/material'
 import { T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
-import { Checkbox as SelectCheckbox, Tooltip } from '@ComponentsV2Module'
+import { Checkbox as SelectCheckbox, Tooltip } from '@ComponentsModule'
 
 const getLabelText = (label, isRoot = false) => {
   const formatLabel = (text) => text?.replace(/^\$+/, '')

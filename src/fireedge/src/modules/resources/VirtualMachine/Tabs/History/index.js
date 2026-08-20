@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Component } from 'react'

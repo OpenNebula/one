@@ -22,7 +22,7 @@ import {
   StatusTag,
   Tag,
   TablePanel as SelectionTable,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Cancel as CloseIcon, ArrowRight } from 'iconoir-react'
 import {

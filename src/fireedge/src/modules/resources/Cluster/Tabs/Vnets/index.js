@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
 
 import { Box } from '@mui/material'
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { ProvisionAPI, VnAPI, useGeneralApi } from '@FeaturesModule'
 import { vnTable } from '@ModelsModule'

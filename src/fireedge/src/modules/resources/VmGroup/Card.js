@@ -22,7 +22,7 @@ import {
   LabelSlot,
   TitleSlot,
   MetadataSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { getLockIcon } from '@UtilsModule'
 import {
   getLabelTags,

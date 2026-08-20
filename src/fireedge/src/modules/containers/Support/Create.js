@@ -17,7 +17,7 @@
 import { ReactElement } from 'react'
 import { useHistory } from 'react-router'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { SupportAPI, SystemAPI, useGeneralApi } from '@FeaturesModule'
 import { Support } from '@ResourcesModule'
 

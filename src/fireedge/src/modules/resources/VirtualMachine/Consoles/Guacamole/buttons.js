@@ -31,7 +31,7 @@ import { GuacamoleSession, INPUT_TYPES, T, VM_ACTIONS } from '@ConstantsModule'
 import { VmAPI, useModalsApi } from '@FeaturesModule'
 import { createForm, downloadFile, getValidationFromFields } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
-import { ButtonGroup, SkeletonLoading, ToggleGroup } from '@ComponentsV2Module'
+import { ButtonGroup, SkeletonLoading, ToggleGroup } from '@ComponentsModule'
 
 const ICON_SIZE = '16px'
 const LOADING_SIZE = 20

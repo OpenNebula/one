@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 import { Component } from 'react'
 import { Box } from '@mui/material'
-import { Button, TablePanel as SelectionTable } from '@ComponentsV2Module'
+import { Button, TablePanel as SelectionTable } from '@ComponentsModule'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
 import { getLockIcon } from '@UtilsModule'

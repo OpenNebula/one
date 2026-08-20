@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { TablePanel } from '@ComponentsV2Module'
+import { TablePanel } from '@ComponentsModule'
 import { secGroupVmTable, SECGROUP_VM_COLUMNS } from '@ModelsModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import PropTypes from 'prop-types'

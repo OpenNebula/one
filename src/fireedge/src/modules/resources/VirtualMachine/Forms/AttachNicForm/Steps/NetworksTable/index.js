@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import { useCallback, useMemo, useRef } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { useGeneralApi } from '@FeaturesModule'
 import { vnTable } from '@ModelsModule'

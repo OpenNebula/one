@@ -18,7 +18,7 @@ import { Box, Stack } from '@mui/material'
 import { Cancel, InfoEmpty } from 'iconoir-react'
 import { T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
-import { AlertNotification, Button, Tooltip } from '@ComponentsV2Module'
+import { AlertNotification, Button, Tooltip } from '@ComponentsModule'
 
 const POLICY_LABELS = {
   AFFINED: T.Affined,

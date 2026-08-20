@@ -23,7 +23,7 @@ import PropTypes from 'prop-types'
 import { memo } from 'react'
 import * as BackupJobs from '@modules/resources/BackupJobs'
 
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 
 const AttachVms = memo(({ id, template, isDisabled = false }) => {
   const { translate } = useTranslation()

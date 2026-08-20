@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T, VM_ACTION_ENUM, STYLE_BUTTONS } from '@ConstantsModule'
-import { Table, MenuButton, Button, Tooltip } from '@ComponentsV2Module'
+import { Table, MenuButton, Button, Tooltip } from '@ComponentsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Component } from 'react'

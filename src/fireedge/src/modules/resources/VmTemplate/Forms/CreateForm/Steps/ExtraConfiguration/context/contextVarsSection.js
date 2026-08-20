@@ -23,7 +23,7 @@ import { SystemAPI, useGeneralApi } from '@FeaturesModule'
 import { SCHEMA as CONTEXT_SCHEMA } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/context/schema'
 
 import { T } from '@ConstantsModule'
-import { Accordion, AttributesPanel, Legend } from '@ComponentsV2Module'
+import { Accordion, AttributesPanel, Legend } from '@ComponentsModule'
 import { getUnknownAttributes } from '@UtilsModule'
 
 export const SECTION_ID = 'CONTEXT'

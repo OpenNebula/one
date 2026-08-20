@@ -20,7 +20,7 @@ import PropTypes from 'prop-types'
 import { Component } from 'react'
 import { getStyles } from '@modules/resources/VirtualMachine/Tabs/Logs/styles'
 import { VmAPI } from '@FeaturesModule'
-import { LogsViewer } from '@ComponentsV2Module'
+import { LogsViewer } from '@ComponentsModule'
 
 /**
  * @param {object} root0 - Params

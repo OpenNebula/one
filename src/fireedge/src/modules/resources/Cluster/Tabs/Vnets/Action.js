@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 import { memo } from 'react'
 
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { useModalsApi } from '@FeaturesModule'
 import { AddVnetsForm, DeleteIpsForm } from '@modules/resources/Cluster/Forms'

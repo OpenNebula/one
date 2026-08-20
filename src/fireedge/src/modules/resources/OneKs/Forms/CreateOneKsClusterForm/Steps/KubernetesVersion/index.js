@@ -19,7 +19,7 @@ import { SCHEMA, FIELDS } from './schema'
 import { useMemo } from 'react'
 import { Grid, useTheme } from '@mui/material'
 import styles from '@modules/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/styles'
-import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsModule'
 import { useTranslation } from '@ProvidersModule'
 
 export const STEP_ID = 'kubernetes_version'

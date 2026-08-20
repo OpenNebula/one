@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import { Component } from 'react'
-import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
+import { TablePanel as SelectionTable, Button } from '@ComponentsModule'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
 import { VM_COLUMNS } from '@ModelsModule'

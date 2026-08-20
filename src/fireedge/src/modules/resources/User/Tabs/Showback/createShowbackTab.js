@@ -20,7 +20,7 @@ import {
   MultiChart,
   ShowbackTab,
   transformApiResponseToDataset,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { VmAPI, useAuth } from '@FeaturesModule'
 import { Component, useState, useEffect } from 'react'
 import { DateTime } from 'luxon'

@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
-import { ProgressBar, Table } from '@ComponentsV2Module'
+import { ProgressBar, Table } from '@ComponentsModule'
 import { VnAPI } from '@FeaturesModule'
 import { RESOURCE_NAMES, T, VNET_THRESHOLD } from '@ConstantsModule'
 import { getLeasesInfo, getServiceNetworks } from '@ModelsModule'

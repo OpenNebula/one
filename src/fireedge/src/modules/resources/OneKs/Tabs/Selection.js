@@ -21,7 +21,7 @@ import {
   StatusTag,
   Tag,
   TablePanel as SelectionTable,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
 import { getVirtualOneKsState } from '@ModelsModule'

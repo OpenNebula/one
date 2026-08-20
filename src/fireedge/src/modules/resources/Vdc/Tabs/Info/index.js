@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { AttributesPanel } from '@ComponentsV2Module'
+import { AttributesPanel } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { VdcAPI } from '@FeaturesModule'
 import { Stack } from '@mui/material'

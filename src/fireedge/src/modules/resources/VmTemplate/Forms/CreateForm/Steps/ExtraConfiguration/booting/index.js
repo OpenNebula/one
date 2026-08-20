@@ -17,7 +17,7 @@ import { useEffect, useMemo } from 'react'
 import { useTheme, Stack, FormControl } from '@mui/material'
 import PropTypes from 'prop-types'
 import { SystemShut as OsIcon } from 'iconoir-react'
-import { FormWithSchema, Legend } from '@ComponentsV2Module'
+import { FormWithSchema, Legend } from '@ComponentsModule'
 import {
   STEP_ID as EXTRA_ID,
   TabType,

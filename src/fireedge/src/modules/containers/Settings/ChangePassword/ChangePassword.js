@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useTranslation } from '@ProvidersModule'
-import { FormWithSchema, SubmitButton } from '@ComponentsV2Module'
+import { FormWithSchema, SubmitButton } from '@ComponentsModule'
 import {
   AUTH_DRIVER,
   ONEADMIN_ID,

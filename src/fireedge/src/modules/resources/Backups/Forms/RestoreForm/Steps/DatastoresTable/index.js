@@ -17,7 +17,7 @@ import PropTypes from 'prop-types'
 import { useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 import { datastoreTable } from '@ModelsModule'
 import { SCHEMA } from '@modules/resources/Backups/Forms/RestoreForm/Steps/DatastoresTable/schema'
 

@@ -23,7 +23,7 @@ import { getIpv4s, getVirtualMachineState } from '@ModelsModule'
 import { timeFromMilliseconds } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 import { useClipboard } from '@HooksModule'
-import { Badge, OpenNebulaLogo, Tag, Tooltip } from '@ComponentsV2Module'
+import { Badge, OpenNebulaLogo, Tag, Tooltip } from '@ComponentsModule'
 import { Check as CopiedIcon, Copy as CopyIcon } from 'iconoir-react'
 
 import PropTypes from 'prop-types'

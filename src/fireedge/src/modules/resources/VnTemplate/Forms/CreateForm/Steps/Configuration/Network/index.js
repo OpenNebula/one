@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { FIELDS } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/Network/schema'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 
 const ConfigurationContent = (stepId) => {

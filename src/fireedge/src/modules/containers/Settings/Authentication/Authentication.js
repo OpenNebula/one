@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { css } from '@emotion/css'
-import { SkeletonLoading, SubmitButton } from '@ComponentsV2Module'
+import { SkeletonLoading, SubmitButton } from '@ComponentsModule'
 import { UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
 import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
 import { Box, Stack, TextField, Typography, useTheme } from '@mui/material'

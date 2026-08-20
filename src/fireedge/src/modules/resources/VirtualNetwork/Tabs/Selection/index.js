@@ -22,7 +22,7 @@ import {
   ProgressBar,
   StatusTag,
   TablePanel as SelectionTable,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { STYLE_BUTTONS, T, VNET_THRESHOLD } from '@ConstantsModule'
 import { ArrowRight, Cancel as CloseIcon } from 'iconoir-react'
 import { getLeasesInfo, getVirtualNetworkState } from '@ModelsModule'

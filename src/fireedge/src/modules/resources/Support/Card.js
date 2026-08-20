@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T, Ticket } from '@ConstantsModule'
-import { Card, MetadataSlot, TitleSlot, TimeSlot } from '@ComponentsV2Module'
+import { Card, MetadataSlot, TitleSlot, TimeSlot } from '@ComponentsModule'
 import { Component, forwardRef } from 'react'
 import { getSupportState } from '@ModelsModule'
 import { isoDateToMilliseconds } from '@UtilsModule'

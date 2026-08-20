@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { DetailsCard, AttributesPanel } from '@ComponentsV2Module'
+import { DetailsCard, AttributesPanel } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { UserAPI } from '@FeaturesModule'
 import { Box, Stack } from '@mui/material'

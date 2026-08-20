@@ -17,7 +17,7 @@ import { ReactElement, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Network, Page } from 'iconoir-react'
 
-import { CreateTypeDialog } from '@ComponentsV2Module'
+import { CreateTypeDialog } from '@ComponentsModule'
 import { useTranslation } from '@ProvidersModule'
 import { T, PATH } from '@ConstantsModule'
 import { SelectTemplateForm } from '@modules/resources/VnTemplate/Forms'

@@ -22,7 +22,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { marked } from 'marked'
 import PropTypes from 'prop-types'
 
-import { Button, FormWithSchema, SubmitButton, Text } from '@ComponentsV2Module'
+import { Button, FormWithSchema, SubmitButton, Text } from '@ComponentsModule'
 import { STYLE_BUTTONS, T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 import { useGeneralApi, useSupportAuth } from '@FeaturesModule'
 import {

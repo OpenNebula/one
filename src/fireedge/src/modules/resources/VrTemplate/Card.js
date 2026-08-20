@@ -29,7 +29,7 @@ import {
   IconSlot,
   LabelSlot,
   TimeSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { getLockIcon, prettyBytes } from '@UtilsModule'
 import { getLabelTags } from '@ModelsModule'
 

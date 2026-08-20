@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { useAuth } from '@FeaturesModule'
-import { SubmitButton } from '@ComponentsV2Module'
+import { SubmitButton } from '@ComponentsModule'
 import { TreeView } from '@mui/lab'
 import { Box, Stack } from '@mui/material'
 import PropTypes from 'prop-types'

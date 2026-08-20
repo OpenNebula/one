@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
 import { Box } from '@mui/material'
-import { Button, StatusTag, TablePanel } from '@ComponentsV2Module'
+import { Button, StatusTag, TablePanel } from '@ComponentsModule'
 import {
   STYLE_BUTTONS,
   T,

@@ -24,7 +24,7 @@ import {
   StatusTag,
   ProgressBar,
   Tag,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { T, DS_THRESHOLD } from '@ConstantsModule'
 import {
   aggregateOwnership,

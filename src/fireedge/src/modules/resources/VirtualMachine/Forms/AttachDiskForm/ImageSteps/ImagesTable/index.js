@@ -17,7 +17,7 @@ import PropTypes from 'prop-types'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import {
   FIELDS,
   SCHEMA,

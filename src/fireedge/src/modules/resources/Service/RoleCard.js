@@ -17,7 +17,7 @@
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
-import { Card, LabelSlot, MetadataSlot, TitleSlot } from '@ComponentsV2Module'
+import { Card, LabelSlot, MetadataSlot, TitleSlot } from '@ComponentsModule'
 import { getRoleState, getServiceRoleNodes } from '@ModelsModule'
 
 /**

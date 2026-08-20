@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { Component, useCallback, useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router'
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { VmGroup } from '@ResourcesModule'
 
 import { jsonToXml, isDevelopment } from '@UtilsModule'

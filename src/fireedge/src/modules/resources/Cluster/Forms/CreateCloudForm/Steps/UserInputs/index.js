@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
-import { FormWithSchema, generateTabs } from '@ComponentsV2Module'
+import { FormWithSchema, generateTabs } from '@ComponentsModule'
 
 import { useFormContext, useController } from 'react-hook-form'
 import { find } from 'lodash'

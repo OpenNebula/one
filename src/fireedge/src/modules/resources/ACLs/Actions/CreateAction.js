@@ -16,7 +16,7 @@
 import { ReactElement, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Page, Code } from 'iconoir-react'
-import { CreateTypeDialog } from '@ComponentsV2Module'
+import { CreateTypeDialog } from '@ComponentsModule'
 import { T, PATH } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
 

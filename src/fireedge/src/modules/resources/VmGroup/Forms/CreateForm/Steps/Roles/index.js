@@ -24,7 +24,7 @@ import RoleConfigurationPreview from './roleConfigurationPreview'
 import { Group as RoleIcon } from 'iconoir-react'
 import { T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
-import { SelectableCardPanel } from '@ComponentsV2Module'
+import { SelectableCardPanel } from '@ComponentsModule'
 import { useSelectableCardPanel } from '@HooksModule'
 
 export const STEP_ID = 'role-definition'

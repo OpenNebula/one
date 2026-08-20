@@ -23,7 +23,7 @@ import {
 } from '@ModelsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
-import { Table, List, Checkbox, Button } from '@ComponentsV2Module'
+import { Table, List, Checkbox, Button } from '@ComponentsModule'
 import { Component, useMemo, useState, useCallback, useEffect } from 'react'
 import { getStyles } from '@modules/resources/Service/Tabs/ScheduledActions/styles'
 import { ServiceRoleCard } from '@modules/resources/Service/Tabs/RoleCard'

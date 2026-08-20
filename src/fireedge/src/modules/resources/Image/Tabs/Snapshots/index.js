@@ -21,7 +21,7 @@ import { Box } from '@mui/material'
 import { T } from '@ConstantsModule'
 import { ImageAPI } from '@FeaturesModule'
 import { getSnapshots } from '@ModelsModule'
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 import {
   prettyBytes,
   stringToBoolean,

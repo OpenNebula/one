@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 import { useTranslation } from '@ProvidersModule'
-import { Checkbox } from '@ComponentsV2Module'
+import { Checkbox } from '@ComponentsModule'
 
 /**
  * Sub-component used to select different metrics.

@@ -26,7 +26,7 @@ import {
   Button,
   MenuButton,
   ResourceActionConfirmation,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import { AddVLANRuleForm } from '@modules/resources/Group/Forms'
 import { GroupAPI, useModalsApi } from '@FeaturesModule'
 import { hasRestrictedAttributes } from '@UtilsModule'

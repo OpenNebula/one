@@ -38,7 +38,7 @@ import {
 } from '@mui/material'
 import { Trash as DeleteIcon, Download } from 'iconoir-react'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
-import { Button, SkeletonLoading } from '@ComponentsV2Module'
+import { Button, SkeletonLoading } from '@ComponentsModule'
 
 /**
  * @param {object} root0 - Props

@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types'
 import { Step } from '@UtilsModule'
 import { T } from '@ConstantsModule'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { SCHEMA, FIELDS } from './schema'
 
 export const STEP_ID = 'cluster'

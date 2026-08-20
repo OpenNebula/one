@@ -23,7 +23,7 @@ import {
   MetadataSlot,
   ProgressBarSlot,
   LabelSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import {
   getDatastoreCapacityInfo,
   getDatastoreState,

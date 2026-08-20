@@ -54,7 +54,7 @@ import {
   Table,
   Tag,
   Text,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 export const TAB_ID = 'SCHED_ACTION'
 export const STEP_ID = 'charter'

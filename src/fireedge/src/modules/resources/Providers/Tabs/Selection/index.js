@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { TablePanel as SelectionTable, Button } from '@ComponentsV2Module'
+import { TablePanel as SelectionTable, Button } from '@ComponentsModule'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { Component } from 'react'
 import PropTypes from 'prop-types'

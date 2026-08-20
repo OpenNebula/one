@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import { memo } from 'react'
 import { generatePath, useHistory } from 'react-router-dom'
 import { EditPencil, Expand, RefreshCircular, Trash } from 'iconoir-react'
-import { Button, ResourceActionConfirmation } from '@ComponentsV2Module'
+import { Button, ResourceActionConfirmation } from '@ComponentsModule'
 import { T, ONEKS_OPERATIONS, PATH } from '@ConstantsModule'
 import { OneKsAPI, useGeneralApi, useModalsApi } from '@FeaturesModule'
 import {

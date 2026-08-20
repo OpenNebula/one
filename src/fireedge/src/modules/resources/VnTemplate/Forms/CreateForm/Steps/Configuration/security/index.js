@@ -23,7 +23,7 @@ import {
 } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/security/schema'
 import { STEP_ID as EXTRA_ID } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/constants'
 import { alertWrapperStyles } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/styles'
-import { AlertNotification, FormWithSchema } from '@ComponentsV2Module'
+import { AlertNotification, FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { isRestrictedAttributes } from '@UtilsModule'
 

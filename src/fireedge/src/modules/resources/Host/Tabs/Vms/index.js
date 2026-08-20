@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { Component, useMemo } from 'react'
-import { Table } from '@ComponentsV2Module'
+import { Table } from '@ComponentsModule'
 import { vmsTable } from '@ModelsModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 

@@ -18,7 +18,7 @@ import { useHistory, useLocation } from 'react-router'
 
 import { ClusterAPI, SystemAPI, useGeneralApi } from '@FeaturesModule'
 
-import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsV2Module'
+import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { Cluster } from '@ResourcesModule'
 
 import { jsonToXml } from '@UtilsModule'

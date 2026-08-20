@@ -17,7 +17,7 @@ import PropTypes from 'prop-types'
 import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 
-import { StatusTag, Table, Tag } from '@ComponentsV2Module'
+import { StatusTag, Table, Tag } from '@ComponentsModule'
 import { ImageAPI } from '@FeaturesModule'
 import { getImageState } from '@ModelsModule'
 import { SCHEMA } from '@modules/resources/Backups/Forms/RestoreForm/Steps/BackupsTable/schema'

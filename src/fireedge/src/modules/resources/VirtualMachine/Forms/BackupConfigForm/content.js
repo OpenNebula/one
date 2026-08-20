@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { T } from '@ConstantsModule'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { useSystemData } from '@FeaturesModule'
 import { SECTIONS } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/backup/schema'
 import {

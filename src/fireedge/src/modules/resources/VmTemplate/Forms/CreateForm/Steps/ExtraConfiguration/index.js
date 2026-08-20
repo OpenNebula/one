@@ -26,7 +26,7 @@ import {
   getActionsAvailable as getSectionsAvailable,
 } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
-import { Tabs } from '@ComponentsV2Module'
+import { Tabs } from '@ComponentsModule'
 
 import Storage from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/storage'
 import Networking from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/networking'

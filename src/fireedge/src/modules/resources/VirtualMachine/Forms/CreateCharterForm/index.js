@@ -25,7 +25,7 @@ import {
   getEditableLeases,
 } from '@ModelsModule'
 import { createForm, jsonToXml, sentenceCase } from '@UtilsModule'
-import { FormWithSchema, Text } from '@ComponentsV2Module'
+import { FormWithSchema, Text } from '@ComponentsModule'
 import {
   CHARTER_SCHEMA,
   CHARTER_FIELDS,

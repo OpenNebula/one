@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import { Component } from 'react'
-import { TablePanel } from '@ComponentsV2Module'
+import { TablePanel } from '@ComponentsModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { vmgroupVmTable, VMGROUP_VM_COLUMNS } from '@ModelsModule'
 

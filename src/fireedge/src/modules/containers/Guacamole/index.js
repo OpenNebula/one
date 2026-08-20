@@ -17,7 +17,7 @@ import { Box, Container, Stack } from '@mui/material'
 import { ReactElement, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory, useParams } from 'react-router'
 import { useLocation } from 'react-router-dom'
-import { SkeletonLoading } from '@ComponentsV2Module'
+import { SkeletonLoading } from '@ComponentsModule'
 
 import {
   GuacamoleActionButtons,

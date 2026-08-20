@@ -27,7 +27,7 @@ import {
   MetadataSlot,
   ResourceActionConfirmation,
   TitleSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 import {
   SERVER_CONFIG,

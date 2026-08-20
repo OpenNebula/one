@@ -24,7 +24,7 @@ import {
   TitleSlot,
   MetadataSlot,
   ProgressBarSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 
 /**
  * HostCard component displays a Host as a card.

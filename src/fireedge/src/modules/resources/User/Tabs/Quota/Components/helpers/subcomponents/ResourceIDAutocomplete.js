@@ -17,7 +17,7 @@ import PropTypes from 'prop-types'
 
 import { T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
-import { MultiValueInput } from '@ComponentsV2Module'
+import { MultiValueInput } from '@ComponentsModule'
 
 const toText = (value) => (value == null ? '' : String(value))
 

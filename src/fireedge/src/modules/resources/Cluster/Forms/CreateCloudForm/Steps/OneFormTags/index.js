@@ -20,7 +20,7 @@ import { object } from 'yup'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { Box } from '@mui/material'
 import { unset } from 'lodash'
-import { AttributesPanel, AlertNotification } from '@ComponentsV2Module'
+import { AttributesPanel, AlertNotification } from '@ComponentsModule'
 
 export const STEP_ID = 'oneform-tags'
 

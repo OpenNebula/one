@@ -24,7 +24,7 @@ import {
   TitleSlot,
   MetadataSlot,
   TimeSlot,
-} from '@ComponentsV2Module'
+} from '@ComponentsModule'
 import {
   getLabelSlotLabels,
   getServiceTotalNetworks,

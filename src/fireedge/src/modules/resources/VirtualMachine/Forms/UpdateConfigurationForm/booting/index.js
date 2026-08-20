@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import { Stack, FormControl } from '@mui/material'
 import { BootOrder } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
 import { SECTIONS } from '@modules/resources/VirtualMachine/Forms/UpdateConfigurationForm/booting/schema'
-import { FormWithSchema, Legend } from '@ComponentsV2Module'
+import { FormWithSchema, Legend } from '@ComponentsModule'
 import { HYPERVISORS, T } from '@ConstantsModule'
 
 /**

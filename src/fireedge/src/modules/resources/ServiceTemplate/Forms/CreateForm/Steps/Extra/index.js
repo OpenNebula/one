@@ -28,7 +28,7 @@ import ScheduledActions from '@modules/resources/ServiceTemplate/Forms/CreateFor
 import AdvancedOptions from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/advancedParams'
 
 import { T } from '@ConstantsModule'
-import { Tabs } from '@ComponentsV2Module'
+import { Tabs } from '@ComponentsModule'
 
 export const STEP_ID = 'extra'
 

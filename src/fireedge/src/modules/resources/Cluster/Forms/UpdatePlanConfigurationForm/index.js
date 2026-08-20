@@ -18,7 +18,7 @@ import {
   FIELDS,
   SECTIONS,
 } from '@modules/resources/Cluster/Forms/UpdatePlanConfigurationForm/schema'
-import { FormWithSchema } from '@ComponentsV2Module'
+import { FormWithSchema } from '@ComponentsModule'
 import { createForm } from '@UtilsModule'
 
 const FORM_GRID_CONTAINER_SX = {

@@ -22,7 +22,7 @@ import { getActionsAvailable } from '@UtilsModule'
 import { AddUsersAction, EditAdminsAction, RemoveUsersAction } from './Action'
 
 import { GROUP_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
-import { QueryState, UserGroupsTab, Table } from '@ComponentsV2Module'
+import { QueryState, UserGroupsTab, Table } from '@ComponentsModule'
 import {
   getGroupId,
   groupTabPropTypes,

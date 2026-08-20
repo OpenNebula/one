@@ -24,7 +24,7 @@ import { Translate } from '@ProvidersModule'
 import { getDigits } from '@UtilsModule'
 import { DEFAULT_OTP_LENGTH, INPUT_TYPES, T } from '@ConstantsModule'
 
-import { FormWithSchema, SubmitButton } from '@ComponentsV2Module'
+import { FormWithSchema, SubmitButton } from '@ComponentsModule'
 import { styles } from '@modules/containers/Login/styles'
 
 const getErrorMessage = (error) =>

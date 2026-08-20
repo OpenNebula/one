@@ -19,7 +19,7 @@ import { Box } from '@mui/material'
 import { useController } from 'react-hook-form'
 import { useTranslation } from '@ProvidersModule'
 import { T } from '@ConstantsModule'
-import { CollapsiblePanel, Dropdown, FormWithSchema } from '@ComponentsV2Module'
+import { CollapsiblePanel, Dropdown, FormWithSchema } from '@ComponentsModule'
 import { FIELDS } from './schema'
 
 /**

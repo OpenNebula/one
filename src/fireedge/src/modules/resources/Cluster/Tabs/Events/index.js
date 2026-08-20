@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 import { Component } from 'react'
 
-import { EventsViewer } from '@ComponentsV2Module'
+import { EventsViewer } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { ProvisionAPI } from '@FeaturesModule'
 
