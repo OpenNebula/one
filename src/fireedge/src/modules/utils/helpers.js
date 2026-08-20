@@ -854,6 +854,23 @@ export const renderIcon = (iconProp, props = {}) => {
     : createElement(iconProp, props)
 }
 
+const memoizedTextarea =
+  typeof document !== 'undefined' ? document.createElement('textarea') : null
+
+/**
+ * Decodes HTML entities into fixed text strings in the app.
+ *
+ * @param {string} text - Text to decode
+ * @returns {string} Text with HTML entities resolved
+ */
+export const decodeEntities = (text) => {
+  if (!memoizedTextarea || typeof text !== 'string') return text
+
+  memoizedTextarea.innerHTML = text
+
+  return memoizedTextarea.value
+}
+
 /**
  * Build breadcrumb lookup map from endpoints definition.
  *
