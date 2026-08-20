@@ -365,17 +365,29 @@ module VirtualMachineManagerKVM
             # Update one:system_datastore metadata tag in running VM
             tmpf = Tempfile.new([@domain, '.xml'])
 
-            virsh_retry("dumpxml #{@domain} > '#{tmpf.path}'", 'active block job', virsh_tries)
+            begin
+                rc, out, err = virsh_retry("dumpxml #{@domain} > '#{tmpf.path}'",
+                                           'active block job', virsh_tries)
+                return [rc, out, err] if rc != 0
 
-            `sed -i '/one:system_datastore/s:CDATA\\[[^]]*\\]:CDATA[#{dst_dir}]:' '#{tmpf.path}'`
+                cmd = "sed -i '/one:system_datastore/" \
+                      "s:CDATA\\[[^]]*\\]:CDATA[#{dst_dir}]:" \
+                      "' '#{tmpf.path}'"
+                rc, out, err = Command.execute_log(cmd)
+                return [rc, out, err] if rc != 0
 
-            virsh_retry("define '#{tmpf.path}'", 'active block job', virsh_tries)
+                rc, out, err = virsh_retry("define '#{tmpf.path}'", 'active block job',
+                                           virsh_tries)
+                return [rc, out, err] if rc != 0
 
-            tmpf.unlink
-
-            # `define` makes the VM persistent. We immediately `undefine` it to
-            # keep it transient.
-            undefine
+                # `define` makes the VM persistent. We immediately `undefine` it
+                # to keep it transient without deleting its NVRAM.
+                rc, out, err = virsh_retry("undefine #{@domain} --keep-nvram",
+                                           'active block job', virsh_tries)
+                return [rc, out, err] if rc != 0
+            ensure
+                tmpf.unlink
+            end
 
             [0, nil, nil]
         end
