@@ -6339,9 +6339,9 @@ patches:
             ResourcesModule:
               name: ResourcesModule
               entry: __HOST__/fireedge/modules/ResourcesModule/remoteEntry.js
-            ComponentsV2Module:
-              name: ComponentsV2Module
-              entry: __HOST__/fireedge/modules/ComponentsV2Module/remoteEntry.js
+            ComponentsModule:
+              name: ComponentsModule
+              entry: __HOST__/fireedge/modules/ComponentsModule/remoteEntry.js
             FeaturesModule:
               name: FeaturesModule
               entry: __HOST__/fireedge/modules/FeaturesModule/remoteEntry.js
