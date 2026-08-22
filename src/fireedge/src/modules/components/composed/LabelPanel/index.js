@@ -48,10 +48,16 @@ const EMPTY_LABELS = Object.freeze({ user: {}, group: {} })
  * @returns {object} Labels MenuButton props
  */
 export const getLabelMenuButtonProps = (options = {}) => {
-  const { isDisabled = false, isIconOnly = true, ...panelProps } = options
+  const {
+    isDisabled = false,
+    isIconOnly = true,
+    dataCy = 'label-menu-button',
+    ...panelProps
+  } = options
 
   return {
     ...(isIconOnly && { iconOnly: <Label width="16px" height="16px" /> }),
+    dataCy,
     isDisabled,
     placeholder: T.Labels,
     value: 'labels',
@@ -106,6 +112,7 @@ const LabelSection = ({ title, rows, changes, canApply, onToggle }) => {
             <Box
               key={row.id}
               className="label-panel-row"
+              data-cy="label-panel-row"
               sx={{ pl: `${row.depth * 24}px` }}
             >
               <Checkbox
@@ -113,6 +120,7 @@ const LabelSection = ({ title, rows, changes, canApply, onToggle }) => {
                 size="small"
                 checked={checked}
                 isDisabled={!canApply || !row.editable}
+                inputProps={{ 'data-cy': 'label-panel-checkbox' }}
                 onChange={() => onToggle(row)}
               />
               <Box className="label-panel-label">
@@ -314,7 +322,11 @@ export const LabelPanel = ({
   const isBusy = isLoading || operations.isLoading
 
   return (
-    <Box className="label-panel-content" aria-label={translate(T.Labels)}>
+    <Box
+      className="label-panel-content"
+      aria-label={translate(T.Labels)}
+      data-cy="label-panel"
+    >
       <Typography component="h2" className="label-panel-title">
         {translate(T.Labels)}
       </Typography>
@@ -324,7 +336,10 @@ export const LabelPanel = ({
         placeholder={`${translate(T.SearchLabelsInput)}...`}
         startIcon={<Search width="16px" height="16px" />}
         value={search}
-        inputProps={{ 'aria-label': translate(T.SearchLabelsInput) }}
+        inputProps={{
+          'aria-label': translate(T.SearchLabelsInput),
+          'data-cy': 'label-panel-search',
+        }}
         onChange={setSearch}
       />
 
@@ -352,6 +367,7 @@ export const LabelPanel = ({
           </Typography>
           <Box className="label-panel-pending-actions">
             <Button
+              dataCy="label-panel-cancel"
               type="secondary"
               isDisabled={isBusy}
               onClick={() => setChanges({})}
@@ -359,6 +375,7 @@ export const LabelPanel = ({
               {translate(T.Cancel)}
             </Button>
             <Button
+              dataCy="label-panel-apply"
               type="primary"
               startIcon={<Check />}
               isDisabled={isBusy}
@@ -374,6 +391,7 @@ export const LabelPanel = ({
         <Box className="label-panel-actions">
           <Button
             className="label-panel-action"
+            dataCy="label-panel-create"
             type="transparent"
             startIcon={<Plus />}
             isDisabled={isBusy}
@@ -383,6 +401,7 @@ export const LabelPanel = ({
           </Button>
           <Button
             className="label-panel-action"
+            dataCy="label-panel-manage"
             type="transparent"
             startIcon={<Settings />}
             isDisabled={isBusy}

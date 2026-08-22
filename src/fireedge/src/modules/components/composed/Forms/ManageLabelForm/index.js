@@ -151,6 +151,7 @@ export const ManageLabelForm = ({
                         onClose?.()
                         onEdit?.(row.original)
                       },
+                      dataCy: 'label-manage-edit',
                       tooltip: T.Edit,
                       value: 'edit',
                       sx: ACTION_STYLES,
@@ -161,6 +162,7 @@ export const ManageLabelForm = ({
                         event.stopPropagation()
                         onDelete?.(row.original, setCurrentLabels)
                       },
+                      dataCy: 'label-manage-delete',
                       tooltip: T.Delete,
                       value: 'delete',
                       sx: DESTRUCTIVE_ACTION_STYLES,
@@ -181,6 +183,7 @@ export const ManageLabelForm = ({
         (theme) => getDialogContentStyles(theme),
         (theme) => getManageStyles(theme),
       ]}
+      data-cy="label-manage-form"
     >
       <Box className="label-dialog-header">
         <Box className="label-dialog-heading">
@@ -210,11 +213,15 @@ export const ManageLabelForm = ({
             placeholder={`${translate(T.SearchLabelsInput)}...`}
             startIcon={<Search width="16px" height="16px" />}
             value={search}
-            inputProps={{ 'aria-label': translate(T.SearchLabelsInput) }}
+            inputProps={{
+              'aria-label': translate(T.SearchLabelsInput),
+              'data-cy': 'label-manage-search',
+            }}
             onChange={setSearch}
           />
           <Button
             className="label-manage-create"
+            dataCy="label-manage-create"
             type="primary"
             isDisabled={isLoading}
             onClick={() => {
@@ -227,6 +234,7 @@ export const ManageLabelForm = ({
         </Box>
 
         <Table
+          dataCy="label-manage-table"
           data={rows}
           columns={columns}
           getRowId={(row) => row.id}
@@ -243,7 +251,12 @@ export const ManageLabelForm = ({
 
       {!isEmbedded && (
         <Box className="label-dialog-actions with-border">
-          <Button type="secondary" isDisabled={isLoading} onClick={onClose}>
+          <Button
+            dataCy="label-manage-done"
+            type="secondary"
+            isDisabled={isLoading}
+            onClick={onClose}
+          >
             {translate(T.Done)}
           </Button>
         </Box>

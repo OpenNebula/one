@@ -35,13 +35,14 @@ import { getLockIcon } from '@UtilsModule'
  * @param {object} root0 - Params
  * @param {object} root0.data - BackupJob data
  * @param {boolean} root0.isSelected - Whether card is selected
+ * @param {string} root0.dataCy - Cypress selector
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
  * @param {object} ref - Forwarded ref
  * @returns {Component} BackupJob card component
  */
 export const BackupJobCard = forwardRef(
-  ({ data, isSelected, onCheck, onClick }, ref) => {
+  ({ data, dataCy, isSelected, onCheck, onClick }, ref) => {
     const { ID, NAME, UNAME, GNAME, PRIORITY, LAST_BACKUP_TIME } = data || {}
     const { color: stateColor, name: stateName } = useMemo(
       () => getBackupJobStatus(data ?? {}),
@@ -52,6 +53,7 @@ export const BackupJobCard = forwardRef(
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -101,6 +103,7 @@ export const BackupJobCard = forwardRef(
 
 BackupJobCard.propTypes = {
   data: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

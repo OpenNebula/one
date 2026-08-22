@@ -111,6 +111,7 @@ export function BackupJobs() {
 
   return (
     <ResourceContainer
+      dataCy={backupJobTable.dataCy}
       resourceName={T.BackupJobs}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -126,6 +127,7 @@ export function BackupJobs() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={backupJobTable.dataCy}
                 columns={backupJobTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -149,6 +151,7 @@ export function BackupJobs() {
                   <BackupJobsResource.Card
                     key={backupjob?.ID}
                     data={backupjob}
+                    dataCy={`${backupJobTable.dataCy}-${backupjob?.ID}`}
                     isSelected={selectedItems?.includes(backupjob?.ID)}
                     onCheck={() =>
                       setSelectedItems(

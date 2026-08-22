@@ -22,6 +22,7 @@ import { Field, getValidationFromFields } from '@UtilsModule'
 export const DATASTORE_FIELD = 'datastore'
 
 const backupDatastoreTable = {
+  dataCy: datastoreTable.dataCy,
   columns: () =>
     datastoreTable
       .columns()

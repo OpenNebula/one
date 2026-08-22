@@ -51,7 +51,12 @@ const addLabelTag = (tags, seen, { scope, group = '', path, status }) => {
   const cleanPath = cleanLabelPath(path)
   const title = group ? `${group}: ${cleanPath}` : cleanPath
 
-  tags.push({ title, status, customColor: getSeededLabelColor(title) })
+  tags.push({
+    title,
+    status,
+    customColor: getSeededLabelColor(title),
+    dataCy: 'label-tag',
+  })
 }
 
 export const getLabelTags = (LABELS = {}) => {

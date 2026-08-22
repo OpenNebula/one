@@ -108,7 +108,11 @@ export const Info = ({ data, config }) => {
             <Box className="detailsContainer">
               <DetailsCard
                 title={T.Information}
-                options={info.map(({ name, value }) => [name, value ?? '-'])}
+                options={info.map(({ name, value, dataCy }) => [
+                  name,
+                  value ?? '-',
+                  dataCy,
+                ])}
               />
             </Box>
           )}

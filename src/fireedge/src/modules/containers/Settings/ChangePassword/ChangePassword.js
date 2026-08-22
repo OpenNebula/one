@@ -23,7 +23,7 @@ import {
   T,
 } from '@ConstantsModule'
 import { css } from '@emotion/css'
-import { UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
+import { SystemAPI, UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
 import { yupResolver } from '@hookform/resolvers/yup'
 import {
   FIELDS,
@@ -31,8 +31,12 @@ import {
 } from '@modules/containers/Settings/ChangePassword/schema'
 import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
 import { Box } from '@mui/material'
+import { generateDocLink } from '@UtilsModule'
 import { ReactElement, useEffect, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+
+const ADMIN_PASSWORD_DOC_PATH =
+  'product/cloud_system_administration/multitenancy/manage_users/#change-credentials-for-oneadmin-or-serveradmin'
 
 const styles = () => ({
   buttonPlace: css({
@@ -52,8 +56,27 @@ const ChangePassword = () => {
   const classes = useMemo(() => styles())
   const { enqueueSuccess } = useGeneralApi()
   const { user = {} } = useAuth()
+  const { data: version } = SystemAPI.useGetOneVersionQuery()
   const [changePassword, { isSuccess: isSuccessChangePassword }] =
     UserAPI.useChangePasswordMutation()
+  const userId = String(user.ID ?? '')
+  const isInternalAdmin = userId === ONEADMIN_ID || userId === SERVERADMIN_ID
+  const isLdapUser = user.AUTH_DRIVER === AUTH_DRIVER.LDAP
+  const isSamlUser = user.AUTH_DRIVER === AUTH_DRIVER.SAML
+  const isChangePasswordDisabled = isInternalAdmin || isLdapUser || isSamlUser
+  const changePasswordTooltip = isInternalAdmin
+    ? T.ChangePasswordAdminWarning
+    : isLdapUser
+    ? T.ChangePasswordLdapWarning
+    : undefined
+  const adminPasswordDocLink = generateDocLink(version, ADMIN_PASSWORD_DOC_PATH)
+  const changePasswordTooltipLink =
+    isInternalAdmin && adminPasswordDocLink
+      ? {
+          text: translate(T.ChangePasswordAdminWarningLink),
+          link: adminPasswordDocLink,
+        }
+      : undefined
 
   const { handleSubmit, reset, setValue, ...methods } = useForm({
     reValidateMode: 'onSubmit',
@@ -95,12 +118,9 @@ const ChangePassword = () => {
               type={STYLE_BUTTONS.TYPE.PRIMARY}
               data-cy={'change-password-button'}
               label={T.ChangePassword}
-              disabled={
-                user.ID === ONEADMIN_ID ||
-                user.ID === SERVERADMIN_ID ||
-                user.AUTH_DRIVER === AUTH_DRIVER.LDAP ||
-                user.AUTH_DRIVER === AUTH_DRIVER.SAML
-              }
+              isDisabled={isChangePasswordDisabled}
+              tooltip={changePasswordTooltip}
+              tooltipLink={changePasswordTooltipLink}
             />
           </Box>
         </Box>

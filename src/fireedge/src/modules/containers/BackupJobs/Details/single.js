@@ -111,11 +111,12 @@ export const SingleView = ({
   const refreshCurrentData = async () =>
     ID !== undefined && (await refresh({ id: ID }))
 
-  const handleConfirmAction = ({ title, description, onSubmit }) =>
+  const handleConfirmAction = ({ title, description, dataCy, onSubmit }) =>
     showModal({
       isConfirmDialog: true,
       dialogProps: {
         title,
+        dataCy,
         description: (
           <ResourceActionConfirmation
             description={description}
@@ -141,6 +142,7 @@ export const SingleView = ({
   const handleStart = () =>
     handleConfirmAction({
       title: T.Start,
+      dataCy: `modal-${BACKUPJOB_ACTIONS.START}`,
       description: T['resource.start.confirmation'],
       onSubmit: async () => {
         await start({ id: ID })
@@ -151,6 +153,7 @@ export const SingleView = ({
   const handleCancel = () =>
     handleConfirmAction({
       title: T.Cancel,
+      dataCy: `modal-${BACKUPJOB_ACTIONS.CANCEL}`,
       description: T['resource.cancel.confirmation'],
       onSubmit: async () => {
         await cancel({ id: ID })
@@ -161,6 +164,7 @@ export const SingleView = ({
   const handleLock = () =>
     handleConfirmAction({
       title: T.Lock,
+      dataCy: `modal-${BACKUPJOB_ACTIONS.LOCK}`,
       description: T['resource.lock.confirmation'],
       onSubmit: async () => {
         await lock({ id: ID })
@@ -171,6 +175,7 @@ export const SingleView = ({
   const handleUnlock = () =>
     handleConfirmAction({
       title: T.Unlock,
+      dataCy: `modal-${BACKUPJOB_ACTIONS.UNLOCK}`,
       description: T['resource.unlock.confirmation'],
       onSubmit: async () => {
         await unlock({ id: ID })
@@ -181,6 +186,7 @@ export const SingleView = ({
   const handleDelete = () =>
     handleConfirmAction({
       title: T.Delete,
+      dataCy: `modal-${BACKUPJOB_ACTIONS.DELETE}`,
       description: T['resource.delete.confirmation'],
       onSubmit: async () => {
         await deleteBackupJob({ id: ID })
@@ -249,6 +255,7 @@ export const SingleView = ({
         startIcon: <Play width="16px" height="16px" />,
         onClick: handleStart,
         value: BACKUPJOB_ACTIONS.START,
+        dataCy: `action-${BACKUPJOB_ACTIONS.START}`,
         isDisabled: isActionsDisabled,
         tooltip: T.Start,
       },
@@ -267,6 +274,7 @@ export const SingleView = ({
         ),
         onClick: handleCancel,
         value: BACKUPJOB_ACTIONS.CANCEL,
+        dataCy: `action-${BACKUPJOB_ACTIONS.CANCEL}`,
         isDisabled: isActionsDisabled,
         tooltip: T.Cancel,
         isDestructive: true,
@@ -282,6 +290,7 @@ export const SingleView = ({
         startIcon: <Lock width="16px" height="16px" />,
         onClick: handleLock,
         value: BACKUPJOB_ACTIONS.LOCK,
+        dataCy: `action-${BACKUPJOB_ACTIONS.LOCK}`,
         isDisabled: isActionsDisabled,
         tooltip: T.Lock,
       },
@@ -290,6 +299,7 @@ export const SingleView = ({
         startIcon: <NoLock width="16px" height="16px" />,
         onClick: handleUnlock,
         value: BACKUPJOB_ACTIONS.UNLOCK,
+        dataCy: `action-${BACKUPJOB_ACTIONS.UNLOCK}`,
         isDisabled: isActionsDisabled,
         tooltip: T.Unlock,
       },
@@ -332,6 +342,7 @@ export const SingleView = ({
             ),
             onClick: handleDelete,
             value: BACKUPJOB_ACTIONS.DELETE,
+            dataCy: `action-${BACKUPJOB_ACTIONS.DELETE}`,
             title: T.Delete,
             isDestructive: true,
             isDisabled: isActionsDisabled,
@@ -357,6 +368,7 @@ export const SingleView = ({
             isTitleEditable: true,
             onTitleChange: handleRename,
             isTitleEditDisabled: isRenaming,
+            dataCy: 'backup-job-info',
 
             title: data?.NAME,
             id: ID,
