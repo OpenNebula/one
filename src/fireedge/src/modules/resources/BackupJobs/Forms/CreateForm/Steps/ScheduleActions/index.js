@@ -139,6 +139,7 @@ const Content = () => {
         <Button
           type="secondary"
           size="small"
+          dataCy="sched-add"
           startIcon={<Plus width="16px" height="16px" />}
           onClick={handleOpenCreateForm}
         >

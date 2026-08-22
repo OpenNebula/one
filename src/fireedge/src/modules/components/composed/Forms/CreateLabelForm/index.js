@@ -166,7 +166,7 @@ export const CreateLabelForm = ({
       }}
     >
       <Box sx={(theme) => getDialogContentStyles(theme)}>
-        <Box className="label-dialog-header">
+        <Box className="label-dialog-header" data-cy="label-create-dialog">
           <Box className="label-dialog-heading">
             <Typography component="h2" className="label-dialog-title">
               {isEdit ? translate(T.EditLabel) : translate(T.AddNewLabel)}
@@ -176,6 +176,7 @@ export const CreateLabelForm = ({
             </Typography>
           </Box>
           <Button
+            dataCy="label-create-close"
             type="transparent"
             iconOnly={<Cancel />}
             aria-label={translate(T.Close)}
@@ -208,6 +209,7 @@ export const CreateLabelForm = ({
             text={translate(T.NestLabelUnder)}
             checked={values.nest}
             isDisabled={isLoading}
+            inputProps={{ 'data-cy': 'label-nest' }}
             onChange={(nest) => setValues((current) => ({ ...current, nest }))}
           />
 
@@ -244,6 +246,7 @@ export const CreateLabelForm = ({
                 component="button"
                 type="button"
                 className="label-form-visibility-option"
+                data-cy="label-visibility-user"
                 aria-pressed={values.visibility === 'user'}
                 disabled={isLoading}
                 onClick={() =>
@@ -273,6 +276,7 @@ export const CreateLabelForm = ({
                 component="button"
                 type="button"
                 className="label-form-visibility-option"
+                data-cy="label-visibility-group"
                 aria-pressed={values.visibility === 'group'}
                 disabled={isLoading || !groupParentOptions.length}
                 onClick={() =>
@@ -307,10 +311,16 @@ export const CreateLabelForm = ({
         </Box>
 
         <Box className="label-dialog-actions">
-          <Button type="secondary" isDisabled={isLoading} onClick={onClose}>
+          <Button
+            dataCy="label-create-cancel"
+            type="secondary"
+            isDisabled={isLoading}
+            onClick={onClose}
+          >
             {translate(T.Cancel)}
           </Button>
           <Button
+            dataCy="label-create-accept"
             type="primary"
             htmlType="submit"
             form="label-create-form"
