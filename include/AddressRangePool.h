@@ -40,13 +40,6 @@ public:
         vnet_id = vid;
     }
 
-    /**
-     *  Select the allocation algorithm for internal address ranges.
-     *    @param reuse true to reuse the first available address, false to use
-     *    round-robin allocation
-     */
-    void set_reuse_address(bool reuse);
-
     // *************************************************************************
     // Inititalization functions
     // *************************************************************************
@@ -405,9 +398,6 @@ private:
      *  Used addresses
      */
     unsigned int used_addr;
-
-    /** Reuse the first available address in internal address ranges. */
-    bool reuse_address;
 
     /**
      *  Allocates a new *empty* address range. It is not added to the pool as it

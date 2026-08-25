@@ -1014,9 +1014,6 @@ private:
      */
     void set_updated_attributes(Template* new_tmpl, bool removed);
 
-    /** Apply the global or per-network address allocation algorithm. */
-    void set_reuse_address();
-
     //**************************************************************************
     // Constructor
     //**************************************************************************

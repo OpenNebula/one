@@ -34,7 +34,6 @@ AddressRangePool::AddressRangePool(int _vnet_id)
     , vnet_id(_vnet_id)
     , next_ar(0)
     , used_addr(0)
-    , reuse_address(false)
 {};
 
 AddressRangePool::~AddressRangePool()
@@ -44,24 +43,6 @@ AddressRangePool::~AddressRangePool()
         delete it->second;
     }
 };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void AddressRangePool::set_reuse_address(bool reuse)
-{
-    reuse_address = reuse;
-
-    for (auto& ar : ar_pool)
-    {
-        auto internal = dynamic_cast<AddressRangeInternal *>(ar.second);
-
-        if (internal != nullptr)
-        {
-            internal->set_reuse_address(reuse);
-        }
-    }
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -104,7 +85,7 @@ AddressRange * AddressRangePool::allocate_ar(const string& ipam_mad,
 {
     if ( ipam_mad.empty() || ipam_mad == "internal" )
     {
-        return new AddressRangeInternal(vnet_id, na, reuse_address);
+        return new AddressRangeInternal(vnet_id, na);
     }
     else
     {

@@ -36,7 +36,6 @@ public:
     VirtualNetworkPool(SqlDB * db,
                        const std::string& str_mac_prefix,
                        bool mac_global_space,
-                       bool reuse_address,
                        unsigned long int default_size,
                        std::vector<const SingleAttribute *>& restricted_attrs,
                        std::vector<const SingleAttribute *>& encrypted_attrs,
@@ -201,15 +200,6 @@ public:
     };
 
     /**
-     *  Returns true if internal address ranges reuse the first free address by
-     *  default.
-     */
-    static bool reuse_address()
-    {
-        return _reuse_address;
-    };
-
-    /**
      *  Get the default network size
      *  @return the size
      */
@@ -329,9 +319,6 @@ private:
      *  Enables global MAC address space generation
      */
     static bool _mac_global_space;
-
-    /** Default allocation algorithm for internal address ranges. */
-    static bool _reuse_address;
 
     /**
      *  Default size for Virtual Networks
