@@ -41,6 +41,8 @@ unsigned int VirtualNetworkPool::_mac_prefix;
 
 bool VirtualNetworkPool::_mac_global_space;
 
+bool VirtualNetworkPool::_reuse_address;
+
 unsigned long int VirtualNetworkPool::_default_size;
 
 /* -------------------------------------------------------------------------- */
@@ -49,6 +51,7 @@ VirtualNetworkPool::VirtualNetworkPool(
         SqlDB *                             db,
         const string&                       prefix,
         bool                                mac_global_space,
+        bool                                reuse_address,
         unsigned long int                   __default_size,
         vector<const SingleAttribute *>& restricted_attrs,
         vector<const SingleAttribute *>& encrypted_attrs,
@@ -70,6 +73,7 @@ VirtualNetworkPool::VirtualNetworkPool(
 
     _mac_prefix       = 0;
     _mac_global_space = mac_global_space;
+    _reuse_address    = reuse_address;
 
     _default_size = __default_size;
 
