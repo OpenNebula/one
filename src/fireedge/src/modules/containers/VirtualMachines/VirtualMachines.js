@@ -21,6 +21,7 @@ import {
   useFunctionalityApi,
   useFunctionality,
   useViews,
+  ClusterAPI,
   VmAPI,
 } from '@FeaturesModule'
 import { ReactElement, useMemo, useCallback, useState } from 'react'
@@ -29,6 +30,7 @@ import {
   getHypervisor,
   getIps,
   getLastHistory,
+  getVmClusterId,
   getVMLocked,
   getVirtualMachineState,
   getVirtualMachineType,
@@ -68,16 +70,43 @@ export function VirtualMachines() {
     pageSize: VM_POOL_PAGINATION_SIZE,
   })
 
+  const { data: clusters = [] } = ClusterAPI.useGetClustersQuery()
+
+  const clusterNamesById = useMemo(
+    () =>
+      new Map(
+        clusters.map(({ ID, NAME }) => [String(ID), NAME]).filter(([id]) => id)
+      ),
+    [clusters]
+  )
+
+  const dataWithClusterNames = useMemo(
+    () =>
+      data.map((vm) => ({
+        ...vm,
+        CLUSTER_NAME: clusterNamesById.get(String(getVmClusterId(vm))),
+      })),
+    [data, clusterNamesById]
+  )
+
   const filterOptions = useMemo(
-    () => vmsTable.filterOptions(data, viewConfig?.filters),
-    [data, viewConfig?.filters]
+    () => vmsTable.filterOptions(dataWithClusterNames, viewConfig?.filters),
+    [dataWithClusterNames, viewConfig?.filters]
   )
 
   const items = useMemo(() => {
     const search = String(searchExpression ?? '').toLowerCase()
     const filteredData = search
-      ? data?.filter((vm) => {
-          const { ID, NAME, GNAME, UNAME, STIME, TEMPLATE = {} } = vm
+      ? dataWithClusterNames?.filter((vm) => {
+          const {
+            ID,
+            NAME,
+            GNAME,
+            UNAME,
+            STIME,
+            CLUSTER_NAME,
+            TEMPLATE = {},
+          } = vm
           const { CPU = 1, MEMORY = 0, VCPU = 1 } = TEMPLATE
           const state = getVirtualMachineState(vm)
 
@@ -95,12 +124,14 @@ export function VirtualMachines() {
             getVirtualMachineType(vm),
             getIps(vm).join(),
             getLastHistory(vm)?.HOSTNAME,
+            CLUSTER_NAME,
+            getVmClusterId(vm),
             getHypervisor(vm),
           ]
             .filter((value) => value || value === 0)
             .some((value) => String(value).toLowerCase().includes(search))
         })
-      : data
+      : dataWithClusterNames
 
     const filteredByFilters = vmsTable.filterData(
       filteredData,
@@ -109,7 +140,13 @@ export function VirtualMachines() {
     )
 
     return vmsTable.sortData(filteredByFilters, sortExpression)
-  }, [data, searchExpression, sortExpression, filterExpression, filterOptions])
+  }, [
+    dataWithClusterNames,
+    searchExpression,
+    sortExpression,
+    filterExpression,
+    filterOptions,
+  ])
 
   const selectedVms = useMemo(
     () => items?.filter(({ ID }) => selectedItems?.includes(ID)) ?? [],

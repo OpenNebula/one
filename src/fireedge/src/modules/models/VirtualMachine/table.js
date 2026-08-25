@@ -33,6 +33,7 @@ import {
   getHistoryRecords,
   getIpv4s,
   getLastHistory,
+  getVmClusterId,
   getNics,
   getPcis,
   getSnapshotList,
@@ -169,6 +170,17 @@ export const VM_COLUMNS = [
     id: 'hostname',
     truncate: true,
     accessorFn: (row) => getLastHistory(row)?.HOSTNAME,
+  },
+  {
+    header: T.Cluster,
+    id: 'cluster',
+    truncate: true,
+    accessorFn: (row) => {
+      const clusterId = getVmClusterId(row)
+      if (clusterId === undefined || clusterId === null) return '-'
+
+      return (row?.CLUSTER_NAME ?? T.Unknown) + ' (' + clusterId + ')'
+    },
   },
   { header: T.Owner, id: 'owner', accessorKey: 'UNAME', grow: false },
   { header: T.Group, id: 'group', accessorKey: 'GNAME', grow: false },
