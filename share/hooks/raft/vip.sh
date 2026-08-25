@@ -39,6 +39,17 @@ is_systemd_unit_startable()
     return 1
 }
 
+# Start or stop a service without failing the HA transition. Service management
+# is best effort because some services may not be available during a role change.
+service_command()
+{
+    if ! sudo -n "$@"; then
+        echo "Warning: Failed to execute service command: $*" >&2
+    fi
+
+    return 0
+}
+
 # (Un)set the virtual IP
 function virtualip() {
     INTERFACE="$1"
@@ -59,14 +70,40 @@ function virtualip() {
 
     case $ACTION in
     leader)
-        sudo -n ip address add $IFADDR dev $INTERFACE
+        if ! ip address show dev "$INTERFACE" | grep -qi " ${IP}/"; then
+            if ! sudo -n ip address add "$IFADDR" dev "$INTERFACE"; then
+                echo "Failed to add IP '$IFADDR' to interface '$INTERFACE'." >&2
+                return 1
+            fi
+        fi
+
+        ARPING_U_SUCCESS=no
+        ARPING_A_SUCCESS=no
 
         for i in $(seq 5); do
-            sudo -n arping -c 1 -U -I $INTERFACE ${IP}
-            sleep 1
-            sudo -n arping -c 1 -A -I $INTERFACE ${IP}
+            if sudo -n arping -c 1 -U -I "$INTERFACE" "$IP"; then
+                ARPING_U_SUCCESS=yes
+            else
+                echo "Warning: Failed to send ARP update for '$IP'" \
+                     "on '$INTERFACE' (attempt $i)." >&2
+            fi
+
+            if sudo -n arping -c 1 -A -I "$INTERFACE" "$IP"; then
+                ARPING_A_SUCCESS=yes
+            else
+                echo "Warning: Failed to send ARP reply for '$IP'" \
+                     "on '$INTERFACE' (attempt $i)." >&2
+            fi
+
             sleep 1
         done
+
+        if [ "$ARPING_U_SUCCESS" != 'yes' ] ||
+           [ "$ARPING_A_SUCCESS" != 'yes' ];
+        then
+            echo "Failed to announce IP '$IP' on interface '$INTERFACE'." >&2
+            return 1
+        fi
         ;;
 
     follower)
@@ -98,13 +135,25 @@ ACTION="$1"
 shift
 
 # Start of critical section (opens LOCK_FILE with fd 56)
-exec 56>$LOCK_FILE
-flock -w 60 56
+if ! exec 56>"$LOCK_FILE"; then
+    echo "Failed to open lock file '$LOCK_FILE'." >&2
+    exit 1
+fi
+
+if ! flock -w 60 56; then
+    echo "Failed to acquire lock '$LOCK_FILE'." >&2
+    exit 1
+fi
+
+EXIT_CODE=0
 
 # Process all parameters in the form of interface:IP
 while [[ $# -gt 0 ]]
 do
-    virtualip $1 $2
+    if ! virtualip "$1" "$2"; then
+        EXIT_CODE=1
+    fi
+
     shift
     shift
 done
@@ -121,43 +170,43 @@ case $ACTION in
 leader)
     if [ "${IS_SYSTEMD}" = 'yes' ]; then
         if systemctl is-enabled opennebula-flow >/dev/null 2>&1; then
-            sudo -n systemctl start opennebula-flow
+            service_command systemctl start opennebula-flow
         fi
 
         if systemctl is-enabled opennebula-gate >/dev/null 2>&1; then
-            sudo -n systemctl start opennebula-gate
+            service_command systemctl start opennebula-gate
         fi
 
         if systemctl is-enabled opennebula-form >/dev/null 2>&1; then
-            sudo -n systemctl start opennebula-form
+            service_command systemctl start opennebula-form
         fi
 
         # opennebula.service wants opennebula-hem.service
         if is_systemd_unit_startable opennebula-hem ; then
             # this is implicit dependency of the opennebula.service...
-            sudo -n systemctl start opennebula-hem
+            service_command systemctl start opennebula-hem
         fi
 
         # opennebula.service wants opennebula-showback.timer
         if is_systemd_unit_startable opennebula-showback.timer ; then
             # this is implicit dependency of the opennebula.service...
-            sudo -n systemctl start opennebula-showback.timer
+            service_command systemctl start opennebula-showback.timer
         fi
     else
         if [ -e /usr/lib/one/oneflow/oneflow-server.rb ]; then
-            sudo -n service opennebula-flow start
+            service_command service opennebula-flow start
         fi
 
         if [ -e /usr/lib/one/onegate/onegate-server.rb ]; then
-            sudo -n service opennebula-gate start
+            service_command service opennebula-gate start
         fi
 
         if [ -e /usr/lib/one/oneform/oneform-server.rb ]; then
-            sudo -n service opennebula-form start
+            service_command service opennebula-form start
         fi
 
         if [ -e /usr/lib/one/onehem/onehem-server.rb ]; then
-            sudo -n service opennebula-hem start
+            service_command service opennebula-hem start
         fi
         # TODO: showback timer will not work on non-systemd system - crontab?
     fi
@@ -168,47 +217,47 @@ follower)
         if systemctl is-enabled opennebula-flow >/dev/null 2>&1 ||
            systemctl is-active  opennebula-flow >/dev/null 2>&1;
         then
-            sudo -n systemctl stop opennebula-flow
+            service_command systemctl stop opennebula-flow
         fi
 
         if systemctl is-enabled opennebula-gate >/dev/null 2>&1 ||
            systemctl is-active  opennebula-gate >/dev/null 2>&1;
         then
-            sudo -n systemctl stop opennebula-gate
+            service_command systemctl stop opennebula-gate
         fi
 
         if systemctl is-enabled opennebula-form >/dev/null 2>&1 ||
            systemctl is-active  opennebula-form >/dev/null 2>&1;
         then
-            sudo -n systemctl stop opennebula-form
+            service_command systemctl stop opennebula-form
         fi
 
         if systemctl is-enabled opennebula-hem >/dev/null 2>&1 ||
            systemctl is-active  opennebula-hem >/dev/null 2>&1;
         then
-            sudo -n systemctl stop opennebula-hem
+            service_command systemctl stop opennebula-hem
         fi
 
         if systemctl is-enabled opennebula-showback.timer >/dev/null 2>&1 ||
            systemctl is-active  opennebula-showback.timer >/dev/null 2>&1;
         then
-            sudo -n systemctl stop opennebula-showback.timer
+            service_command systemctl stop opennebula-showback.timer
         fi
     else
         if [ -e /usr/lib/one/oneflow/oneflow-server.rb ]; then
-            sudo -n service opennebula-flow stop
+            service_command service opennebula-flow stop
         fi
 
         if [ -e /usr/lib/one/onegate/onegate-server.rb ]; then
-            sudo -n service opennebula-gate stop
+            service_command service opennebula-gate stop
         fi
 
         if [ -e /usr/lib/one/oneform/oneform-server.rb ]; then
-            sudo -n service opennebula-form stop
+            service_command service opennebula-form stop
         fi
 
         if [ -e /usr/lib/one/onehem/onehem-server.rb ]; then
-            sudo -n service opennebula-hem stop
+            service_command service opennebula-hem stop
         fi
         # TODO: showback timer will not work on non-systemd system - crontab?
     fi
@@ -220,4 +269,4 @@ follower)
     ;;
 esac
 
-exit 0
+exit $EXIT_CODE
