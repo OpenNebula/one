@@ -506,6 +506,7 @@ void OpenNebulaTemplate::set_conf_default()
     #*******************************************************************************
     #  NETWORK_SIZE
     #  MAC_PREFIX
+    #  REUSE_ADDRESS
     #  VLAN_ID
     #  VXLAN_ID
     #  PCI_PASSTHROUGH_BUS
@@ -513,6 +514,7 @@ void OpenNebulaTemplate::set_conf_default()
     */
     set_conf_single("MAC_PREFIX", "02:00");
     set_conf_single("MAC_GLOBAL_SPACE", "NO");
+    set_conf_single("REUSE_ADDRESS", "NO");
     set_conf_single("NETWORK_SIZE", "254");
 
     vvalue.clear();

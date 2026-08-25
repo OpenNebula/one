@@ -15,10 +15,17 @@
 /* -------------------------------------------------------------------------- */
 
 #include "AddressRangeInternal.h"
+#include "VirtualNetworkPool.h"
 
 int AddressRangeInternal::get_single_addr(unsigned int& index, std::string& msg)
 {
     unsigned int ar_size = get_size();
+
+    if (VirtualNetworkPool::reuse_address())
+    {
+        next = 0;
+    }
+
     unsigned int next_original = next;
 
     for ( unsigned int i=0; i<ar_size; i++, next = (next+1)%ar_size )
@@ -40,6 +47,12 @@ int AddressRangeInternal::get_range_addr(unsigned int& index,
                                          unsigned int rsize, std::string& msg)
 {
     unsigned int ar_size = get_size();
+
+    if (VirtualNetworkPool::reuse_address())
+    {
+        next = 0;
+    }
+
     unsigned int next_original = next;
     bool valid;
 

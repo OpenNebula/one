@@ -44,9 +44,6 @@ AddressRangePool::~AddressRangePool()
     }
 };
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int AddressRangePool::from_vattr(VectorAttribute* va, string& error_msg)
 {
     AddressRange * ar = allocate_ar(va->vector_value("IPAM_MAD"));
