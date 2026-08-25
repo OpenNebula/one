@@ -313,6 +313,18 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     add_template_attribute("BRIDGE", bridge);
 
     //--------------------------------------------------------------------------
+    // Parse internal Address Ranges. External IPAM ranges are parsed after the
+    // vnet_create action completes.
+    //--------------------------------------------------------------------------
+
+    ar_pool.set_vnet_id(oid);
+
+    if (parse_ars(false, error_str) != 0)
+    {
+        goto error_ar;
+    }
+
+    //--------------------------------------------------------------------------
     // Add default Security Group
     //--------------------------------------------------------------------------
 
@@ -359,7 +371,10 @@ error_vn_mad:
 
 error_parse:
 error_db:
+error_ar:
 error_common:
+    ar_pool.release_mac_ids();
+
     NebulaLog::log("VNM", Log::ERROR, error_str);
     return -1;
 }
@@ -1217,26 +1232,45 @@ void VirtualNetwork::process_security_rule(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::add_var(vector<VectorAttribute *> &var, string& error_msg)
+int VirtualNetwork::parse_ars(bool ipam, string& error_msg)
 {
     int rc = 0;
     string ipam_mad;
     PoolObjectSQL::get_template_attribute("IPAM_MAD", ipam_mad);
 
-    for (auto vattr : var)
-    {
-        VectorAttribute * ar = vattr->clone();
+    vector<VectorAttribute *> ars;
+    obj_template->get("AR", ars);
 
-        if (!ipam_mad.empty() && ar->vector_value("IPAM_MAD").empty())
+    for (auto ar : ars)
+    {
+        string ar_ipam_mad = ar->vector_value("IPAM_MAD");
+
+        if (ar_ipam_mad.empty())
         {
-            ar->replace("IPAM_MAD", ipam_mad);
+            ar_ipam_mad = ipam_mad;
         }
 
-        if (ar_pool.from_vattr(ar, error_msg) != 0)
+        bool external_ipam = !ar_ipam_mad.empty() && ar_ipam_mad != "internal";
+
+        if (!ipam && external_ipam)
         {
-            delete ar;
+            continue;
+        }
+
+        VectorAttribute * parsed_ar = ar->clone();
+
+        if (!ipam_mad.empty() && parsed_ar->vector_value("IPAM_MAD").empty())
+        {
+            parsed_ar->replace("IPAM_MAD", ipam_mad);
+        }
+
+        if (ar_pool.from_vattr(parsed_ar, error_msg) != 0)
+        {
+            delete parsed_ar;
             rc = -1;
         }
+
+        delete obj_template->remove(ar);
     }
 
     return rc;
