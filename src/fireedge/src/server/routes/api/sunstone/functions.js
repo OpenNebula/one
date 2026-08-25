@@ -136,7 +136,7 @@ const getViews = (
             level: 2,
           })
           responseHttp(res, next, httpInternalError)
-          
+
           return
         }
 
