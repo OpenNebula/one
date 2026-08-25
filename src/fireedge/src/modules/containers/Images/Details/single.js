@@ -256,9 +256,7 @@ export const SingleView = ({
       ),
       confirmLabel: isPersistent ? T.Persistent : T.NonPersistent,
       dataCy: `modal-${
-        isPersistent
-          ? IMAGE_ACTIONS.PERSISTENT
-          : IMAGE_ACTIONS.NON_PERSISTENT
+        isPersistent ? IMAGE_ACTIONS.PERSISTENT : IMAGE_ACTIONS.NON_PERSISTENT
       }`,
       onSubmit: async () => {
         await persistent({ id: ID, persistent: isPersistent })

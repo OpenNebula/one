@@ -40,16 +40,8 @@ import { getImageTypeLabel, getLockIcon, prettyBytes } from '@UtilsModule'
  */
 export const FileCard = forwardRef(
   ({ data, dataCy, isSelected, onCheck, onClick }, ref) => {
-    const {
-      ID,
-      NAME,
-      UNAME,
-      GNAME,
-      REGTIME,
-      PERSISTENT,
-      DATASTORE,
-      SIZE,
-    } = data || {}
+    const { ID, NAME, UNAME, GNAME, REGTIME, PERSISTENT, DATASTORE, SIZE } =
+      data || {}
 
     const { color: stateColor, name: stateName } = useMemo(
       () => getImageState(data),

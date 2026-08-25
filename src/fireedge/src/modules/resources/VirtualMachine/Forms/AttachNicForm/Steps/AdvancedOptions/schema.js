@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { boolean, string, ObjectSchema } from 'yup'
 import { AlertNotification } from '@ComponentsModule'
-import { useTranslation } from '@ProvidersModule'
 import { uniqWith } from 'lodash'
 
 import {
@@ -397,7 +396,6 @@ const SECTIONS = ({
   disableNetworkAutoMode,
   hostId,
 } = {}) => {
-  const { translate } = useTranslation()
   const filters = { driver, hypervisor }
 
   let general = []
@@ -509,7 +507,7 @@ const SECTIONS = ({
           <AlertNotification
             type="primary"
             status="information"
-            description={translate(T.PciAutomaticSchedulingConcept)}
+            description={T.PciAutomaticSchedulingConcept}
             isDismissible={false}
             style={{ width: '100%', boxSizing: 'border-box' }}
           />
@@ -520,8 +518,8 @@ const SECTIONS = ({
         return (
           <AlertNotification
             type="primary"
-            status="infomration"
-            description={translate(T.PciManualSchedulingConcept)}
+            status="information"
+            description={T.PciManualSchedulingConcept}
             isDismissible={false}
             style={{ width: '100%', boxSizing: 'border-box' }}
           />

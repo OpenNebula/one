@@ -326,7 +326,7 @@ export const getStyles = ({
 
     '& .selection-hint': {
       marginBottom: `${theme.scale[400]}px`,
-    }
+    },
   }
 
   return {
