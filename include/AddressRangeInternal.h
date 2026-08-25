@@ -26,10 +26,16 @@ class VectorAttribute;
 class AddressRangeInternal : public AddressRange
 {
 public:
-    AddressRangeInternal(unsigned int _vid, unsigned int _id)
-        : AddressRange(_vid, _id) {};
+    AddressRangeInternal(unsigned int _vid, unsigned int _id,
+                         bool _reuse_address)
+        : AddressRange(_vid, _id), reuse_address(_reuse_address) {};
 
     virtual ~AddressRangeInternal() {};
+
+    void set_reuse_address(bool reuse)
+    {
+        reuse_address = reuse;
+    }
 
     /* ---------------------------------------------------------------------- */
     /* AddressRange Interface                                                 */
@@ -92,6 +98,9 @@ public:
     };
 
 private:
+    /** Reuse the first available address instead of using round-robin. */
+    bool reuse_address;
+
     /**
      *  Get a free lease
      *    @param index of the free lease, undefined if error

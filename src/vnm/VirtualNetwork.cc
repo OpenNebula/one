@@ -312,6 +312,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("BRIDGE", bridge);
 
+    set_reuse_address();
+
     //--------------------------------------------------------------------------
     // Parse internal Address Ranges. External IPAM ranges are parsed after the
     // vnet_create action completes.
@@ -477,6 +479,8 @@ int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
 
     one_util::split_unique(sg_str, ',', security_groups);
 
+    set_reuse_address();
+
     if (obj_template->get("VNET_UPDATE"))
     {
         commit(false);
@@ -490,6 +494,22 @@ int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::set_reuse_address()
+{
+    bool reuse = VirtualNetworkPool::reuse_address();
+    bool vnet_reuse;
+
+    if (PoolObjectSQL::get_template_attribute("REUSE_ADDRESS", vnet_reuse))
+    {
+        reuse = vnet_reuse;
+    }
+
+    ar_pool.set_reuse_address(reuse);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -895,6 +915,8 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+
+    set_reuse_address();
 
     //Security groups internal attribute (from /VNET/TEMPLATE/SECURITY_GROUPS)
     string sg_str;
