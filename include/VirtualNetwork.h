@@ -306,12 +306,14 @@ public:
     int add_ar(VirtualNetworkTemplate * ars_tmpl, std::string& error_msg);
 
     /**
-     * Adds a set of address ranges
-     *  @param var a vector of address ranges
+     * Parses address ranges from the Virtual Network template and removes the
+     * parsed attributes from it.
+     *  @param ipam true to parse all address ranges, false to parse only
+     *  internal address ranges
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int add_var(std::vector<VectorAttribute *> &var, std::string& error_msg);
+    int parse_ars(bool ipam, std::string& error_msg);
 
     /**
      * Removes an address range from the VNET

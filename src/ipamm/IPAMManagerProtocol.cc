@@ -111,16 +111,7 @@ void IPAMManager::_vnet_create(unique_ptr<ipam_msg_t> msg)
 
         vn->clear_template_error_message();
 
-        // Get the Address Ranges
-        vector<VectorAttribute *> ars;
-
-        int num_ars = vn->remove_template_attribute("AR", ars);
-        int rc      = vn->add_var(ars, error_str);
-
-        for (int i=0; i < num_ars; i++)
-        {
-            delete ars[i];
-        }
+        int rc = vn->parse_ars(true, error_str);
 
         if (rc != 0)
         {
