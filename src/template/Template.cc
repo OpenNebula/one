@@ -770,6 +770,12 @@ static bool restricted_values(const string& vname, const set<string>& vsubs,
 
     for ( auto vattr : va )
     {
+        if ( vsubs.empty() )
+        {
+            rstrings.push_back(vattr->marshall());
+            continue;
+        }
+
         for (const auto& sub : vsubs)
         {
             if ( vattr->vector_value(sub, value) == 0 )
@@ -789,46 +795,55 @@ bool Template::check_restricted(string& ra, const Template* base,
 {
     for ( auto rit = ras.begin(); rit != ras.end(); ++rit )
     {
-        if (!(rit->second).empty())
+        // Check vector attributes
+        vector<string> rvalues, rvalues_base;
+
+        bool new_restricted  = restricted_values(rit->first, rit->second, this, rvalues);
+        bool base_restricted = restricted_values(rit->first, rit->second, base, rvalues_base);
+
+        if ( new_restricted || base_restricted )
         {
-            vector<string> rvalues, rvalues_base;
-
-            bool new_restricted  = restricted_values(rit->first, rit->second, this, rvalues);
-            bool base_restricted = restricted_values(rit->first, rit->second, base, rvalues_base);
-
             bool has_restricted = new_restricted || (!append && base_restricted);
 
-            if ( rvalues != rvalues_base && has_restricted)
+            if ( rvalues != rvalues_base && has_restricted )
+            {
+                ra = rit->first;
+                return true;
+            }
+
+            continue;
+        }
+
+        // If restricted has subattributes, do not check agains single attributes
+        if (!(rit->second).empty())
+        {
+            continue;
+        }
+
+        // Check single attributes
+
+        // +---------+--------+--------------------+
+        // | current | base   | outcome            |
+        // +---------+--------+--------------------+
+        // |  YES    | YES/NO | Error if different |
+        // |  NO     | YES    | Add to current     |
+        // |  NO     | NO     | Nop                |
+        // +---------+--------+--------------------+
+        string ra_b;
+
+        if ( get(rit->first, ra) )
+        {
+            base->get(rit->first, ra_b);
+
+            if ( ra_b != ra )
             {
                 ra = rit->first;
                 return true;
             }
         }
-        else
+        else if ( base->get(rit->first, ra_b) )
         {
-            // +---------+--------+--------------------+
-            // | current | base   | outcome            |
-            // +---------+--------+--------------------+
-            // |  YES    | YES/NO | Error if different |
-            // |  NO     | YES    | Add to current     |
-            // |  NO     | NO     | Nop                |
-            // +---------+--------+--------------------+
-            string ra_b;
-
-            if ( get(rit->first, ra) )
-            {
-                base->get(rit->first, ra_b);
-
-                if ( ra_b != ra )
-                {
-                    ra = rit->first;
-                    return true;
-                }
-            }
-            else if ( base->get(rit->first, ra_b) )
-            {
-                add(rit->first, ra_b);
-            }
+            add(rit->first, ra_b);
         }
     }
 
@@ -845,12 +860,10 @@ bool Template::check_restricted(string& ra,
     {
         const std::set<std::string>& sub = rit->second;
 
+        std::vector<VectorAttribute *> va;
+
         if (!sub.empty()) //Vector Attribute
         {
-            // -----------------------------------------------------------------
-            // -----------------------------------------------------------------
-            std::vector<VectorAttribute *> va;
-
             get(rit->first, va);
 
             for ( auto vattr : va )
@@ -864,6 +877,11 @@ bool Template::check_restricted(string& ra,
                     }
                 }
             }
+        }
+        else if ( get(rit->first, va) > 0 ) // Vector attribute
+        {
+            ra = rit->first;
+            return true;
         }
         else if ( get(rit->first, ra) ) //Single Attribute
         {
