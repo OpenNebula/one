@@ -133,7 +133,7 @@ MKIMAGE_CMD=$(cat <<EOF
 
     if [ -n "$FS" ]; then
         FS_OPTS=$(eval $(echo "echo \$FS_OPTS_$FS"))
-        $MKFS -t ${FS} ${FS_OPTS} ${DEV}
+        $SUDO $MKFS -t ${FS} ${FS_OPTS} ${DEV}
     fi
 
     rm -f "$DST_PATH"

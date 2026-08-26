@@ -17,7 +17,8 @@
 # Holds configuration about sudoers requirements for OpeNebula
 class Sudoers
 
-    NODECMDS = [:NET, :NETNS, :OVS, :LVM, :LXC, :MEM, :VGPU, :VTPM, :NFS, :SCSI, :FABRIC]
+    NODECMDS = [:NET, :NETNS, :OVS, :LVM, :LXC, :MEM, :VGPU, :VTPM, :NFS, :SCSI, :FABRIC,
+                :FS]
 
     attr_accessor :cmds
 
@@ -98,7 +99,8 @@ class Sudoers
                 'find',
                 'cat /etc/iscsi/initiatorname.iscsi'
             ],
-            :FABRIC => ['dmidecode']
+            :FABRIC => ['dmidecode'],
+            :FS => ['mkfs']
         }
     end
 
