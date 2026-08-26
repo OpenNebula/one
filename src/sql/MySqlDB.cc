@@ -409,14 +409,14 @@ int MySqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
 
             if (result == NULL)
             {
-                ostringstream   oss;
                 const char *    err_msg = mysql_error(db);
                 int             err_num = mysql_errno(db);
 
-                oss << "SQL command was: " << c_str;
-                oss << ", error " << err_num << " : " << err_msg;
-
-                NebulaLog::log("ONE", error_level, oss);
+                NebulaLog::log("ONE", error_level, [&](std::ostream& log)
+                {
+                    log << "SQL command was: " << c_str << ", error "
+                        << err_num << " : " << err_msg;
+                });
 
                 free_db_connection(db);
 

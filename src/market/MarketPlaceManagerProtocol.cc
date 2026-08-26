@@ -61,9 +61,11 @@ void MarketPlaceManager::_undefined(unique_ptr<market_msg_t> msg)
 
 void MarketPlaceManager::_import(unique_ptr<market_msg_t> msg)
 {
-    string str_msg;
-    msg->write_to(str_msg);
-    NebulaLog::ddebug("MKP", "Message received: " + str_msg);
+    NebulaLog::ddebug("MKP", [&](std::ostream& log)
+    {
+        log << "Message received: ";
+        msg->write_to(log);
+    });
 
     bool rc;
     int  rci;
@@ -138,9 +140,11 @@ void MarketPlaceManager::_import(unique_ptr<market_msg_t> msg)
 
 void MarketPlaceManager::_delete(unique_ptr<market_msg_t> msg)
 {
-    string str_msg;
-    msg->write_to(str_msg);
-    NebulaLog::ddebug("MKP", "Message received: " + str_msg);
+    NebulaLog::ddebug("MKP", [&](std::ostream& log)
+    {
+        log << "Message received: ";
+        msg->write_to(log);
+    });
 
     int rc;
 
@@ -193,9 +197,11 @@ void MarketPlaceManager::_delete(unique_ptr<market_msg_t> msg)
 
 void MarketPlaceManager::_monitor(unique_ptr<market_msg_t> msg)
 {
-    string str_msg;
-    msg->write_to(str_msg);
-    NebulaLog::ddebug("MKP", "Message received: " + str_msg);
+    NebulaLog::ddebug("MKP", [&](std::ostream& log)
+    {
+        log << "Message received: ";
+        msg->write_to(log);
+    });
 
     ostringstream oss;
 

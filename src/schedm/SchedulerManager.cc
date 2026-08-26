@@ -148,12 +148,11 @@ void SchedulerManager::trigger_place()
 
             ++wnd_length;
 
-            std::ostringstream oss;
-
-            oss << "Scheduler window length " << the_time - wnd_start << "s and "
-                << wnd_length << " VMs";
-
-            NebulaLog::ddebug("SCM", oss.str());
+            NebulaLog::ddebug("SCM", [&](std::ostream& log)
+            {
+                log << "Scheduler window length " << the_time - wnd_start
+                    << "s and " << wnd_length << " VMs";
+            });
 
             if (the_time < (wnd_start + max_wnd_time) &&
                     wnd_length < max_wnd_length)
@@ -276,17 +275,17 @@ void SchedulerManager::timer_action()
         bool pending = (vmids.size() > 0) &&
                        (the_time >= last_place + retry_time);
 
-        std::ostringstream oss;
-
         time_t wt = (wnd_start == 0) ? 0 : (the_time - wnd_start);
         time_t rt = last_place + retry_time - the_time;
 
         rt = (rt < 0) ? 0 : rt;
 
-        oss << "Scheduler window length " << wt << "s and " << wnd_length << " VMs"
-            << ". Pending VMs: " << vmids.size() << " time to retry: " << rt;
-
-        NebulaLog::ddebug("SCMT", oss.str());
+        NebulaLog::ddebug("SCMT", [&](std::ostream& log)
+        {
+            log << "Scheduler window length " << wt << "s and " << wnd_length
+                << " VMs. Pending VMs: " << vmids.size()
+                << " time to retry: " << rt;
+        });
 
         //TODO Check there is no placement plan active
 
@@ -318,12 +317,11 @@ void SchedulerManager::timer_action()
 /* -------------------------------------------------------------------------- */
 static void log_msg(scheduler_msg_t *msg)
 {
-    std::ostringstream oss;
-
-    oss << "Message received: ";
-    msg->write_to(oss);
-
-    NebulaLog::ddebug("SCM", oss.str());
+    NebulaLog::ddebug("SCM", [&](std::ostream& log)
+    {
+        log << "Message received: ";
+        msg->write_to(log);
+    });
 }
 
 void SchedulerManager::_undefined(std::unique_ptr<scheduler_msg_t> msg)

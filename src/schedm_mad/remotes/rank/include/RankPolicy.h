@@ -71,8 +71,10 @@ private:
             return;
         }
 
-        NebulaLog::log("RANK", Log::DDEBUG, "Rank evaluation for expression : "
-                       + srank);
+        NebulaLog::ddebug("RANK", [&](std::ostream& log)
+        {
+            log << "Rank evaluation for expression : " << srank;
+        });
 
         for (unsigned int i=0; i<resources.size(); rank=0, i++)
         {

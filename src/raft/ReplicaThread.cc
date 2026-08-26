@@ -163,6 +163,16 @@ int RaftReplicaThread::replicate()
         return -1;
     }
 
+    NebulaLog::dddebug("RCM", [&](std::ostream& log)
+    {
+        log << "Sending heartbeat update [leader="
+            << Nebula::instance().get_server_id()
+            << ", follower=" << follower_id
+            << ", leader_term=" << term
+            << ", index=" << lr.index
+            << ", term=" << lr.term << ']';
+    });
+
     if ( raftm->rpc_replicate_log(follower_id, &lr, success, follower_term,
                                   error) != 0 )
     {
@@ -285,6 +295,16 @@ int HeartBeatThread::replicate()
     lr.timestamp = 0;
     lr.fed_index = UINT64_MAX;
 
+    NebulaLog::dddebug("RCM", [&](std::ostream& log)
+    {
+        log << "Sending heartbeat update [leader="
+            << Nebula::instance().get_server_id()
+            << ", follower=" << follower_id
+            << ", leader_term=" << term
+            << ", index=" << lr.index
+            << ", term=" << lr.term << ']';
+    });
+
     rc = raftm->rpc_replicate_log(follower_id, &lr, success, fterm, error);
 
     if ( rc == -1 )
@@ -325,4 +345,3 @@ int HeartBeatThread::replicate()
 
     return 0;
 }
-
