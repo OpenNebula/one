@@ -571,7 +571,8 @@ class OneDBLive
                     el.remove
                 else
                     if !options[:append]
-                        el.content = value
+                        el.children.remove
+                        el.add_child(doc.create_cdata(value))
                     end
                 end
             end
