@@ -615,7 +615,7 @@ Request::ErrorCode ImageAPI::restore(int oid,
 
     if ( auto ec = basic_authorization(oid, att); ec != Request::SUCCESS )
     {
-        return Request::SUCCESS;
+        return ec;
     }
 
     if ( auto ec = basic_authorization(dspool, ds_id, PoolObjectSQL::DATASTORE, att);
