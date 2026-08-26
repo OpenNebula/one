@@ -45,6 +45,24 @@ export const getExistingValue = (
   return resourceData ? resourceData[identifier] : ''
 }
 
+/**
+ * @param {object} quota - Quota data
+ * @param {string} type - Quota type
+ * @returns {Array} Resource IDs represented by the quota
+ */
+export const getQuotaResourceIds = (quota, type) => {
+  if (type !== 'VM') {
+    return quota?.ID == null ? [] : [String(quota.ID)]
+  }
+
+  const clusterIds = String(quota?.CLUSTER_IDS ?? '')
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean)
+
+  return clusterIds.length ? clusterIds : ['@Global']
+}
+
 const findIdByName = (nameMaps, selectedType, resourceNameOrId) => {
   if (!isNaN(parseInt(resourceNameOrId, 10))) {
     return resourceNameOrId
@@ -92,7 +110,7 @@ export const handleApplyGlobalQuotas = async (
     const findGlobal = (quota) => !quota?.ID && !quota?.CLUSTER_IDS
 
     const findById = (quota) =>
-      (quota?.ID || quota?.CLUSTER_IDS || '').toString() ===
+      (quota?.ID ?? quota?.CLUSTER_IDS ?? '').toString() ===
       resourceId.toString()
 
     return (
@@ -132,9 +150,24 @@ export const handleApplyGlobalQuotas = async (
     }
   }
 
-  for (const resourceId of state.globalIds) {
+  const resourceIds =
+    selectedType === 'VM'
+      ? [
+          ...(state.globalIds.includes('@Global') ? ['@Global'] : []),
+          state.globalIds
+            .filter((id) => id !== '@Global')
+            .map((id) => findIdByName(nameMaps, selectedType, id))
+            .join(','),
+        ].filter(Boolean)
+      : state.globalIds
+
+  for (const resourceId of resourceIds) {
     const isMarkedForDeletion = state.markedForDeletion.includes(resourceId)
-    const value = isMarkedForDeletion ? '-1' : state.values[resourceId]
+    const value = isMarkedForDeletion
+      ? '-1'
+      : selectedType === 'VM'
+      ? state.globalValue
+      : state.values[resourceId]
     if (value !== undefined && value !== '') {
       await applyQuotaChange(resourceId, value)
     } else {
@@ -163,7 +196,7 @@ export const nameMapper = (dataPool) => {
       : [dataPool.data]
 
     return resources.reduce((map, resource) => {
-      if (resource.ID && resource.NAME) {
+      if (resource.ID != null && resource.NAME) {
         map[resource.ID] = resource.NAME
       }
 
@@ -186,6 +219,8 @@ const quotasToXml = (type, resourceId, quota) => {
   let innerXml = ''
 
   for (const [key, value] of Object.entries(quota)) {
+    if (['ID', 'CLUSTER_IDS'].includes(key)) continue
+
     innerXml += `<${key.toUpperCase()}>${value}</${key.toUpperCase()}>`
   }
 

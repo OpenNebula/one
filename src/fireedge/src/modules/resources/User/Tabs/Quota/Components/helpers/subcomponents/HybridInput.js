@@ -21,7 +21,9 @@ import { useTranslation } from '@ProvidersModule'
 import { T } from '@ConstantsModule'
 import { Button, InputField } from '@ComponentsModule'
 
-const getInputValue = ({ state, getConcatenatedValues }) => {
+const getInputValue = ({ selectedType, state, getConcatenatedValues }) => {
+  if (selectedType === 'VM') return state.globalValue
+
   if (state.globalIds.length > 1) {
     return getConcatenatedValues(
       state.values,
@@ -75,7 +77,7 @@ export const HybridInputField = ({
       actions.setGlobalValue(value)
       actions.setValues({
         ...state.values,
-        [state?.globalIds[0]]: value,
+        ...Object.fromEntries(state.globalIds.map((id) => [id, value])),
       })
     } else {
       const updatedValues = { ...state.values }
@@ -90,7 +92,7 @@ export const HybridInputField = ({
 
   const showClearButton =
     state.globalValue &&
-    state.globalIds.length <= 1 &&
+    (selectedType === 'VM' || state.globalIds.length <= 1) &&
     !state.markedForDeletion.includes(state.globalIds[0])
 
   return (
@@ -99,10 +101,10 @@ export const HybridInputField = ({
         label={translate(T.Value)}
         isDisabled={isDisabled()}
         disabled={isDisabled()}
-        value={getInputValue({ state, getConcatenatedValues })}
+        value={getInputValue({ selectedType, state, getConcatenatedValues })}
         onChange={handleValueChange}
         onClick={(event) => {
-          if (state.globalIds.length > 1) {
+          if (selectedType !== 'VM' && state.globalIds.length > 1) {
             setPopoverAnchorEl(event.currentTarget)
           }
         }}
