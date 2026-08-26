@@ -801,7 +801,7 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
             }
         }
 
-        files_ds_parsed = oss_parsed.str();
+        files_ds_parsed = one_util::trim(oss_parsed.str());
 
         if ( !files_ds_parsed.empty() )
         {
