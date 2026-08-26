@@ -1445,7 +1445,7 @@ CommandParser::CmdParser.new(ARGV) do
         INPUT     = ["TYPE", "BUS"]
         GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP", "COMMAND"]
         VIDEO     = ["TYPE", "IOMMU", "ATS", "VRAM", "RESOLUTION"]
-        RAW       = ["DATA", "DATA_VMX", "TYPE", "VALIDATE"]
+        RAW       = ["DATA", "TYPE", "VALIDATE"]
         CPU_MODEL = ["MODEL", "FEATURES"]
         BACKUP_CONFIG = ["FS_FREEZE", "KEEP_LAST", "BACKUP_VOLATILE", "MODE", "INCREMENT_MODE", "INTERACTIVE"]
         CONTEXT (any value, ETH* if CONTEXT_ALLOW_ETH_UPDATES set in oned.conf, **variable substitution will be made**)

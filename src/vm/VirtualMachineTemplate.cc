@@ -199,8 +199,7 @@ std::map<std::string, std::vector<std::string>> VirtualMachineTemplate::UPDATECO
         {
             "TYPE",
             "DATA",
-            "VALIDATE",
-            "DATA_VMX"
+            "VALIDATE"
         }
     },
     {

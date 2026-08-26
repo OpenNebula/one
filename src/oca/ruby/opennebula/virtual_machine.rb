@@ -813,16 +813,25 @@ module OpenNebula
             end
         end
 
-        # Changes the attributes of a VM in power off, failure and undeploy
-        #   states
+        # Changes the attributes of a VM in running, pending, power off, failure,
+        #  hold, cloning and undeploy states
         #
         # @param new_conf, string describing the new attributes. Each attribute
         #  will replace the existing ones or delete it if empty. Attributes that
-        #  can be updated are: INPUT/{TYPE, BUS}; RAW/{TYPE, DATA, DATA_VMX},
-        #  OS/{BOOT, BOOTLOADER, ARCH, MACHINE, KERNEL, INITRD},
-        #  FEATURES/{ACPI, APIC, PAE, LOCALTIME, HYPERV, GUEST_AGENT, VIRTIO_SCSI_QUEUES, VIRTIO_BLK_QUEUES, IOTHREADS},
-        #  GRAPHICS/{TYPE, LISTEN, PASSWD, KEYMAP},
-        #  and VIDEO/{TYPE, IOMMU, ATS, VRAM, RESOLUTION}
+        #  can be updated are:
+        #  INPUT/{TYPE, BUS},
+        #  RAW/{TYPE, DATA, VALIDATE},
+        #  OS/{ARCH,MACHINE, KERNEL, INITRD, BOOTLOADER, BOOT, KERNEL_CMD,ROOT,
+        #      SD_DISK_BUS, UUID, FIRMWARE, FIRMWARE_FORMAT},
+        #  FEATURES/{ACPI, APIC, PAE, LOCALTIME, HYPERV, GUEST_AGENT,
+        #            VIRTIO_SCSI_QUEUES, VIRTIO_BLK_QUEUES, IOTHREADS, GIC,
+        #            RAS, MIGRATE_AUTO_CONVERGE, MIGRATE_COMPRESSED},
+        #  CPU_MODEL/{MODEL, FEATURES},
+        #  GRAPHICS/{TYPE, LISTEN, PASSWD, KEYMAP, COMMAND},
+        #  VIDEO/{TYPE, IOMMU, ATS, VRAM, RESOLUTION},
+        #  BACKUP_CONFIG/{FS_FREEZE, KEEP_LAST, BACKUP_VOLATILE, INCREMENT_MODE,
+        #                 MODE, DISK_IDS, INTERACTIVE}
+        #  CONTEXT{*}
         # @param append, append template, do not delete empty attributes
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
