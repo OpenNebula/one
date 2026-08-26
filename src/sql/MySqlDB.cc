@@ -129,7 +129,9 @@ int MySqlDB::db_encoding(string& error)
 
     if ( mysql_query(connection, create_sql.c_str()) != 0 )
     {
-        error = "Could not create the database.";
+        error = "Could not create the database: ";
+        error.append(mysql_error(connection));
+
         return -1;
     }
 
@@ -513,4 +515,3 @@ void MySqlDB::free_db_connection(MYSQL * db)
 
     cond.notify_one();
 }
-

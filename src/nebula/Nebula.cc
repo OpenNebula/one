@@ -644,8 +644,10 @@ void Nebula::start(bool bootstrap_only)
             throw runtime_error("Error bootstrapping database.");
         }
     }
-    catch (exception&)
+    catch (exception& e)
     {
+        NebulaLog::log("ONE", Log::ERROR, e.what());
+
         throw;
     }
 
@@ -733,8 +735,10 @@ void Nebula::start(bool bootstrap_only)
         aclm = new AclManager(db_ptr, zone_id, is_federation_slave(),
                               timer_period);
     }
-    catch (bad_alloc&)
+    catch (bad_alloc& e)
     {
+        NebulaLog::log("ONE", Log::ERROR, e.what());
+
         throw;
     }
 
@@ -922,8 +926,10 @@ void Nebula::start(bool bootstrap_only)
 
         update_zone_state();
     }
-    catch (exception&)
+    catch (exception& e)
     {
+        NebulaLog::log("ONE", Log::ERROR, e.what());
+
         throw runtime_error("Error Initializing OpenNebula pools");
     }
 
@@ -978,8 +984,10 @@ void Nebula::start(bool bootstrap_only)
         raftm = new RaftManager(server_id, raft_leader_hook, raft_follower_hook,
                                 log_purge, bcast_ms, election_ms, xmlrpc_ms, remotes_location);
     }
-    catch (bad_alloc&)
+    catch (bad_alloc& e)
     {
+        NebulaLog::log("ONE", Log::ERROR, e.what());
+
         throw;
     }
 
@@ -990,8 +998,10 @@ void Nebula::start(bool bootstrap_only)
         {
             frm = new FedReplicaManager(logdb);
         }
-        catch (bad_alloc&)
+        catch (bad_alloc& e)
         {
+            NebulaLog::log("ONE", Log::ERROR, e.what());
+
             throw;
         }
 
@@ -1032,8 +1042,10 @@ void Nebula::start(bool bootstrap_only)
         {
             lcm = new LifeCycleManager();
         }
-        catch (bad_alloc&)
+        catch (bad_alloc& e)
         {
+            NebulaLog::log("ONE", Log::ERROR, e.what());
+
             throw;
         }
 
@@ -1089,8 +1101,10 @@ void Nebula::start(bool bootstrap_only)
         {
             dm = new DispatchManager();
         }
-        catch (bad_alloc&)
+        catch (bad_alloc& e)
         {
+            NebulaLog::log("ONE", Log::ERROR, e.what());
+
             throw;
         }
 
@@ -1332,9 +1346,10 @@ void Nebula::start(bool bootstrap_only)
                                          grpc_port);
 #endif
     }
-    catch (bad_alloc&)
+    catch (bad_alloc& e)
     {
-        NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
+        NebulaLog::log("ONE", Log::ERROR, string("Error starting RM: ") + e.what());
+
         throw;
     }
 
