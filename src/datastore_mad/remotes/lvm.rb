@@ -249,7 +249,7 @@ module MAD
                 fs_opts += ' -f '
             end
 
-            "mkfs -t '#{fs}' #{fs_opts.strip} '#{@dev}'\n"
+            "sudo mkfs -t '#{fs}' #{fs_opts.strip} '#{@dev}'\n"
         end
 
         # Activate or deactivate volume
