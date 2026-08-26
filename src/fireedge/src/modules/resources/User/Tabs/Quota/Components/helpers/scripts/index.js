@@ -19,6 +19,7 @@ import { useQuotaControlReducer } from './reducer/useQuotaControlReducer'
 import {
   getConcatenatedValues,
   getExistingValue,
+  getQuotaResourceIds,
   quotaIdentifiers,
   handleApplyGlobalQuotas,
   nameMapper,
@@ -30,6 +31,7 @@ export {
   useQuotaControlReducer,
   getConcatenatedValues,
   getExistingValue,
+  getQuotaResourceIds,
   quotaIdentifiers,
   handleApplyGlobalQuotas,
   nameMapper,

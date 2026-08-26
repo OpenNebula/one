@@ -30,7 +30,10 @@ import {
   ImageAPI,
   ClusterAPI,
 } from '@FeaturesModule'
-import { nameMapper } from '@modules/resources/User/Tabs/Quota/Components/helpers/scripts'
+import {
+  getQuotaResourceIds,
+  nameMapper,
+} from '@modules/resources/User/Tabs/Quota/Components/helpers/scripts'
 import { useTranslation } from '@ProvidersModule'
 import { T } from '@ConstantsModule'
 
@@ -141,17 +144,16 @@ const createQuotaTab = ({ groups }) => {
 
       const newData = dataset.data.map((item) => {
         const newItem = { ...item }
-        if (
-          (newItem.ID || newItem?.CLUSTER_IDS) &&
-          nameMaps?.[selectedType]?.[newItem.ID ?? newItem?.CLUSTER_IDS]
-        ) {
-          newItem.ID =
-            nameMaps?.[selectedType]?.[newItem.ID ?? newItem?.CLUSTER_IDS]
-        } else if (
-          Object.hasOwn(newItem, 'CLUSTER_IDS') &&
-          newItem?.CLUSTER_IDS == null
-        ) {
-          newItem.ID = '@Global'
+        const resourceIds = getQuotaResourceIds(newItem, selectedType)
+
+        if (resourceIds.length) {
+          newItem.ID = resourceIds
+            .map((resourceId) =>
+              resourceId === '@Global'
+                ? resourceId
+                : nameMaps?.[selectedType]?.[resourceId] ?? resourceId
+            )
+            .join(', ')
         } else if (
           dataset?.data?.length === 1 &&
           !Object.hasOwn(newItem, 'CLUSTER_IDS') &&

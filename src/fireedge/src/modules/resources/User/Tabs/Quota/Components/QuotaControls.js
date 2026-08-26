@@ -35,6 +35,7 @@ import {
   validateValue,
   useQuotaControlReducer,
   getConcatenatedValues,
+  getQuotaResourceIds,
   quotaIdentifiers,
   handleApplyGlobalQuotas,
 } from '@modules/resources/User/Tabs/Quota/Components/helpers/scripts'
@@ -157,12 +158,27 @@ export const QuotaControls = memo(
       if (!clickedElement) return
 
       if (actions.setGlobalIds && Array.isArray(state.globalIds)) {
-        const { ID } = clickedElement
-        const isElementSelected = state.globalIds.includes(ID)
+        const clickedQuota =
+          existingData.find(({ ID }) => ID === clickedElement.ID) ??
+          clickedElement
+        const resourceIds = getQuotaResourceIds(clickedQuota, selectedType)
+
+        if (selectedType === 'VM') {
+          const isSelected =
+            resourceIds.length === state.globalIds.length &&
+            resourceIds.every((id) => state.globalIds.includes(id))
+          actions.setGlobalIds(isSelected ? [] : resourceIds)
+
+          return
+        }
+
+        const [resourceId] = resourceIds
+        if (resourceId == null) return
+
         actions.setGlobalIds(
-          isElementSelected
-            ? state.globalIds.filter((id) => id !== ID)
-            : [...state.globalIds, ID]
+          state.globalIds.includes(resourceId)
+            ? state.globalIds.filter((id) => id !== resourceId)
+            : [...state.globalIds, resourceId]
         )
       }
     }, [clickedElement])
@@ -184,7 +200,9 @@ export const QuotaControls = memo(
       () =>
         existingData.reduce((acc, item) => {
           const identifier = state.selectedIdentifier
-          acc[item.ID] = item[identifier] || ''
+          getQuotaResourceIds(item, selectedType).forEach((resourceId) => {
+            acc[resourceId] = item[identifier] ?? ''
+          })
 
           return acc
         }, {}),
@@ -214,19 +232,17 @@ export const QuotaControls = memo(
 
     useEffect(() => {
       const allValuesAreValid = state.globalIds.every((id) =>
-        validateValue(state.values[id] || '')
+        validateValue(state.values[id] ?? '')
       )
 
       actions.setIsValid(allValuesAreValid)
     }, [state.globalIds, state.values])
 
     useEffect(() => {
-      if (state.globalIds.length === 1) {
-        const singleGlobalId = state.globalIds[0]
-        const singleGlobalValue = state.values[singleGlobalId] || ''
-        actions.setGlobalValue(singleGlobalValue)
+      if (state.globalIds.length === 1 || selectedType === 'VM') {
+        actions.setGlobalValue(state.values[state.globalIds[0]] ?? '')
       }
-    }, [state.globalIds, state.values])
+    }, [state.globalIds, state.values, selectedType])
 
     const existingTemplate = groups
       ? GroupAPI.useGetGroupQuery({ id: userId })
@@ -253,12 +269,14 @@ export const QuotaControls = memo(
             result = null
         }
 
-        const formatResourceNames = []
+        const formatResourceIds = []
           .concat(result?.data)
-          ?.map(({ NAME } = {}) => NAME)
+          ?.map(({ ID, NAME } = {}) =>
+            state.quotaType === 'VM' && ID != null ? String(ID) : NAME
+          )
           ?.filter(Boolean)
 
-        setExistingResourceIds(formatResourceNames)
+        setExistingResourceIds(formatResourceIds)
       }
 
       fetchData()
@@ -267,7 +285,7 @@ export const QuotaControls = memo(
     const filteredResourceIDs = useMemo(() => {
       const idsFromData =
         existingData
-          ?.map(({ ID, CLUSTER_IDS }) => ID ?? CLUSTER_IDS)
+          ?.flatMap((item) => getQuotaResourceIds(item, state.quotaType))
           ?.filter((id) => id !== '@Global' && !state.globalIds.includes(id))
           .filter(Boolean) ?? []
 
