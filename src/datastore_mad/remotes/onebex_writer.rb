@@ -43,6 +43,7 @@ to        = ARGV[2]
 
 def read_exact(io, size)
     data = +''
+
     while data.bytesize < size
         chunk = io.read(size - data.bytesize)
 
@@ -94,12 +95,13 @@ begin
             socket = server.accept
             socket.binmode
 
-            header = read_exact(socket, 16)
-            start_byte, bytes_to_write = header.unpack('Q>Q>')
+            header = read_exact(socket, 24)
+            start_byte, bytes_to_write, total_size = header.unpack('Q>Q>Q>')
 
             payload = read_exact(socket, bytes_to_write)
 
             File.open(to, 'r+b') do |file|
+                file.truncate(total_size) if total_size > 0 && file.size == 0
                 file.seek(start_byte)
 
                 bytes_written = file.write(payload)
