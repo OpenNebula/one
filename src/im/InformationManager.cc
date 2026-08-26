@@ -342,7 +342,7 @@ void InformationManager::_host_system(unique_ptr<im_msg_t> msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void test_and_trigger(const string& state_str, VirtualMachine * vm)
+static bool ignore_state_update(VirtualMachine * vm)
 {
     time_t the_time = time(0);
 
@@ -352,6 +352,19 @@ static void test_and_trigger(const string& state_str, VirtualMachine * vm)
          the_time - vm->get_running_stime() < 30 )
     {
         vm->log("VMM", Log::INFO, "Ignoring VM state update");
+        return true;
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void test_and_trigger(const string& state_str, VirtualMachine * vm)
+{
+    if (ignore_state_update(vm))
+    {
         return;
     }
 
@@ -572,6 +585,11 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
         NebulaLog::debug("InM", "VM_STATE update from host: " +
                          to_string(msg->oid()) + ". VM id: " + to_string(vm->get_oid()) +
                          ", state: " + missing_state);
+
+        if (ignore_state_update(vm.get()))
+        {
+            continue;
+        }
 
         if (missing_state == "UNKNOWN")
         {
