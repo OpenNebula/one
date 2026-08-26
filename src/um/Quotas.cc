@@ -317,6 +317,8 @@ bool Quotas::quota_check(QuotaType type, int uid, int gid, Template * tmpl,
     UserPool *  upool = nd.get_upool();
     GroupPool * gpool = nd.get_gpool();
 
+    bool user_quota_updated = false;
+
     if ( uid != UserPool::ONEADMIN_ID )
     {
         if ( auto user = upool->get(uid) )
@@ -326,6 +328,7 @@ bool Quotas::quota_check(QuotaType type, int uid, int gid, Template * tmpl,
             if ( user->quota.quota_check(type, tmpl, defaultq, error) )
             {
                 upool->update_quotas(user.get());
+                user_quota_updated = true;
             }
             else
             {
@@ -342,6 +345,8 @@ bool Quotas::quota_check(QuotaType type, int uid, int gid, Template * tmpl,
 
     if ( gid != GroupPool::ONEADMIN_ID )
     {
+        bool group_quota_exceeded = false;
+
         if ( auto group = gpool->get(gid) )
         {
             DefaultQuotas defaultq = nd.get_default_group_quota();
@@ -357,8 +362,23 @@ bool Quotas::quota_check(QuotaType type, int uid, int gid, Template * tmpl,
                 oss << "Group [" << gid << "] " << error;
 
                 error = oss.str();
-                return false;
+                group_quota_exceeded = true;
             }
+        }
+
+        if ( group_quota_exceeded )
+        {
+            if ( user_quota_updated )
+            {
+                if ( auto user = upool->get(uid) )
+                {
+                    user->quota.quota_del(type, tmpl);
+
+                    upool->update_quotas(user.get());
+                }
+            }
+
+            return false;
         }
     }
 
@@ -407,4 +427,3 @@ void Quotas::ds_del_recreate(int uid, int gid, vector<Template *>& ds_quotas)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
