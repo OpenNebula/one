@@ -227,8 +227,11 @@ void InformationManager::_undefined(unique_ptr<im_msg_t> msg)
 
 void InformationManager::_host_state(unique_ptr<im_msg_t> msg)
 {
-    NebulaLog::ddebug("InM", "HOST_STATE update from host: " +
-                      to_string(msg->oid()) + ". Host information: " + msg->payload());
+    NebulaLog::ddebug("InM", [&](std::ostream& log)
+    {
+        log << "HOST_STATE update from host: " << msg->oid()
+            << ". Host information: " << msg->payload();
+    });
 
     string str_state;
     string err_message;
@@ -289,8 +292,11 @@ void InformationManager::_host_state(unique_ptr<im_msg_t> msg)
 
 void InformationManager::_host_system(unique_ptr<im_msg_t> msg)
 {
-    NebulaLog::ddebug("InM", "HOST_SYSTEM update from host: " +
-                      to_string(msg->oid()) + ". Host information: " + msg->payload());
+    NebulaLog::ddebug("InM", [&](std::ostream& log)
+    {
+        log << "HOST_SYSTEM update from host: " << msg->oid()
+            << ". Host information: " << msg->payload();
+    });
 
     char *   error_msg;
     Template tmpl;

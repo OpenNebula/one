@@ -407,6 +407,15 @@ Request::ErrorCode ZoneAPI::replicate_log(const ReplicateLogParams& params,
 
     raftm->update_last_heartbeat(leader_id);
 
+    NebulaLog::dddebug("ReM", [&](std::ostream& log)
+    {
+        log << "Received heartbeat update [leader=" << leader_id
+            << ", follower=" << nd.get_server_id()
+            << ", leader_term=" << leader_term
+            << ", index=" << index
+            << ", term=" << term << ']';
+    });
+
     //--------------------------------------------------------------------------
     // HEARTBEAT
     //--------------------------------------------------------------------------

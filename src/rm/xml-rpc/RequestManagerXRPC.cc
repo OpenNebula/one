@@ -104,8 +104,6 @@ void RequestManagerXRPC::xml_server_loop()
 
     while (true)
     {
-        ostringstream oss;
-
         cm->wait();
 
         {
@@ -130,9 +128,10 @@ void RequestManagerXRPC::xml_server_loop()
 
         int nc = cm->add();
 
-        oss << "Number of active connections: " << nc;
-
-        NebulaLog::log("ReM", Log::DDEBUG, oss);
+        NebulaLog::ddebug("ReM", [&](std::ostream& log)
+        {
+            log << "Number of active connections: " << nc;
+        });
 
         thread conn_thread([client_fd, this]
         {

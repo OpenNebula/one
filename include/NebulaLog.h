@@ -21,6 +21,8 @@
 
 #include <sstream>
 #include <syslog.h>
+#include <type_traits>
+#include <utility>
 
 /**
  *  The Logger class for the OpenNebula components
@@ -116,6 +118,32 @@ public:
         logger->log(module, type, message.c_str());
     };
 
+    /**
+     *  Lazily compose and log a message if its log level is enabled.
+     *    @param module log module
+     *    @param type message log level
+     *    @param builder callable accepting an std::ostream reference
+     */
+    template<typename Builder,
+             std::enable_if_t<
+                 std::is_invocable_v<Builder, std::ostream&>, int> = 0>
+    static void log(
+            const char *           module,
+            const Log::MessageType type,
+            Builder&&              builder)
+    {
+        if ( type > logger->get_log_level() )
+        {
+            return;
+        }
+
+        std::ostringstream message;
+
+        std::forward<Builder>(builder)(message);
+
+        logger->log(module, type, message.str().c_str());
+    }
+
     static void error(const char* module, const std::string& msg)
     {
         logger->log(module, Log::ERROR, msg.c_str());
@@ -141,9 +169,25 @@ public:
         logger->log(module, Log::DDEBUG, msg.c_str());
     }
 
+    template<typename Builder,
+             std::enable_if_t<
+                 std::is_invocable_v<Builder, std::ostream&>, int> = 0>
+    static void ddebug(const char* module, Builder&& builder)
+    {
+        log(module, Log::DDEBUG, std::forward<Builder>(builder));
+    }
+
     static void dddebug(const char* module, const std::string& msg)
     {
         logger->log(module, Log::DDDEBUG, msg.c_str());
+    }
+
+    template<typename Builder,
+             std::enable_if_t<
+                 std::is_invocable_v<Builder, std::ostream&>, int> = 0>
+    static void dddebug(const char* module, Builder&& builder)
+    {
+        log(module, Log::DDDEBUG, std::forward<Builder>(builder));
     }
 
     static Log::MessageType log_level()

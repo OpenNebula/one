@@ -93,8 +93,6 @@ int SqliteDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
     void * arg;
 
     Log::MessageType error_level;
-    std::ostringstream oss;
-
     str   = cmd.str();
     c_str = str.c_str();
 
@@ -148,8 +146,10 @@ int SqliteDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
     {
         error_level = quiet ? Log::DDEBUG : Log::ERROR;
 
-        oss << "SQL command was: " << c_str << ", error: " << err_msg;
-        NebulaLog::log("ONE", error_level, oss);
+        NebulaLog::log("ONE", error_level, [&](std::ostream& log)
+        {
+            log << "SQL command was: " << c_str << ", error: " << err_msg;
+        });
 
         sqlite3_free(err_msg);
     }

@@ -43,14 +43,13 @@ public:
 
     ~Profiler()
     {
-        double time = get_elapsed_time();
-
         if (!end_message.empty())
         {
-            std::ostringstream oss;
-
-            oss << end_message << " Total time: " << one_util::float_to_str(time) << "s";
-            NebulaLog::log("SCHED", Log::DDEBUG, oss);
+            NebulaLog::ddebug("SCHED", [&](std::ostream& log)
+            {
+                log << end_message << " Total time: "
+                    << one_util::float_to_str(get_elapsed_time()) << "s";
+            });
         }
     }
 

@@ -87,7 +87,10 @@ void PlanManager::finalize()
 
 void PlanManager::add_plan(const string& xml)
 {
-    NebulaLog::ddebug("PLM", "Adding new plan:" + xml);
+    NebulaLog::ddebug("PLM", [&](std::ostream& log)
+    {
+        log << "Adding new plan:" << xml;
+    });
 
     Plan plan;
 

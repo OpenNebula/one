@@ -38,7 +38,10 @@ void ImageManager::_undefined(unique_ptr<image_msg_t> msg)
 
 void ImageManager::_stat(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_stat: " + msg->payload());
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_stat: " << msg->payload();
+    });
 
     if (msg->status() == "SUCCESS")
     {
@@ -60,7 +63,10 @@ void ImageManager::_stat(unique_ptr<image_msg_t> msg)
 void ImageManager::_cp(unique_ptr<image_msg_t> msg)
 {
     const auto& info = msg->payload();
-    NebulaLog::dddebug("ImM", "_cp: " + info);
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_cp: " << info;
+    });
 
     string  source, format;
     int     ds_id = -1;
@@ -164,7 +170,10 @@ void ImageManager::_clone(unique_ptr<image_msg_t> msg)
     ostringstream oss;
     istringstream is(info);
 
-    NebulaLog::dddebug("ImM", "_clone: " + info);
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_clone: " << info;
+    });
 
     is >> skipws;
 
@@ -255,7 +264,10 @@ error:
 
 void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_mkfs: " + msg->payload());
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_mkfs: " << msg->payload();
+    });
 
     int vm_id   = -1;
     int disk_id = -1;
@@ -432,7 +444,10 @@ error:
 
 void ImageManager::_rm(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_rm: " + msg->payload());
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_rm: " << msg->payload();
+    });
 
     int img_id = msg->oid();
     int ds_id = -1;
@@ -567,7 +582,10 @@ error:
 
 void ImageManager::_monitor(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_monitor: " + msg->payload());
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_monitor: " << msg->payload();
+    });
 
     ostringstream oss;
 
@@ -649,7 +667,10 @@ void ImageManager::_monitor(unique_ptr<image_msg_t> msg)
 
 void ImageManager::_snap_delete(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_snap_delete: " + msg->payload());
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_snap_delete: " << msg->payload();
+    });
 
     long long   snap_size;
     int         ds_id, uid, gid;
@@ -724,7 +745,10 @@ void ImageManager::_snap_delete(unique_ptr<image_msg_t> msg)
 
 void ImageManager::_snap_revert(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_snap_revert: " + msg->payload());
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_snap_revert: " << msg->payload();
+    });
 
     auto image = ipool->get(msg->oid());
 
@@ -784,7 +808,10 @@ void ImageManager::_snap_revert(unique_ptr<image_msg_t> msg)
 
 void ImageManager::_snap_flatten(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_snap_flatten: " + msg->payload());
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_snap_flatten: " << msg->payload();
+    });
 
     long long   snap_size;
     int         ds_id, uid, gid;
@@ -846,7 +873,10 @@ void ImageManager::_snap_flatten(unique_ptr<image_msg_t> msg)
 
 void ImageManager::_restore(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_restore: " + msg->payload());
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_restore: " << msg->payload();
+    });
 
     if (msg->status() == "SUCCESS")
     {
@@ -872,7 +902,10 @@ void ImageManager::_restore(unique_ptr<image_msg_t> msg)
 
 void ImageManager::_increment_flatten(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_increment_flatten: " + msg->payload());
+    NebulaLog::dddebug("ImM", [&](std::ostream& log)
+    {
+        log << "_increment_flatten: " << msg->payload();
+    });
 
     auto image = ipool->get(msg->oid());
 
