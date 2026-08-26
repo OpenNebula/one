@@ -3310,7 +3310,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
             }
             else
             {
-                if (in->second == ib->second)
+                if (one_util::trim(in->second) == one_util::trim(ib->second))
                 {
                     equal_values.insert(make_pair(in->first, in->second));
                 }
