@@ -461,6 +461,12 @@ public:
      */
     friend void AddressRangePool::release_mac_ids();
 
+    /*
+     *  get_ar from AddressRangePool needs to access the internal
+     *  representation of the AR.
+     */
+    friend const VectorAttribute * AddressRangePool::get_ar(int ar_id) const;
+
     // *************************************************************************
     // Global MAC address space definition
     // *************************************************************************

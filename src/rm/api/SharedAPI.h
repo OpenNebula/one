@@ -208,10 +208,15 @@ protected:
 
     /**
      * Validate VLAN authorization for a template
+     *   @param tmpl template with requested VLAN attributes
+     *   @param vntemplate_id associated VN Template ID
+     *   @param att request attributes
+     *   @param current_tmpl current template used to skip unchanged values
      */
     static Request::ErrorCode validate_vlan_auth(Template * tmpl,
                                                  int vntemplate_id,
-                                                 RequestAttributes& att);
+                                                 RequestAttributes& att,
+                                                 const Template * current_tmpl = nullptr);
 
     /*************************************************************************/
     /* Virtual helpers, override in derived classes                          */

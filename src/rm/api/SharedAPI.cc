@@ -27,6 +27,8 @@
 #include "MarketPlacePool.h"
 #include "GroupPool.h"
 
+#include <algorithm>
+
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
@@ -1453,7 +1455,8 @@ bool SharedAPI::has_vntemplate_rules(int vntemplate_id, RequestAttributes& att)
 
 Request::ErrorCode SharedAPI::validate_vlan_auth(Template * tmpl,
                                                  int vntemplate_id,
-                                                 RequestAttributes& att)
+                                                 RequestAttributes& att,
+                                                 const Template * current_tmpl)
 {
     using VlanRule = GroupVlans::VlanRule;
 
@@ -1461,6 +1464,7 @@ Request::ErrorCode SharedAPI::validate_vlan_auth(Template * tmpl,
     bool aouter = false;
     vector<pair<VlanRule::Scope, string>> vlan_requests;
     vector<VectorAttribute*> ars;
+    vector<const VectorAttribute*> current_ars;
 
     tmpl->get("AUTOMATIC_VLAN_ID", avlan);
     tmpl->get("AUTOMATIC_OUTER_VLAN_ID", aouter);
@@ -1486,6 +1490,15 @@ Request::ErrorCode SharedAPI::validate_vlan_auth(Template * tmpl,
 
         if (tmpl->get(attr, value))
         {
+            string current_value;
+
+            if (current_tmpl != nullptr
+                && current_tmpl->get(attr, current_value)
+                && value == current_value)
+            {
+                return;
+            }
+
             add_vlan_request(scope, value);
         }
     };
@@ -1497,12 +1510,45 @@ Request::ErrorCode SharedAPI::validate_vlan_auth(Template * tmpl,
 
     tmpl->get("AR", ars);
 
+    if (current_tmpl != nullptr)
+    {
+        current_tmpl->get("AR", current_ars);
+    }
+
     for (auto ar : ars)
     {
-        add_vlan_request(VlanRule::VLAN_ID, ar->vector_value("VLAN_ID"));
-        add_vlan_request(VlanRule::CVLAN, ar->vector_value("CVLANS"));
-        add_vlan_request(VlanRule::VLAN_TAGGED_ID, ar->vector_value("VLAN_TAGGED_ID"));
-        add_vlan_request(VlanRule::OUTER_VLAN_ID, ar->vector_value("OUTER_VLAN_ID"));
+        auto current_ar = current_ars.end();
+        int ar_id;
+
+        if (ar->vector_value("AR_ID", ar_id) == 0)
+        {
+            current_ar = std::find_if(current_ars.begin(), current_ars.end(),
+                                      [ar_id](const VectorAttribute * candidate)
+            {
+                int candidate_id;
+
+                return candidate->vector_value("AR_ID", candidate_id) == 0
+                       && candidate_id == ar_id;
+            });
+        }
+
+        auto add_ar_vlan_request = [&](VlanRule::Scope scope, const string& attr)
+        {
+            string value = ar->vector_value(attr);
+
+            if (current_ar != current_ars.end()
+                && value == (*current_ar)->vector_value(attr))
+            {
+                return;
+            }
+
+            add_vlan_request(scope, value);
+        };
+
+        add_ar_vlan_request(VlanRule::VLAN_ID, "VLAN_ID");
+        add_ar_vlan_request(VlanRule::CVLAN, "CVLANS");
+        add_ar_vlan_request(VlanRule::VLAN_TAGGED_ID, "VLAN_TAGGED_ID");
+        add_ar_vlan_request(VlanRule::OUTER_VLAN_ID, "OUTER_VLAN_ID");
     }
 
     for (const auto& vlan_request : vlan_requests)

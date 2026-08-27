@@ -634,6 +634,21 @@ unsigned int AddressRangePool::get_size() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+const VectorAttribute * AddressRangePool::get_ar(int ar_id) const
+{
+    auto it = ar_pool.find(ar_id);
+
+    if (it == ar_pool.end())
+    {
+        return nullptr;
+    }
+
+    return it->second->attr;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRangePool::hold_by_ip(unsigned int ar_id, const string& ip_s)
 {
     auto it = ar_pool.find(ar_id);
