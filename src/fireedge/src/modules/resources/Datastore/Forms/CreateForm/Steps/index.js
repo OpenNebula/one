@@ -82,6 +82,53 @@ const getCustomVariables = (template = {}) =>
     Object.entries(template).filter(([key]) => !KNOWN_TEMPLATE_ATTRS.has(key))
   )
 
+const RESTIC_SFTP_ATTRS = new Set(['RESTIC_SFTP_SERVER', 'RESTIC_SFTP_USER'])
+
+const RESTIC_S3_BOOLEAN_ATTRS = new Set([
+  'RESTIC_S3_FORCE_PATH_STYLE',
+  'RESTIC_S3_INSECURE_TLS',
+])
+
+const RESTIC_S3_ATTRS = new Set([
+  'RESTIC_S3_ACCESS_KEY_ID',
+  'RESTIC_S3_SECRET_ACCESS_KEY',
+  'RESTIC_S3_BUCKET',
+  'RESTIC_S3_REGION',
+  'RESTIC_S3_ENDPOINT',
+  ...RESTIC_S3_BOOLEAN_ATTRS,
+  'RESTIC_S3_CACERT',
+  'TOTAL_MB',
+])
+
+const RESTIC_BACKEND_ATTRS = new Set([
+  'RESTIC_BACKEND',
+  ...RESTIC_SFTP_ATTRS,
+  ...RESTIC_S3_ATTRS,
+])
+
+const formatResticAttributes = (attributes, storageBackend) => {
+  const isResticStorage = storageBackend === DS_STORAGE_BACKENDS.RESTIC.value
+  const resticBackend = attributes?.RESTIC_BACKEND ?? 'SFTP'
+
+  return Object.fromEntries(
+    Object.entries(attributes)
+      .filter(([name]) => {
+        if (!isResticStorage) return !RESTIC_BACKEND_ATTRS.has(name)
+        if (resticBackend === 'S3') return !RESTIC_SFTP_ATTRS.has(name)
+
+        return !RESTIC_S3_ATTRS.has(name)
+      })
+      .map(([name, value]) => [
+        name,
+        resticBackend === 'S3' && RESTIC_S3_BOOLEAN_ATTRS.has(name)
+          ? value
+            ? 'YES'
+            : 'NO'
+          : value,
+      ])
+  )
+}
+
 const Steps = createSteps(
   (stepProps) =>
     stepProps?.datastoreId
@@ -202,10 +249,13 @@ const Steps = createSteps(
 
       const cephHost = CEPH_HOST?.length > 0 ? CEPH_HOST.join(',') : undefined
 
-      const formatRestConf = Object.fromEntries(
-        Object.entries(restConf).filter(
-          ([k]) => cacheEnabled || !k.startsWith('CACHE_')
-        )
+      const formatRestConf = formatResticAttributes(
+        Object.fromEntries(
+          Object.entries(restConf).filter(
+            ([k]) => cacheEnabled || !k.startsWith('CACHE_')
+          )
+        ),
+        STORAGE_BACKEND
       )
 
       const dsObject = {

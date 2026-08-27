@@ -1183,9 +1183,36 @@ module.exports = {
   CephSecret: 'Ceph secret',
   CephUserConcept: 'The username to interact with the Ceph cluster',
   CephSecretConcept: 'A generated UUID for a LibVirt secret',
+  ResticBackend: 'Restic backend',
+  ResticBackendConcept:
+    'Storage backend used by Restic. SFTP is used by default',
   ResticPassword: 'Restic password',
   ResticSFTPUser: 'Restic SFTP user',
   ResticSFTPServer: 'Restic SFTP server',
+  ResticS3AccessKeyId: 'Restic S3 access key ID',
+  ResticS3AccessKeyIdConcept: 'Access key ID used to authenticate with S3',
+  ResticS3SecretAccessKey: 'Restic S3 secret access key',
+  ResticS3SecretAccessKeyConcept:
+    'Secret access key used to authenticate with S3',
+  ResticS3Bucket: 'Restic S3 bucket',
+  ResticS3BucketConcept: 'Bucket name only, without the endpoint URL',
+  ResticS3Region: 'Restic S3 region',
+  ResticS3RegionConcept: 'Defaults to us-east-1 when omitted',
+  ResticS3Endpoint: 'Restic S3 endpoint',
+  ResticS3EndpointConcept:
+    'Defaults to s3.amazonaws.com and can include a URL scheme',
+  ResticS3ForcePathStyle: 'Force path-style S3 access',
+  ResticS3ForcePathStyleConcept:
+    'Required by many non-AWS S3-compatible backends',
+  ResticS3CACert: 'Restic S3 CA certificate path',
+  ResticS3CACertConcept:
+    'Path to a custom CA certificate available on the KVM hosts',
+  ResticS3InsecureTLS: 'Disable S3 TLS certificate verification',
+  ResticS3InsecureTLSConcept:
+    'Disable TLS certificate verification for lab or debug environments only',
+  ResticS3TotalMB: 'Restic S3 capacity (MB)',
+  ResticS3TotalMBConcept:
+    'Capacity used for monitoring. Defaults to 1048576 MB when omitted',
   Priority: 'Priority',
   BackupIOPriority: 'Backup I/O priority',
   BackupIOPriorityConcept:
