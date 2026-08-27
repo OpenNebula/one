@@ -135,7 +135,7 @@ RSpec.describe 'detect_servers' do
 
         stub_const 'LOCAL_ADDRS', ['127.0.0.1']
 
-        expect { detect_servers }.to raise_error(Socket::ResolutionError)
+        expect { detect_servers }.to raise_error(SocketError)
     end
 end
 

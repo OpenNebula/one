@@ -103,7 +103,7 @@ def is_local?(host)
                 ip = addr.ip_address
                 LOCAL_ADDRS.include?(ip) || IPAddr.new(ip).loopback?
             end.any?
-        rescue Socket::ResolutionError
+        rescue SocketError
             Socket.gethostname == v
         end
     else
@@ -125,7 +125,7 @@ def detect_servers(zone_name_or_id = 'OpenNebula')
     addresses.reject! {|v| v == myself }
 
     [addresses, myself].tap do |result|
-        # assert addresses are resolvable (raises Socket::ResolutionError)
+        # assert addresses are resolvable (raises SocketError)
         result.flatten.each {|v| Addrinfo.ip(v) }
     end
 end
