@@ -36,6 +36,7 @@ const Steps = createSteps([General, Configuration], {
     )
     const vlanTaggedSwitch = !!TEMPLATE.VLAN_TAGGED_ID
     const QInQSwitch = !!TEMPLATE.CVLANS
+    const SRIOVSwitch = !!(TEMPLATE.SPOOFCHK || TEMPLATE.TRUST)
 
     const initialValue = schema.cast(
       {
@@ -49,6 +50,7 @@ const Steps = createSteps([General, Configuration], {
           BRIDGE_SWITCH: bridgeSwitch,
           VLAN_TAGGED_ID_SWITCH: vlanTaggedSwitch,
           Q_IN_Q_SWITCH: QInQSwitch,
+          SRIOV_SWITCH: SRIOVSwitch,
           VLAN_TAGGED_ID: TEMPLATE?.VLAN_TAGGED_ID?.split(','),
           CVLANS: TEMPLATE?.CVLANS?.split(','),
           IP_LINK_CONF: TEMPLATE?.IP_LINK_CONF?.split(','),
@@ -86,11 +88,18 @@ const Steps = createSteps([General, Configuration], {
       }
     }
 
-    // Ensure that switches of physical device and bridge are not sent to the API
+    // Do not send SR-IOV options when their section is disabled
+    if (!extra.SRIOV_SWITCH) {
+      delete extra.SPOOFCHK
+      delete extra.TRUST
+    }
+
+    // Ensure that UI-only switches are not sent to the API
     delete extra.PHYDEV_SWITCH
     delete extra.BRIDGE_SWITCH
     delete extra.VLAN_TAGGED_ID_SWITCH
     delete extra.Q_IN_Q_SWITCH
+    delete extra.SRIOV_SWITCH
     delete extra.ENABLE_DPDK
     ![VN_DRIVERS.ovswitch].includes(formData?.extra?.VN_MAD) &&
       delete extra?.BRIDGE_TYPE

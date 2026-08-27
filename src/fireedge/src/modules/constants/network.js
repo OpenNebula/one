@@ -291,3 +291,9 @@ export const LEASE_STATE = {
     color: COLOR.debug.main,
   },
 }
+
+export const SRIOV_OPTIONS = {
+  [T.Enabled]: 'YES',
+  [T.NotConfigured]: '',
+  [T.Disabled]: 'NO',
+}

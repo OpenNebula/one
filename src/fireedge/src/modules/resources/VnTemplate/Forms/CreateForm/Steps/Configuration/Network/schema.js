@@ -18,6 +18,7 @@ import { boolean, lazy, string, array } from 'yup'
 
 import {
   INPUT_TYPES,
+  SRIOV_OPTIONS,
   RESTRICTED_ATTRIBUTES_TYPE,
   T,
   VN_DRIVERS,
@@ -352,6 +353,67 @@ const VLAN_ID_FIELD = ({ isInstantiate = false, isVnet = false }) => ({
   grid: { sm: 6 },
 })
 
+/** @type {Field} Configure SR-IOV network switch field */
+const SRIOV_SWITCH = {
+  name: 'SRIOV_SWITCH',
+  label: T.Sriov,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().default(() => false),
+  grid: { md: 12 },
+}
+
+/** @type {Field} SPOOFCHK mode field */
+const SPOOFCHK_FIELD = {
+  name: 'SPOOFCHK',
+  label: T.SpoofCheck,
+  tooltip: T.SpoofCheckConcept,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  dependOf: SRIOV_SWITCH.name,
+  htmlType: (sriovSwitch) => !sriovSwitch && INPUT_TYPES.HIDDEN,
+  values: arrayToOptions(Object.keys(SRIOV_OPTIONS), {
+    addEmpty: false,
+    getText: (type) => type,
+    getValue: (type) => SRIOV_OPTIONS[type],
+  }),
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined)
+    .when(SRIOV_SWITCH.name, {
+      is: (sriovSwitch) => sriovSwitch === false,
+      then: (schema) => schema.strip(),
+    })
+    .afterSubmit((spoofCheck) => spoofCheck ?? undefined),
+  grid: { md: 6 },
+}
+
+/** @type {Field} TRUST mode field */
+const TRUST_FIELD = {
+  name: 'TRUST',
+  label: T.TrustCheck,
+  tooltip: T.TrustCheckConcept,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  dependOf: SRIOV_SWITCH.name,
+  htmlType: (sriovSwitch) => !sriovSwitch && INPUT_TYPES.HIDDEN,
+  values: arrayToOptions(Object.keys(SRIOV_OPTIONS), {
+    addEmpty: false,
+    getText: (type) => type,
+    getValue: (type) => SRIOV_OPTIONS[type],
+  }),
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined)
+    .when(SRIOV_SWITCH.name, {
+      is: (sriovSwitch) => sriovSwitch === false,
+      then: (schema) => schema.strip(),
+    })
+    .afterSubmit((trust) => trust ?? undefined),
+  grid: { md: 6 },
+}
+
 /** @type {Field} Q-in-Q network switch linux field */
 const Q_IN_Q_SWITCH = {
   name: 'Q_IN_Q_SWITCH',
@@ -565,6 +627,10 @@ const FIELDS = (oneConfig, adminGroup, isUpdate, isInstantiate, isVnet) =>
       QINQ_TYPE,
 
       IP_LINK_CONF_FIELD,
+
+      SRIOV_SWITCH,
+      SPOOFCHK_FIELD,
+      TRUST_FIELD,
     ],
     '',
     oneConfig,
