@@ -1,0 +1,33 @@
+- title: Instances
+  icon: GridAdd
+  routes:
+    - title: VMs
+      path: /vm
+      sidebar: true
+      icon: ModernTv
+      Component: VirtualMachines
+    - title: Create VM
+      path: /vm/create
+      Component: CreateVm
+    - title: Virtual Routers
+      path: /vrouter
+      sidebar: true
+      icon: Shuffle
+      Component: VirtualRouters
+    - title: Instantiate Virtual Router
+      path: /vrouter/instantiate
+      Component: InstantiateVrTemplate
+    - title: Virtual Routers
+      path: /vrouter/:id
+      Component: VirtualRouterDetail
+    - title: Services
+      path: /service
+      sidebar: true
+      icon: Packages
+      Component: Services
+    - title: Instantiate Service Template
+      path: /service/instantiate/
+      Component: InstantiateServiceTemplate
+    - title: Service
+      path: /service/:id
+      Component: ServiceDetail

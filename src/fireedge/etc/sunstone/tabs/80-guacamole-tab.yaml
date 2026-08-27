@@ -1,0 +1,4 @@
+- title: Guacamole
+  path: /guacamole/:id/:type
+  sidebar: false
+  Component: Guacamole

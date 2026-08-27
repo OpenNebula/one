@@ -22,24 +22,19 @@ const { defaultRemoteModules } = defaults
 const path = require('path')
 
 /**
- * Reads the tab-manifest.yaml file from disk.
+ * Reads and joins the Sunstone tab manifest files from disk.
  *
- * @returns {Promise<object>} - The parsed JSON object from the file.
- * @throws {Error} - Throws if the file cannot be read or parsed.
+ * @returns {Promise<object[]>} - The parsed tab manifest entries.
+ * @throws {Error} - Throws if the directory cannot be read or a file parsed.
  */
 const getTabManifest = async () => {
   try {
     const tabManifestConfigDirectory = global?.paths?.TAB_MANIFEST_DIR
-    const tabManifestConfigPath = global?.paths?.TAB_MANIFEST_CONFIG
 
-    if (!(await fs.pathExists(tabManifestConfigPath))) {
-      throw new Error(`Configuration file not found: ${tabManifestConfigPath}`)
-    }
-
-    let overlayFiles = []
+    let tabFiles = []
     try {
       const yamlExtNames = ['.yaml', '.yml']
-      overlayFiles = (
+      tabFiles = (
         await fs.readdir(tabManifestConfigDirectory, {
           encoding: 'utf8',
           withFileTypes: true,
@@ -59,15 +54,13 @@ const getTabManifest = async () => {
 
     const manifest = (
       await Promise.all(
-        [tabManifestConfigPath, ...overlayFiles]?.map(async (p) =>
-          yamlToJson(await fs.readFile(p, 'utf8'))
-        )
+        tabFiles?.map(async (p) => yamlToJson(await fs.readFile(p, 'utf8')))
       )
     )?.flat()
 
     return manifest
   } catch (error) {
-    throw new Error('Failed to load tab-manifest.yaml')
+    throw new Error('Failed to load tab manifest')
   }
 }
 

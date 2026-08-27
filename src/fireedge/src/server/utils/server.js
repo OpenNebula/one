@@ -71,7 +71,6 @@ const {
   defaultSunstoneConfig,
   defaultDownloader,
   defaultEmptyFunction,
-  defaultTabManifestFilename,
   defaultRemoteModulesConfigFilename,
 } = defaults
 
@@ -656,9 +655,6 @@ const genPathResources = () => {
     }
     if (!global.paths.OS_PROFILES) {
       global.paths.OS_PROFILES = `${MODULES_LOCATION}/profiles`
-    }
-    if (!global.paths.TAB_MANIFEST_CONFIG) {
-      global.paths.TAB_MANIFEST_CONFIG = `${MODULES_LOCATION}/${defaultTabManifestFilename}`
     }
     if (!global.paths.TAB_MANIFEST_DIR) {
       global.paths.TAB_MANIFEST_DIR = `${MODULES_LOCATION}/tabs`

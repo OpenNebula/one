@@ -1,0 +1,49 @@
+- title: Infrastructure
+  icon: Cloud
+  routes:
+    - title: Drivers
+      path: /driver
+      sidebar: false
+      icon: DataTransferUp
+      Component: Drivers
+    - title: Providers
+      path: /provider
+      sidebar: true
+      icon: SettingsProfiles
+      Component: Providers
+    - title: Create Provider
+      path: /provider/create
+      Component: CreateProvider
+    - title: Clusters
+      path: /cluster
+      sidebar: true
+      icon: Server
+      Component: Clusters
+    - title: Create Cluster
+      path: /cluster/create
+      Component: CreateCluster
+    - title: Create Cluster
+      path: /cluster/create_cloud
+      Component: CreateClusterCloud
+    - title: Cluster Logs
+      path: /cluster/create_cloud_logs/:id
+      Component: CreateClusterCloudLogs
+    - title: Cluster
+      path: /cluster/:id
+      Component: ClusterDetail
+    - title: Hosts
+      path: /host
+      sidebar: true
+      icon: HardDrive
+      Component: Hosts
+    - title: Create Host
+      path: /host/create
+      Component: CreateHost
+    - title: Host
+      path: /host/:id
+      Component: HostDetail
+    - title: Zones
+      path: /zone
+      sidebar: true
+      icon: MinusPinAlt
+      Component: Zones

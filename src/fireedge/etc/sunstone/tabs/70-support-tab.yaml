@@ -1,0 +1,8 @@
+- title: Support
+  path: /support
+  sidebar: true
+  icon: HeadsetHelp
+  Component: Support
+- title: Create Ticket
+  path: /support/create
+  Component: CreateTicket

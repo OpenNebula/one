@@ -1,0 +1,36 @@
+- title: Networks
+  icon: Network
+  routes:
+    - title: Virtual networks
+      path: /virtual-network
+      sidebar: true
+      icon: NetworkAlt
+      Component: VirtualNetworks
+    - title: Instantiate Network Template
+      path: /network-template/instantiate
+      Component: InstantiateVnTemplate
+    - title: Create Virtual Network
+      path: /virtual-network/create
+      Component: CreateVirtualNetwork
+    - title: Update Virtual Network
+      path: /virtual-network/update
+      Component: CreateVirtualNetwork
+    - title: Virtual networks
+      path: /virtual-network/:id
+      Component: VirtualNetworkDetail
+    - title: Network Templates
+      path: /network-template
+      sidebar: true
+      icon: KeyframesCouple
+      Component: VnTemplates
+    - title: Create Virtual Network Template
+      path: /network-template/create
+      Component: CreateVnTemplate
+    - title: Security groups
+      path: /security-group
+      sidebar: true
+      icon: HistoricShield
+      Component: SecurityGroups
+    - title: Create Security Group
+      path: /security-group/create
+      Component: CreateSecurityGroup

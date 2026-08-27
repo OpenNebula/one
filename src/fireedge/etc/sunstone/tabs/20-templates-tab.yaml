@@ -1,0 +1,59 @@
+- title: Templates
+  icon: ViewStructureDown
+  routes:
+    - title: VM Templates
+      path: /vm-template
+      sidebar: true
+      icon: EmptyPage
+      Component: VmTemplates
+    - title: Instantiate VM Template
+      path: /vm-template/instantiate
+      Component: InstantiateVmTemplate
+    - title: Create VM Template
+      path: /vm-template/create
+      Component: CreateVmTemplate
+    - title: Update VM Template
+      path: /vm-template/update
+      Component: CreateVmTemplate
+    - title: VM Template
+      path: /vm-template/:id
+      Component: VmTemplateDetail
+    - title: Instantiate Service Template
+      path: /service-template/instantiate/
+      Component: InstantiateServiceTemplate
+    - title: Service Templates
+      path: /service-template
+      sidebar: true
+      icon: MultiplePagesEmpty
+      Component: ServiceTemplates
+    - title: Create Service Template
+      path: /service-template/create
+      Component: CreateServiceTemplate
+    - title: Service Template
+      path: /service-template/:id
+      Component: ServiceTemplateDetail
+    - title: Instantiate VR Template
+      path: /vrouter-template/instantiate/
+      Component: InstantiateVrTemplate
+    - title: Virtual Routers
+      path: /vrouter-template
+      sidebar: true
+      icon: Shuffle
+      Component: VrTemplates
+    - title: Create VR Template
+      path: /vrouter-template/create
+      Component: CreateVrTemplate
+    - title: Update VR Template
+      path: /vrouter-template/update
+      Component: CreateVrTemplate
+    - title: VR Template
+      path: /vrouter-template/:id
+      Component: VrTemplateDetail
+    - title: Create VM group
+      path: /vm-group/create
+      Component: CreateVmGroup
+    - title: VM Groups
+      path: /vm-group
+      icon: Folder
+      sidebar: true
+      Component: VmGroups

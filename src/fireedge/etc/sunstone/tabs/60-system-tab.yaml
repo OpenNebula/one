@@ -1,0 +1,44 @@
+- title: System
+  icon: Tools
+  routes:
+    - title: Create User
+      path: /user/create
+      Component: CreateUser
+    - title: Users
+      path: /user
+      sidebar: true
+      icon: User
+      Component: Users
+    - title: User
+      path: /user/:id
+      Component: UserDetail
+    - title: Create Group
+      path: /group/create
+      Component: CreateGroup
+    - title: Groups
+      path: /group
+      sidebar: true
+      icon: Group
+      Component: Groups
+    - title: Group
+      path: /group/:id
+      Component: GroupDetail
+    - title: Create VDC
+      path: /virtual-data-center/create
+      Component: CreateVDC
+    - title: VDCs
+      path: /virtual-data-center
+      sidebar: true
+      icon: List
+      Component: VDCs
+    - title: VDC
+      path: /virtual-data-center/:id
+      Component: VDCDetail
+    - title: Create ACL
+      path: /acl/create
+      Component: CreateACL
+    - title: ACLs
+      path: /acl
+      sidebar: true
+      icon: KeyAlt
+      Component: ACLs

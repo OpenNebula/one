@@ -1,0 +1,74 @@
+- title: Storage
+  icon: DatabaseStats
+  routes:
+    - title: Datastores
+      path: /datastore
+      sidebar: true
+      icon: Db
+      Component: Datastores
+    - title: Create Datastore
+      path: /datastore/create
+      Component: CreateDatastore
+    - title: Update Datastore
+      path: /datastore/update
+      Component: CreateDatastore
+    - title: Datastore
+      path: /datastore/:id
+      Component: DatastoreDetail
+    - title: Images
+      path: /image
+      sidebar: true
+      icon: BoxIso
+      Component: Images
+    - title: Create Image
+      path: /image/create
+      Component: CreateImage
+    - title: Files
+      path: /file
+      sidebar: true
+      icon: Archive
+      Component: Files
+    - title: Create File
+      path: /file/create
+      Component: CreateFile
+    - title: Backups
+      path: /backup
+      sidebar: true
+      icon: RefreshDouble
+      Component: Backups
+    - title: Backup
+      path: /backup/:id
+      Component: BackupDetail
+    - title: Marketplaces
+      path: /marketplace
+      sidebar: true
+      icon: SimpleCart
+      Component: Marketplaces
+    - title: Create Marketplace
+      path: /marketplace/create
+      Component: CreateMarketplace
+    - title: Marketplace
+      path: /marketplace/:id
+      Component: MarketplaceDetail
+    - title: Apps
+      path: /marketplace-app
+      sidebar: true
+      icon: CloudDownload
+      Component: MarketplaceApps
+    - title: Create Marketplace App
+      path: /marketplace-app/create
+      Component: CreateMarketplaceApp
+    - title: App
+      path: /marketplace-app/:id
+      Component: MarketplaceAppDetail
+    - title: Create BackupJob
+      path: /backupjobs/create
+      Component: CreateBackupJob
+    - title: BackupJobs
+      path: /backupjobs
+      sidebar: true
+      icon: Clock
+      Component: BackupJobs
+    - title: BackupJob
+      path: /backupjobs/:id
+      Component: BackupJobDetail
