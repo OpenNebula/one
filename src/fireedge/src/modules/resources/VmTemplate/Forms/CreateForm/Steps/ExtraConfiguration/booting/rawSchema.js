@@ -22,7 +22,7 @@ import { T, INPUT_TYPES, HYPERVISORS } from '@ConstantsModule'
 const { kvm, lxc, dummy } = HYPERVISORS
 
 /** @type {Field} Raw type field */
-const TYPE = {
+export const TYPE = {
   name: 'RAW.TYPE',
   label: T.Type,
   type: INPUT_TYPES.TEXT,
@@ -37,7 +37,7 @@ const TYPE = {
 }
 
 /** @type {Field} Raw data field */
-const DATA = {
+export const DATA = {
   name: 'RAW.DATA',
   label: T.Data,
   type: INPUT_TYPES.TEXT,
@@ -51,7 +51,7 @@ const DATA = {
 }
 
 /** @type {Field} Raw validate field */
-const VALIDATE = {
+export const VALIDATE = {
   name: 'RAW.VALIDATE',
   label: T.Validate,
   tooltip: T.RawValidateConcept,
