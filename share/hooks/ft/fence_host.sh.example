@@ -17,10 +17,16 @@
 #--------------------------------------------------------------------------- #
 
 ##############################################################################
-# WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+# This is an EXAMPLE script, it is not used by the Host error hook as is.
 #
-# This script needs to be modified to enable fencing of the host. By default it
-# will fail, as the first line is 'exit 1'. You will need to remove it.
+# To enable fencing, copy this file to 'fence_host.sh' in this directory and
+# adapt it to your infrastructure:
+#
+#     cp fence_host.sh.example fence_host.sh
+#
+# The Host error hook (host_error.rb) executes 'fence_host.sh' only if the
+# file exists. The 'fence_host.sh' file you create is yours and is preserved
+# across OpenNebula upgrades, while this example may be updated by them.
 #
 # In order to perform the fencing, you will probably need to install a fencing
 # utility. They are typically found in: fence-agents-all (CentOS) and fence-
@@ -37,8 +43,6 @@
 # storing the information required to perform the fencing in a separate CMDB,
 # etc. However, you will probably need to get the host's NAME, which should be
 # done as shown below.
-#
-# WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 #############################################################################
 
 # Configuration attributes
@@ -52,9 +56,6 @@ ACTION="off"
 HOST_TEMPLATE=$(cat -)
 
 # @return 0 on success. Make sure this script does not return 0 if it fails.
-
-# To enable remove this line
-echo ""Fence host not configured, please edit ft/fence_host.sh"" && exit 1
 
 #-------------------------------------------------------------------------------
 # Get host parameters with XPATH

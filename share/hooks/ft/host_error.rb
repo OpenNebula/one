@@ -204,6 +204,13 @@ end
 
 # Do fencing
 if fencing
+    unless File.exist?(FENCE_HOST)
+        log_error "Fencing is enabled but #{FENCE_HOST} does not exist. " \
+                  "Copy #{FENCE_HOST}.example to #{FENCE_HOST} and adapt it " \
+                  "to your infrastructure, or disable fencing (--no-fencing)."
+        exit_error
+    end
+
     host64 = Base64::strict_encode64(host.to_xml)
 
     log "Fencing enabled"
