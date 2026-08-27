@@ -231,6 +231,7 @@ module.exports = {
   Lock: 'Lock',
   Migrate: 'Migrate',
   MigrateLive: 'Migrate live',
+  NotConfigured: 'Not configured',
   Off: 'Off',
   Offline: 'Offline',
   Flush: 'Flush',
@@ -2451,6 +2452,13 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
     'Options passed to ip cmd on operations specific to this Virtual Network',
   OuterVlanId: 'Outer VLAN ID',
   AutomaticOuterVlanId: 'Automatic Outer VLAN ID',
+  Sriov: 'Configure SRIOV network',
+  SpoofCheck: 'VF MAC Spoofing filter',
+  SpoofCheckConcept:
+    'Prevents the VF from sending outbound traffic with unauthorized source MAC addresses.',
+  TrustCheck: 'VF Trust',
+  TrustCheckConcept:
+    'Grants the VF elevated privileges to enter promiscuous mode.',
   InvalidAttribute: 'Invalid attribute',
   /* Virtual Network schema - address range */
   Address: 'Address',
