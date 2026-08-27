@@ -135,3 +135,10 @@ info-tabs:
 
   template:
     enabled: false
+
+  exec:
+    enabled: true
+    actions:
+      exec: true
+      exec-retry: true
+      exec-cancel: true

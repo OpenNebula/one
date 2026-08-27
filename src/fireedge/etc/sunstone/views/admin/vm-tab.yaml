@@ -159,3 +159,10 @@ info-tabs:
 
   logs:
     enabled: true
+
+  exec:
+    enabled: true
+    actions:
+      exec: true
+      exec-retry: true
+      exec-cancel: true
