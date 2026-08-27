@@ -41,6 +41,7 @@ Request::ErrorCode VNTemplateAPI::instantiate(int oid,
     ClusterPool*        clpool  = nd.get_clpool();
 
     unique_ptr<VirtualNetworkTemplate> tmpl;
+    unique_ptr<VirtualNetworkTemplate> current_tmpl;
     VirtualNetworkTemplate extended_tmpl;
 
     string tmpl_name;
@@ -53,8 +54,9 @@ Request::ErrorCode VNTemplateAPI::instantiate(int oid,
     /* ---------------------------------------------------------------------- */
     if ( auto vntmpl = vntpool->get_ro(oid) )
     {
-        tmpl_name = vntmpl->get_name();
-        tmpl      = vntmpl->clone_template();
+        tmpl_name    = vntmpl->get_name();
+        tmpl         = vntmpl->clone_template();
+        current_tmpl = std::make_unique<VirtualNetworkTemplate>(*tmpl);
 
         vntmpl->get_permissions(perms);
 
@@ -108,7 +110,8 @@ Request::ErrorCode VNTemplateAPI::instantiate(int oid,
         return ec;
     }
 
-    ec = SharedAPI::validate_vlan_auth(&extended_tmpl, oid, att);
+    ec = SharedAPI::validate_vlan_auth(&extended_tmpl, oid, att,
+                                       current_tmpl.get());
 
     if (ec != Request::SUCCESS)
     {

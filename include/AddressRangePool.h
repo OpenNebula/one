@@ -302,6 +302,13 @@ public:
     unsigned int get_size() const;
 
     /**
+     *  Return an address range in its vector attribute representation
+     *    @param ar_id of the address range
+     *    @return the address range or nullptr if it does not exist
+     */
+    const VectorAttribute * get_ar(int ar_id) const;
+
+    /**
      *  Return the parent id of an address range
      *    @param ar_id of the address range
      *    @return the parent ar id, -1 if none

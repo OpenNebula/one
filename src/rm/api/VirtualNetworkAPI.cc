@@ -315,9 +315,12 @@ Request::ErrorCode VirtualNetworkAPI::update(int oid,
         return Request::INTERNAL;
     }
 
+    auto current_tmpl = object->clone_template();
+
     if ( auto ec = SharedAPI::validate_vlan_auth(&vtmpl,
                                                  object->get_template_id(),
-                                                 att);
+                                                 att,
+                                                 current_tmpl.get());
             ec != Request::SUCCESS )
     {
         return ec;
@@ -361,8 +364,33 @@ Request::ErrorCode VirtualNetworkAPI::update_ar(int oid,
         return ec;
     }
 
-    if (auto ec = SharedAPI::validate_vlan_auth(&tmpl, vn->get_template_id(), att);
-            ec != Request::SUCCESS )
+    Template current_tmpl;
+    vector<VectorAttribute*> ars;
+
+    tmpl.get("AR", ars);
+
+    // Get current ARs, to detect change in VLAN IDs
+    for (auto ar : ars)
+    {
+        int ar_id;
+
+        if (ar->vector_value("AR_ID", ar_id) != 0)
+        {
+            att.resp_msg = "AR/AR_ID attribute is missing.";
+            return Request::INTERNAL;
+        }
+
+        if (auto current_ar = vn->get_ar(ar_id))
+        {
+            current_tmpl.set(current_ar->clone());
+        }
+    }
+
+    if (auto ec = SharedAPI::validate_vlan_auth(&tmpl,
+                                                vn->get_template_id(),
+                                                att,
+                                                &current_tmpl);
+        ec != Request::SUCCESS )
     {
         return ec;
     }
