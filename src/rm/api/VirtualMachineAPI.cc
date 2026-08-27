@@ -3605,6 +3605,8 @@ Request::ErrorCode VirtualMachineAPI::backup(int vid,
 
         int vm_bj_id = vm->backups().backup_job_id();
 
+        bool interactive = vm->backups().interactive();
+
         if ( bj_id == -1 && vm_bj_id != -1)
         {
             att.resp_msg = "Unable to start an individual backup for the Virtual Machine"
@@ -3618,6 +3620,14 @@ Request::ErrorCode VirtualMachineAPI::backup(int vid,
             if (disk->is_filesystem())
             {
                 att.resp_msg = "Cannot backup VM with FILESYSTEM disks";
+
+                return Request::ACTION;
+            }
+
+            if (interactive && !disk->support_interactive())
+            {
+                att.resp_msg = "Disk does not support interactive backup: "
+                               + to_string(disk->get_disk_id());
 
                 return Request::ACTION;
             }

@@ -194,6 +194,27 @@ string VirtualMachineDisk::get_tm_mad_system() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool VirtualMachineDisk::support_interactive() const
+{
+    string tm_mad = vector_value("TM_MAD");
+    string format = vector_value("FORMAT");
+
+    one_util::toupper(tm_mad);
+    one_util::toupper(format);
+
+    if ( tm_mad == "LVM" || tm_mad == "FS_LVM" || tm_mad == "FS_LVM_SSH" )
+    {
+        return true;
+    }
+
+    return (tm_mad == "LOCAL" || tm_mad == "SSH" ||
+            tm_mad == "SHARED" || tm_mad == "QCOW2") &&
+            format == "QCOW2";
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineDisk::extended_info(int uid)
 {
     ImagePool * ipool  = Nebula::instance().get_ipool();

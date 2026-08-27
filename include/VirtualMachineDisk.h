@@ -150,6 +150,11 @@ public:
      */
     std::string get_tm_mad_system() const;
 
+    /**
+     *  Check if the disk supports interactive backups
+     */
+    bool support_interactive() const;
+
     /* ---------------------------------------------------------------------- */
     /* Image Manager Interface                                                */
     /* ---------------------------------------------------------------------- */
