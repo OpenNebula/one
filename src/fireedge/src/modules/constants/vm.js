@@ -1879,7 +1879,7 @@ export const ATTR_CONF_CAN_BE_UPDATED = {
   ],
   INPUT: ['TYPE', 'BUS'],
   GRAPHICS: ['TYPE', 'LISTEN', 'PASSWD', 'KEYMAP'],
-  RAW: ['DATA', 'DATA_VMX', 'TYPE'],
+  RAW: ['DATA', 'TYPE', 'VALIDATE'],
   CONTEXT: '*',
   BACKUP_CONFIG: '*',
 }
