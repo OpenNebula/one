@@ -27,6 +27,7 @@ import { Template } from '@modules/resources/VirtualMachine/Tabs/Template'
 import { Logs } from '@modules/resources/VirtualMachine/Tabs/Logs'
 import { Selection } from '@modules/resources/VirtualMachine/Tabs/Selection'
 import { AggregatedInfo } from '@modules/resources/VirtualMachine/Tabs/AggregatedInfo'
+import { Exec } from '@modules/resources/VirtualMachine/Tabs/Exec'
 
 export {
   Info,
@@ -40,6 +41,7 @@ export {
   Configuration,
   Template,
   Logs,
+  Exec,
 }
 
 export const Single = [
@@ -54,6 +56,7 @@ export const Single = [
   Configuration,
   Template,
   Logs,
+  Exec,
 ]
 
 export const Aggregated = [Selection, AggregatedInfo]

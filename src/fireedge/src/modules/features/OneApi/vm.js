@@ -1410,6 +1410,56 @@ const vmApi = oneApi.injectEndpoints({
         { type: VM_POOL, id },
       ],
     }),
+    execVm: builder.mutation({
+      /**
+       * Executes a command inside a virtual machine.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.cmd - Command to execute
+       * @param {string} params.cmd_stdin - Base64-encoded stdin
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_EXEC
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+    }),
+    retryExecVm: builder.mutation({
+      /**
+       * Retries the last command executed inside a virtual machine.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual machine id
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_EXEC_RETRY
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+    }),
+    cancelExecVm: builder.mutation({
+      /**
+       * Cancels the command being executed inside a virtual machine.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual machine id
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_EXEC_CANCEL
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+    }),
   }),
 })
 
@@ -1481,6 +1531,9 @@ const vmQueries = (({
   useDeleteScheduledActionMutation,
   useAttachPciMutation,
   useDetachPciMutation,
+  useExecVmMutation,
+  useRetryExecVmMutation,
+  useCancelExecVmMutation,
 }) => ({
   // Queries
   useGetVmsQuery,
@@ -1549,6 +1602,9 @@ const vmQueries = (({
   useDeleteScheduledActionMutation,
   useAttachPciMutation,
   useDetachPciMutation,
+  useExecVmMutation,
+  useRetryExecVmMutation,
+  useCancelExecVmMutation,
 }))(vmApi)
 
 export default vmQueries

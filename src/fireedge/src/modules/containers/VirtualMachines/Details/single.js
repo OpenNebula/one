@@ -541,6 +541,7 @@ export const SingleView = ({
               backups,
               isFetchingBackups,
               isLoadingExtended,
+              refreshVm,
               handleChangeOwnership,
               handleChangePermission,
               handleDeleteAttribute,
