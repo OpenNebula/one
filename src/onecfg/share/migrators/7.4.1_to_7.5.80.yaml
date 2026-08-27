@@ -6857,6 +6857,14 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: []
+            key: DATASTORE_ENCRYPTED_ATTR
+            value: '"RESTIC_S3_SECRET_ACCESS_KEY"'
+            state: ins
+            extra:
+                multiple: true
         content: |
             #*******************************************************************************
             #                       OpenNebula Configuration file
@@ -7855,6 +7863,7 @@ patches:
             # VNET_ENCRYPTED_ATTR = ""
 
             DATASTORE_ENCRYPTED_ATTR = "RESTIC_PASSWORD"
+            DATASTORE_ENCRYPTED_ATTR = "RESTIC_S3_SECRET_ACCESS_KEY"
             DATASTORE_ENCRYPTED_ATTR = "NETAPP_PASS"
             DATASTORE_ENCRYPTED_ATTR = "PUREFA_API_TOKEN"
 
