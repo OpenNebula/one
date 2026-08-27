@@ -91,14 +91,14 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class GroupUpdateXRPC : public RequestXRPC, public GroupAPI
+class GroupUpdateXRPC : public RequestXRPC, public GroupUpdateAPI
 {
 public:
     GroupUpdateXRPC() :
         RequestXRPC("one.group.update",
                     "Updates a group template",
                     "A:sisi"),
-        GroupAPI(static_cast<Request&>(*this))
+        GroupUpdateAPI(static_cast<Request&>(*this))
     {}
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -108,14 +108,14 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class GroupAddAdminXRPC : public RequestXRPC, public GroupAPI
+class GroupAddAdminXRPC : public RequestXRPC, public GroupEditAdminAPI
 {
 public:
     GroupAddAdminXRPC():
         RequestXRPC("one.group.addadmin",
                     "Adds a user to the group admin set",
                     "A:sii"),
-        GroupAPI(static_cast<Request&>(*this))
+        GroupEditAdminAPI(static_cast<Request&>(*this))
     {}
 
     void request_execute(xmlrpc_c::paramList const&  _paramList,
@@ -125,14 +125,14 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class GroupDelAdminXRPC : public RequestXRPC, public GroupAPI
+class GroupDelAdminXRPC : public RequestXRPC, public GroupEditAdminAPI
 {
 public:
     GroupDelAdminXRPC():
         RequestXRPC("one.group.deladmin",
                     "Removes a user from the group admin set",
                     "A:sii"),
-        GroupAPI(static_cast<Request&>(*this))
+        GroupEditAdminAPI(static_cast<Request&>(*this))
     {}
 
     void request_execute(xmlrpc_c::paramList const&  _paramList,

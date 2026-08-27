@@ -139,12 +139,12 @@ public:
 
 /* ------------------------------------------------------------------------- */
 
-class GroupUpdateGRPC : public RequestGRPC, public GroupAPI
+class GroupUpdateGRPC : public RequestGRPC, public GroupUpdateAPI
 {
 public:
     GroupUpdateGRPC() :
         RequestGRPC("one.group.update", "/one.group.GroupService/Update"),
-        GroupAPI(static_cast<Request&>(*this))
+        GroupUpdateAPI(static_cast<Request&>(*this))
     {
         fed_master_only = true;
     }
@@ -156,12 +156,12 @@ public:
 
 /* ------------------------------------------------------------------------- */
 
-class GroupAddAdminGRPC : public RequestGRPC, public GroupAPI
+class GroupAddAdminGRPC : public RequestGRPC, public GroupEditAdminAPI
 {
 public:
     GroupAddAdminGRPC() :
         RequestGRPC("one.group.addadmin", "/one.group.GroupService/AddAdmin"),
-        GroupAPI(static_cast<Request&>(*this))
+        GroupEditAdminAPI(static_cast<Request&>(*this))
     {
         fed_master_only = true;
     }
@@ -173,12 +173,12 @@ public:
 
 /* ------------------------------------------------------------------------- */
 
-class GroupDelAdminGRPC : public RequestGRPC, public GroupAPI
+class GroupDelAdminGRPC : public RequestGRPC, public GroupEditAdminAPI
 {
 public:
     GroupDelAdminGRPC() :
         RequestGRPC("one.group.deladmin", "/one.group.GroupService/DelAdmin"),
-        GroupAPI(static_cast<Request&>(*this))
+        GroupEditAdminAPI(static_cast<Request&>(*this))
     {
         fed_master_only = true;
     }

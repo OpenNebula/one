@@ -125,7 +125,7 @@ Request::ErrorCode GroupAPI::vlan(int oid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode GroupAPI::edit_admin(int oid,
+Request::ErrorCode GroupEditAdminAPI::edit_admin(int oid,
                                         int user_id,
                                         RequestAttributes& att)
 {
@@ -157,8 +157,8 @@ Request::ErrorCode GroupAPI::edit_admin(int oid,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(AuthRequest::ADMIN, group_perms);   // MANAGE GROUP
-    ar.add_auth(AuthRequest::ADMIN, user_perms);    // MANAGE USER
+    ar.add_auth(att.auth_op, group_perms); // MANAGE GROUP
+    ar.add_auth(att.auth_op, user_perms);  // MANAGE USER
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -183,7 +183,7 @@ Request::ErrorCode GroupAPI::edit_admin(int oid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode GroupAPI::add_admin(int oid,
+Request::ErrorCode GroupEditAdminAPI::add_admin(int oid,
                                        int user_id,
                                        RequestAttributes& att)
 {
@@ -214,10 +214,17 @@ Request::ErrorCode GroupAPI::add_admin(int oid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode GroupAPI::del_admin(int oid,
+Request::ErrorCode GroupEditAdminAPI::del_admin(int oid,
                                        int user_id,
                                        RequestAttributes& att)
 {
+    if (user_id == att.uid)
+    {
+        att.resp_msg = "A user cannot remove themselves from a group admin set";
+
+        return Request::ACTION;
+    }
+
     Request::ErrorCode ec = edit_admin(oid, user_id, att);
 
     if (ec != Request::SUCCESS)

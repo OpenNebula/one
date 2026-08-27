@@ -48,27 +48,15 @@ protected:
                             const std::string& vlan,
                             RequestAttributes& att);
 
-    Request::ErrorCode add_admin(int oid,
-                                 int user_id,
-                                 RequestAttributes& att);
-
-    Request::ErrorCode del_admin(int oid,
-                                 int user_id,
-                                 RequestAttributes& att);
-
     Request::ErrorCode quota_info(std::string& xml,
                                   RequestAttributes& att);
 
     /* Helpers */
-    Request::ErrorCode edit_admin(int oid,
-                                  int user_id,
-                                  RequestAttributes& att);
-
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,
                 std::string& str) override
     {
         static_cast<Group*>(object)->to_xml_extended(str);
-    };
+    }
 
     int drop(std::unique_ptr<PoolObjectSQL> obj,
              bool recursive,
@@ -124,6 +112,46 @@ protected:
         request.leader_only(false);
         request.zone_disabled(true);
     }
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class GroupUpdateAPI : public GroupAPI
+{
+protected:
+    GroupUpdateAPI(Request &r)
+        : GroupAPI(r)
+    {
+        request.auth_op(AuthRequest::MANAGE);
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class GroupEditAdminAPI : public GroupAPI
+{
+protected:
+    GroupEditAdminAPI(Request &r)
+        : GroupAPI(r)
+    {
+        request.auth_op(AuthRequest::MANAGE);
+    }
+
+public:
+    Request::ErrorCode add_admin(int oid,
+                                 int user_id,
+                                 RequestAttributes& att);
+
+    Request::ErrorCode del_admin(int oid,
+                                 int user_id,
+                                 RequestAttributes& att);
+
+private:
+    Request::ErrorCode edit_admin(int oid,
+                                int user_id,
+                                RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */
