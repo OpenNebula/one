@@ -174,6 +174,51 @@ export const timeFromMilliseconds = (time) => DateTime.fromMillis(+time * 1000)
  */
 export const timeFromSeconds = (time) => DateTime.fromMillis(+time)
 
+const SECOND_IN_MS = 1_000
+const MINUTE_IN_MS = 60 * SECOND_IN_MS
+const HOUR_IN_MS = 60 * MINUTE_IN_MS
+const DAY_IN_MS = 24 * HOUR_IN_MS
+const WEEK_IN_MS = 7 * DAY_IN_MS
+const MONTH_IN_MS = 30 * DAY_IN_MS
+const YEAR_IN_MS = 365 * DAY_IN_MS
+
+const ELAPSED_TIME_UNITS = [
+  ['year', YEAR_IN_MS],
+  ['month', MONTH_IN_MS],
+  ['week', WEEK_IN_MS],
+  ['day', DAY_IN_MS],
+  ['hour', HOUR_IN_MS],
+  ['minute', MINUTE_IN_MS],
+  ['second', SECOND_IN_MS],
+]
+
+const toEpochMilliseconds = (date) =>
+  DateTime.isDateTime(date) ? date.toMillis() : new Date(date).getTime()
+
+/**
+ * Returns the elapsed time from a date using only its largest whole unit.
+ * Numeric dates are interpreted as epoch milliseconds.
+ *
+ * @param {Date|DateTime|number|string} date - Date to compare
+ * @param {Date|DateTime|number|string} referenceDate - Comparison date, defaults to now
+ * @returns {Array<number|string>|undefined} - Elapsed value and unit, or `undefined` if invalid
+ */
+export const getElapsedTime = (date, referenceDate = new Date()) => {
+  const dateInMs = toEpochMilliseconds(date)
+  const referenceDateInMs = toEpochMilliseconds(referenceDate)
+
+  if (!Number.isFinite(dateInMs) || !Number.isFinite(referenceDateInMs)) {
+    return
+  }
+
+  const elapsed = Math.max(0, referenceDateInMs - dateInMs)
+  const [unit, unitInMs] =
+    ELAPSED_TIME_UNITS.find(([, milliseconds]) => elapsed >= milliseconds) ??
+    ELAPSED_TIME_UNITS.at(-1)
+
+  return [Math.floor(elapsed / unitInMs), unit]
+}
+
 /**
  * Returns the epoch milliseconds of the date.
  *

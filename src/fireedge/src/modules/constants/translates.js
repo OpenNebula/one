@@ -1844,6 +1844,30 @@ module.exports = {
   FSFreeze: 'FS Freeze',
   Execution: 'Execution',
   Exec: 'Exec',
+  CheckStatus: 'Check status',
+  CommandFinishedWithoutOutput: 'Command finished without output.',
+  CommandWasCancelled: 'Command was cancelled.',
+  CommandStillRunning: 'Command is still running',
+  CommandStillRunningDescription:
+    'This command may take several minutes. You can safely leave this page and check the result later by pressing Check status.',
+  ExecutionStartedTime: 'Started %s',
+  LastChecked: 'Last checked: %s',
+  NoOutput: 'No output',
+  ReRun: 'Re-run',
+  ReturnCode: 'exit %s',
+  Run: 'Run',
+  ExecuteCommandInVM: 'Execute command in VM',
+  GuestContextualization: 'requires guest contextualization',
+  EnterCommand: `cat << "EOT" > /etc/yum.repos.d/opennebula.repo
+[opennebula]
+name=OpenNebula Community Edition
+baseurl=https://downloads.opennebula.io/repo/7.2/RedHat/$releasever/$basearch
+enabled=1
+gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
+  JustNow: 'just now',
+  CommandExecutionStarted: 'Command execution started for VM %s',
+  CommandExecutionCancellationRequested:
+    'Command execution cancellation requested for VM %s',
   HowManyBackupsQuestion: 'How many backups do you want to keep?',
   QEMUAgent: 'QEMU Agent',
   Sequence: 'Sequence',

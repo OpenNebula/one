@@ -62,6 +62,9 @@ const VM_POOL_SHOWBACK = 'vmpool.showback'
 const VM_POOL_CALCULATE_SHOWBACK = 'vmpool.calculateshowback'
 const VM_PCI_ATTACH = 'vm.attachpci'
 const VM_PCI_DETACH = 'vm.detachpci'
+const VM_EXEC = 'vm.exec'
+const VM_EXEC_RETRY = 'vm.retryexec'
+const VM_EXEC_CANCEL = 'vm.cancelexec'
 const Actions = {
   VM_ALLOCATE,
   VM_DEPLOY,
@@ -108,6 +111,9 @@ const Actions = {
   VM_POOL_CALCULATE_SHOWBACK,
   VM_PCI_ATTACH,
   VM_PCI_DETACH,
+  VM_EXEC,
+  VM_EXEC_RETRY,
+  VM_EXEC_CANCEL,
 }
 module.exports = {
   Actions,
@@ -917,6 +923,41 @@ module.exports = {
         pci: {
           from: postBody,
           default: 0,
+        },
+      },
+    },
+    [VM_EXEC]: {
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
+        },
+        cmd: {
+          from: postBody,
+          default: '',
+        },
+        cmd_stdin: {
+          from: postBody,
+          default: '',
+        },
+      },
+    },
+    [VM_EXEC_RETRY]: {
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
+        },
+      },
+    },
+    [VM_EXEC_CANCEL]: {
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
         },
       },
     },
