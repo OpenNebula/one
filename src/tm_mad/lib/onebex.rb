@@ -42,7 +42,7 @@ module TransferManager
             @ds_id          = ds_id
             @backup_dir     = backup_dir
 
-            conf = YAML.load_file(config_file)
+            conf = self.class.load_config(config_file)
 
             @uri     = URI("http://#{conf[:host]}:#{conf[:port]}")
             @timeout = conf[:onebex_timeout].to_i
@@ -124,6 +124,25 @@ module TransferManager
                 disk_id.to_s,
                 JSON.generate(data)
             ].shelljoin
+        end
+
+        def self.load_config(config_file)
+            conf = YAML.load_file(config_file)
+
+            unless conf.is_a?(Hash)
+                raise "Invalid OneBEX configuration file #{config_file}"
+            end
+
+            missing = [:host, :port, :onebex_timeout].select do |key|
+                conf[key].nil? || conf[key].to_s.empty?
+            end
+
+            unless missing.empty?
+                raise "Missing required OneBEX configuration key(s) in " \
+                      "#{config_file}: #{missing.join(', ')}"
+            end
+
+            conf
         end
 
         # Starts the OneBEX server, writes the exports, and waits for completion.
