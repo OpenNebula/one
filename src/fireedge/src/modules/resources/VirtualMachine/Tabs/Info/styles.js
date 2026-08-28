@@ -75,7 +75,7 @@ export const getStyles = ({ theme }) => {
   }
 
   const attributesContainer = {
-    '& .attributesContainer': {
+    '& .attributesContainer, & .monitoringContainer': {
       display: 'flex',
       flex: '0 0 auto',
       width: '100%',
