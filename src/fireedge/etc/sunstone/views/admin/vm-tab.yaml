@@ -95,6 +95,12 @@ info-tabs:
         edit: true
         delete: true
 
+  vm_group:
+    enabled: true
+    actions:
+      vmgroup-add: true
+      vmgroup-del: true
+
   storage:
     enabled: true
     actions:

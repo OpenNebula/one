@@ -401,6 +401,8 @@ module.exports = {
   UNRESCHED: 'Un-Reschedule',
   UPDATE_CONF: 'Update configuration',
   UPDATE_NIC: 'Update NIC',
+  VMGROUP_ADD: 'Associate with VM Group',
+  VMGROUP_DEL: 'Remove from VM Group',
 
   /* 1:1 SERVICE ACTION NAME MAPPING */
 
@@ -1344,6 +1346,12 @@ module.exports = {
   VirtualRouters: 'Virtual Routers',
   VMGroup: 'VM Group',
   VMGroups: 'VM Groups',
+  NoVMGroup: 'No VM Group association',
+  NoVMGroupDescription:
+    'Associate this virtual machine with a VM Group and role.',
+  NoVMGroupsAvailable: 'No VM Groups available',
+  NoVMGroupsAvailableDescription:
+    'Create a VM Group or request use permission before associating this virtual machine.',
   Templates: 'Templates',
   VMTemplate: 'VM Template',
   VMTemplates: 'VM Templates',
@@ -3199,6 +3207,9 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
   SuccessVrTemplateUpdated: 'VR Template updated - #%s %s',
   SuccessVMGroupCreated: 'VM group created - #%s',
   SuccessVMGroupUpdated: 'VM group updated - #%s %s',
+  SuccessVMGroupAssociated:
+    'VM Group associated successfully - Virtual machine #%s',
+  SuccessVMGroupRemoved: 'VM Group removed successfully - Virtual machine #%s',
   SuccessVMTemplateCreated: 'VM Template created - #%s',
   SuccessVMTemplateUpdated: 'VM Template updated - #%s %s',
   SuccessVMTemplateDiskAttached: 'Disk attached successfully - %s',

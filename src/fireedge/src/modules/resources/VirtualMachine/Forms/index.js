@@ -236,6 +236,14 @@ const AttachPciForm = createAsyncForm(() =>
   import('@modules/resources/VirtualMachine/Forms/AttachPciForm')
 )
 
+/**
+ * @param {object} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const VmGroupForm = createAsyncForm(() =>
+  import('@modules/resources/VirtualMachine/Forms/VmGroupForm')
+)
+
 export {
   AliasForm,
   AttachAliasForm,
@@ -263,5 +271,6 @@ export {
   SaveAsTemplateForm,
   UpdateConfigurationForm,
   UpdateNicForm,
+  VmGroupForm,
   VolatileSteps,
 }

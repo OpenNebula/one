@@ -58,6 +58,26 @@ export default {
   [VM_ACTION_ENUM.CHANGE_OWNER]: {
     useMutation: VmAPI.useChangeVmOwnershipMutation,
   },
+  [VM_ACTION_ENUM.VMGROUP_ADD]: {
+    useMutation: VmAPI.useAddVmToGroupMutation,
+    form: Forms.VmGroupForm,
+    success: T.SuccessVMGroupAssociated,
+    dialogProps: {
+      dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
+      dialogMaxWidth: 'calc(100vw - 32px)',
+      dialogMaxHeight: 'calc(100vh - 64px)',
+      dialogContentMaxHeight: 'calc(100vh - 220px)',
+      dialogContentOverflowY: 'auto',
+      validateOn: 'onBlur',
+    },
+  },
+  [VM_ACTION_ENUM.VMGROUP_DEL]: {
+    useMutation: VmAPI.useRemoveVmFromGroupMutation,
+    success: T.SuccessVMGroupRemoved,
+    description: T['resource.detach.confirmation'],
+    confirmLabel: T.Remove,
+    resourceType: T.VirtualMachines,
+  },
   [VM_ACTION_ENUM.UPDATE_CONF]: {
     useMutation: VmAPI.useUpdateConfigurationMutation,
     form: (vm) =>
