@@ -59,8 +59,8 @@ import {
 } from '@modules/features/OneApi/socket'
 
 const { actions: guacamoleActions } = GuacamoleSlice
-const { VM, HOST } = ONE_RESOURCES
-const { VM_POOL, HOST_POOL } = ONE_RESOURCES_POOL
+const { VM, HOST, VMGROUP } = ONE_RESOURCES
+const { VM_POOL, HOST_POOL, VMGROUP_POOL } = ONE_RESOURCES_POOL
 
 const vmApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -535,6 +535,53 @@ const vmApi = oneApi.injectEndpoints({
         { type: VM, id },
         { type: VM_POOL, id },
         VM_POOL,
+      ],
+    }),
+    addVmToGroup: builder.mutation({
+      /**
+       * Associates a virtual machine with a VM Group role.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual machine id
+       * @param {string|number} params.vmGroupId - VM Group id
+       * @param {string} params.role - VM Group role name
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_VMGROUP_ADD
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id, vmGroupId }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+        { type: VMGROUP, id: vmGroupId },
+        VMGROUP_POOL,
+      ],
+    }),
+    removeVmFromGroup: builder.mutation({
+      /**
+       * Removes a virtual machine from its VM Group.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual machine id
+       * @param {string|number} params.vmGroupId - Current VM Group id
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_VMGROUP_DEL
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id, vmGroupId }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+        { type: VMGROUP, id: vmGroupId },
+        VMGROUP_POOL,
       ],
     }),
     migrate: builder.mutation({
@@ -1498,6 +1545,8 @@ const vmQueries = (({
   useSaveAsTemplateMutation,
   useDeployMutation,
   useActionVmMutation,
+  useAddVmToGroupMutation,
+  useRemoveVmFromGroupMutation,
   useMigrateMutation,
   useSaveAsDiskMutation,
   useCreateDiskSnapshotMutation,
@@ -1569,6 +1618,8 @@ const vmQueries = (({
   useSaveAsTemplateMutation,
   useDeployMutation,
   useActionVmMutation,
+  useAddVmToGroupMutation,
+  useRemoveVmFromGroupMutation,
   useMigrateMutation,
   useSaveAsDiskMutation,
   useCreateDiskSnapshotMutation,

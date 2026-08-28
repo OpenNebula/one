@@ -60,6 +60,10 @@ export const useActions = ({ context }) => {
     VmAPI.useChangeVmPermissionsMutation()
   const [changeOwnership, { isLoading: isChangingOwnership }] =
     VmAPI.useChangeVmOwnershipMutation()
+  const [addVmToGroup, { isLoading: isAddingVmToGroup }] =
+    VmAPI.useAddVmToGroupMutation()
+  const [removeVmFromGroup, { isLoading: isRemovingVmFromGroup }] =
+    VmAPI.useRemoveVmFromGroupMutation()
   const [updateConf, { isLoading: isUpdatingConfiguration }] =
     VmAPI.useUpdateConfigurationMutation()
   const [addSchedAction, { isLoading: isAddingSchedAction }] =
@@ -120,6 +124,8 @@ export const useActions = ({ context }) => {
         [VmAPI.useUpdateUserTemplateMutation, updateUserTemplate],
         [VmAPI.useChangeVmPermissionsMutation, changePermissions],
         [VmAPI.useChangeVmOwnershipMutation, changeOwnership],
+        [VmAPI.useAddVmToGroupMutation, addVmToGroup],
+        [VmAPI.useRemoveVmFromGroupMutation, removeVmFromGroup],
         [VmAPI.useActionVmMutation, performAction],
         [VmAPI.useAddScheduledActionMutation, addSchedAction],
         [VmAPI.useAttachDiskMutation, attachDisk],
@@ -151,6 +157,7 @@ export const useActions = ({ context }) => {
       ]),
     [
       addSchedAction,
+      addVmToGroup,
       attachDisk,
       attachNic,
       attachPci,
@@ -171,6 +178,7 @@ export const useActions = ({ context }) => {
       migrate,
       performAction,
       recover,
+      removeVmFromGroup,
       rename,
       renameDiskSnapshot,
       resizeDisk,
@@ -194,6 +202,7 @@ export const useActions = ({ context }) => {
 
   const isLoading =
     isAddingSchedAction ||
+    isAddingVmToGroup ||
     isAttachingDisk ||
     isAttachingNic ||
     isAttachingPci ||
@@ -214,6 +223,7 @@ export const useActions = ({ context }) => {
     isRecovering ||
     isRenaming ||
     isRenamingDiskSnapshot ||
+    isRemovingVmFromGroup ||
     isResizingDisk ||
     isRestoring ||
     isRevertingDiskSnapshot ||

@@ -17,6 +17,7 @@
 import { Backup } from '@modules/resources/VirtualMachine/Tabs/Backup'
 import { History } from '@modules/resources/VirtualMachine/Tabs/History'
 import { Info } from '@modules/resources/VirtualMachine/Tabs/Info'
+import { VmGroup } from '@modules/resources/VirtualMachine/Tabs/VmGroup'
 import { Network } from '@modules/resources/VirtualMachine/Tabs/Network'
 import { PCI } from '@modules/resources/VirtualMachine/Tabs/PCI'
 import { Storage } from '@modules/resources/VirtualMachine/Tabs/Storage'
@@ -31,6 +32,7 @@ import { Exec } from '@modules/resources/VirtualMachine/Tabs/Exec'
 
 export {
   Info,
+  VmGroup,
   Storage,
   Network,
   PCI,
@@ -46,6 +48,7 @@ export {
 
 export const Single = [
   Info,
+  VmGroup,
   Storage,
   Network,
   PCI,

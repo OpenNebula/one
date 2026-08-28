@@ -20,6 +20,8 @@ const {
 const VM_ALLOCATE = 'vm.allocate'
 const VM_DEPLOY = 'vm.deploy'
 const VM_ACTION = 'vm.action'
+const VM_VMGROUP_ADD = 'vm.vmgroupadd'
+const VM_VMGROUP_DEL = 'vm.vmgroupdel'
 const VM_MIGRATE = 'vm.migrate'
 const VM_CHMOD = 'vm.chmod'
 const VM_CHOWN = 'vm.chown'
@@ -69,6 +71,8 @@ const Actions = {
   VM_ALLOCATE,
   VM_DEPLOY,
   VM_ACTION,
+  VM_VMGROUP_ADD,
+  VM_VMGROUP_DEL,
   VM_MIGRATE,
   VM_CHMOD,
   VM_CHOWN,
@@ -162,6 +166,32 @@ module.exports = {
           from: postBody,
           default: 'stop',
         },
+        id: {
+          from: resource,
+          default: -1,
+        },
+      },
+    },
+    [VM_VMGROUP_ADD]: {
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
+        },
+        vmGroupId: {
+          from: postBody,
+          default: -1,
+        },
+        role: {
+          from: postBody,
+          default: '',
+        },
+      },
+    },
+    [VM_VMGROUP_DEL]: {
+      httpMethod: PUT,
+      params: {
         id: {
           from: resource,
           default: -1,
