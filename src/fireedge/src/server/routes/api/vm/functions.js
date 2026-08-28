@@ -76,7 +76,7 @@ const saveAsTemplate = (
     let message = ''
     const paramsCommand = ['save', `${id}`, `${name}`]
 
-    if (persistent && persistent === 'true') {
+    if (persistent === true || persistent === 'true') {
       paramsCommand.push('--persistent')
     }
 
