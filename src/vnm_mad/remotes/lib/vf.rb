@@ -260,6 +260,9 @@ module VNMMAD::VirtualFunction
         cmd = "#{command(:ip)} link set #{vf[:pf]} vf #{vf[:index]}"
         cmd << " mac #{pci[:mac]}" if pci[:mac]
 
+        # Can fail if NIC doesn't support flag in the given eswitch mode
+        [:spoofchk, :trust].each {|f| cmd << " #{f} #{on_off(pci[f])}" if pci[f] }
+
         if !vf[:rep]
             # if no vlan id is set use 0 to reset it
             vlan_id = if pci[:vlan_id]
@@ -269,10 +272,9 @@ module VNMMAD::VirtualFunction
                       end
 
             cmd << " vlan #{vlan_id}"
-            cmd << " spoofchk #{on_off(pci[:spoofchk])}" if pci[:spoofchk]
-            cmd << " trust #{on_off(pci[:trust])}" if pci[:trust]
         end
 
+        LocalCommand.run_sh("#{command(:ip)} link set #{vf[:pf]} up")
         LocalCommand.run_sh(cmd)
     end
 
