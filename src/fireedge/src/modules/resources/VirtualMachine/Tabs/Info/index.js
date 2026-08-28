@@ -14,7 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { jsonToXml, timeFromMilliseconds, prettyBytes } from '@UtilsModule'
+import {
+  filterAttributes,
+  jsonToXml,
+  timeFromMilliseconds,
+  prettyBytes,
+} from '@UtilsModule'
 import { T, UNITS, VM_ACTIONS } from '@ConstantsModule'
 import {
   DetailsCard,
@@ -40,6 +45,9 @@ import { Component } from 'react'
 import { getStyles } from '@modules/resources/VirtualMachine/Tabs/Info/styles'
 import { ResizeCapacityForm } from '@modules/resources/VirtualMachine/Forms'
 import { useModalsApi, useSystemData, VmAPI } from '@FeaturesModule'
+
+const HIDDEN_MONITORING_REG =
+  /^(CPU|MEMORY|NETTX|NETRX|STATE|DISK_SIZE|SNAPSHOT_SIZE)$/
 
 /**
  * @param {object} root0 - Params
@@ -67,6 +75,7 @@ export const Info = ({ data, config }) => {
     attributes_panel: attributesPanel,
     capacity_panel: capacityPanel,
     information_panel: informationPanel,
+    monitoring_panel: monitoringPanel,
     ownership_panel: ownershipPanel,
     permissions_panel: permissionsPanel,
   } = config || {}
@@ -120,6 +129,11 @@ export const Info = ({ data, config }) => {
     capacityPanel?.actions?.resize === true &&
     selectedVm?.ID &&
     isVmAvailableAction(VM_ACTIONS.RESIZE_CAPACITY, selectedVm)
+
+  const { attributes: monitoringAttributes } = filterAttributes(
+    extendedVmData?.MONITORING ?? selectedVm?.MONITORING,
+    { hidden: HIDDEN_MONITORING_REG }
+  )
 
   return (
     <Box sx={(theme) => getStyles({ theme })}>
@@ -261,6 +275,17 @@ export const Info = ({ data, config }) => {
             handleEdit={handleEditAttribute}
             handleAdd={handleAddAttribute}
             isDisabled={vmIsLocked || isActionsDisabled}
+            isLoading={isLoadingExtended}
+            isFullHeight={false}
+          />
+        </Box>
+      )}
+      {monitoringPanel?.enabled && monitoringAttributes && (
+        <Box className="monitoringContainer">
+          <AttributesPanel
+            title={T.Monitoring}
+            attributes={monitoringAttributes}
+            actions={monitoringPanel?.actions}
             isLoading={isLoadingExtended}
             isFullHeight={false}
           />
