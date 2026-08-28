@@ -133,7 +133,10 @@ const generateOption = ({
           title,
           dataCy: `modal-${actionType}`,
           ...confirmDialogProps,
-          ...(isFormDialog && { steps: actionForm }),
+          ...(isFormDialog && {
+            steps: actionForm,
+            stepProps: { vm: formContext ?? vm },
+          }),
           ...dialogProps,
         },
         ...(!isFormDialog && form && { form }),

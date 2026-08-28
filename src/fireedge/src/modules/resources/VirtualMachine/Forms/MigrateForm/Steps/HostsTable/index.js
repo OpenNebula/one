@@ -17,6 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { FormWithSchema } from '@ComponentsModule'
+import CurrentLocation from '@modules/resources/VirtualMachine/Forms/MigrateForm/Steps/CurrentLocation'
 
 import {
   FIELDS,
@@ -26,20 +27,22 @@ import { T } from '@ConstantsModule'
 
 export const STEP_ID = 'host'
 
-const Content = () => (
-  <FormWithSchema id={STEP_ID} cy={`${STEP_ID}`} fields={FIELDS} />
+const Content = ({ vm }) => (
+  <>
+    <CurrentLocation vm={vm} />
+    <FormWithSchema id={STEP_ID} cy={`${STEP_ID}`} fields={FIELDS} />
+  </>
 )
 
-const HostsTableStep = () => ({
+const HostsTableStep = ({ vm } = {}) => ({
   id: STEP_ID,
   label: T.SelectHost,
   resolver: SCHEMA,
-  content: Content,
+  content: (props) => <Content {...props} vm={vm} />,
 })
 
 Content.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
+  vm: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
 }
 
 export default HostsTableStep
