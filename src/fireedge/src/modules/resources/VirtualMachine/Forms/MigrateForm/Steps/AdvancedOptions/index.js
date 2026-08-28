@@ -17,6 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { FormWithSchema } from '@ComponentsModule'
+import CurrentLocation from '@modules/resources/VirtualMachine/Forms/MigrateForm/Steps/CurrentLocation'
 
 import {
   SCHEMA,
@@ -26,22 +27,23 @@ import { T } from '@ConstantsModule'
 
 export const STEP_ID = 'advanced'
 
-const Content = () => (
-  <FormWithSchema cy="migrate-vm-advanced" id={STEP_ID} fields={FIELDS} />
+const Content = ({ vm }) => (
+  <>
+    <CurrentLocation vm={vm} />
+    <FormWithSchema cy="migrate-vm-advanced" id={STEP_ID} fields={FIELDS} />
+  </>
 )
 
-const AdvancedOptions = () => ({
+const AdvancedOptions = ({ vm } = {}) => ({
   id: STEP_ID,
   label: T.AdvancedOptions,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: Content,
+  content: (props) => <Content {...props} vm={vm} />,
 })
 
 Content.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  nics: PropTypes.array,
+  vm: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
 }
 
 export default AdvancedOptions
