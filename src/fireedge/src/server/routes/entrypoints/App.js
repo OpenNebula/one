@@ -11,11 +11,12 @@
  * distributed under the License is distributed on an "AS IS" BASIS,         *
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
  * See the License for the specific language governing permissions and       *
- * limitations under the License.                                            *
+ * limitations under the License.                                           *
  * ------------------------------------------------------------------------- */
-// eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const { Router } = require('express')
+const path = require('path')
+const fs = require('fs')
 // server
 const { getSunstoneConfig, getFireedgeConfig } = require('server/utils/yml')
 
@@ -42,6 +43,38 @@ const globalApiTimeout = (config) =>
   /^\d+(?:_\d+)*$/.test(config?.api_timeout)
     ? config.api_timeout
     : defaultApiTimeout
+
+/**
+ * Loads the locale JSON catalog for server-side preloading.
+ *
+ * The catalog is read from `client/assets/languages/<locale>.json`.
+ * If the file does not exist or cannot be parsed, an empty object is
+ * returned so that the client falls back to the async loading path.
+ *
+ * @param {string} locale - Target locale (e.g. "en", "zh_CN")
+ * @returns {object} Parsed locale catalog or empty object
+ */
+const loadLocaleCatalog = (locale) => {
+  if (!locale) return {}
+
+  const localeDir = path.join(
+    __dirname,
+    '..',
+    '..',
+    'client',
+    'assets',
+    'languages'
+  )
+
+  // Prefer JSON catalog; fall back to empty if not found
+  const jsonPath = path.join(localeDir, `${locale}.json`)
+  try {
+    const content = fs.readFileSync(jsonPath, 'utf-8')
+    return JSON.parse(content)
+  } catch {
+    return {}
+  }
+}
 
 const router = Router()
 
@@ -85,6 +118,13 @@ router.get('*', async (req, res) => {
     }
   }
 
+  // Preload the default locale catalog so the client can render
+  // translated text on first paint without waiting for the async
+  // locale script to load. This eliminates the flash of untranslated
+  // (English) text on page load.
+  const defaultLang = appConfig?.default_lang ?? 'en'
+  const preloadedLocale = loadLocaleCatalog(defaultLang)
+
   const faviconLink =
     encodedFavIcon && encodedFavIcon?.b64 !== null
       ? `<link rel="icon" href="${encodedFavIcon.b64}">`
@@ -121,6 +161,14 @@ router.get('*', async (req, res) => {
       window.__PRELOADED_STATE__ = ${ensuredScriptValue(PRELOAD_STATE)}
     </script>`
 
+  // Preload the default locale catalog into window.locale so that
+  // TranslationProvider can initialise with translated messages
+  // instead of an empty object, eliminating first-render flash.
+  const localePreload = `
+    <script id="preload-locale">
+      window.locale = ${ensuredScriptValue(preloadedLocale)}
+    </script>`
+
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -136,6 +184,7 @@ router.get('*', async (req, res) => {
       ${storeRender}
       ${config}
       ${requestTimeOut}
+      ${localePreload}
       ${remoteModules}
       ${forecastConf}
       <script src='${APP_URL}/client/bundle.${appName}.js'></script>
