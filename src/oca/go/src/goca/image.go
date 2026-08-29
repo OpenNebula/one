@@ -319,6 +319,20 @@ func (ic *ImageController) DeleteContext(ctx context.Context) error {
 	return err
 }
 
+// Resize resizes the image to a new size.
+// * newSize: new size in MiB
+func (ic *ImageController) Resize(newSize string) error {
+	return ic.ResizeContext(context.Background(), newSize)
+}
+
+// ResizeContext resizes the image to a new size.
+// * ctx: context for cancelation
+// * newSize: new size in MiB
+func (ic *ImageController) ResizeContext(ctx context.Context, newSize string) error {
+	_, err := ic.c.Client.ImageResize(ctx, ic.ID, newSize)
+	return err
+}
+
 // Restore restores a VM backup.
 // * ds_id: target Datastore ID
 // * tmpl: template with optional arguments (NAME, NO_IP, NO_NIC, INCREMENT_ID, DISK_ID).

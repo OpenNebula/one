@@ -61,7 +61,8 @@ class DatastoreDriver < OpenNebulaDriver
         :snap_revert => 'SNAP_REVERT',
         :snap_flatten=> 'SNAP_FLATTEN',
         :restore => 'RESTORE',
-        :increment_flatten => 'INCREMENT_FLATTEN'
+        :increment_flatten => 'INCREMENT_FLATTEN',
+        :resize  => 'RESIZE'
     }
 
     # Default System datastores for OpenNebula, override in oned.conf
@@ -87,7 +88,8 @@ class DatastoreDriver < OpenNebulaDriver
                 ACTION[:snap_delete] => nil,
                 ACTION[:snap_revert] => nil,
                 ACTION[:snap_flatten] => nil,
-                ACTION[:restore] => nil
+                ACTION[:restore] => nil,
+                ACTION[:resize]  => nil
             }
         }.merge!(options)
 
@@ -124,6 +126,7 @@ class DatastoreDriver < OpenNebulaDriver
         register_action(ACTION[:snap_flatten].to_sym, method('snap_flatten'))
         register_action(ACTION[:restore].to_sym, method('restore'))
         register_action(ACTION[:increment_flatten].to_sym, method('increment_flatten'))
+        register_action(ACTION[:resize].to_sym, method('resize'))
     end
 
     ############################################################################
@@ -183,6 +186,11 @@ class DatastoreDriver < OpenNebulaDriver
     def increment_flatten(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
         do_image_action(id, ds, :increment_flatten, drv_message)
+    end
+
+    def resize(id, drv_message)
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :resize, drv_message)
     end
 
     private

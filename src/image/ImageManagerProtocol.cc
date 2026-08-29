@@ -17,6 +17,7 @@
 #include "ImageManager.h"
 #include "ImagePool.h"
 #include "DatastorePool.h"
+#include "NebulaUtil.h"
 #include "Quotas.h"
 #include "TransferManager.h"
 #include "VirtualMachine.h"
@@ -867,6 +868,149 @@ void ImageManager::_snap_flatten(unique_ptr<image_msg_t> msg)
 
         Quotas::ds_del(uid, gid, &quotas);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void ImageManager::_resize(unique_ptr<image_msg_t> msg)
+{
+    NebulaLog::dddebug("ImM", "_resize: " + msg->payload());
+
+    ResizeQuota rq {};
+
+    bool reserved = false;
+
+    {
+        lock_guard<mutex> lock(resize_quotas_mutex);
+
+        auto it = resize_quotas.find(msg->oid());
+
+        if (it != resize_quotas.end())
+        {
+            rq       = it->second;
+            reserved = true;
+
+            resize_quotas.erase(it);
+        }
+    }
+
+    auto image = ipool->get(msg->oid());
+
+    if ( !image )
+    {
+        /* The image was deleted while the driver was resizing it. Its delete
+         * refunded the size the image had before the resize, the reservation
+         * for the increment is still charged.
+         */
+        if (reserved)
+        {
+            refund_resize_quota(rq);
+        }
+
+        return;
+    }
+
+    int ds_id = image->get_ds_id();
+
+    bool success = false;
+
+    if (msg->status() == "SUCCESS")
+    {
+        long long new_size = 0;
+
+        istringstream iss(one_util::trim(msg->payload()));
+        iss >> new_size;
+
+        long long cur_size = image->get_size();
+
+        /* Drivers echo back the size they were asked for. Accepting anything
+         * else would record growth that no quota was reserved for, and the
+         * callback thread has no way to charge the difference.
+         */
+        bool size_ok = !iss.fail() && iss.eof() && new_size > 0 &&
+                       new_size > cur_size &&
+                       (!reserved || new_size == cur_size + rq.delta);
+
+        if (size_ok)
+        {
+            image->set_size(new_size);
+            success = true;
+        }
+        else
+        {
+            ostringstream oss;
+
+            if (new_size > 0 && new_size <= cur_size)
+            {
+                oss << "Error resizing image: driver returned size ("
+                    << new_size << " MiB) not greater than current ("
+                    << cur_size << " MiB)";
+            }
+            else if (new_size > 0 && reserved)
+            {
+                oss << "Error resizing image: driver returned size ("
+                    << new_size << " MiB) instead of the requested ("
+                    << cur_size + rq.delta << " MiB)";
+            }
+            else
+            {
+                oss << "Error resizing image: driver returned invalid size";
+            }
+
+            image->set_template_error_message(oss.str());
+
+            NebulaLog::log("ImM", Log::ERROR, oss);
+        }
+    }
+    else
+    {
+        ostringstream oss;
+        oss << "Error resizing image";
+
+        const auto& info = msg->payload();
+
+        if (!info.empty() && (info[0] != '-'))
+        {
+            oss << ": " << info;
+        }
+
+        image->set_template_error_message(oss.str());
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+    }
+
+    image->set_state_unlock();
+
+    ipool->update(image.get());
+
+    image.reset();
+
+    if (success)
+    {
+        monitor_datastore(ds_id);
+    }
+    else if (reserved)
+    {
+        refund_resize_quota(rq);
+    }
+    else
+    {
+        NebulaLog::log("ImM", Log::WARNING,
+            "Cannot rollback resize quota: reserved delta is unknown");
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void ImageManager::refund_resize_quota(const ResizeQuota& rq)
+{
+    Template quotas;
+
+    quotas.add("DATASTORE", rq.ds_id);
+    quotas.add("SIZE", rq.delta);
+    quotas.add("IMAGES", 0);
+
+    Quotas::ds_del(rq.uid, rq.gid, &quotas);
 }
 
 /* -------------------------------------------------------------------------- */
