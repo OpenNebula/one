@@ -313,13 +313,13 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     add_template_attribute("BRIDGE", bridge);
 
     //--------------------------------------------------------------------------
-    // Parse internal Address Ranges. External IPAM ranges are parsed after the
-    // vnet_create action completes.
+    // Validate internal Address Ranges. All ranges are parsed and added after
+    // the vnet_create action completes.
     //--------------------------------------------------------------------------
 
     ar_pool.set_vnet_id(oid);
 
-    if (parse_ars(false, error_str) != 0)
+    if (parse_ars(true, error_str) != 0)
     {
         goto error_ar;
     }
@@ -1232,11 +1232,14 @@ void VirtualNetwork::process_security_rule(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::parse_ars(bool ipam, string& error_msg)
+int VirtualNetwork::parse_ars(bool validate_only, string& error_msg)
 {
     int rc = 0;
     string ipam_mad;
     PoolObjectSQL::get_template_attribute("IPAM_MAD", ipam_mad);
+
+    AddressRangePool validation_pool(oid);
+    AddressRangePool& target_pool = validate_only ? validation_pool : ar_pool;
 
     vector<VectorAttribute *> ars;
     obj_template->get("AR", ars);
@@ -1252,8 +1255,10 @@ int VirtualNetwork::parse_ars(bool ipam, string& error_msg)
 
         bool external_ipam = !ar_ipam_mad.empty() && ar_ipam_mad != "internal";
 
-        if (!ipam && external_ipam)
+        if (validate_only && external_ipam)
         {
+            // Keep validation AR IDs aligned with the final ordered parse.
+            delete validation_pool.allocate_ar(ar_ipam_mad);
             continue;
         }
 
@@ -1264,13 +1269,21 @@ int VirtualNetwork::parse_ars(bool ipam, string& error_msg)
             parsed_ar->replace("IPAM_MAD", ipam_mad);
         }
 
-        if (ar_pool.from_vattr(parsed_ar, error_msg) != 0)
+        if (target_pool.from_vattr(parsed_ar, error_msg) != 0)
         {
             delete parsed_ar;
             rc = -1;
         }
 
-        delete obj_template->remove(ar);
+        if (!validate_only)
+        {
+            delete obj_template->remove(ar);
+        }
+    }
+
+    if (validate_only)
+    {
+        validation_pool.release_mac_ids();
     }
 
     return rc;

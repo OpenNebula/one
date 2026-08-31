@@ -111,7 +111,7 @@ void IPAMManager::_vnet_create(unique_ptr<ipam_msg_t> msg)
 
         vn->clear_template_error_message();
 
-        int rc = vn->parse_ars(true, error_str);
+        int rc = vn->parse_ars(false, error_str);
 
         if (rc != 0)
         {

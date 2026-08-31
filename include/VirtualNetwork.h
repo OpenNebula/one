@@ -306,14 +306,16 @@ public:
     int add_ar(VirtualNetworkTemplate * ars_tmpl, std::string& error_msg);
 
     /**
-     * Parses address ranges from the Virtual Network template and removes the
-     * parsed attributes from it.
-     *  @param ipam true to parse all address ranges, false to parse only
-     *  internal address ranges
+     * Parses address ranges from the Virtual Network template. When parsing
+     * all ranges, the parsed attributes are removed from the template and
+     * added to the Address Range pool. Internal-only parsing just validates
+     * the ranges without modifying the Virtual Network.
+     *  @param validate_only true to only validate internal address ranges,
+     *  false to parse and add all address ranges
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int parse_ars(bool ipam, std::string& error_msg);
+    int parse_ars(bool validate_only, std::string& error_msg);
 
     /**
      * Removes an address range from the VNET
