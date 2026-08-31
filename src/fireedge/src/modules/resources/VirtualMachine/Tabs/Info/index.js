@@ -43,6 +43,7 @@ import { useClipboard } from '@HooksModule'
 import PropTypes from 'prop-types'
 import { Component } from 'react'
 import { getStyles } from '@modules/resources/VirtualMachine/Tabs/Info/styles'
+import Graphs from '@modules/resources/VirtualMachine/Tabs/Info/graphs'
 import { ResizeCapacityForm } from '@modules/resources/VirtualMachine/Forms'
 import { useModalsApi, useSystemData, VmAPI } from '@FeaturesModule'
 
@@ -265,6 +266,11 @@ export const Info = ({ data, config }) => {
           </Box>
         )}
       </Box>
+      {capacityPanel?.enabled && (
+        <Box className="graph-container">
+          <Graphs id={selectedVm?.ID} />
+        </Box>
+      )}
       {attributesPanel?.enabled && (
         <Box className="attributesContainer">
           <AttributesPanel

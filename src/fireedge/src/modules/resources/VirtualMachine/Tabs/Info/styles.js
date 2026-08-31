@@ -84,6 +84,14 @@ export const getStyles = ({ theme }) => {
     },
   }
 
+  const graphContainer = {
+    '& .graph-container': {
+      display: 'flex',
+      flexDirection: 'column',
+      flex: '0 0 auto',
+    },
+  }
+
   const vmIpTags = {
     '& .vmIpTags': {
       '& .MuiButton-endIcon, & .MuiButton-endIcon svg': {
@@ -99,6 +107,7 @@ export const getStyles = ({ theme }) => {
     ...detailsContainer,
     ...permissionsOwnershipContainer,
     ...capacityContainer,
+    ...graphContainer,
     ...attributesContainer,
     ...vmIpTags,
   }
