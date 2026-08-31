@@ -19,6 +19,8 @@ import { HYPERVISORS } from '@ConstantsModule'
 import { SCHEMA as OS_SCHEMA } from './booting/schema'
 import { SCHEMA as CONTEXT_SCHEMA } from './context/schema'
 import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
+import { getObjectSchemaFromFields } from '@UtilsModule'
+import { ONEDRS_BLOCKED_FIELD } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/placement/schema'
 
 /**
  * @param {object} [formProps] - Form props
@@ -30,5 +32,6 @@ export const SCHEMA = ({ hypervisor }) =>
     .concat(IO_SCHEMA({ hypervisor }))
     .concat(OS_SCHEMA({ hypervisor }))
     .concat(CONTEXT_SCHEMA({ hypervisor }))
+    .concat(getObjectSchemaFromFields([ONEDRS_BLOCKED_FIELD]))
 
 export { CONTEXT_SCHEMA, IO_SCHEMA, OS_SCHEMA }

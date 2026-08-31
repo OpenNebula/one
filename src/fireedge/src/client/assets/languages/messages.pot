@@ -3742,6 +3742,16 @@ msgstr ""
 msgid "OneDRS Recommendations"
 msgstr ""
 
+#. T.PreventDrsMigrations
+#: ./src/modules/constants/translates.js
+msgid "Prevent OneDRS migrations"
+msgstr ""
+
+#. T.PreventDrsMigrationsConcept
+#: ./src/modules/constants/translates.js
+msgid "Keeps affected VMs on their current host during automatic OneDRS optimization. Manual migrations remain available."
+msgstr ""
+
 #. T.DrsInterval
 #: ./src/modules/constants/translates.js
 msgid "Cluster is optimized every"

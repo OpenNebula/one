@@ -923,6 +923,9 @@ module.exports = {
   /* DRS */
   Drs: 'OneDRS',
   DrsRecommendations: 'OneDRS Recommendations',
+  PreventDrsMigrations: 'Prevent OneDRS migrations',
+  PreventDrsMigrationsConcept:
+    'Keeps affected VMs on their current host during automatic OneDRS optimization. Manual migrations remain available.',
   DrsInterval: 'Cluster is optimized every',
   DrsManualInterval: 'Cluster has to be manually optimized.',
   EnableDrs: 'Enable OneDRS',

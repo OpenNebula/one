@@ -16,6 +16,7 @@
 import {
   Folder as ContextIcon,
   DataTransferBoth as IOIcon,
+  NetworkAlt as PlacementIcon,
   SystemShut as OsIcon,
 } from 'iconoir-react'
 import PropTypes from 'prop-types'
@@ -25,11 +26,13 @@ import { useFormContext } from 'react-hook-form'
 import Booting from '@modules/resources/VirtualMachine/Forms/UpdateConfigurationForm/booting'
 import Context from '@modules/resources/VirtualMachine/Forms/UpdateConfigurationForm/context'
 import InputOutput from '@modules/resources/VirtualMachine/Forms/UpdateConfigurationForm/inputOutput'
+import { ONEDRS_BLOCKED_FIELD } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/placement/schema'
 
 import { HYPERVISORS, T } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
-import { Tabs } from '@ComponentsModule'
+import { FormWithSchema, Tabs } from '@ComponentsModule'
 import { Box } from '@mui/material'
+import { disableFields } from '@UtilsModule'
 
 const TABS_CONTAINER_SX = {
   display: 'flex',
@@ -66,6 +69,11 @@ const Content = ({ hypervisor, oneConfig, adminGroup, vm }) => {
 
   const hasContext = !!vm?.TEMPLATE?.CONTEXT
   const [selected, setSelected] = useState(0)
+  const placementFields = useMemo(
+    () =>
+      disableFields([{ ...ONEDRS_BLOCKED_FIELD }], '', oneConfig, adminGroup),
+    [adminGroup, oneConfig]
+  )
 
   const tabs = useMemo(
     () => [
@@ -97,6 +105,19 @@ const Content = ({ hypervisor, oneConfig, adminGroup, vm }) => {
         getError: (error) => ['GRAPHICS', 'INPUT'].some((id) => error?.[id]),
       },
       {
+        id: 'placement',
+        icon: PlacementIcon,
+        title: translate(T.Placement),
+        Content: () => (
+          <FormWithSchema
+            cy="onedrs-placement"
+            fields={placementFields}
+            legend={T.Drs}
+          />
+        ),
+        getError: (error) => !!error?.ONEDRS_BLOCKED,
+      },
+      {
         id: 'context',
         icon: ContextIcon,
         title: translate(T.Context),
@@ -112,7 +133,15 @@ const Content = ({ hypervisor, oneConfig, adminGroup, vm }) => {
         getError: (error) => !!error?.CONTEXT,
       },
     ],
-    [adminGroup, hasContext, hypervisor, oneConfig, vm, translate]
+    [
+      adminGroup,
+      hasContext,
+      hypervisor,
+      oneConfig,
+      placementFields,
+      vm,
+      translate,
+    ]
   )
 
   const ActiveTab = tabs[selected] ?? tabs[0]

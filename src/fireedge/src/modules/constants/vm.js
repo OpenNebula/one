@@ -185,6 +185,7 @@ import { ScheduleAction } from '@modules/constants/scheduler'
  * @property {string} [USER_TEMPLATE.HYPERVISOR] -
  * @property {string} [USER_TEMPLATE.LOGO] -
  * @property {string} [USER_TEMPLATE.INFO] -
+ * @property {string} [USER_TEMPLATE.ONEDRS_BLOCKED] -
  * @property {string} [USER_TEMPLATE.SCHED_REQUIREMENTS] -
  * @property {object} HISTORY_RECORDS - History
  * @property {HistoryRecord|HistoryRecord[]} [HISTORY_RECORDS.HISTORY] - History Records

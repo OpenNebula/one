@@ -31,6 +31,7 @@ import { LockInfo, Permissions } from '@modules/constants/common'
  * @property {string|number} REGTIME - Registration time
  * @property {object} TEMPLATE - Template information
  * @property {string} [TEMPLATE.CONTEXT] - Context
+ * @property {string} [TEMPLATE.ONEDRS_BLOCKED] -
  */
 
 /**
@@ -169,6 +170,7 @@ export const TAB_FORM_MAP = {
   Context: ['CONTEXT', 'USER_INPUTS', 'INPUTS_ORDER'],
   ScheduleAction: ['SCHED_ACTION'],
   Placement: [
+    'ONEDRS_BLOCKED',
     'SCHED_DS_RANK',
     'SCHED_DS_REQUIREMENTS',
     'SCHED_RANK',
