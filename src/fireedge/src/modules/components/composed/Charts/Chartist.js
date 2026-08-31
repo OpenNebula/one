@@ -121,6 +121,38 @@ const minMaxTick = (ticks, formatter = (x) => x, intervals = 2) => {
   return res
 }
 
+const getYAxisSize = (chart, values = [], axisIdx) => {
+  const minSize = 50
+  const maxSize = Math.max(minSize, Math.min(chart.width * 0.25, 120))
+  if (!values?.length) return minSize
+
+  const axis = chart.axes?.[axisIdx]
+  const font = Array.isArray(axis?.font) ? axis.font[0] : axis?.font
+
+  chart.ctx.save()
+  if (font) chart.ctx.font = font
+
+  const labelWidth = values.reduce(
+    (maxWidth, value) =>
+      Math.max(maxWidth, chart.ctx.measureText(`${value ?? ''}`).width),
+    0
+  )
+
+  chart.ctx.restore()
+
+  const fontScale =
+    Array.isArray(axis?.font) && axis.font[2] ? axis.font[1] / axis.font[2] : 1
+  const tickSize = axis?.ticks?.show === false ? 0 : axis?.ticks?.size ?? 0
+
+  return Math.min(
+    maxSize,
+    Math.max(
+      minSize,
+      Math.ceil(labelWidth / fontScale + tickSize + (axis?.gap ?? 0) + 4)
+    )
+  )
+}
+
 const createFill = (u, color) => {
   const ctx = u.ctx
   const plotHeight = u.bbox?.height || u.over.clientHeight
@@ -443,6 +475,7 @@ const Chartist = ({
           gap: 12,
         },
         {
+          size: getYAxisSize,
           grid: {
             show: true,
             dash: [8, 8],
