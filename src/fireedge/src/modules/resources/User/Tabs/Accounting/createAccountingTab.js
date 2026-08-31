@@ -21,6 +21,7 @@ import {
 } from '@modules/resources/User/Tabs/Accounting/components'
 import AdapterLuxon from '@mui/lab/AdapterLuxon'
 import { DateTime } from 'luxon'
+import { formatDate } from '@UtilsModule'
 import { LocalizationProvider } from '@mui/lab'
 import {
   getDefaultDateRange,
@@ -100,9 +101,9 @@ const createAccountingTab = ({ groups }) => {
         (record) =>
           isWithinDateRange(record, dateRange.startDate, dateRange.endDate),
         (record) =>
-          `${dateRange.startDate.toFormat(
-            'MMM dd, yyyy'
-          )} - ${dateRange.endDate.toFormat('MMM dd, yyyy')}`
+          `${formatDate(dateRange.startDate)} - ${formatDate(
+            dateRange.endDate
+          )}`
       )
 
       const filteredDataset = result.dataset
@@ -127,9 +128,9 @@ const createAccountingTab = ({ groups }) => {
       })
 
       const metrics = calculateDisplayMetrics(filteredData)
-      const label = `${dateRange.startDate.toFormat(
-        'MMM dd, yyyy'
-      )} - ${dateRange.endDate.toFormat('MMM dd, yyyy')}`
+      const label = `${formatDate(dateRange.startDate)} - ${formatDate(
+        dateRange.endDate
+      )}`
 
       return {
         id: Date.now(),

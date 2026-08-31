@@ -14,11 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import React from 'react'
+import { DateTime } from 'luxon'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 import { mapValues } from 'lodash'
 import { MultiChart, Table } from '@ComponentsModule'
 import { useTranslation } from '@ProvidersModule'
+import { formatDateTime } from '@UtilsModule'
 
 const commonStyles = {
   width: '100%',
@@ -34,12 +36,14 @@ const metricNames = {
 
 const formatDate = (value, fallbackToCurrentDate = false) => {
   if (!value || isNaN(value) || value === '0') {
-    return fallbackToCurrentDate
-      ? new Date().toISOString().split('T')[0]
-      : '1970-01-01'
+    const fallback = fallbackToCurrentDate
+      ? DateTime.now()
+      : DateTime.fromObject({ year: 1970, month: 1, day: 1 })
+
+    return formatDateTime(fallback)
   }
 
-  return new Date(Number(value) * 1000).toISOString().split('T')[0]
+  return formatDateTime(DateTime.fromSeconds(Number(value)))
 }
 
 const getTableColumns = (translate) => [

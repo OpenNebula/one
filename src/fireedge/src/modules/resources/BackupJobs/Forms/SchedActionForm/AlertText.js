@@ -22,7 +22,7 @@ import {
   VM_SCHEDULE_TYPE_STRING,
 } from '@ConstantsModule'
 import { getRepeatInformation } from '@ModelsModule'
-import { timeFromMilliseconds } from '@UtilsModule'
+import { formatDateTime, timeFromMilliseconds } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 
 import { AlertNotification } from '@ComponentsModule'
@@ -84,7 +84,7 @@ const AlertText = (data) => {
     ? TIME.toSeconds()
     : DateTime.fromJSDate(new Date(TIME)).toSeconds()
   const dateTime = timeFromMilliseconds(+time)
-  const formatTime = dateTime.toFormat('ff')
+  const formatTime = formatDateTime(dateTime)
   const relativeTime = dateTime.toRelative()
   const scheduleTimeText = [relativeTime, formatTime]
     .filter(Boolean)

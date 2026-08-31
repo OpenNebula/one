@@ -28,7 +28,11 @@ import {
   getTypeScheduleAction,
   isRelative,
 } from '@ModelsModule'
-import { sentenceCase, timeFromMilliseconds } from '@UtilsModule'
+import {
+  formatDateTime,
+  sentenceCase,
+  timeFromMilliseconds,
+} from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
@@ -56,9 +60,9 @@ const ScheduleActionCard = memo(({ schedule, actions }) => {
 
   const time = timeIsRelative ? getPeriodicityByTimeInSeconds(TIME) : TIME
   const formatTime =
-    !timeIsRelative && timeFromMilliseconds(+TIME).toFormat('ff')
+    !timeIsRelative && formatDateTime(timeFromMilliseconds(+TIME))
   const formatDoneTime =
-    DONE && timeFromMilliseconds(DONE === '-1' ? +TIME : +DONE).toFormat('ff')
+    DONE && formatDateTime(timeFromMilliseconds(DONE === '-1' ? +TIME : +DONE))
 
   const { repeat, end } = getRepeatInformation(schedule)
 

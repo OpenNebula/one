@@ -22,6 +22,7 @@ import { useController } from 'react-hook-form'
 import { AlertNotification, Datepicker } from '@modules/components/primitives'
 import { generateKey } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
+import { DATE_TIME_FORMAT, DATE_TIME_PLACEHOLDER } from '@ConstantsModule'
 
 const toDate = (value) => {
   if (value?.isValid && typeof value.toJSDate === 'function') {
@@ -55,8 +56,8 @@ export const TimeController = memo(
           {...fieldProps}
           value={toDate(value)}
           label={translate(label)}
-          placeholder="DD/MM/YYYY HH:mm"
-          dateFormat="Pp"
+          placeholder={DATE_TIME_PLACEHOLDER}
+          dateFormat={DATE_TIME_FORMAT}
           showTimeSelect
           popperPlacement="bottom-start"
           popperProps={fixedPopperProps}

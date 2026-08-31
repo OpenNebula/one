@@ -16,6 +16,7 @@
 import { schemaOdsUserInputField } from '@modules/utils/ods'
 import { isPlainObject, mapValues, isArray } from 'lodash'
 import { DateTime } from 'luxon'
+import { formatDateTime } from '@modules/utils/modeling'
 
 /**
  * Create a list of fields to use in the schema and in forms from the list of ODS User Inputs.
@@ -136,7 +137,7 @@ const formatOneKsEventTime = (time) => {
   const timestamp = Number(time)
 
   return Number.isFinite(timestamp) && timestamp > 0
-    ? DateTime.fromSeconds(timestamp).toFormat('ff')
+    ? formatDateTime(DateTime.fromSeconds(timestamp))
     : '-'
 }
 

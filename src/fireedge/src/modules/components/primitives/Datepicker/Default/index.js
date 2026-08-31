@@ -26,8 +26,50 @@ import {
   getPortalStyles,
   getStyles,
 } from '@modules/components/primitives/Datepicker/Default/styles'
-import { isToday, isSameMonth } from 'date-fns'
+import { isSameDay, isSameMonth } from 'date-fns'
 import en from 'date-fns/locale/en-US'
+import { DateTime } from 'luxon'
+import {
+  CURRENT_TIME_ZONE,
+  DATE_FORMAT,
+  DATE_PLACEHOLDER,
+} from '@ConstantsModule'
+
+const toDatepickerDate = (date) => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return date
+
+  const zonedDate = DateTime.fromJSDate(date, { zone: CURRENT_TIME_ZONE })
+
+  return new Date(
+    zonedDate.year,
+    zonedDate.month - 1,
+    zonedDate.day,
+    zonedDate.hour,
+    zonedDate.minute,
+    zonedDate.second,
+    zonedDate.millisecond
+  )
+}
+
+const fromDatepickerDate = (date) => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return date
+
+  return DateTime.fromObject(
+    {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+      hour: date.getHours(),
+      minute: date.getMinutes(),
+      second: date.getSeconds(),
+      millisecond: date.getMilliseconds(),
+    },
+    { zone: CURRENT_TIME_ZONE }
+  ).toJSDate()
+}
+
+const convertDateValue = (value, converter) =>
+  Array.isArray(value) ? value.map(converter) : converter(value)
 
 /**
  * Datepicker component displays date selector.
@@ -51,7 +93,8 @@ export const Datepicker = forwardRef(
       isMultipleSelectable = false,
       value,
       label,
-      placeholder = 'DD/MM/YYYY',
+      placeholder = DATE_PLACEHOLDER,
+      dateFormat = DATE_FORMAT,
       dataCy,
       locale = en,
       portalId,
@@ -59,13 +102,21 @@ export const Datepicker = forwardRef(
     },
     ref
   ) => {
-    const [currentMonth, setCurrentMonth] = useState(new Date())
+    const [currentMonth, setCurrentMonth] = useState(() =>
+      toDatepickerDate(new Date())
+    )
     const [selectedDates, setSelectedDates] = useState(null)
+    const { minDate, maxDate, ...restDatePickerProps } = datePickerProps
 
     // Resets the state value properly
     const isControlled = value !== undefined
     const selectedValue =
       value ?? selectedDates ?? (isMultipleSelectable ? [] : null)
+    const datepickerSelectedValue = convertDateValue(
+      selectedValue,
+      toDatepickerDate
+    )
+    const today = toDatepickerDate(new Date())
 
     useEffect(() => {
       if (!isControlled) {
@@ -76,7 +127,7 @@ export const Datepicker = forwardRef(
     const getDayClassName = (date) => {
       const classes = []
 
-      if (isToday(date)) {
+      if (isSameDay(date, today)) {
         classes.push('highlight-today')
       }
 
@@ -121,20 +172,27 @@ export const Datepicker = forwardRef(
             popperPlacement="bottom-start"
             onMonthChange={(date) => setCurrentMonth(date)}
             onYearChange={(date) => setCurrentMonth(date)}
-            onCalendarClose={() => setCurrentMonth(new Date())}
+            onCalendarClose={() =>
+              setCurrentMonth(toDatepickerDate(new Date()))
+            }
             onChange={(dates) => {
+              const convertedDates = convertDateValue(dates, fromDatepickerDate)
+
               if (!isControlled) {
-                setSelectedDates(dates)
+                setSelectedDates(convertedDates)
               }
-              onChange?.(dates)
+              onChange?.(convertedDates)
             }}
             onDismiss={onDismiss}
             locale={locale}
             portalId={portalId}
-            {...datePickerProps}
+            dateFormat={dateFormat}
+            minDate={toDatepickerDate(minDate)}
+            maxDate={toDatepickerDate(maxDate)}
+            {...restDatePickerProps}
             {...{
               [isMultipleSelectable ? 'selectedDates' : 'selected']:
-                selectedValue,
+                datepickerSelectedValue,
             }}
           />
         </Box>
@@ -151,6 +209,7 @@ Datepicker.propTypes = {
     PropTypes.instanceOf(Date),
     PropTypes.arrayOf(PropTypes.instanceOf(Date)),
   ]),
+  dateFormat: PropTypes.string,
   label: PropTypes.string,
   placeholder: PropTypes.string,
   dataCy: PropTypes.string,

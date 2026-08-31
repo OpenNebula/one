@@ -22,6 +22,7 @@ import {
   VM_SCHEDULE_TYPE_STRING,
 } from '@ConstantsModule'
 import { getRepeatInformation } from '@ModelsModule'
+import { formatDateTime } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 import { AlertNotification } from '@ComponentsModule'
 import { Box } from '@mui/material'
@@ -59,7 +60,7 @@ const formatScheduleTime = (value) => {
 
   const dateTime = DateTime.fromSeconds(seconds)
 
-  return [dateTime.toRelative(), dateTime.toFormat('ff')]
+  return [dateTime.toRelative(), formatDateTime(dateTime)]
     .filter(Boolean)
     .join(' - ')
 }

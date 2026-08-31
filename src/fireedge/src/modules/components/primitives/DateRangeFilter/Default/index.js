@@ -19,7 +19,7 @@ import { Box } from '@mui/material'
 import { DateTime } from 'luxon'
 
 import { Datepicker } from '@modules/components/primitives/Datepicker'
-import { T } from '@ConstantsModule'
+import { DATE_FORMAT, T } from '@ConstantsModule'
 
 const toDate = (date) => {
   if (!date) return null
@@ -70,7 +70,7 @@ export const DateRangeFilter = ({
   }
 
   const useMonthYearPicker = isMonthYearView(views)
-  const dateFormat = useMonthYearPicker ? 'MM/yyyy' : 'dd/MM/yyyy'
+  const dateFormat = useMonthYearPicker ? 'MM/yyyy' : DATE_FORMAT
   const pickerProps = {
     dateFormat,
     showMonthYearPicker: useMonthYearPicker,

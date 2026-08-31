@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { INPUT_TYPES, T } from '@ConstantsModule'
 import {
+  formatDateTime,
   timeFromMilliseconds,
   Field,
   arrayToOptions,
@@ -94,9 +95,9 @@ const INCREMENT_ID = ({ increments = [] }) => ({
         addEmpty: T.Latest,
         addEmptyValue: -1,
         getText: (increment) =>
-          `${increment.id}: ${timeFromMilliseconds(increment.date)
-            .toFormat('ff')
-            .replace(',', '')} (${increment.source})`,
+          `${increment.id}: ${formatDateTime(
+            timeFromMilliseconds(increment.date)
+          ).replace(',', '')} (${increment.source})`,
         getValue: (increment) => increment.id,
       }
     )

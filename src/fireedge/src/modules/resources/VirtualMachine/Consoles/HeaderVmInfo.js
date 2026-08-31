@@ -20,7 +20,7 @@ import { useHistory } from 'react-router'
 import { DEFAULT_IMAGE, STATIC_FILES_URL, T, PATH } from '@ConstantsModule'
 import { ServiceAPI, VmAPI, useGeneralApi } from '@FeaturesModule'
 import { getIpv4s, getVirtualMachineState } from '@ModelsModule'
-import { timeFromMilliseconds } from '@UtilsModule'
+import { formatDateTime, timeFromMilliseconds } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
 import { useClipboard } from '@HooksModule'
 import { Badge, OpenNebulaLogo, Tag, Tooltip } from '@ComponentsModule'
@@ -300,7 +300,9 @@ const HeaderVmInfo = ({
               <span className="region-label--title">
                 {translate(T.Registered)}
               </span>
-              <span className="region-label--value">{time.toFormat('ff')}</span>
+              <span className="region-label--value">
+                {formatDateTime(time)}
+              </span>
             </Box>
           </Box>
         )}

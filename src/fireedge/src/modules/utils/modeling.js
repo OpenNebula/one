@@ -19,6 +19,10 @@ import { DateTime, Settings } from 'luxon'
 import { sentenceCase, stringToBoolean } from '@modules/utils/string'
 import {
   CURRENCY,
+  CURRENT_TIME_ZONE,
+  DATE_FORMAT,
+  DATE_LOCALE,
+  DATE_TIME_FORMAT,
   Permission,
   T,
   USER_INPUT_TYPES,
@@ -148,15 +152,50 @@ export const isDate = (value) =>
   (typeof value === 'object' &&
     Object.prototype.toString.call(value) === '[object Date]')
 
+const isValidDateTime = (dateTime) =>
+  DateTime.isDateTime(dateTime) && dateTime.isValid
+
 /**
- * Converts the time values into "mm/dd/yyyy, hh:mm:ss" format.
+ * Formats a Luxon DateTime using an explicit system pattern.
+ *
+ * @param {DateTime} dateTime - DateTime to format.
+ * @param {string} pattern - Luxon format tokens.
+ * @param {string} [fallback] - Value returned for an invalid DateTime.
+ * @returns {string} Formatted date.
+ */
+export const formatDateByPattern = (dateTime, pattern, fallback = '-') =>
+  isValidDateTime(dateTime)
+    ? dateTime
+        .setZone(CURRENT_TIME_ZONE)
+        .setLocale(DATE_LOCALE.replace('_', '-'))
+        .toFormat(pattern)
+    : fallback
+
+/**
+ * @param {DateTime} dateTime - DateTime to format.
+ * @param {string} [fallback] - Value returned for an invalid DateTime.
+ * @returns {string} System-formatted date.
+ */
+export const formatDate = (dateTime, fallback = '-') =>
+  formatDateByPattern(dateTime, DATE_FORMAT, fallback)
+
+/**
+ * @param {DateTime} dateTime - DateTime to format.
+ * @param {string} [fallback] - Value returned for an invalid DateTime.
+ * @returns {string} System-formatted date and time.
+ */
+export const formatDateTime = (dateTime, fallback = '-') =>
+  formatDateByPattern(dateTime, DATE_TIME_FORMAT, fallback)
+
+/**
+ * Converts epoch seconds using the system-wide date and time format.
  *
  * @param {number|string} time - Time to convert.
  * @returns {string} - Time string.
- * @example 02521251251 =>  "4/23/1981, 11:04:41 AM"
+ * @example 3582 => "01/01/1970 00:59:42"
  */
 export const timeToString = (time) =>
-  +time ? new Date(+time * 1000).toLocaleString() : '-'
+  +time ? formatDateTime(DateTime.fromSeconds(+time)) : '-'
 
 /**
  * Converts the given time into DateTime luxon type.
