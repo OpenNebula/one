@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, array } from 'yup'
+import { string, array, boolean } from 'yup'
 
 import { Field, Section, arrayToOptions, disableFields } from '@UtilsModule'
 import {
@@ -29,6 +29,16 @@ const datastoreSelectionTable = {
     dsTable
       .columns()
       .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
+}
+
+/** @type {Field} OneDRS migration field */
+const ONEDRS_BLOCKED_FIELD = {
+  name: 'ONEDRS_BLOCKED',
+  label: T.PreventDrsMigrations,
+  tooltip: T.PreventDrsMigrationsConcept,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().yesOrNo().notRequired(),
+  grid: { xs: 12, md: 12 },
 }
 
 /**
@@ -312,6 +322,7 @@ const SECTIONS = (oneConfig, adminGroup, isUpdate, modifiedFields) => [
     legend: T.HostRequirements,
     fields: disableFields(
       [
+        ONEDRS_BLOCKED_FIELD,
         TABLE_TYPE,
         CLUSTER_TABLE,
         HOST_TABLE,
@@ -338,10 +349,11 @@ const SECTIONS = (oneConfig, adminGroup, isUpdate, modifiedFields) => [
 
 /** @type {Field[]} List of Placement fields */
 const FIELDS = ({ isUpdate, modifiedFields, instantiate }) => [
+  ONEDRS_BLOCKED_FIELD,
   HOST_REQ_FIELD(isUpdate, modifiedFields, instantiate),
   HOST_RANK_FIELD,
   DS_REQ_FIELD,
   DS_RANK_FIELD,
 ]
 
-export { SECTIONS, FIELDS }
+export { ONEDRS_BLOCKED_FIELD, SECTIONS, FIELDS }

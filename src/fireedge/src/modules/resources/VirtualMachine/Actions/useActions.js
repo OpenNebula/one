@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { VmAPI } from '@FeaturesModule'
 import ACTION_DEFINITIONS from '@modules/resources/VirtualMachine/Actions/definitions'
 
@@ -114,6 +114,21 @@ export const useActions = ({ context }) => {
   const [performAction, { isLoading: isPerformingVmAction }] =
     VmAPI.useActionVmMutation()
 
+  const updateConfiguration = useCallback(
+    async ({ userTemplate, ...params } = {}) => {
+      const result = await updateConf(params)
+
+      if (result?.error || !userTemplate) return result
+
+      return updateUserTemplate({
+        id: params.id,
+        template: userTemplate,
+        replace: 0,
+      })
+    },
+    [updateConf, updateUserTemplate]
+  )
+
   // THIS NEEDS TO CARRY ALL useMutation REFS FROM THE DEFS FILE
   const hookTriggerLookup = useMemo(
     () =>
@@ -151,7 +166,7 @@ export const useActions = ({ context }) => {
         [VmAPI.useRevertVmSnapshotMutation, revertVmSnapshot],
         [VmAPI.useSaveAsDiskMutation, saveDisk],
         [VmAPI.useSaveAsTemplateMutation, saveAsTemplate],
-        [VmAPI.useUpdateConfigurationMutation, updateConf],
+        [VmAPI.useUpdateConfigurationMutation, updateConfiguration],
         [VmAPI.useUpdateNicMutation, updateNic],
         [VmAPI.useUpdateScheduledActionMutation, updateSchedAction],
       ]),
@@ -188,7 +203,7 @@ export const useActions = ({ context }) => {
       saveAsTemplate,
       saveDisk,
       unlock,
-      updateConf,
+      updateConfiguration,
       updateNic,
       updateSchedAction,
       updateUserTemplate,

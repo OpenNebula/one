@@ -20,6 +20,7 @@ import {
   decodeBase64,
   getUnknownAttributes,
   jsonToXml,
+  stringToBoolean,
 } from '@UtilsModule'
 import { set } from 'lodash'
 import { reach } from 'yup'
@@ -40,7 +41,11 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
     const bootOrder = template?.OS?.BOOT
     const nics = [].concat(template?.NIC ?? []).flat()
     const knownTemplate = schema.cast(
-      { ...vmTemplate, ...template },
+      {
+        ...vmTemplate,
+        ...template,
+        ONEDRS_BLOCKED: vmTemplate?.USER_TEMPLATE?.ONEDRS_BLOCKED,
+      },
       { stripUnknown: true, context: { ...template } }
     )
 
@@ -129,7 +134,7 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
     return knownTemplate
   },
   transformBeforeSubmit: (formData, initialValues) => {
-    const { extra, ...restFormData } = formData
+    const { extra, ONEDRS_BLOCKED, ...restFormData } = formData
     // Encode script on base 64, if needed, on context section
     const updatedFormData = {
       ...restFormData,
@@ -159,8 +164,18 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
       delete updatedFormData?.CONTEXT
     }
 
+    const drsBlockedChanged =
+      stringToBoolean(ONEDRS_BLOCKED) !==
+      stringToBoolean(initialValues?.USER_TEMPLATE?.ONEDRS_BLOCKED)
+
     return {
       template: jsonToXml(updatedFormData),
+      ...(drsBlockedChanged && {
+        userTemplate: jsonToXml({
+          ...initialValues?.USER_TEMPLATE,
+          ONEDRS_BLOCKED,
+        }),
+      }),
     }
   },
 })
