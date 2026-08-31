@@ -31,6 +31,7 @@ import { ClusterAPI, VmAPI, VnAPI } from '@FeaturesModule'
 import { useClipboard } from '@HooksModule'
 import {
   aggregateOwnership,
+  formatDateTime,
   aggregatePermissions,
   isValidOneKsResourceId,
   prettyBytes,
@@ -44,7 +45,7 @@ import {
 import { getStyles } from '@modules/resources/OneKs/Tabs/Info/styles'
 
 const formatTime = (time) =>
-  +time > 0 ? timeFromMilliseconds(+time).toFormat('ff') : '-'
+  +time > 0 ? formatDateTime(timeFromMilliseconds(+time)) : '-'
 
 const getResourceId = (resource) =>
   typeof resource === 'object' ? resource?.id ?? resource?.ID : resource

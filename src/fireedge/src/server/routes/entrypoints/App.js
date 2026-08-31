@@ -45,17 +45,11 @@ const globalApiTimeout = (config) =>
 
 const router = Router()
 
-const defaultConfig = {
-  currentTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-}
-
 router.get('*', async (req, res) => {
   const APP_CONFIG = {
-    [defaultApps.sunstone.name]:
-      {
-        ...defaultConfig,
-        ...getSunstoneConfig({ includeProtectedConfig: false }),
-      } || defaultConfig,
+    [defaultApps.sunstone.name]: {
+      ...getSunstoneConfig({ includeProtectedConfig: false }),
+    },
   }
 
   const encodedFavIcon = await getEncodedFavicon()

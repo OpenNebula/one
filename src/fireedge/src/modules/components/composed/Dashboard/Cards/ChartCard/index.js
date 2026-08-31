@@ -21,7 +21,7 @@ import { Graph } from '@modules/components/composed/Charts'
 import { DashboardCard } from '@modules/components/composed/Dashboard/Card'
 import { getStyles } from '@modules/components/composed/Dashboard/Cards/ChartCard/styles'
 import { SkeletonLoading } from '@modules/components/primitives/Loaders'
-import { T } from '@ConstantsModule'
+import { DATE_TIME_FORMAT, T } from '@ConstantsModule'
 
 const DEFAULT_CHART_HEIGHT = { xs: 220, sm: 280 }
 const GRID_ORIENTATIONS = ['horizontal', 'vertical', 'both']
@@ -91,8 +91,8 @@ export const DashboardChartCard = forwardRef(
       zoomFactor = 0.95,
       clusterFactor = 10,
       clusterThreshold = 10000,
-      dateFormat = 'MM-dd HH:mm',
-      dateFormatHover = 'MMM dd HH:mm:ss',
+      dateFormat = DATE_TIME_FORMAT,
+      dateFormatHover = DATE_TIME_FORMAT,
       height = DEFAULT_CHART_HEIGHT,
       isLoading = false,
       loadingLabel = T.Loading,

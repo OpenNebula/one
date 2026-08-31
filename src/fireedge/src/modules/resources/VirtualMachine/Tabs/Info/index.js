@@ -15,10 +15,11 @@
  * ------------------------------------------------------------------------- */
 
 import {
-  filterAttributes,
+  formatDateTime,
   jsonToXml,
-  timeFromMilliseconds,
   prettyBytes,
+  timeFromMilliseconds,
+  filterAttributes,
 } from '@UtilsModule'
 import { T, UNITS, VM_ACTIONS } from '@ConstantsModule'
 import {
@@ -177,20 +178,14 @@ export const Info = ({ data, config }) => {
                 ],
                 [
                   T.StartTime,
-                  String(
-                    timeFromMilliseconds(selectedVm?.STIME ?? 0).toFormat(
-                      'dd/MM/yyyy, HH:mm:ss'
-                    )
-                  ),
+                  formatDateTime(timeFromMilliseconds(selectedVm?.STIME ?? 0)),
                   'starttime',
                 ],
                 [
                   T.EndTime,
                   +selectedVm?.ETIME
-                    ? String(
-                        timeFromMilliseconds(selectedVm?.ETIME ?? 0).toFormat(
-                          'dd/MM/yyyy, HH:mm:ss'
-                        )
+                    ? formatDateTime(
+                        timeFromMilliseconds(selectedVm?.ETIME ?? 0)
                       )
                     : '-',
                   'endtime',

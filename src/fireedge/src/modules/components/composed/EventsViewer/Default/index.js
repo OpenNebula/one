@@ -16,19 +16,18 @@
 
 import { Box } from '@mui/material'
 import { SortDown, SortUp } from 'iconoir-react'
-import { Settings } from 'luxon'
+import { DateTime } from 'luxon'
 import PropTypes from 'prop-types'
 import { memo, useEffect, useMemo, useState } from 'react'
 
-import { STYLE_BUTTONS, T } from '@ConstantsModule'
-import { useAuth } from '@FeaturesModule'
+import { CURRENT_TIME_ZONE, STYLE_BUTTONS, T } from '@ConstantsModule'
 import { getStyles } from '@modules/components/composed/EventsViewer/Default/styles'
 import { SearchBar } from '@modules/components/composed/SearchBar/Default'
 import { SearchSlot } from '@modules/components/composed/SearchBar/Default/slots'
 import { Button } from '@modules/components/primitives/Buttons'
 import { Datepicker } from '@modules/components/primitives/Datepicker'
 import { Table } from '@modules/components/primitives/Tables'
-import { timeFromMilliseconds } from '@UtilsModule'
+import { formatDateTime, timeFromMilliseconds } from '@UtilsModule'
 
 const descendingComparator = (a, b, orderBy) => {
   if (b[orderBy] < a[orderBy]) {
@@ -56,10 +55,11 @@ const safeText = (value) => String(value ?? '')
 const getStartOfDaySeconds = (date) => {
   if (!date) return null
 
-  const startDate = new Date(date)
-  startDate.setHours(0, 0, 0, 0)
-
-  return Math.floor(startDate.getTime() / 1000)
+  return Math.floor(
+    DateTime.fromJSDate(date, { zone: CURRENT_TIME_ZONE })
+      .startOf('day')
+      .toSeconds()
+  )
 }
 
 /**
@@ -69,10 +69,11 @@ const getStartOfDaySeconds = (date) => {
 const getEndOfDaySeconds = (date) => {
   if (!date) return null
 
-  const endDate = new Date(date)
-  endDate.setHours(23, 59, 59, 999)
-
-  return Math.floor(endDate.getTime() / 1000)
+  return Math.floor(
+    DateTime.fromJSDate(date, { zone: CURRENT_TIME_ZONE })
+      .endOf('day')
+      .toSeconds()
+  )
 }
 
 /**
@@ -149,7 +150,7 @@ RelativeTime.displayName = 'RelativeTime'
  * @param {number|string} time - Event time in seconds
  * @returns {string} - Formatted event time
  */
-const formatEventTime = (time) => timeFromMilliseconds(time).toFormat('ff')
+const formatEventTime = (time) => formatDateTime(timeFromMilliseconds(time))
 
 /**
  * @param {string} text - Text to highlight
@@ -189,10 +190,6 @@ export const EventsViewer = ({ events = [], isLoading = false }) => {
   const [filterInitTimeValue, setFilterInitTimeValue] = useState(null)
   const [filterEndTimeValue, setFilterEndTimeValue] = useState(null)
   const [order, setOrder] = useState('desc')
-
-  const { settings: fireedge = {} } = useAuth()
-  const lang = fireedge?.LANG?.substring(0, 2)
-  Settings.defaultLocale = lang
 
   const eventList = useMemo(
     () => [].concat(events ?? []).filter(Boolean),

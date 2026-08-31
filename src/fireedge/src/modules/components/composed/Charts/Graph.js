@@ -24,7 +24,8 @@ import { SkeletonLoading } from '@modules/components/primitives/Loaders'
 import { Stack, useTheme, Typography } from '@mui/material'
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import UplotReact from 'uplot-react'
-import { T } from '@ConstantsModule'
+import { DATE_TIME_FORMAT, T } from '@ConstantsModule'
+import { formatDateByPattern } from '@UtilsModule'
 
 const GRID_ORIENTATIONS = ['horizontal', 'vertical', 'both']
 
@@ -104,9 +105,12 @@ const minMaxTick = (ticks, formatter) => {
 }
 
 const formatTimestamp = (timestamp, format, useMilliseconds) =>
-  useMilliseconds
-    ? DateTime.fromMillis(+timestamp).toFormat(format)
-    : timeFromSeconds(timestamp).toFormat(format)
+  formatDateByPattern(
+    useMilliseconds
+      ? DateTime.fromMillis(+timestamp)
+      : timeFromSeconds(timestamp),
+    format
+  )
 
 const createFill = (u, color) => {
   const ctx = u.ctx
@@ -179,8 +183,8 @@ const Graph = ({
   trendLineOnly = [],
   legendNames = [],
   lineColors = [],
-  dateFormat = 'MM-dd HH:mm',
-  dateFormatHover = 'MMM dd HH:mm:ss',
+  dateFormat = DATE_TIME_FORMAT,
+  dateFormatHover = DATE_TIME_FORMAT,
   showGrid = true,
   gridOrientation = 'both',
   gridColor,

@@ -54,6 +54,7 @@ import { mapNameByIndex } from '@modules/resources/VmTemplate/Forms/CreateForm/S
 import { useTranslation } from '@ProvidersModule'
 import {
   dateToMilliseconds,
+  formatDateTime,
   hasRestrictedAttributes,
   isDate,
   sentenceCase,
@@ -93,7 +94,7 @@ const formatActionTime = (time, translate) => {
     const formattedTime = timeFromMilliseconds(dateToMilliseconds(time))
 
     return formattedTime.isValid
-      ? formattedTime.toFormat('ff')
+      ? formatDateTime(formattedTime)
       : formatValue(time)
   }
 
@@ -103,7 +104,7 @@ const formatActionTime = (time, translate) => {
     )
 
     return formattedTime.isValid
-      ? formattedTime.toFormat('ff')
+      ? formatDateTime(formattedTime)
       : formatValue(time)
   }
 
@@ -124,7 +125,7 @@ const formatActionTime = (time, translate) => {
 
   const dateTime = timeFromMilliseconds(+time)
 
-  return dateTime.isValid ? dateTime.toFormat('ff') : formatValue(time)
+  return dateTime.isValid ? formatDateTime(dateTime) : formatValue(time)
 }
 
 const cleanScheduleActionFormValues = (schedule) => {

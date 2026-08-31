@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { IANAZone, Settings } from 'luxon'
 import * as Setting from '@modules/constants/setting'
 
 export const BY = { text: 'by OpenNebula', url: 'https://opennebula.io/' }
@@ -48,6 +49,39 @@ export const SERVER_CONFIG = (() => {
   return config
 })()
 
+const configuredTimeZone = SERVER_CONFIG.currentTimeZone
+const hasConfiguredTimeZone =
+  typeof configuredTimeZone === 'string' &&
+  IANAZone.isValidZone(configuredTimeZone)
+
+export const CURRENT_TIME_ZONE = hasConfiguredTimeZone
+  ? configuredTimeZone
+  : Intl.DateTimeFormat().resolvedOptions().timeZone
+
+if (hasConfiguredTimeZone) Settings.defaultZone = CURRENT_TIME_ZONE
+
+const configuredDateFormat = SERVER_CONFIG.dateFormat
+const DEFAULT_DATE_FORMAT = 'dd/MM/yyyy'
+const DEFAULT_TIME_FORMAT = 'HH:mm:ss'
+
+const getTimeTokenIndex = (format) => {
+  const tokens =
+    /'(?:[^']|'')*'|H{1,2}|h{1,2}|m{1,2}|s{1,3}|S{1,3}|a|Z{1,5}|z{1,4}/g
+  let token
+
+  while ((token = tokens.exec(format)) !== null) {
+    if (!token[0].startsWith("'")) return token.index
+  }
+
+  return -1
+}
+
+const normalizedDateFormat =
+  typeof configuredDateFormat === 'string' && configuredDateFormat.trim()
+    ? configuredDateFormat.trim()
+    : DEFAULT_DATE_FORMAT
+const timeTokenIndex = getTimeTokenIndex(normalizedDateFormat)
+
 export const UNITS = {
   KB: 'KB',
   MB: 'MB',
@@ -58,8 +92,6 @@ export const UNITS = {
   ZB: 'ZB',
   YB: 'YB',
 }
-
-export const DEFAULT_TIMESTAMP_FORMAT = 'MMM dd HH:mm:ss'
 
 // should be equal to the apps in src/server/utils/constants/defaults.js
 export const _APPS = { sunstone: 'sunstone' }
@@ -83,7 +115,21 @@ export const SCHEMES = Setting.SCHEMES
 export const DEFAULT_SCHEME = Setting.SCHEMES.SYSTEM
 
 export const CURRENCY = SERVER_CONFIG?.currency ?? 'EUR'
-export const DEFAULT_LANGUAGE = SERVER_CONFIG?.default_lang ?? 'en'
+export const DATE_FORMAT =
+  timeTokenIndex < 0
+    ? normalizedDateFormat
+    : normalizedDateFormat
+        .slice(0, timeTokenIndex)
+        .replace(/(?:'[^']*'|[\s,;:|-])+$/, '') || DEFAULT_DATE_FORMAT
+export const DATE_TIME_FORMAT =
+  timeTokenIndex < 0
+    ? normalizedDateFormat + ' ' + DEFAULT_TIME_FORMAT
+    : normalizedDateFormat
+export const DATE_PLACEHOLDER = DATE_FORMAT.toUpperCase()
+export const DATE_TIME_PLACEHOLDER = DATE_TIME_FORMAT.toUpperCase()
+export const DEFAULT_TIMESTAMP_FORMAT = DATE_TIME_FORMAT
+export const DATE_LOCALE = SERVER_CONFIG?.default_lang ?? 'en'
+export const DEFAULT_LANGUAGE = DATE_LOCALE
 export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
 export const VM_EXTENDED_POOL = !!(SERVER_CONFIG?.use_extended_vmpool ?? true)
 export const LANGUAGES = SERVER_CONFIG.langs ?? {

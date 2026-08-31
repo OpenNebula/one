@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { timeFromSeconds } from '@ModelsModule'
+import { formatDateTime } from '@UtilsModule'
 
 /* eslint-disable  */
 function wheelZoomPlugin(opts) {
@@ -134,7 +135,7 @@ function tooltipPlugin({ dataset, tooltipClass, seriesColors, shiftX = 5, shiftY
 
     const value = u.data[seriesIdx][dataIdx];
     const time = u.data[0][dataIdx];
-    const formattedTime = timeFromSeconds(time).toFormat("dd/MM/yyyy, hh:mm:ss a");
+    const formattedTime = formatDateTime(timeFromSeconds(time));
 
     const colorBox = `<span style="display:inline-block;width:10px;height:10px;background:${seriesColors[seriesIdx - 1]};border-radius:2px;margin-right:6px;"></span>`;
 

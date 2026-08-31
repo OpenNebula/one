@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import { Translate } from '@ProvidersModule'
 
 import { css } from '@emotion/css'
-import { timeFromSeconds } from '@UtilsModule'
+import { formatDateByPattern, timeFromSeconds } from '@UtilsModule'
 import {
   wheelZoomPlugin,
   tooltipPlugin,
@@ -39,7 +39,12 @@ import { Component, useMemo, useRef, useState } from 'react'
 import UplotReact from 'uplot-react'
 import { useResizeObserver } from '@HooksModule'
 
-import { T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
+import {
+  DATE_TIME_FORMAT,
+  T,
+  TEXT_VARIANTS,
+  TEXT_WEIGHTS,
+} from '@ConstantsModule'
 
 const useStyles = ({ palette, scale }) => ({
   graphContainer: css({
@@ -217,8 +222,8 @@ const Chartist = ({
   setTransform,
   legendNames = [],
   lineColors = [],
-  dateFormat = 'MM/dd/yyyy\nhh:mm a',
-  dateFormatHover = 'MMM dd HH:mm:ss',
+  dateFormat = DATE_TIME_FORMAT,
+  dateFormatHover = DATE_TIME_FORMAT,
 }) => {
   const theme = useTheme()
   const classes = useMemo(() => useStyles(theme), [theme])
@@ -469,7 +474,8 @@ const Chartist = ({
           values: (_, ticks) =>
             minMaxTick(
               ticks,
-              (label) => timeFromSeconds(label).toFormat(dateFormat),
+              (label) =>
+                formatDateByPattern(timeFromSeconds(label), dateFormat),
               4
             ),
           gap: 12,
@@ -492,7 +498,7 @@ const Chartist = ({
           label: 'Time',
           value: (_, timestamp) =>
             timestamp
-              ? timeFromSeconds(timestamp).toFormat(dateFormatHover)
+              ? formatDateByPattern(timeFromSeconds(timestamp), dateFormatHover)
               : '--',
         },
         ...(Array.isArray(YRender)

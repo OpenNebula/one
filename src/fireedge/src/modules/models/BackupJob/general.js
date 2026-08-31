@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { T } from '@ConstantsModule'
-import { timeDiff, timeFromMilliseconds } from '@UtilsModule'
+import { formatDateTime, timeDiff, timeFromMilliseconds } from '@UtilsModule'
 
 const HIDDEN_BACKUPJOB_TEMPLATE_REG = /^(SCHED_ACTION|ERROR)$/
 
@@ -63,7 +63,7 @@ export const getBackupJobState = (backupJob = {}) =>
  * @returns {string} Formatted timestamp
  */
 export const getBackupJobLastBackupTime = (time) =>
-  +time > 0 ? timeFromMilliseconds(+time).toFormat('ff') : '-'
+  +time > 0 ? formatDateTime(timeFromMilliseconds(+time)) : '-'
 
 /**
  * @param {string|number} time - Last backup timestamp

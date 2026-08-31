@@ -16,7 +16,9 @@
 /* eslint-disable jsdoc/require-jsdoc */
 /* eslint-disable react/prop-types */
 
+import { DateTime } from 'luxon'
 import { useFieldArray, useFormContext } from 'react-hook-form'
+import { formatDateTime } from '@UtilsModule'
 import { Stack } from '@mui/material'
 import { STEP_ID as ROLES_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Roles'
 
@@ -43,8 +45,10 @@ const renderPolicyTitle = (translate) => (_, idx) =>
 
 const renderStartTime = (startTime) => {
   if (!startTime) return undefined
-  if (typeof startTime?.toFormat === 'function') return startTime.toFormat('ff')
-  if (startTime instanceof Date) return startTime.toLocaleString()
+  if (typeof startTime?.toFormat === 'function')
+    return formatDateTime(startTime)
+  if (startTime instanceof Date)
+    return formatDateTime(DateTime.fromJSDate(startTime))
 
   return startTime
 }

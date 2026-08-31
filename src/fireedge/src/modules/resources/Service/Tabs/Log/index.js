@@ -19,7 +19,7 @@ import { Component, useMemo } from 'react'
 import { Box } from '@mui/material'
 import { LogsViewer } from '@ComponentsModule'
 import { SERVICE_LOG_SEVERITY, T } from '@ConstantsModule'
-import { timeFromMilliseconds } from '@UtilsModule'
+import { formatDateTime, timeFromMilliseconds } from '@UtilsModule'
 import { getTabStyles } from '@modules/resources/Service/Tabs/styles'
 
 const SEVERITY_LEVELS = {
@@ -38,9 +38,7 @@ const getServiceLogs = (service = {}) =>
   [].concat(getServiceDocument(service)?.TEMPLATE?.BODY?.log ?? [])
 
 const formatLogTimestamp = (timestamp) =>
-  timestamp
-    ? timeFromMilliseconds(Number(timestamp)).toFormat('yyyy-LL-dd HH:mm:ss')
-    : '-'
+  timestamp ? formatDateTime(timeFromMilliseconds(Number(timestamp))) : '-'
 
 const mapServiceLogEntry = ({ severity, message, timestamp } = {}) => {
   const knownSeverity = Object.prototype.hasOwnProperty.call(
