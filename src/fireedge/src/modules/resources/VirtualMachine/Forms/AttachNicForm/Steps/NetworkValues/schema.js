@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, ObjectSchema } from 'yup'
+import { array, string, ObjectSchema } from 'yup'
 
 import {
   Field,
@@ -35,6 +35,9 @@ import {
 
 const filterByHypAndDriver = (fields, { hypervisor, driver }) =>
   filterFieldsByDriver(filterFieldsByHypervisor(fields, hypervisor), driver)
+
+const parseDnsServers = (value) =>
+  typeof value === 'string' ? value.split(/\s+/).filter(Boolean) : [value]
 
 const disableForDummy = (fields) =>
   fields.map((field) => {
@@ -123,6 +126,26 @@ const OVERRIDE_IPV4_FIELDS = [
       addEmpty: true,
     }),
     validation: string().trim().notRequired().default(undefined),
+  },
+  {
+    name: 'DNS',
+    label: T.DNS,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    multiple: true,
+    validation: array(string().trim())
+      .transform((value, originalValue) =>
+        typeof originalValue === 'string'
+          ? parseDnsServers(originalValue)
+          : value
+      )
+      .notRequired()
+      .default(() => undefined)
+      .afterSubmit((value) => (value?.length ? value.join(' ') : undefined)),
+    fieldProps: {
+      freeSolo: true,
+      autoSelect: true,
+      parseFreeSoloValue: parseDnsServers,
+    },
   },
 ]
 
