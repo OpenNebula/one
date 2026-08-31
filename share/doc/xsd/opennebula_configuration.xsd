@@ -285,6 +285,7 @@
           </xs:complexType>
         </xs:element>
 
+        <xs:element name="REUSE_ADDRESS" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="RPC_LOG" type="xs:string" minOccurs="0" maxOccurs="1"/>
 
         <xs:element name="SCHED_MAD" minOccurs="0" maxOccurs="1">
