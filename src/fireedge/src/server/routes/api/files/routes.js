@@ -43,12 +43,9 @@ module.exports = {
     [FILE_SHOW]: {
       path: `${basepath}/show`,
       httpMethod: GET,
-      auth: false,
+      auth: true,
       params: {
         file: {
-          from: query,
-        },
-        token: {
           from: query,
         },
         app: {
