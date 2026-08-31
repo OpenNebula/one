@@ -194,7 +194,7 @@ func (s *VNSuite) TestRecover(c *C) {
 		"BRIDGE = vbr0\n" +
 		"VN_MAD = dummy\n" +
 		"NETWORK_ADDRESS = 192.168.0.0\n" +
-		"AR = [ TYPE = IP4, IP = 192.168.0.1, SIZE = -1 ]\n"
+		"AR = [ IPAM_MAD = dummy, TYPE = IP4, IP = 192.168.0.1, SIZE = -1 ]\n"
 
 	id, err := testCtrl.VirtualNetworks().Create(vnTpl, -1)
 	c.Assert(err, IsNil)
