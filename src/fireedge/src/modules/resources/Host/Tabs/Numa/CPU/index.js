@@ -24,7 +24,7 @@ import {
   TEXT_VARIANTS,
   TEXT_WEIGHTS,
 } from '@ConstantsModule'
-import { getColorFromString } from '@ModelsModule'
+import { getColorFromString } from '@UtilsModule'
 
 import { getStyles } from '@modules/resources/Host/Tabs/Numa/CPU/styles'
 import { Text } from '@ComponentsModule'
