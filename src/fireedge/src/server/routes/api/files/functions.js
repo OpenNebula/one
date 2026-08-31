@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-const { resolve, extname, parse, sep } = require('path')
+const { extname, isAbsolute, relative, resolve, sep } = require('path')
 const { global } = require('window-or-global')
-const { jwtDecode } = require('server/utils/jwt')
-const { existsSync, mkdirsSync, moveSync } = require('fs-extra')
+const {
+  existsSync,
+  mkdirsSync,
+  moveSync,
+  realpathSync,
+  statSync,
+} = require('fs-extra')
 
 const { defaults, httpCodes } = require('server/utils/constants')
 
@@ -26,16 +31,19 @@ const {
   httpResponse,
   checkValidApp,
   getFiles,
-  existsFile,
   removeFile,
 } = require('server/utils/server')
 
 const { defaultEmptyFunction } = defaults
 
-const { ok, internalServerError, badRequest } = httpCodes
+const { ok, internalServerError, badRequest, notFound } = httpCodes
 
 const httpBadRequest = httpResponse(badRequest, '', '')
+const httpNotFound = httpResponse(notFound, '', '')
 const groupAdministrator = ['0']
+
+const isOutsideRoot = (path = '') =>
+  path === '..' || path.startsWith(`..${sep}`) || isAbsolute(path)
 
 /**
  * Check if user is a administrator.
@@ -90,52 +98,93 @@ const checkUserAdmin = (
   }
 }
 /**
- * Parse File path.
+ * Resolve an existing file without allowing it to escape its root.
  *
- * @param {string} file - filename
- * @returns {Array | undefined} - if user is the file owner
+ * @param {string} root - allowed root directory
+ * @param {string|string[]} path - path relative to the root
+ * @param {boolean} recursive - allow files below child directories
+ * @returns {string|undefined} canonical path to the file
  */
-const parseFilePath = (file = '') => {
-  const parsedFile = parse(file)
-  if (parsedFile && parsedFile.dir) {
-    return parsedFile.dir.split(sep)
+const resolveFileInRoot = (root = '', path = [], recursive = true) => {
+  const segments = [].concat(path)
+
+  if (
+    !root ||
+    !segments.length ||
+    segments.some(
+      (part) => typeof part !== 'string' || !part || isAbsolute(part)
+    )
+  ) {
+    return
   }
+
+  try {
+    const resolvedRoot = realpathSync(root)
+    const resolvedFile = realpathSync(resolve(resolvedRoot, ...segments))
+    const pathFromRoot = relative(resolvedRoot, resolvedFile)
+
+    if (
+      pathFromRoot &&
+      !isOutsideRoot(pathFromRoot) &&
+      (recursive || !pathFromRoot.includes(sep)) &&
+      statSync(resolvedFile).isFile()
+    ) {
+      return resolvedFile
+    }
+  } catch {}
 }
 
 /**
- * Check if file no have owner, but have app.
+ * Resolve a CPI directory without trusting symlinked app or user directories.
  *
- * @param {string} file - filename
- * @returns {boolean} - if user is the file owner
+ * @param {...string} path - directory path relative to CPI
+ * @returns {string|undefined} canonical path to the directory
  */
-const validateFileWithoutOwner = (file = '') => {
-  const parsedFile = parseFilePath(file)
+const resolveCpiDirectory = (...path) => {
+  try {
+    const directory = resolve(realpathSync(global.paths.CPI), ...path)
 
-  return (
-    Array.isArray(parsedFile) &&
-    parsedFile[0] &&
-    checkValidApp(parsedFile[0]) &&
-    !parsedFile[1]
-  )
+    if (realpathSync(directory) === directory) return directory
+  } catch {}
 }
 
 /**
- * Check if user is a file owner.
+ * Resolve a CPI file owned by the user or, when requested, a public file.
  *
  * @param {string} file - filename
  * @param {number} id - user id
- * @returns {boolean} - if user is the file owner
+ * @param {boolean} allowPublic - allow files directly under the app directory
+ * @param {string} expectedApp - app requested by the caller
+ * @returns {string|undefined} canonical path to the file
  */
-const validateFileWithOwner = (file = '', id = '') => {
-  const parsedFile = parseFilePath(file)
+const resolveCpiFile = (
+  file = '',
+  id = '',
+  allowPublic = false,
+  expectedApp = ''
+) => {
+  if (
+    typeof file !== 'string' ||
+    id === '' ||
+    id == null ||
+    !global?.paths?.CPI
+  ) {
+    return
+  }
 
-  return (
-    Array.isArray(parsedFile) &&
-    parsedFile[0] &&
-    checkValidApp(parsedFile[0]) &&
-    parsedFile[1] &&
-    parsedFile[1] === id
-  )
+  const userId = `${id}`
+  if (!/^\d+$/.test(userId)) return
+
+  const [app, owner, ...path] = file.split(/[\\/]/)
+  if (!checkValidApp(app) || (expectedApp && app !== expectedApp)) return
+
+  if (owner === userId && path.length) {
+    return resolveFileInRoot(resolveCpiDirectory(app, userId), path)
+  }
+
+  if (allowPublic && owner && !path.length) {
+    return resolveFileInRoot(resolveCpiDirectory(app), owner, false)
+  }
 }
 
 /**
@@ -214,37 +263,26 @@ const upload = (
 }
 
 /**
- * Get default files for app.
+ * Get the default files path for an app.
  *
  * @param {string} app - app
- * @param {boolean} multiple - find multiple files
- * @param {string} defaultFile - default file
- * @returns {Array | string} - file
+ * @returns {string|undefined} default files path
  */
-const getDefaultFilesforApps = (
-  app = '',
-  multiple = false,
-  defaultFile = ''
-) => {
-  let rtn = ''
-  switch (app) {
-    case 'sunstone':
-      if (global.paths.SUNSTONE_IMAGES) {
-        const path = global.paths.SUNSTONE_IMAGES
-        if (multiple) {
-          rtn = getFiles(path, true).map((file) =>
-            file.replace(`${path}${sep}`, '')
-          )
-        } else {
-          rtn = `${path}${sep}${defaultFile}`
-        }
-      }
-      break
-    default:
-      break
-  }
+const getDefaultFilesPath = (app = '') =>
+  app === 'sunstone' ? global?.paths?.SUNSTONE_IMAGES : undefined
 
-  return rtn
+/**
+ * Get default files for an app.
+ *
+ * @param {string} app - app
+ * @returns {Array} files relative to the default files path
+ */
+const getDefaultFilesforApps = (app = '') => {
+  const path = getDefaultFilesPath(app)
+
+  return path
+    ? getFiles(path, true).map((file) => file.replace(`${path}${sep}`, ''))
+    : []
 }
 
 /**
@@ -271,7 +309,7 @@ const list = (
     let data = []
 
     // get defaulf files for app
-    data = data.concat(getDefaultFilesforApps(app, true))
+    data = data.concat(getDefaultFilesforApps(app))
 
     // find root files
     const rootPath = `${path}${app}`
@@ -298,34 +336,38 @@ const list = (
  * @param {object} res - response http
  * @param {Function} next - express stepper
  * @param {string} params - data response http
+ * @param {object} userData - authenticated user
+ * @returns {undefined} undefined
  */
-const show = (res = {}, next = defaultEmptyFunction, params = {}) => {
-  const rtn = httpBadRequest
-  const { file, token, app } = params
-  const userData = jwtDecode(token)
-  if (token && file && app && checkValidApp(app) && userData) {
-    let pathFile = getDefaultFilesforApps(app, false, file)
-    if (
-      validateFileWithOwner(file, userData.iss) ||
-      validateFileWithoutOwner(file)
-    ) {
-      pathFile = `${global.paths.CPI}${sep}${file}`
-    }
-    existsFile(
-      pathFile,
-      () => {
-        res.locals.httpCode = httpResponse(ok, '', '', resolve(pathFile))
-        next()
-      },
-      () => {
-        res.locals.httpCode = httpResponse(internalServerError, '', '')
-        next()
-      }
-    )
-  } else {
-    res.locals.httpCode = rtn
-    next()
+const show = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { file, app } = params
+  const { id } = userData
+
+  if (
+    typeof file !== 'string' ||
+    typeof app !== 'string' ||
+    !checkValidApp(app) ||
+    id === '' ||
+    id == null
+  ) {
+    res.locals.httpCode = httpBadRequest
+
+    return next()
   }
+
+  const pathFile =
+    resolveCpiFile(file, id, true, app) ||
+    resolveFileInRoot(getDefaultFilesPath(app), file)
+
+  res.locals.httpCode = pathFile
+    ? httpResponse(ok, '', '', pathFile)
+    : httpNotFound
+  next()
 }
 
 /**
@@ -345,27 +387,17 @@ const deleteFile = (
   const { file } = params
   const { id } = userData
   const rtn = httpBadRequest
-  if (global.paths.CPI && file && id && validateFileWithOwner(file, id)) {
-    const pathFile = `${global.paths.CPI}${sep}${file}`
-    existsFile(
-      pathFile,
-      () => {
-        res.locals.httpCode = httpResponse(
-          removeFile(pathFile) ? ok : internalServerError,
-          '',
-          ''
-        )
-        next()
-      },
-      () => {
-        res.locals.httpCode = httpResponse(internalServerError, '', '')
-        next()
-      }
+  const pathFile = resolveCpiFile(file, id)
+  if (pathFile) {
+    res.locals.httpCode = httpResponse(
+      removeFile(pathFile) ? ok : internalServerError,
+      '',
+      ''
     )
   } else {
     res.locals.httpCode = rtn
-    next()
   }
+  next()
 }
 
 /**
@@ -385,48 +417,28 @@ const update = (
   const rtn = httpBadRequest
   const { files, name } = params
   const { id } = userData
-  if (
-    global.paths.CPI &&
-    name &&
-    files &&
-    id &&
-    validateFileWithOwner(name, id)
-  ) {
-    const pathFile = `${global.paths.CPI}${sep}${name}`
-    existsFile(
-      pathFile,
-      () => {
-        let method = ok
-        let data = ''
-        let message = ''
-        for (const file of params.files) {
-          if (file && file.originalname && file.path && file.filename) {
-            try {
-              moveSync(file.path, pathFile, { overwrite: true })
-              data = name
-            } catch (error) {
-              method = internalServerError
-              message = error && error.message
-              break
-            }
-          }
+  const pathFile = resolveCpiFile(name, id)
+  if (pathFile && files) {
+    let method = ok
+    let data = ''
+    let message = ''
+    for (const file of params.files) {
+      if (file && file.originalname && file.path && file.filename) {
+        try {
+          moveSync(file.path, pathFile, { overwrite: true })
+          data = name
+        } catch (error) {
+          method = internalServerError
+          message = error && error.message
+          break
         }
-        res.locals.httpCode = httpResponse(
-          method,
-          data.length ? data : '',
-          message
-        )
-        next()
-      },
-      () => {
-        res.locals.httpCode = httpResponse(internalServerError, '', '')
-        next()
       }
-    )
+    }
+    res.locals.httpCode = httpResponse(method, data.length ? data : '', message)
   } else {
     res.locals.httpCode = rtn
-    next()
   }
+  next()
 }
 
 const functionRoutes = {
