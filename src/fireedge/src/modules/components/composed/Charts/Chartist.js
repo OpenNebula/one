@@ -450,7 +450,6 @@ const Chartist = ({
         bind: {
           mousedown: () => () => {}, // Clear original 'annotating' handler
           dblclick: () => () => {}, // Clear reset X axis
-          click: () => () => {}, // Clear click handler
         },
         focus: {
           prox: 5,
@@ -462,7 +461,7 @@ const Chartist = ({
           min: XRange?.[0] ?? null,
           max: XRange?.[1] ?? null,
         },
-        y: { auto: false, min: YRange?.[0] ?? null, max: YRange?.[1] ?? null },
+        y: { auto: true, min: YRange?.[0] ?? null, max: YRange?.[1] ?? null },
       },
 
       axes: [
