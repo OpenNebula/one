@@ -4334,13 +4334,13 @@ Request::ErrorCode VirtualMachineAPI::vmgroup_add(int vid,
 {
     att.set_auth_op(VMActions::VMGROUP_ADD_ACTION);
 
-    // 1. Authorize VM
+    // Authorize VM
     if ( auto ec = vm_authorization(vid, 0, 0, att, 0, 0, 0); ec != Request::SUCCESS )
     {
         return ec;
     }
 
-    // 2. Authorize VMGroup
+    // Authorize VMGroup
     PoolObjectAuth vmg_perms;
     auto vmgrouppool = Nebula::instance().get_vmgrouppool();
     auto vmg         = vmgrouppool->get_ro(vmg_id);
@@ -4366,7 +4366,6 @@ Request::ErrorCode VirtualMachineAPI::vmgroup_add(int vid,
         return Request::AUTHORIZATION;
     }
 
-    // 3. Check affinity
     auto vm = vmpool->get(vid);
 
     if ( !vm )
@@ -4375,6 +4374,15 @@ Request::ErrorCode VirtualMachineAPI::vmgroup_add(int vid,
         return Request::NO_EXISTS;
     }
 
+    // Check the VM is not a member of VM Group
+    if ( vm->get_template_attribute("VMGROUP") != nullptr )
+    {
+        att.resp_msg = "VM is already part of a VM Group";
+
+        return Request::ACTION;
+    }
+
+    // Check affinity
     if ( vm->get_state() == VirtualMachine::ACTIVE )
     {
         int my_hid = vm->get_hid();
@@ -4388,7 +4396,7 @@ Request::ErrorCode VirtualMachineAPI::vmgroup_add(int vid,
         }
     }
 
-    // 4. Add to VMGroup
+    // Add to VMGroup
     unique_ptr<VectorAttribute> va = make_unique<VectorAttribute>("VMGROUP");
 
     va->replace("VMGROUP_ID", vmg_id);
