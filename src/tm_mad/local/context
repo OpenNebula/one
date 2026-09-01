@@ -91,6 +91,14 @@ arg_srcs.each do |src|
                 [from, ISO_DIR]
             when 2
                 from, to = parts
+
+                # FILES_DS destinations are enclosed in single quotes by oned.
+                # Shell-based context drivers remove them while evaluating the
+                # copy command, but FileUtils treats them as filename bytes.
+                if to.start_with?("'") && to.end_with?("'")
+                    to = to[1..-2]
+                end
+
                 [from, "#{ISO_DIR}/#{to}"]
             end
 
