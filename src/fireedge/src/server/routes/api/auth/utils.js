@@ -629,4 +629,5 @@ module.exports = {
   setZones,
   setup2FASecret,
   AUTH_TYPES,
+  TFAResult,
 }

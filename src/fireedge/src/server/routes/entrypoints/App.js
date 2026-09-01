@@ -18,10 +18,10 @@ const { parse } = require('url')
 const { Router } = require('express')
 // server
 const { getSunstoneConfig, getFireedgeConfig } = require('server/utils/yml')
-
+const { tryRemoteAuth } = require('server/routes/entrypoints/remoteAuth')
 const { getRemotesConfig } = require('server/utils/remoteModules')
 const { getForecastConfig } = require('server/utils/config')
-
+const { writeInLogger } = require('server/utils/logger')
 const { getEncodedFavicon } = require('server/utils/logo')
 const {
   defaultApps,
@@ -46,6 +46,11 @@ const globalApiTimeout = (config) =>
 const router = Router()
 
 router.get('*', async (req, res) => {
+  try {
+    await tryRemoteAuth(req, res)
+  } catch (e) {
+    writeInLogger(e)
+  }
   const APP_CONFIG = {
     [defaultApps.sunstone.name]: {
       ...getSunstoneConfig({ includeProtectedConfig: false }),
@@ -60,6 +65,7 @@ router.get('*', async (req, res) => {
 
   const remoteJWT = {
     remoteRedirect: appConfig?.auth_redirect ?? '',
+    ...(['remote', 'x509'].includes(appConfig?.auth) && { remote: true }),
   }
 
   const appName = parse(req.url)
