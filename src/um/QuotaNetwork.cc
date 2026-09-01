@@ -55,6 +55,10 @@ bool QuotaNetwork::check(PoolObjectSQL::ObjectType otype, Template * tmpl,
         {
             (*nic)->vector_value("FLOATING_IP", uses_lease);
         }
+        else
+        {
+            uses_lease = !(*nic)->is_floating_only();
+        }
 
         if ( !net_id.empty() && uses_lease )
         {
@@ -96,6 +100,10 @@ void QuotaNetwork::del(PoolObjectSQL::ObjectType otype, Template * tmpl)
         if ( otype == PoolObjectSQL::VROUTER )
         {
             (*nic)->vector_value("FLOATING_IP", uses_lease);
+        }
+        else
+        {
+            uses_lease = !(*nic)->is_floating_only();
         }
 
         if (uses_lease)

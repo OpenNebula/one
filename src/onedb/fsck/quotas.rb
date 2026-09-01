@@ -509,11 +509,15 @@ module OneDBFsck
         @db.fetch(queries[0]) do |vm_row|
             vmdoc = nokogiri_doc(vm_row[:body], 'vm_pool')
 
-            vmdoc.root.xpath('TEMPLATE/NIC/NETWORK_ID').each do |e|
-                next if e.text.empty?
+            vmdoc.root.xpath('TEMPLATE/NIC').each do |nic|
+                net_id        = nic.at_xpath('NETWORK_ID')&.text
+                floating      = nic.at_xpath('FLOATING_IP')&.text&.upcase == 'YES'
+                floating_only = nic.at_xpath('FLOATING_ONLY')&.text&.upcase == 'YES'
 
-                vnet_usage[e.text] = 0 if vnet_usage[e.text].nil?
-                vnet_usage[e.text] += 1
+                next if net_id.nil? || net_id.empty? || (floating && floating_only)
+
+                vnet_usage[net_id] = 0 if vnet_usage[net_id].nil?
+                vnet_usage[net_id] += 1
             end
 
             vmdoc.root.xpath('TEMPLATE/PCI/NETWORK_ID').each do |e|
