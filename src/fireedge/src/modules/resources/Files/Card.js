@@ -31,6 +31,7 @@ import { getImageTypeLabel, getLockIcon, prettyBytes } from '@UtilsModule'
 /**
  * @param {object} root0 - Params
  * @param {object} root0.data - File data
+ * @param {string} root0.dataCy - Cypress selector
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
@@ -38,7 +39,7 @@ import { getImageTypeLabel, getLockIcon, prettyBytes } from '@UtilsModule'
  * @returns {Component} File card component
  */
 export const FileCard = forwardRef(
-  ({ data, isSelected, onCheck, onClick }, ref) => {
+  ({ data, dataCy, isSelected, onCheck, onClick }, ref) => {
     const { ID, NAME, UNAME, GNAME, REGTIME, PERSISTENT, DATASTORE, SIZE } =
       data || {}
 
@@ -54,6 +55,7 @@ export const FileCard = forwardRef(
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -108,6 +110,7 @@ export const FileCard = forwardRef(
 
 FileCard.propTypes = {
   data: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

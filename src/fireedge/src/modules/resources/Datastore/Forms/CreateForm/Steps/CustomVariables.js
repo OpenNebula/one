@@ -61,6 +61,7 @@ const Content = () => {
         handleEdit={handleChangeAttribute}
         handleDelete={handleDeleteAttribute}
         attributes={customVars}
+        dataCy={STEP_ID}
         filtersSpecialAttributes={false}
         isFullHeight={true}
       />

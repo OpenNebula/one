@@ -46,7 +46,7 @@ import { getImageTypeLabel, getLockIcon, prettyBytes } from '@UtilsModule'
  * @returns {Component} ImageCard component
  */
 export const ImageCard = forwardRef(
-  ({ data, isSelected, onCheck, onClick }, ref) => {
+  ({ data, dataCy, isSelected, onCheck, onClick }, ref) => {
     const { ID, NAME, UNAME, GNAME, REGTIME, PERSISTENT, DATASTORE, SIZE } =
       data || {}
     const { color: stateColor, name: stateName } = useMemo(
@@ -60,6 +60,7 @@ export const ImageCard = forwardRef(
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -114,6 +115,7 @@ export const ImageCard = forwardRef(
 
 ImageCard.propTypes = {
   data: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

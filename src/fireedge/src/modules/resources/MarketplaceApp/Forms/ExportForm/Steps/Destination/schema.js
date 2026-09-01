@@ -29,6 +29,7 @@ const getDatastoreModel = (app) => ({
     datastoreTable
       .columns()
       .filter(({ id }) => !['owner', 'group', 'labels'].includes(id)),
+  dataCy: datastoreTable.dataCy,
   useData: () => {
     const result = datastoreTable.useData()
     const kernelApp = isKernelApp(app)

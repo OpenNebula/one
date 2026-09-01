@@ -48,7 +48,7 @@ import {
  * @returns {Component} VmTemplateCard component
  */
 export const DatastoreCard = forwardRef(
-  ({ data, isSelected, onCheck, onClick }, ref) => {
+  ({ data, dataCy, isSelected, onCheck, onClick }, ref) => {
     const { color: stateColor, name: stateName } = useMemo(
       () => getDatastoreState(data),
       [data]
@@ -62,6 +62,7 @@ export const DatastoreCard = forwardRef(
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -117,6 +118,7 @@ export const DatastoreCard = forwardRef(
 
 DatastoreCard.propTypes = {
   data: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

@@ -206,6 +206,7 @@ export function MarketplaceApps() {
 
   return (
     <ResourceContainer
+      dataCy={marketplaceAppTable.dataCy}
       resourceName={T.Apps}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -222,6 +223,7 @@ export function MarketplaceApps() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={marketplaceAppTable.dataCy}
                 columns={tableColumns}
                 data={items}
                 isLoading={isRefreshing}
@@ -248,6 +250,7 @@ export function MarketplaceApps() {
                   return (
                     <MarketplaceAppsResource.Card
                       key={id}
+                      dataCy={`${marketplaceAppTable.dataCy}-${id}`}
                       marketplaceApp={marketplaceApp}
                       isSelected={selectedItems?.includes(id)}
                       onCheck={() =>

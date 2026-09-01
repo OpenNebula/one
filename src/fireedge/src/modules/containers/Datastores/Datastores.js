@@ -115,6 +115,7 @@ export function Datastores() {
 
   return (
     <ResourceContainer
+      dataCy={datastoreTable.dataCy}
       resourceName={T.Datastores}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -131,6 +132,7 @@ export function Datastores() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={datastoreTable.dataCy}
                 columns={datastoreTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -153,6 +155,7 @@ export function Datastores() {
                 {items?.map((datastore) => (
                   <Datastore.Card
                     key={datastore?.ID}
+                    dataCy={`${datastoreTable.dataCy}-${String(datastore?.ID)}`}
                     data={datastore}
                     isSelected={selectedItems?.includes(datastore?.ID)}
                     onCheck={() =>

@@ -144,6 +144,7 @@ export function Images() {
 
   return (
     <ResourceContainer
+      dataCy={imageTable.dataCy}
       resourceName={T.Images}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -161,6 +162,7 @@ export function Images() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={imageTable.dataCy}
                 columns={imageTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -183,6 +185,7 @@ export function Images() {
                 {items?.map((image) => (
                   <ImageResource.Card
                     key={image?.ID}
+                    dataCy={`${imageTable.dataCy}-${String(image?.ID)}`}
                     data={image}
                     isSelected={selectedItems?.includes(image?.ID)}
                     onCheck={() =>
