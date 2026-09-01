@@ -65,6 +65,7 @@ module OneBEX
 
                         :EXPORT           => 'POST /export',
                         :EXPORT_FINISH    => 'POST /vms/:VM_ID/finish',
+                        :EXPORT_CANCEL    => 'POST /vms/:VM_ID/cancel',
 
                         :TRANSFER_INFO    => 'GET /transfers/:TRANSFER_ID/info',
 
@@ -281,6 +282,51 @@ module OneBEX
 
                     halt 200
                 end
+            end
+
+            # ---------------------------------------------------------------- #
+            # Transfer cancel
+            # ---------------------------------------------------------------- #
+
+            app.post '/vms/:vm_id/cancel' do
+                vm_id_param = params[:vm_id].to_s
+                message     = request_data['MESSAGE'] || 'Backup cancelled'
+
+                vm_id = if vm_id_param.include?('-')
+                            vm_id_param.split('-').last.to_i
+                        else
+                            vm_id_param.to_i
+                        end
+
+                bex.dispose_vm_transfers(vm_id).each_value do |transfer|
+                    begin
+                        transfer[:exporter].finish(transfer) if transfer[:exporter]
+                    rescue StandardError => e
+                        log.error 'Error stopping exporter for ' \
+                                  "#{transfer[:transfer_id]}: #{e.message}"
+                    end
+
+                    transfer[:status]  = 'cancelled'
+                    transfer[:success] = false
+                    transfer[:message] = message
+
+                    bex.del_transfer(
+                        {
+                            :vm_id       => transfer[:vm_id],
+                            :transfer_id => transfer[:transfer_id]
+                        },
+                        false
+                    )
+                end
+
+                stop_server
+
+                [200, json_response(
+                    :VM_ID             => vm_id,
+                    :STATUS            => 'cancelled',
+                    :SUCCESS           => false,
+                    :PENDING_TRANSFERS => []
+                )]
             end
 
             # ---------------------------------------------------------------- #

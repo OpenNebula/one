@@ -108,6 +108,28 @@ module OneBEX
                 end
             end
 
+            # Requests disposal for all active transfers of a VM.
+            def dispose_vm(vm_id)
+                vm_id = Integer(vm_id)
+
+                @mutex.synchronize do
+                    xfrs = @transfers[vm_id]
+
+                    return {} unless xfrs
+
+                    xfrs.each_with_object({}) do |(xfr_id, xfr), pending|
+                        next if @dispose[vm_id]&.key?(xfr_id)
+
+                        @dispose[vm_id] ||= {}
+                        @dispose[vm_id][xfr_id] = true
+
+                        xfr[:mutex].synchronize { xfr[:dispose] = true }
+
+                        pending[xfr_id] = xfr
+                    end
+                end
+            end
+
             # Runs a block with exclusive access to a transfer.
             def with(xfr_id, dispose: false, &block)
                 transfer = nil
@@ -276,6 +298,11 @@ module OneBEX
         # Requests disposal for all transfers and returns them grouped by VM.
         def dispose_transfers
             @xfrs.dispose_all
+        end
+
+        # Requests disposal for all active transfers of a VM.
+        def dispose_vm_transfers(vm_id)
+            @xfrs.dispose_vm(vm_id)
         end
 
         # Removes a transfer and optionally runs a block while it is locked.

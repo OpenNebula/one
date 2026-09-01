@@ -39,17 +39,6 @@ TransferManager::Datastore.load_env
 # HTTP helpers
 # ------------------------------------------------------------------------------
 
-def http_get(uri, open_timeout: 2, read_timeout: 5)
-    Net::HTTP.start(
-        uri.host,
-        uri.port,
-        :open_timeout => open_timeout,
-        :read_timeout => read_timeout
-    ) do |http|
-        http.get(uri.request_uri)
-    end
-end
-
 def http_post_json(uri, body = nil, open_timeout: 2, read_timeout: 5)
     req = Net::HTTP::Post.new(uri.request_uri)
     req['Content-Type'] = 'application/json'
@@ -64,89 +53,6 @@ def http_post_json(uri, body = nil, open_timeout: 2, read_timeout: 5)
     ) do |http|
         http.request(req)
     end
-end
-
-# ------------------------------------------------------------------------------
-# Finish every active OneBEX transfer for the VM as failed.
-# ------------------------------------------------------------------------------
-
-def finish_transfers(onebex_uri, vm_id)
-    uri = onebex_uri + "/status?VM_ID=#{vm_id}"
-
-    status_rc = http_get(uri)
-
-    return unless status_rc.code.to_i == 200
-
-    status = JSON.parse(status_rc.body)
-    transfers = status.fetch('TRANSFERS', [])
-
-    transfers.each do |transfer|
-        transfer_id = transfer['TRANSFER_ID']
-
-        next if transfer_id.nil?
-
-        uri = onebex_uri + "/transfer/#{transfer_id}/finalize"
-
-        rc = http_post_json(
-            uri,
-            {
-                :SUCCESS => false,
-                :MESSAGE => 'Backup cancelled'
-            }
-        )
-
-        next if rc.code.to_i == 200
-
-        raise StandardError,
-              "Unable to finish transfer #{transfer_id}: #{rc.body}"
-    end
-end
-
-# ------------------------------------------------------------------------------
-# Finalize the VM-level OneBEX backup session.
-#
-# /vms/:vm_id/finish returns:
-#   - 200 when no pending transfers remain
-#   - 409 while transfers are still pending
-#
-# On each 409, retry transfer finalization because pending transfers may still be
-# visible or new ones may appear while the backup action is being terminated.
-# ------------------------------------------------------------------------------
-
-def finish_vm_backup(onebex_uri, vm_id, retries: 10, sleep_time: 1)
-    uri = onebex_uri + "/vms/#{vm_id}/finish"
-
-    last_body = nil
-
-    retries.times do
-        finish_transfers(onebex_uri, vm_id)
-
-        rc = http_post_json(uri)
-
-        case rc.code.to_i
-        when 200
-            result = JSON.parse(rc.body)
-
-            unless result['STATUS'] == 'finished'
-                raise StandardError,
-                      "Unexpected VM finish status for VM #{vm_id}: #{rc.body}"
-            end
-
-            return result
-
-        when 409
-            last_body = rc.body
-            sleep sleep_time
-            next
-
-        else
-            raise StandardError,
-                  "Unable to finish VM #{vm_id} interactive backup: #{rc.body}"
-        end
-    end
-
-    raise StandardError,
-          "Timeout waiting for VM #{vm_id} transfers to finish: #{last_body}"
 end
 
 # ------------------------------------------------------------------------------
@@ -188,16 +94,27 @@ begin
 
     rc = LocalCommand.run '/bin/bash -s', nil, script
 
-    if rc.code != 0
-        raise StandardError,
-              "Unable to stop interactive backup action: #{rc.stderr}"
+    raise StandardError, "Unable to stop interactive backup actions: #{rc.stderr}" \
+        if rc.code != 0
+
+    uri = onebex_uri + "/vms/#{vm_id}/cancel"
+
+    rc = begin
+        http_post_json(
+            uri,
+            {
+                :MESSAGE => 'Backup cancelled'
+            }
+        )
+    rescue StandardError
+        # If the OneBEX server is down, the cancel is already done.
+        exit(0)
     end
 
-    # Finalize all active OneBEX transfers for this VM.
-    finish_transfers(onebex_uri, vm_id)
-
-    # Finalize the VM-level backup session.
-    finish_vm_backup(onebex_uri, vm_id)
+    unless rc.code.to_i == 200
+        raise StandardError,
+              "Unable to cancel VM #{vm_id} interactive backup: #{rc.body}"
+    end
 rescue StandardError => e
     STDERR.puts e.message
 
