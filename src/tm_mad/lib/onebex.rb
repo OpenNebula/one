@@ -222,7 +222,12 @@ module TransferManager
                 :DS_ID => @ds_id
             )
 
-            res = Net::HTTP.start(uri.host, uri.port) {|http| http.request(req) }
+            res = Net::HTTP.start(
+                uri.host,
+                uri.port,
+                :open_timeout => 2,
+                :read_timeout => 5
+            ) {|http| http.request(req) }
 
             raise "Error starting OneBEX export: #{res.body}" unless res.code.to_i == 200
 
@@ -233,28 +238,55 @@ module TransferManager
             JSON.parse(get("/status?VM_ID=#{@vm_id}").body)
         end
 
+        def cancel(message)
+            uri = @uri + "/vms/#{@vm_id}/cancel"
+
+            req = Net::HTTP::Post.new(uri)
+
+            req['Content-Type'] = 'application/json'
+            req.body = JSON.generate(
+                :MESSAGE => message
+            )
+
+            res = Net::HTTP.start(
+                uri.host,
+                uri.port,
+                :open_timeout => 2,
+                :read_timeout => 5
+            ) {|http| http.request(req) }
+
+            raise "Error cancelling OneBEX backup: #{res.body}" \
+                unless res.code.to_i == 200
+
+            true
+        end
+
         def finish?
             started_at = Time.now
-            error      = nil
 
             until Time.now - started_at > @timeout
                 begin
-                    return true unless status['STATUS'] == 'executing'
-                rescue StandardError => e
-                    error = e.message
-                    raise 'Error checking interactive backup status for VM ' \
-                          "#{@vm_id}: #{error}"
-                end
+                    current_status = status
 
-                error = nil
+                    if current_status['STATUS'] != 'executing'
+                        raise 'Backup cancelled' if current_status['SUCCESS'] == false
+
+                        return true
+                    end
+                rescue StandardError
+                    raise 'Backup cancelled'
+                end
 
                 sleep 1
             end
 
-            raise 'Timeout waiting for external backup server to finish for ' \
-                  "VM #{@vm_id}: #{error}"
-        end
+            message = 'Timeout waiting for external backup server to finish for ' \
+                      "VM #{@vm_id}."
 
+            cancel(message)
+
+            raise message
+        end
     end
 
 end

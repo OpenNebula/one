@@ -95,7 +95,7 @@ if __FILE__ == $PROGRAM_NAME
                 break if rs[0] == pipe_r
             end
 
-            Cancel.killall(vxml) if Cancel.running?(vxml)
+            Cancel.killall_subtasks
 
             exit(-1)
         end

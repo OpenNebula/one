@@ -79,24 +79,6 @@ module Cancel
 
     extend Command
 
-    def self.find_task(select = /#{$PROGRAM_NAME}/)
-        out = cmd('ps', '--no-headers -o pid,cmd -C ruby')
-
-        pids = out.lines.each_with_object([]) do |line, acc|
-            line.strip!
-            next if line.empty?
-
-            pid, command = line.split(' ', 2)
-            next unless command.match?(select)
-
-            acc << pid.to_i
-        end - [Process.pid]
-
-        raise StandardError, 'Too many tasks found, ambiguous result' if pids.size > 1
-
-        pids.first
-    end
-
     def self.find_subtasks(ppid, reject = / (blockcommit|snapshot-delete) /)
         begin
             out = cmd('ps', "--no-headers -o pid,cmd --ppid '#{ppid}'")
@@ -112,24 +94,17 @@ module Cancel
             next if command.match?(reject)
 
             acc << pid.to_i
-        end - [Process.pid]
+        end
     end
 
-    def self.running?(vxml)
-        ppid = find_task(/#{$PROGRAM_NAME}.*#{vxml}/)
-        !ppid.nil?
-    end
-
-    def self.killall(vxml, signal = :TERM)
-        ppid = find_task(/#{$PROGRAM_NAME}.*#{vxml}/)
-
-        raise StandardError, 'Parent task not running' if ppid.nil?
-
-        pids = find_subtasks(ppid)
+    def self.killall_subtasks(signal = :TERM)
+        pids = find_subtasks(Process.pid)
 
         pids.each do |pid|
             log("[KIL]: sending #{signal} to pid=#{pid}")
             Process.kill(signal, pid)
+        rescue Errno::ESRCH
+            log("[KIL]: pid=#{pid} already exited")
         end
     end
 
