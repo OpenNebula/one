@@ -81,30 +81,28 @@ module TransferManager
         #
         # @return [String, String] freeze and thaw commands
         def fsfreeze(vm, deploy_id, mode = nil)
-            mode ||= begin
-                vm.elements['/VM/BACKUPS/BACKUP_CONFIG/FS_FREEZE'].text.upcase
-            rescue StandardError
-                'NONE'
-            end
+            mode ||= vm.elements['/VM/BACKUPS/BACKUP_CONFIG/FS_FREEZE']&.text&.upcase || 'NONE'
 
             case mode
             when 'NONE'
                 ['', '']
             when 'AGENT'
                 freeze = <<~EOS
-                    #{virsh} domfsfreeze #{deploy_id} && export FROZEN="TRUE"
+                    #{virsh} domfsfreeze #{deploy_id}
+                    export FROZEN="TRUE"
                     trap '[ -n "${FROZEN}" ] && #{virsh} domfsthaw #{deploy_id}' EXIT
                 EOS
 
-                [freeze, "#{virsh} domfsthaw #{deploy_id} && unset FROZEN"]
+                [freeze, "#{virsh} domfsthaw #{deploy_id}; unset FROZEN"]
 
             when 'SUSPEND'
                 freeze = <<~EOS
-                    #{virsh} suspend #{deploy_id} && export SUSPENDED="TRUE"
+                    #{virsh} suspend #{deploy_id}
+                    export SUSPENDED="TRUE"
                     trap '[ -n "${SUSPENDED}" ] && #{virsh} resume #{deploy_id}' EXIT
                 EOS
 
-                [freeze, "#{virsh} resume #{deploy_id} && unset SUSPENDED"]
+                [freeze, "#{virsh} resume #{deploy_id}; unset SUSPENDED"]
 
             when 'TRY'
 

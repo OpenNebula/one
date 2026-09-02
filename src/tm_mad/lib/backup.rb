@@ -32,7 +32,9 @@ module TransferManager
         include TransferManager::KVM
 
         def initialize(vm_xml, vm_dir, disks)
-            @xml    = vm_xml
+            vm_xml = REXML::Document.new(vm_xml) if vm_xml.is_a?(String)
+
+            @xml    = vm_xml.root
             @vm_dir = vm_dir
             @disks  = disks
         end
@@ -44,7 +46,7 @@ module TransferManager
             live       = options[:live]
             deploy_id  = options[:deploy_id]
 
-            kvm = KVMDomain.new(@xml, @vm_dir, :backup_dir => backup_dir)
+            kvm = KVMDomain.new(@xml.to_s, @vm_dir, :backup_dir => backup_dir)
 
             snap_cmd = ''
             expo_cmd = ''
@@ -54,11 +56,10 @@ module TransferManager
             snap_abort = ''
             onebex_cmd = ''
 
-            xml_vm = REXML::Document.new(@xml).root
-            vm_id  = xml_vm.elements['ID'].text
-            ds_id  = File.basename(File.dirname(@vm_dir.to_s))
+            vm_id = @xml.elements['ID'].text
+            ds_id = File.basename(File.dirname(@vm_dir.to_s))
 
-            bk_img_id_elem = xml_vm.elements['BACKUPS/BACKUP_IDS/ID']
+            bk_img_id_elem = @xml.elements['BACKUPS/BACKUP_IDS/ID']
             bk_img_id      = bk_img_id_elem&.text&.strip
 
             if bk_img_id.nil? || bk_img_id.empty?
@@ -102,12 +103,44 @@ module TransferManager
                     ['', '']
                 end
 
-            <<~EOS
+            header = <<~EOS
                 set -ex -o pipefail
+            EOS
 
-                # ---------------------------------------------------------
+            snapshot = <<~EOS
+                # ----------------------------------------------------
+                # Thaw the VM and remove snapshots on snapshot failure
+                # ----------------------------------------------------
+                snapshot_cleanup() {
+                    rc=$?
+
+                    set +e
+
+                    #{thaw}
+
+                    [ "$rc" = "0" ] || {
+                        #{snap_abort}
+                        : # in case `snap_abort` is empty
+                    }
+
+                    exit "$rc"
+                }
+
+                # --------------------------
+                # Create snapshots for disks
+                # --------------------------
+                #{freeze}
+
+                trap snapshot_cleanup EXIT
+                #{snap_cmd}
+                #{thaw}
+                trap - EXIT
+            EOS
+
+            export = <<~EOS
+                # -------------------------------------------------------
                 # Remove disk snapshots created by this backup on failure
-                # ---------------------------------------------------------
+                # -------------------------------------------------------
                 abort_cleanup() {
                     rc=$?
 
@@ -122,34 +155,22 @@ module TransferManager
 
                 trap abort_cleanup EXIT
 
-                # ----------------------
+                # ---------------------
                 # Prepare backup folder
-                # ----------------------
+                # ---------------------
                 [ -d #{backup_dir} ] && rm -rf #{backup_dir}
-
                 mkdir -p #{backup_dir}
 
-                echo "#{Base64.encode64(@xml)}" > #{backup_dir}/vm.xml
+                echo "#{Base64.encode64(@xml.to_s)}" > #{backup_dir}/vm.xml
 
-                # --------------------------------
-                # Create snapshots for disks
-                # --------------------------------
-                #{freeze}
-
-                #{snap_cmd}
-
-                #{thaw}
-
-                # --------------------------------------
+                # --------------
                 # Save TPM state
-                # --------------------------------------
+                # --------------
                 #{kvm.save_tpm_sh}
 
-                # --------------------------
-                # Export, convert & cleanup
-                # --------------------------
-                [ -d #{backup_dir} ] || mkdir -p #{backup_dir}
-
+                # ------------------
+                # Export and convert
+                # ------------------
                 #{expo_cmd}
 
                 #{onebex_cmd}
@@ -158,11 +179,28 @@ module TransferManager
 
                 #{expo_clup}
 
-                # --------------------------
+                # -----------------
                 # Cleanup snapshots
-                # --------------------------
+                # -----------------
                 #{snap_clup}
+
+                trap - EXIT
             EOS
+
+            # Phased live backup:
+            #   hypervisor  -> freeze VM, create snapshots, thaw VM
+            #   LAST_BRIDGE -> prepare files, save TPM state, export and cleanup
+            # Monolithic backup:
+            #   selected host -> freeze VM, create snapshots, thaw VM,
+            #                    prepare files, save TPM state, export and cleanup
+            if options[:phased]
+                return {
+                    :snapshot => header + snapshot,
+                    :export   => header + export
+                }
+            end
+
+            header + snapshot + export
         end
 
     end
