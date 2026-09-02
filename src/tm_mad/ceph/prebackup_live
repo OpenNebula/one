@@ -59,17 +59,25 @@ vm       = TransferManager::Ceph::VM.new(action.vm.to_xml, rdir)
 xml_data = REXML::Document.new(vm_xml)
 rhost    = xml_data.elements['VM/BACKUPS/BACKUP_CONFIG/LAST_BRIDGE']&.text || dir[0]
 
-script = vm.backup_disks_sh(:disks       => disks,
-                            :backup_dir  => backup_dir,
-                            :ds          => ds,
-                            :live        => true,
-                            :deploy_id   => deploy_id)
+scripts = vm.backup_disks_sh(:disks       => disks,
+                             :backup_dir  => backup_dir,
+                             :ds          => ds,
+                             :live        => true,
+                             :deploy_id   => deploy_id,
+                             :phased      => true)
 
-rc = action.ssh(:host => rhost,
-                :cmds => script,
-                :forward  => true,
+rc = action.ssh(:host => dir[0],
+                :cmds => scripts[:snapshot],
                 :nostdout => false,
                 :nostderr => false)
+
+if rc.code == 0
+    rc = action.ssh(:host => rhost,
+                    :cmds => scripts[:export],
+                    :forward  => true,
+                    :nostdout => false,
+                    :nostderr => false)
+end
 
 if rc.code != 0
     STDERR.puts "Error preparing disk files: #{rc.stdout} #{rc.stderr}"
