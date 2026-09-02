@@ -98,21 +98,14 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                 exit 1
             end
 
-            if !@nic[:mtu].nil?
+            if @nic[:mtu] && !@nic[:mtu].empty?
                 cmd = "#{command(:ovs_vsctl)} set int #{@nic[:tap]} "\
                       "mtu_request=#{@nic[:mtu]}"
                 run cmd
             end
 
             # Apply VLAN
-            if !@nic[:vlan_id].nil?
-                if !@nic[:cvlans].nil?
-                    tag_qinq
-                else
-                    tag_vlan
-                end
-            end
-            tag_trunk_vlans
+            configure_vlan
 
             # Delete any existing flows on port
             del_flow "in_port=#{port}"
@@ -260,26 +253,26 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                 # Get the name of the link vlan device.
                 gen_vlan_dev_name
 
-                if changes.key?(:vlan_id)
-                    tag_vlan
-                end
-
                 if changes[:mtu]
-                    cmd = "#{command(:ovs_vsctl)} set int #{@nic[:tap]} "\
-                          "mtu_request=#{@nic[:mtu]}"
+                    cmd = if @nic[:mtu] && !@nic[:mtu].empty?
+                              "#{command(:ovs_vsctl)} set int #{@nic[:tap]} "\
+                              "mtu_request=#{@nic[:mtu]}"
+                          else
+                              "#{command(:ovs_vsctl)} clear int #{@nic[:tap]} "\
+                              'mtu_request'
+                          end
+
                     run cmd
                 end
 
-                if changes[:vlan_tagged_id] || changes.key?(:vlan_id)
-                    tag_trunk_vlans
+                port_vlan_attributes = [:vlan_id, :vlan_tagged_id, :cvlans, :qinq_type]
+
+                if changes.keys.any? {|key| port_vlan_attributes.include?(key) }
+                    configure_vlan
                 end
 
-                if !changes[:cvlans].nil? || !changes[:qinq_type].nil?
-                    tag_qinq
-                end
-
-                qos = changes.each do |c, _|
-                    break true if c.to_s.match?(/inbound/) || c.match?(/outbound/)
+                qos = changes.keys.any? do |key|
+                    key.to_s.match?(/\A(?:inbound|outbound)_/)
                 end
 
                 if qos
@@ -360,61 +353,44 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         0
     end
 
-    def tag_vlan
-        tag = if @nic[:vlan_id].nil? || @nic[:vlan_id]&.empty?
-            '[]'
+    #
+    # Setup the VLAN configuration of the VM OVS port. Handles transitions
+    # from multiple VLAN configuration and VLAN configuration clearance
+    #
+    def configure_vlan
+        has_vlan   = @nic[:vlan_id] && !@nic[:vlan_id].empty?
+        has_trunks = @nic.vlan_trunk?
+
+        tag    = has_vlan ? @nic[:vlan_id] : '[]'
+        trunks = has_trunks ? @nic.vlan_trunk_to_s : '[]'
+
+        cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
+
+        if @nic.cvlans?
+            set_vlan_limit(2)
+
+            qinq_type = @nic[:qinq_type] || '802.1q'
+
+            cmd << "vlan_mode=dot1q-tunnel tag=#{tag} trunks=[] "
+            cmd << "cvlans=#{@nic.cvlans_to_s} "
+            cmd << "other_config:qinq-ethtype=#{qinq_type}"
         else
-            @nic[:vlan_id]
+            vlan_mode = if has_vlan && !has_trunks
+                            'access'
+                        elsif has_trunks && !has_vlan
+                            'trunk'
+                        elsif has_vlan && has_trunks
+                            'native-untagged'
+                        else # no vlan no trunks
+                            '[]'
+                        end
+
+            # Open vSwitch 2.7.0+ accepts ranges in trunks. Expand them
+            # for compatibility with older versions.
+            cmd << "vlan_mode=#{vlan_mode} tag=#{tag} trunks='#{trunks}' "
+            cmd << "cvlans=[] -- remove Port #{@nic[:tap]} "
+            cmd << 'other_config qinq-ethtype'
         end
-
-        cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
-        cmd << "tag=#{tag}"
-
-        run cmd
-    end
-
-    def tag_trunk_vlans
-        trunks = if @nic[:vlan_tagged_id].nil? || @nic[:vlan_tagged_id]&.empty?
-            '[]' # allow all vlan traffic
-        else
-            @nic.vlan_trunk_to_s
-        end
-
-        ovs_vsctl_cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]}"
-
-        # Open vSwitch 2.7.0+ allows range intervals (x-y), but
-        # we need to support even older versions. We expand the
-        # intervals into the list of values [x,x+1,...,y-1,y],
-        # which should work for all.
-        cmd = "#{ovs_vsctl_cmd} trunks='#{trunks}'"
-        run cmd
-
-        return if @nic[:cvlans] && !@nic[:cvlans].empty?
-
-        vlan_mode = if @nic[:vlan_id].nil? || @nic[:vlan_id].empty?
-                'trunk'
-            else
-                'native-untagged'
-            end
-
-        cmd = "#{ovs_vsctl_cmd} vlan_mode=#{vlan_mode}"
-        run cmd
-    end
-
-    def tag_qinq
-        set_vlan_limit(2)
-
-        cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
-        cmd << "vlan_mode=dot1q-tunnel tag=#{@nic[:vlan_id]} "
-        cmd << "cvlans=#{@nic.cvlans_to_s}"
-
-        run cmd
-
-        qinq_type = @nic[:qinq_type]
-        qinq_type ||= '802.1q'
-
-        cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
-        cmd << "other_config:qinq-ethtype=#{qinq_type}"
 
         run cmd
     end
@@ -579,7 +555,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def configure_vf_port(pci_nic)
         ports = [:tap, :phydev]
 
-        ports.each { |port| return if pci_nic[port].nil? || pci_nic[port].empty? }
+        ports.each {|port| return if pci_nic[port].nil? || pci_nic[port].empty? }
 
         message = "Configuring port representor #{pci_nic[:tap]}"
         OpenNebula::DriverLogger.log_info(message)
@@ -589,14 +565,9 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         create_bridge
 
         # make sure pf and representors are always added
-        ports.each {|port| add_bridge_port(@nic[port])}
+        ports.each {|port| add_bridge_port(@nic[port]) }
 
-        if !@nic[:vlan_id].nil? && !@nic[:cvlans].nil?
-            tag_qinq
-        else
-            tag_vlan
-        end
-        tag_trunk_vlans
+        configure_vlan
     end
 
     # Generate the name of the vlan device which will be added to the bridge.

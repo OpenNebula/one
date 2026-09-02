@@ -113,6 +113,67 @@ void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::check_vlan_consistency() const
+{
+    int vlan;
+    string trunks;
+
+    if (!one_util::str_cast(vlan_id, vlan) ||
+        !obj_template->get("VLAN_TAGGED_ID", trunks))
+    {
+        return;
+    }
+
+    bool includes_vlan = false;
+
+    for (const auto& trunk : one_util::split(trunks, ','))
+    {
+        auto range = one_util::split(trunk, '-', false);
+
+        int first;
+        int last;
+
+        if (!one_util::str_cast(one_util::trim(range[0]), first))
+        {
+            return;
+        }
+
+        if (range.size() == 1)
+        {
+            last = first;
+        }
+        else if (range.size() != 2 ||
+                 !one_util::str_cast(one_util::trim(range[1]), last))
+        {
+            return;
+        }
+
+        if (first > last)
+        {
+            swap(first, last);
+        }
+
+        if (vlan >= first && vlan <= last)
+        {
+            includes_vlan = true;
+        }
+    }
+
+    if (includes_vlan)
+    {
+        ostringstream oss;
+
+        oss << "Virtual Network " << oid << " has access VLAN_ID " << vlan_id
+            << " included in VLAN_TAGGED_ID. The access VLAN cannot also be "
+            << "a tagged trunk VLAN.";
+
+        NebulaLog::log("VNM", Log::WARNING, oss);
+    }
+}
+
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 /*
@@ -476,6 +537,8 @@ int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
     obj_template->get("SECURITY_GROUPS", sg_str);
 
     one_util::split_unique(sg_str, ',', security_groups);
+
+    check_vlan_consistency();
 
     if (obj_template->get("VNET_UPDATE"))
     {
