@@ -906,6 +906,11 @@ private:
     void parse_vlan_id(const char * id_name, const char * auto_name,
                        std::string& id, bool& auto_id);
 
+    /**
+     *  Check the consistency of virtual network vlan configuration
+     */
+    void check_vlan_consistency() const;
+
     // *************************************************************************
     // Address allocation funtions
     // *************************************************************************

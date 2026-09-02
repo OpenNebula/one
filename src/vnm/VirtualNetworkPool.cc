@@ -540,6 +540,8 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
             break;
     }
 
+    vn->check_vlan_consistency();
+
     return 0;
 }
 
