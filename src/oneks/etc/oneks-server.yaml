@@ -48,6 +48,11 @@
   :required: true
   :type: integer
 
+:appliance_auto_import:
+  :required: false
+  :type: boolean
+  :default: true
+
 :readiness:
   :required: false
   :type: object

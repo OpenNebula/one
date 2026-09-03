@@ -102,22 +102,12 @@ module OneKS
             appliance = oneks_appliance
             return appliance if OpenNebula.is_error?(appliance)
 
-            cluster = OneHelper::Cluster.get(@client, @one_cluster)
-            return cluster if OpenNebula.is_error?(cluster)
-
-            datastore = OneHelper::Datastore.resolve_image_ds(
-                @client, cluster, @deployment.dig(:datastores, :image, :id)
-            )
-            return datastore if OpenNebula.is_error?(datastore)
-
-            template = OneHelper::Template.find_by_marketplace_uuid(
-                @client, appliance[:id], datastore.id
-            )
+            template = ClusterDeployment.appliance_template(@client, @deployment, appliance[:id])
             return template if OpenNebula.is_error?(template)
 
             return OpenNebula::Error.new(
                 "Cannot find #{appliance[:name]} template (ID=#{appliance[:id]}) " \
-                "in image datastore #{datastore.id} (#{datastore.name})",
+                "for OpenNebula cluster #{@one_cluster}",
                 OpenNebula::Error::EACTION
             ) if template.nil?
 

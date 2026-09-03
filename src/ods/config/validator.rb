@@ -60,6 +60,9 @@ module OpenNebula
                     when 'integer', :integer
                         raise ValidationError, "Invalid type for #{full_path}: expected Integer" \
                         unless value.is_a?(Integer)
+                    when 'boolean', :boolean
+                        raise ValidationError, "Invalid type for #{full_path}: expected Boolean" \
+                        unless [true, false].include?(value)
                     when 'address', :address
                         begin
                             IPAddr.new(value)

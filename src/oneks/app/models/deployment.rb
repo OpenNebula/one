@@ -68,7 +68,7 @@ module OneKS
                 rc = validate_datastores(client, cluster, deployment[:datastores])
                 return rc if OpenNebula.is_error?(rc)
 
-                rc = validate_appliances(client, cluster, deployment, family)
+                rc = validate_appliances(client, cluster, family)
                 return rc if OpenNebula.is_error?(rc)
 
                 true
@@ -79,25 +79,19 @@ module OneKS
                 )
             end
 
-            # Resolves the appliance VM template for the deployment image datastore
+            # Resolves the appliance VM template in a datastore available to the
+            # target OpenNebula cluster
             # @param client [OpenNebula::Client] OpenNebula client
             # @param deployment [Hash] Deployment placement section
-            # @param appliance_id [String] Marketplace appliance import ID
+            # @param appliance_id [String] OneKS appliance ID
             # @return [OpenNebula::Template, OpenNebula::Error] appliance template
             def appliance_template(client, deployment, appliance_id)
                 cluster_id = deployment.dig(:cluster, :id)
                 cluster    = OneHelper::Cluster.get(client, cluster_id)
                 return cluster if OpenNebula.is_error?(cluster)
 
-                datastore = OneHelper::Datastore.resolve_image_ds(
-                    client, cluster, deployment.dig(:datastores, :image, :id)
-                )
-                return OpenNebula::Error.new(
-                    datastore.message, ODS::ResponseHelper::VALIDATION_EC
-                ) if OpenNebula.is_error?(datastore)
-
-                OneHelper::Template.find_by_marketplace_uuid(
-                    client, appliance_id, datastore.id
+                OneHelper::Template.find_by_appliance_id(
+                    client, appliance_id, cluster.datastore_ids
                 )
             rescue StandardError => e
                 OpenNebula::Error.new(
@@ -196,8 +190,8 @@ module OneKS
             end
 
             # Checks that every family appliance has a valid image and VM Template
-            # in the deployment image datastore.
-            def validate_appliances(client, cluster, deployment, family)
+            # in a datastore available to the target OpenNebula cluster
+            def validate_appliances(client, cluster, family)
                 family ||= ControlPlane.family_by_name(K8sGroup::DEFAULT_FAMILY)
 
                 return OpenNebula::Error.new(
@@ -205,17 +199,12 @@ module OneKS
                     ODS::ResponseHelper::VALIDATION_EC
                 ) if family.nil?
 
-                datastore = OneHelper::Datastore.resolve_image_ds(
-                    client, cluster, deployment.dig(:datastores, :image, :id)
-                )
-                return datastore if OpenNebula.is_error?(datastore)
-
                 appliances = appliances_for(family)
                 return true if appliances.empty?
 
                 appliances.each do |appliance|
-                    template = OneHelper::Template.find_by_marketplace_uuid(
-                        client, appliance[:id], datastore.id
+                    template = OneHelper::Template.find_by_appliance_id(
+                        client, appliance[:id], cluster.datastore_ids
                     )
 
                     return template if OpenNebula.is_error?(template)
@@ -223,10 +212,8 @@ module OneKS
 
                     return OpenNebula::Error.new(
                         "Deployment appliance #{appliance[:name]} (#{appliance[:id]}) " \
-                        "is not available in image datastore #{datastore.id} " \
-                        "(#{datastore.name}). Please import the OneKS appliance from the " \
-                        'OpenNebula Public Marketplace into an image datastore available in the ' \
-                        'target OpenNebula cluster',
+                        'is not available in an image datastore associated with the ' \
+                        "target OpenNebula cluster #{cluster.id} (#{cluster.name})",
                         ODS::ResponseHelper::VALIDATION_EC
                     )
                 end
