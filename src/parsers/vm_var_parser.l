@@ -84,6 +84,10 @@
 <VAR>\$                        { yylval_param->val_char = '\0';
                                  return EOA;}
 
+<VAR>\n                        { yylval_param->val_char = *yytext;
+                                 BEGIN(INITIAL);
+                                 return EOA;}
+
 <VAR>.                         { yylval_param->val_char = *yytext;
                                  BEGIN(INITIAL);
                                  return EOA;}

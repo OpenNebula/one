@@ -1,6 +1,6 @@
-#line 1 "vm_var_parser.cc"
+#line 2 "vm_var_parser.cc"
 
-#line 3 "vm_var_parser.cc"
+#line 4 "vm_var_parser.cc"
 
 #define  YY_INT_ALIGNED short int
 
@@ -577,8 +577,8 @@ static void yynoreturn yy_fatal_error ( const char* msg , yyscan_t yyscanner );
 	yyg->yy_hold_char = *yy_cp; \
 	*yy_cp = '\0'; \
 	yyg->yy_c_buf_p = yy_cp;
-#define YY_NUM_RULES 12
-#define YY_END_OF_BUFFER 13
+#define YY_NUM_RULES 13
+#define YY_END_OF_BUFFER 14
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -586,12 +586,12 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[36] =
+static const flex_int16_t yy_accept[37] =
     {   0,
-        0,    0,    0,    0,    0,    0,   13,    1,    2,   12,
-       11,   11,   12,   10,    4,    7,    3,    5,    6,   12,
-        9,    1,    0,    0,    4,    3,    6,    4,    7,    3,
-        5,    0,    8,    9,    0
+        0,    0,    0,    0,    0,    0,   14,    1,    2,   13,
+       12,   12,   11,   10,    4,    7,    3,    5,    6,   13,
+       13,    9,    1,    0,    0,    4,    3,    6,    4,    7,
+        3,    5,    0,    8,    9,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -632,50 +632,52 @@ static const YY_CHAR yy_meta[13] =
         1,    3
     } ;
 
-static const flex_int16_t yy_base[41] =
+static const flex_int16_t yy_base[42] =
     {   0,
         0,    6,   16,    0,   25,   29,   45,   34,   59,   37,
-       59,   35,   59,   59,   38,    0,   37,   36,   59,   31,
-       27,   21,   25,    0,   13,   12,   59,   11,    0,   10,
-        7,    4,   59,    0,   59,   46,   49,   52,    0,   55
+       59,   35,   59,   59,   38,    0,   37,   36,   59,   59,
+       31,   27,   21,   25,    0,   13,   12,   59,   11,    0,
+       10,    7,    4,   59,    0,   59,   46,   49,   52,    0,
+       55
     } ;
 
-static const flex_int16_t yy_def[41] =
+static const flex_int16_t yy_def[42] =
     {   0,
-       36,   36,   35,    3,   37,   37,   35,   38,   35,   38,
-       35,   35,   35,   35,   35,   39,   35,   35,   35,   40,
-       35,   38,   38,   12,   35,   35,   35,   35,   39,   35,
-       35,   40,   35,   35,    0,   35,   35,   35,   35,   35
+       37,   37,   36,    3,   38,   38,   36,   39,   36,   39,
+       36,   36,   36,   36,   36,   40,   36,   36,   36,   36,
+       41,   36,   39,   39,   12,   36,   36,   36,   36,   40,
+       36,   36,   41,   36,   36,    0,   36,   36,   36,   36,
+       36
     } ;
 
 static const flex_int16_t yy_nxt[72] =
     {   0,
-       35,   35,   29,   35,    9,   35,   34,   33,   31,   10,
-        9,   30,   28,   30,   28,   10,   11,   12,   13,   11,
-       14,   15,   16,   17,   18,   11,   19,   16,   20,   22,
-       23,   21,   20,   34,   33,   21,   24,   31,   30,   28,
-       25,   22,   26,   23,   35,   27,    8,    8,    8,   13,
-       13,   13,   22,   35,   22,   32,   32,   32,    7,   35,
-       35,   35,   35,   35,   35,   35,   35,   35,   35,   35,
-       35
+       36,   36,   30,   36,    9,   36,   35,   34,   32,   10,
+        9,   31,   29,   31,   29,   10,   11,   12,   13,   11,
+       14,   15,   16,   17,   18,   11,   19,   16,   21,   23,
+       24,   22,   21,   35,   34,   22,   25,   32,   31,   29,
+       26,   23,   27,   24,   36,   28,    8,    8,    8,   20,
+       20,   20,   23,   36,   23,   33,   33,   33,    7,   36,
+       36,   36,   36,   36,   36,   36,   36,   36,   36,   36,
+       36
     } ;
 
 static const flex_int16_t yy_chk[72] =
     {   0,
-        0,    0,   39,    0,    1,    0,   34,   32,   31,    1,
-        2,   30,   28,   26,   25,    2,    3,    3,    3,    3,
-        3,    3,    3,    3,    3,    3,    3,    3,    5,   23,
-       22,    5,    6,   21,   20,    6,   12,   18,   17,   15,
-       12,   10,   12,    8,    7,   12,   36,   36,   36,   37,
-       37,   37,   38,    0,   38,   40,   40,   40,   35,   35,
-       35,   35,   35,   35,   35,   35,   35,   35,   35,   35,
-       35
+        0,    0,   40,    0,    1,    0,   35,   33,   32,    1,
+        2,   31,   29,   27,   26,    2,    3,    3,    3,    3,
+        3,    3,    3,    3,    3,    3,    3,    3,    5,   24,
+       23,    5,    6,   22,   21,    6,   12,   18,   17,   15,
+       12,   10,   12,    8,    7,   12,   37,   37,   37,   38,
+       38,   38,   39,    0,   39,   41,   41,   41,   36,   36,
+       36,   36,   36,   36,   36,   36,   36,   36,   36,   36,
+       36
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[13] =
+static const flex_int32_t yy_rule_can_match_eol[14] =
     {   0,
-1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,     };
+1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,     };
 
 /* The intent behind this definition is that it'll catch
  * any uses of REJECT which flex missed.
@@ -717,9 +719,9 @@ static const flex_int32_t yy_rule_can_match_eol[13] =
 #define YY_USER_ACTION  llocp->first_line = yylineno;   \
                         llocp->first_column = llocp->last_column;   \
                         llocp->last_column += yyleng;
-#line 721 "vm_var_parser.cc"
-
 #line 723 "vm_var_parser.cc"
+
+#line 725 "vm_var_parser.cc"
 
 #define INITIAL 0
 #define VAR 1
@@ -993,15 +995,15 @@ YY_DECL
 		}
 
 	{
-#line 47 "vm_var_parser.l"
+#line 46 "vm_var_parser.l"
 
 
-#line 50 "vm_var_parser.l"
+#line 49 "vm_var_parser.l"
  /* ------------------------------------------------------------------------- */
  /* Just copy the string verbatim till we find a variable (starts with $)     */
  /* ------------------------------------------------------------------------- */
 
-#line 1005 "vm_var_parser.cc"
+#line 1007 "vm_var_parser.cc"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1028,7 +1030,7 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 36 )
+				if ( yy_current_state >= 37 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1073,7 +1075,7 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 54 "vm_var_parser.l"
+#line 53 "vm_var_parser.l"
 { yylval_param->val_str = mem_collector_strdup(mc,yytext); return RSTRING;}
 	YY_BREAK
 /* ------------------------------------------------------------------------- */
@@ -1085,32 +1087,32 @@ YY_RULE_SETUP
 /* ------------------------------------------------------------------------- */
 case 2:
 YY_RULE_SETUP
-#line 64 "vm_var_parser.l"
+#line 63 "vm_var_parser.l"
 { BEGIN VAR;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 66 "vm_var_parser.l"
+#line 65 "vm_var_parser.l"
 { BEGIN VALUE; return EQUAL; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 67 "vm_var_parser.l"
+#line 66 "vm_var_parser.l"
 { return COMMA;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 68 "vm_var_parser.l"
+#line 67 "vm_var_parser.l"
 { return OBRACKET;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 69 "vm_var_parser.l"
+#line 68 "vm_var_parser.l"
 { return CBRACKET;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 71 "vm_var_parser.l"
+#line 70 "vm_var_parser.l"
 { yylval_param->val_str =
                                  mem_collector_strdup(mc,yytext);
                                  return VARIABLE;}
@@ -1118,7 +1120,7 @@ YY_RULE_SETUP
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 75 "vm_var_parser.l"
+#line 74 "vm_var_parser.l"
 { yylval_param->val_str =
                                  mem_collector_strdup(mc,yytext+1);
                                  yylval_param->val_str[yyleng-2] = '\0';
@@ -1127,7 +1129,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 81 "vm_var_parser.l"
+#line 80 "vm_var_parser.l"
 { yylval_param->val_str =
                                  mem_collector_strdup(mc,yytext);
                                  BEGIN(VAR);
@@ -1135,29 +1137,37 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 86 "vm_var_parser.l"
+#line 85 "vm_var_parser.l"
 { yylval_param->val_char = '\0';
                                  return EOA;}
 	YY_BREAK
 case 11:
+/* rule 11 can match eol */
 YY_RULE_SETUP
-#line 89 "vm_var_parser.l"
+#line 88 "vm_var_parser.l"
 { yylval_param->val_char = *yytext;
-                                 BEGIN(INITIAL);
-                                 return EOA;}
-	YY_BREAK
-case YY_STATE_EOF(VAR):
-#line 93 "vm_var_parser.l"
-{ yylval_param->val_char = '\0';
                                  BEGIN(INITIAL);
                                  return EOA;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
+#line 92 "vm_var_parser.l"
+{ yylval_param->val_char = *yytext;
+                                 BEGIN(INITIAL);
+                                 return EOA;}
+	YY_BREAK
+case YY_STATE_EOF(VAR):
 #line 96 "vm_var_parser.l"
+{ yylval_param->val_char = '\0';
+                                 BEGIN(INITIAL);
+                                 return EOA;}
+	YY_BREAK
+case 13:
+YY_RULE_SETUP
+#line 99 "vm_var_parser.l"
 ECHO;
 	YY_BREAK
-#line 1161 "vm_var_parser.cc"
+#line 1171 "vm_var_parser.cc"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(VALUE):
 	yyterminate();
@@ -1457,7 +1467,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 36 )
+			if ( yy_current_state >= 37 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1486,11 +1496,11 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 36 )
+		if ( yy_current_state >= 37 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 35);
+	yy_is_jam = (yy_current_state == 36);
 
 	(void)yyg;
 	return yy_is_jam ? 0 : yy_current_state;
@@ -2308,7 +2318,7 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 96 "vm_var_parser.l"
+#line 99 "vm_var_parser.l"
 
 
 int vm_var_wrap(yyscan_t scanner)
