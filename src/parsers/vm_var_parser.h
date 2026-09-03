@@ -2,9 +2,9 @@
 #define vm_var_HEADER_H 1
 #define vm_var_IN_HEADER 1
 
-#line 5 "vm_var_parser.h"
+#line 6 "vm_var_parser.h"
 
-#line 7 "vm_var_parser.h"
+#line 8 "vm_var_parser.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -711,9 +711,9 @@ extern int yylex \
 #undef yyTABLES_NAME
 #endif
 
-#line 96 "vm_var_parser.l"
+#line 99 "vm_var_parser.l"
 
 
-#line 717 "vm_var_parser.h"
+#line 718 "vm_var_parser.h"
 #undef vm_var_IN_HEADER
 #endif /* vm_var_HEADER_H */
