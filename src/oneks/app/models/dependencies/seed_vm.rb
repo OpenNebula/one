@@ -25,6 +25,7 @@ module OneKS
         COMP     = 'SVM'
 
         # Dependency constants
+        AUTO_IMPORT    = SERVER_CONF[:appliance_auto_import]
         SEED_TIMEOUT   = 600
         APPLIANCE_DS   = 1
         APPLIANCE_NAME = 'OneKS Appliance'
@@ -205,6 +206,8 @@ module OneKS
         class << self
 
             def ensure_requirements(opts = {})
+                return true unless AUTO_IMPORT
+
                 client = OpenNebula::Client.new
 
                 appliance_id   = opts[:appliance_id]

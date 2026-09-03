@@ -130,14 +130,16 @@ module OpenNebula
                         'Image ID cannot be nil', OpenNebula::Error::EACTION
                     ) if image_id.nil?
 
-                    template_pool = OpenNebula::TemplatePool.new(client, -1)
+                    template_pool = OpenNebula::TemplatePool.new(
+                        client, OpenNebula::Pool::INFO_ALL
+                    )
 
                     rc = template_pool.info
                     return rc if OpenNebula.is_error?(rc)
 
                     templates = []
                     template_pool.sort_by {|template| template.id.to_i }.each do |template|
-                        rc = template.info
+                        rc = template.info(true)
                         return rc if OpenNebula.is_error?(rc)
 
                         body  = template.to_hash.dig('VMTEMPLATE', 'TEMPLATE') || {}

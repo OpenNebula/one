@@ -31,9 +31,13 @@ require 'shellwords'
 require 'uri'
 
 # Helpers
+require_relative File.join(APP_ROOT, 'lib', 'helpers', 'appliance_helper')
 require_relative File.join(APP_ROOT, 'lib', 'helpers', 'oneks_helper')
 require_relative File.join(APP_ROOT, 'lib', 'helpers', 'k8s_helper')
 require_relative File.join(APP_ROOT, 'lib', 'fakes', 'k8s_fake')
+
+OneHelper::Image.extend(OneKS::OneHelperExtensions::Image)
+OneHelper::Template.extend(OneKS::OneHelperExtensions::Template)
 
 # Models
 require_relative File.join(APP_ROOT, 'app', 'models', 'deployment')
