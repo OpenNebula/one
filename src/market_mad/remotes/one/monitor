@@ -95,8 +95,7 @@ class OneMarket
 
         req['User-Agent'] = @agent
 
-        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port,
-                                   :use_ssl => uri.scheme == 'https') do |http|
+        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port, p_uri && p_uri.user, p_uri && p_uri.password, :use_ssl => uri.scheme == 'https') do |http|
             http.request(req)
         end
 
