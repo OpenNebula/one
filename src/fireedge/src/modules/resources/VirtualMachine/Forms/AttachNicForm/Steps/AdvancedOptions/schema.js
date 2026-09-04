@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { boolean, string, ObjectSchema } from 'yup'
+import { boolean, number, string, ObjectSchema } from 'yup'
 import { AlertNotification } from '@ComponentsModule'
 import { uniqWith } from 'lodash'
 
@@ -30,6 +30,19 @@ import { HostAPI } from '@FeaturesModule'
 
 const filterByHypAndDriver = (fields, { hypervisor, driver }) =>
   filterFieldsByDriver(filterFieldsByHypervisor(fields, hypervisor), driver)
+
+/** @type {(value: number) => boolean} Whether a number is a power of 2 */
+const isPowerOfTwo = (value) =>
+  Number.isInteger(value) && value > 0 && (value & (value - 1)) === 0
+
+/**
+ * @param {ObjectSchema} schema - Number schema to attach the test to
+ * @returns {ObjectSchema} Schema requiring a power-of-2 value, if set
+ */
+const validatePowerOfTwo = (schema) =>
+  schema.test('power-of-two', T.MustBePowerOfTwo, (value) =>
+    value === undefined ? true : isPowerOfTwo(value)
+  )
 
 const isNicPciDevice = (device) => device?.CLASS?.startsWith('02')
 
@@ -673,6 +686,46 @@ const SECTIONS = ({
           .default(() => false)
           .afterSubmit(() => undefined),
         grid: { md: 1.5 },
+      },
+      {
+        name: 'VIRTIO_RX_QUEUE_SIZE',
+        label: T.VirtioRxQueueSize,
+        tooltip: T.VirtioQueueSizeConcept,
+        type: INPUT_TYPES.TEXT,
+        htmlType: ([pciType, , networkMode] = []) =>
+          pciType !== 'emulated' &&
+          networkMode !== 'dummy' &&
+          INPUT_TYPES.HIDDEN,
+        dependOf: ['PCI_TYPE', 'AUTO_VIRTIO_QUEUES', 'NETWORK_MODE'],
+        fieldProps: {
+          disabled: hasAlias || isAlias,
+        },
+        validation: validatePowerOfTwo(
+          number()
+            .notRequired()
+            .default(() => undefined)
+        ),
+        grid: { md: 6 },
+      },
+      {
+        name: 'VIRTIO_TX_QUEUE_SIZE',
+        label: T.VirtioTxQueueSize,
+        tooltip: T.VirtioQueueSizeConcept,
+        type: INPUT_TYPES.TEXT,
+        htmlType: ([pciType, , networkMode] = []) =>
+          pciType !== 'emulated' &&
+          networkMode !== 'dummy' &&
+          INPUT_TYPES.HIDDEN,
+        dependOf: ['PCI_TYPE', 'AUTO_VIRTIO_QUEUES', 'NETWORK_MODE'],
+        fieldProps: {
+          disabled: hasAlias || isAlias,
+        },
+        validation: validatePowerOfTwo(
+          number()
+            .notRequired()
+            .default(() => undefined)
+        ),
+        grid: { md: 6 },
       },
     ]
   }

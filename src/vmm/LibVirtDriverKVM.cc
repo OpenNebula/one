@@ -691,6 +691,8 @@ int LibVirtDriver::deployment_description_kvm(
     string vrouter_ip;
     string filter;
     string virtio_queues;
+    string virtio_rx_queue_size;
+    string virtio_tx_queue_size;
     string bridge_type;
     string net_mode;
     string nic_id;
@@ -705,6 +707,8 @@ int LibVirtDriver::deployment_description_kvm(
     string default_filter;
     string default_model;
     string default_virtio_queues;
+    string default_virtio_rx_queue_size;
+    string default_virtio_tx_queue_size;
 
     const VectorAttribute * graphics;
 
@@ -1900,6 +1904,10 @@ int LibVirtDriver::deployment_description_kvm(
 
     get_attribute(nullptr, host, cluster, "NIC", "VIRTIO_QUEUES", default_virtio_queues);
 
+    get_attribute(nullptr, host, cluster, "NIC", "VIRTIO_RX_QUEUE_SIZE", default_virtio_rx_queue_size);
+
+    get_attribute(nullptr, host, cluster, "NIC", "VIRTIO_TX_QUEUE_SIZE", default_virtio_tx_queue_size);
+
     num = vm->get_template_attribute("NIC", nic);
 
     for (int i=0; i<num; i++)
@@ -1913,6 +1921,9 @@ int LibVirtDriver::deployment_description_kvm(
         ip            = nic[i]->vector_value("IP");
         filter        = nic[i]->vector_value("FILTER");
         virtio_queues = nic[i]->vector_value("VIRTIO_QUEUES");
+        virtio_rx_queue_size = nic[i]->vector_value("VIRTIO_RX_QUEUE_SIZE");
+        virtio_tx_queue_size = nic[i]->vector_value("VIRTIO_TX_QUEUE_SIZE");
+        order         = nic[i]->vector_value("ORDER");
         bridge_type   = nic[i]->vector_value("BRIDGE_TYPE");
         net_mode      = nic[i]->vector_value("NETWORK_MODE");
 
@@ -2008,11 +2019,34 @@ int LibVirtDriver::deployment_description_kvm(
                 virtio_queues = default_virtio_queues;
             }
 
-            if (!virtio_queues.empty() && *the_model == "virtio")
+            if (virtio_rx_queue_size.empty() && !default_virtio_rx_queue_size.empty())
             {
-                file << "\t\t\t<driver name='vhost' queues="
-                     << one_util::escape_xml_attr(virtio_queues)
-                     << "/>\n";
+                virtio_rx_queue_size = default_virtio_rx_queue_size;
+            }
+
+            if (virtio_tx_queue_size.empty() && !default_virtio_tx_queue_size.empty())
+            {
+                virtio_tx_queue_size = default_virtio_tx_queue_size;
+            }
+
+            if ((!virtio_queues.empty()  || !virtio_rx_queue_size.empty() || !virtio_tx_queue_size.empty())
+                && *the_model == "virtio")
+            {
+                file << "\t\t\t<driver name='vhost'";
+                if (!virtio_queues.empty())
+                {
+                     file << " queues="<< one_util::escape_xml_attr(virtio_queues);
+                }
+
+                if (!virtio_rx_queue_size.empty())
+                {
+                    file << " rx_queue_size="<< one_util::escape_xml_attr(virtio_rx_queue_size);
+                }
+                if (!virtio_tx_queue_size.empty())
+                {
+                    file << " tx_queue_size="<< one_util::escape_xml_attr(virtio_tx_queue_size);
+                }
+                file << "/>\n";
             }
         }
 

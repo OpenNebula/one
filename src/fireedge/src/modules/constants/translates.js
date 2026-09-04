@@ -2379,6 +2379,10 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
   OnlySupportedForVirtioDriver: 'Only supported for virtio driver',
   AutoVirtioQueues:
     'Set Transmission Queues automatically based on the number of vCPUs',
+  VirtioRxQueueSize: 'RX queue size',
+  VirtioTxQueueSize: 'TX queue size',
+  VirtioQueueSizeConcept:
+    'Only supported for virtio driver. If set, must be a power of 2',
   GuestOptions: 'Guest options',
   GuestMTU: 'MTU of the Guest interfaces',
   GuestMTUConcept: 'Sets the MTU for the NICs in this network',
@@ -2916,6 +2920,7 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
   'validation.number.isDivisible': 'Should be divisible by %s',
   'validation.number.isFinite': 'Must be a valid number',
   'validation.number.isFloat': 'Must be a floating point number',
+  MustBePowerOfTwo: 'Must be a power of 2',
   /* Validation - date  */
   'validation.date.min': 'Must be later than %s',
   'validation.date.max': 'Must be at earlier than %s',

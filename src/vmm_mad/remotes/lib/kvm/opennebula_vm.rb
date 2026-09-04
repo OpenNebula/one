@@ -521,6 +521,12 @@ module VirtualMachineManagerKVM
             virtio_queues = @xml['TEMPLATE/VCPU'] || '1' if virtio_queues == 'auto'
             virtio_queues.encode!(:xml => :attr) unless virtio_queues.empty?
 
+            virtio_rx_queue_size = @xml["#{@xpath_prefix}VIRTIO_RX_QUEUE_SIZE"]
+            virtio_rx_queue_size.encode!(:xml => :attr) unless virtio_rx_queue_size.empty?
+
+            virtio_tx_queue_size = @xml["#{@xpath_prefix}VIRTIO_TX_QUEUE_SIZE"]
+            virtio_tx_queue_size.encode!(:xml => :attr) unless virtio_tx_queue_size.empty?
+
             filter = @xml["#{@xpath_prefix}FILTER"]
             filter = env('DEFAULT_ATTACH_NIC_FILTER') if filter.empty?
             filter.encode!(:xml => :attr) unless filter.empty?
@@ -557,8 +563,19 @@ module VirtualMachineManagerKVM
             dev << xputs('<boot order=%s/>', 'ORDER')
             dev << "<model type=#{model}/>" unless model.empty?
 
-            if model == '"virtio"' && !virtio_queues.empty?
-                dev << "<driver name='vhost' queues=#{virtio_queues}/>"
+            if model == '"virtio"' &&
+                (!virtio_queues.empty? || !virtio_rx_queue_size.empty? || !virtio_tx_queue_size.empty?)
+                dev << "<driver name='vhost'"
+                if !virtio_queues.empty?
+                    dev << " queues=#{virtio_queues}"
+                end
+                if !virtio_rx_queue_size.empty?
+                    dev << " rx_queue_size=#{virtio_rx_queue_size}"
+                end
+                if !virtio_tx_queue_size.empty?
+                    dev << " tx_queue_size=#{virtio_tx_queue_size}"
+                end
+                dev << "/>"
             end
 
             if exist?('IP') && !filter.empty?
