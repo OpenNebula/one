@@ -133,6 +133,8 @@
         SHORT_ADDRESS: "123ABC"
         SSH: "Yes"
         VIRTIO_QUEUES: 8
+        VIRTIO_RX_QUEUE_SIZE: 256
+        VIRTIO_TX_QUEUE_SIZE: 256
         TYPE: "NIC"
 
   OsCpu:
