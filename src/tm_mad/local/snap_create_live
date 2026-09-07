@@ -184,7 +184,9 @@ freeze, thaw = if vm_mad == 'lxc'
 
                    [freeze, thaw]
                else
-                   fsfreeze(snapcl.vm, deploy_id)
+                   mode = snapcl.vm['/VM/BACKUPS/BACKUP_CONFIG/FS_FREEZE']
+
+                   fsfreeze(deploy_id, mode)
                end
 
 snap_cmd = <<~EOF

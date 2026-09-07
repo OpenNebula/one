@@ -47,7 +47,7 @@ _arg_dsid  = ARGV[4]
 def hotplug_export(cpds, src, deploy_id, target, temp_path)
     OpenNebula::DriverLogger.log_info 'VM is running, trying blockcopy, fsfreeze, suspend'
 
-    freeze, thaw = fsfreeze(cpds.vm, deploy_id, 'TRY')
+    freeze, thaw = fsfreeze(deploy_id, 'TRY')
     blkcmd       = blockcopy(deploy_id, target, temp_path)
 
     cpds_cmd_export = <<~SCRIPT

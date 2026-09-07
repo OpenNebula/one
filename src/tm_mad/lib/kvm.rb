@@ -76,33 +76,33 @@ module TransferManager
         #   - SUSPEND (suspend - resume)
         #   - TRY (tries to freeze if fails supends the VM)
         #
-        # @param [rexml/document] vm xml drescription of the VM
         # @param [String] deploy_id of the VM
+        # @param [String, nil] mode freeze mode
         #
         # @return [String, String] freeze and thaw commands
-        def fsfreeze(vm, deploy_id, mode = nil)
-            mode ||= vm.elements['/VM/BACKUPS/BACKUP_CONFIG/FS_FREEZE']&.text&.upcase || 'NONE'
+        def fsfreeze(deploy_id, mode)
+            mode = mode&.upcase || 'NONE'
 
             case mode
             when 'NONE'
                 ['', '']
             when 'AGENT'
                 freeze = <<~EOS
-                    #{virsh} domfsfreeze #{deploy_id}
+                    #{virsh} domfsfreeze #{deploy_id} || exit $?
                     export FROZEN="TRUE"
                     trap '[ -n "${FROZEN}" ] && #{virsh} domfsthaw #{deploy_id}' EXIT
                 EOS
 
-                [freeze, "#{virsh} domfsthaw #{deploy_id}; unset FROZEN"]
+                [freeze, "#{virsh} domfsthaw #{deploy_id} || exit $?; unset FROZEN"]
 
             when 'SUSPEND'
                 freeze = <<~EOS
-                    #{virsh} suspend #{deploy_id}
+                    #{virsh} suspend #{deploy_id} || exit $?
                     export SUSPENDED="TRUE"
                     trap '[ -n "${SUSPENDED}" ] && #{virsh} resume #{deploy_id}' EXIT
                 EOS
 
-                [freeze, "#{virsh} resume #{deploy_id}; unset SUSPENDED"]
+                [freeze, "#{virsh} resume #{deploy_id} || exit $?; unset SUSPENDED"]
 
             when 'TRY'
 
@@ -118,10 +118,10 @@ module TransferManager
 
                 thaw = <<~EOS
                     if [ -n "${FROZEN}" ]; then
-                        #{virsh} domfsthaw #{deploy_id}
+                        #{virsh} domfsthaw #{deploy_id} || exit $?
                         unset FROZEN
                     elif [ -n "${SUSPENDED}" ]; then
-                        #{virsh} resume #{deploy_id}
+                        #{virsh} resume #{deploy_id} || exit $?
                         unset SUSPENDED
                     fi
                 EOS

@@ -98,7 +98,9 @@ module TransferManager
 
             freeze, thaw =
                 if live
-                    fsfreeze(@xml, deploy_id)
+                    mode = @xml.elements['BACKUPS/BACKUP_CONFIG/FS_FREEZE']&.text
+
+                    fsfreeze(deploy_id, mode)
                 else
                     ['', '']
                 end
@@ -116,7 +118,9 @@ module TransferManager
 
                     set +e
 
-                    #{thaw}
+                    (
+                        #{thaw}
+                    )
 
                     [ "$rc" = "0" ] || {
                         #{snap_abort}
