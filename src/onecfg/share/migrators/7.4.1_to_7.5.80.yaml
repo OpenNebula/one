@@ -1922,6 +1922,13 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: []
+            key: dateFormat
+            value: dd/MM/yyyy
+            state: ins
+            extra: {}
         content: "################################################################################\n# Protected Settings\n################################################################################\n\n#
             Zendesk support URL\nsupport_url: 'https://opennebula.zendesk.com/api/v2'\n\n# Optional parameter for Sunstone
             commands\nsunstone_prepend: ''\n\n# Directory to store temporal files when uploading images\ntmpdir: '/var/tmp'\n\n#
@@ -1948,10 +1955,11 @@ patches:
             \ # pt_PT: 'Portuguese'\n  # ro_RO: 'Romanian'\n  # ru_RU: 'Russian'\n  ru: 'Russian'\n  # si: 'Sinhala'\n  sk_SK:
             'Slavak'\n  # sr_RS: 'Serbian'\n  # sv: 'Swedish'\n  # th_TH: 'Thai (Thailand)'\n  # th: 'Thai'\n  # tr_TR: 'Turkish
             (Turkey)'\n  # tr: 'Turkish'\n  # uk_UA: 'Ukrainian (Ukraine)'\n  # uk: 'Ukrainian'\n  # vi: 'Vietnamese'\n  zh_CN:
-            'Chinese (China)'\n  # zh_TW: 'Chinese (Taiwan)'\n\n# Time Zone\n# You may use it to change the time zone.\n#
-            https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n# currentTimeZone: \"Europe/Madrid\"\n\n# Type of
-            rows of data tables.\n# Styles can be \"card\" or \"list\", default is card.                                         \nrowStyle:
-            'card'\n\n# Show resources info in full mode\nfullViewMode: 'false'\n"
+            'Chinese (China)'\n  # zh_TW: 'Chinese (Taiwan)'\n\n# Date display format (Luxon tokens). The time is always HH:mm:ss.\ndateFormat:
+            'dd/MM/yyyy'\n\n# Time Zone\n# You may use it to change the time zone.\n# https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n#
+            currentTimeZone: \"Europe/Madrid\"\n\n# Type of rows of data tables.\n# Styles can be \"card\" or \"list\", default
+            is card.                                         \nrowStyle: 'card'\n\n# Show resources info in full mode\nfullViewMode:
+            'false'\n"
     "/etc/one/fireedge/sunstone/profiles/base.template":
         class: Yaml
         owner: root
@@ -2082,6 +2090,7 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: delete
         content: |-
             - title: Kubernetes
               icon: XrayView
@@ -2546,6 +2555,14 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - filters
+            key: cluster
+            value: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the HOST tab
@@ -2570,6 +2587,7 @@ patches:
 
             filters:
               state: true
+              cluster: true
 
 
             # Info Tabs - Which info tabs are used to show extended information
@@ -3318,6 +3336,34 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - filters
+            key: cluster
+            value: true
+            state: ins
+            extra: {}
+        -   path: &1
+            - info-tabs
+            key: vm_group
+            value:
+                enabled: true
+                actions:
+                    vmgroup-add: true
+                    vmgroup-del: true
+            state: ins
+            extra: {}
+        -   path: *1
+            key: exec
+            value:
+                enabled: true
+                actions:
+                    exec: true
+                    exec-retry: true
+                    exec-cancel: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the VM tab
@@ -3372,6 +3418,7 @@ patches:
               locked: true
               ips: true
               hostname: true
+              cluster: true
 
             # Info Tabs - Which info tabs are used to show extended information
 
@@ -3414,6 +3461,12 @@ patches:
                     add: true
                     edit: true
                     delete: true
+
+              vm_group:
+                enabled: true
+                actions:
+                  vmgroup-add: true
+                  vmgroup-del: true
 
               storage:
                 enabled: true
@@ -3479,6 +3532,13 @@ patches:
 
               logs:
                 enabled: true
+
+              exec:
+                enabled: true
+                actions:
+                  exec: true
+                  exec-retry: true
+                  exec-cancel: true
     "/etc/one/fireedge/sunstone/views/admin/vm-template-tab.yaml":
         class: Yaml
         owner: root
@@ -4217,6 +4277,34 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - filters
+            key: cluster
+            value: true
+            state: ins
+            extra: {}
+        -   path: &2
+            - info-tabs
+            key: vm_group
+            value:
+                enabled: true
+                actions:
+                    vmgroup-add: true
+                    vmgroup-del: true
+            state: ins
+            extra: {}
+        -   path: *2
+            key: exec
+            value:
+                enabled: true
+                actions:
+                    exec: true
+                    exec-retry: true
+                    exec-cancel: true
+            state: ins
+            extra: {}
         content: "---\n# This file describes the information and actions available in the VM tab\n\n# Resource\n\nresource_name:
             \"VM\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog: true\n
             \ create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml\n  deploy: false\n  migrate:
@@ -4225,21 +4313,23 @@ patches:
             \ undeploy-hard: false\n  terminate: true\n  terminate-hard: true\n  resched: false\n  unresched: false\n  save_as_template:
             true\n  chown: false\n  chgrp: false\n  lock: false\n  unlock: false\n  vnc: true\n  ssh: true\n  rdp: true\n
             \ edit_labels: false\n  backup: false  \n\n# Filters - List of criteria to filter the resources\n\nfilters:\n
-            \ state: true\n  owner: true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n\n\n#
-            Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled: true\n
-            \   information_panel:\n      enabled: true\n      actions:\n        rename: false\n    permissions_panel:\n      enabled:
-            true\n      actions:\n        chmod: false\n    ownership_panel:\n      enabled: true\n      actions:\n        chown:
-            false\n        chgrp: false\n    capacity_panel:\n      enabled: true\n      actions:\n        resize: true\n
-            \   monitoring_panel:\n      enabled: true\n      actions:\n        copy: true\n    attributes_panel:\n      enabled:
-            false\n      actions:\n        copy: true\n        add: false\n        edit: false\n        delete: false\n\n
-            \ storage:\n    enabled: true\n    actions:\n      disk-attach:\n        enabled: true\n      disk-detach: true\n
-            \     disk-resize: true\n      disk_saveas:\n        enabled: true\n\n  network:\n    enabled: true\n    actions:\n
-            \     nic-attach: true\n      nic-detach: true\n      nic-update: true\n      sg-attach: true\n      sg-detach:
-            true\n\n  snapshot:\n    enabled: true\n    actions:\n      snapshot-create: true\n      snapshot-revert: true\n
-            \     snapshot-delete: true\n\n  backup:\n    enabled: false\n\n  history:\n    enabled: false\n\n  sched_actions:\n
-            \   enabled: true\n    actions:\n      sched-add: true\n      sched-update: true\n      sched-delete: true\n      charter_create:
+            \ state: true\n  owner: true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n  cluster:
+            true\n\n\n# Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled:
+            true\n    information_panel:\n      enabled: true\n      actions:\n        rename: false\n    permissions_panel:\n
+            \     enabled: true\n      actions:\n        chmod: false\n    ownership_panel:\n      enabled: true\n      actions:\n
+            \       chown: false\n        chgrp: false\n    capacity_panel:\n      enabled: true\n      actions:\n        resize:
+            true\n    monitoring_panel:\n      enabled: true\n      actions:\n        copy: true\n    attributes_panel:\n
+            \     enabled: false\n      actions:\n        copy: true\n        add: false\n        edit: false\n        delete:
+            false\n\n  vm_group:\n    enabled: true\n    actions:\n      vmgroup-add: true\n      vmgroup-del: true\n\n  storage:\n
+            \   enabled: true\n    actions:\n      disk-attach:\n        enabled: true\n      disk-detach: true\n      disk-resize:
+            true\n      disk_saveas:\n        enabled: true\n\n  network:\n    enabled: true\n    actions:\n      nic-attach:
+            true\n      nic-detach: true\n      nic-update: true\n      sg-attach: true\n      sg-detach: true\n\n  snapshot:\n
+            \   enabled: true\n    actions:\n      snapshot-create: true\n      snapshot-revert: true\n      snapshot-delete:
+            true\n\n  backup:\n    enabled: false\n\n  history:\n    enabled: false\n\n  sched_actions:\n    enabled: true\n
+            \   actions:\n      sched-add: true\n      sched-update: true\n      sched-delete: true\n      charter_create:
             true\n\n  configuration:\n    enabled: false\n    actions:\n      update_configuration: false\n\n  template:\n
-            \   enabled: false\n"
+            \   enabled: false\n\n  exec:\n    enabled: true\n    actions:\n      exec: true\n      exec-retry: true\n      exec-cancel:
+            true\n"
     "/etc/one/fireedge/sunstone/views/cloud/vm-template-tab.yaml":
         class: Yaml
         owner: root
@@ -5009,6 +5099,34 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - filters
+            key: cluster
+            value: true
+            state: ins
+            extra: {}
+        -   path: &3
+            - info-tabs
+            key: vm_group
+            value:
+                enabled: true
+                actions:
+                    vmgroup-add: true
+                    vmgroup-del: true
+            state: ins
+            extra: {}
+        -   path: *3
+            key: exec
+            value:
+                enabled: true
+                actions:
+                    exec: true
+                    exec-retry: true
+                    exec-cancel: true
+            state: ins
+            extra: {}
         content: "---\n# This file describes the information and actions available in the VM tab\n\n# Resource\n\nresource_name:
             \"VM\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog: true\n
             \ create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml\n  deploy: false\n  migrate:
@@ -5017,23 +5135,25 @@ patches:
             true\n  terminate: true\n  terminate-hard: true\n  resched: true\n  unresched: true\n  save_as_template: false\n
             \ chown: false\n  chgrp: false\n  lock: true\n  unlock: true\n  vnc: true\n  ssh: true\n  rdp: true\n  edit_labels:
             false\n  backup: true  \n\n# Filters - List of criteria to filter the resources\n\nfilters:\n  state: true\n  owner:
-            true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n\n\n# Info Tabs - Which info
-            tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled: true\n    information_panel:\n
+            true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n  cluster: true\n\n\n# Info
+            Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled: true\n    information_panel:\n
             \     enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n      enabled: true\n      actions:\n
             \       chmod: false\n    ownership_panel:\n      enabled: true\n      actions:\n        chown: false\n        chgrp:
             false\n    capacity_panel:\n      enabled: true\n      actions:\n        resize_capacity: true\n    lxc_panel:\n
             \     enabled: true\n      actions:\n        copy: true\n        add: false\n        edit: false\n        delete:
             false\n    monitoring_panel:\n      enabled: true\n      actions:\n        copy: true\n    attributes_panel:\n
             \     enabled: true\n      actions:\n        copy: true\n        add: true\n        edit: false\n        delete:
-            false\n\n  storage:\n    enabled: true\n    actions:\n      attach_disk:\n        enabled: true\n      disk-detach:
-            true\n      snapshot_disk_create: true\n      snapshot_disk_rename: true\n      snapshot_disk_revert: true\n      snapshot_disk_delete:
-            true\n      resize_disk: true\n      disk_saveas:\n        enabled: true\n\n  network:\n    enabled: true\n    actions:\n
-            \     attach_nic: true\n      detach_nic: true\n      update_nic: true\n      attach_secgroup: true\n      detach_secgroup:
-            true\n\n  snapshot:\n    enabled: true\n    actions:\n      snapshot-create: true\n      snapshot-revert: true\n
-            \     snapshot-delete: true\n\n  backup:\n    enabled: true\n\n  history:\n    enabled: true\n\n  sched_actions:\n
-            \   enabled: true\n    actions:\n      sched_action_create: true\n      sched_action_update: true\n      sched_action_delete:
-            true\n      charter_create: true\n\n  configuration:\n    enabled: true\n    actions:\n      update_configuration:
-            true\n\n  template:\n    enabled: true\n"
+            false\n\n  vm_group:\n    enabled: true\n    actions:\n      vmgroup-add: true\n      vmgroup-del: true\n\n  storage:\n
+            \   enabled: true\n    actions:\n      attach_disk:\n        enabled: true\n      disk-detach: true\n      snapshot_disk_create:
+            true\n      snapshot_disk_rename: true\n      snapshot_disk_revert: true\n      snapshot_disk_delete: true\n      resize_disk:
+            true\n      disk_saveas:\n        enabled: true\n\n  network:\n    enabled: true\n    actions:\n      attach_nic:
+            true\n      detach_nic: true\n      update_nic: true\n      attach_secgroup: true\n      detach_secgroup: true\n\n
+            \ snapshot:\n    enabled: true\n    actions:\n      snapshot-create: true\n      snapshot-revert: true\n      snapshot-delete:
+            true\n\n  backup:\n    enabled: true\n\n  history:\n    enabled: true\n\n  sched_actions:\n    enabled: true\n
+            \   actions:\n      sched_action_create: true\n      sched_action_update: true\n      sched_action_delete: true\n
+            \     charter_create: true\n\n  configuration:\n    enabled: true\n    actions:\n      update_configuration: true\n\n
+            \ template:\n    enabled: true\n\n  exec:\n    enabled: true\n    actions:\n      exec: true\n      exec-retry:
+            true\n      exec-cancel: true\n"
     "/etc/one/fireedge/sunstone/views/groupadmin/vm-template-tab.yaml":
         class: Yaml
         owner: root
@@ -6001,6 +6121,34 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - filters
+            key: cluster
+            value: true
+            state: ins
+            extra: {}
+        -   path: &4
+            - info-tabs
+            key: vm_group
+            value:
+                enabled: true
+                actions:
+                    vmgroup-add: true
+                    vmgroup-del: true
+            state: ins
+            extra: {}
+        -   path: *4
+            key: exec
+            value:
+                enabled: true
+                actions:
+                    exec: true
+                    exec-retry: true
+                    exec-cancel: true
+            state: ins
+            extra: {}
         content: "---\n# This file describes the information and actions available in the VM tab\n\n# Resource\n\nresource_name:
             \"VM\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  backup: true  \n
             \ chgrp: false\n  chown: false\n  create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml\n
@@ -6010,14 +6158,15 @@ patches:
             \ stop: true\n  suspend: true\n  terminate-hard: true\n  terminate: true\n  undeploy-hard: true\n  undeploy: true\n
             \ unlock: true\n  unresched: true\n  update-user-template: true\n  vnc: true\n\n# Filters - List of criteria to
             filter the resources\n\nfilters:\n  state: true\n  owner: true\n  group: true\n  type: true\n  locked: true\n
-            \ ips: true\n  hostname: true\n\n\n# Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n
+            \ ips: true\n  hostname: true\n  cluster: true\n\n\n# Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n
             \ info:\n    enabled: true\n    information_panel:\n      enabled: true\n      actions:\n        rename: true\n
             \   permissions_panel:\n      enabled: true\n      actions:\n        chmod: false\n    ownership_panel:\n      enabled:
             true\n      actions:\n        chown: false\n        chgrp: false\n    capacity_panel:\n      enabled: true\n      actions:\n
             \       resize: true\n    lxc_panel:\n      enabled: true\n      actions:\n        copy: true\n        add: false\n
             \       edit: false\n        delete: false\n    monitoring_panel:\n      enabled: true\n      actions:\n        copy:
             true\n    attributes_panel:\n      enabled: true\n      actions:\n        copy: true\n        add: true\n        edit:
-            false\n        delete: false\n\n  storage:\n    enabled: true\n    actions:\n      disk-attach-image: true\n      disk-attach-volatile:
+            false\n        delete: false\n\n  vm_group:\n    enabled: true\n    actions:\n      vmgroup-add: true\n      vmgroup-del:
+            true\n\n  storage:\n    enabled: true\n    actions:\n      disk-attach-image: true\n      disk-attach-volatile:
             true\n      disk-detach: true\n      disk-snapshot-create: true\n      disk-snapshot-delete: true\n      disk-snapshot-rename:
             true\n      disk-snapshot-revert: true\n      disk-resize: true\n      disk-saveas: true\n\n  network:\n    enabled:
             true\n    actions:\n      nic-attach: true\n      nic-attach-alias: true\n      nic-detach: true\n      nic-update:
@@ -6026,7 +6175,8 @@ patches:
             \     snapshot-revert: true\n      snapshot-delete: true\n\n  backup:\n    enabled: true\n\n  history:\n    enabled:
             true\n\n  sched_actions:\n    enabled: true\n    actions:\n      sched-add: true\n      sched-update: true\n      sched-delete:
             true\n      charter_create: true\n\n  configuration:\n    enabled: true\n    actions:\n      update_configuration:
-            true\n\n  template:\n    enabled: true\n"
+            true\n\n  template:\n    enabled: true\n\n  exec:\n    enabled: true\n    actions:\n      exec: true\n      exec-retry:
+            true\n      exec-cancel: true\n"
     "/etc/one/fireedge/sunstone/views/user/vm-template-tab.yaml":
         class: Yaml
         owner: root
@@ -6362,6 +6512,7 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: delete
         content: |
             - title: Instances
               icon: GridAdd
@@ -6860,11 +7011,23 @@ patches:
         action: apply
         change:
         -   path: []
+            key: VM_RESTRICTED_ATTR
+            old: '"PCI"'
+            state: rm
+            extra:
+                multiple: true
+        -   path: []
             key: DATASTORE_ENCRYPTED_ATTR
             value: '"RESTIC_S3_SECRET_ACCESS_KEY"'
             state: ins
             extra:
                 multiple: true
+        -   path: []
+            key: REUSE_ADDRESS
+            value: '"NO"'
+            state: ins
+            extra:
+                multiple: false
         content: |
             #*******************************************************************************
             #                       OpenNebula Configuration file
@@ -7171,6 +7334,10 @@ patches:
             #  2^20, with a max of 2^20 leases per VNET.
             #  Values: YES or NO.
             #
+            #  REUSE_ADDRESS: Reuse the first available address instead of assigning
+            #  addresses in round-robin order for internal address ranges.
+            #  Values: YES or NO.
+            #
             #  VLAN_IDS: VLAN ID pool for the automatic VLAN_ID assignment. This pool
             #  is for 802.1Q networks (Open vSwitch and 802.1Q drivers). The driver
             #  will try first to allocate VLAN_IDS[START] + VNET_ID
@@ -7193,6 +7360,8 @@ patches:
             MAC_PREFIX   = "02:00"
 
             MAC_GLOBAL_SPACE = "NO"
+
+            REUSE_ADDRESS = "NO"
 
             VLAN_IDS = [
                 START    = "2",
@@ -7782,7 +7951,7 @@ patches:
             VM_RESTRICTED_ATTR = "CPU_COST"
             VM_RESTRICTED_ATTR = "MEMORY_COST"
             VM_RESTRICTED_ATTR = "DISK_COST"
-            VM_RESTRICTED_ATTR = "PCI"
+            #VM_RESTRICTED_ATTR = "PCI"
             VM_RESTRICTED_ATTR = "EMULATOR"
             VM_RESTRICTED_ATTR = "RAW/DATA"
             VM_RESTRICTED_ATTR = "USER_PRIORITY"
@@ -9202,6 +9371,13 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: []
+            key: :appliance_auto_import
+            value: true
+            state: ins
+            extra: {}
         content: |
             ################################################################################
             # Server Configuration
@@ -9227,6 +9403,10 @@ patches:
 
             # Default receive timeout, in seconds, for OpenNebula event subscribers
             :subscriber_timeout: 10
+
+            # Automatically import the OneKS appliance into the default datastore at startup.
+            # Disable this option in air-gapped environments or when importing it manually
+            :appliance_auto_import: true
 
             ################################################################################
             # Kubernetes Configuration
@@ -10107,3 +10287,390 @@ patches:
             :puma:
               :min_threads: 1
               :max_threads: 4
+    "/etc/one/fireedge/sunstone/tabs/10-instances-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            - title: Instances
+              icon: GridAdd
+              routes:
+                - title: VMs
+                  path: /vm
+                  sidebar: true
+                  icon: ModernTv
+                  Component: VirtualMachines
+                - title: Create VM
+                  path: /vm/create
+                  Component: CreateVm
+                - title: Virtual Routers
+                  path: /vrouter
+                  sidebar: true
+                  icon: Shuffle
+                  Component: VirtualRouters
+                - title: Instantiate Virtual Router
+                  path: /vrouter/instantiate
+                  Component: InstantiateVrTemplate
+                - title: Virtual Routers
+                  path: /vrouter/:id
+                  Component: VirtualRouterDetail
+                - title: Services
+                  path: /service
+                  sidebar: true
+                  icon: Packages
+                  Component: Services
+                - title: Instantiate Service Template
+                  path: /service/instantiate/
+                  Component: InstantiateServiceTemplate
+                - title: Service
+                  path: /service/:id
+                  Component: ServiceDetail
+    "/etc/one/fireedge/sunstone/tabs/20-templates-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            - title: Templates
+              icon: ViewStructureDown
+              routes:
+                - title: VM Templates
+                  path: /vm-template
+                  sidebar: true
+                  icon: EmptyPage
+                  Component: VmTemplates
+                - title: Instantiate VM Template
+                  path: /vm-template/instantiate
+                  Component: InstantiateVmTemplate
+                - title: Create VM Template
+                  path: /vm-template/create
+                  Component: CreateVmTemplate
+                - title: Update VM Template
+                  path: /vm-template/update
+                  Component: CreateVmTemplate
+                - title: VM Template
+                  path: /vm-template/:id
+                  Component: VmTemplateDetail
+                - title: Instantiate Service Template
+                  path: /service-template/instantiate/
+                  Component: InstantiateServiceTemplate
+                - title: Service Templates
+                  path: /service-template
+                  sidebar: true
+                  icon: MultiplePagesEmpty
+                  Component: ServiceTemplates
+                - title: Create Service Template
+                  path: /service-template/create
+                  Component: CreateServiceTemplate
+                - title: Service Template
+                  path: /service-template/:id
+                  Component: ServiceTemplateDetail
+                - title: Instantiate VR Template
+                  path: /vrouter-template/instantiate/
+                  Component: InstantiateVrTemplate
+                - title: Virtual Routers
+                  path: /vrouter-template
+                  sidebar: true
+                  icon: Shuffle
+                  Component: VrTemplates
+                - title: Create VR Template
+                  path: /vrouter-template/create
+                  Component: CreateVrTemplate
+                - title: Update VR Template
+                  path: /vrouter-template/update
+                  Component: CreateVrTemplate
+                - title: VR Template
+                  path: /vrouter-template/:id
+                  Component: VrTemplateDetail
+                - title: Create VM group
+                  path: /vm-group/create
+                  Component: CreateVmGroup
+                - title: VM Groups
+                  path: /vm-group
+                  icon: Folder
+                  sidebar: true
+                  Component: VmGroups
+    "/etc/one/fireedge/sunstone/tabs/30-storage-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            - title: Storage
+              icon: DatabaseStats
+              routes:
+                - title: Datastores
+                  path: /datastore
+                  sidebar: true
+                  icon: Db
+                  Component: Datastores
+                - title: Create Datastore
+                  path: /datastore/create
+                  Component: CreateDatastore
+                - title: Update Datastore
+                  path: /datastore/update
+                  Component: CreateDatastore
+                - title: Datastore
+                  path: /datastore/:id
+                  Component: DatastoreDetail
+                - title: Images
+                  path: /image
+                  sidebar: true
+                  icon: BoxIso
+                  Component: Images
+                - title: Create Image
+                  path: /image/create
+                  Component: CreateImage
+                - title: Files
+                  path: /file
+                  sidebar: true
+                  icon: Archive
+                  Component: Files
+                - title: Create File
+                  path: /file/create
+                  Component: CreateFile
+                - title: Backups
+                  path: /backup
+                  sidebar: true
+                  icon: RefreshDouble
+                  Component: Backups
+                - title: Backup
+                  path: /backup/:id
+                  Component: BackupDetail
+                - title: Marketplaces
+                  path: /marketplace
+                  sidebar: true
+                  icon: SimpleCart
+                  Component: Marketplaces
+                - title: Create Marketplace
+                  path: /marketplace/create
+                  Component: CreateMarketplace
+                - title: Marketplace
+                  path: /marketplace/:id
+                  Component: MarketplaceDetail
+                - title: Apps
+                  path: /marketplace-app
+                  sidebar: true
+                  icon: CloudDownload
+                  Component: MarketplaceApps
+                - title: Create Marketplace App
+                  path: /marketplace-app/create
+                  Component: CreateMarketplaceApp
+                - title: App
+                  path: /marketplace-app/:id
+                  Component: MarketplaceAppDetail
+                - title: Create BackupJob
+                  path: /backupjobs/create
+                  Component: CreateBackupJob
+                - title: BackupJobs
+                  path: /backupjobs
+                  sidebar: true
+                  icon: Clock
+                  Component: BackupJobs
+                - title: BackupJob
+                  path: /backupjobs/:id
+                  Component: BackupJobDetail
+    "/etc/one/fireedge/sunstone/tabs/40-networks-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            - title: Networks
+              icon: Network
+              routes:
+                - title: Virtual networks
+                  path: /virtual-network
+                  sidebar: true
+                  icon: NetworkAlt
+                  Component: VirtualNetworks
+                - title: Instantiate Network Template
+                  path: /network-template/instantiate
+                  Component: InstantiateVnTemplate
+                - title: Create Virtual Network
+                  path: /virtual-network/create
+                  Component: CreateVirtualNetwork
+                - title: Update Virtual Network
+                  path: /virtual-network/update
+                  Component: CreateVirtualNetwork
+                - title: Virtual networks
+                  path: /virtual-network/:id
+                  Component: VirtualNetworkDetail
+                - title: Network Templates
+                  path: /network-template
+                  sidebar: true
+                  icon: KeyframesCouple
+                  Component: VnTemplates
+                - title: Create Virtual Network Template
+                  path: /network-template/create
+                  Component: CreateVnTemplate
+                - title: Security groups
+                  path: /security-group
+                  sidebar: true
+                  icon: HistoricShield
+                  Component: SecurityGroups
+                - title: Create Security Group
+                  path: /security-group/create
+                  Component: CreateSecurityGroup
+    "/etc/one/fireedge/sunstone/tabs/50-infrastructure-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            - title: Infrastructure
+              icon: Cloud
+              routes:
+                - title: Drivers
+                  path: /driver
+                  sidebar: false
+                  icon: DataTransferUp
+                  Component: Drivers
+                - title: Providers
+                  path: /provider
+                  sidebar: true
+                  icon: SettingsProfiles
+                  Component: Providers
+                - title: Create Provider
+                  path: /provider/create
+                  Component: CreateProvider
+                - title: Clusters
+                  path: /cluster
+                  sidebar: true
+                  icon: Server
+                  Component: Clusters
+                - title: Create Cluster
+                  path: /cluster/create
+                  Component: CreateCluster
+                - title: Create Cluster
+                  path: /cluster/create_cloud
+                  Component: CreateClusterCloud
+                - title: Cluster Logs
+                  path: /cluster/create_cloud_logs/:id
+                  Component: CreateClusterCloudLogs
+                - title: Cluster
+                  path: /cluster/:id
+                  Component: ClusterDetail
+                - title: Hosts
+                  path: /host
+                  sidebar: true
+                  icon: HardDrive
+                  Component: Hosts
+                - title: Create Host
+                  path: /host/create
+                  Component: CreateHost
+                - title: Host
+                  path: /host/:id
+                  Component: HostDetail
+                - title: Zones
+                  path: /zone
+                  sidebar: true
+                  icon: MinusPinAlt
+                  Component: Zones
+    "/etc/one/fireedge/sunstone/tabs/60-system-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            - title: System
+              icon: Tools
+              routes:
+                - title: Create User
+                  path: /user/create
+                  Component: CreateUser
+                - title: Users
+                  path: /user
+                  sidebar: true
+                  icon: User
+                  Component: Users
+                - title: User
+                  path: /user/:id
+                  Component: UserDetail
+                - title: Create Group
+                  path: /group/create
+                  Component: CreateGroup
+                - title: Groups
+                  path: /group
+                  sidebar: true
+                  icon: Group
+                  Component: Groups
+                - title: Group
+                  path: /group/:id
+                  Component: GroupDetail
+                - title: Create VDC
+                  path: /virtual-data-center/create
+                  Component: CreateVDC
+                - title: VDCs
+                  path: /virtual-data-center
+                  sidebar: true
+                  icon: List
+                  Component: VDCs
+                - title: VDC
+                  path: /virtual-data-center/:id
+                  Component: VDCDetail
+                - title: Create ACL
+                  path: /acl/create
+                  Component: CreateACL
+                - title: ACLs
+                  path: /acl
+                  sidebar: true
+                  icon: KeyAlt
+                  Component: ACLs
+    "/etc/one/fireedge/sunstone/tabs/70-support-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            - title: Support
+              path: /support
+              sidebar: true
+              icon: HeadsetHelp
+              Component: Support
+            - title: Create Ticket
+              path: /support/create
+              Component: CreateTicket
+    "/etc/one/fireedge/sunstone/tabs/80-guacamole-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            - title: Guacamole
+              path: /guacamole/:id/:type
+              sidebar: false
+              Component: Guacamole
+    "/etc/one/fireedge/sunstone/tabs/90-oneks-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            - title: Kubernetes
+              icon: XrayView
+              routes:
+                - title: Create Kubernetes Cluster
+                  path: /kubernetes/create
+                  Component: CreateOneKsCluster
+                - title: Kubernetes Logs
+                  path: /kubernetes/create_kubernetes_logs/:id
+                  Component: CreateKubernetesLogs
+                - title: K8S Clusters
+                  path: /kubernetes
+                  icon: XrayView
+                  sidebar: true
+                  Component: OneKs
+                - title: k8S Clusters
+                  path: /kubernetes/:id
+                  Component: OneKsDetail
