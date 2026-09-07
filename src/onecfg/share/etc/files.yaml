@@ -350,7 +350,7 @@
   owner: root
   group: oneadmin
   mode: '0640'
-  src: ./src/oneks/etc/oneks-server.conf
+  src: src/oneks/etc/oneks-server.conf
 
 ### Dir: /var/lib/one/remotes/etc/ #########################
 

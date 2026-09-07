@@ -1,3 +1,6 @@
+# NOTE: Validation schema for /etc/one/oneks-server.conf, installed to
+# /usr/lib/one/oneks/. Not a config file, do not add to onecfg files.yaml.
+
 :one_xmlrpc:
   :required: true
   :type: string
