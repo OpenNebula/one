@@ -185,6 +185,9 @@ class OpenNebulaVMCollector
             tnics = tnics + pnics.length if pnics
 
             @metrics['vm_nics'].set(tnics, :labels => labels)
+        rescue StandardError => e
+            warn("[OpenNebulaVMCollector] VM #{vm['ID']} error: " \
+                 "#{e.class}: #{e.message}")
         end
     end
 end
