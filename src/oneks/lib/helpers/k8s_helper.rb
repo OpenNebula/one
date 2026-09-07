@@ -83,21 +83,23 @@ module OneKS
                 )
             end
 
-            # Upgrade a MachineDeployment from Kubernetes
+            # Upgrade a Kubernetes resource from a rendered manifest
             # @param client [OpenNebula::Client] OpenNebula client
             # @param leader [Integer] VM ID of the cluster leader
             # @param spec [String] Kubernetes spec content
             # @return [true, OpenNebula::Error]
             def upgrade(client, leader, spec)
-                spec    = YAML.load_stream(spec)
-                rke2_md = spec.find {|doc| doc['kind'] == 'MachineDeployment' }
+                spec      = YAML.load_stream(spec)
+                resources = spec.select do |doc|
+                    ['MachineDeployment', 'RKE2ControlPlane'].include?(doc['kind'])
+                end
 
                 return OpenNebula::Error.new(
-                    'MachineDeployment resource not found in rendered manifest',
+                    'Upgradeable resource not found or ambiguous in rendered manifest',
                     OpenNebula::Error::EACTION
-                ) unless rke2_md
+                ) unless resources.one?
 
-                apply(client, leader, rke2_md.to_yaml)
+                apply(client, leader, resources.first.to_yaml)
             rescue StandardError => e
                 OpenNebula::Error.new(
                     "Error running #{ACTIONS[:upgrade]} on VM #{leader}: #{e.message}",
