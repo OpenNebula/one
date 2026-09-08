@@ -119,12 +119,13 @@ module TransferManager
                     set +e
 
                     (
+                        :
                         #{thaw}
                     )
 
                     [ "$rc" = "0" ] || {
+                        :
                         #{snap_abort}
-                        : # in case `snap_abort` is empty
                     }
 
                     exit "$rc"
