@@ -804,6 +804,12 @@ module OneForm
             end
 
             # Creates symbolic links for the driver's IPAM files
+            #
+            # Only symlinks are ever replaced. A regular file in the target
+            # directory belongs to the opennebula package (e.g. the oned
+            # 'dummy' IPAM driver) and must not be clobbered, otherwise the
+            # package content is silently altered and tools which forbid
+            # symlinks in /var/lib/one/remotes (e.g. onecfg) break.
             def create_symlinks(driver_name)
                 ipam_path  = File.join(driver_path(driver_name), 'ipam')
                 target_dir = File.join(VAR_LOCATION, 'remotes', 'ipam', driver_name)
@@ -816,9 +822,15 @@ module OneForm
                     file_name   = File.basename(file)
                     target_link = File.join(target_dir, file_name)
 
-                    # Clean directory
-                    FileUtils.rm(target_link) \
-                    if File.symlink?(target_link) || File.exist?(target_link)
+                    if File.symlink?(target_link)
+                        next if File.readlink(target_link) == file
+
+                        FileUtils.rm(target_link)
+                    elsif File.exist?(target_link)
+                        Log.warn("Not replacing existing file #{target_link} " \
+                                 "with symlink to #{file}")
+                        next
+                    end
 
                     FileUtils.ln_s(file, target_link)
 
