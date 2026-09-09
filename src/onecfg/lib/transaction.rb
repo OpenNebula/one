@@ -55,14 +55,22 @@ module OneCfg
 
             tr_prefix = Dir.mktmpdir
 
-            # copy data from @read_from/@prefix into transaction_prefix
-            # rubocop:disable Style/RedundantCondition
-            OneCfg::Common::Backup.restore_dirs(
-                @read_from ? @read_from : @prefix,
-                OneCfg::CONFIG_BACKUP_DIRS,
-                tr_prefix
-            )
-            # rubocop:enable Style/RedundantCondition
+            # copy data from @read_from/@prefix into transaction_prefix,
+            # skipping package manager leftovers in the package snapshot
+            if @read_from
+                OneCfg::Common::Backup.restore_dirs(
+                    @read_from,
+                    OneCfg::CONFIG_BACKUP_DIRS,
+                    tr_prefix,
+                    OneCfg::Common::Backup::PKG_TEMP_FILES
+                )
+            else
+                OneCfg::Common::Backup.restore_dirs(
+                    @prefix,
+                    OneCfg::CONFIG_BACKUP_DIRS,
+                    tr_prefix
+                )
+            end
 
             # file operations will be locked to transaction prefix
             fops = OneCfg::Config::FileOperation.new(tr_prefix, @unprivileged)
@@ -123,9 +131,16 @@ module OneCfg
         # Checks there are no symlinks in backup directories.
         # Raise exception in case of error.
         #
+        # NOTE: Only CONFIG_UPDATE_DIRS are checked, not the whole
+        # CONFIG_BACKUP_DIRS. OneForm (shipped in 7.4) replaces the
+        # IPAM driver files in /var/lib/one/remotes/ipam/<driver> with
+        # symlinks to /usr/lib/one/oneform/drivers/<driver>/ipam, so
+        # checking all of /var/lib/one/remotes would break every upgrade
+        # from 7.4.0 on hosts where oneform-server was ever started.
+        #
         # @param custom_prefix [String] Custom prefix to check
         def check_symlinks(custom_prefix = @prefix)
-            OneCfg::CONFIG_BACKUP_DIRS.each do |dir|
+            OneCfg::CONFIG_UPDATE_DIRS.each do |dir|
                 pre_dir = OneCfg::Config::Utils.prefixed(dir, custom_prefix)
                 OneCfg::LOG.dddebug("Checking symbolic links in '#{pre_dir}'")
 
