@@ -23,6 +23,13 @@ module OneCfg::Common
     # File backup module
     module Backup
 
+        # Transient files left by the package manager in the middle of an
+        # upgrade (e.g. dpkg unpacks new conffiles as *.dpkg-new and only
+        # resolves them in the configure phase). The package snapshot taken
+        # by the preinst of opennebula-common-onecfg may contain them, but
+        # they must never be restored into the live configuration.
+        PKG_TEMP_FILES = ['*.dpkg-new', '*.dpkg-tmp']
+
         # Make a directory backup
         #
         # @param dir    [String] Dir path
@@ -51,16 +58,17 @@ module OneCfg::Common
 
         # Restore the directory backup
         #
-        # @param backup [String] Backup path
-        # @param dir    [String] Dir path
-        def self.restore(backup, dir)
+        # @param backup  [String] Backup path
+        # @param dir     [String] Dir path
+        # @param exclude [Array]  File patterns to skip
+        def self.restore(backup, dir, exclude = [])
             unless File.exist?(backup)
                 raise OneCfg::Exception::FileNotFound,
                       "Backup location '#{backup}' doesn't exist."
             end
 
             OneCfg::LOG.debug("Restoring #{backup} to #{dir}")
-            rsync(backup, dir)
+            rsync(backup, dir, exclude)
         end
 
         # Backup all dirs at once. Directories are specified
@@ -110,37 +118,40 @@ module OneCfg::Common
         # Restore all dirs at once. Directories are specified
         # NON-PREFIXED, with optional prefix argument (default: /).
         #
-        # @param backup [String] Backup path
-        # @param dirs   [Array]  NON-PREFIXED dirs to restore
-        # @param prefix [String] Prefix to prepend target dirs with
+        # @param backup  [String] Backup path
+        # @param dirs    [Array]  NON-PREFIXED dirs to restore
+        # @param prefix  [String] Prefix to prepend target dirs with
+        # @param exclude [Array]  File patterns to skip
         #
         # @return [String] Path to the backup
         #
         # Example:
         # '/var/backup/xxxx', ['/etc/one', /var/lib/one/remotes'], '/'
         # '/var/backup/xxxx', ['/etc/one', /var/lib/one/remotes'], '/tmp/prefix'
-        def self.restore_dirs(backup, dirs, prefix = '/')
+        def self.restore_dirs(backup, dirs, prefix = '/', exclude = [])
             OneCfg::LOG.debug("Restoring multiple dirs from '#{backup}'")
 
             dirs.each do |dir|
                 src = File.join(backup, dir)
                 dst = OneCfg::Config::Utils.prefixed(dir, prefix)
 
-                restore(src, dst)
+                restore(src, dst, exclude)
             end
         end
 
         # Sync content of both directories
         #
-        # @param source [String] Source dir path
-        # @param target [String] Target dir path
-        def self.rsync(source, target)
+        # @param source  [String] Source dir path
+        # @param target  [String] Target dir path
+        # @param exclude [Array]  File patterns to skip
+        def self.rsync(source, target, exclude = [])
             unless ::File.exist?(target)
                 FileUtils.mkdir_p(target)
             end
 
             # trigger rsync
             cmd = "rsync -acvh #{source}/ #{target} --delete --delete-after"
+            exclude.each {|e| cmd << " --exclude='#{e}'" }
 
             OneCfg::LOG.ddebug("Synchronizing '#{source}' to " \
                                  "'#{target}' with command: #{cmd}")
