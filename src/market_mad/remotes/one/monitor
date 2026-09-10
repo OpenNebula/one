@@ -85,6 +85,9 @@ class OneMarket
             p_uri   = URI(http_proxy)
             p_host  = p_uri.host
             p_port  = p_uri.port
+            # URI keeps percent escapes; proxy authentication needs decoded values.
+            p_user  = URI::DEFAULT_PARSER.unescape(p_uri.user) if p_uri.user
+            p_pass  = URI::DEFAULT_PARSER.unescape(p_uri.password) if p_uri.password
         else
             p_host  = nil
             p_port  = nil
@@ -95,7 +98,9 @@ class OneMarket
 
         req['User-Agent'] = @agent
 
-        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port, p_uri && p_uri.user, p_uri && p_uri.password, :use_ssl => uri.scheme == 'https') do |http|
+        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port,
+                                   p_user, p_pass,
+                                   :use_ssl => uri.scheme == 'https') do |http|
             http.request(req)
         end
 
