@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'base64'
 require 'cli_helper'
 require 'open3'
 require 'io/console'
