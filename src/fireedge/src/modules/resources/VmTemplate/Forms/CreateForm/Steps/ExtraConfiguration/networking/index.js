@@ -31,10 +31,7 @@ import {
   TitleSlot,
 } from '@ComponentsModule'
 
-import {
-  STEP_ID as EXTRA_ID,
-  TabType,
-} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 import { mapNameByIndex } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/schema'
 import {
   BOOT_ORDER_NAME,
@@ -698,7 +695,7 @@ Networking.propTypes = {
   adminGroup: PropTypes.bool,
 }
 
-/** @type {TabType} */
+/** @type {object} */
 const TAB = {
   id: 'network',
   name: T.Network,

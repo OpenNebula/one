@@ -17,7 +17,7 @@
 /* eslint-disable react/prop-types */
 
 import { CollapsiblePanel, FormWithSchema } from '@ComponentsModule'
-import { STEP_ID as ROLES_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Roles'
+import { STEP_ID as ROLES_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Roles/constants'
 
 import { Stack, Grid } from '@mui/material'
 import { T } from '@ConstantsModule'

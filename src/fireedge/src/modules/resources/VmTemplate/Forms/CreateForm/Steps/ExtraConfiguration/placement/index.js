@@ -19,10 +19,7 @@ import { useEffect } from 'react'
 
 import { FormWithSchema } from '@ComponentsModule'
 
-import {
-  STEP_ID as EXTRA_ID,
-  TabType,
-} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 import {
   SECTIONS,
   FIELDS,
@@ -68,7 +65,7 @@ Placement.propTypes = {
 
 Placement.displayName = 'Placement'
 
-/** @type {TabType} */
+/** @type {object} */
 const TAB = {
   id: 'placement',
   name: T.Placement,

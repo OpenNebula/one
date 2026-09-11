@@ -53,7 +53,7 @@ import {
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { useGeneralApi } from '@FeaturesModule'
 import { disableFields, getUserInputString } from '@UtilsModule'
-import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 import { USER_INPUT_FIELDS, USER_INPUT_SCHEMA } from './schema'
 
 export const SECTION_ID = 'USER_INPUTS'

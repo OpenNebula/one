@@ -19,10 +19,7 @@ import { useEffect } from 'react'
 import { useWatch, useFormContext } from 'react-hook-form'
 
 import { FormWithSchema } from '@ComponentsModule'
-import {
-  STEP_ID as EXTRA_ID,
-  TabType,
-} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 
 import {
   NUMA_FIELDS,
@@ -104,7 +101,7 @@ Numa.propTypes = {
   adminGroup: PropTypes.bool,
 }
 
-/** @type {TabType} */
+/** @type {object} */
 const TAB = {
   id: 'numa',
   name: T.Numa,

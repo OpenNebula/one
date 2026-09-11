@@ -31,10 +31,7 @@ import {
   TitleSlot,
 } from '@ComponentsModule'
 
-import {
-  STEP_ID as EXTRA_ID,
-  TabType,
-} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 import { mapNameByIndex } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/schema'
 import * as VirtualMachine from '@modules/resources/VirtualMachine'
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
@@ -401,7 +398,7 @@ PciDevices.propTypes = {
 
 PciDevices.displayName = 'PciDevices'
 
-/** @type {TabType} */
+/** @type {object} */
 const TAB = {
   id: 'pci',
   name: T.PciDevices,

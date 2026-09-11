@@ -19,7 +19,7 @@
 import { useEffect, useRef } from 'react'
 import { useFieldArray } from 'react-hook-form'
 import { Stack } from '@mui/material'
-import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/constants'
 import { SECTION_ID as EXTRA_SECTION_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/networking/extraDropdown'
 
 import { ChangeForm as AddSgForm } from '@modules/resources/SecurityGroups/Forms'

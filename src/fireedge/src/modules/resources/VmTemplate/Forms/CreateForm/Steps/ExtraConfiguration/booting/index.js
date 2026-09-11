@@ -18,10 +18,7 @@ import { useTheme, Stack, FormControl } from '@mui/material'
 import PropTypes from 'prop-types'
 import { SystemShut as OsIcon } from 'iconoir-react'
 import { FormWithSchema, Legend } from '@ComponentsModule'
-import {
-  STEP_ID as EXTRA_ID,
-  TabType,
-} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 import BootOrder, {
   BOOT_ORDER_NAME,
   reorderBootAfterRemove,
@@ -91,7 +88,7 @@ Booting.propTypes = {
   adminGroup: PropTypes.bool,
 }
 
-/** @type {TabType} */
+/** @type {object} */
 const TAB = {
   id: 'booting',
   name: T.OSAndCpu,

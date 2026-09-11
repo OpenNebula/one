@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { STEP_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 // eslint-disable-next-line no-unused-vars
 import { ReactElement, useMemo, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -82,7 +83,7 @@ const TAB_CONTENT_SX = {
  * @property {function(FieldErrors):boolean} [getError] - Returns `true` if the tab contains an error in form
  */
 
-export const STEP_ID = 'extra'
+export { STEP_ID }
 
 /** @type {TabType[]} */
 export const TABS = [
