@@ -25,7 +25,7 @@ import {
   ExtraDropdown,
   SECTION_ID as NETWORKS_VALUES_ID,
 } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/networking/extraDropdown'
-import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/constants'
 
 import {
   CollapsiblePanel,

@@ -24,7 +24,7 @@ import {
   Trash as TrashIcon,
 } from 'iconoir-react'
 import { AddRangeForm } from '@modules/resources/VirtualNetwork/Forms'
-import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/constants'
 
 import { SECTION_ID as EXTRA_SECTION_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/networking/extraDropdown'
 import { useModalsApi } from '@FeaturesModule'

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { STEP_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Roles/constants'
 import PropTypes from 'prop-types'
 import { Component, useEffect } from 'react'
 import { useFormContext, useFieldArray } from 'react-hook-form'
@@ -40,7 +41,7 @@ import {
 import { useSelectableCardPanel } from '@HooksModule'
 import { vmtemplateTable } from '@ModelsModule'
 
-export const STEP_ID = 'roles'
+export { STEP_ID }
 
 const standaloneExcludedFields = ['parents']
 

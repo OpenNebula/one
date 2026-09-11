@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { STEP_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/constants'
 import { Component, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import PropTypes from 'prop-types'
@@ -30,7 +31,7 @@ import AdvancedOptions from '@modules/resources/ServiceTemplate/Forms/CreateForm
 import { T } from '@ConstantsModule'
 import { Tabs } from '@ComponentsModule'
 
-export const STEP_ID = 'extra'
+export { STEP_ID }
 
 export const TABS = [Networking, UserInputs, ScheduledActions, AdvancedOptions]
 

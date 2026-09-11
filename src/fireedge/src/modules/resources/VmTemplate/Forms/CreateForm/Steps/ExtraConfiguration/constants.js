@@ -13,48 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import PropTypes from 'prop-types'
-import { ADVANCED_PARAMS_FIELDS } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/advancedParams/schema'
-import { FormWithSchema } from '@ComponentsModule'
-import { Box, Stack } from '@mui/material'
-import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/constants'
-
-import { Settings as AdvancedIcon } from 'iconoir-react'
-
-import { T } from '@ConstantsModule'
-
-export const TAB_ID = 'advanced'
-
-const Content = () => (
-  <Box sx={{ width: '100%', height: '100%' }}>
-    <Stack
-      key={`inputs-${TAB_ID}`}
-      direction="column"
-      alignItems="flex-start"
-      gap="0.5rem"
-      component="form"
-      width="100%"
-    >
-      <FormWithSchema
-        cy={TAB_ID}
-        id={`${EXTRA_ID}.${TAB_ID}`}
-        fields={ADVANCED_PARAMS_FIELDS}
-      />
-    </Stack>
-  </Box>
-)
-
-Content.propTypes = {
-  stepId: PropTypes.string,
-}
-
-const TAB = {
-  id: TAB_ID,
-  name: T.AdvancedOptions,
-  icon: AdvancedIcon,
-  Content,
-  getError: (error) => !!error?.[TAB_ID],
-}
-
-export default TAB
+export const STEP_ID = 'extra'

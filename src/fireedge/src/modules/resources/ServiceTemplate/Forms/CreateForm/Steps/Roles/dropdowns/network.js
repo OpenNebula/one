@@ -21,9 +21,9 @@ import { useEffect } from 'react'
 import { Autocomplete, TextField } from '@mui/material'
 import { Checkbox, CollapsiblePanel, Table } from '@ComponentsModule'
 
-import { STEP_ID as ROLES_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Roles'
+import { STEP_ID as ROLES_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Roles/constants'
 
-import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/constants'
 
 import { TAB_ID as NETWORKS_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/networking'
 

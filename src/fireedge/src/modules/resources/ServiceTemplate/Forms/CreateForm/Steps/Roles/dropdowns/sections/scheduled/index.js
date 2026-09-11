@@ -20,7 +20,7 @@ import { DateTime } from 'luxon'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 import { formatDateTime } from '@UtilsModule'
 import { Stack } from '@mui/material'
-import { STEP_ID as ROLES_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Roles'
+import { STEP_ID as ROLES_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Roles/constants'
 
 import { useTranslation } from '@ProvidersModule'
 

@@ -46,10 +46,7 @@ import {
   isRelative,
 } from '@ModelsModule'
 import * as VirtualMachine from '@modules/resources/VirtualMachine'
-import {
-  STEP_ID as EXTRA_ID,
-  TabType,
-} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 import { mapNameByIndex } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/schema'
 import { useTranslation } from '@ProvidersModule'
 import {
@@ -527,7 +524,7 @@ ScheduleAction.propTypes = {
   oneConfig: PropTypes.object,
 }
 
-/** @type {TabType} */
+/** @type {object} */
 const TAB = {
   id: 'sched_action',
   name: T.ScheduleAction,

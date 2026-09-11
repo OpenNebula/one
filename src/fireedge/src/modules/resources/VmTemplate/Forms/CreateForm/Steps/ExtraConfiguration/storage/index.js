@@ -36,10 +36,7 @@ import { T, VM_ACTION_ENUM } from '@ConstantsModule'
 import { useGeneralApi, useModalsApi } from '@FeaturesModule'
 import { getDiskName } from '@ModelsModule'
 import * as VirtualMachine from '@modules/resources/VirtualMachine'
-import {
-  STEP_ID as EXTRA_ID,
-  TabType,
-} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 import {
   BOOT_ORDER_NAME,
   reorderBootAfterRemove,
@@ -590,7 +587,7 @@ Storage.propTypes = {
   vmTemplate: PropTypes.any,
 }
 
-/** @type {TabType} */
+/** @type {object} */
 const TAB = {
   id: 'storage',
   name: T.Storage,

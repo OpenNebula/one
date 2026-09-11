@@ -17,10 +17,7 @@ import PropTypes from 'prop-types'
 import { Folder as ContextIcon } from 'iconoir-react'
 import { useEffect } from 'react'
 
-import {
-  TabType,
-  STEP_ID as EXTRA_ID,
-} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 import UserInputsSection, {
   SECTION_ID as USER_INPUTS_ID,
 } from './userInputsSection'
@@ -56,7 +53,7 @@ Context.propTypes = {
   control: PropTypes.object,
 }
 
-/** @type {TabType} */
+/** @type {object} */
 const TAB = {
   id: 'context',
   name: T.Context,

@@ -20,10 +20,7 @@ import { DataTransferBoth as IOIcon } from 'iconoir-react'
 import { FormWithSchema } from '@ComponentsModule'
 import { useEffect } from 'react'
 
-import {
-  STEP_ID as EXTRA_ID,
-  TabType,
-} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
 import InputsSection, { SECTION_ID as INPUT_ID } from './inputsSection'
 import VideoSection, { SECTION_ID as VIDEO_ID } from './videoSection'
 import { GRAPHICS_FIELDS } from './schema'
@@ -82,7 +79,7 @@ InputOutput.propTypes = {
 
 InputOutput.displayName = 'InputOutput'
 
-/** @type {TabType} */
+/** @type {object} */
 const TAB = {
   id: 'input_output',
   name: T.InputOrOutput,

@@ -17,7 +17,7 @@ import PropTypes from 'prop-types'
 import { useFormContext, useFieldArray } from 'react-hook-form'
 import { Calendar as ActionIcon } from 'iconoir-react'
 
-import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra'
+import { STEP_ID as EXTRA_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/constants'
 
 import { VM_SCHED_FIELDS } from '@modules/resources/VirtualMachine/Forms/CreateSchedActionForm/schema'
 
