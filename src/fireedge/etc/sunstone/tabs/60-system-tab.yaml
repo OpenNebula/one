@@ -15,6 +15,9 @@
     - title: Create Group
       path: /group/create
       Component: CreateGroup
+    - title: Update Group
+      path: /group/update
+      Component: CreateGroup
     - title: Groups
       path: /group
       sidebar: true

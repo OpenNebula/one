@@ -26,6 +26,9 @@
     - title: Create Virtual Network Template
       path: /network-template/create
       Component: CreateVnTemplate
+    - title: Update Virtual Network Template
+      path: /network-template/update
+      Component: CreateVnTemplate
     - title: Security groups
       path: /security-group
       sidebar: true
@@ -33,4 +36,7 @@
       Component: SecurityGroups
     - title: Create Security Group
       path: /security-group/create
+      Component: CreateSecurityGroup
+    - title: Update Security Group
+      path: /security-group/update
       Component: CreateSecurityGroup
