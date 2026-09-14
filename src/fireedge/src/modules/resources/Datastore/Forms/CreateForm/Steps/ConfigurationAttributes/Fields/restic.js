@@ -80,7 +80,7 @@ const RESTIC_PASSWORD = {
   name: 'RESTIC_PASSWORD',
   label: T.ResticPassword,
   dependOf: '$general.STORAGE_BACKEND',
-  type: INPUT_TYPES.TEXT,
+  type: INPUT_TYPES.PASSWORD,
   htmlType: (type) => !typeIsOneOf(type, [isRestic]) && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
