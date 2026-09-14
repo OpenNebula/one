@@ -67,12 +67,16 @@ export const getStyles = ({ theme }) => ({
   '& .quota-chart-panel': {
     display: 'flex',
     flexDirection: 'column',
+    height: '100%',
     minHeight: 360,
     position: 'relative',
+    overflow: 'hidden',
   },
 
   '& .quota-chart-panel > *': {
     flex: '1 1 auto',
+    height: '100%',
+    maxHeight: '100%',
     minHeight: 0,
   },
 })

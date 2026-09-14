@@ -15,12 +15,11 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
+import { QuotaTab, transformApiResponseToDataset } from '@ComponentsModule'
 import {
-  MultiChart,
-  QuotaTab,
-  transformApiResponseToDataset,
-} from '@ComponentsModule'
-import { QuotaControls } from '@modules/resources/User/Tabs/Quota/Components'
+  QuotaControls,
+  QuotaUsagePanel,
+} from '@modules/resources/User/Tabs/Quota/Components'
 
 import {
   UserAPI,
@@ -36,6 +35,25 @@ import {
 } from '@modules/resources/User/Tabs/Quota/Components/helpers/scripts'
 import { useTranslation } from '@ProvidersModule'
 import { T } from '@ConstantsModule'
+import { variables } from '@StylesModule'
+
+const QUOTA_METRIC_COLORS = {
+  VMS: variables.blue[500],
+  CPU: variables.purple[500],
+  MEMORY: variables.pink[500],
+  PCI_DEV: variables.indigo[500],
+  PCI_NIC: variables.orange[500],
+  RUNNING_CPU: variables.red[500],
+  RUNNING_MEMORY: variables.yellow[500],
+  RUNNING_PCI_DEV: variables.rose[500],
+  RUNNING_PCI_NIC: variables.seaGreen[500],
+  RUNNING_VMS: variables.grey[500],
+  SYSTEM_DISK_SIZE: variables.green[500],
+  SIZE: variables.seaBlue[500],
+  IMAGES: variables.purple[500],
+  LEASES: variables.seaGreen[500],
+  RVMS: variables.blue[500],
+}
 
 /**
  * Generates a QuotaInfoTab for an user or a group.
@@ -94,7 +112,7 @@ const createQuotaTab = ({ groups }) => {
       VM: clusterNameMap,
     }
 
-    const handleChartElementClick = (data) => {
+    const handleQuotaElementClick = (data) => {
       setClickedElement(data)
     }
 
@@ -252,20 +270,17 @@ const createQuotaTab = ({ groups }) => {
           />
         }
         chart={
-          <MultiChart
-            datasets={[processedDataset]}
-            chartType={'stackedBar'}
-            ItemsPerPage={10}
+          <QuotaUsagePanel
+            dataset={processedDataset}
             isLoading={queryInfo.isFetching}
             error={
               queryInfo.isError || !selectedDataset?.dataset
                 ? 'Error fetching data'
                 : ''
             }
-            disableExport={true}
-            coordinateType={'CARTESIAN'}
             metricNames={dynamicMetricNames}
-            onElementClick={handleChartElementClick}
+            metricColors={QUOTA_METRIC_COLORS}
+            onElementClick={handleQuotaElementClick}
           />
         }
       />

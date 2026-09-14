@@ -14,3 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export { QuotaControls } from '@modules/resources/User/Tabs/Quota/Components/QuotaControls'
+export { QuotaUsagePanel } from '@modules/resources/User/Tabs/Quota/Components/QuotaUsagePanel'
