@@ -359,12 +359,12 @@ public:
      *    @param name the attribute name.
      *    @return true first attribute or 0 if not found or wrong type
      */
-    const VectorAttribute * get_template_attribute(const std::string& s) const
+    const VectorAttribute * get_template_attribute(std::string_view s) const
     {
         return obj_template->get(s);
     }
 
-    VectorAttribute * get_template_attribute(const std::string& s)
+    VectorAttribute * get_template_attribute(std::string_view s)
     {
         return obj_template->get(s);
     }
@@ -376,7 +376,7 @@ public:
      *    @return the number of values
      */
     template<typename T>
-    int get_template_attribute(const std::string& name,
+    int get_template_attribute(std::string_view name,
                                std::vector<const T*>& values) const
     {
         return obj_template->get(name, values);
@@ -393,7 +393,7 @@ public:
      *    target value
      */
     template<typename T>
-    bool get_template_attribute(const std::string& name, T& value) const
+    bool get_template_attribute(std::string_view name, T& value) const
     {
         return obj_template->get(name, value);
     }
@@ -406,7 +406,7 @@ public:
      *    @return the number of attributes erased
      */
     template<typename T>
-    int erase_template_attribute(const std::string& name, T& value)
+    int erase_template_attribute(std::string_view name, T& value)
     {
         obj_template->get(name, value);
         return obj_template->erase(name);
@@ -442,7 +442,7 @@ public:
      *    @return the number of attributes removed
      */
     template<typename T>
-    int remove_template_attribute(const std::string& n, std::vector<T *>& v)
+    int remove_template_attribute(std::string_view n, std::vector<T *>& v)
     {
         return obj_template->remove(n, v);
     }
@@ -460,7 +460,7 @@ public:
      *  Removes an attribute
      *    @param name of the attribute
      */
-    int remove_template_attribute(const std::string& name)
+    int remove_template_attribute(std::string_view name)
     {
         return obj_template->erase(name);
     }

@@ -258,9 +258,9 @@ public:
 
 private:
     /**
-     *  VNC configuration for clusters
+     *  VNC configuration parsed once and copied into each cluster bitmap
      */
-    const VectorAttribute vnc_conf;
+    const BitMap<65536>::Configuration vnc_conf;
 
     /**
      *  Factory method to produce objects
@@ -268,7 +268,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new Cluster(-1, "", 0, &vnc_conf);
+        return new Cluster(-1, "", 0, vnc_conf);
     };
 };
 

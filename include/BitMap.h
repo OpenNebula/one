@@ -34,22 +34,42 @@ class BitMap : public Callbackable
 {
 public:
     /**
+     *  Parsed bitmap configuration, reusable across independent bitmaps.
+     */
+    struct Configuration
+    {
+        explicit Configuration(const VectorAttribute& bs_conf)
+        {
+            std::string reserved;
+
+            bs_conf.vector_value("START", start_bit);
+            bs_conf.vector_value("RESERVED", reserved);
+
+            if (!reserved.empty())
+            {
+                set_reserved_bit(reserved, reserved_bit);
+            }
+        }
+
+        unsigned int start_bit = 0;
+        std::bitset<N> reserved_bit;
+    };
+
+    /**
      *  Creates a new bitmap, it stores a pointer to the DB parameters
      *  that MUST exists during the object lifetime.
      */
     BitMap(const VectorAttribute& bs_conf, int _id, const char * _db_table)
-        : id(_id), start_bit(0), bs(0), db_table(_db_table)
-    {
-        std::string reserved;
+        : BitMap(Configuration(bs_conf), _id, _db_table)
+    {};
 
-        bs_conf.vector_value("START", start_bit);
-        bs_conf.vector_value("RESERVED", reserved);
-
-        if (!reserved.empty())
-        {
-            set_reserved_bit(reserved);
-        }
-    };
+    /**
+     *  Creates a bitmap from cached configuration. Allocation state is not shared.
+     */
+    BitMap(const Configuration& conf, int _id, const char * _db_table)
+        : id(_id), start_bit(conf.start_bit), reserved_bit(conf.reserved_bit),
+          bs(0), db_table(_db_table)
+    {};
 
     BitMap(int _id, const char * _db_table)
         : id(_id), start_bit(0), bs(0), db_table(_db_table)
@@ -333,9 +353,10 @@ private:
      * The reserved bit string is separated by ',' for each element
      * and by ':' for ranges.
      *   @param string with reserved bits
+     *   @param reserved_bit destination reservation mask
      */
 
-    void set_reserved_bit(const std::string& reserved)
+    static void set_reserved_bit(const std::string& reserved, std::bitset<N>& reserved_bit)
     {
         std::vector<std::string> strings;
         std::vector<std::string> range;

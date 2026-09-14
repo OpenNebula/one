@@ -34,7 +34,7 @@ Cluster::Cluster(
         int id,
         const string& name,
         std::unique_ptr<ClusterTemplate>  cl_template,
-        const VectorAttribute& vnc_conf):
+        const BitMap<65536>::Configuration& vnc_conf):
     PoolObjectSQL(id, CLUSTER, name, -1, -1, "", "", one_db::cluster_table),
     hosts("HOSTS"),
     datastores("DATASTORES"),

@@ -26,7 +26,7 @@ class LibVirtDriver : public VirtualMachineManagerDriver
 public:
 
     LibVirtDriver(const std::string& mad_location,
-                  const std::map<std::string, std::string> &attrs,
+                  const std::map<std::string, std::string, std::less<>> &attrs,
                   const std::string& emu)
         : VirtualMachineManagerDriver(mad_location, attrs), emulator(emu)
     {}

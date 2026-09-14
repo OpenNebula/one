@@ -206,41 +206,35 @@ void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VectorAttribute::replace(const map<string, string>& attr)
-{
-    attribute_value = attr;
-}
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void VectorAttribute::merge(const VectorAttribute* vattr, bool replace)
 {
-    const map<string, string>& source_values = vattr->value();
+    const map<string, string, std::less<>>& source_values = vattr->value();
 
     for (auto it=source_values.begin(); it!=source_values.end(); it++)
     {
-        auto jt = attribute_value.find(it->first);
-
-        if (jt != attribute_value.end())
+        if (replace)
         {
-            if (replace)
-            {
-                attribute_value.erase(jt);
-            }
-            else
-            {
-                continue;
-            }
+            attribute_value.insert_or_assign(it->first, it->second);
         }
-
-        attribute_value.insert(make_pair(it->first, it->second));
+        else
+        {
+            attribute_value.insert(make_pair(it->first, it->second));
+        }
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VectorAttribute::replace(const string& name, const string& value)
+void VectorAttribute::replace(const string& name, string value)
+{
+    attribute_value.insert_or_assign(name, std::move(value));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VectorAttribute::remove(string_view name)
 {
     auto it = attribute_value.find(name);
 
@@ -248,27 +242,12 @@ void VectorAttribute::replace(const string& name, const string& value)
     {
         attribute_value.erase(it);
     }
-
-    attribute_value.insert(make_pair(name, value));
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VectorAttribute::remove(const string& name)
-{
-    auto it = attribute_value.find(name);
-
-    if ( it != attribute_value.end() )
-    {
-        attribute_value.erase(it);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string VectorAttribute::vector_value(const string& name)
+string VectorAttribute::vector_value(string_view name)
 {
     auto it = attribute_value.find(name);
 
@@ -285,7 +264,7 @@ string VectorAttribute::vector_value(const string& name)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const string& VectorAttribute::vector_value(const string& name) const
+const string& VectorAttribute::vector_value(string_view name) const
 {
     auto it = attribute_value.find(name);
 
@@ -302,7 +281,7 @@ const string& VectorAttribute::vector_value(const string& name) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VectorAttribute::vector_value(const string& name, string& value) const
+int VectorAttribute::vector_value(string_view name, string& value) const
 {
     auto it = attribute_value.find(name);
 
@@ -319,7 +298,7 @@ int VectorAttribute::vector_value(const string& name, string& value) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VectorAttribute::vector_value(const string& name, bool& value) const
+int VectorAttribute::vector_value(string_view name, bool& value) const
 {
     value = false;
     auto it = attribute_value.find(name);

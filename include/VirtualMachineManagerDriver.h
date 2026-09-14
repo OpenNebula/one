@@ -43,7 +43,7 @@ class VirtualMachineManagerDriver : public Driver<vm_msg_t>
 public:
 
     VirtualMachineManagerDriver(const std::string& mad_location,
-                                const std::map<std::string, std::string>& attrs);
+                                const std::map<std::string, std::string, std::less<>>& attrs);
 
     virtual ~VirtualMachineManagerDriver() = default;
 

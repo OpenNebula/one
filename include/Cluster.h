@@ -169,7 +169,7 @@ private:
     // *************************************************************************
     Cluster(int id, const std::string& name,
             std::unique_ptr<ClusterTemplate>  cl_template,
-            const VectorAttribute& vnc_conf);
+            const BitMap<65536>::Configuration& vnc_conf);
 
     // *************************************************************************
     // Attributes (Private)

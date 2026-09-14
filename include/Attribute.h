@@ -18,9 +18,11 @@
 #define ATTRIBUTE_H_
 
 #include <string>
+#include <string_view>
 #include <map>
 #include <sstream>
 #include <algorithm>
+#include <initializer_list>
 
 #include "NebulaUtil.h"
 
@@ -32,8 +34,8 @@ class Attribute
 {
 public:
 
-    Attribute(const std::string& aname)
-        : attribute_name(aname)
+    Attribute(std::string aname)
+        : attribute_name(std::move(aname))
     {
         one_util::toupper(attribute_name);
 
@@ -42,8 +44,8 @@ public:
 
         int size = attribute_name.size();
 
-        if  ((size >0 && !(isalpha(aname[0]) || aname[0] == '_')) ||
-             (size >=3 && (aname[0]=='X' && aname[1]=='M' && aname[2]=='L')))
+        if  ((size >0 && !(isalpha(attribute_name[0]) || attribute_name[0] == '_')) ||
+             (size >=3 && (attribute_name[0]=='X' && attribute_name[1]=='M' && attribute_name[2]=='L')))
         {
             attribute_name.insert(0, "ONE_");
         }
@@ -134,13 +136,13 @@ class SingleAttribute : public Attribute
 {
 public:
 
-    SingleAttribute(const std::string& name)
-        : Attribute(name)
+    SingleAttribute(std::string name)
+        : Attribute(std::move(name))
     {}
 
-    SingleAttribute(const std::string& name, const std::string& value)
-        : Attribute(name)
-        , attribute_value(value)
+    SingleAttribute(std::string name, std::string value)
+        : Attribute(std::move(name))
+        , attribute_value(std::move(value))
     {}
 
     SingleAttribute(const SingleAttribute& sa)
@@ -217,9 +219,9 @@ public:
     /**
      *  Replaces the attribute value from a string.
      */
-    void replace(const std::string& sattr)
+    void replace(std::string sattr)
     {
-        attribute_value = sattr;
+        attribute_value = std::move(sattr);
     };
 
     /**
@@ -275,14 +277,26 @@ class VectorAttribute : public Attribute
 {
 public:
 
-    VectorAttribute(const std::string& name)
-        : Attribute(name)
+    VectorAttribute(std::string name)
+        : Attribute(std::move(name))
     {}
 
-    VectorAttribute(const std::string& name,
-                    const  std::map<std::string, std::string>& value)
-        : Attribute(name)
-        , attribute_value(value)
+    VectorAttribute(std::string name,
+                    std::map<std::string, std::string, std::less<>> value)
+        : Attribute(std::move(name))
+        , attribute_value(std::move(value))
+    {}
+
+    VectorAttribute(std::string name,
+                    const std::map<std::string, std::string>& value)
+        : Attribute(std::move(name))
+        , attribute_value(value.begin(), value.end())
+    {}
+
+    VectorAttribute(std::string name,
+                    std::initializer_list<std::pair<std::string, std::string>> init)
+        : Attribute(std::move(name))
+        , attribute_value(init.begin(), init.end())
     {}
 
     VectorAttribute(const VectorAttribute& va) = default;
@@ -299,7 +313,7 @@ public:
     /**
      *  Returns the attribute value, a string.
      */
-    const std::map<std::string, std::string>& value() const
+    const std::map<std::string, std::string, std::less<>>& value() const
     {
         return attribute_value;
     };
@@ -313,7 +327,7 @@ public:
      *    @note Non const version must return copy, as subsequent call to replace or remove
      *      may change the value
      */
-    std::string vector_value(const std::string& name);
+    std::string vector_value(std::string_view name);
 
     /**
      *  Returns the string value
@@ -324,7 +338,7 @@ public:
      *    @note It's safe to return reference here, as we are using
      *      the const object, which can't change the value
      */
-    const std::string& vector_value(const std::string& name) const;
+    const std::string& vector_value(std::string_view name) const;
 
     /**
      * Returns the value of the given element of the VectorAttribute
@@ -335,7 +349,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     template<typename T>
-    int vector_value(const std::string& name, T& value) const
+    int vector_value(std::string_view name, T& value) const
     {
         auto it = attribute_value.find(name);
 
@@ -378,7 +392,7 @@ public:
      * @param default_value used if element is invalid
      */
     template<typename T>
-    void vector_value(const std::string& name,
+    void vector_value(std::string_view name,
                       T& value,
                       const T& default_value) const
     {
@@ -388,9 +402,9 @@ public:
         }
     }
 
-    int vector_value(const std::string& name, std::string& value) const;
+    int vector_value(std::string_view name, std::string& value) const;
 
-    int vector_value(const std::string& name, bool& value) const;
+    int vector_value(std::string_view name, bool& value) const;
 
     /**
      * Returns the value of the given element of the VectorAttribute
@@ -402,7 +416,7 @@ public:
      * @return the value in string form on success, "" otherwise
      */
     template<typename T>
-    const std::string& vector_value_str(const std::string& name, T& value) const
+    const std::string& vector_value_str(std::string_view name, T& value) const
     {
         auto it = attribute_value.find(name);
 
@@ -463,7 +477,16 @@ public:
     /**
      *  Replace the value of the given attribute with the provided map
      */
-    void replace(const std::map<std::string, std::string>& attr);
+    void replace(const std::map<std::string, std::string, std::less<>>& attr)
+    {
+        attribute_value = attr;
+    }
+
+    void replace(const std::map<std::string, std::string>& attr)
+    {
+        attribute_value.clear();
+        attribute_value.insert(attr.begin(), attr.end());
+    }
 
     /**
      * The attributes from vattr will be copied to this vector
@@ -479,11 +502,7 @@ public:
     template<typename T>
     void replace(const std::string& name, const T& value)
     {
-        std::ostringstream oss;
-
-        oss << value;
-
-        replace(name, oss.str());
+        replace(name, std::to_string(value));
     }
 
     void replace(const std::string& name, bool value)
@@ -498,13 +517,18 @@ public:
         }
     }
 
-    void replace(const std::string& name, const std::string& value);
+    void replace(const std::string& name, const char* value)
+    {
+        replace(name, std::string(value));
+    }
+
+    void replace(const std::string&, std::string value);
 
     /**
      * Removes the given attribute from the vector
      * @param name of the attribute
      */
-    void remove(const std::string& name);
+    void remove(std::string_view name);
 
     /**
      *  Returns the attribute type
@@ -567,7 +591,7 @@ private:
 
     static const int    magic_sep_size;
 
-    std::map<std::string, std::string> attribute_value;
+    std::map<std::string, std::string, std::less<>> attribute_value;
 };
 
 #endif /*ATTRIBUTE_H_*/

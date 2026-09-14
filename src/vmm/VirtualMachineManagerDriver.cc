@@ -27,7 +27,7 @@ using namespace std;
 
 VirtualMachineManagerDriver::VirtualMachineManagerDriver(
         const string             &mad_location,
-        const map<string, string> &attrs):
+        const map<string, string, std::less<>> &attrs):
     Driver(),
     driver_conf(true),
     keep_snapshots(false),

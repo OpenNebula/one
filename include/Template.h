@@ -21,6 +21,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <functional>
 #include <memory>
 
@@ -246,7 +247,12 @@ public:
         return replace(name, oss.str());
     }
 
-    int replace(const std::string& name, const std::string& value);
+    int replace(const std::string& name, const char* value)
+    {
+        return replace(name, std::string(value));
+    }
+
+    int replace(const std::string& name, std::string value);
 
     int replace(const std::string& name, const bool& value);
 
@@ -264,6 +270,11 @@ public:
         oss << value;
 
         set(new SingleAttribute(name, oss.str()));
+    }
+
+    void add(const std::string& name, const char* value)
+    {
+        set(new SingleAttribute(name, std::string(value)));
     }
 
     void add(const std::string& name, const std::string& value)
@@ -291,7 +302,7 @@ public:
      *    @return the number of attributes removed
      */
     template<typename T>
-    int remove(const std::string& name, std::vector<T *>& values)
+    int remove(std::string_view name, std::vector<T *>& values)
     {
         int j = 0;
 
@@ -316,7 +327,7 @@ public:
     }
 
     template<typename T>
-    int remove(const std::string& name, std::vector<std::unique_ptr<T>>& values)
+    int remove(std::string_view name, std::vector<std::unique_ptr<T>>& values)
     {
         int j = 0;
 
@@ -354,7 +365,7 @@ public:
      *    @param name of the attribute
      *    @return the number of attributes removed
      */
-    virtual int erase(const std::string& name);
+    virtual int erase(std::string_view name);
 
     /* ---------------------------------------------------------------------- */
     /* Functions get attributes from a template                               */
@@ -368,24 +379,24 @@ public:
      *
      *    @return the number of elements in the vector
      */
-    inline virtual int get(const std::string& n,
+    inline virtual int get(std::string_view n,
                            std::vector<const VectorAttribute*>& v) const
     {
         return __get<VectorAttribute>(n, v);
     }
 
-    inline virtual int get(const std::string& n, std::vector<VectorAttribute*>& v)
+    inline virtual int get(std::string_view n, std::vector<VectorAttribute*>& v)
     {
         return __get<VectorAttribute>(n, v);
     }
 
-    inline virtual int get(const std::string& n,
+    inline virtual int get(std::string_view n,
                            std::vector<const SingleAttribute*>& s) const
     {
         return __get<SingleAttribute>(n, s);
     }
 
-    inline virtual int get(const std::string& n, std::vector<SingleAttribute*>& s)
+    inline virtual int get(std::string_view n, std::vector<SingleAttribute*>& s)
     {
         return __get<SingleAttribute>(n, s);
     }
@@ -396,12 +407,12 @@ public:
      *    @param name the attribute name.
      *    @return true first attribute or 0 if not found or wrong type
      */
-    inline const VectorAttribute * get(const std::string& name) const
+    inline const VectorAttribute * get(std::string_view name) const
     {
         return __get<VectorAttribute>(name);
     }
 
-    inline VectorAttribute * get(const std::string& name)
+    inline VectorAttribute * get(std::string_view name)
     {
         return __get<VectorAttribute>(name);
     }
@@ -416,7 +427,7 @@ public:
      *    value, false otherwise.
      */
     template<typename T>
-    bool get(const std::string& name, T& value) const
+    bool get(std::string_view name, T& value) const
     {
         const SingleAttribute * s = __get<SingleAttribute>(name);
 
@@ -439,9 +450,9 @@ public:
         return true;
     }
 
-    virtual bool get(const std::string& name, bool& value) const;
+    virtual bool get(std::string_view name, bool& value) const;
 
-    virtual bool get(const std::string& name, std::string& value) const;
+    virtual bool get(std::string_view name, std::string& value) const;
 
     /**
     *  Trims starting and trailing whitespaces for all attribute values
@@ -512,7 +523,7 @@ protected:
     /**
      *  The template attributes
      */
-    std::multimap<std::string, Attribute *> attributes;
+    std::multimap<std::string, Attribute *, std::less<>> attributes;
 
     /**
      *  Builds a SingleAttribute from the given node
@@ -628,8 +639,8 @@ private:
      *
      *    @return the number of elements in the vector
      */
-    template<typename T>
-    int __get(const std::string& name, std::vector<const T *>& values) const
+    template<typename T, typename K = std::string>
+    int __get(const K& name, std::vector<const T *>& values) const
     {
         int j = 0;
 
@@ -652,8 +663,8 @@ private:
     }
 
     /* Non-const version of get for all attributes  */
-    template<typename T>
-    int __get(const std::string& name, std::vector<T *>& values)
+    template<typename T, typename K = std::string>
+    int __get(const K& name, std::vector<T *>& values)
     {
         int j = 0;
 
@@ -681,21 +692,26 @@ private:
      *    @param name the attribute name.
      *    @return true first attribute or 0 if not found or wrong type
      */
-    template<typename T>
-    const T * __get(const std::string& s) const
+    template<typename T, typename K = std::string>
+    const T * __get(const K& s) const
     {
-        std::vector<const T*> atts;
+        auto index = attributes.equal_range(s);
 
-        if (__get<T>(s, atts) < 1)
+        for (auto i = index.first; i != index.second; ++i)
         {
-            return 0;
+            const T * vatt = dynamic_cast<const T *>(i->second);
+
+            if (vatt != nullptr)
+            {
+                return vatt;
+            }
         }
 
-        return atts[0];
+        return nullptr;
     }
 
-    template<typename T>
-    T * __get(const std::string& s)
+    template<typename T, typename K = std::string>
+    T * __get(const K& s)
     {
         return const_cast<T *>(
                        static_cast<const Template&>(*this).__get<T>(s));

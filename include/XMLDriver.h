@@ -30,7 +30,7 @@ class XMLDriver : public VirtualMachineManagerDriver
 public:
 
     XMLDriver(const std::string& mad_location,
-              const std::map<std::string, std::string> &attrs):
+              const std::map<std::string, std::string, std::less<>> &attrs):
         VirtualMachineManagerDriver(mad_location, attrs)
     {}
 

@@ -777,7 +777,7 @@ void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
 
 void AddressRange::to_xml(ostringstream &oss) const
 {
-    const map<string, string>& ar_attrs = attr->value();
+    const auto& ar_attrs = attr->value();
 
     unsigned int mac_end[2] = {0};
 
@@ -867,7 +867,7 @@ void AddressRange::to_xml(ostringstream &oss) const
 void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
                           const vector<int>& vns, const vector<int>& vrs) const
 {
-    const map<string, string>& ar_attrs = attr->value();
+    const auto& ar_attrs = attr->value();
 
     int          rc;
     unsigned int mac_end[2] = {0};
@@ -2348,7 +2348,7 @@ bool AddressRange::check_restricted(const VectorAttribute* va, string& rs_attr)
         return false;
     }
 
-    const map<string, string>& ar_attrs = va->value();
+    const auto& ar_attrs = va->value();
 
     for (auto it=ar_attrs.begin(); it != ar_attrs.end(); it++)
     {
@@ -2371,7 +2371,7 @@ bool AddressRange::check_restricted(const VectorAttribute* va, string& rs_attr)
 bool AddressRange::restricted_changed(const VectorAttribute* update,
                                       string& rs_attr) const
 {
-    const map<string, string>& update_attrs = update->value();
+    const auto& update_attrs = update->value();
 
     for (const auto& it : update_attrs)
     {
@@ -2439,7 +2439,7 @@ void AddressRange::remove_restricted(VectorAttribute* va)
 
 void AddressRange::remove_all_except_restricted(VectorAttribute* va)
 {
-    map<string, string> vals = va->value();
+    auto vals = va->value();
 
     ostringstream oss;
 

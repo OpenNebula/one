@@ -25,6 +25,7 @@
 #include <random>
 #include <regex>
 #include <mutex>
+#include <utility>
 
 #include <openssl/crypto.h>
 
@@ -273,31 +274,45 @@ namespace one_util
     std::string float_to_str(const float &num);
 
     /**
-     *  Returns a scaped version of a value in the from "<op><val><cl>"
+     *  Stream wrapper for a value enclosed by opening and closing strings.
+     *  Lvalues are referenced and must outlive the wrapper; rvalues are owned.
+     *  Output uses the destination stream's formatting.
+     */
+    template <typename ValueType>
+    struct EscapedValue
+    {
+        ValueType value;
+        const char * opening;
+        const char * closing;
+
+        friend std::ostream& operator<<(std::ostream& os, const EscapedValue& escaped)
+        {
+            return os << escaped.opening << escaped.value << escaped.closing;
+        }
+    };
+
+    /**
+     *  Wraps a value for escaped output in the form "<op><val><cl>"
      *    @param v the value to be escaped
-     *    @param op the opening escape string
-     *    @param cl the closing escape string
+     *    @param op the opening escape string, which must outlive the wrapper
+     *    @param cl the closing escape string, which must outlive the wrapper
      */
     template <typename ValueType> inline
-    std::string escape(const ValueType& v, const char * op, const char * cl)
+    EscapedValue<ValueType> escape(ValueType&& v, const char * op, const char * cl)
     {
-        std::ostringstream oss;
-
-        oss << op << v << cl;
-
-        return oss.str();
+        return {std::forward<ValueType>(v), op, cl};
     }
 
     template <typename ValueType> inline
-    std::string escape_xml(const ValueType &v)
+    EscapedValue<ValueType> escape_xml(ValueType&& v)
     {
-        return escape(v, "<![CDATA[", "]]>");
+        return escape(std::forward<ValueType>(v), "<![CDATA[", "]]>");
     }
 
     template <typename ValueType> inline
-    std::string escape_xml_attr(const ValueType &v)
+    EscapedValue<ValueType> escape_xml_attr(ValueType&& v)
     {
-        return escape(v, "'", "'");
+        return escape(std::forward<ValueType>(v), "'", "'");
     }
 
     void escape_json(const std::string& str, std::ostringstream& s);

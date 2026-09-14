@@ -204,7 +204,7 @@ void Template::set(Attribute * attr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Template::replace(const string& name, const string& value)
+int Template::replace(const string& name, string value)
 {
     auto index = attributes.equal_range(name);
 
@@ -218,7 +218,7 @@ int Template::replace(const string& name, const string& value)
         attributes.erase(index.first, index.second);
     }
 
-    SingleAttribute * sattr = new SingleAttribute(name, value);
+    SingleAttribute * sattr = new SingleAttribute(name, std::move(value));
 
     attributes.insert(make_pair(sattr->name(), sattr));
 
@@ -263,7 +263,7 @@ int Template::replace(const string& name, const bool& value)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Template::erase(const string& name)
+int Template::erase(std::string_view name)
 {
     int  j = 0;
 
@@ -308,7 +308,7 @@ Attribute * Template::remove(Attribute * att)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Template::get(const string& name, string& value) const
+bool Template::get(std::string_view name, string& value) const
 {
     const SingleAttribute * s = __get<SingleAttribute>(name);
 
@@ -326,7 +326,7 @@ bool Template::get(const string& name, string& value) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Template::get(const string& name, bool& value) const
+bool Template::get(std::string_view name, bool& value) const
 {
     const SingleAttribute * s = __get<SingleAttribute>(name);
 

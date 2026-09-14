@@ -134,17 +134,15 @@ public:
     template<typename T>
     int xpath(T& value, const char * xpath_expr, const T& def)
     {
-        std::vector<std::string> values;
+        std::string content;
 
-        xpaths(values, xpath_expr);
-
-        if (values.empty() == true)
+        if (xpath(content, xpath_expr, "") != 0)
         {
             value = def;
             return -1;
         }
 
-        std::istringstream iss(values[0]);
+        std::istringstream iss(content);
 
         iss >> std::dec >> value;
 
@@ -158,16 +156,6 @@ public:
     }
 
     int xpath(std::string& value, const char * xpath_expr, const char * def);
-
-    /**
-     *  Gets the value of an element from an xml string
-     *    @param value the value of the element
-     *    @param xml the xml string
-     *    @param xpath the xpath of the target element
-     *
-     *    @return -1 if the element was not found
-     */
-    static int xpath_value(std::string& value, const char *xml, const char *xpath);
 
     /**
      *  Search the Object for a given attribute in a set of object specific

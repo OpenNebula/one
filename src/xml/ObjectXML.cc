@@ -19,6 +19,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <memory>
 #include <libxml/parser.h>
 #include <libxml/relaxng.h>
 
@@ -99,7 +100,6 @@ void ObjectXML::xpaths(std::vector<std::string>& content, const char * expr)
 {
     xmlXPathObjectPtr obj;
 
-    std::ostringstream oss;
     xmlNodePtr    cur;
     xmlChar *     str_ptr;
 
@@ -113,10 +113,14 @@ void ObjectXML::xpaths(std::vector<std::string>& content, const char * expr)
     switch (obj->type)
     {
         case XPATH_NUMBER:
+        {
+            std::ostringstream oss;
+
             oss << obj->floatval;
 
             content.push_back(oss.str());
             break;
+        }
 
         case XPATH_NODESET:
             if (obj->nodesetval == 0)
@@ -137,9 +141,7 @@ void ObjectXML::xpaths(std::vector<std::string>& content, const char * expr)
 
                 if (str_ptr != 0)
                 {
-                    std::string ncontent = reinterpret_cast<char *>(str_ptr);
-
-                    content.push_back(ncontent);
+                    content.emplace_back(reinterpret_cast<char *>(str_ptr));
 
                     xmlFree(str_ptr);
                 }
@@ -166,49 +168,47 @@ void ObjectXML::xpaths(std::vector<std::string>& content, const char * expr)
 
 int ObjectXML::xpath(string& value, const char * xpath_expr, const char * def)
 {
-    vector<string> values;
-    int rc = 0;
+    std::unique_ptr<xmlXPathObject, decltype(&xmlXPathFreeObject)> obj(
+            xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(xpath_expr), ctx),
+            xmlXPathFreeObject);
 
-    xpaths(values, xpath_expr);
-
-    if ( values.empty() == true )
+    if (obj != nullptr)
     {
-        value = def;
-        rc    = -1;
-    }
-    else
-    {
-        value = values[0];
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int ObjectXML::xpath_value(string& value, const char *doc, const char *the_xpath)
-{
-    try
-    {
-        ObjectXML      obj(doc);
-        vector<string> values;
-
-        obj.xpaths(values, the_xpath);
-
-        if (values.empty() == true)
+        if (obj->type == XPATH_NUMBER)
         {
-            return -1;
+            std::ostringstream oss;
+
+            oss << obj->floatval;
+            value = oss.str();
+
+            return 0;
         }
 
-        value = values[0];
-    }
-    catch(runtime_error& re)
-    {
-        return -1;
+        if (obj->type == XPATH_NODESET && obj->nodesetval != nullptr)
+        {
+            for (int i = 0; i < obj->nodesetval->nodeNr; ++i)
+            {
+                xmlNodePtr node = obj->nodesetval->nodeTab[i];
+
+                if (node == nullptr || node->type != XML_ELEMENT_NODE)
+                {
+                    continue;
+                }
+
+                std::unique_ptr<xmlChar, decltype(xmlFree)> content(
+                        xmlNodeGetContent(node), xmlFree);
+
+                if (content != nullptr)
+                {
+                    value = reinterpret_cast<const char *>(content.get());
+                    return 0;
+                }
+            }
+        }
     }
 
-    return 0;
+    value = def;
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */

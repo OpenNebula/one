@@ -170,7 +170,7 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
     {
         if (!emulator_cpus.empty())
         {
-            file << "\t\t<emulatorpin cpuset=" << emulator_cpus << "/>\n";
+            file << "\t\t<emulatorpin cpuset=" << one_util::escape_xml_attr(emulator_cpus) << "/>\n";
         }
 
         return;
@@ -223,7 +223,7 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
     }
     else
     {
-        file << emulator_cpus << "/>\n";
+        file << one_util::escape_xml_attr(emulator_cpus) << "/>\n";
     }
 }
 
@@ -869,11 +869,6 @@ int LibVirtDriver::deployment_description_kvm(
     string emulator_cpus;
 
     get_attribute(nullptr, host, cluster, "EMULATOR_CPUS", emulator_cpus);
-
-    if (!emulator_cpus.empty())
-    {
-        emulator_cpus = one_util::escape_xml_attr(emulator_cpus);
-    }
 
     pin_cpu(file, emulator_cpus, topology, nodes);
 
