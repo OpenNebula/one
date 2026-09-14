@@ -210,7 +210,7 @@ export const SingleView = ({
     })
 
   const handleEdit = () => {
-    history.push(PATH.NETWORK.SEC_GROUPS.CREATE, selectedSecurityGroup)
+    history.push(PATH.NETWORK.SEC_GROUPS.UPDATE, selectedSecurityGroup)
   }
 
   const handleRename = async (newName) => {

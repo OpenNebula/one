@@ -62,7 +62,7 @@ export const SingleView = ({
   const handleRefresh = () => ID !== undefined && refreshGroup({ id: ID })
 
   const handleUpdate = () => {
-    history.push(PATH.SYSTEM.GROUPS.CREATE, group)
+    history.push(PATH.SYSTEM.GROUPS.UPDATE, group)
   }
 
   const handleOpenDeleteForm = () =>

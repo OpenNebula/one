@@ -116,6 +116,7 @@ export const PATH = {
       LIST: `/${RESOURCE_NAMES.SEC_GROUP}`,
       DETAIL: `/${RESOURCE_NAMES.SEC_GROUP}/:id`,
       CREATE: `/${RESOURCE_NAMES.SEC_GROUP}/create`,
+      UPDATE: `/${RESOURCE_NAMES.SEC_GROUP}/update`,
     },
     VLAN_GROUPS: {
       LIST: `/${RESOURCE_NAMES.VLAN_GROUP}`,
@@ -156,6 +157,7 @@ export const PATH = {
       LIST: `/${RESOURCE_NAMES.GROUP}`,
       DETAIL: `/${RESOURCE_NAMES.GROUP}/:id`,
       CREATE: `/${RESOURCE_NAMES.GROUP}/create`,
+      UPDATE: `/${RESOURCE_NAMES.GROUP}/update`,
     },
     VDCS: {
       LIST: `/${RESOURCE_NAMES.VDC}`,

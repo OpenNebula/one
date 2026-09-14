@@ -264,7 +264,7 @@ export const SingleView = ({
 
   // Helpers
   const handleUpdate = () => {
-    history.push(PATH.NETWORK.VN_TEMPLATES.CREATE, vnTemplate)
+    history.push(PATH.NETWORK.VN_TEMPLATES.UPDATE, vnTemplate)
   }
 
   const handleInstantiate = () => {
