@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { memo, useCallback, useEffect } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 
 import { Stack } from '@mui/material'
 import { useController, useWatch } from 'react-hook-form'
@@ -53,15 +53,59 @@ export const SliderController = memo(
       fieldState: { error },
     } = useController({ name, control, defaultValue })
 
+    const [inputValue, setInputValue] = useState(value ?? '')
+
+    useEffect(() => {
+      setInputValue(value ?? '')
+    }, [value])
+
     const handleEnsuredChange = useCallback(
       (newValue) => {
-        if (min && newValue < min) return onChange(min)
-        if (max && newValue > max) return onChange(max)
-        if (min && max && newValue <= max && newValue >= min)
-          return onChange(newValue)
+        const numericValue = newValue === '' ? 0 : Number(newValue)
+
+        if (!Number.isFinite(numericValue)) {
+          return undefined
+        }
+
+        if (min !== undefined && numericValue < min) {
+          onChange(min)
+
+          return min
+        }
+
+        if (max !== undefined && numericValue > max) {
+          onChange(max)
+
+          return max
+        }
+
+        onChange(numericValue)
+
+        return numericValue
       },
       [onChange, min, max]
     )
+
+    const handleInputChange = useCallback(
+      (newValue) => {
+        setInputValue(newValue)
+
+        if (newValue === '') {
+          return
+        }
+
+        const numericValue = Number(newValue)
+        Number.isFinite(numericValue) && onChange(numericValue)
+      },
+      [onChange]
+    )
+
+    const handleInputBlur = useCallback(() => {
+      const ensuredValue = handleEnsuredChange(inputValue)
+
+      setInputValue(ensuredValue ?? value ?? '')
+      onBlur()
+    }, [handleEnsuredChange, inputValue, onBlur])
 
     useEffect(() => {
       if (!watcher || !dependencies || !watch) return
@@ -107,7 +151,7 @@ export const SliderController = memo(
           <InputField
             {...inputProps}
             fullWidth
-            value={value ?? ''}
+            value={inputValue}
             type="number"
             status={error ? 'error' : 'default'}
             isDisabled={readOnly}
@@ -123,10 +167,8 @@ export const SliderController = memo(
               max,
               step,
             }}
-            onChange={(nextValue) =>
-              handleEnsuredChange(!nextValue ? 0 : Number(nextValue))
-            }
-            onBlur={() => handleEnsuredChange(value)}
+            onChange={handleInputChange}
+            onBlur={handleInputBlur}
             error={error?.message && <ErrorHelper label={error.message} />}
             errorDataCy={`${cy}-error`}
           />
