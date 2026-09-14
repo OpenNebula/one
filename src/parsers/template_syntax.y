@@ -19,7 +19,7 @@
 #include "template_parser.h"
 #include "NebulaUtil.h"
 
-#define YYERROR_VERBOSE
+#include <sstream>
 
 void template_error( YYLTYPE * llocp, mem_collector * mc, Template * tmpl,
     char ** error_msg, yyscan_t scanner, const char * str);
@@ -80,13 +80,15 @@ int template_parse(Template * tmpl, char ** errmsg, yyscan_t scanner);
 
 %defines
 %locations
+%define parse.error verbose
 %pure-parser
 %name-prefix "template_"
 %output      "template_syntax.cc"
 
-%token EQUAL COMMA OBRACKET CBRACKET EQUAL_EMPTY CCDATA
-%token <val_str>    STRING
-%token <val_str>    VARIABLE
+%token EQUAL "'='" COMMA "','" OBRACKET "'['" CBRACKET "']'"
+%token EQUAL_EMPTY "'=' followed by a newline" CCDATA "']]>'"
+%token <val_str>    STRING "attribute value"
+%token <val_str>    VARIABLE "attribute name"
 %type  <val_attr>   array_val
 %type  <void>       attribute
 %type  <void>       template
@@ -198,20 +200,14 @@ void template_error(
     yyscan_t        scanner,
     const char *    str)
 {
-    int length;
+    ostringstream oss;
+    string message(str);
 
-    length = strlen(str)+ 64;
+    // Bison keeps double quotes around aliases containing single quotes.
+    message.erase(remove(message.begin(), message.end(), '"'), message.end());
 
-    *error_msg = (char *) malloc(sizeof(char)*length);
+    oss << message << " at line " << llocp->first_line
+        << ", column " << llocp->first_column;
 
-    if (*error_msg != 0)
-    {
-        snprintf(*error_msg,
-            length,
-            "%s at line %i, columns %i:%i",
-            str,
-            llocp->first_line,
-            llocp->first_column,
-            llocp->last_column);
-    }
+    *error_msg = strdup(oss.str().c_str());
 }

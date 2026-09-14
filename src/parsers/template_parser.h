@@ -2,9 +2,9 @@
 #define template_HEADER_H 1
 #define template_IN_HEADER 1
 
-#line 5 "template_parser.h"
+#line 6 "template_parser.h"
 
-#line 7 "template_parser.h"
+#line 8 "template_parser.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -710,9 +710,9 @@ extern int yylex \
 #undef yyTABLES_NAME
 #endif
 
-#line 103 "template_parser.l"
+#line 122 "template_parser.l"
 
 
-#line 716 "template_parser.h"
+#line 717 "template_parser.h"
 #undef template_IN_HEADER
 #endif /* template_HEADER_H */

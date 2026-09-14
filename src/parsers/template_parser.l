@@ -27,9 +27,24 @@
 #define YY_DECL int template_lex (YYSTYPE *yylval_param, YYLTYPE *llocp, \
                                   mem_collector *mc, yyscan_t yyscanner)
 
-#define YY_USER_ACTION  llocp->first_line = yylineno;   \
-                        llocp->first_column = llocp->last_column;   \
-                        llocp->last_column += yyleng;
+/* Track locations from Bison's initialized, one-based location. Flex's line
+ * counter is not initialized for string buffers. The end is exclusive.
+ */
+#define YY_USER_ACTION                                      \
+    llocp->first_line = llocp->last_line;                     \
+    llocp->first_column = llocp->last_column;                 \
+    for (int i = 0; i < yyleng; ++i)                         \
+    {                                                       \
+        if (yytext[i] == '\n')                              \
+        {                                                   \
+            ++llocp->last_line;                              \
+            llocp->last_column = 1;                          \
+        }                                                   \
+        else                                                \
+        {                                                   \
+            ++llocp->last_column;                            \
+        }                                                   \
+    }
 %}
 
 %option nounput
@@ -37,7 +52,6 @@
 %option outfile="template_parser.cc"
 %option header-file="template_parser.h"
 %option bison-bridge
-%option yylineno
 %option reentrant
 
 %x VALUE
@@ -64,15 +78,15 @@ CDATA "\]\]\>"
  /* Single attribute (VARIABLE = VALUE, also empty VAIABLE=)                */
  /* Vector attributes (VARIABLE = [ ATTR1 = VAL1, ATTR2 = VAL2 ])            */
  /* ------------------------------------------------------------------------ */
-[[:blank:]]*=[[:blank:]]*           { BEGIN VALUE; return EQUAL;}
+"="[[:blank:]]*                    { BEGIN VALUE; return EQUAL;}
 
-[[:blank:]]*=[[:blank:]]*\n         { return EQUAL_EMPTY;}
+"="[[:blank:]]*\n                  { return EQUAL_EMPTY;}
 
-[[:blank:]\n]*,[[:blank:]\n]*       { return COMMA;}
+","                               { return COMMA;}
 
-[[:blank:]\n]*\][[:blank:]\n]*      { return CBRACKET;}
+"]"                               { return CBRACKET;}
 
-<VALUE>[[:blank:]]*\[[[:blank:]\n]* { BEGIN(INITIAL); return OBRACKET;}
+<VALUE>"["[[:blank:]\n]*            { BEGIN(INITIAL); return OBRACKET;}
 
  /* ------------------------------------------------------------------------ */
  /* Attribute values                                                         */
@@ -96,6 +110,12 @@ CDATA "\]\]\>"
     yylval_param->val_str = mem_collector_strdup(mc,yytext);
     BEGIN(INITIAL);
     return STRING;
+}
+
+<*><<EOF>> {
+    llocp->first_line = llocp->last_line;
+    llocp->first_column = llocp->last_column;
+    return 0;
 }
 
 %%
