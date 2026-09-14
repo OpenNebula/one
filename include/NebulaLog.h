@@ -19,9 +19,10 @@
 
 #include "Log.h"
 
+#include <concepts>
+#include <functional>
 #include <sstream>
 #include <syslog.h>
-#include <type_traits>
 #include <utility>
 
 /**
@@ -124,9 +125,8 @@ public:
      *    @param type message log level
      *    @param builder callable accepting an std::ostream reference
      */
-    template<typename Builder,
-             std::enable_if_t<
-                 std::is_invocable_v<Builder, std::ostream&>, int> = 0>
+    template<typename Builder>
+    requires std::invocable<Builder&&, std::ostream&>
     static void log(
             const char *           module,
             const Log::MessageType type,
@@ -139,9 +139,11 @@ public:
 
         std::ostringstream message;
 
-        std::forward<Builder>(builder)(message);
+        std::invoke(std::forward<Builder>(builder), message);
 
-        logger->log(module, type, message.str().c_str());
+        auto text = std::move(message).str();
+
+        logger->log(module, type, text.c_str());
     }
 
     static void error(const char* module, const std::string& msg)
@@ -169,9 +171,8 @@ public:
         logger->log(module, Log::DDEBUG, msg.c_str());
     }
 
-    template<typename Builder,
-             std::enable_if_t<
-                 std::is_invocable_v<Builder, std::ostream&>, int> = 0>
+    template<typename Builder>
+    requires std::invocable<Builder&&, std::ostream&>
     static void ddebug(const char* module, Builder&& builder)
     {
         log(module, Log::DDEBUG, std::forward<Builder>(builder));
@@ -182,9 +183,8 @@ public:
         logger->log(module, Log::DDDEBUG, msg.c_str());
     }
 
-    template<typename Builder,
-             std::enable_if_t<
-                 std::is_invocable_v<Builder, std::ostream&>, int> = 0>
+    template<typename Builder>
+    requires std::invocable<Builder&&, std::ostream&>
     static void dddebug(const char* module, Builder&& builder)
     {
         log(module, Log::DDDEBUG, std::forward<Builder>(builder));

@@ -122,7 +122,7 @@ main_env.Append(LIBPATH=[
 main_env.Append(CPPFLAGS=[
     "-g",
     "-Wall",
-    "-std=c++17",
+    "-std=c++20",
     "-Wno-overloaded-virtual"
 ])
 
