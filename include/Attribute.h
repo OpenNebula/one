@@ -502,7 +502,11 @@ public:
     template<typename T>
     void replace(const std::string& name, const T& value)
     {
-        replace(name, std::to_string(value));
+        std::ostringstream oss;
+
+        oss << value;
+
+        replace(name, oss.str());
     }
 
     void replace(const std::string& name, bool value)
