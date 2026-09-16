@@ -9717,6 +9717,16 @@ msgstr ""
 msgid "GPU"
 msgstr ""
 
+#. T.GpuUtilization
+#: ./src/modules/constants/translates.js
+msgid "Utilization"
+msgstr ""
+
+#. T.GpuMemoryBandwidthUtilization
+#: ./src/modules/constants/translates.js
+msgid "Memory bandwidth utilization"
+msgstr ""
+
 #. T.CpuHost
 #: ./src/modules/constants/translates.js
 msgid "Host CPU"

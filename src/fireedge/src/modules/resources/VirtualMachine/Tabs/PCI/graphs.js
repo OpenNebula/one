@@ -23,155 +23,134 @@ import { Chartist } from '@ComponentsModule'
 import { useTranslation } from '@ProvidersModule'
 import { getHypervisor } from '@ModelsModule'
 
+const GPU_METRICS = [
+  { key: 'GPU_UTILIZATION', label: T.GpuUtilization, palette: 'cpu' },
+  {
+    key: 'GPU_MEMORY_UTILIZATION',
+    label: T.GpuMemoryBandwidthUtilization,
+    palette: 'memory',
+  },
+  { key: 'GPU_POWER_USAGE', label: T.PowerDraw, palette: 'cpu', unit: 'W' },
+]
+
+const metricKeys = ({ key }) => [key, `${key}_FORECAST`, `${key}_FORECAST_FAR`]
+
+const numericValue = (value) => {
+  if (
+    !['number', 'string'].includes(typeof value) ||
+    (typeof value === 'string' && value.trim() === '')
+  ) {
+    return null
+  }
+
+  const number = Number(value)
+
+  return Number.isFinite(number) && number >= 0 ? number : null
+}
+
 /**
- * Render VM PCI/GPU Graphs.
+ * Render VM PCI/GPU graphs for the metrics supplied by monitoring.
  *
  * @param {object} props - Props
  * @param {string} props.id - Virtual machine id
- * @returns {ReactElement} VM GPU Graphs.
+ * @returns {ReactElement} VM GPU graphs.
  */
 const Graphs = ({ id }) => {
   const { translate } = useTranslation()
   const theme = useTheme()
-
   const { data: monitoring = [], isFetching } = VmAPI.useGetMonitoringQuery(
     id,
     { skip: !id }
   )
   const { data: vm = {} } = VmAPI.useGetVmQuery({ id }, { skip: !id })
   const VM_MAD = getHypervisor(vm)
-
   const forecastConfig = window?.__FORECAST_CONFIG__?.[VM_MAD] ?? {}
   const { virtualmachine = {} } = forecastConfig
   const {
     forecast: { period: forecastPeriod = 5 } = {}, // Minutes
   } = virtualmachine || {}
 
-  const yAccessorPower = useMemo(
-    () => [
-      ['GPU_POWER_USAGE', 'GPU_POWER_USAGE_FORECAST'],
-      'GPU_POWER_USAGE_FORECAST_FAR',
-    ],
-    []
+  const samples = useMemo(
+    () =>
+      monitoring
+        .filter((point) => point?.TIMESTAMP != null)
+        .map((point) => ({
+          TIMESTAMP: point.TIMESTAMP,
+          ...Object.fromEntries(
+            GPU_METRICS.flatMap(metricKeys).map((key) => [
+              key,
+              numericValue(point[key]),
+            ])
+          ),
+        })),
+    [monitoring]
   )
 
-  const yAccessorMemory = useMemo(
-    () => [
-      ['GPU_MEMORY_UTILIZATION', 'GPU_MEMORY_UTILIZATION_FORECAST'],
-      'GPU_MEMORY_UTILIZATION_FORECAST_FAR',
-    ],
-    []
-  )
-
-  const legendNamesPower = Object.fromEntries(
-    [
-      T.PowerDraw,
-      `${T.PowerDraw} ${T.Forecast}`,
-      `${T.PowerDraw} ${T.ForecastFar}`,
-    ].map((name, idx) => [yAccessorPower?.flat()[idx], name])
-  )
-
-  const legendNamesMemory = Object.fromEntries(
-    [
-      T.UsedMemory,
-      `${T.UsedMemory} ${T.Forecast}`,
-      `${T.UsedMemory} ${T.ForecastFar}`,
-    ].map((name, idx) => [yAccessorMemory?.flat()[idx], name])
+  const availableMetrics = GPU_METRICS.filter(({ key }) =>
+    samples.some((point) => point[key] !== null)
   )
 
   const x = [
-    (point) => new Date(parseInt(point) * 1000).getTime(),
-    (point) =>
-      new Date(parseInt(point) * 1000 + forecastPeriod * 60 * 1000).getTime(),
+    (point) => Number(point) * 1000,
+    (point) => Number(point) * 1000 + forecastPeriod * 60 * 1000,
   ]
 
-  const setTransform =
-    (target) => (yValues, _xValues, timestamps, labelPair) => {
-      const buildSeries = () => {
-        const targetXId = labelPair === target ? 0 : 1
-        const result = Array(timestamps.length).fill(null)
-        let yIdx = 0
+  const setTransform = (target) => (yValues, _xValues, timestamps, label) => {
+    const targetXId = label === target ? 0 : 1
+    let index = 0
 
-        for (let i = 0; i < timestamps.length; i++) {
-          if (timestamps[i]?.xIds?.includes(targetXId)) {
-            result[i] = yValues[yIdx]?.[labelPair] ?? null
-            yIdx++
-          }
-        }
-
-        return result
-      }
-
-      return buildSeries()
-    }
-
-  const interpolationY = (formatter) => (val) => {
-    try {
-      if (val === undefined || val === null) return '--'
-      const num = Number(val)
-      if (!Number.isFinite(num)) return '--'
-
-      return formatter(num)
-    } catch {
-      return '--'
-    }
+    return timestamps.map(({ xIds }) =>
+      xIds.includes(targetXId) ? yValues[index++]?.[label] ?? null : null
+    )
   }
-
-  const lineColorsPower = useMemo(
-    () => [
-      theme?.palette?.graphs.vm.cpu.real,
-      theme?.palette?.graphs.vm.cpu.forecast,
-      theme?.palette?.graphs.vm.cpu.forecastFar,
-    ],
-    [theme]
-  )
-
-  const lineColorsMemory = useMemo(
-    () => [
-      theme?.palette?.graphs.vm.memory.real,
-      theme?.palette?.graphs.vm.memory.forecast,
-      theme?.palette?.graphs.vm.memory.forecastFar,
-    ],
-    [theme]
-  )
 
   return (
     <Grid container spacing={1} sx={{ overflow: 'hidden' }}>
-      <Grid item md={6}>
-        <Chartist
-          name={`${translate(T.Gpu)} ${translate(T.Wattage)}`}
-          data={monitoring}
-          isFetching={isFetching}
-          y={yAccessorPower}
-          setTransform={setTransform('GPU_POWER_USAGE')}
-          x={x}
-          serieScale={2}
-          interpolationY={interpolationY((num) => `${Math.round(num)}W`)}
-          lineColors={lineColorsPower}
-          legendNames={legendNamesPower}
-          zoomFactor={0.95}
-          trendLineOnly={['GPU_POWER_USAGE_FORECAST_FAR']}
-          shouldFill={yAccessorPower.flat()}
-        />
-      </Grid>
-      <Grid item md={6}>
-        <Chartist
-          name={`${translate(T.Gpu)} ${translate(T.Memory)}`}
-          data={monitoring}
-          isFetching={isFetching}
-          y={yAccessorMemory}
-          yRangeOffset={100}
-          setTransform={setTransform('GPU_MEMORY_UTILIZATION')}
-          x={x}
-          serieScale={2}
-          lineColors={lineColorsMemory}
-          legendNames={legendNamesMemory}
-          interpolationY={interpolationY((num) => `${num}%`)}
-          zoomFactor={0.95}
-          trendLineOnly={['GPU_MEMORY_UTILIZATION_FORECAST_FAR']}
-          shouldFill={yAccessorMemory.flat()}
-        />
-      </Grid>
+      {!isFetching && !availableMetrics.length && (
+        <Grid item xs={12}>
+          {translate(T.NoDataAvailable)}
+        </Grid>
+      )}
+      {(isFetching && !availableMetrics.length
+        ? GPU_METRICS.slice(0, 2)
+        : availableMetrics
+      ).map((metric) => {
+        const { key, label, palette, unit = '%' } = metric
+        const [actual, forecast, far] = metricKeys(metric)
+        const y = [[actual, forecast], far]
+        const colors = theme?.palette?.graphs.vm[palette]
+
+        return (
+          <Grid item xs={12} md={6} key={key}>
+            <Chartist
+              name={`${translate(T.Gpu)} ${translate(label)}`}
+              data={samples}
+              isFetching={isFetching}
+              y={y}
+              yRangeOffset={unit === '%' ? 100 : undefined}
+              setTransform={setTransform(key)}
+              x={x}
+              serieScale={2}
+              interpolationY={(value) => {
+                const number = numericValue(value)
+
+                return number === null
+                  ? '--'
+                  : `${unit === 'W' ? Math.round(number) : number}${unit}`
+              }}
+              lineColors={[colors?.real, colors?.forecast, colors?.forecastFar]}
+              legendNames={{
+                [actual]: label,
+                [forecast]: `${label} ${T.Forecast}`,
+                [far]: `${label} ${T.ForecastFar}`,
+              }}
+              zoomFactor={0.95}
+              trendLineOnly={[far]}
+              shouldFill={y.flat()}
+            />
+          </Grid>
+        )
+      })}
     </Grid>
   )
 }

@@ -1941,6 +1941,8 @@ locale={
   "Real Memory": "Real Memory",
   "Real CPU": "Real CPU",
   "GPU": "GPU",
+  "Utilization": "Utilization",
+  "Memory bandwidth utilization": "Memory bandwidth utilization",
   "Host CPU": "Host CPU",
   "Overcommitment": "Overcommitment",
   "Isolated CPUS": "Isolated CPUS",
