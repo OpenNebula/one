@@ -86,7 +86,7 @@ const { POST } = httpMethod
 const setDnsResultOrder = () => {
   const [major] = process.versions.node.split('.').map(Number)
   if (major >= 16) {
-    dns.setDefaultResultOrder('ipv4first')
+    dns.setDefaultResultOrder('verbatim')
   }
 }
 
