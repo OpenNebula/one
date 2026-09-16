@@ -62,7 +62,7 @@ const CARDINALITY = {
   htmlType: 'number',
   label: T.NumberOfVms,
   validation: number()
-    .min(1)
+    .min(0)
     .default(() => 1),
   grid: { md: 6, sx: { alignSelf: 'flex-start' } },
 }

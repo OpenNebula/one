@@ -104,7 +104,7 @@ const Steps = createSteps([General, Extra, Roles], {
           [NETWORKS_VALUES_ID]: parsedNetworksValues,
           [USER_INPUT_ID]: Object.entries(user_inputs).map(fromUserInputString),
           [SCHED_ACTION_ID]: sched_actions,
-          [ADVANCED_ID]: { ...template }, // strips unknown keys so this is fine
+          [ADVANCED_ID]: template,
         },
         roles:
           roles == null || (Array.isArray(roles) && roles.length === 0)
@@ -112,7 +112,7 @@ const Steps = createSteps([General, Extra, Roles], {
             : [].concat(roles),
       },
 
-      { stripUnknown: true }
+      { stripUnknown: false } // Preserve attributes not represented by the form
     )
   },
 
@@ -124,7 +124,7 @@ const Steps = createSteps([General, Extra, Roles], {
     } = formData
 
     const {
-      [ADVANCED_ID]: extraParams = {},
+      [ADVANCED_ID]: templateParams = {},
       [NETWORK_ID]: networks,
       [NETWORKS_VALUES_ID]: networksValues,
       [USER_INPUT_ID]: userInputs,
@@ -186,8 +186,8 @@ const Steps = createSteps([General, Extra, Roles], {
     })
 
     const formatTemplate = {
+      ...templateParams,
       ...generalData,
-      ...extraParams,
       roles: formatRole,
       networks: Object.fromEntries(networks?.map(toNetworkString)) ?? [],
       networks_values: networks
