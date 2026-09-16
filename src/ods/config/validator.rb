@@ -91,6 +91,14 @@ module OpenNebula
                               "(allowed: #{rules[:allowed].join(', ')})"
                     end
 
+                    # Minimum numeric value
+                    min = rule_value(rules, :min)
+                    if !min.nil? && value < min
+                        raise ValidationError,
+                              "Invalid value for #{full_path}: #{value.inspect} " \
+                              "(min: #{min})"
+                    end
+
                     validated.delete(key_sym)
                     validated.delete(key.to_s)
                     validated[key_sym] = value

@@ -47,8 +47,6 @@ export const getProvisionProgress = (state) => {
       return 20
     case PROVISION_STATES.APPLYING.name:
       return 40
-    case PROVISION_STATES.CONFIGURING_ONE.name:
-      return 60
     case PROVISION_STATES.CONFIGURING_PROVISION.name:
       return 80
     case PROVISION_STATES.RUNNING.name:

@@ -26,7 +26,7 @@ import ConnectionValues, {
 } from '@modules/resources/Providers/Forms/CreateForm/Steps/ConnectionValues'
 
 import { createSteps, createFieldsFromDriversOdsUserInputs } from '@UtilsModule'
-import { find } from 'lodash'
+import { find, isEqual } from 'lodash'
 
 const Steps = createSteps(
   ({ dataTemplate = {}, drivers = [], isUpdate }) => {
@@ -87,7 +87,7 @@ const Steps = createSteps(
       })
 
       // Get allowed keys from driverFields.connection
-      const allowedKeys = driverFields.connection.map((c) => c.name)
+      const allowedKeys = driverFields.connection.map(({ name }) => name)
 
       // Sanitize the object to not send attributes that are not in the selected driver
       const filteredConnectionValues = Object.fromEntries(
@@ -96,15 +96,36 @@ const Steps = createSteps(
         )
       )
 
-      // Create template to send to oneform
-      const template = {
-        ...generalData,
-        driver: driverData.DRIVER,
-        connection_values: filteredConnectionValues || {}, // create
-        connection: filteredConnectionValues || {}, // update
+      if (stepProps?.isUpdate) {
+        const editableKeys = driverFields.connection
+          .filter(({ sensitive }) => !sensitive)
+          .map(({ name }) => name)
+        const originalConnection =
+          stepProps?.dataTemplate?.TEMPLATE?.PROVIDER_BODY?.connection ?? {}
+        const editableConnection = Object.fromEntries(
+          Object.entries(filteredConnectionValues).filter(([key]) =>
+            editableKeys.includes(key)
+          )
+        )
+        const originalEditableConnection = Object.fromEntries(
+          Object.entries(originalConnection).filter(([key]) =>
+            editableKeys.includes(key)
+          )
+        )
+
+        return {
+          ...generalData,
+          ...(!isEqual(editableConnection, originalEditableConnection) && {
+            connection: filteredConnectionValues,
+          }),
+        }
       }
 
-      return template
+      return {
+        ...generalData,
+        driver: driverData.DRIVER,
+        connection_values: filteredConnectionValues,
+      }
     },
   }
 )

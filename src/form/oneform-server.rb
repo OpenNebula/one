@@ -14,30 +14,95 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+APP_NAME = 'oneform'
+
+module OneForm
+
+    # OneForm's public configuration keeps the legacy host/port shape. ODS
+    # receives the equivalent server settings generated during startup.
+    module ServerConfig
+
+        def self.normalize!(config)
+            config[:server] = config[:server].merge(
+                :bind => config[:host],
+                :port => config[:port]
+            )
+        end
+
+    end
+
+end
+
+require_relative '../ods/ods-server'
+
+OneForm::ServerConfig.normalize!(SERVER_CONF)
+
 require_relative 'config/environment'
 
-module OneFormServer
+# OpenNebula Formation provisioning engine
+module OneForm
 
     # OneForm Server
-    class FormServer < Sinatra::Base
+    class Server < ODS::Base
 
-        conf = ConfigLoader.instance.conf
+        COMP = 'SRV'
 
-        # Sinatra configuration
-        set :bind, conf[:host]
-        set :port, conf[:port]
-        set :host_authorization, { :permitted_hosts => [] }
-        set :config, conf
-        set :dump_errors, true
-        set :raise_errors, false
-        set :show_exceptions, false
+        configure do
+            SERVER_CONF[:server].each do |key, value|
+                set key, value
+            end
 
-        LogConfig.configure_sinatra_logger(self, conf)
-        Log.info 'Starting server'
+            begin
+                ODS::ThreadManager.instance.configure(
+                    APP_NAME, :shutdown_timeout => SERVER_CONF[:shutdown_timeout]
+                )
 
-        register AppRoutes
+                # Provision lifecycle management
+                provision_pool = OneForm::ProvisionDocumentPool.new(:auth => settings.cloud_auth)
+                scheduler      = ODS::JobScheduler.new(
+                    :concurrency      => SERVER_CONF[:concurrency],
+                    :shutdown_timeout => SERVER_CONF[:shutdown_timeout]
+                )
+                thread_manager = ODS::ThreadManager.instance
 
-        run! if app_file == $PROGRAM_NAME
+                lcm = OneForm::ProvisionLCM.instance.configure(provision_pool, scheduler)
+
+                scheduler.register(lcm)
+                scheduler.start
+
+                thread_manager.start(:lcm) { lcm.catch_up }
+
+                at_exit { thread_manager.stop! }
+            rescue StandardError => e
+                Log.error COMP, "Server startup failed configuring lifecycle manager: #{e.message}"
+                exit(1)
+            end
+
+            # Automatically synchronize OneForm drivers during startup
+            rc = OneForm::Driver.sync
+
+            if OpenNebula.is_error?(rc)
+                Log.error COMP, "Server startup failed synchronizing drivers: #{rc.message}"
+                exit(1)
+            end
+
+            begin
+                # Create the onprem provider by default when server starts
+                client = settings.cloud_auth.client('oneadmin')
+                pool   = OneForm::ProviderDocumentPool.new(:client => client)
+                rc     = pool.ensure_type!('onprem', { :connection => {} })
+
+                raise rc if OpenNebula.is_error?(rc)
+            rescue StandardError => e
+                Log.error COMP, "Server startup failed ensuring onprem provider: #{e.message}"
+                exit(1)
+            end
+        end
+
+        Log.info COMP, "Starting OneForm server (env: #{settings.environment})"
+
+        register OneForm::AppRoutes
+        run!
 
     end
 

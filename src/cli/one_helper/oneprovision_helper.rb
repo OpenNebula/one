@@ -14,39 +14,32 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'one_helper'
+require 'json'
+require 'tempfile'
+require 'yaml'
+
+require 'ods_helper'
 require 'cloud/CloudClient'
 
-# Oneflow Template command helper
-class OneProvisionHelper < OpenNebulaHelper::OneHelper
+# OneForm provision command helper
+class OneProvisionHelper < ODSHelper
+
+    UPDATE_ATTRS = [:name, :description]
 
     # Configuration file
     def self.conf_file
         'oneprovision.yaml'
     end
 
-    # Get client to make request
-    #
-    # @options [Hash] CLI options
-    def client(options = {})
-        OneForm::Client.new(
-            :username => options[:username],
-            :password => options[:password],
-            :url => options[:server],
-            :api_version => options[:api_version],
-            :user_agent => USER_AGENT
-        )
+    def self.client_class
+        OneForm::Client
     end
 
-    def valid_ip?(str)
-        str =~ /\A(?:\d{1,3}\.){3}\d{1,3}\z/
+    def self.template_tag
+        :PROVISION_BODY
     end
 
-    def valid_ip_list?(str)
-        str.split(',').all? {|ip| valid_ip?(ip.strip) }
-    end
-
-    # Get provider pool
+    # Build the provision pool table
     def format_provision_pool
         config_file = self.class.table_conf
 
@@ -89,11 +82,13 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    # List provider pool
+    # List provision pool
     #
     # @param client  [Service::Client] Petition client
     # @param options [Hash]            CLI options
-    def list_provision_pool(client, options, params = {})
+    def list(client, options)
+        params = {}
+        params[:include_sensitive] = true if options[:sensitive]
         response = client.list_provisions(params)
 
         if CloudClient.is_error?(response)
@@ -114,11 +109,11 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    # List provider pool continiously
+    # List provision pool continuously
     #
     # @param client  [Service::Client] Petition client
     # @param options [Hash]            CLI options
-    def top_provision_pool(client, options, params = {})
+    def top(client, options)
         options[:delay] ? delay = options[:delay] : delay = 4
 
         begin
@@ -126,7 +121,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                 CLIHelper.scr_cls
                 CLIHelper.scr_move(0, 0)
 
-                list_provision_pool(client, options, params)
+                list(client, options)
 
                 sleep delay
             end
@@ -138,12 +133,14 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         0
     end
 
-    # Show provider detailed information
+    # Show provision detailed information
     #
-    # @param client           [Service::Client] Petition client
-    # @param service_template [Integer]         Provider ID
-    # @param options          [Hash]            CLI options
-    def format_resource(client, provision_id, options, params = {})
+    # @param client       [OneForm::Client] Petition client
+    # @param provision_id [Integer] Provision ID
+    # @param options      [Hash] CLI options
+    def show(client, provision_id, options)
+        params = {}
+        params[:include_sensitive] = true if options[:sensitive]
         response = client.get_provision(provision_id, params)
 
         if CloudClient.is_error?(response)
@@ -174,6 +171,15 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                 puts Kernel.format str, 'REGISTRATION TIME', reg_time
 
                 puts
+
+                if body[:error]
+                    error = body[:error]
+                    time  = OpenNebulaHelper.time_to_str(error[:timestamp])
+
+                    puts "#{CLIHelper::ANSI_RED}ERROR#{CLIHelper::ANSI_RESET}: " \
+                         "#{error[:message]} (#{time})"
+                    puts
+                end
 
                 CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
@@ -234,11 +240,11 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                         d[:name]
                     end
 
-                    column :RESOURCE_ID, '', :left, :size => 50 do |d|
-                        d[:resource_id]
+                    column :UUID, '', :left, :size => 50 do |d|
+                        d[:uuid]
                     end
 
-                    default :ID, :NAME, :RESOURCE_ID
+                    default :ID, :NAME, :UUID
                 end.show(hosts, {})
 
                 puts
@@ -304,8 +310,6 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                     default :TIME, :ACTION, :DESCRIPTION
                 end.show(body[:historic], {})
 
-                puts
-
                 remaining = body.reject do |k, _|
                     [
                         :name,
@@ -317,13 +321,16 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                         :user_inputs_values,
                         :provider_id,
                         :registration_time,
+                        :error,
                         :tags,
                         :historic,
-                        :one_objects
+                        :one_objects,
+                        :active_job
                     ].include?(k)
                 end
 
                 if remaining.any?
+                    puts
                     CLIHelper.print_header('USER TEMPLATE', false)
                     puts JSON.pretty_generate(remaining)
                 end
@@ -333,34 +340,220 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def format_template(template, indent = 6)
-        return 'N/A' unless template
+    # Show the Terraform state of a provision
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provision_id [Integer] Provision ID
+    # @param options [Hash] CLI options, including :decode
+    # @return [Integer, Array] CLI result
+    def tfstate(client, provision_id, options)
+        response = client.get_provision_tfstate(provision_id, options[:decode] || false)
 
-        template.map do |k, v|
-            value =
-                if v.is_a?(Hash)
-                    v.map {|k2, v2| ' ' * indent + "#{k}: #{k2}=#{v2}" }
-                elsif v.is_a?(Array)
-                    v.map do |elem|
-                        if elem.is_a?(Hash)
-                            elem.map {|k2, v2| ' ' * indent + "#{k}: #{k2}=#{v2}" }
-                        else
-                            ' ' * indent + "#{k}: #{elem}"
-                        end
-                    end.flatten
-                else
-                    ' ' * indent + "#{k}: #{v}"
-                end
-            value.is_a?(Array) ? value.join("\n") : value
-        end.join("\n")
+        render_data(response, options)
     end
 
-    def update_resource(client, provision_id, file_path)
+    # Show the active jobs of a provision
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provision_id [Integer] Provision ID
+    # @param options [Hash] CLI options
+    # @return [Integer, Array] CLI result
+    def jobs(client, provision_id, options)
+        unless options[:watch]
+            return render_jobs(client.get_provision_jobs(provision_id), options, provision_id, true)
+        end
+
+        loop do
+            CLIHelper.scr_cls
+            CLIHelper.scr_move(0, 0)
+
+            result = render_jobs(client.get_provision_jobs(provision_id), options, provision_id)
+
+            return result if result.is_a?(Array) && !result[0].zero?
+
+            puts result[1] if result.is_a?(Array)
+
+            sleep 4
+        end
+    rescue StandardError => e
+        STDERR.puts e.message
+        exit(-1)
+    end
+
+    def render_jobs(response, options, provision_id, detailed = false)
+        if CloudClient.is_error?(response)
+            [response[:err_code], response[:message]]
+        elsif options[:json]
+            [0, JSON.pretty_generate(response)]
+        elsif options[:yaml]
+            [0, response.to_yaml(:indent => 4)]
+        elsif detailed
+            active_job = response.first
+            return 0 unless active_job
+
+            str    = '%-20s: %-20s'
+            str_h1 = '%-80s'
+
+            CLIHelper.print_header(
+                str_h1 % "ACTIVE PROVISION #{provision_id} JOB INFORMATION"
+            )
+
+            puts Kernel.format(str, 'ID', active_job[:id] || 'N/A')
+            puts Kernel.format(str, 'ATTEMPT', active_job[:attempt] || 'N/A')
+            puts Kernel.format(str, 'STEP', active_job[:step] || 'N/A')
+            puts Kernel.format(str, 'STATUS', active_job[:status] || 'N/A')
+            puts Kernel.format(str, 'EXTERNAL USER', active_job[:external_user] || 'N/A')
+
+            created_at = active_job[:created_at]
+            created_at = OpenNebulaHelper.time_to_str(created_at) if created_at
+            puts Kernel.format(str, 'CREATED AT', created_at || 'N/A')
+
+            cancellation = active_job[:cancellation]
+            if cancellation
+                puts
+                CLIHelper.print_header(str_h1 % 'CANCELLATION', false)
+
+                puts Kernel.format(
+                    str, 'REQUESTED BY', cancellation[:requested_by] || 'N/A'
+                )
+
+                requested_at = cancellation[:requested_at]
+                requested_at = OpenNebulaHelper.time_to_str(requested_at) if requested_at
+                puts Kernel.format(str, 'REQUESTED AT', requested_at || 'N/A')
+                puts Kernel.format(str, 'STATUS', cancellation[:status] || 'N/A')
+
+                cancelled_at = cancellation[:cancelled_at]
+                cancelled_at = OpenNebulaHelper.time_to_str(cancelled_at) if cancelled_at
+                puts Kernel.format(str, 'CANCELLED AT', cancelled_at || 'N/A')
+            end
+
+            if active_job[:args] && !active_job[:args].empty?
+                puts
+                CLIHelper.print_header(str_h1 % 'ARGUMENTS', false)
+                puts JSON.pretty_generate(active_job[:args])
+            end
+
+            command = active_job[:command]
+            if command
+                puts
+                CLIHelper.print_header(str_h1 % 'COMMAND', false)
+
+                puts Kernel.format(str, 'ID', command[:id] || 'N/A')
+                puts Kernel.format(str, 'STATUS', command[:status] || 'N/A')
+                puts Kernel.format(str, 'OPERATION', command[:operation] || 'N/A')
+
+                argv = Array(command[:argv]).join(' ')
+                puts Kernel.format(str, 'COMMAND', argv.empty? ? 'N/A' : argv)
+                puts Kernel.format(str, 'EXIT CODE', command[:exit_code] || 'N/A')
+            end
+
+            0
+        else
+            CLIHelper::ShowTable.new(nil, self) do
+                column :JOB, 'Lifecycle step', :left, :size => 20, :expand => true do |job|
+                    job[:step].to_s
+                end
+
+                column :STATUS, 'Job status', :left, :size => 12 do |job|
+                    job[:status].to_s.upcase
+                end
+
+                column :COMMAND, 'Command operation', :left, :size => 20 do |job|
+                    job.dig(:command, :operation) if job[:command]
+                end
+
+                column :REQUESTED_BY, 'External user', :left, :size => 15 do |job|
+                    job[:external_user]
+                end
+
+                default :JOB, :STATUS, :COMMAND, :REQUESTED_BY
+            end.show(response, {})
+
+            0
+        end
+    end
+
+    # Cancel the active operation of a provision
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param ids [Array<Integer>] Provision IDs
+    # @return [Integer, Array] CLI result
+    def cancel(client, ids)
+        ids.each do |id|
+            response = client.cancel_provision(id)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+        end
+
+        0
+    end
+
+    # Create a provision from a driver
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param driver_name [String] Driver name
+    # @param file_path [String, nil] Optional JSON input path
+    # @param options [Hash] Creation options, including :provider_id and :deployment_type
+    # @return [Integer, Array] CLI result
+    def create(client, driver_name, file_path, options = {})
+        provider_id     = options[:provider_id]
+        deployment_type = options[:deployment]
+        doc = client.get_driver(driver_name)
+        return [doc[:err_code], doc[:message]] if CloudClient.is_error?(doc)
+
+        deployments = doc[:deployment_confs]
+        deployment = if deployment_type
+                         deployments.find {|conf| conf[:inventory] == deployment_type }
+                     elsif deployments.size == 1
+                         deployments.first
+                     else
+                         ask_deployment(deployments)
+                     end
+
+        unless deployment
+            return [-1, "Deployment type '#{deployment_type}' not found"] if deployment_type
+
+            return [-1, 'No deployment types available']
+        end
+
+        body = self.class.read_json_input(file_path) || {}
+
+        unless body[:user_inputs_values]
+            dinputs = client.get_driver_inputs(driver_name, deployment[:inventory])
+            return [dinputs[:err_code], dinputs[:message]] if CloudClient.is_error?(dinputs)
+
+            body[:user_inputs_values] = get_user_values(dinputs)
+        end
+
+        response = client.create_provision(driver_name, deployment[:inventory], provider_id, body)
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        provision_id = response[:ID]
+        puts "ID: #{provision_id}"
+
+        if options[:wait] && provision_id
+            puts '---'
+            logs(client, provision_id, :follow => true, :all => true)
+        end
+
+        0
+    end
+
+    # Update a provision from a file or editor
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provision_id [Integer] Provision ID
+    # @param file_path [String, nil] Optional JSON input path
+    # @return [Integer, Array] CLI result
+    def update(client, provision_id, file_path)
         if file_path
             path = file_path
         else
             response = client.get_provision(provision_id)
-            body     = response[:TEMPLATE][:PROVISION_BODY]
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+            body = response[:TEMPLATE][:PROVISION_BODY].select do |key, _|
+                UPDATE_ATTRS.include?(key.to_sym)
+            end
 
             tmp  = Tempfile.new("provider_#{provision_id}_tmp")
             path = tmp.path
@@ -384,7 +577,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             tmp.close
         end
 
-        response = client.update_provision(provision_id, File.read(path))
+        body     = self.class.read_json_input(path)
+        response = client.update_provision(provision_id, body)
 
         if CloudClient.is_error?(response)
             [response[:err_code], response[:message]]
@@ -393,34 +587,192 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def read_json_input(file)
-        if file
-            begin
-                content = File.read(file)
-            rescue Errno::ENOENT
-                STDERR.puts "File not found: #{file}"
-                exit(-1)
-            end
-        else
-            stdin = OpenNebulaHelper.read_stdin
-            return if stdin.empty?
+    # Rename a provision
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provision_id [Integer] Provision ID
+    # @param name [String] New name
+    # @return [Integer, Array] CLI result
+    def rename(client, provision_id, name)
+        response = client.update_provision(provision_id, { 'name' => name })
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
 
-            content = stdin
+        0
+    end
+
+    # Change the group of provisions
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param ids [Array<Integer>] Provision IDs
+    # @param group_id [Integer] New group ID
+    # @return [Integer, Array] CLI result
+    def chgrp(client, ids, group_id)
+        ids.each do |id|
+            response = client.chgrp_provision(id, group_id)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
         end
 
-        begin
-            JSON.parse(content, :symbolize_names => true)
-        rescue JSON::ParserError => e
-            source = file ? "file: #{file}" : 'stdin'
-            STDERR.puts "Invalid JSON in #{source} - #{e.message}"
-            exit(-1)
+        0
+    end
+
+    # Change the owner and optional group of provisions
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param ids [Array<Integer>] Provision IDs
+    # @param user_id [Integer] New owner ID
+    # @param group_id [Integer, nil] Optional group ID
+    # @return [Integer, Array] CLI result
+    def chown(client, ids, user_id, group_id = nil)
+        ids.each do |id|
+            response = client.chown_provision(id, user_id, group_id)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+        end
+
+        0
+    end
+
+    # Change provision permissions
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param ids [Array<Integer>] Provision IDs
+    # @param octet [Integer] Permission octet
+    # @return [Integer, Array] CLI result
+    def chmod(client, ids, octet)
+        ids.each do |id|
+            response = client.chmod_provision(id, octet)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+        end
+
+        0
+    end
+
+    # Recover failed provisions
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param ids [Array<Integer>] Provision IDs
+    # @param force [Boolean] Force recovery
+    # @return [Integer, Array] CLI result
+    def recover(client, ids, force = false)
+        ids.each do |id|
+            response = client.recover_provision(id, force)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+        end
+
+        0
+    end
+
+    # Add hosts to a provision
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provision_id [Integer] Provision ID
+    # @param amount [Integer, nil] Number of hosts
+    # @param hosts [Array<String>, nil] On-prem host addresses
+    # @return [Integer, Array] CLI result
+    def add_host(client, provision_id, amount = nil, hosts = nil)
+        response = client.add_provision_hosts(
+            provision_id, :amount => hosts ? nil : (amount || 1), :hosts => hosts
+        )
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        0
+    end
+
+    # Remove hosts from a provision
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provision_id [Integer] Provision ID
+    # @param host_ids [Array<Integer>] OpenNebula host IDs
+    # @return [Integer, Array] CLI result
+    def del_hosts(client, provision_id, host_ids)
+        response = client.delete_provision_hosts(provision_id, host_ids)
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        0
+    end
+
+    # Add public IPs to a provision
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provision_id [Integer] Provision ID
+    # @param amount [Integer] Number of IPs
+    # @return [Integer, Array] CLI result
+    def add_ip(client, provision_id, amount = 1)
+        response = client.add_ip_provision(provision_id, amount)
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        0
+    end
+
+    # Remove a public IP address range from a provision
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provision_id [Integer] Provision ID
+    # @param ar_id [Integer] Address range ID
+    # @return [Integer, Array] CLI result
+    def del_ip(client, provision_id, ar_id)
+        response = client.remove_ip_provision(provision_id, ar_id)
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        0
+    end
+
+    # Delete provisions
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param ids [Array<Integer>] Provision IDs
+    # @param force [Boolean] Force deletion
+    # @param from_db [Boolean] Delete only provision documents
+    # @return [Integer, Array] CLI result
+    def delete(client, ids, force = false, from_db = false)
+        ids.each do |id|
+            response = client.delete_provision(id, force, from_db)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+        end
+
+        0
+    end
+
+    # Show or follow provision logs
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provision_id [Integer] Provision ID
+    # @param options [Hash] Log options
+    # @return [Integer, Array] CLI result
+    def logs(client, provision_id, options = {})
+        all_logs = options[:all] || false
+        follow   = options[:follow] || false
+
+        response = client.get_provision_logs(provision_id, all_logs, :follow => follow)
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        Array(response&.dig(:lines)).each do |entry|
+            level = entry[:level] || entry['level'] || 'info'
+            text  = entry[:text]  || entry['text']  || ''
+
+            if $stdout.tty? && level == 'error'
+                puts "#{CLIHelper::ANSI_RED}#{text}#{CLIHelper::ANSI_RESET}"
+            elsif $stdout.tty? && level == 'warn'
+                puts "#{CLIHelper::ANSI_YELLOW}#{text}#{CLIHelper::ANSI_RESET}"
+            else
+                puts text
+            end
+        end
+
+        0
+    end
+
+    def render_data(response, options)
+        if CloudClient.is_error?(response)
+            [response[:err_code], response[:message]]
+        elsif options[:yaml]
+            [0, response.to_yaml(:indent => 4)]
+        else
+            [0, JSON.pretty_generate(response)]
         end
     end
 
     def get_user_values(user_inputs)
-        return if user_inputs.nil? || user_inputs.empty?
-
-        ask_user_inputs(user_inputs)
+        super || {}
     end
 
     def ask_deployment(deployment_confs)
@@ -456,151 +808,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         selected
     end
 
-    def ask_user_inputs(inputs)
-        puts 'There are some parameters that require user input.'
-
-        answers = {}
-
-        inputs.each do |input|
-            name        = input[:name]
-            description = input[:description] || ''
-            type        = input[:type]
-            default     = input[:default]
-            match       = input[:match]
-
-            puts "  * (#{name}) #{description} [type: #{type}]"
-            header = '    '
-            header += "Press enter for default (#{default}). " if default
-
-            answer = nil
-
-            type = case type
-                   when /\Amap\(/ then 'map'
-                   when /\Alist\(/ then 'list'
-                   else type
-                   end
-
-            case type
-            when 'string'
-                if match&.dig(:type) == 'list'
-                    options = match[:values] || []
-                    options.each_with_index {|opt, i| puts "    #{i}: #{opt}" }
-                    puts
-
-                    loop do
-                        print "#{header}Please type the selection number: "
-                        raw = STDIN.readline.strip
-
-                        if raw.empty?
-                            answer = default
-                            break if options.include?(answer)
-                        else
-                            index  = raw.to_i rescue nil
-                            answer = options[index] if index && index >= 0
-                            break if answer
-                        end
-
-                        puts '    Invalid selection, please try again.'
-                    end
-                else
-                    print header
-                    answer = STDIN.readline.strip
-                    answer = OpenNebulaHelper.editor_input if answer == '<<EDITOR>>'
-                    answer = default if answer.empty?
-                end
-            when 'number'
-                min = match&.dig(:values, :min)
-                max = match&.dig(:values, :max)
-
-                begin
-                    range_msg = min && max ? " (#{min} to #{max})" : ''
-                    print "#{header}Enter a number#{range_msg}: "
-                    raw = STDIN.readline.strip
-                    raw = default.to_s if raw.empty?
-
-                    if raw =~ /\A-?\d+\z/
-                        answer = raw.to_i
-                    elsif raw =~ /\A-?\d+\.\d+\z/
-                        answer = raw.to_f
-                    else
-                        puts 'Not a valid number'
-                        raise
-                    end
-
-                    raise if min && answer < min
-                    raise if max && answer > max
-                rescue StandardError => _e
-                    puts '    Invalid number, please try again.'
-                    retry
-                end
-            when 'list'
-                loop do
-                    print "#{header}Enter comma-separated values: "
-
-                    raw = STDIN.readline.strip
-
-                    if raw.empty?
-                        if default.is_a?(Array)
-                            answer = default
-                            break
-                        else
-                            puts '    No default available.'
-                            next
-                        end
-                    end
-
-                    answer = raw.split(',').map(&:strip).reject(&:empty?)
-
-                    if match&.dig(:type) == 'list'
-                        invalid = answer - match[:values]
-                        if invalid.any?
-                            puts "    Invalid values: #{invalid.join(', ')}"
-                            puts "    Allowed: #{match[:values].join(', ')}"
-                            next
-                        end
-                    end
-
-                    break
-                end
-            when 'map'
-                loop do
-                    print "#{header}Enter KEY=VALUE pairs separated by commas: "
-
-                    raw = STDIN.readline.strip
-
-                    if raw.empty?
-                        if default.is_a?(Hash)
-                            answer = default
-                            break
-                        else
-                            puts '    No default available.'
-                            next
-                        end
-                    end
-
-                    begin
-                        answer = {}
-                        raw.split(',').each do |pair|
-                            k, v = pair.split('=', 2)
-                            raise if k.nil? || v.nil? || k.strip.empty? || v.strip.empty?
-
-                            answer[k.strip] = v.strip
-                        end
-                        break
-                    rescue StandardError => _e
-                        puts '    Invalid map format. Expected KEY=VALUE,...'
-                    end
-                end
-
-            else
-                STDERR.puts "Unknown input type '#{type}' for '#{name}'"
-                exit(-1)
-            end
-
-            answers[name] = answer
-        end
-
-        answers
-    end
+    private :format_provision_pool, :render_jobs, :render_data,
+            :get_user_values, :ask_deployment, :ask_user_inputs
 
 end

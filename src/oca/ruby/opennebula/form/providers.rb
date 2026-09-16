@@ -23,7 +23,7 @@ module OneForm
         #
         # @return [Array<Hash>] List of configured providers with their metadata.
         def list_providers(opts = {})
-            get('/providers', opts)
+            get('/providers', query_params(opts))
         end
 
         # Retrieve a specific provider by its ID.
@@ -31,13 +31,21 @@ module OneForm
         # @param id [Int] The provider's unique identifier.
         # @return [Hash] Provider configuration and status.
         def get_provider(id, opts = {})
-            get("/providers/#{id}", opts)
+            get("/providers/#{id}", query_params(opts))
         end
 
-        # Retrieve the location path of a provider.
+        # Retrieve the connection input definitions of a provider.
         #
         # @param id [Int] The provider's unique identifier.
-        # @return [String] The location path of the provider.
+        # @return [Array<Hash>] Provider connection input definitions.
+        def get_provider_inputs(id)
+            get("/providers/#{id}/inputs")
+        end
+
+        # Retrieve the location path of a provider driver.
+        #
+        # @param id [Int] The provider's unique identifier.
+        # @return [String] The location path of the provider driver.
         def get_provider_location(id)
             get("/providers/#{id}/path")
         end
@@ -72,7 +80,7 @@ module OneForm
         # @param group [String] The new group's ID (optional).
         # @return [Hash] Provider metadata after ownership change.
         def chown_provider(id, owner, group = nil)
-            body = { :owner_id => owner, :group_id => group }
+            body = { :owner_id => owner, :group_id => group }.compact
             post("/providers/#{id}/chown", body)
         end
 
@@ -92,7 +100,10 @@ module OneForm
         # @param patch_data [Hash] Fields to update (e.g., new credentials).
         # @return [Hash] Updated provider metadata.
         def update_provider(id, patch_data)
-            patch("/providers/#{id}", patch_data)
+            allowed = [:name, :description, :connection]
+            body = patch_data.select {|key, _| allowed.include?(key.to_sym) }
+
+            patch("/providers/#{id}", body)
         end
 
         # Delete a provider by its ID.

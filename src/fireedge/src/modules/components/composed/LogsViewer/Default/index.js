@@ -105,7 +105,7 @@ const LogsViewer = ({
   const levels = ['debug', 'info', 'warn', 'error']
 
   const { enqueueSuccess, enqueueError } = useGeneralApi()
-  const [retry] = ProvisionAPI.useRetryProvisionMutation()
+  const [recover] = ProvisionAPI.useRecoverProvisionMutation()
 
   const toggleSort = () => {
     setSortAsc((prev) => !prev)
@@ -173,7 +173,7 @@ const LogsViewer = ({
     try {
       const result = onRetry
         ? await onRetry()
-        : await retry({ id: provisionId })
+        : await recover({ id: provisionId })
 
       if (result?.error) {
         throw new Error(result.error.message)

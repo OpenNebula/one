@@ -19,28 +19,30 @@ module OneForm
     # OneForm Driver class
     class Driver
 
+        COMP = 'DRV'
+
         attr_reader :body
 
         DRIVER_ATTRS = [
-            'name',
-            'description',
-            'state',
-            'registry',
-            'version',
-            'system_path',
-            'fireedge',
-            'connection',
-            'connection_values',
-            'user_inputs',
-            'user_inputs_values',
-            'deployment_confs'
+            :name,
+            :description,
+            :state,
+            :registry,
+            :version,
+            :system_path,
+            :fireedge,
+            :connection,
+            :connection_values,
+            :user_inputs,
+            :user_inputs_values,
+            :deployment_confs
         ]
 
         MERGE_ATTRS = [
-            'name',
-            'description',
-            'connection_values',
-            'user_inputs_values'
+            :name,
+            :description,
+            :connection_values,
+            :user_inputs_values
         ]
 
         STR_STATES = {
@@ -51,7 +53,7 @@ module OneForm
         }
 
         def initialize(body)
-            @body = body.transform_keys(&:to_s)
+            @body = body
 
             @body.each do |key, _|
                 next unless DRIVER_ATTRS.include?(key)
@@ -78,20 +80,21 @@ module OneForm
             state == STR_STATES[:enabled]
         end
 
-        # Merges the provided attributes into the current driver body.
+        # Merges the provided attributes into the current driver body
         # Only attributes listed in MERGE_ATTRS are considered; all others
-        # are ignored.
+        # are ignored
         #
         # @param [Hash] merge_body a hash of attributes to merge into the driver
         def merge(merge_body)
             merge_body.each do |key, value|
+                key = key.to_sym
                 next unless MERGE_ATTRS.include?(key)
 
                 @body[key] = value
             end
         end
 
-        # Adds default values to user inputs if not already set.
+        # Adds default values to user inputs if not already set
         #
         # @param [Array<Hash>] inputs list of input definitions
         # @param [Hash] values user-provided values keyed by input name
@@ -105,33 +108,32 @@ module OneForm
             ) unless values.is_a?(Hash)
 
             inputs.each do |input|
-                if input.key?(:default)
-                    values[input[:name]] ||= input[:default]
-                end
+                key = input[:name].to_sym
+                values[key] = input[:default] if input.key?(:default) && !values.key?(key)
             end
 
             values
         end
 
-        # Builds the body for provider creation.
+        # Builds the body for provider creation
         # Merges connection defaults with user values and extracts the
-        # required provider attributes from the driver definition.
+        # required provider attributes from the driver definition
         #
         # @return [Hash, OpenNebula::Error] provider body, or an
         #   OpenNebula::Error if defaults could not be applied
         def connection_body
-            connection        = @body['connection'] || {}
-            connection_values = @body['connection_values'] || {}
+            connection        = @body[:connection] || {}
+            connection_values = @body[:connection_values] || {}
 
             rc = add_defaults(connection, connection_values)
             return rc if OpenNebula.is_error?(rc)
 
-            body = OneForm::Provider::PROVIDER_ATTRS.each_with_object({}) do |attr, hash|
+            body = Provider::DOCUMENT_ATTRS.each_with_object({}) do |attr, hash|
                 value = case attr
-                        when 'driver'
-                            File.basename(@body['system_path'])
-                        when 'connection'
-                            @body['connection_values']
+                        when :driver
+                            File.basename(@body[:system_path])
+                        when :connection
+                            @body[:connection_values]
                         else
                             @body[attr]
                         end
@@ -139,23 +141,19 @@ module OneForm
                 hash[attr] = value if value
             end
 
-            body['user_inputs']        = connection
-            body['user_inputs_values'] = connection_values
+            body[:user_inputs] = connection
 
             body
         end
 
-        # Builds the provision body for creating a provision.
-        # Looks up the deployment configuration by name, applies default
-        # values to user inputs, and extracts the required provision
-        # attributes from the driver definition.
+        # Returns the inputs shared by the driver and those specific to a
+        # deployment configuration
         #
         # @param [String] deployment_name the name of the deployment inventory
-        # @return [Hash, OpenNebula::Error] provision body, or an
-        #   OpenNebula::Error if the deployment is not found or defaults
-        #   cannot be applied
-        def deployment_body(deployment_name)
-            deployment_conf = @body['deployment_confs'].find do |conf|
+        # @return [Array<Hash>, OpenNebula::Error] input definitions, or an
+        #   OpenNebula::Error if the deployment is not found
+        def deployment_inputs(deployment_name)
+            deployment_conf = @body[:deployment_confs].find do |conf|
                 conf[:inventory] == deployment_name
             end
 
@@ -164,27 +162,49 @@ module OneForm
                 OpenNebula::Error::ENOTDEFINED
             ) if deployment_conf.nil?
 
-            deployment_inputs  = @body['user_inputs'] + (deployment_conf&.dig(:user_inputs) || [])
-            user_inputs_values = @body['user_inputs_values'] || {}
+            Array(@body[:user_inputs]) + Array(deployment_conf[:user_inputs])
+        end
+
+        # Builds the provision body for creating a provision
+        # Looks up the deployment configuration by name, applies default
+        # values to user inputs, and extracts the required provision
+        # attributes from the driver definition
+        #
+        # @param [String] deployment_name the name of the deployment inventory
+        # @return [Hash, OpenNebula::Error] provision body, or an
+        #   OpenNebula::Error if the deployment is not found or defaults
+        #   cannot be applied
+        def deployment_body(deployment_name)
+            deployment_conf = @body[:deployment_confs].find do |conf|
+                conf[:inventory] == deployment_name
+            end
+
+            return OpenNebula::Error.new(
+                "Deployment '#{deployment_name}' not found in driver configuration",
+                OpenNebula::Error::ENOTDEFINED
+            ) if deployment_conf.nil?
+
+            deployment_inputs  = @body[:user_inputs] + (deployment_conf&.dig(:user_inputs) || [])
+            user_inputs_values = @body[:user_inputs_values] || {}
 
             rc = add_defaults(deployment_inputs, user_inputs_values)
             return rc if OpenNebula.is_error?(rc)
 
-            OneForm::Provision::PROVISION_ATTRS.each_with_object({}) do |attr, hash|
+            OneForm::Provision::DOCUMENT_ATTRS.each_with_object({}) do |attr, hash|
                 value = case attr
-                        when 'driver'
-                            File.basename(@body['system_path'])
-                        when 'deployment_file'
+                        when :driver
+                            File.basename(@body[:system_path])
+                        when :deployment_file
                             deployment_conf[:inventory]
-                        when 'user_inputs'
+                        when :user_inputs
                             deployment_inputs
-                        when 'user_inputs_values'
+                        when :user_inputs_values
                             user_inputs_values
-                        when 'one_objects'
+                        when :one_objects
                             self.class.send(:deployment_objects,
                                             deployment_conf[:template_path],
                                             user_inputs_values)
-                        when 'onedeploy_tags'
+                        when :onedeploy_tags
                             deployment_conf[:onedeploy_tags]
                         else
                             @body[attr]
@@ -196,11 +216,7 @@ module OneForm
 
         class << self
 
-            DEFAULT_DRIVER_DIR  = "#{LIB_LOCATION}/oneform/drivers"
-            EXTERNAL_DRIVER_DIR = "#{VAR_LOCATION}/oneform/drivers"
-            STATES_DIR          = "#{VAR_LOCATION}/oneform/drivers/.states"
-
-            # Returns a list of directories where drivers are located.
+            # Returns a list of directories where drivers are located
             # It includes all subdirectories of default and all subdirectories inside each
             # external registry source
             #
@@ -239,7 +255,7 @@ module OneForm
                 idx
             end
 
-            # Resolves a driver directory path from its name.
+            # Resolves a driver directory path from its name
             #
             # @param driver_name [String]
             # @return [String, nil]
@@ -273,7 +289,7 @@ module OneForm
                 'unknown'
             end
 
-            # Returns all driver names, optionally filtered by state.
+            # Returns all driver names, optionally filtered by state
             #
             # @param [Symbol, nil] state to filter drivers
             # @return [Array<String>, OpenNebula::Error]
@@ -291,11 +307,11 @@ module OneForm
             rescue StandardError => e
                 error_msg = "Error retrieving driver names: #{e.message}"
 
-                Log.error(error_msg)
+                Log.error(COMP, error_msg)
                 return OpenNebula::Error.new(error_msg)
             end
 
-            # Checks if a driver exists by name.
+            # Checks if a driver exists by name
             #
             # @param [String] name driver name
             # @return [Boolean, OpenNebula::Error]
@@ -304,16 +320,15 @@ module OneForm
             rescue StandardError => e
                 error_msg = "Error checking available drivers: #{e.message}"
 
-                Log.error(error_msg)
+                Log.error(COMP, error_msg)
                 return OpenNebula::Error.new(error_msg)
             end
 
-            # Returns the metadata for a specific driver by its name.
+            # Returns the metadata for a specific driver by its name
             #
             # @param [String] driver_name the name of the driver
-            # @return [Hash, OpenNebula::Error, nil] the driver data, an OpenNebula error
-            #                                        if something goes wrong, or nil if the
-            #                                        driver is in unknown state
+            # @return [Driver, OpenNebula::Error, nil] driver data, an OpenNebula
+            #   error if it cannot be located, or nil if its state is unknown
             def from_name(driver_name)
                 driver_dir = driver_dir_for(driver_name)
 
@@ -354,14 +369,14 @@ module OneForm
                     raise "Driver #{driver_name} is in an invalid state (#{state})"
                 end
             rescue StandardError => e
-                Log.error("Error getting driver body: #{e.message}")
+                Log.error(COMP, "Error getting driver body: #{e.message}")
 
                 set_driver_state(driver_name, :error, true)
                 set_driver_error(driver_name, e.message)
                 return error_body(driver_name)
             end
 
-            # Returns a list of all available drivers.
+            # Returns a list of all available drivers
             #
             # @return [Array<Hash>, OpenNebula::Error] list of drivers, OpenNebula error otherwise
             def list
@@ -369,15 +384,15 @@ module OneForm
             rescue StandardError => e
                 error_msg = "Error listing drivers: #{e.message}"
 
-                Log.error(error_msg)
+                Log.error(COMP, error_msg)
                 return OpenNebula::Error.new(error_msg)
             end
 
-            # Tries to validate and enable all drivers from the local drivers path.
-            #   - Iterates through each driver directory.
-            #   - Verifies each driver using `verify_driver`.
-            #   - Sets the state to `:enabled` if valid, or `:error` otherwise.
-            #   - Writes the state to a `.state` file using `set_driver_state`.
+            # Tries to validate and enable all drivers from the local drivers path
+            #   - Iterates through each driver directory
+            #   - Verifies each driver using `verify_driver`
+            #   - Sets the state to `:enabled` if valid, or `:error` otherwise
+            #   - Writes the state to a `.state` file using `set_driver_state`
             #   - Logs and collects any verification or state write errors in `.error` file
             #
             # @return [Hash] Result of the sync operation:
@@ -388,8 +403,38 @@ module OneForm
             #   or an OpenNebula::Error if a top-level error occurs
             def sync
                 results = { :success => [], :failed => [] }
+                drivers = driver_index
 
-                driver_index.keys.each do |dname|
+                # Cleanup drivers folder
+                removed_drivers = Dir.glob(state_file('*')) + Dir.glob(error_file('*'))
+                removed_drivers.map! {|path| File.basename(path, File.extname(path)) }
+                removed_drivers.select! do |name|
+                    !name.empty? && !['.', '..'].include?(name) &&
+                        File.basename(name) == name && !drivers.key?(name)
+                end
+
+                removed_drivers.uniq!
+                removed_drivers.each do |driver_name|
+                    target_dir = File.join(VAR_LOCATION, 'remotes', 'ipam', driver_name)
+
+                    begin
+                        FileUtils.rm_rf(target_dir)
+                        raise "Failed to remove #{target_dir}" if File.exist?(target_dir) ||
+                                                              File.symlink?(target_dir)
+
+                        FileUtils.rm_f(state_file(driver_name))
+                        FileUtils.rm_f(error_file(driver_name))
+
+                        Log.debug(COMP, "Removed resources for driver #{driver_name}")
+                    rescue StandardError => e
+                        Log.error(
+                            COMP,
+                            "Failed to clean removed driver #{driver_name}: #{e.message}"
+                        )
+                    end
+                end
+
+                drivers.each_key do |dname|
                     rc    = verify_driver(dname)
                     state = OpenNebula.is_error?(rc) ? :error : :enabled
 
@@ -405,19 +450,22 @@ module OneForm
 
                         set_driver_state(dname, state, true)
                     rescue StandardError => e
-                        Log.error("Failed to write .state file for driver '#{dname}': #{e.message}")
+                        Log.error(
+                            COMP,
+                            "Failed to write .state file for driver #{dname}: #{e.message}"
+                        )
                     end
                 end
 
                 results
             rescue StandardError => e
                 error_msg = "Error syncing drivers: #{e.message}"
-                Log.error(error_msg)
+                Log.error(COMP, error_msg)
                 OpenNebula::Error.new(error_msg)
             end
 
-            # Enables the given driver by name if it exists in the drivers directory.
-            # Sets the driver's state to `:enabled`.
+            # Enables the given driver by name if it exists in the drivers directory
+            # Sets the driver's state to `:enabled`
             #
             # @param [String] driver_name the name of the driver to enable
             # @return [nil, OpenNebula::Error] nil on success, OpenNebula::Error otherwise
@@ -432,8 +480,8 @@ module OneForm
                 set_driver_state(driver_name, :enabled)
             end
 
-            # Disables the given driver by name if it exists in the drivers directory.
-            # Sets the driver's state to `:disabled`.
+            # Disables the given driver by name if it exists in the drivers directory
+            # Sets the driver's state to `:disabled`
             #
             # @param [String] driver_name the name of the driver to disable
             # @return [nil, OpenNebula::Error] nil on success, OpenNebula::Error otherwise
@@ -512,6 +560,7 @@ module OneForm
                 end
 
                 # Extract templates for opennebula objects
+                hosts      = data.dig(:all, :vars, :shared, :hosts)
                 networks   = data.dig(:all, :vars, :vn)
                 datastores = data.dig(:all, :vars, :ds, :config)
 
@@ -536,11 +585,19 @@ module OneForm
                                 :template => replace_user_inputs!(config[:template], user_inputs)
                             }
                         end
-                    end
+                    end,
+                    :shared => {
+                        :hosts => {
+                            :template => replace_user_inputs!(
+                                hosts&.dig(:template),
+                                user_inputs
+                            )
+                        }
+                    }
                 }
             end
 
-            # Replaces user input tokens in the given template with actual values.
+            # Replaces user input tokens in the given template with actual values
             def replace_user_inputs!(template, user_inputs)
                 return {} unless template
                 return template unless user_inputs
@@ -555,7 +612,7 @@ module OneForm
                         element.map! {|v| iterator.call(v) }
                     when String
                         element.gsub(token_regexp) do
-                            key = Regexp.last_match(1)
+                            key = Regexp.last_match(1).to_sym
                             user_inputs.key?(key) ? user_inputs[key].to_s : 'null'
                         end
                     else # Integers,...
@@ -606,7 +663,7 @@ module OneForm
 
                 HclParser.load(content).dig(*keys) || {}
             rescue StandardError => e
-                Log.error("Error loading HCL file #{path}: #{e.message}")
+                Log.error(COMP, "Error loading HCL file #{path}: #{e.message}")
                 {}
             end
 
@@ -638,12 +695,12 @@ module OneForm
                 dir
             end
 
-            # Returns the path to the driver's .state file.
+            # Returns the path to the driver's .state file
             def state_file(driver_name)
                 File.join(STATES_DIR, "#{driver_name}.state")
             end
 
-            # Returns the path to the driver's .error file.
+            # Returns the path to the driver's .error file
             def error_file(driver_name)
                 File.join(STATES_DIR, "#{driver_name}.error")
             end
@@ -705,17 +762,19 @@ module OneForm
                 File.read(error_file(driver_name)).strip
             end
 
-            # Builds a hash representing the driver's error state and message
+            # Builds a driver representing the error state and message
             def error_body(driver_name)
                 ddir  = File.join(driver_path(driver_name))
                 error = File.read(error_file(driver_name)) if File.exist?(error_file(driver_name))
 
-                {
-                    :name        => driver_name,
-                    :state       => STR_STATES[:error],
-                    :system_path => ddir,
-                    :error_msg   => error
-                }.compact
+                Driver.new(
+                    {
+                        :name        => driver_name,
+                        :state       => STR_STATES[:error],
+                        :system_path => ddir,
+                        :error_msg   => error
+                    }.compact
+                )
             end
 
             # Verifies that the required files and structure exist for a driver
@@ -827,14 +886,16 @@ module OneForm
 
                         FileUtils.rm(target_link)
                     elsif File.exist?(target_link)
-                        Log.warn("Not replacing existing file #{target_link} " \
-                                 "with symlink to #{file}")
+                        Log.warn(
+                            COMP,
+                            "Not replacing existing file #{target_link} with symlink to #{file}"
+                        )
                         next
                     end
 
                     FileUtils.ln_s(file, target_link)
 
-                    Log.debug("Created symlink: #{target_link} -> #{file}")
+                    Log.debug(COMP, "Created symlink: #{target_link} -> #{file}")
                 end
             end
 
@@ -843,7 +904,7 @@ module OneForm
                 raise "Missing file: #{file}" unless File.file?(file)
             end
 
-            # Ensures the given directory exists, raises error if missing.
+            # Ensures the given directory exists, raises error if missing
             def assert_dir_exists(dir)
                 raise "Missing directory: #{dir}" unless File.directory?(dir)
             end

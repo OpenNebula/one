@@ -2502,7 +2502,7 @@ msgstr ""
 msgid "High"
 msgstr ""
 
-#. T.Error
+#. T.Error, T.ERROR
 #: ./src/modules/constants/translates.js
 msgid "Error"
 msgstr ""
@@ -9817,9 +9817,9 @@ msgstr ""
 msgid "Deleting host/s from cluster %s"
 msgstr ""
 
-#. T.RetryingCluster
+#. T.RecoveringCluster
 #: ./src/modules/constants/translates.js
-msgid "Retrying cluster %s"
+msgid "Recovering cluster %s"
 msgstr ""
 
 #. T.marketplace.form.create.help.link
@@ -11897,6 +11897,11 @@ msgstr ""
 msgid "Provision(s) deleted"
 msgstr ""
 
+#. T.SuccessProvisionRecovered
+#: ./src/modules/constants/translates.js
+msgid "Provision(s) recovered"
+msgstr ""
+
 #. T.SuccessProvisionRetried
 #: ./src/modules/constants/translates.js
 msgid "Provision(s) retried"
@@ -13152,9 +13157,9 @@ msgstr ""
 msgid "Configuring Provision"
 msgstr ""
 
-#. T.CONFIGURING_ONE
+#. T.DEPROVISIONING_ONE
 #: ./src/modules/constants/translates.js
-msgid "Configuring ONE resources"
+msgid "Deprovisioning ONE resources"
 msgstr ""
 
 #. T.DEPROVISIONING
@@ -13180,11 +13185,6 @@ msgstr ""
 #. T.CONFIGURING_PROVISION_FAILURE
 #: ./src/modules/constants/translates.js
 msgid "Configuring Provision failure"
-msgstr ""
-
-#. T.CONFIGURING_ONE_FAILURE
-#: ./src/modules/constants/translates.js
-msgid "Configuring ONE failure"
 msgstr ""
 
 #. T.SCALING_FAILURE

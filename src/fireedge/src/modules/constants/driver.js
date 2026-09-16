@@ -24,6 +24,14 @@ export const DRIVER_STATES = {
     name: 'DISABLED',
     color: 'default',
   },
+  ERROR: {
+    name: 'ERROR',
+    color: 'error',
+  },
+  UNKNOWN: {
+    name: 'UNKNOWN',
+    color: 'default',
+  },
 }
 
 /** @enum {string} Driver actions */

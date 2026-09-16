@@ -169,7 +169,7 @@ class DeploymentTemplate(Environment):
 
             if base_ds_name in ds_in_type: del ds_in_type[base_ds_name]
 
-        logging.debug(f'Inventory content generated: {inventory_vars}')
+        self.logger.debug(f'Inventory content generated: {inventory_vars}')
         inventory['all']['vars'] = inventory_vars
 
         return inventory

@@ -24,6 +24,10 @@ module OpenNebula
             # Defines methods to manage Virtual Routers in OpenNebula
             module VRouter
 
+                # Creates a virtual router from a template.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param template [Hash] Virtual-router template.
+                # @return [OpenNebula::VirtualRouter, OpenNebula::Error]
                 def self.create(client, template)
                     template = Hash.to_raw(template)
                     return template if OpenNebula.is_error?(template)
@@ -43,6 +47,10 @@ module OpenNebula
                     vr
                 end
 
+                # Checks whether a virtual router with a name exists.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param name [String] Router name.
+                # @return [Boolean, OpenNebula::Error] existence result or an API error.
                 def self.exists?(client, name)
                     vrouter = find(client, name)
                     return vrouter if OpenNebula.is_error?(vrouter)
@@ -50,6 +58,10 @@ module OpenNebula
                     !vrouter.nil?
                 end
 
+                # Retrieves a virtual router with its current information.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vrouter_id [Integer] Router ID.
+                # @return [OpenNebula::VirtualRouter, OpenNebula::Error] router or an API error.
                 def self.get(client, vrouter_id)
                     return OpenNebula::Error.new(
                         'VRouter ID cannot be nil', OpenNebula::Error::EACTION
@@ -63,6 +75,11 @@ module OpenNebula
                     vrouter
                 end
 
+                # Returns a virtual router body using symbolized keys.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vrouter_id [Integer] Router ID.
+                # @param downcase [Boolean] Whether to downcase keys.
+                # @return [Hash, OpenNebula::Error] router body or an API error.
                 def self.body(client, vrouter_id, downcase: true)
                     vrouter = get(client, vrouter_id)
                     return vrouter if OpenNebula.is_error?(vrouter)
@@ -77,6 +94,10 @@ module OpenNebula
                     body.deep_symbolize_keys(:downcase => downcase)
                 end
 
+                # Returns a virtual router name.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vrouter_id [Integer] Router ID.
+                # @return [String, OpenNebula::Error] router name or an API error.
                 def self.name(client, vrouter_id)
                     vrouter = get(client, vrouter_id)
                     return vrouter if OpenNebula.is_error?(vrouter)
@@ -90,6 +111,10 @@ module OpenNebula
                     name
                 end
 
+                # Finds a virtual router by name.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param name [String] Router name.
+                # @return [OpenNebula::VirtualRouter, nil, OpenNebula::Error]
                 def self.find(client, name)
                     vrouter_pool = OpenNebula::VirtualRouterPool.new(client, -1)
 
@@ -105,6 +130,10 @@ module OpenNebula
                     vrouter
                 end
 
+                # Deletes a virtual router.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vrouter_id [Integer] Router ID.
+                # @return [true, OpenNebula::Error] success or an API error.
                 def self.delete(client, vrouter_id)
                     return OpenNebula::Error.new(
                         'VRouter ID cannot be nil', OpenNebula::Error::EACTION
@@ -117,6 +146,10 @@ module OpenNebula
                     true
                 end
 
+                # Returns the public endpoint configured on a virtual router.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vrouter_id [Integer] Router ID.
+                # @return [String, OpenNebula::Error] endpoint address or an API error.
                 def self.public_endpoint(client, vrouter_id)
                     vrouter = get(client, vrouter_id)
                     return vrouter if OpenNebula.is_error?(vrouter)

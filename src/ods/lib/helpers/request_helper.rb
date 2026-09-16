@@ -56,15 +56,36 @@ module OpenNebula
                 # Validate request body based on schema (if exists)
                 validation = schema.new.call(body)
 
-                return OpenNebula::Error.new(
+                return validation_error(validation, 'request body') if validation.failure?
+
+                body.deep_symbolize_keys
+            end
+
+            # Validates route or query parameters against a schema
+            #
+            # @param params [Hash] Parameters to validate
+            # @param schema [Dry::Validation::Contract] Schema to apply
+            #
+            # @return [Hash, OpenNebula::Error] Coerced parameters or validation error
+            def check_params(params, schema)
+                validation = schema.new.call(params.to_h)
+
+                return validation_error(validation, 'request parameters') \
+                    if validation.failure?
+
+                validation.to_h
+            end
+
+            private
+
+            def validation_error(validation, source)
+                OpenNebula::Error.new(
                     {
-                        'message' => 'Error validating request body',
+                        'message' => "Error validating #{source}",
                         'context' => validation.errors.to_h
                     },
                     OpenNebula::Error::ENOTDEFINED
-                ) if validation.failure?
-
-                body.deep_symbolize_keys
+                )
             end
 
         end

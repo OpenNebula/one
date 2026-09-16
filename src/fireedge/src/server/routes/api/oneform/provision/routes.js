@@ -29,11 +29,11 @@ const Actions = {
   SHOW: 'provisions.show',
   UPDATE: 'provisions.update',
   DELETE: 'provisions.delete',
-  UNDEPLOY: 'provisions.undeploy',
-  RETRY: 'provisions.retry',
-  SCALE: 'provisions.scale',
-  ADD_IP: 'provisions.addIp',
-  REMOVE_IP: 'provisions.removeIp',
+  RECOVER: 'provisions.recover',
+  ADD_HOSTS: 'provisions.addHosts',
+  DELETE_HOSTS: 'provisions.deleteHosts',
+  ADD_PUBLIC_IPS: 'provisions.addPublicIps',
+  DELETE_PUBLIC_IP: 'provisions.deletePublicIp',
   CHMOD: 'provisions.chmod',
   CHOWN: 'provisions.chown',
   CHGRP: 'provisions.chgrp',
@@ -113,45 +113,36 @@ const Commands = {
       },
     },
   },
-  [Actions.UNDEPLOY]: {
-    path: `${basepath}/:id/undeploy`,
-    httpMethod: POST,
-    auth: true,
-    params: {
-      id: {
-        from: resource,
-      },
-      force: {
-        from: postBody,
-      },
-    },
-  },
-  [Actions.RETRY]: {
-    path: `${basepath}/:id/retry`,
+  [Actions.RECOVER]: {
+    path: `${basepath}/:id/recover`,
     httpMethod: POST,
     auth: true,
     params: {
       id: { from: resource },
+      force: { from: query },
     },
   },
-  [Actions.SCALE]: {
-    path: `${basepath}/:id/scale`,
+  [Actions.ADD_HOSTS]: {
+    path: `${basepath}/:id/hosts`,
     httpMethod: POST,
     auth: true,
     params: {
-      id: {
-        from: resource,
-      },
-      nodes: {
-        from: postBody,
-      },
-      direction: {
-        from: postBody,
-      },
+      id: { from: resource },
+      amount: { from: postBody },
+      hosts: { from: postBody },
     },
   },
-  [Actions.ADD_IP]: {
-    path: `${basepath}/:id/add-ip`,
+  [Actions.DELETE_HOSTS]: {
+    path: `${basepath}/:id/hosts`,
+    httpMethod: DELETE,
+    auth: true,
+    params: {
+      id: { from: resource },
+      ids: { from: query },
+    },
+  },
+  [Actions.ADD_PUBLIC_IPS]: {
+    path: `${basepath}/:id/public-network/ips`,
     httpMethod: POST,
     auth: true,
     params: {
@@ -163,16 +154,16 @@ const Commands = {
       },
     },
   },
-  [Actions.REMOVE_IP]: {
-    path: `${basepath}/:id/remove-ip`,
-    httpMethod: POST,
+  [Actions.DELETE_PUBLIC_IP]: {
+    path: `${basepath}/:id/public-network/ips/:ar_id`,
+    httpMethod: DELETE,
     auth: true,
     params: {
       id: {
         from: resource,
       },
       ar_id: {
-        from: postBody,
+        from: resource,
       },
     },
   },

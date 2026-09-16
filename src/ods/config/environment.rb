@@ -62,6 +62,7 @@ require 'ipaddr'
 require 'json'
 require 'open3'
 require 'pathname'
+require 'securerandom'
 require 'singleton'
 require 'syslog/logger'
 require 'timeout'
@@ -71,9 +72,11 @@ require 'yaml'
 # OpenNebula gems
 require 'opennebula'
 require 'CloudAuth'
+require 'CommandManager'
 
 # Third-party gems
 require 'dry-validation'
+require 'ffi-rzmq'
 require 'lockfile'
 require 'logger'
 require 'parse-cron'
@@ -99,20 +102,28 @@ ONE_HELPERS.each do |path|
     Dir.glob(File.join(path, '*.rb')).sort.each {|file| require file }
 end
 
+# Libs, helpers and utilities
 require_relative File.join(ODS_ROOT, 'lib', 'helpers', 'request_helper')
 require_relative File.join(ODS_ROOT, 'lib', 'helpers', 'response_helper')
 require_relative File.join(ODS_ROOT, 'lib', 'helpers', 'log_helper')
 require_relative File.join(ODS_ROOT, 'lib', 'hash')
 require_relative File.join(ODS_ROOT, 'lib', 'log')
-require_relative File.join(ODS_ROOT, 'lib', 'state_machine')
 require_relative File.join(ODS_ROOT, 'lib', 'event_manager')
 require_relative File.join(ODS_ROOT, 'lib', 'thread_manager')
 require_relative File.join(ODS_ROOT, 'lib', 'subscriber')
+require_relative File.join(ODS_ROOT, 'lib', 'command')
+require_relative File.join(ODS_ROOT, 'lib', 'jobs', 'job')
+require_relative File.join(ODS_ROOT, 'lib', 'jobs', 'workflow')
+require_relative File.join(ODS_ROOT, 'lib', 'jobs', 'scheduler')
 
 # Models
 require_relative File.join(ODS_ROOT, 'app', 'models', 'schema')
 require_relative File.join(ODS_ROOT, 'app', 'models', 'pool')
 require_relative File.join(ODS_ROOT, 'app', 'models', 'document')
+require_relative File.join(ODS_ROOT, 'lib', 'modules', 'state_machine')
+require_relative File.join(ODS_ROOT, 'lib', 'modules', 'errorable')
+require_relative File.join(ODS_ROOT, 'lib', 'modules', 'jobable')
+require_relative File.join(ODS_ROOT, 'lib', 'modules', 'historyable')
 
 # Controllers
 ODS_PATHS = [File.join(ODS_ROOT, 'app', 'controllers')]

@@ -1,57 +1,55 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2026, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 require 'ActionManager'
-require 'ffi-rzmq'
+require 'securerandom'
 
 module OpenNebula
 
     module DocumentServer
 
-        # Event Manager class. Handles asynchronous events from OpenNebula
+        # Registers and dispatches asynchronous actions
         class EventManager
 
-            COMP = 'EVT'
+            COMP = 'ACT'
 
-            # Array containing the names of all available action methods (as symbols)
-            ACTIONS = []
-            # List of states that are considered failure conditions
-            FAILURE_STATES = []
-            # List of states to subscribe to for notifications or events
-            SUBSCRIBE_STATES = []
-
-            def initialize(cloud_auth, conf)
-                @cloud_auth = cloud_auth
-                @conf       = conf
-                @pool       = []
-                @suscriber  = ODS::EventSubscriber.default_subscriber
-
+            def initialize(_cloud_auth, conf)
                 # Create and register Action Manager actions
-                @am = ActionManager.new(@conf[:concurrency], true)
+                @am = ActionManager.new(conf[:concurrency], true)
 
+                # Subclasses define the action methods they expose.
                 self.class::ACTIONS.each do |action|
                     @am.register_action(action, method(action))
                 end
             end
 
-            def start
-                Log.info(COMP, 'Starting Event Manager')
-                @am.start_listener
-            end
-
             # Triggers an action through the Action Manager
-            # All functions recives as first parameter the ID of the resource
             #
             # @param name [Symbol] name of the action to trigger
-            # @param id [Integer] identifier of the target cluster or resource
             # @param args [Array] optional arguments passed to the action
-            # @return [void]
+            # @return [String, OpenNebula::Error] action identifier or error
             def trigger_action(name:, args: [])
                 action_id = SecureRandom.uuid
                 @am.trigger_action(name, action_id, *args)
 
                 action_id
             rescue StandardError => e
-                msg = "Error triggering action for cluster: #{e.message}"
+                msg = "Error triggering action: #{e.message}"
                 Log.error(COMP, msg, action_id)
-                return OpenNebula::Error.new(msg, OpenNebula::Error::EINTERNAL)
+                OpenNebula::Error.new(msg, OpenNebula::Error::EINTERNAL)
             end
 
         end

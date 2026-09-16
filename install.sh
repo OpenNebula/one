@@ -521,7 +521,6 @@ INSTALL_ONEFORM_FILES=(
 # Oneform subtrees installed by do_tree, see INSTALL_TREES for the entry format
 INSTALL_ONEFORM_TREES=(
     src/form/lib/tools:"$ONEFORM_LOCATION"/lib/tools
-    src/form/lib/helpers:"$ONEFORM_LOCATION"/lib/helpers
     src/form/app/controllers:"$ONEFORM_LOCATION"/app/controllers
     src/form/app/models:"$ONEFORM_LOCATION"/app/models
     src/form/config:"$ONEFORM_LOCATION"/config
@@ -1050,7 +1049,7 @@ ONEKS_CLI_BIN_FILES="src/oneks/cli/oneks"
 #-----------------------------------------------------------------------------
 
 ONEFORM_FILES="src/form/oneform-server.rb \
-               src/form/config.ru \
+               src/form/etc/oneform-server.yaml \
                src/form/Gemfile"
 
 ONEFORM_BIN_FILES="src/form/bin/oneform-server
@@ -1058,7 +1057,7 @@ ONEFORM_BIN_FILES="src/form/bin/oneform-server
 
 ONEFORM_ETC_FILES="src/form/etc/oneform-server.conf"
 
-ONEFORM_APP_FILES="src/form/app/app_routes.rb"
+ONEFORM_APP_FILES="src/form/app/routes.rb"
 
 ONEFORM_PROVIDERS_FILES="src/form/drivers/*"
 #-----------------------------------------------------------------------------

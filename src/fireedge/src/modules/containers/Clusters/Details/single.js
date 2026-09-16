@@ -42,10 +42,9 @@ import { Box, useTheme } from '@mui/material'
 import { Component } from 'react'
 import {
   Cancel,
-  CloudDesync,
   Edit,
+  RefreshCircular,
   RefreshDouble,
-  Restart,
   Trash,
 } from 'iconoir-react'
 import { getActionsAvailable, getTotalOfResources } from '@UtilsModule'
@@ -80,12 +79,10 @@ export const SingleView = ({
     ClusterAPI.useRenameClusterMutation()
   const [remove, { isLoading: isRemoving }] =
     ClusterAPI.useRemoveClusterMutation()
-  const [removeProvision, { isLoading: isRemovingProvision }] =
-    ProvisionAPI.useRemoveProvisionMutation()
-  const [deprovision, { isLoading: isDeprovisioning }] =
-    ProvisionAPI.useUndeployProvisionMutation()
-  const [retryProvision, { isLoading: isRetryingProvision }] =
-    ProvisionAPI.useRetryProvisionMutation()
+  const [deleteProvision, { isLoading: isDeletingProvision }] =
+    ProvisionAPI.useDeleteProvisionMutation()
+  const [recoverProvision, { isLoading: isRecoveringProvision }] =
+    ProvisionAPI.useRecoverProvisionMutation()
 
   const cluster =
     String(refreshedCluster?.ID) === String(selectedCluster?.ID)
@@ -106,50 +103,30 @@ export const SingleView = ({
     history.push(PATH.INFRASTRUCTURE.CLUSTERS.CREATE, cluster)
   }
 
-  const handleOpenDeprovisionForm = () =>
+  const handleOpenRecoverForm = () =>
     showModal({
       isConfirmDialog: true,
       dialogProps: {
-        title: T.Deprovision,
+        title: T.Recover,
+        dataCy: 'modal-recover-provision',
         description: (
           <ResourceActionConfirmation
-            description={T['resource.deprovision.confirmation']}
+            description={T['resource.recover.confirmation']}
             resources={cluster}
             resourceType={T.Clusters}
           />
         ),
-        confirmLabel: T.Deprovision,
+        confirmLabel: T.Recover,
       },
       onSubmit: async () => {
-        await deprovision({ id: TEMPLATE?.ONEFORM?.PROVISION_ID })
-        enqueueSuccess(T.SuccessProvisionDeleted)
-        await handleRefresh()
-      },
-    })
-
-  const handleOpenRetryForm = () =>
-    showModal({
-      isConfirmDialog: true,
-      dialogProps: {
-        title: T.Retry,
-        description: (
-          <ResourceActionConfirmation
-            description={T['resource.retry.confirmation']}
-            resources={cluster}
-            resourceType={T.Clusters}
-          />
-        ),
-        confirmLabel: T.Retry,
-      },
-      onSubmit: async () => {
-        await retryProvision({ id: TEMPLATE?.ONEFORM?.PROVISION_ID }).unwrap()
-        enqueueSuccess(T.SuccessProvisionRetried)
+        await recoverProvision({ id: TEMPLATE?.ONEFORM?.PROVISION_ID }).unwrap()
+        enqueueSuccess(T.SuccessProvisionRecovered)
         history.push(
           generatePath(PATH.INFRASTRUCTURE.CLUSTERS.CREATE_CLOUD_LOGS, {
             id: TEMPLATE?.ONEFORM?.PROVISION_ID,
           }),
           {
-            operation: CLUSTER_CLOUD_OPERATIONS.RETRY.name,
+            operation: CLUSTER_CLOUD_OPERATIONS.RECOVER.name,
           }
         )
       },
@@ -177,7 +154,7 @@ export const SingleView = ({
         const deleteProvisionId = TEMPLATE?.ONEFORM?.PROVISION_ID
 
         if (deleteProvisionId) {
-          await removeProvision({ id: deleteProvisionId, force: true })
+          await deleteProvision({ id: deleteProvisionId, force: true })
         } else {
           await remove({ id: ID })
         }
@@ -192,9 +169,8 @@ export const SingleView = ({
     isFetching ||
     isRenaming ||
     isRemoving ||
-    isRemovingProvision ||
-    isDeprovisioning ||
-    isRetryingProvision
+    isDeletingProvision ||
+    isRecoveringProvision
 
   const informationActions = getActionsAvailable(
     getResourceView(RESOURCE_NAMES.CLUSTER)?.['info-tabs']?.info
@@ -206,11 +182,7 @@ export const SingleView = ({
   const canRename = informationActions?.includes?.(CLUSTER_ACTIONS.RENAME)
   const canUpdate =
     actions?.includes?.(CLUSTER_ACTIONS.UPDATE_DIALOG) && !isProvisionCluster
-  const canDeprovision =
-    actions?.includes?.(PROVISION_ACTIONS.DEPROVISION) &&
-    isProvisionCluster &&
-    provisionId !== undefined
-  const canRetry =
+  const canRecover =
     actions?.includes?.(PROVISION_ACTIONS.RETRY) &&
     isProvisionCluster &&
     provisionId !== undefined
@@ -241,18 +213,13 @@ export const SingleView = ({
                   size="medium"
                   options={[
                     [
-                      canDeprovision && {
-                        startIcon: <CloudDesync width="16px" height="16px" />,
-                        onClick: handleOpenDeprovisionForm,
-                        value: PROVISION_ACTIONS.DEPROVISION,
-                        tooltip: T.Deprovision,
-                        isDisabled: isActionsDisabled,
-                      },
-                      canRetry && {
-                        startIcon: <Restart width="16px" height="16px" />,
-                        onClick: handleOpenRetryForm,
+                      canRecover && {
+                        startIcon: (
+                          <RefreshCircular width="16px" height="16px" />
+                        ),
+                        onClick: handleOpenRecoverForm,
                         value: PROVISION_ACTIONS.RETRY,
-                        tooltip: T.Retry,
+                        tooltip: T.Recover,
                         isDisabled: isActionsDisabled,
                       },
                     ].filter(Boolean),

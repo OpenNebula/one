@@ -22,6 +22,10 @@ import { Driver } from '@ConstantsModule'
 const { DRIVER } = FORM
 const { DRIVER_POOL } = FORM_POOL
 
+const getDriverName = (driver = {}) =>
+  driver.system_path?.split('/').filter(Boolean).pop() ??
+  driver.name?.toLowerCase()
+
 const driverApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
     getDrivers: builder.query({
@@ -42,7 +46,7 @@ const driverApi = oneApi.injectEndpoints({
       transformResponse: (data) =>
         data.map((driver) => ({
           ...driver,
-          name: driver.name.toLowerCase(),
+          name: getDriverName(driver),
         })),
       providesTags: (drivers) =>
         drivers
@@ -71,7 +75,7 @@ const driverApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      transformResponse: (data) => ({ ...data, name: data.name.toLowerCase() }),
+      transformResponse: (data) => ({ ...data, name: getDriverName(data) }),
       providesTags: (_, __, { name }) => [
         { type: DRIVER, id: name.toLowerCase() },
       ],

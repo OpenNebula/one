@@ -14,8 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'ffi-rzmq'
-
 module OpenNebula
 
     module DocumentServer
@@ -76,7 +74,7 @@ module OpenNebula
             #
             # @param call [String] API event name (e.g. "one.vm.allocate")
             # @param timeout [Integer, nil] maximum time in seconds, or nil to wait indefinitely
-            # @param stop_flag [ODS::ThreadManager::StopFlag, nil] shared cancellation flag
+            # @param stop_flag [ODS::CancelFlag, nil] shared cancellation flag
             # @yield [xml] parsed Nokogiri XML document with the event payload
             #
             # @return [nil] if stopped manually via StopSubscription
@@ -92,7 +90,7 @@ module OpenNebula
                 loop do
                     return OpenNebula::Error.new(
                         "#{call} subscriber cancelled", OpenNebula::Error::EACTION
-                    ) if stop_flag&.true?
+                    ) if stop_flag&.cancelled?
 
                     wait_ms = subscriber.timeout
 
@@ -128,7 +126,7 @@ module OpenNebula
                     OpenNebula::Error::EACTION
                 )
             ensure
-                subscriber.unsubscribe_api!(call) rescue nil if subscriber
+                subscriber.unsubscribe(call) rescue nil if subscriber
                 subscriber.close if subscriber
             end
 
@@ -322,7 +320,6 @@ module OpenNebula
             # @param vm_id [Integer]
             # @param state [String]
             # @param lcm_state [String]
-            # @return [void]
             def subscribe_all!(vm_id, state, lcm_state)
                 subscribe_state('VM', vm_id, state, lcm_state)
 
@@ -336,7 +333,6 @@ module OpenNebula
             # @param vm_id [Integer]
             # @param state [String]
             # @param lcm_state [String]
-            # @return [void]
             def unsubscribe_all!(vm_id, state, lcm_state)
                 unsubscribe_state('VM', vm_id, state, lcm_state)
 

@@ -14,736 +14,241 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-module OneFormServer
+module OneForm
 
     # Provisions Controller
-    module ProvisionsController
+    module ProvisionController
 
-        # Provisions Helper functions
-        module ProvisionsHelper
+        extend ODS::DocumentController
 
-            def recover_provision(username, provision, recover_state, opts)
-                return OpenNebula::Error.new(
-                    "Cannot recover to state #{recover_state} from #{provision.str_state}",
-                    ResponseHelper::OPERATION_EC
-                ) unless provision.can_recover?(recover_state)
+        BASE_PATH = '/provisions'
+        ODS_CLASS = OneForm::Provision
+        ODS_POOL  = OneForm::ProvisionDocumentPool
 
-                return @lcm.recover_provision(username, provision.id, opts)
-            end
-
+        # GET /provisions
+        # Params:
+        #   :include_provider [Boolean] - Embeds the provider
+        list :raw => true do |provision|
+            embed_provider(provision) if params.key?(:include_provider)
+            true
         end
 
+        # GET /provisions/:id
+        # Params:
+        #   :include_provider [Boolean] - Embeds the provider
+        show :raw => true do |provision|
+            embed_provider(provision) if params.key?(:include_provider)
+        end
+
+        # GET /provisions/:id/user_inputs
+        attribute :user_inputs, :path => 'inputs', :raw => true
+
+        # GET /provisions/:id/tfstate
+        # Params:
+        #   :decode [Boolean] - Decodes the stored Terraform state
+        attribute :tfstate, :raw => true, :oneadmin_only => true do |provision, tfstate|
+            next tfstate unless params.key?(:decode)
+
+            provision.decode_tfstate
+            provision.tfstate
+        end
+
+        # GET /provisions/:id/cluster
+        get 'cluster' do |provision|
+            object = provision.resources.cluster&.one_object(@client)
+            next object if OpenNebula.is_error?(object)
+
+            object&.to_hash
+        end
+
+        # GET /provisions/:id/hosts
+        get 'hosts' do |provision|
+            objects = Array(provision.resources.hosts).map do |resource|
+                resource.one_object(@client)
+            end
+            error = objects.find {|object| OpenNebula.is_error?(object) }
+
+            next error if error
+
+            objects.compact.map(&:to_hash)
+        end
+
+        # GET /provisions/:id/networks
+        get 'networks' do |provision|
+            objects = Array(provision.resources.networks).map do |resource|
+                resource.one_object(@client)
+            end
+            error = objects.find {|object| OpenNebula.is_error?(object) }
+
+            next error if error
+
+            objects.compact.map(&:to_hash)
+        end
+
+        # GET /provisions/:id/datastores
+        get 'datastores' do |provision|
+            objects = Array(provision.resources.datastores).map do |resource|
+                resource.one_object(@client)
+            end
+            error = objects.find {|object| OpenNebula.is_error?(object) }
+
+            next error if error
+
+            objects.compact.map(&:to_hash)
+        end
+
+        # GET /provisions/:id/unmanaged
+        get 'unmanaged' do |provision|
+            provision.resources.unmanaged
+        end
+
+        # GET /provisions/:id/jobs
+        get 'jobs', :raw => true, :oneadmin_only => true do |provision|
+            active_job = provision.active_job
+            next [] unless active_job
+
+            runtime_job = OneForm::Provision.lcm.scheduler.job_for(provision.id, active_job.id)
+            status = if OneForm::Provision.lcm.class.failure_states.value?(provision.state)
+                         :failed
+                     else
+                         runtime_job&.[](:status)
+                     end
+
+            [active_job.to_h.merge(
+                :status  => status,
+                :command => runtime_job&.[](:command)
+            )]
+        end
+
+        # POST /provisions
+        # Body:
+        #   :driver [String] - Base driver name
+        #   :deployment_type [String] - Deployment configuration name
+        #   :provider_id [Integer] - Provider ID
+        #   :user_inputs_values [Hash] - Provision input values
+        #   :name [String] - Provision name
+        #   :description [String] - Provision description
+        create :schema => :PostProvisionSchema do |body|
+            provision = OneForm::Provision.from_driver(@client, body)
+            next provision if OpenNebula.is_error?(provision)
+
+            rc = provision.provision(:actor => @username)
+            next rc if OpenNebula.is_error?(rc)
+
+            provision
+        end
+
+        # POST /provisions/:id/chmod
+        chmod
+
+        # POST /provisions/:id/chown
+        chown
+
+        # POST /provisions/:id/chgrp
+        chgrp
+
+        # PATCH /provisions/:id
+        # Body:
+        #   :name [String] - Provision name
+        #   :description [String, nil] - Provision description
+        update :schema => :PatchProvisionSchema
+
+        # POST /provisions/:id/cancel
+        post 'cancel', :status => 202, :response => true do |provision|
+            result = provision.cancel(:actor => @username, :oneadmin => oneadmin?)
+            next result if OpenNebula.is_error?(result)
+
+            { :status => result }
+        end
+
+        # POST /provisions/:id/recover
+        # Params:
+        #   :force [Boolean] - Forces recovery protections
+        post 'recover', :status => 202 do |provision|
+            provision.recover(:force => params.key?(:force), :actor => @username)
+        end
+
+        # POST /provisions/:id/hosts
+        # Body:
+        #   :amount [Integer] - Number of cloud hosts to add
+        #   :hosts [Array<String>] - On-premises host IPs or hostnames to add
+        post 'hosts', :schema => :PostHostsSchema, :status => 202 do |provision, body|
+            provision.add_hosts(
+                :amount => body[:amount], :hosts => body[:hosts], :actor => @username
+            )
+        end
+
+        # POST /provisions/:id/public-network/ips
+        # Body:
+        #   :amount [Integer] - Number of ARs (public IPs) to add
+        post(
+            'public-network/ips',
+            :schema => :PostPublicIpsSchema,
+            :status => 202
+        ) do |provision, body|
+            provision.add_public_ips(:actor => @username, :amount => body.fetch(:amount, 1))
+        end
+
+        # DELETE /provisions/:id/hosts
+        # Params:
+        #   :ids [String] - Comma-separated OpenNebula host IDs to delete
+        delete(
+            'hosts',
+            :params_schema => :DeleteHostSchema,
+            :status => 202
+        ) do |provision, args|
+            provision.delete_hosts(args[:ids].split(',').map(&:to_i), :actor => @username)
+        end
+
+        # DELETE /provisions/:id/public-network/ips/:ar_id
+        # Params:
+        #   :ar_id [String] - OpenNebula address range ID
+        delete(
+            'public-network/ips/:ar_id',
+            :params_schema => :DeletePublicIpSchema,
+            :status        => 202
+        ) do |provision, args|
+            provision.delete_public_ip(args[:ar_id], :actor => @username)
+        end
+
+        # DELETE /provisions/:id
+        # Params:
+        #   :force [Boolean]   - Forces deprovisioning
+        #   :from_db [Boolean] - Deletes the provision document without deprovisioning
+        delete :status => 202 do |provision|
+            next provision.delete if params.key?(:from_db)
+
+            provision.deprovision(
+                :force => params.key?(:force), :actor => @username
+            )
+        end
+
+        # GET /provisions/:id/logs
+        logs
+
         def self.registered(app)
-            app.helpers ProvisionsHelper
+            register_routes(app)
+        end
 
-            # GET /provisions
-            # Retrieves all provisions.
-            #
-            # Query Params:
-            #   all [true|false]               - If true, show all provisions including DONE
-            #                                    (default: false)
-            #   include_provider [true|false] - If true, include provider info (default: false)
-            #   include_sensitive [true|false] - If true, include sensitive values (default: false)
-            #
-            # Returns:
-            #   200 OK - Array of provisions (JSON)
-            #   500 Internal Server Error
-            app.get '/provisions' do
-                show_all          = params['all'].to_s.downcase == 'true'
-                include_provider  = params['include_provider'].to_s.downcase == 'true'
-                include_sensitive = params['include_sensitive'].to_s.downcase == 'true'
+        # HTTP presentation helpers for provisions.
+        module Helpers
 
-                pool = OneForm::ProvisionDocumentPool.new(@client)
-                rc   = pool.info
+            # Embeds a provider body inside the provision
+            # @param provision [Provision] Provision receiving its provider body
+            # @raise [OpenNebula::Error] If the provider cannot be retrieved
+            def embed_provider(provision)
+                return unless provision.provider_id
 
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
+                provider = OneForm::Provider.new_from_id(@client, provision.provider_id)
+                raise provider if OpenNebula.is_error?(provider)
 
-                provisions = []
+                provider_body = provider.to_h(
+                    :include_sensitive => include_sensitive?(provider)
+                ).dig('DOCUMENT', 'TEMPLATE', OneForm::Provider::TEMPLATE_TAG)
 
-                pool.ids.each do |id|
-                    provision = OneForm::Provision.new_from_id(@client, id)
-
-                    return internal_error(
-                        provision.message, one_error_to_http(provision.errno)
-                    ) if OpenNebula.is_error?(provision)
-
-                    # Skip DONE unless show_all
-                    next if provision.state == OneForm::Provision::STATE['DONE'] && !show_all
-
-                    provision.include_provider if include_provider
-                    provisions << provision
-                end
-
-                opts = { :include_sensitive => include_sensitive }
-
-                status 200
-                body process_response(provisions, opts)
+                provision.include_provider(provider_body)
             end
 
-            # GET /provisions/:id
-            # Retrieves a specific provision by ID.
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Query Params:
-            #   decode [true|false]            - Decode Terraform state (default: false)
-            #   include_provider [true|false]  - Include provider info (default: false)
-            #   include_sensitive [true|false] - Include sensitive values (default: false)
-            #
-            # Returns:
-            #   200 OK - Provision object (JSON)
-            #   404 Not Found
-            #   500 Internal Server Error
-            app.get '/provisions/:id' do
-                decode            = params['decode'].to_s.downcase == 'true'
-                include_provider  = params['include_provider'].to_s.downcase == 'true'
-                include_sensitive = params['include_sensitive'].to_s.downcase == 'true'
-
-                provision = OneForm::Provision.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    provision.message, one_error_to_http(provision.errno)
-                ) if OpenNebula.is_error?(provision)
-
-                provision.decode_tfstate if decode
-                provision.include_provider if include_provider
-
-                opts = { :include_sensitive => include_sensitive }
-
-                status 200
-                body process_response(provision, opts)
-            end
-
-            # GET /provisions/:id/unmanaged
-            # Retrieves unmanaged resources related to a provision (e.g. VMs, images, leases).
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Response example:
-            #   {
-            #     "datastores": { "107": { "image": ["4"] } },
-            #     "hosts": { "100": { "vms": ["1", "2"] }, "102": { "vm": ["3"] } },
-            #     "networks": { "10": { "vms": ["1", "2"] } }
-            #   }
-            #
-            # Returns:
-            #   200 OK - List of unmanaged resources (JSON)
-            #   404 Not Found - If provision does not exist
-            #   500 Internal Server Error - If OpenNebula error
-            app.get '/provisions/:id/unmanaged' do
-                provision = OneForm::Provision.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    provision.message, one_error_to_http(provision.errno)
-                ) if OpenNebula.is_error?(provision)
-
-                rc = provision.check_unmanaged_resources
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 200
-                body process_response(provision.unmanaged_resources_all)
-            end
-
-            # POST /provisions
-            # Creates a new provision using a base driver definition.
-            #
-            # Body (JSON):
-            #    - driver [String] - Name of the base driver to use
-            #    - deployment_type [String] - Name of the deployment configuration file to use
-            #    - provider_id [Integer] - ID of the provider credentials to use
-            #    - user_inputs_Values [Hash] - User values for the provision
-            #    - any additional values to overwrite the driver info (e.g. name, desc)
-            #
-            # Returns:
-            #   201 Created - Provider successfully created (JSON)
-            #   400 Bad Request - Missing or invalid body, driver not found, or driver not enabled
-            #   500 Internal Server Error - If OpenNebula error occurs during allocation
-            app.post '/provisions' do
-                return internal_error(
-                    'Missing request body', ResponseHelper::VALIDATION_EC
-                ) if request.body.eof?
-
-                begin
-                    body = JSON.parse(request.body.read)
-                rescue JSON::ParserError
-                    return internal_error('Invalid JSON body', ResponseHelper::VALIDATION_EC)
-                end
-
-                return internal_error(
-                    'Missing `driver` attribute', ResponseHelper::VALIDATION_EC
-                ) unless body['driver']
-
-                return internal_error(
-                    'Missing `deployment_type` attribute', ResponseHelper::VALIDATION_EC
-                ) unless body['deployment_type']
-
-                return internal_error(
-                    'Missing `provider_id` attribute', ResponseHelper::VALIDATION_EC
-                ) unless body['provider_id']
-
-                dname  = body['driver'].downcase
-                dtype  = body['deployment_type'].downcase
-                pid    = body['provider_id'].to_i
-
-                driver = OneForm::Driver.from_name(dname)
-
-                return internal_error(
-                    driver.message, one_error_to_http(driver.errno)
-                ) if OpenNebula.is_error?(driver)
-
-                # Only allow create provision from enable driver
-                return internal_error(
-                    'Provision creation is not allowed from a disabled driver',
-                    ResponseHelper::VALIDATION_EC
-                ) unless driver.enabled?
-
-                # Merge request body to driver content
-                driver.merge(body)
-                pbody = driver.deployment_body(dtype)
-
-                return internal_error(
-                    pbody.message, one_error_to_http(pbody.errno)
-                ) if OpenNebula.is_error?(pbody)
-
-                # Get the provider to instantiate the provision
-                provider = OneForm::Provider.new_from_id(@client, pid)
-
-                return internal_error(
-                    provider.message, one_error_to_http(provider.errno)
-                ) if OpenNebula.is_error?(provider)
-
-                # Check that driver and provider are compatibles
-                return internal_error(
-                    "The specified driver '#{provider.driver}' is not compatible with " \
-                    "the '#{File.basename(driver.system_path)}' driver used for this provision.",
-                    ResponseHelper::VALIDATION_EC
-                ) if provider.driver != File.basename(driver.system_path)
-
-                # Create provision from driver deployment body
-                provision = OneForm::Provision.new(@client)
-                rc        = provision.allocate(provider, pbody)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                @lcm.start_init(@username, provision.id)
-
-                status 201
-                body process_response(provision)
-            end
-
-            # POST /provisions/:id/undeploy
-            # Starts the undeployment (deprovisioning) process of a provision.
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Body (JSON):
-            #   force [Boolean] - force undeploy even in error state (default: false)
-            #
-            # Returns:
-            #   204 No Content - If undeployment process started
-            #   400 Bad Request - If request body or any flag is invalid
-            #   500 Internal Server Error - If OpenNebula or LCM error
-            app.post '/provisions/:id/undeploy' do
-                return internal_error(
-                    'Missing request body', ResponseHelper::VALIDATION_EC
-                ) if request.body.eof?
-
-                opts = JSON.parse(request.body.read)
-
-                return internal_error(
-                    '`force` must be a boolean value (true or false)', ResponseHelper::VALIDATION_EC
-                ) unless opts['force'].nil? || [true, false].include?(opts['force'])
-
-                provision = OneForm::Provision.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    provision.message, one_error_to_http(provision.errno)
-                ) if OpenNebula.is_error?(provision)
-
-                rc = @lcm.start_deprovisioning_one(@username, provision.id, opts)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            end
-
-            # POST /provisions/:id/recover
-            # Recovers a provision from a specific state.
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Body (JSON):
-            #   recover_state [String] - Required, state to recover to (e.g., 'RUNNING')
-            #   force [Boolean] - force recovery even in error state (default: false)
-            #
-            # Returns:
-            #   204 No Content - If recovery process started
-            #   400 Bad Request - If input data is invalid or missing
-            #   500 Internal Server Error - If OpenNebula or recovery error
-            app.post '/provisions/:id/recover' do
-                return internal_error(
-                    'Missing request body', ResponseHelper::VALIDATION_EC
-                ) if request.body.eof?
-
-                body          = JSON.parse(request.body.read)
-                recover_state = body['recover_state']
-                force         = body['force'] || false
-
-                return internal_error(
-                    'Missing `recover_state` attribute', ResponseHelper::VALIDATION_EC
-                ) unless recover_state
-
-                return internal_error(
-                    '`force` must be a boolean value (true or false)', ResponseHelper::VALIDATION_EC
-                ) unless force.nil? || [true, false].include?(force)
-
-                # Get provision and check if it can be recovered to recover_state
-                provision = OneForm::Provision.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    provision.message, one_error_to_http(provision.errno)
-                ) if OpenNebula.is_error?(provision)
-
-                opts = { 'force' => force }
-                rc = recover_provision(@username, provision, recover_state, opts)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            end
-
-            # POST /provisions/:id/retry
-            # Retries a failed provision by recovering to the last retryable state.
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Body (JSON):
-            #   force [Boolean] - force retry even in error state (default: false)
-            #   opts [Hash] - additional options for the retry operation
-            #
-            # Returns:
-            #   204 No Content - If retry process started
-            #   400 Bad Request - If input data is invalid
-            #   500 Internal Server Error - If OpenNebula or recovery error
-            app.post '/provisions/:id/retry' do
-                return internal_error(
-                    'Missing request body', ResponseHelper::VALIDATION_EC
-                ) if request.body.eof?
-
-                opts  = JSON.parse(request.body.read)
-                force = opts['force'] || false
-
-                return internal_error(
-                    '`force` must be a boolean value (true or false)', ResponseHelper::VALIDATION_EC
-                ) unless force.nil? || [true, false].include?(force)
-
-                # Get provision and check if it can be recovered to recover_state
-                provision = OneForm::Provision.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    provision.message, one_error_to_http(provision.errno)
-                ) if OpenNebula.is_error?(provision)
-
-                rc = recover_provision(@username, provision, provision.retry_state, opts)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            end
-
-            # POST /provisions/:id/scale
-            # Scales a provision up or down.
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Body (JSON):
-            #   direction [String] - Required, either "up" or "down"
-            #   nodes [Array] - Required, list of nodes to scale (e.g., ["node1", "node2"])
-            #   opts [Hash] - additional scaling options (optional)
-            #
-            # Returns:
-            #   204 No Content - If scaling started
-            #   400 Bad Request - If input data is invalid or missing
-            #   500 Internal Server Error - If OpenNebula or LCM error
-            app.post '/provisions/:id/scale' do
-                return internal_error(
-                    'Missing request body', ResponseHelper::VALIDATION_EC
-                ) if request.body.eof?
-
-                body      = JSON.parse(request.body.read)
-                direction = body['direction']
-                nodes     = body['nodes']
-                opts      = body['opts'] || {}
-
-                return internal_error(
-                    'Missing `direction` attribute', ResponseHelper::VALIDATION_EC
-                ) unless direction
-
-                return internal_error(
-                    'Missing `nodes` attribute', ResponseHelper::VALIDATION_EC
-                ) unless nodes
-
-                provision = OneForm::Provision.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    provision.message, one_error_to_http(provision.errno)
-                ) if OpenNebula.is_error?(provision)
-
-                rc = @lcm.start_scaling(@username, provision.id, direction, nodes, opts)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            end
-
-            # POST /provisions/:id/add-ip
-            # Add an amount of public IPs to the public network of the provision
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Body (JSON):
-            #   amount [Integer] - Optional, number of IPs to add to the provision (1 by default)
-            #
-            # Returns:
-            #   204 No Content - IP adedd correctly
-            #   400 Bad Request - If input data is invalid or missing
-            #   500 Internal Server Error - If OpenNebula error
-            app.post '/provisions/:id/add-ip' do
-                return internal_error(
-                    'Missing request body', ResponseHelper::VALIDATION_EC
-                ) if request.body.eof?
-
-                body      = JSON.parse(request.body.read)
-                provision = OneForm::Provision.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    provision.message, one_error_to_http(provision.errno)
-                ) if OpenNebula.is_error?(provision)
-
-                rc = @lcm.start_scaling_network(@username, provision.id, 'up', body)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            end
-
-            # POST /provisions/:id/remove-ip
-            # Remove a concrete public IP (AR) from the public network of the provision
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Body (JSON):
-            #   ar_id [Integer] - Required, AR ID of the IP to remove
-            #
-            # Returns:
-            #   204 No Content - IP removed correctly
-            #   400 Bad Request - If input data is invalid or missing
-            #   500 Internal Server Error - If OpenNebula error
-            app.post '/provisions/:id/remove-ip' do
-                return internal_error(
-                    'Missing request body', ResponseHelper::VALIDATION_EC
-                ) if request.body.eof?
-
-                body = JSON.parse(request.body.read)
-
-                return internal_error(
-                    'Missing `ar_id` attribute', ResponseHelper::VALIDATION_EC
-                ) unless body['ar_id']
-
-                provision = OneForm::Provision.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    provision.message, one_error_to_http(provision.errno)
-                ) if OpenNebula.is_error?(provision)
-
-                rc = @lcm.start_scaling_network(@username, provision.id, 'down', body)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            end
-
-            # POST /provisions/:id/chmod
-            # Changes the permission mode of a provision.
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Body (JSON):
-            #   octet [String] - Required, new octet permission string (e.g., "640")
-            #
-            # Returns:
-            #   200 OK - Updated provision (JSON)
-            #   400 Bad Request - If input data is invalid
-            #   500 Internal Server Error - If OpenNebula error
-            app.post '/provisions/:id/chmod' do
-                begin
-                    return internal_error(
-                        'Missing request body', ResponseHelper::VALIDATION_EC
-                    ) if request.body.eof?
-
-                    provision_id = params[:id]
-
-                    begin
-                        chmod_body = JSON.parse(request.body.read)
-                    rescue JSON::ParserError
-                        return internal_error('Invalid JSON body', ResponseHelper::VALIDATION_EC)
-                    end
-
-                    return internal_error(
-                        'Missing `octet` attribute', ResponseHelper::VALIDATION_EC
-                    ) unless chmod_body['octet']
-
-                    provision = OneForm::Provision.new_from_id(@client, provision_id)
-
-                    return internal_error(
-                        provision.message, one_error_to_http(provision.errno)
-                    ) if OpenNebula.is_error?(provision)
-
-                    octet = chmod_body['octet']
-                    rc    = provision.chmod_octet(octet)
-
-                    return internal_error(
-                        rc.message, one_error_to_http(rc.errno)
-                    ) if OpenNebula.is_error?(rc)
-
-                    status 204
-                rescue JSON::ParserError
-                    return internal_error('Invalid JSON format', ResponseHelper::VALIDATION_EC)
-                rescue KeyError => e
-                    return internal_error(
-                        "Missing field: #{e.message}", ResponseHelper::VALIDATION_EC
-                    )
-                rescue StandardError => e
-                    return internal_error(e.message, ResponseHelper::VALIDATION_EC)
-                end
-            end
-
-            # POST /provisions/:id/chown
-            # Changes the owner of a provision.
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Body (JSON):
-            #   owner_id [Integer] - Required, new user ID
-            #   group_id [Integer] - Optional, new group ID
-            #
-            # Returns:
-            #   200 OK - Updated provision (JSON)
-            #   400 Bad Request - If input data is invalid or missing
-            #   500 Internal Server Error - If OpenNebula error
-            app.post '/provisions/:id/chown' do
-                begin
-                    return internal_error(
-                        'Missing request body', ResponseHelper::VALIDATION_EC
-                    ) if request.body.eof?
-
-                    provision_id = params[:id]
-
-                    begin
-                        chown_body = JSON.parse(request.body.read)
-                    rescue JSON::ParserError
-                        return internal_error('Invalid JSON body', ResponseHelper::VALIDATION_EC)
-                    end
-
-                    return internal_error(
-                        'Missing `owner_id` attribute', ResponseHelper::VALIDATION_EC
-                    ) unless chown_body['owner_id']
-
-                    provision = OneForm::Provision.new_from_id(@client, provision_id)
-
-                    return internal_error(
-                        provision.message, one_error_to_http(provision.errno)
-                    ) if OpenNebula.is_error?(provision)
-
-                    u_id = chown_body['owner_id'].to_i
-                    g_id = (chown_body['group_id'] || -1).to_i
-                    rc   = provision.chown(u_id, g_id)
-
-                    return internal_error(
-                        rc.message, one_error_to_http(rc.errno)
-                    ) if OpenNebula.is_error?(rc)
-
-                    status 204
-                rescue JSON::ParserError
-                    return internal_error('Invalid JSON format', ResponseHelper::VALIDATION_EC)
-                rescue KeyError => e
-                    return internal_error(
-                        "Missing field: #{e.message}", ResponseHelper::VALIDATION_EC
-                    )
-                rescue StandardError => e
-                    return internal_error(e.message, ResponseHelper::VALIDATION_EC)
-                end
-            end
-
-            # POST /provisions/:id/chgrp
-            # Changes the group ownership of a provision.
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Body (JSON):
-            #   group_id [Integer] - Required, new group ID
-            #
-            # Returns:
-            #   200 OK - Updated provision (JSON)
-            #   400 Bad Request - If input data is invalid or missing
-            #   500 Internal Server Error - If OpenNebula error
-            app.post '/provisions/:id/chgrp' do
-                begin
-                    return internal_error(
-                        'Missing request body', ResponseHelper::VALIDATION_EC
-                    ) if request.body.eof?
-
-                    provision_id = params[:id]
-
-                    begin
-                        chgrp_body = JSON.parse(request.body.read)
-                    rescue JSON::ParserError
-                        return internal_error('Invalid JSON body', ResponseHelper::VALIDATION_EC)
-                    end
-
-                    return internal_error(
-                        'Missing `group_id` attribute', ResponseHelper::VALIDATION_EC
-                    ) unless chgrp_body['group_id']
-
-                    provision = OneForm::Provision.new_from_id(@client, provision_id)
-
-                    return internal_error(
-                        provision.message, one_error_to_http(provision.errno)
-                    ) if OpenNebula.is_error?(provision)
-
-                    g_id = chgrp_body['group_id'].to_i
-                    rc   = provision.chown(-1, g_id)
-
-                    if OpenNebula.is_error?(rc)
-                        return internal_error(rc.message, one_error_to_http(rc.errno))
-                    end
-
-                    status 204
-                rescue JSON::ParserError
-                    return internal_error('Invalid JSON format', ResponseHelper::VALIDATION_EC)
-                rescue KeyError => e
-                    return internal_error(
-                        "Missing field: #{e.message}", ResponseHelper::VALIDATION_EC
-                    )
-                rescue StandardError => e
-                    return internal_error(e.message, ResponseHelper::GENERAL_EC)
-                end
-            end
-
-            # PATCH /provisions/:id
-            # Updates a provision's internal data.
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #
-            # Body (JSON):
-            #   Patch data for the provision (e.g., 'name', 'description', etc.)
-            #
-            # Returns:
-            #   200 OK - Updated provision (JSON)
-            #   400 Bad Request - If input is invalid or malformed
-            #   500 Internal Server Error - If OpenNebula error
-            app.patch '/provisions/:id' do
-                begin
-                    return internal_error(
-                        'Missing request body', ResponseHelper::VALIDATION_EC
-                    ) if request.body.eof?
-
-                    patch_body = request.body.read
-                    provision  = OneForm::Provision.new_from_id(@client, params[:id])
-
-                    return internal_error(
-                        provision.message, one_error_to_http(provision.errno)
-                    ) if OpenNebula.is_error?(provision)
-
-                    rc = provision.update(patch_body)
-
-                    return internal_error(
-                        rc.message, one_error_to_http(rc.errno)
-                    ) if OpenNebula.is_error?(rc)
-
-                    status 200
-                    body process_response(provision)
-                rescue JSON::ParserError
-                    return internal_error('Invalid JSON format', ResponseHelper::VALIDATION_EC)
-                rescue KeyError => e
-                    return internal_error(
-                        "Missing field: #{e.message}", ResponseHelper::VALIDATION_EC
-                    )
-                rescue StandardError => e
-                    return internal_error(e.message, ResponseHelper::VALIDATION_EC)
-                end
-            end
-
-            # DELETE /provisions/:id
-            # Deletes a provision. Only provisions in DONE state can be deleted unless forced.
-            #
-            # Params:
-            #   :id [String] - ID of the provision
-            #   force [Boolean] - Optional, allows deletion in any state if true
-            #
-            # Returns:
-            #   204 No Content - Provision deleted
-            #   400 Bad Request - If provision is not in DONE and force is not true
-            #   404 Not Found - If provision does not exist
-            #   500 Internal Server Error - If OpenNebula error
-            app.delete '/provisions/:id' do
-                # By default only provisions in DONE state can be deleted
-                force = params['force'] == 'true'
-
-                provision = OneForm::Provision.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    provision.message, one_error_to_http(provision.errno)
-                ) if OpenNebula.is_error?(provision)
-
-                # If provision is not in DONE and force is not set, return error
-                if provision.state != OneForm::Provision::STATE['DONE'] && !force
-                    return internal_error(
-                        "Provision in state #{provision.str_state} cannot be deleted, " \
-                        'use force option to delete it',
-                        ResponseHelper::OPERATION_EC
-                    )
-                end
-
-                rc = provision.delete(true)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            end
         end
 
     end

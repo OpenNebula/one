@@ -37,7 +37,6 @@ $LOAD_PATH << LIB_LOCATION      + '/oneflow/lib'
 
 USER_AGENT = 'CLI'
 
-require 'tempfile'
 require 'command_parser'
 require 'one_helper'
 require 'opennebula/oneform_client'
@@ -54,43 +53,81 @@ CommandParser::CmdParser.new(ARGV) do
     set :option, CommandParser::VERSION
     set :option, CommandParser::HELP
 
-    FORCE = {
+    FORCE_RECOVER = {
         :name => 'force',
         :short => '-f',
         :large => '--force',
-        :description => 'Force the resource deletion even if has dependencies',
+        :description => 'Force recovery of a failed provision',
         :default => false
     }
 
-    ALL = {
-        :name => 'all',
-        :short => '-a',
-        :large => '--all',
-        :description => 'Show all provisions, including DONE',
+    FORCE_DELETE = {
+        :name => 'force',
+        :short => '-f',
+        :large => '--force',
+        :description => 'Force deletion from any state or with unmanaged resources',
         :default => false
+    }
+
+    FROM_DB = {
+        :name => 'from_db',
+        :large => '--from-db',
+        :description => 'Delete only the provision document without deprovisioning',
+        :default => false
+    }
+
+    WAIT = {
+        :name        => 'wait',
+        :large       => '--wait',
+        :description => 'Follow provision logs after a successful provision creation',
+        :default     => false
     }
 
     ALL_LOGS = {
         :name => 'all',
         :short => '-a',
         :large => '--all',
-        :description => 'Show all provision logs (paginated by default)',
+        :description => 'Show the full provision log history',
         :default => false
+    }
+
+    FOLLOW_LOGS = {
+        :name => 'follow',
+        :short => '-f',
+        :large => '--follow',
+        :description => 'Poll provision logs continuously',
+        :default => false
+    }
+
+    HOSTS = {
+        :name        => 'hosts',
+        :short       => '-h',
+        :large       => '--hosts hosts',
+        :description => 'IP addresses or hostnames to add as hosts. ' \
+                        'Only valid for on-prem providers',
+        :format      => Array
     }
 
     HOST_IDS = {
         :name        => 'host_ids',
-        :large       => '--ids ids',
         :short       => '-i ids',
-        :description => 'Hosts IDs to remove from the provision',
-        :format      => Array
+        :large       => '--host-ids ids',
+        :description => 'OpenNebula host IDs to remove, separated by commas',
+        :format      => String
+    }
+
+    AR_ID = {
+        :name        => 'ar_id',
+        :large       => '--ar-id id',
+        :description => 'Address Range ID to remove',
+        :format      => Integer
     }
 
     AMOUNT = {
         :name        => 'amount',
         :short       => '-a n',
         :large       => '--amount n',
-        :description => 'Number of hosts to add or remove from the provision (scales cardinality)',
+        :description => 'Number of hosts to add or remove from the provision',
         :format      => Integer
     }
 
@@ -102,23 +139,15 @@ CommandParser::CmdParser.new(ARGV) do
         :format      => Integer
     }
 
-    HOST_IPS = {
-        :name        => 'host_ips',
-        :short       => '-i ips',
-        :large       => '--ips ips',
-        :description => 'IP addresses to add as hosts. Only valid for on-prem providers',
-        :format      => Array
-    }
-
     PROVIDER_ID = {
         :name => 'provider_id',
         :short => '-p id',
         :large => '--provider-id id',
         :description => 'Set the provider by ID to create the provision',
-        :format => String
+        :format => Integer
     }
 
-    DEPLOYMENT = {
+    DEPLOYMENT_TYPE = {
         :name => 'deployment',
         :short => '-d name',
         :large => '--deployment name',
@@ -131,6 +160,21 @@ CommandParser::CmdParser.new(ARGV) do
         :short => '-s',
         :large => '--sensitive',
         :description => 'Include sensitive values information in the output',
+        :default => false
+    }
+
+    DECODE = {
+        :name => 'decode',
+        :large => '--decode',
+        :description => 'Decode the stored Terraform state',
+        :default => false
+    }
+
+    WATCH = {
+        :name => 'watch',
+        :short => '-w',
+        :large => '--watch',
+        :description => 'Refresh the active lifecycle job continuously',
         :default => false
     }
 
@@ -167,15 +211,12 @@ CommandParser::CmdParser.new(ARGV) do
             list_desc,
             :options => (
                 FORMAT + CLIHelper::OPTIONS +
-                [ALL, OpenNebulaHelper::DESCRIBE, SENSITIVE]
+                [OpenNebulaHelper::DESCRIBE, SENSITIVE]
             )do
-        sensitive = options[:sensitive] || false
-
-        helper.list_provision_pool(
-            helper.client(options),
-            options,
-            :include_sensitive => sensitive
-        )
+        helper.list(helper.client(options), options)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     top_desc = <<-EOT.unindent
@@ -185,16 +226,11 @@ CommandParser::CmdParser.new(ARGV) do
     command :top,
             top_desc,
             :options => FORMAT + [CLIHelper::DELAY, SENSITIVE] do
-        Signal.trap('INT') { exit(-1) }
-        sensitive = options[:sensitive] || false
-
-        helper.top_provision_pool(
-            helper.client(options),
-            options,
-            :include_sensitive => sensitive
-        )
-
-        0
+        Signal.trap('INT') { exit(1) }
+        helper.top(helper.client(options), options)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     show_desc = <<-EOT.unindent
@@ -203,14 +239,11 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :show, show_desc, :provision_id, :options => FORMAT + [SENSITIVE] do
         provision_id = args[0].to_i
-        sensitive    = options[:sensitive] || false
 
-        helper.format_resource(
-            helper.client(options),
-            provision_id,
-            options,
-            :include_sensitive => sensitive
-        )
+        helper.show(helper.client(options), provision_id, options)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     create_desc = <<-EOT.unindent
@@ -221,17 +254,11 @@ CommandParser::CmdParser.new(ARGV) do
             create_desc,
             :driver_name,
             [:file, nil],
-            :options => [PROVIDER_ID, DEPLOYMENT] do
-        # Args and opts
+            :options => [PROVIDER_ID, DEPLOYMENT_TYPE, WAIT] do
         driver_name = args[0]
-        file        = args[1]
+        file_path   = args[1]
         provider_id = options[:provider_id]
         deployment  = options[:deployment]
-
-        client = helper.client(options)
-        doc    = client.get_driver(driver_name)
-
-        return [doc[:err_code], doc[:message]] if CloudClient.is_error?(doc)
 
         if provider_id.nil?
             STDERR.puts 'A provider ID is mandatory to create a Provision:'
@@ -239,36 +266,16 @@ CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
-        deployments = doc[:deployment_confs]
-
-        if deployment.nil?
-            # Get deployment inventory name if not provided
-            if deployments.size == 1
-                deployment = deployments.first
-            else
-                deployment = helper.ask_deployment(deployments)
-            end
-        else
-            deployment = deployments.find {|conf| conf[:inventory] == deployment }
-        end
-
-        # Combine inputs from provisioning and deployment
-        dinputs = doc[:user_inputs] + (deployment[:user_inputs] || [])
-        body    = helper.read_json_input(file) || {}
-
-        # If no user_inputs_values are provided, try to get user inputs
-        unless body[:user_inputs_values]
-            body[:user_inputs_values] = helper.get_user_values(dinputs)
-        end
-
-        response = client.create_provision(driver_name, deployment[:inventory], provider_id, body)
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        puts "ID: #{response[:ID]}"
-
-        0
+        helper.create(
+            helper.client(options), driver_name, file_path,
+            options.merge(
+                :provider_id => provider_id,
+                :deployment  => deployment
+            )
+        )
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     update_desc = <<-EOT.unindent
@@ -279,7 +286,10 @@ CommandParser::CmdParser.new(ARGV) do
         provision_id = args[0].to_i
         file_path    = args[1]
 
-        helper.update_resource(helper.client(options), provision_id, file_path)
+        helper.update(helper.client(options), provision_id, file_path)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     rename_desc = <<-EOT.unindent
@@ -287,16 +297,13 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :rename, rename_desc, :provision_id, :name do
-        client       = helper.client(options)
         provision_id = args[0].to_i
         name         = args[1]
 
-        response = client.update_provision(provision_id, { 'name' => name })
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        0
+        helper.rename(helper.client(options), provision_id, name)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     chgrp_desc = <<-EOT.unindent
@@ -304,17 +311,13 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chgrp, chgrp_desc, [:range, :provisionid_list], :groupid do
-        client   = helper.client(options)
-        ids      = args[0]
-        group_id = args[1].to_i
+        provision_ids = args[0]
+        group_id      = args[1].to_i
 
-        ids.each do |id|
-            response = client.chgrp_provision(id, group_id)
-            return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
-        end
-
-        0
+        helper.chgrp(helper.client(options), provision_ids, group_id)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     chown_desc = <<-EOT.unindent
@@ -326,18 +329,14 @@ CommandParser::CmdParser.new(ARGV) do
             [:range, :provisionid_list],
             :userid,
             [:groupid, nil] do
-        client   = helper.client(options)
-        ids      = args[0]
-        user_id  = args[1].to_i
-        group_id = args[2] ? args[2].to_i : nil
+        provision_ids = args[0]
+        user_id       = args[1].to_i
+        group_id      = args[2]&.to_i
 
-        ids.each do |id|
-            response = client.chown_provision(id, user_id, group_id)
-            return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
-        end
-
-        0
+        helper.chown(helper.client(options), provision_ids, user_id, group_id)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     chmod_desc = <<-EOT.unindent
@@ -345,43 +344,37 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chmod, chmod_desc, [:range, :provisionid_list], :octet do
-        if !/\A\d+\z/.match(args[1])
-            STDERR.puts "Invalid '#{args[1]}' octed permissions"
+        provision_ids = args[0]
+        octet         = args[1]
+
+        if !/\A\d+\z/.match(octet)
+            STDERR.puts "Invalid '#{octet}' octed permissions"
             exit(-1)
         end
 
-        client = helper.client(options)
-        ids    = args[0]
-        octet  = OpenNebulaHelper.to_octet(args[1])
+        permissions = OpenNebulaHelper.to_octet(octet)
 
-        ids.each do |id|
-            response = client.chmod_provision(id, octet)
-            return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
-        end
-
-        0
+        helper.chmod(helper.client(options), provision_ids, permissions)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
-    retry_desc = <<-EOT.unindent
-        Try to recover a provision retrying the last failed action by ID.
+    recover_desc = <<-EOT.unindent
+        Recover a provision by retrying its last failed action.
     EOT
 
-    command :retry,
-            retry_desc,
+    command :recover,
+            recover_desc,
             [:range, :provisionid_list],
-            :options => [FORCE] do
-        client = helper.client(options)
-        ids    = args[0]
-        force  = options[:force] == true
+            :options => [FORCE_RECOVER] do
+        provision_ids = args[0]
+        force         = options[:force] == true
 
-        ids.each do |id|
-            response = client.retry_provision(id, force)
-            return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
-        end
-
-        0
+        helper.recover(helper.client(options), provision_ids, force)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     add_host_desc = <<-EOT.unindent
@@ -390,8 +383,8 @@ CommandParser::CmdParser.new(ARGV) do
         The number of hosts to add is specified using the --amount (or -a) option.
         If the option is not provided, the command defaults to adding a single host.
 
-        Alternatively, hosts can be added by their IP addresses using the --ips option.
-        This option is only valid for on-prem providers.
+        Alternatively, hosts can be added by their IP addresses or hostnames using
+        the --hosts option. This option is only valid for on-prem providers.
 
         Examples:
         oneprovision add-host 0
@@ -400,83 +393,53 @@ CommandParser::CmdParser.new(ARGV) do
         oneprovision add-host 0 --amount 3
             # Adds 3 hosts to the provision with ID 0.
 
-        oneprovision add-host 0 --ips 1.1.1.1,2.2.2.2
+        oneprovision add-host 0 --hosts 1.1.1.1,2.2.2.2
             # Adds hosts with the given IPs to the provision with ID 0.
-            # Note: IP-based host addition is only supported for on-prem providers.
+            # Note: IP/hostname based host addition is only supported for on-prem providers.
 
-        Note: --amount and --ips are mutually exclusive. Use only one of them at a time.
+        Note: --amount and --hosts are mutually exclusive. Use only one of them at a time.
     EOT
 
-    command :'add-host', add_host_desc, :provision_id, :options => [AMOUNT, HOST_IPS] do
+    command :'add-host', add_host_desc, :provision_id, :options => [AMOUNT, HOSTS] do
         provision_id = args[0].to_i
         amount       = options[:amount]
-        host_ips     = options[:host_ips]
-        client       = helper.client(options)
+        hosts        = options[:hosts]
 
-        if amount && host_ips
+        if amount && hosts
+            STDERR.puts 'Options --amount and --hosts are mutually exclusive'
             exit(-1)
         end
 
-        if amount.nil? && host_ips.nil?
-            amount = 1
-        end
-        nodes    = amount || host_ips
-        response = client.scale_provision(provision_id, 'up', nodes)
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        0
+        helper.add_host(helper.client(options), provision_id, amount, hosts)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     del_host_desc = <<-EOT.unindent
-        Remove hosts from a provision by its ID.
-
-        This command supports two removal modes:
-
-        1) Amount-based removal using --amount (or -a):
-            - Specify the number of hosts to remove from the provision (random selection)
-            - If --amount is not provided, it defaults to 1.
-
-        2) ID-based removal using --ids (or -i):
-            - Provide one or more OpenNebula host IDs, separated by commas.
+        Remove one or more hosts from a provision by their OpenNebula host IDs.
 
         Examples:
-        oneprovision del-host 0
-            # Removes 1 host from the provision with ID 0 (default behavior).
+        oneprovision del-host 5 --host-ids 101
+            # Removes the host with OpenNebula ID 101 from provision 5.
 
-        oneprovision del-host 0 --amount 3
-            # Removes 3 hosts from the provision with ID 0, random selection.
-
-        oneprovision del-host 5 --ids 101,102,103
-            # Removes the hosts with OpenNebula IDs 101, 102, and 103 from the provision with ID 5.
-
-        Note: --amount and --ids are mutually exclusive. Use only one of them at a time.
+        oneprovision del-host 5 --host-ids 101,102,103
+            # Removes hosts 101, 102, and 103 from provision 5 in one operation.
     EOT
 
-    command :'del-host', del_host_desc, :provision_id, :options => [AMOUNT, HOST_IDS, FORCE] do
+    command :'del-host', del_host_desc, :provision_id, :options => [HOST_IDS] do
         provision_id = args[0].to_i
-        amount       = options[:amount]
-        host_ids     = options[:host_ids]
-        force        = options[:force] == true
-        client       = helper.client(options)
+        host_ids     = options[:host_ids].to_s.split(',')
 
-        if amount && host_ids
-            STDERR.puts 'Options --amount and --ids are mutually exclusive'
+        if host_ids.empty? || !host_ids.all? {|id| id.match?(/\A\d+\z/) }
+            STDERR.puts 'Option --host-ids is required and must contain valid host IDs'
             exit(-1)
         end
 
-        if amount.nil? && host_ids.nil?
-            amount = 1
-        end
-
-        nodes    = amount || host_ids
-        response = client.scale_provision(provision_id, 'down', nodes, :force => force)
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        0
+        helper.del_hosts(helper.client(options), provision_id, host_ids.map(&:to_i))
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     add_ip_desc = <<-EOT.unindent
@@ -493,90 +456,108 @@ CommandParser::CmdParser.new(ARGV) do
     command :'add-ip', add_ip_desc, :provision_id, :options => [AMOUNT_IP] do
         provision_id = args[0].to_i
         amount       = options[:amount] || 1
-        client       = helper.client(options)
 
-        response = client.add_ip_provision(provision_id, amount)
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        0
+        helper.add_ip(helper.client(options), provision_id, amount)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     del_ip_desc = <<-EOT.unindent
         Removes a previously allocated public IP Address Range from a provision by AR ID.
 
         Examples:
-            oneprovision del-ip 0 100
+            oneprovision del-ip 0 --ar-id 100
                 # Removes Address Range with ID 100 from the provision with ID 0.
     EOT
 
-    command :'del-ip', del_ip_desc, :provision_id, :ar_id do
+    command :'del-ip', del_ip_desc, :provision_id, :options => [AR_ID] do
         provision_id = args[0].to_i
-        ar_id        = args[1].to_i
-        client       = helper.client(options)
+        ar_id        = options[:ar_id]
 
-        response = client.remove_ip_provision(provision_id, ar_id)
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        0
-    end
-
-    deprovision_desc = <<-EOT.unindent
-        Deprovision and all the associated resources a provision by ID.
-
-        Use the --force option to force the deprovisioning even if
-        the provision has unmanaged resources associated.
-    EOT
-
-    command :deprovision, deprovision_desc, [:range, :provisionid_list], :options => [FORCE] do
-        client = helper.client(options)
-        ids    = args[0]
-        force  = options[:force] == true
-
-        ids.each do |id|
-            response = client.undeploy_provision(id, force)
-            return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
+        unless ar_id
+            STDERR.puts 'Option --ar-id is required'
+            exit(-1)
         end
 
-        0
+        helper.del_ip(helper.client(options), provision_id, ar_id.to_i)
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    jobs_desc = <<-EOT.unindent
+        Show the active lifecycle job of a provision.
+    EOT
+
+    command :job, jobs_desc, :provision_id, :options => FORMAT + [WATCH] do
+        provision_id = args[0].to_i
+
+        Signal.trap('INT') { exit(1) } if options[:watch]
+        helper.jobs(helper.client(options), provision_id, options)
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    tfstate_desc = <<-EOT.unindent
+        Show the Terraform state stored for a provision.
+    EOT
+
+    command :tfstate, tfstate_desc, :provision_id, :options => FORMAT + [DECODE] do
+        provision_id = args[0].to_i
+
+        helper.tfstate(helper.client(options), provision_id, options)
+    rescue Interrupt
+        puts
+        exit(1)
+    end
+
+    cancel_desc = <<-EOT.unindent
+        Request cancellation of the active lifecycle operation of one or more provisions.
+    EOT
+
+    command :cancel, cancel_desc, [:range, :provisionid_list] do
+        provision_ids = args[0]
+
+        helper.cancel(helper.client(options), provision_ids)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     delete_desc = <<-EOT.unindent
-        Delete a Provision by ID.
+        Delete one or more provisions and their associated resources.
+
+        Use the --force option to delete a provision from any state or when it
+        has unmanaged resources associated.
+
+        Use --from-db only when deprovisioning cannot be completed. It deletes
+        the provision document without deleting OpenNebula or provider resources.
     EOT
 
-    command :delete, delete_desc, [:range, :provisionid_list], :options => [FORCE] do
-        client = helper.client(options)
-        ids    = args[0]
-        force  = options[:force] == true
+    command :delete, delete_desc, [:range, :provisionid_list],
+            :options => [FORCE_DELETE, FROM_DB] do
+        provision_ids = args[0]
+        force         = options[:force] == true
+        from_db       = options[:from_db] == true
 
-        ids.each do |id|
-            response = client.delete_provision(id, force)
-            return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
-        end
-
-        0
+        helper.delete(helper.client(options), provision_ids, force, from_db)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     logs_desc = <<-EOT.unindent
         Show the logs of a provision by ID.
     EOT
 
-    command :logs, logs_desc, :provision_id, :options => [ALL_LOGS] do
-        client       = helper.client(options)
+    command :logs, logs_desc, :provision_id, :options => [ALL_LOGS, FOLLOW_LOGS] do
         provision_id = args[0].to_i
-        all_logs     = options[:all] || false
 
-        response = client.get_provision_logs(provision_id, all_logs)
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        0
+        helper.logs(helper.client(options), provision_id, options)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 end

@@ -69,10 +69,10 @@ export const Vnets = ({ data, config }) => {
   const { enqueueSuccess } = useGeneralApi()
 
   const { data: vnets = [], isFetching } = VnAPI.useGetVNetworksQuery()
-  const [addIpsProvision, { isLoading: isAddingIps }] =
-    ProvisionAPI.useAddIpsProvisionMutation()
-  const [deleteIpsProvision, { isLoading: isDeletingIps }] =
-    ProvisionAPI.useDeleteIpsProvisionMutation()
+  const [addPublicIpsProvision, { isLoading: isAddingIps }] =
+    ProvisionAPI.useAddPublicIpsProvisionMutation()
+  const [deletePublicIpProvision, { isLoading: isDeletingIps }] =
+    ProvisionAPI.useDeletePublicIpProvisionMutation()
 
   const provisionID = cluster?.TEMPLATE?.ONEFORM?.PROVISION_ID
   const hasProvision = isPresent(provisionID)
@@ -155,7 +155,7 @@ export const Vnets = ({ data, config }) => {
   const handleAddIp = async (amount) => {
     if (!amount || !hasProvision) return
 
-    await addIpsProvision({ id: provisionID, amount }).unwrap()
+    await addPublicIpsProvision({ id: provisionID, amount }).unwrap()
     await refetchAll()
     enqueueSuccess(T.AddIpsProvisionSuccess)
   }
@@ -163,7 +163,7 @@ export const Vnets = ({ data, config }) => {
   const handleDeleteIp = async ({ arId }) => {
     if (!arId || !hasProvision) return
 
-    await deleteIpsProvision({ id: provisionID, ar_id: arId }).unwrap()
+    await deletePublicIpProvision({ id: provisionID, ar_id: arId }).unwrap()
     await refetchAll()
     enqueueSuccess(T.DeleteIpsProvisionSuccess)
   }

@@ -15,160 +15,73 @@
 #--------------------------------------------------------------------------- #
 
 # Apps Controller
-module OneFormServer
+module OneForm
 
     # Drivers Controller
     module DriverController
 
+        extend ODS::GenericController
+
+        BASE_PATH = '/drivers'
+
+        # GET /drivers
+        # Params:
+        #   :enabled [Boolean] - Returns only enabled drivers
+        get do
+            drivers = OneForm::Driver.list
+            next drivers if OpenNebula.is_error?(drivers)
+
+            params.key?(:enabled) ? drivers.select(&:enabled?) : drivers
+        end
+
+        # GET /drivers/:name
+        # Params:
+        #   :name [String] - Driver name
+        get ':name' do
+            driver = OneForm::Driver.from_name(params[:name])
+            next driver if OpenNebula.is_error?(driver)
+
+            next OpenNebula::Error.new(
+                "Driver '#{params[:name]}' not found",
+                OpenNebula::Error::ENO_EXISTS
+            ) unless driver
+
+            driver
+        end
+
+        # GET /drivers/:name/:deployment/inputs
+        # Params:
+        #   :name [String] - Driver name
+        #   :deployment [String] - Deployment inventory name
+        get ':name/:deployment/inputs' do
+            driver = OneForm::Driver.from_name(params[:name])
+            next driver if OpenNebula.is_error?(driver)
+
+            next OpenNebula::Error.new(
+                "Driver '#{params[:name]}' not found",
+                OpenNebula::Error::ENO_EXISTS
+            ) unless driver
+
+            driver.deployment_inputs(params[:deployment])
+        end
+
+        # POST /drivers/sync
+        post 'sync', :oneadmin_only => true do
+            OneForm::Driver.sync
+        end
+
+        # POST /drivers/:name/enable
+        post ':name/enable', :oneadmin_only => true, :response => false do
+            OneForm::Driver.enable(params[:name])
+        end
+
+        # POST /drivers/:name/disable
+        post ':name/disable', :oneadmin_only => true, :response => false do
+            OneForm::Driver.disable(params[:name])
+        end
+
         def self.registered(app)
-            app.before do
-                user = User.new_with_id(OpenNebula::User::SELF, @client)
-                rc   = user.info
-
-                halt 500, internal_error(
-                    'Failed to retrieve user information',
-                    ResponseHelper::INTERNAL_EC
-                ) if OpenNebula.is_error?(rc)
-
-                # Only allow oneadmin group users to perform actions
-                halt 403, internal_error(
-                    'Access denied. Only users belonging to the "oneadmin" group are ' \
-                    'authorized to perform this action',
-                    ResponseHelper::VALIDATION_EC
-                ) if request.request_method != 'GET' && \
-                     !(user['GID'] == '0' || user.groups.include?('0'))
-            end
-
-            # GET /drivers
-            # Lists all available drivers and their metadata.
-            #
-            # Query Params:
-            #   enabled [true|false] - Optional. Defaults to false.
-            #     If true, returns only enabled providers.
-            #
-            # Returns:
-            #   200 OK - Driver object (JSON)
-            #   500 Internal Server Error - On unexpected failure or OpenNebula error
-            app.get '/drivers' do
-                begin
-                    rc = OneForm::Driver.list
-
-                    return internal_error(
-                        rc.message, one_error_to_http(rc.errno)
-                    ) if OpenNebula.is_error?(rc)
-
-                    only_enabled = params['enabled'].to_s.downcase == 'true'
-                    rc = rc.select do |driver|
-                        !only_enabled || driver.enabled?
-                    end
-
-                    status 200
-                    body process_response(rc)
-                rescue StandardError => e
-                    internal_error(e.message, ResponseHelper::GENERAL_EC)
-                end
-            end
-
-            # GET /drivers/:name
-            # Retrieves information for a specific driver by name.
-            #
-            # Params:
-            #   :name [String] - name of the driver
-            #
-            # Returns:
-            #   200 OK - Array of driver objects
-            #   404 Not Found - If driver is not found
-            #   500 Internal Server Error - On unexpected failure or OpenNebula error
-            app.get '/drivers/:name' do
-                rc = OneForm::Driver.from_name(params[:name])
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 200
-                body process_response(rc)
-            rescue StandardError => e
-                internal_error(e.message, ResponseHelper::GENERAL_EC)
-            end
-
-            # POST /drivers/sync
-            # Tries to validate and enable all the drivers from the local folder.
-            #
-            # Behavior:
-            #   - Validates presence of driver folders.
-            #   - Verifies driver folder structure and template syntax.
-            #   - Registers drivers and sets their state to ENABLED or ERROR.
-            #   - Writes driver state and logs any failures.
-            #
-            # Returns:
-            #   200 OK - JSON response with the result of the sync:
-            #     {
-            #       "success": ["driver1", "driver2", ...],
-            #       "failed": [
-            #         { "name": "driverX", "error": "reason" },
-            #         ...
-            #       ]
-            #     }
-            #   500 Internal Server Error - On unexpected failure or OpenNebula error
-            app.post '/drivers/sync' do
-                rc = OneForm::Driver.sync
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 200
-                body process_response(rc)
-            rescue StandardError => e
-                internal_error(e.message, ResponseHelper::GENERAL_EC)
-            end
-
-            # POST /drivers/:name/enable
-            # Enables a specific driver by name.
-            #
-            # Params:
-            #   :name [String] - name of the driver
-            #
-            # Returns:
-            #   200 OK - Driver successfully enabled
-            #   400 Bad Request - If driver state is invalid
-            #   404 Not Found - If driver is not found
-            #   500 Internal Server Error - On unexpected failure or OpenNebula error
-            app.post '/drivers/:name/enable' do
-                rc = OneForm::Driver.enable(params[:name])
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 200
-            rescue StandardError => e
-                internal_error(e.message, ResponseHelper::GENERAL_EC)
-            end
-
-            # POST /drivers/:name/disable
-            # Disables a specific driver by name.
-            #
-            # Params:
-            #   :name [String] - name of the driver
-            #
-            # Returns:
-            #   200 OK - Driver successfully disabled
-            #   400 Bad Request - If driver state is invalid
-            #   404 Not Found - If driver is not found
-            #   500 Internal Server Error - On unexpected failure or OpenNebula error
-            app.post '/drivers/:name/disable' do
-                rc = OneForm::Driver.disable(params[:name])
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 200
-            rescue StandardError => e
-                internal_error(e.message, ResponseHelper::GENERAL_EC)
-            end
+            register_routes(app)
         end
 
     end

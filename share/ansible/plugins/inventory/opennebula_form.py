@@ -36,8 +36,23 @@ class InventoryConfig:
 
     def _logger(self) -> logging.Logger:
         log_level = logging.DEBUG if self.debug else logging.INFO
-        logging.basicConfig(level=log_level, format='%(message)s')
         logger = logging.getLogger("oneform_logger")
+        logger.setLevel(log_level)
+        logger.propagate = False
+        logger.handlers.clear()
+
+        formatter = logging.Formatter('%(message)s')
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler.setLevel(logging.DEBUG)
+        stdout_handler.addFilter(lambda record: record.levelno < logging.WARNING)
+        stdout_handler.setFormatter(formatter)
+
+        stderr_handler = logging.StreamHandler(sys.stderr)
+        stderr_handler.setLevel(logging.WARNING)
+        stderr_handler.setFormatter(formatter)
+
+        logger.addHandler(stdout_handler)
+        logger.addHandler(stderr_handler)
 
         logger.debug(f'Running inventory in debug mode')
 
@@ -67,7 +82,7 @@ class InventoryConfig:
             if not os.path.exists(provision_path):
                 raise FileNotFoundError(f'Provision body file {provision_path} not found')
 
-            logging.debug(f'Loading provision body from {provision_path}')
+            self.logger.debug(f'Loading provision body from {provision_path}')
 
             with open(provision_path, "r") as file:
                 data = json.load(file)
@@ -78,7 +93,7 @@ class InventoryConfig:
                 return body
         else:
             # Get the body from the oneform server otherwise
-            logging.info(f'Fetching provision {self.provision_id} from OneForm server')
+            self.logger.info(f'Fetching provision {self.provision_id} from OneForm server')
             return self._fetch_provision()
 
     def _get_dfile_path(self) -> str:

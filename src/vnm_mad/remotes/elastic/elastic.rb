@@ -27,7 +27,7 @@ class GenericProvider
         @provider = provider
         @host     = host
 
-        @resource_id = host['TEMPLATE/ONEFORM/RESOURCE_ID']
+        @resource_id = host['TEMPLATE/ONEFORM/UUID']
         @connection  = provider[:connection]
     end
 
@@ -76,23 +76,13 @@ class ElasticDriver < VNMMAD::VNMDriver
 
         raise rc if OpenNebula.is_error?(rc)
 
-        unless @host.has_elements?('TEMPLATE/ONEFORM/PROVISION_ID')
-            OpenNebula::DriverLogger.log_error("No Provision ID found for host #{host_id}")
+        unless @host.has_elements?('TEMPLATE/ONEFORM/PROVIDER_ID')
+            OpenNebula::DriverLogger.log_error("No Provider ID found for host #{host_id}")
             exit 1
         end
 
-        provision_id = @host['TEMPLATE/ONEFORM/PROVISION_ID']
-
-        client    = OneForm::Client.new
-        document  = client.get_provision(provision_id)
-
-        if document.key?(:err_code)
-            STDERR.puts "Error retrieving provision #{provision_id}: #{document[:message]}"
-            exit(-1)
-        end
-
-        provision   = document[:TEMPLATE][:PROVISION_BODY]
-        provider_id = provision[:provider_id]
+        provider_id = @host['TEMPLATE/ONEFORM/PROVIDER_ID']
+        client      = OneForm::Client.new
         document    = client.get_provider(provider_id, :include_sensitive => true)
 
         if document.key?(:err_code)
@@ -101,15 +91,7 @@ class ElasticDriver < VNMMAD::VNMDriver
         end
 
         @provider = document[:TEMPLATE][:PROVIDER_BODY]
-        response  = client.get_provider_location(provider_id)
-
-        if response.key?(:err_code)
-            STDERR.puts "Error retrieving provider #{provider_id} " \
-            "location: #{response[:message]}"
-            exit(-1)
-        end
-
-        @provider[:path] = response[:path]
+        @provider[:path] = client.get_provider_location(provider_id)
 
         @assigned      = []
         @unassigned    = []

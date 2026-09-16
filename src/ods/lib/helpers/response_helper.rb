@@ -253,16 +253,16 @@ module OpenNebula
                 end
             end
 
-            def process_response(response)
-                content_type = request.env['CONTENT_TYPE'] || 'application/json'
+            def process_response(response, opts = nil, &serialize_options)
+                content_type(:json)
 
-                case content_type
-                when 'application/json'
-                    content_type(:json)
-                    response.to_json
+                if serialize_options && response.is_a?(Array)
+                    "[#{response.map do |item|
+                        item.to_json(*[serialize_options.call(item)].compact)
+                    end.join(',')}]"
                 else
-                    content_type(:text)
-                    response.to_s
+                    opts = serialize_options.call(response) if serialize_options
+                    response.to_json(*[opts].compact)
                 end
             rescue StandardError => e
                 internal_error("Error processing response: #{e.message}", GENERAL_EC)

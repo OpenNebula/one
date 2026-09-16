@@ -156,6 +156,7 @@ module OpenNebula
                         return
                     rescue StandardError => e
                         warn "Polling error: #{e.class}: #{e.message}"
+                        return
                     end
                 end
 
@@ -176,7 +177,7 @@ module OpenNebula
                         break
                     rescue StandardError => e
                         warn "Polling error: #{e.class}: #{e.message}"
-                        sleep interval
+                        return
                     end
                 end
             end

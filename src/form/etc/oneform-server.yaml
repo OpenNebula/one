@@ -1,0 +1,119 @@
+# NOTE: Validation schema for /etc/one/oneform-server.conf, installed to
+# /usr/lib/one/oneform/. Not a config file, do not add to onecfg files.yaml
+
+:one_xmlrpc:
+  :required: true
+  :type: string
+
+# Public OneForm server configuration
+:host:
+  :required: true
+  :type: string
+
+:port:
+  :required: true
+  :type: integer
+  :min: 1
+
+# Internal ODS defaults. OneForm derives bind and port
+# from :host and :port during startup.
+:server:
+  :required: false
+  :type: object
+  :default: {}
+  :allow_extra: true
+  :keys:
+    :environment:
+      :required: false
+      :type: string
+      :default: production
+      :allowed:
+        - production
+        - development
+    :bind:
+      :required: false
+      :type: address
+      :default: 127.0.0.1
+    :port:
+      :required: false
+      :type: integer
+      :default: 13013
+    :host_authorization:
+      :required: false
+      :type: object
+      :default:
+        :permitted_hosts: []
+      :allow_extra: true
+
+:concurrency:
+  :required: false
+  :type: integer
+  :default: 10
+  :min: 1
+
+:shutdown_timeout:
+  :required: false
+  :type: integer
+  :default: 30
+  :min: 1
+
+:command_timeout:
+  :required: false
+  :type: integer
+  :default: 3600
+  :min: 0
+
+:cancel_grace:
+  :required: false
+  :type: integer
+  :default: 30
+  :min: 0
+
+:work_dir:
+  :required: true
+  :type: string
+
+:onedeploy_tags:
+  :required: true
+  :type: string
+
+:ee_token:
+  :required: false
+  :sensitive: true
+  :type: string
+
+:auth:
+  :required: true
+  :type: string
+
+:core_auth:
+  :required: true
+  :type: string
+  :allowed:
+    - cipher
+    - x509
+
+:expire_delta:
+  :required: false
+  :type: integer
+  :default: 3600
+  :min: 0
+
+:log:
+  :required: true
+  :type: object
+  :keys:
+    :level:
+      :required: true
+      :type: integer
+      :allowed:
+        - 0
+        - 1
+        - 2
+        - 3
+    :system:
+      :required: true
+      :type: string
+      :allowed:
+        - syslog
+        - file

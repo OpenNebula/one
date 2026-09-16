@@ -24,6 +24,12 @@ module OpenNebula
             # Defines methods to manage Marketplace Apps in OpenNebula
             module Marketplace
 
+                # Exports a Marketplace appliance into a datastore.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param name [String] Export name.
+                # @param app_id [String] Appliance import ID.
+                # @param datastore_id [Integer] Destination datastore ID.
+                # @return [OpenNebula::MarketPlaceApp, OpenNebula::Error] appliance or an API error.
                 def self.import(client, name, app_id, datastore_id)
                     return OpenNebula::Error.new(
                         'Marketplace appliance ID cannot be empty',
@@ -58,6 +64,10 @@ module OpenNebula
                     app
                 end
 
+                # Checks whether a Marketplace appliance import ID exists.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param app_id [String] Appliance import ID.
+                # @return [Boolean, OpenNebula::Error] existence result or an API error.
                 def self.exists?(client, app_id)
                     app = find(client, app_id)
                     return app if OpenNebula.is_error?(app)
@@ -65,6 +75,10 @@ module OpenNebula
                     !app.nil?
                 end
 
+                # Retrieves a Marketplace appliance by import ID.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param app_id [String] Appliance import ID.
+                # @return [OpenNebula::MarketPlaceApp, OpenNebula::Error] appliance or an API error.
                 def self.get(client, app_id)
                     return OpenNebula::Error.new(
                         'Marketplace appliance ID cannot be nil',
@@ -82,6 +96,11 @@ module OpenNebula
                     app
                 end
 
+                # Returns a Marketplace appliance body using symbolized keys.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param app_id [String] Appliance import ID.
+                # @param downcase [Boolean] Whether to downcase keys.
+                # @return [Hash, OpenNebula::Error] appliance body or an API error.
                 def self.body(client, app_id, downcase: true)
                     app = get(client, app_id)
                     return app if OpenNebula.is_error?(app)
@@ -96,6 +115,10 @@ module OpenNebula
                     body.deep_symbolize_keys(:downcase => downcase)
                 end
 
+                # Returns a Marketplace appliance name.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param app_id [String] Appliance import ID.
+                # @return [String, OpenNebula::Error] appliance name or an API error.
                 def self.name(client, app_id)
                     app = get(client, app_id)
                     return app if OpenNebula.is_error?(app)
@@ -109,6 +132,10 @@ module OpenNebula
                     name
                 end
 
+                # Finds a Marketplace appliance by import ID.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param app_id [String] Appliance import ID.
+                # @return [OpenNebula::MarketPlaceApp, nil, OpenNebula::Error]
                 def self.find(client, app_id)
                     marketplace_app_pool = OpenNebula::MarketPlaceAppPool.new(client, -1)
 
@@ -127,6 +154,10 @@ module OpenNebula
                     app
                 end
 
+                # Deletes a Marketplace appliance by import ID.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param app_id [String] Appliance import ID.
+                # @return [true, OpenNebula::Error] success or an API error.
                 def self.delete(client, app_id)
                     return OpenNebula::Error.new(
                         'Marketplace appliance ID cannot be nil',

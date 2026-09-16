@@ -24,7 +24,7 @@ module OneForm
         # @param opts [Hash] Optional parameters for filtering or pagination.
         # @return [Array<Hash>] List of provision instances with their metadata.
         def list_provisions(opts = {})
-            get('/provisions', opts)
+            get('/provisions', query_params(opts))
         end
 
         # Retrieve a specific provision by ID.
@@ -32,7 +32,72 @@ module OneForm
         # @param id [String] Provision ID.
         # @return [Hash] Details of the provision.
         def get_provision(id, opts = {})
-            get("/provisions/#{id}", opts)
+            get("/provisions/#{id}", query_params(opts))
+        end
+
+        # Retrieve the input definitions of a provision.
+        #
+        # @param id [String] Provision ID.
+        # @return [Array<Hash>] Provision input definitions.
+        def get_provision_inputs(id)
+            get("/provisions/#{id}/inputs")
+        end
+
+        # Retrieve the Terraform state of a provision.
+        #
+        # @param id [String] Provision ID.
+        # @param decode [Boolean] Whether to decode the stored state.
+        # @return [Hash, String] Stored Terraform state.
+        def get_provision_tfstate(id, decode = false)
+            get("/provisions/#{id}/tfstate", query_params(:decode => decode))
+        end
+
+        # Retrieve the active lifecycle job of a provision.
+        #
+        # @param id [String] Provision ID.
+        # @return [Array<Hash>] Active job information.
+        def get_provision_jobs(id)
+            get("/provisions/#{id}/jobs")
+        end
+
+        # Cancel the active lifecycle job of a provision.
+        #
+        # @param id [String] Provision ID.
+        # @return [Hash] Cancellation request status.
+        def cancel_provision(id)
+            post("/provisions/#{id}/cancel")
+        end
+
+        # Retrieve the OpenNebula hosts owned by a provision.
+        #
+        # @param id [String] Provision ID.
+        # @return [Array<Hash>] OpenNebula host objects.
+        def get_provision_hosts(id)
+            get("/provisions/#{id}/hosts")
+        end
+
+        # Retrieve the OpenNebula networks owned by a provision.
+        #
+        # @param id [String] Provision ID.
+        # @return [Array<Hash>] OpenNebula network objects.
+        def get_provision_networks(id)
+            get("/provisions/#{id}/networks")
+        end
+
+        # Retrieve the OpenNebula datastores owned by a provision.
+        #
+        # @param id [String] Provision ID.
+        # @return [Array<Hash>] OpenNebula datastore objects.
+        def get_provision_datastores(id)
+            get("/provisions/#{id}/datastores")
+        end
+
+        # Retrieve the OpenNebula cluster owned by a provision.
+        #
+        # @param id [String] Provision ID.
+        # @return [Hash, nil] OpenNebula cluster object.
+        def get_provision_cluster(id)
+            get("/provisions/#{id}/cluster")
         end
 
         # Retrieve the unmanaged version of a provision.
@@ -58,38 +123,33 @@ module OneForm
             post('/provisions', body)
         end
 
-        # Deprovision (tear down) a specific provision.
+        # Recover a failed provision.
         #
         # @param id [String] Provision ID.
-        # @param force [Boolean] Whether to force the deprovisioning.
-        # @return [Integer] Deprovisioning result/status.
-        def undeploy_provision(id, force = false)
-            post("/provisions/#{id}/undeploy", { :force => force })
+        # @param force [Boolean] Force recovery when protections would reject it.
+        # @return [Hash] Recovery acceptance response.
+        def recover_provision(id, force = false)
+            post_with_params("/provisions/#{id}/recover", :force => force)
         end
 
-        # Retry a failed provision.
+        # Add cloud or on-premises hosts to a provision.
         #
         # @param id [String] Provision ID.
-        # @param force [Boolean] Force retry even if not recommended.
-        # @param opts [Hash] Optional parameters (e.g., changed inputs).
-        # @return [Integer] Retry operation result.
-        def retry_provision(id, force = false, **opts)
-            post("/provisions/#{id}/retry", { :force => force }.merge(opts))
+        # @param amount [Integer, nil] Number of cloud hosts to add.
+        # @param hosts [Array<String>, nil] On-premises host addresses to add.
+        # @return [Hash] Host creation acceptance response.
+        def add_provision_hosts(id, amount: nil, hosts: nil)
+            body = { :amount => amount, :hosts => hosts }.compact
+            post("/provisions/#{id}/hosts", body)
         end
 
-        # Scale an existing provision.
+        # Delete hosts from a provision.
         #
         # @param id [String] Provision ID.
-        # @param direction [String] 'up' or 'down'.
-        # @param nodes [Array<String>] List of node names or IDs to scale.
-        # @param opts [Hash] Additional options like force.
-        # @return [Integer] Scaling operation result.
-        def scale_provision(id, direction, nodes, **opts)
-            body = {
-                :direction => direction,
-                :nodes     => nodes
-            }.merge(opts)
-            post("/provisions/#{id}/scale", body)
+        # @param host_ids [Array<Integer>] OpenNebula host IDs.
+        # @return [Hash] Host deletion acceptance response.
+        def delete_provision_hosts(id, host_ids)
+            delete("/provisions/#{id}/hosts", :ids => host_ids.join(','))
         end
 
         # Add an amount of public IPs to the provision.
@@ -99,17 +159,16 @@ module OneForm
         # @return [Integer] Operation result.
         def add_ip_provision(id, amount = 1)
             body = { :amount => amount }
-            post("/provisions/#{id}/add-ip", body)
+            post("/provisions/#{id}/public-network/ips", body)
         end
 
         # Remove a public IPs from the provision by AR ID.
         #
         # @param id [String] Provision ID.
-        # @param amount [Integer] Address Range ID to remove
+        # @param ar_id [Integer] Address Range ID to remove
         # @return [Integer] Operation result.
         def remove_ip_provision(id, ar_id)
-            body = { :ar_id => ar_id }
-            post("/provisions/#{id}/remove-ip", body)
+            delete("/provisions/#{id}/public-network/ips/#{ar_id}")
         end
 
         # Change the permissions of a provision.
@@ -129,7 +188,7 @@ module OneForm
         # @param group [String] The new group's ID (optional).
         # @return [Hash] Provision metadata after ownership change.
         def chown_provision(id, owner, group = nil)
-            body = { :owner_id => owner, :group_id => group }
+            body = { :owner_id => owner, :group_id => group }.compact
             post("/provisions/#{id}/chown", body)
         end
 
@@ -149,25 +208,40 @@ module OneForm
         # @param patch_data [Hash] Partial update fields.
         # @return [Hash] Updated provision data.
         def update_provision(id, patch_data)
-            patch("/provisions/#{id}", patch_data)
+            allowed = [:name, :description]
+            body    = patch_data.select {|key, _| allowed.include?(key.to_sym) }
+
+            patch("/provisions/#{id}", body)
         end
 
         # Delete a provision.
         #
         # @param id [String] Provision ID.
         # @param force [Boolean] Whether to force deletion.
+        # @param from_db [Boolean] Whether to delete only the provision document.
         # @return [Integer] Deletion result/status.
-        def delete_provision(id, force = false)
-            delete("/provisions/#{id}", { :force => force })
+        def delete_provision(id, force = false, from_db = false)
+            delete(
+                "/provisions/#{id}",
+                query_params(:force => force, :from_db => from_db)
+            )
         end
 
-        # Get logs for a specific provision.
+        # Retrieve a snapshot of provision logs or follow them continuously.
         #
-        # @param id [String] Provision ID.
-        # @return [Array<Hash>] List of log entries for the provision.
+        # @param id [String] Provision ID
+        # @param all [Boolean] Return the full log history or start follow from byte 0
+        # @param opts [Hash] Additional options, including :follow
+        # @return [Hash, nil] Log snapshot response, or nil while following
         def get_provision_logs(id, all = false, opts = {})
-            body = { :all => all }.merge(opts)
-            follow_logs("/provisions/#{id}/logs/poll", body)
+            params = opts.reject {|key, _| [:follow, :all].include?(key) }
+            params[:all] = true if all
+
+            if opts[:follow]
+                follow_logs("/provisions/#{id}/logs", params)
+            else
+                get("/provisions/#{id}/logs", params)
+            end
         end
 
     end

@@ -21,27 +21,71 @@ module OpenNebula
         # Auth controller
         module AuthController
 
+            # Authentication and document-secret authorization helpers
+            module Helpers
+
+                # Returns the authenticated OpenNebula user for this request
+                #
+                # @return [OpenNebula::User] Authenticated user
+                def authenticated_user
+                    return @authenticated_user if @authenticated_user
+
+                    user = AuthController.current_user(@client)
+
+                    if OpenNebula.is_error?(user)
+                        STDERR.puts "Error retrieving user info: #{user.message}"
+                        halt 500, internal_error(
+                            "Error retrieving user info: #{user.message}",
+                            ResponseHelper::INTERNAL_EC
+                        )
+                    end
+
+                    @authenticated_user = user
+                end
+
+                # Checks whether the authenticated user belongs to the oneadmin group
+                #
+                # @return [Boolean] true for oneadmin group members
+                def oneadmin?
+                    user = authenticated_user
+
+                    user.gid.zero? || user.groups.include?(0)
+                end
+
+                # Checks whether the current user may access a document's
+                # sensitive values. Access is restricted to its owner and oneadmin.
+                #
+                # @param document [OpenNebula::Document] Document being accessed
+                # @return [Boolean] true when sensitive values may be accessed
+                def sensitive_access?(document)
+                    oneadmin? || document.owner_id == authenticated_user.id
+                end
+
+                # Checks whether this request may include a document's sensitive values
+                #
+                # Sensitive values must be requested explicitly and are available only
+                # to oneadmin group members or the document's owning user. Group ownership
+                # and group use permissions do not grant access to secrets.
+                #
+                # @param document [OpenNebula::Document] Document being serialized
+                # @return [Boolean] true when sensitive values may be returned
+                def include_sensitive?(document)
+                    params[:include_sensitive].to_s == 'true' && sensitive_access?(document)
+                end
+
+            end
+
             def self.registered(app)
                 # Init the cloud auth system
                 register_cloud_auth(app)
+                app.helpers Helpers
 
                 # Configure the oneadmin only flag
                 app.set(:oneadmin_only) do |access|
                     condition do
                         next unless access
 
-                        user = User.new_with_id(OpenNebula::User::SELF, @client)
-                        rc   = user.info
-
-                        if OpenNebula.is_error?(rc)
-                            STDERR.puts "Error retrieving user info: #{rc.message}"
-                            halt 500, internal_error(
-                                "Error retrieving user info: #{rc.message}",
-                                ResponseHelper::INTERNAL_EC
-                            )
-                        end
-
-                        unless user['GID'] == '0' || user.groups.include?('0')
+                        unless oneadmin?
                             halt 403, internal_error(
                                 'Access denied. Only users belonging to the oneadmin ' \
                                 'group are authorized to perform this action',

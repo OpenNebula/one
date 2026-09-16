@@ -16,200 +16,74 @@
 
 module OneForm
 
-    # Provider Schema
-    class ProviderSchema < FormDocumentSchema
-
-        params do
-            required(:name).filled(:string)
-            optional(:description).filled(:string)
-            required(:driver).filled(:string)
-
-            required(:fireedge).hash do
-                optional(:logo).filled(:string)
-            end
-
-            required(:connection).hash
-            required(:user_inputs).array(:hash)
-            optional(:user_inputs_values).hash
-
-            required(:provision_ids).array(:integer)
-            required(:registration_time).filled(:integer)
-        end
-
-    end
-
-    # The ProviderDocumentPool is a set of Provider document elements
-    class ProviderDocumentPool < OpenNebula::DocumentPoolJSON
-
-        DOCUMENT_TYPE = 103
-
-        def initialize(client, user_id = OpenNebula::Pool::INFO_ALL)
-            super(client, user_id)
-        end
-
-        def list
-            map(&:name)
-        end
-
-        def ids
-            map(&:id)
-        end
-
-        def exists?(id)
-            ids.include?(id)
-        end
-
-        def exists_type?(type)
-            any? do |provider|
-                raw = provider.to_hash.dig('DOCUMENT', 'TEMPLATE', 'PROVIDER_BODY')
-                next false if raw.nil? || raw.empty?
-
-                body = JSON.parse(raw)
-                body['driver'] == type
-            rescue JSON::ParserError
-                false
-            end
-        end
-
-        # Ensure that a provider of the given type exists in the pool
-        #
-        # @param type [String]   Provider driver name (e.g. "onprem")
-        # @param options [Hash]  Extra options merged into the provider template
-        #
-        # @return [true, OpenNebula::Error]
-        def ensure_type!(type, options = {})
-            rc = info
-            return rc if OpenNebula.is_error?(rc)
-            return true if exists_type?(type)
-
-            driver   = OneForm::Driver.from_name(type)
-            provider = OneForm::Provider.new(@client)
-
-            template = driver.connection_body.merge(options)
-            rc = provider.allocate(template)
-
-            return rc if OpenNebula.is_error?(rc)
-
-            true
-        end
-
-    end
-
     # Provider class
-    class Provider < OpenNebula::DocumentJSON
+    class Provider < ODS::Document
 
         attr_reader :client, :body, :tag
 
-        DOCUMENT_TYPE = ProviderDocumentPool::DOCUMENT_TYPE
-        TEMPLATE_TAG  = 'PROVIDER_BODY'
-        REDACTED_MARK = '__redacted__'
+        COMP             = 'PRD'
+        RESOURCE_NAME    = 'Provider'
+        TEMPLATE_TAG     = 'PROVIDER_BODY'
+        DOCUMENT_TYPE    = 103
+        USER_VALUES_ATTR = :connection
 
-        PROVIDER_ATTRS = [
-            'name',
-            'description',
-            'driver',
-            'version',
-            'fireedge',
-            'user_inputs',
-            'connection',
-            'provision_ids',
-            'registration_time'
+        DOCUMENT_ATTRS = [
+            :name,
+            :description,
+            :driver,
+            :version,
+            :fireedge,
+            :user_inputs,
+            :connection,
+            :provision_ids,
+            :registration_time
         ]
 
-        # List of attributes that can't be changed in update operation
-        # registration_time: this is internal info managed by OneForm server
-        IMMUTABLE_ATTRS = [
-            'driver',
-            'registration_time',
-            'provision_ids'
-        ]
-
-        # Attributes update properties
+        # Attributes that can be modified during an user update
         UPDATE_ATTRS = [
-            'name',
-            'description',
-            'connection'
+            :name,
+            :description,
+            :connection
         ]
 
-        def initialize(client, opts = {})
-            @tag = TEMPLATE_TAG
+        #------------------------------------------------------
+        # Schema and driver methods
+        #------------------------------------------------------
 
-            @xml = if opts[:id]
-                       OpenNebula::Document.build_xml(opts[:id])
-                   elsif opts[:xml]
-                       opts[:xml]
-                   else
-                       OpenNebula::Document.build_xml
-                   end
-
-            super(@xml, client)
+        def self.schema
+            ProviderSchema.new(:document_class => self)
         end
 
-        # Create a new Provider object from the given XML element
-        #
-        # @param [OpenNebula::Client] client the OpenNebula client
-        # @param [String] XML object
-        def self.new_from_xml(client, xml)
-            Provider.new(client, :xml => xml)
-        end
+        # Creates and allocates a provider from an enabled driver definition
+        # @param client [OpenNebula::Client] OpenNebula client
+        # @param attributes [Hash] Driver name and provider overrides
+        # @return [Provider, OpenNebula::Error] Allocated provider or creation error
+        def self.from_driver(client, attributes)
+            driver_name = attributes[:driver].downcase
 
-        # Create a new Provider object from the given ID
-        # and tries to retrieve the body xml representation of the Provider
-        #
-        # @param [OpenNebula::Client] client the OpenNebula client
-        # @param [String] id the object ID
-        def self.new_from_id(client, id)
-            provider = Provider.new(client, :id => id)
-            rc = provider.info
+            return OpenNebula::Error.new(
+                'The onprem provider already exists and cannot be created again',
+                OpenNebula::Error::ENOTDEFINED
+            ) if driver_name == 'onprem'
+
+            driver = OneForm::Driver.from_name(driver_name)
+            return driver if OpenNebula.is_error?(driver)
+
+            return OpenNebula::Error.new(
+                'Provider creation is not allowed from a disabled driver',
+                OpenNebula::Error::ENOTDEFINED
+            ) unless driver.enabled?
+
+            driver.merge(attributes)
+            body = driver.connection_body
+            return body if OpenNebula.is_error?(body)
+
+            provider = new(client)
+            rc       = provider.allocate(body)
 
             return rc if OpenNebula.is_error?(rc)
 
             provider
-        end
-
-        # Validate a Provider against the schema
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success
-        def self.validate(provider)
-            schema = ProviderSchema.new
-            validation = schema.call(provider)
-
-            return OpenNebula::Error.new(
-                {
-                    'message' => 'Error validating Provider',
-                    'context' => validation.errors.to_h
-                },
-                OpenNebula::Error::ENOTDEFINED
-            ) if validation.failure?
-        end
-
-        def to_h(opts = {})
-            include_sensitive = opts[:include_sensitive] == true
-
-            document = to_hash.clone
-            template = Marshal.load(Marshal.dump(@body))
-
-            ui        = template['user_inputs'] || []
-            ui_values = (template['connection'] || {}).dup
-
-            unless include_sensitive
-                ui.each do |input|
-                    sensitive = input[:sensitive] || input['sensitive']
-                    name      = input[:name] || input['name']
-                    next unless sensitive && name
-
-                    ui_values[name] = REDACTED_MARK if ui_values.key?(name)
-                end
-            end
-
-            template = template.merge('connection' => ui_values)
-            document['DOCUMENT']['TEMPLATE'][TEMPLATE_TAG] = template
-
-            document
-        end
-
-        def to_json(*args)
-            super
         end
 
         def enabled?
@@ -219,63 +93,25 @@ module OneForm
             rc.enabled?
         end
 
-        def driver_path
+        def path
             rc = OneForm::Driver.from_name(driver)
             return rc.system_path if OpenNebula.is_error?(rc) == false
 
             nil
         end
 
-        ########################################################
-        ## ATTRIBUTES                                         ##
-        ########################################################
-
-        def add_provision_id(id)
-            provision_ids.push(id) unless provision_ids.include?(id)
-        end
-
-        def remove_provision_id(id)
-            provision_ids.delete(id)
-        end
-
-        ########################################################
-        ## PROVIDER OPERATIONS                                ##
-        ########################################################
-
-        # Fetch the provider body and define the accessors
-        def info
-            rc = super(true)
-
-            return rc if OpenNebula.is_error?(rc)
-
-            @body.each do |key, _|
-                next unless PROVIDER_ATTRS.include?(key)
-
-                self.class.define_method(key) do
-                    @body[key]
-                end
-
-                self.class.define_method("#{key}=") do |new_value|
-                    @body[key] = new_value
-                end
-            end
-        end
+        #------------------------------------------------------
+        # Document operations
+        #------------------------------------------------------
 
         # Allocate a new provider
-        def allocate(provider_template)
-            template = provider_template.to_hash
+        def allocate(body)
+            template = {
+                :provision_ids     => [],
+                :registration_time => Time.now.to_i
+            }.merge(body)
 
-            template['provision_ids']      = []
-            template['registration_time']  = Time.now.to_i
-
-            rc = Provider.validate(template)
-            return rc if OpenNebula.is_error?(rc)
-
-            super(template.slice(*PROVIDER_ATTRS).to_json, template['name'])
-
-            # Fill the body once allocated
-            rc = info
-            return rc if OpenNebula.is_error?(rc)
+            super(template)
         end
 
         # Delete the provider
@@ -289,47 +125,29 @@ module OneForm
             super
         end
 
-        # Update the provider info
-        # @return [nil, OpenNebula::Error] nil in case of success
-        def update(json = {})
-            json  = JSON.parse(json) if json.is_a?(String)
-            nbody = @body.clone
+        # Serializes the provider response without its input definitions
+        # @param opts [Hash] ODS serialization options
+        # @return [String] JSON without provider input definitions
+        def to_json(opts = {})
+            opts     = {} unless opts.is_a?(Hash)
+            document = to_h(opts)
+            body     = document['DOCUMENT']['TEMPLATE'][TEMPLATE_TAG]
 
-            return OpenNebula::Error.new(
-                'Invalid update payload: expected a JSON object'
-            ) unless json.is_a?(Hash)
+            body.delete(:user_inputs)
 
-            UPDATE_ATTRS.each do |attribute|
-                next unless json.key?(attribute)
+            document.to_json
+        end
 
-                incoming = json[attribute]
-                current  = nbody[attribute]
+        #------------------------------------------------------
+        # Provider actions
+        #------------------------------------------------------
 
-                next if incoming == REDACTED_MARK
+        def add_provision_id(id)
+            provision_ids.push(id) unless provision_ids.include?(id)
+        end
 
-                if incoming.is_a?(Hash)
-                    incoming = incoming.reject {|_, v| v == REDACTED_MARK }
-                end
-
-                nbody[attribute] =
-                    if current.is_a?(Hash) && incoming.is_a?(Hash)
-                        current.deep_merge(incoming, false)
-                    else
-                        incoming
-                    end
-            end
-
-            rc = rename(nbody['name']) if nbody['name'] != name
-            return rc if OpenNebula.is_error?(rc)
-
-            rc = super(nbody.to_json)
-            return rc if OpenNebula.is_error?(rc)
-
-            @body = nbody
-        rescue StandardError => e
-            return OpenNebula::Error.new(
-                "Error updating provider: #{e.message}"
-            )
+        def remove_provision_id(id)
+            provision_ids.delete(id)
         end
 
     end

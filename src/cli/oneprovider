@@ -35,7 +35,6 @@ $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 USER_AGENT = 'CLI'
 
-require 'tempfile'
 require 'command_parser'
 require 'one_helper'
 require 'opennebula/oneform_client'
@@ -103,36 +102,24 @@ CommandParser::CmdParser.new(ARGV) do
                 FORMAT + CLIHelper::OPTIONS +
                 [OpenNebulaHelper::DESCRIBE, SENSITIVE, ENABLED]
             ) do
-        sensitive = options[:sensitive] || false
-        enabled   = options[:enabled] || false
-
-        helper.list_provider_pool(
-            helper.client(options),
-            options,
-            :include_sensitive => sensitive,
-            :enabled           => enabled
-        )
+        helper.list(helper.client(options), options)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     top_desc = <<-EOT.unindent
-        List the available Service Templates continuously
+        List the available providers continuously
     EOT
 
     command :top,
             top_desc,
             :options => FORMAT + [CLIHelper::DELAY, SENSITIVE, ENABLED] do
-        Signal.trap('INT') { exit(-1) }
-        sensitive = options[:sensitive] || false
-        enabled   = options[:enabled] || false
-
-        helper.top_provider_pool(
-            helper.client(options),
-            options,
-            :include_sensitive => sensitive,
-            :enabled           => enabled
-        )
-
-        0
+        Signal.trap('INT') { exit(1) }
+        helper.top(helper.client(options), options)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     show_desc = <<-EOT.unindent
@@ -140,20 +127,19 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :provider_id, :options => FORMAT + [SENSITIVE] do
-        provider_id = args[0].to_i
-        sensitive   = options[:sensitive] || false
+        provider_id = args[0]
 
-        if args[0].to_s !~ /^\d+$/
+        if provider_id.to_s !~ /^\d+$/
             STDERR.puts 'Invalid provider ID'
             exit(-1)
         end
 
-        helper.format_resource(
-            helper.client(options),
-            provider_id,
-            options,
-            :include_sensitive => sensitive
-        )
+        provider_id = provider_id.to_i
+
+        helper.show(helper.client(options), provider_id, options)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     create_desc = <<-EOT.unindent
@@ -162,27 +148,12 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :create, create_desc, :driver_name, [:file, nil] do
         driver_name = args[0]
-        file        = args[1]
+        file_path   = args[1]
 
-        client = helper.client(options)
-        body   = helper.read_json_input(file) || {}
-        doc    = client.get_driver(driver_name)
-
-        return [doc[:err_code], doc[:message]] if CloudClient.is_error?(doc)
-
-        # If no user_inputs_values are provided, try to get user inputs
-        unless body[:connection_values]
-            body[:connection_values] = helper.get_user_values(doc[:connection])
-        end
-
-        response = client.create_provider(driver_name, body)
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        puts "ID: #{response[:ID]}"
-
-        0
+        helper.create(helper.client(options), driver_name, file_path)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     update_desc = <<-EOT.unindent
@@ -193,7 +164,10 @@ CommandParser::CmdParser.new(ARGV) do
         provider_id = args[0].to_i
         file_path   = args[1]
 
-        helper.update_resource(helper.client(options), provider_id, file_path)
+        helper.update(helper.client(options), provider_id, file_path)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     rename_desc = <<-EOT.unindent
@@ -201,20 +175,18 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :rename, rename_desc, :provider_id, :name do
-        if args[1].nil? || args[1].empty?
+        provider_id = args[0].to_i
+        name        = args[1]
+
+        if name.nil? || name.empty?
             STDERR.puts 'Name cannot be empty'
             exit(-1)
         end
 
-        client      = helper.client(options)
-        provider_id = args[0].to_i
-        name        = args[1]
-
-        response = client.update_provider(provider_id, { :name => name })
-        return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
-
-        0
+        helper.rename(helper.client(options), provider_id, name)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     chgrp_desc = <<-EOT.unindent
@@ -222,22 +194,20 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chgrp, chgrp_desc, [:range, :providerid_list], :groupid do
-        if args[1].to_s !~ /^\d+$/
+        provider_ids = args[0]
+        group_id     = args[1]
+
+        if group_id.to_s !~ /^\d+$/
             STDERR.puts 'Invalid group ID'
             exit(-1)
         end
 
-        client      = helper.client(options)
-        ids         = args[0]
-        group_id    = args[1].to_i
+        group_id = group_id.to_i
 
-        ids.each do |id|
-            response = client.chgrp_provider(id, group_id)
-            return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
-        end
-
-        0
+        helper.chgrp(helper.client(options), provider_ids, group_id)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     chown_desc = <<-EOT.unindent
@@ -249,28 +219,27 @@ CommandParser::CmdParser.new(ARGV) do
             [:range, :providerid_list],
             :userid,
             [:groupid, nil] do
-        if args[1].to_s !~ /^\d+$/
+        provider_ids = args[0]
+        user_id      = args[1]
+        group_id     = args[2]
+
+        if user_id.to_s !~ /^\d+$/
             STDERR.puts 'Invalid user ID'
             exit(-1)
         end
 
-        if args[2] && args[2].to_s !~ /^\d+$/
+        if group_id && group_id.to_s !~ /^\d+$/
             STDERR.puts 'Invalid group ID'
             exit(-1)
         end
 
-        client      = helper.client(options)
-        ids         = args[0]
-        user_id     = args[1].to_i
-        group_id    = args[2] ? args[2].to_i : nil
+        user_id  = user_id.to_i
+        group_id = group_id&.to_i
 
-        ids.each do |id|
-            response = client.chown_provider(id, user_id, group_id)
-            return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
-        end
-
-        0
+        helper.chown(helper.client(options), provider_ids, user_id, group_id)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     chmod_desc = <<-EOT.unindent
@@ -278,22 +247,19 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chmod, chmod_desc, [:range, :providerid_list], :octet do
-        if !/\A\d+\z/.match(args[1])
-            STDERR.puts "Invalid '#{args[1]}' octed permissions"
+        provider_ids = args[0]
+        octet        = args[1]
+
+        if !/\A\d+\z/.match(octet)
+            STDERR.puts "Invalid '#{octet}' octed permissions"
             exit(-1)
         end
 
-        client      = helper.client(options)
-        ids         = args[0]
-        octet       = OpenNebulaHelper.to_octet(args[1])
-
-        ids.each do |id|
-            response = client.chmod_provider(id, octet)
-            return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
-        end
-
-        0
+        permissions = OpenNebulaHelper.to_octet(octet)
+        helper.chmod(helper.client(options), provider_ids, permissions)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     delete_desc = <<-EOT.unindent
@@ -301,15 +267,11 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :providerid_list] do
-        client = helper.client(options)
-        ids    = args[0]
+        provider_ids = args[0]
 
-        ids.each do |id|
-            response = client.delete_provider(id)
-            return [response[:err_code], response[:message]] \
-                if CloudClient.is_error?(response)
-        end
-
-        0
+        helper.delete(helper.client(options), provider_ids)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 end

@@ -57,6 +57,14 @@ module OpenNebula
                 DEBUG_LEVEL[SERVER_CONF[:log][:level]] == Logger::DEBUG
             end
 
+            # Logs the effective server configuration without sensitive values
+            def self.log_config
+                schema = defined?(SCHEMA_CONF) ? SCHEMA_CONF : {}
+                config = without_sensitive(SERVER_CONF, schema)
+
+                info('SRV', "Initializing #{ODS_NAME} server:\n#{config.to_yaml}")
+            end
+
             def initialize(opts = {})
                 @name = opts[:name].downcase
                 @path = File.join(opts[:path], "#{@name}.log")
@@ -105,12 +113,29 @@ module OpenNebula
                 info('MAIN', msg.to_s.chop)
             end
 
+            def self.without_sensitive(config, schema)
+                config.each_with_object({}) do |(key, value), filtered|
+                    rules = Validator.config_value(schema, key)
+                    next if rules && Validator.rule_value(rules, :sensitive) == true
+
+                    nested_schema = rules && Validator.rule_value(rules, :keys)
+                    filtered[key] =
+                        if value.is_a?(Hash) && nested_schema.is_a?(Hash)
+                            without_sensitive(value, nested_schema)
+                        else
+                            value
+                        end
+                end
+            end
+            private_class_method :without_sensitive
+
             private
 
             # Writes the log entry to the resource-specific log file (<id>.log)
             # instead of the main application log
             def log_to_resource(command, formatted_msg, resource_id)
                 return unless @type == 'file'
+                return unless @logger.public_send("#{command}?")
 
                 file = resource_log_file(resource_id)
 

@@ -14,30 +14,31 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'one_helper'
+require 'json'
+require 'tempfile'
+require 'yaml'
 
-# Oneflow Template command helper
-class OneProviderHelper < OpenNebulaHelper::OneHelper
+require 'ods_helper'
+require 'cloud/CloudClient'
+
+# OneForm provider command helper
+class OneProviderHelper < ODSHelper
 
     REDACTED_MARK = '__redacted__'
     SECRET_MARK   = '************'
+    UPDATE_ATTRS  = [:name, :description, :connection]
 
     # Configuration file
     def self.conf_file
         'oneprovider.yaml'
     end
 
-    # Get client to make request
-    #
-    # @options [Hash] CLI options
-    def client(options)
-        OneForm::Client.new(
-            :username => options[:username],
-            :password => options[:password],
-            :url => options[:server],
-            :api_version => options[:api_version],
-            :user_agent => USER_AGENT
-        )
+    def self.client_class
+        OneForm::Client
+    end
+
+    def self.template_tag
+        :PROVIDER_BODY
     end
 
     # Get provider pool
@@ -82,7 +83,11 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
     #
     # @param client  [Service::Client] Petition client
     # @param options [Hash]            CLI options
-    def list_provider_pool(client, options, params = {})
+    def list(client, options)
+        params = {}
+        params[:include_sensitive] = true if options[:sensitive]
+        params[:enabled] = true if options[:enabled]
+
         response = client.list_providers(params)
 
         if CloudClient.is_error?(response)
@@ -103,11 +108,11 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    # List provider pool continiously
+    # List provider pool continuously
     #
     # @param client  [Service::Client] Petition client
     # @param options [Hash]            CLI options
-    def top_provider_pool(client, options, params = {})
+    def top(client, options)
         options[:delay] ? delay = options[:delay] : delay = 4
 
         begin
@@ -115,7 +120,7 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
                 CLIHelper.scr_cls
                 CLIHelper.scr_move(0, 0)
 
-                list_provider_pool(client, options, params)
+                list(client, options)
 
                 sleep delay
             end
@@ -129,10 +134,13 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
 
     # Show provider detailed information
     #
-    # @param client           [Service::Client] Petition client
-    # @param service_template [Integer]         Provider ID
-    # @param options          [Hash]            CLI options
-    def format_resource(client, provider_id, options, params = {})
+    # @param client      [OneForm::Client] Petition client
+    # @param provider_id [Integer] Provider ID
+    # @param options     [Hash] CLI options
+    def show(client, provider_id, options)
+        params = {}
+        params[:include_sensitive] = true if options[:sensitive]
+
         response = client.get_provider(provider_id, params)
 
         if CloudClient.is_error?(response)
@@ -218,12 +226,47 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def update_resource(client, provider_id, file_path)
+    # Create a provider from a driver
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param driver_name [String] Driver name
+    # @param file_path [String, nil] Optional JSON input path
+    # @return [Integer, Array] CLI result
+    def create(client, driver_name, file_path)
+        body = self.class.read_json_input(file_path) || {}
+        doc  = client.get_driver(driver_name)
+
+        return [doc[:err_code], doc[:message]] if CloudClient.is_error?(doc)
+
+        body[:connection_values] = get_user_values(doc[:connection]) unless body[:connection_values]
+
+        response = client.create_provider(driver_name, body)
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        puts "ID: #{response[:ID]}"
+
+        0
+    end
+
+    # Update a provider from a file or editor
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provider_id [Integer] Provider ID
+    # @param file_path [String, nil] Optional JSON input path
+    # @return [Integer, Array] CLI result
+    def update(client, provider_id, file_path)
+        original_connection = nil
+
         if file_path
             path = file_path
         else
-            response = client.get_provider(provider_id)
-            body     = response[:TEMPLATE][:PROVIDER_BODY]
+            response = client.get_provider(provider_id, :include_sensitive => true)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+            body = response[:TEMPLATE][:PROVIDER_BODY].select do |key, _|
+                UPDATE_ATTRS.include?(key.to_sym)
+            end
+            original_connection = body[:connection]
 
             tmp  = Tempfile.new("provider_#{provider_id}_tmp")
             path = tmp.path
@@ -247,7 +290,11 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
             tmp.close
         end
 
-        body = read_json_input(path)
+        body = self.class.read_json_input(path)
+
+        # Do not request a connection update when the editor left it unchanged.
+        body.delete(:connection) if !file_path && body[:connection] == original_connection
+
         response = client.update_provider(provider_id, body)
 
         if CloudClient.is_error?(response)
@@ -257,180 +304,95 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def read_json_input(file)
-        if file
-            begin
-                content = File.read(file)
-            rescue Errno::ENOENT
-                STDERR.puts "File not found: #{file}"
-                exit(-1)
-            end
-        else
-            stdin = OpenNebulaHelper.read_stdin
-            return if stdin.empty?
+    # Rename a provider
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param provider_id [Integer] Provider ID
+    # @param name [String] New name
+    # @return [Integer, Array] CLI result
+    def rename(client, provider_id, name)
+        response = client.update_provider(provider_id, { :name => name })
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
 
-            content = stdin
+        0
+    end
+
+    # Change the group of providers
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param ids [Array<Integer>] Provider IDs
+    # @param group_id [Integer] New group ID
+    # @return [Integer, Array] CLI result
+    def chgrp(client, ids, group_id)
+        ids.each do |id|
+            response = client.chgrp_provider(id, group_id)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
         end
 
-        begin
-            JSON.parse(content, :symbolize_names => true)
-        rescue JSON::ParserError => e
-            source = file ? "file: #{file}" : 'stdin'
-            STDERR.puts "Invalid JSON in #{source} - #{e.message}"
-            exit(-1)
+        0
+    end
+
+    # Change the owner and optional group of providers
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param ids [Array<Integer>] Provider IDs
+    # @param user_id [Integer] New owner ID
+    # @param group_id [Integer, nil] Optional group ID
+    # @return [Integer, Array] CLI result
+    def chown(client, ids, user_id, group_id = nil)
+        ids.each do |id|
+            response = client.chown_provider(id, user_id, group_id)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
         end
+
+        0
+    end
+
+    # Change provider permissions
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param ids [Array<Integer>] Provider IDs
+    # @param octet [Integer] Permission octet
+    # @return [Integer, Array] CLI result
+    def chmod(client, ids, octet)
+        ids.each do |id|
+            response = client.chmod_provider(id, octet)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+        end
+
+        0
+    end
+
+    # Delete providers
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param ids [Array<Integer>] Provider IDs
+    # @return [Integer, Array] CLI result
+    def delete(client, ids)
+        ids.each do |id|
+            response = client.delete_provider(id)
+            return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+        end
+
+        0
     end
 
     def get_user_values(user_inputs)
-        return {} if user_inputs.nil? || user_inputs.empty?
-
-        ask_user_inputs(user_inputs)
+        super || {}
     end
 
-    def ask_user_inputs(inputs)
-        puts 'There are some parameters that require user input.'
+    # Provider connection strings without defaults must not be empty
+    def ask_string_input(header, default, match)
+        return super if match&.dig(:type) == 'list'
 
-        answers = {}
+        loop do
+            answer = super
+            return answer unless answer.to_s.empty?
 
-        inputs.each do |input|
-            name        = input[:name]
-            description = input[:description] || ''
-            type        = input[:type]
-            default     = input[:default]
-            match       = input[:match]
-
-            puts "  * (#{name}) #{description} [type: #{type}]"
-            header = '    '
-            header += "Press enter for default (#{default}). " if default
-
-            answer = nil
-
-            type = case type
-                   when /\Amap\(/ then 'map'
-                   when /\Alist\(/ then 'list'
-                   else type
-                   end
-
-            case type
-            when 'string'
-                if match&.dig(:type) == 'list'
-                    options = match[:values] || []
-                    options.each_with_index {|opt, i| puts "    #{i}: #{opt}" }
-                    puts
-
-                    loop do
-                        print "#{header}Please type the selection number: "
-                        raw = STDIN.readline.strip
-
-                        if raw.empty?
-                            answer = default
-                            break if options.include?(answer)
-                        else
-                            index = raw.to_i rescue nil
-                            answer = options[index] if index && index >= 0
-                            break if answer
-                        end
-
-                        puts '    Invalid selection, please try again.'
-                    end
-                else
-                    print header
-
-                    loop do
-                        answer = STDIN.readline.strip || ''
-                        answer = OpenNebulaHelper.editor_input if answer == '<<EDITOR>>'
-                        answer = default if answer.to_s.empty?
-
-                        break unless answer.to_s.empty?
-
-                        print '    Input cannot be empty. Please try again: '
-                    end
-                end
-            when 'number'
-                min = match&.dig(:values, :min)
-                max = match&.dig(:values, :max)
-
-                begin
-                    range_msg = min && max ? " (#{min} to #{max})" : ''
-                    print "#{header}Enter a number#{range_msg}: "
-                    raw = STDIN.readline.strip
-                    raw = default.to_s if raw.empty?
-
-                    answer = Float(raw)
-                    raise if min && answer < min
-                    raise if max && answer > max
-                rescue StandardError => _e
-                    puts '    Invalid number, please try again.'
-                    retry
-                end
-            when 'list'
-                loop do
-                    print "#{header}Enter comma-separated values: "
-
-                    raw = STDIN.readline.strip
-
-                    if raw.empty?
-                        if default.is_a?(Array)
-                            answer = default
-                            break
-                        else
-                            puts '    No default available.'
-                            next
-                        end
-                    end
-
-                    answer = raw.split(',').map(&:strip).reject(&:empty?)
-
-                    if match&.dig(:type) == 'list'
-                        invalid = answer - match[:values]
-                        if invalid.any?
-                            puts "    Invalid values: #{invalid.join(', ')}"
-                            puts "    Allowed: #{match[:values].join(', ')}"
-                            next
-                        end
-                    end
-
-                    break
-                end
-            when 'map'
-                loop do
-                    print "#{header}Enter KEY=VALUE pairs separated by commas: "
-
-                    raw = STDIN.readline.strip
-
-                    if raw.empty?
-                        if default.is_a?(Hash)
-                            answer = default
-                            break
-                        else
-                            puts '    No default available.'
-                            next
-                        end
-                    end
-
-                    begin
-                        answer = {}
-                        raw.split(',').each do |pair|
-                            k, v = pair.split('=', 2)
-                            raise if k.nil? || v.nil? || k.strip.empty? || v.strip.empty?
-
-                            answer[k.strip] = v.strip
-                        end
-                        break
-                    rescue StandardError => _e
-                        puts '    Invalid map format. Expected KEY=VALUE,...'
-                    end
-                end
-
-            else
-                STDERR.puts "Unknown input type '#{type}' for '#{name}'"
-                exit(-1)
-            end
-
-            answers[name] = answer
+            puts '    Input cannot be empty. Please try again.'
         end
-
-        answers
     end
+
+    private :format_provider_pool, :get_user_values, :ask_user_inputs, :ask_string_input
 
 end

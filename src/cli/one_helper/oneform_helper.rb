@@ -14,9 +14,13 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'one_helper'
+require 'json'
+require 'yaml'
 
-# Oneflow Template command helper
+require 'one_helper'
+require 'cloud/CloudClient'
+
+# OneForm driver command helper
 class OneFormHelper < OpenNebulaHelper::OneHelper
 
     # Configuration file
@@ -65,7 +69,9 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
     #
     # @param client  [OneForm::Client] Petition client
     # @param options [Hash]            CLI options
-    def list_driver_pool(client, options, params = {})
+    def list(client, options)
+        params = {}
+        params[:enabled] = true if options[:enabled]
         response = client.list_drivers(params)
 
         if CloudClient.is_error?(response)
@@ -90,7 +96,7 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
     #
     # @param client  [OneForm::Client] Petition client
     # @param options [Hash]            CLI options
-    def top_driver_pool(client, options, params = {})
+    def top(client, options)
         options[:delay] ? delay = options[:delay] : delay = 4
 
         begin
@@ -98,7 +104,7 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
                 CLIHelper.scr_cls
                 CLIHelper.scr_move(0, 0)
 
-                list_driver_pool(client, options, params)
+                list(client, options)
 
                 sleep delay
             end
@@ -115,7 +121,7 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
     # @param client           [OneForm::Client] Petition client
     # @param driver_name         [String]          driver name
     # @param options          [Hash]            CLI options
-    def format_resource(client, driver_name, options)
+    def show(client, driver_name, options)
         response = client.get_driver(driver_name)
 
         if CloudClient.is_error?(response)
@@ -250,6 +256,41 @@ class OneFormHelper < OpenNebulaHelper::OneHelper
                 0
             end
         end
+    end
+
+    # Synchronize installed drivers
+    #
+    # @param client [OneForm::Client] Petition client
+    # @return [Integer, Array] CLI result
+    def sync(client)
+        response = client.sync_drivers
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        0
+    end
+
+    # Enable a driver
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param driver_name [String] Driver name
+    # @return [Integer, Array] CLI result
+    def enable(client, driver_name)
+        response = client.enable_driver(driver_name)
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        0
+    end
+
+    # Disable a driver
+    #
+    # @param client [OneForm::Client] Petition client
+    # @param driver_name [String] Driver name
+    # @return [Integer, Array] CLI result
+    def disable(client, driver_name)
+        response = client.disable_driver(driver_name)
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        0
     end
 
 end

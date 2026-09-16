@@ -36,6 +36,11 @@ all:
         description: "{{ description }}"
         one: "{{ one }}"
         user_inputs: "{{ user_inputs }}"
+    shared:
+      hosts:
+        template:
+          im_mad: dummy
+          vmm_mad: dummy
     vn:
       private_dummy_network:
         managed: true

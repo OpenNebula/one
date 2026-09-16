@@ -135,16 +135,6 @@ export const PROVISION_STATES = {
     color: 'error',
     finalState: true,
   },
-  CONFIGURING_ONE: {
-    name: 'CONFIGURING_ONE',
-    color: 'information',
-    finalState: false,
-  },
-  CONFIGURING_ONE_FAILURE: {
-    name: 'CONFIGURING_ONE_FAILURE',
-    color: 'error',
-    finalState: true,
-  },
   CONFIGURING_PROVISION: {
     name: 'CONFIGURING_PROVISION',
     color: 'information',
@@ -185,9 +175,19 @@ export const PROVISION_STATES = {
     color: 'information',
     finalState: false,
   },
+  DEPROVISIONING_FAILURE: {
+    name: 'DEPROVISIONING_FAILURE',
+    color: 'error',
+    finalState: true,
+  },
   DONE: {
     name: 'DONE',
     color: 'success',
+    finalState: true,
+  },
+  DONE_FAILURE: {
+    name: 'DONE_FAILURE',
+    color: 'error',
     finalState: true,
   },
 }
@@ -214,8 +214,8 @@ export const CLUSTER_CLOUD_OPERATIONS = {
     name: 'DELETEHOST',
     text: 'DeletingHostCluster',
   },
-  RETRY: {
-    name: 'RETRY',
-    text: 'RetryingCluster',
+  RECOVER: {
+    name: 'RECOVER',
+    text: 'RecoveringCluster',
   },
 }

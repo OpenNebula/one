@@ -18,43 +18,74 @@ module OpenNebula
 
     module DocumentServer
 
-        # Manages a set of worker threads, providing spawn, tracking, and graceful shutdown.
+        # Thread-safe cooperative cancellation flag shared by background tasks
+        class CancelFlag
+
+            # Creates a cancellation flag.
+            #
+            # @param cancelled [Boolean] Whether cancellation was already requested
+            def initialize(cancelled = false)
+                @mutex     = Mutex.new
+                @cancelled = cancelled
+            end
+
+            # Requests cooperative cancellation.
+            #
+            # This operation is idempotent and safe from any thread.
+            #
+            # @return [Boolean] true
+            def cancel!
+                @mutex.synchronize { @cancelled = true }
+
+                true
+            end
+
+            # Checks whether cancellation was requested.
+            #
+            # @return [Boolean] Current cancellation state
+            def cancelled?
+                @mutex.synchronize { @cancelled }
+            end
+
+        end
+
+        # Manages background threads and coordinates process shutdown.
+        #
+        # Threads started through {#start} are tracked until their blocks finish. The
+        # manager is safe to use concurrently after {#configure}; shutdown hooks and
+        # thread snapshots are protected by an internal mutex. Task blocks must still
+        # provide their own synchronization for application state
         class ThreadManager
 
             include Singleton
 
-            attr_reader :threads
-
             COMP = 'THR'
+            DEFAULT_SHUTDOWN_TIMEOUT = 30
 
             Thread.report_on_exception = true
 
-            # Minimal thread-safe cancellation flag used to coordinate sibling workers
-            class StopFlag
-
-                def initialize(initial = false)
-                    @mutex = Mutex.new
-                    @value = initial
-                end
-
-                def true?
-                    @mutex.synchronize { @value }
-                end
-
-                def make_true
-                    @mutex.synchronize { @value = true }
-                end
+            # Raised when work is submitted after shutdown starts
+            class StoppedError < StandardError
 
             end
 
-            # Configure the ThreadManager
+            # Configures thread naming and signal handling.
             #
-            # @param name_prefix [String, nil] optional prefix for thread names
-            def configure(prefix)
+            # Repeated calls preserve the first prefix and existing tracked threads
+            #
+            # @param prefix [String, nil] Optional prefix for managed thread names
+            # @param shutdown_timeout [Numeric] Maximum seconds spent stopping
+            # @return [ThreadManager] This manager
+            def configure(prefix, shutdown_timeout: DEFAULT_SHUTDOWN_TIMEOUT)
+                raise ArgumentError, 'Shutdown timeout must be positive' \
+                    unless shutdown_timeout.to_f.positive?
+
                 @name_prefix ||= prefix
                 @mutex       ||= Mutex.new
                 @threads     ||= []
+                @stop_hooks  ||= []
                 @stop          = false if @stop.nil?
+                @shutdown_timeout ||= shutdown_timeout.to_f
 
                 unless @traps_declared
                     declare_signal_traps
@@ -64,58 +95,150 @@ module OpenNebula
                 self
             end
 
-            # Starts a new thread and registers it for tracking.
+            # Returns a snapshot of currently tracked threads.
             #
-            # @param name [String, Symbol, nil] optional thread name suffix
-            # @yield the block to execute inside the thread
-            # @return [Thread] the created thread
+            # Mutating the returned array does not affect manager state.
+            #
+            # @return [Array<Thread>] Tracked thread snapshot
+            def threads
+                snapshot
+            end
+
+            # Starts and tracks a background thread.
+            #
+            # Exceptions derived from StandardError are logged in the worker and are not
+            # propagated to the caller. The thread unregisters itself on every exit path.
+            #
+            # @param name [String, Symbol, nil] Optional thread name suffix
+            # @yield Work to execute inside the thread
+            # @return [Thread] Created thread
+            # @raise [ArgumentError] If no block is provided
+            # @raise [StoppedError] If manager shutdown already started
             def start(name = nil, &block)
                 raise ArgumentError, 'Block required' unless block
 
-                thr = Thread.new do
-                    tname = [@name_prefix, name].compact.join(':')
-                    Thread.current.name = tname if Thread.current.respond_to?(:name=)
+                @mutex.synchronize do
+                    raise StoppedError, 'Thread manager is stopped' if @stop
 
-                    begin
-                        block.call
-                    rescue StandardError => e
-                        Log.warn(COMP, "[#{tname}] #{e.class}: #{e.message}")
-                        Log.debug(COMP, e.backtrace.join("\n"))
-                    ensure
-                        untrack(Thread.current)
+                    thread = Thread.new do
+                        tname = [@name_prefix, name].compact.join(':')
+                        Thread.current.name = tname \
+                            if Thread.current.respond_to?(:name=)
+
+                        begin
+                            block.call
+                        rescue StandardError => e
+                            Log.warn(COMP, "[#{tname}] #{e.class}: #{e.message}")
+                            Log.debug(COMP, e.backtrace.join("\n"))
+                        ensure
+                            untrack(Thread.current)
+                        end
+                    end
+
+                    @threads << thread
+                    thread
+                end
+            end
+
+            # Registers work that runs before managed threads are joined.
+            #
+            # Hooks run concurrently exactly once so one uncooperative component cannot
+            # prevent the remaining components from receiving the shutdown signal. Hook
+            # exceptions are logged without preventing the remaining hooks from running.
+            # Hooks may return threads they started so those threads share the same deadline.
+            #
+            # @yield [deadline] Shutdown work with an absolute monotonic deadline
+            # @return [Array<Proc>] Snapshot of registered hooks
+            # @raise [ArgumentError] If no block is provided
+            def on_stop(&block)
+                raise ArgumentError, 'Block required' unless block
+
+                @mutex.synchronize do
+                    @stop_hooks << block
+                    @stop_hooks.dup
+                end
+            end
+
+            # Signals global shutdown and waits for managed threads.
+            #
+            # Shutdown hooks are responsible for waking or cooperatively cancelling their
+            # workers. Every hook and managed thread shares one monotonic deadline. Threads
+            # that remain alive after it are reported and left for process termination.
+            #
+            # @param deadline [Numeric, nil] Absolute monotonic shutdown deadline
+            # @return [Boolean, nil] Whether every observed thread stopped; nil when another
+            #   caller already owns shutdown and has not completed yet
+            def stop!(deadline: nil)
+                hooks, shutdown_deadline = @mutex.synchronize do
+                    already_stopped = @stop
+                    @stop = true
+                    unless already_stopped
+                        @shutdown_deadline = deadline || monotonic_now + @shutdown_timeout
+                    end
+
+                    return @stop_result if already_stopped
+
+                    [@stop_hooks.dup, @shutdown_deadline]
+                end
+
+                hook_results = Queue.new
+                hook_threads = hooks.each_with_index.map do |hook, index|
+                    Thread.new do
+                        Thread.current.name = shutdown_thread_name(index) \
+                            if Thread.current.respond_to?(:name=)
+
+                        begin
+                            Array(hook.call(shutdown_deadline)).each do |candidate|
+                                hook_results << candidate if candidate.is_a?(Thread)
+                            end
+                        rescue StandardError => e
+                            Log.warn(COMP, "[stop] #{e.class}: #{e.message}")
+                        end
                     end
                 end
 
-                track(thr)
-                thr
-            end
+                join_until(hook_threads, shutdown_deadline)
 
-            # Signals all threads to stop and waits for them to finish.
-            #
-            # @param timeout [Integer] number of seconds to wait per thread
-            # @param kill [Boolean] whether to forcefully terminate unresponsive threads
-            # @return [void]
-            def stop!(timeout: 2, kill: false)
-                @stop = true
-                list = snapshot
-
-                list.each do |t|
-                    next if t.join(timeout)
-
-                    t.kill if kill
-                rescue StandardError => e
-                    Log.warn(COMP, "[stop] #{e.class}: #{e.message}")
+                extra_threads = []
+                extra_threads << hook_results.pop until hook_results.empty?
+                managed_threads = (snapshot + extra_threads).uniq.reject do |thread|
+                    thread == Thread.current
                 end
+                join_until(managed_threads, shutdown_deadline)
+
+                survivors = (hook_threads + managed_threads).select(&:alive?).uniq
+                result    = survivors.empty?
+
+                unless result
+                    names = survivors.map {|thread| thread.name || "thread-#{thread.object_id}" }
+                    Log.warn(
+                        COMP,
+                        "Shutdown deadline reached with #{survivors.size} active thread(s): " \
+                        "#{names.join(', ')}"
+                    )
+                end
+
+                @mutex.synchronize { @stop_result = result }
+                result
             end
 
+            # Checks whether global shutdown was requested.
+            #
+            # @return [Boolean] true after {#stop!} starts
             def stop?
-                @stop
+                @mutex.synchronize { @stop }
             end
 
+            # Checks whether any tracked thread is alive.
+            #
+            # @return [Boolean] true when a managed thread is still running
             def any_alive?
                 snapshot.any?(&:alive?)
             end
 
+            # Returns the number of currently tracked threads.
+            #
+            # @return [Integer] Tracked thread count
             def size
                 snapshot.size
             end
@@ -137,7 +260,7 @@ module OpenNebula
 
                 threads     = []
                 error_queue = Queue.new
-                stop_flag   = StopFlag.new(false)
+                stop_flag   = CancelFlag.new(false)
 
                 items.each do |item|
                     threads << start(item.class.name) do
@@ -145,10 +268,10 @@ module OpenNebula
                             rc = yield(item, stop_flag)
 
                             if OpenNebula.is_error?(rc)
-                                stop_flag.make_true
+                                stop_flag.cancel!
                                 error_queue << rc
                             else
-                                on_success.call(item) if on_success && !stop_flag.true?
+                                on_success.call(item) if on_success && !stop_flag.cancelled?
                             end
                         rescue StandardError => e
                             err = OpenNebula::Error.new(
@@ -156,7 +279,7 @@ module OpenNebula
                                 OpenNebula::Error::EACTION
                             )
 
-                            stop_flag.make_true
+                            stop_flag.cancel!
                             error_queue << err
                         end
                     end
@@ -170,7 +293,7 @@ module OpenNebula
                     items.each do |item|
                         begin
                             on_failure.call(item, err) if on_failure
-                        rescue StandardError
+                        rescue StandardError => e
                             Log.error(COMP, e.message)
                         end
                     end
@@ -183,11 +306,26 @@ module OpenNebula
 
             private
 
-            # Adds a thread to the tracked list
-            #
-            # @param t [Thread]
-            def track(t)
-                @mutex.synchronize { @threads << t }
+            # Returns the current monotonic time used by shutdown deadlines.
+            def monotonic_now
+                Process.clock_gettime(Process::CLOCK_MONOTONIC)
+            end
+
+            # Joins threads without extending the shared shutdown deadline.
+            def join_until(threads, deadline)
+                threads.each do |thread|
+                    remaining = deadline - monotonic_now
+                    break unless remaining.positive?
+
+                    thread.join(remaining)
+                rescue StandardError => e
+                    Log.warn(COMP, "[stop] #{e.class}: #{e.message}")
+                end
+            end
+
+            # Builds a diagnostic name for a shutdown hook thread.
+            def shutdown_thread_name(index)
+                [@name_prefix, "shutdown-hook-#{index}"].compact.join(':')
             end
 
             # Removes a thread from the tracked list
@@ -214,15 +352,18 @@ module OpenNebula
                 handler = proc do |sig|
                     unless stopping
                         stopping = true
-                        Log.debug(COMP, "#{sig} received — stopping...")
-                        stop!(:timeout => 3)
+                        Thread.new do
+                            Log.debug(COMP, "#{sig} received — stopping...")
+                            stop!
+                            exit
+                        end
                     end
                 end
 
                 signals.each {|sig| trap(sig, &handler) }
 
                 at_exit do
-                    stop!(:timeout => 2) if any_alive?
+                    stop! if any_alive? && !stop?
                 end
             end
 

@@ -65,11 +65,11 @@ export const AggregatedView = ({
   const { showModal } = useModalsApi()
   const [remove, { isLoading: isRemoving }] =
     ClusterAPI.useRemoveClusterMutation()
-  const [removeProvision, { isLoading: isRemovingProvision }] =
-    ProvisionAPI.useRemoveProvisionMutation()
+  const [deleteProvision, { isLoading: isDeletingProvision }] =
+    ProvisionAPI.useDeleteProvisionMutation()
 
   const isActionsDisabled =
-    selectedClusters?.length === 0 || isRemoving || isRemovingProvision
+    selectedClusters?.length === 0 || isRemoving || isDeletingProvision
   const canDelete = actions?.includes?.(CLUSTER_ACTIONS.DELETE)
 
   const handleDelete = () =>
@@ -95,7 +95,7 @@ export const AggregatedView = ({
             const provisionId = TEMPLATE?.ONEFORM?.PROVISION_ID
 
             if (provisionId) {
-              return removeProvision({ id: provisionId, force: true })
+              return deleteProvision({ id: provisionId, force: true })
             }
 
             return remove({ id: ID })

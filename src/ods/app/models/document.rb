@@ -23,12 +23,15 @@ module OpenNebula
 
             TEMPLATE_TAG  = 'DOCUMENT_BODY'
             DOCUMENT_TYPE = 0
+            REDACTED_MARK = '__redacted__'
 
             DOCUMENT_ATTRS    = []
             UPDATE_ATTRS      = []
             ATTRIBUTE_CLASSES = {}
             RESOURCE_NAME     = 'document'
             INFO_ERROR        = /\A\[([^\]]+)\] Error getting document \[(.+)\]\.\z/
+            USER_INPUTS_ATTR  = :user_inputs
+            USER_VALUES_ATTR  = :user_inputs_values
 
             def initialize(client, xml: nil, id: nil)
                 @tag = self.class::TEMPLATE_TAG
@@ -116,10 +119,8 @@ module OpenNebula
 
                 @body = @body.deep_symbolize_keys
 
-                @body.each do |key, value|
+                self.class::DOCUMENT_ATTRS.each do |key|
                     next if skip_methods.include?(key)
-
-                    next unless self.class::DOCUMENT_ATTRS.include?(key)
 
                     self.class.define_method(key) do
                         @body[key]
@@ -128,6 +129,11 @@ module OpenNebula
                     self.class.define_method("#{key}=") do |new_value|
                         @body[key] = new_value
                     end
+                end
+
+                @body.each do |key, value|
+                    next if skip_methods.include?(key)
+                    next unless self.class::DOCUMENT_ATTRS.include?(key)
 
                     # Auto-deserialize if attribute has an associated class
                     next if raw
@@ -185,6 +191,12 @@ module OpenNebula
                     current  = nbody[attribute]
                     incoming = json[attribute]
 
+                    next if incoming == REDACTED_MARK
+
+                    if incoming.is_a?(Hash)
+                        incoming = incoming.reject {|_, value| value == REDACTED_MARK }
+                    end
+
                     nbody[attribute] =
                         if current.is_a?(Hash) && incoming.is_a?(Hash)
                             current.deep_merge(incoming, false)
@@ -206,11 +218,46 @@ module OpenNebula
                 OpenNebula::Error.new("Error updating document: #{e.message}")
             end
 
+            def to_h(opts = {})
+                document = to_hash.clone
+                body     = Marshal.load(Marshal.dump(@body))
+
+                redact_sensitive_inputs!(body) unless include_sensitive?(opts)
+
+                document['DOCUMENT']['TEMPLATE'][self.class::TEMPLATE_TAG] = body
+                document
+            end
+
             # Constructs a basic body hash representation of the document
             # @return [Hash] body document attributes
             def plain_body
                 attrs = [:id] + self.class::DOCUMENT_ATTRS
                 attrs.to_h {|attr| [attr, respond_to?(attr) ? public_send(attr) : nil] }
+            end
+
+            private
+
+            def include_sensitive?(opts)
+                opts[:include_sensitive] == true
+            end
+
+            def redact_sensitive_inputs!(template)
+                inputs = template[self.class::USER_INPUTS_ATTR]
+                values = template[self.class::USER_VALUES_ATTR]
+
+                return template unless inputs.is_a?(Array) && values.is_a?(Hash)
+
+                inputs.each do |input|
+                    next unless input.is_a?(Hash)
+
+                    sensitive = input[:sensitive]
+                    name      = input[:name]
+                    next unless sensitive && name
+
+                    values[name.to_sym] = REDACTED_MARK if values.key?(name.to_sym)
+                end
+
+                template
             end
 
         end

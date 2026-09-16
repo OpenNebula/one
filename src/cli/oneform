@@ -38,8 +38,6 @@ USER_AGENT = 'CLI'
 require 'command_parser'
 require 'one_helper'
 require 'opennebula/oneform_client'
-require 'tempfile'
-
 require 'one_helper/oneform_helper'
 
 CommandParser::CmdParser.new(ARGV) do
@@ -56,7 +54,7 @@ CommandParser::CmdParser.new(ARGV) do
         :name => 'enabled',
         :short => '-e',
         :large => '--enabled',
-        :description => 'Show only enabled providers',
+        :description => 'Show only enabled drivers',
         :default => false
     }
 
@@ -73,8 +71,10 @@ CommandParser::CmdParser.new(ARGV) do
     command :list,
             list_desc,
             :options => FORMAT + CLIHelper::OPTIONS + [OpenNebulaHelper::DESCRIBE, ENABLED] do
-        enabled = options[:enabled] || false
-        helper.list_driver_pool(helper.client(options), options, :enabled => enabled)
+        helper.list(helper.client(options), options)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     top_desc = <<-EOT.unindent
@@ -84,11 +84,11 @@ CommandParser::CmdParser.new(ARGV) do
     command :top,
             top_desc,
             :options => FORMAT + [CLIHelper::DELAY, ENABLED] do
-        Signal.trap('INT') { exit(-1) }
-        enabled = options[:enabled] || false
-        helper.top_driver_pool(helper.client(options), options, :enabled => enabled)
-
-        0
+        Signal.trap('INT') { exit(1) }
+        helper.top(helper.client(options), options)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     show_desc = <<-EOT.unindent
@@ -96,9 +96,10 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :driver_name, :options => FORMAT do
-        driver_name = args[0]
-
-        helper.format_resource(helper.client(options), driver_name, options)
+        helper.show(helper.client(options), args[0], options)
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     sync_desc = <<-EOT.unindent
@@ -106,14 +107,10 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :sync, sync_desc do
-        client      = helper.client(options)
-
-        response = client.sync_drivers
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        0
+        helper.sync(helper.client(options))
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     enable_desc = <<-EOT.unindent
@@ -121,15 +118,10 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :enable, enable_desc, :driver_name do
-        client      = helper.client(options)
-        driver_name = args[0]
-
-        response = client.enable_driver(driver_name)
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        0
+        helper.enable(helper.client(options), args[0])
+    rescue Interrupt
+        puts
+        exit(1)
     end
 
     disable_desc = <<-EOT.unindent
@@ -137,14 +129,9 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :disable, disable_desc, :driver_name do
-        client   = helper.client(options)
-        driver_name = args[0]
-
-        response = client.disable_driver(driver_name)
-
-        return [response[:err_code], response[:message]] \
-            if CloudClient.is_error?(response)
-
-        0
+        helper.disable(helper.client(options), args[0])
+    rescue Interrupt
+        puts
+        exit(1)
     end
 end

@@ -24,6 +24,14 @@ module OpenNebula
             # Defines methods to manage Virtual Machines in OpenNebula
             module VirtualMachine
 
+                RESOURCE_TYPE = 'vm'
+                WAIT_DELETE   = true
+
+                # Creates a virtual machine from a template.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param template [Hash] VM template.
+                # @param hold [Boolean] Whether to create the VM on hold.
+                # @return [OpenNebula::VirtualMachine, OpenNebula::Error]
                 def self.create(client, template, hold: false)
                     template = Hash.to_raw(template)
                     return template if OpenNebula.is_error?(template)
@@ -45,6 +53,11 @@ module OpenNebula
                     vm
                 end
 
+                # Returns a VM body using symbolized keys.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vm_id [Integer] VM ID.
+                # @param downcase [Boolean] Whether to downcase keys.
+                # @return [Hash, OpenNebula::Error] VM body or an API error.
                 def self.body(client, vm_id, downcase: true)
                     vm = get(client, vm_id)
                     return vm if OpenNebula.is_error?(vm)
@@ -59,6 +72,10 @@ module OpenNebula
                     body.deep_symbolize_keys(:downcase => downcase)
                 end
 
+                # Checks whether a VM with a name exists.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param name [String] VM name.
+                # @return [Boolean, OpenNebula::Error] existence result or an API error.
                 def self.exists?(client, name)
                     vm = find(client, name)
                     return vm if OpenNebula.is_error?(vm)
@@ -66,6 +83,23 @@ module OpenNebula
                     !vm.nil?
                 end
 
+                # Checks whether a VM ID exists in the pool.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vm_id [Integer] VM ID.
+                # @return [Boolean, OpenNebula::Error] existence result or an API error.
+                def self.exists_id?(client, vm_id)
+                    vm_pool = OpenNebula::VirtualMachinePool.new(client, -1)
+
+                    rc = vm_pool.info
+                    return rc if OpenNebula.is_error?(rc)
+
+                    vm_pool.any? {|vm| vm.id.to_i == vm_id.to_i }
+                end
+
+                # Retrieves a VM with its current information.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vm_id [Integer] VM ID.
+                # @return [OpenNebula::VirtualMachine, OpenNebula::Error] VM or an API error.
                 def self.get(client, vm_id)
                     return OpenNebula::Error.new(
                         'VM ID cannot be nil', OpenNebula::Error::EACTION
@@ -79,6 +113,10 @@ module OpenNebula
                     vm
                 end
 
+                # Returns a VM name.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vm_id [Integer] VM ID.
+                # @return [String, OpenNebula::Error] VM name or an API error.
                 def self.name(client, vm_id)
                     vm = get(client, vm_id)
                     return vm if OpenNebula.is_error?(vm)
@@ -92,6 +130,10 @@ module OpenNebula
                     name
                 end
 
+                # Finds a VM by name.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param name [String] VM name.
+                # @return [OpenNebula::VirtualMachine, nil, OpenNebula::Error]
                 def self.find(client, name)
                     vm_pool = OpenNebula::VirtualMachinePool.new(client, -1)
 
@@ -107,18 +149,38 @@ module OpenNebula
                     vm
                 end
 
-                def self.delete(client, vm_id, force: false)
+                # Terminates a VM, optionally forcing and waiting for removal.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vm_id [Integer] VM ID.
+                # @param force [Boolean] Whether to force termination.
+                # @param wait [Boolean] Whether to wait for deletion.
+                # @return [true, OpenNebula::Error] success or an API error.
+                def self.delete(client, vm_id, force: false, wait: false)
                     return OpenNebula::Error.new(
                         'VM ID cannot be nil', OpenNebula::Error::EACTION
                     ) if vm_id.nil?
 
-                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, client)
+                    vm = if wait
+                             get(client, vm_id)
+                         else
+                             OpenNebula::VirtualMachine.new_with_id(vm_id, client)
+                         end
+
+                    return vm if OpenNebula.is_error?(vm)
+
                     rc = vm.terminate(force)
                     return rc if OpenNebula.is_error?(rc)
+                    return true unless wait
 
-                    true
+                    Resource.wait_until_deleted(vm, :state => 6)
                 end
 
+                # Runs a QEMU guest-agent command and waits for its result.
+                # @param client [OpenNebula::Client] OpenNebula client.
+                # @param vm_id [Integer] VM ID.
+                # @param cmd [String] Guest command.
+                # @param opts [Hash] Optional stdin and timeout values.
+                # @return [Hash, OpenNebula::Error] command result or an API error.
                 def self.exec(client, vm_id, cmd, opts = {})
                     stdin   = opts.fetch(:stdin, '')
                     timeout = opts.fetch(:timeout, 60)

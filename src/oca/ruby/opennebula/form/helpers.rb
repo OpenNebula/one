@@ -19,31 +19,17 @@ module OneForm
     # OneForm Helpers Module
     module Helpers
 
-        RESOURCE_PATHS = {
-            'PROVIDER TEMPLATE'  => '/provider-templates',
-            'PROVISION TEMPLATE' => '/provision-templates',
-            'PROVIDER'           => '/providers',
-            'PROVISION'          => '/provisions'
+        RESOURCE_POOLS = {
+            'PROVIDER'  => :providers,
+            'PROVISION' => :provisions
         }
 
         # Convert a name to an ID based on the provided pool
         def self.rname_to_id(name, poolname)
-            return 0, name.to_i if name.match(/^[0123456789]+$/)
+            pool = RESOURCE_POOLS[poolname.upcase]
+            raise ArgumentError, "Unknown pool name: #{poolname}" unless pool
 
-            client        = OneForm::Client.new
-            resource_path = RESOURCE_PATHS[poolname.upcase]
-
-            raise ArgumentError, "Unknown pool name: #{poolname}" unless resource_path
-
-            response = client.get(resource_path)
-
-            if CloudClient.is_error?(response)
-                return -1, "OpenNebula #{poolname} name not found," <<
-                            ' use the ID instead'
-            end
-
-            pool = JSON.parse(response.body)
-            name_to_id(name, pool, poolname)
+            OneForm::Client.name_to_id(:name => name, :pool => pool)
         end
 
         # Description of the rname to ID method
@@ -52,55 +38,14 @@ module OneForm
         end
 
         def self.list_to_id(names, poolname)
-            client        = OneForm::Client.new
-            resource_path = RESOURCE_PATHS[poolname.upcase]
+            pool = RESOURCE_POOLS[poolname.upcase]
+            raise ArgumentError, "Unknown pool name: #{poolname}" unless pool
 
-            raise ArgumentError, "Unknown pool name: #{poolname}" unless resource_path
-
-            response = client.get(resource_path)
-
-            if CloudClient.is_error?(response)
-                return -1, "OpenNebula #{poolname} name not found," <<
-                           ' use the ID instead'
-            end
-
-            pool = JSON.parse(response.body)
-
-            result = names.split(',').collect do |name|
-                if name.match(/^[0123456789]+$/)
-                    name.to_i
-                else
-                    rc = name_to_id(name, pool, poolname)
-
-                    if rc.first == -1
-                        return rc[0], rc[1]
-                    end
-
-                    rc[1]
-                end
-            end
-
-            [0, result]
+            OneForm::Client.list_to_id(names, pool)
         end
 
         def self.list_to_id_desc(poolname)
             "Comma-separated list of OpenNebula #{poolname} names or ids"
-        end
-
-        # Convert a name to an ID based on the provided pool
-        def name_to_id(name, pool, ename)
-            if pool['DOCUMENT_POOL']['DOCUMENT'].nil?
-                return -1, "#{ename} named #{name} not found."
-            end
-
-            objects = pool['DOCUMENT_POOL']['DOCUMENT'].select {|object| object['NAME'] == name }
-
-            return -1, "#{ename} named #{name} not found." unless objects.empty?
-            return -1, "There are multiple #{ename}s with name #{name}." if objects.length>1
-
-            result = objects.first['ID']
-
-            [0, result]
         end
 
     end

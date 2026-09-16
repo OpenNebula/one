@@ -372,6 +372,7 @@ const provisionDelete = (
 ) => {
   const { user, password } = userData
   const command = Commands[Actions.DELETE]
+  const force = params.force === true || params.force === 'true'
 
   if (!user || !password || !params.id) {
     res.locals.httpCode = httpResponse(
@@ -390,7 +391,7 @@ const provisionDelete = (
     password,
     request: params.id,
     query: {
-      ...(params.force !== undefined && { force: params.force }),
+      ...(force && { force: true }),
     },
   }
 
@@ -402,7 +403,7 @@ const provisionDelete = (
 }
 
 /**
- * Undeploy a provision.
+ * Recover a provision from a failed state.
  *
  * @param {object} res - http response
  * @param {Function} next - express stepper
@@ -410,14 +411,15 @@ const provisionDelete = (
  * @param {object} userData - user data
  * @returns {void}
  */
-const provisionUndeploy = (
+const provisionRecover = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
   userData = {}
 ) => {
   const { user, password } = userData
-  const command = Commands[Actions.UNDEPLOY]
+  const command = Commands[Actions.RECOVER]
+  const force = params.force === true || params.force === 'true'
 
   if (!user || !password || !params.id) {
     res.locals.httpCode = httpResponse(
@@ -431,12 +433,59 @@ const provisionUndeploy = (
 
   const config = {
     method: command.httpMethod,
-    path: '/provisions/{0}/undeploy',
+    path: '/provisions/{0}/recover',
+    user,
+    password,
+    request: params.id,
+    query: {
+      ...(force && { force: true }),
+    },
+  }
+
+  oneFormConnection(
+    config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
+ * Add hosts to a provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {object} userData - user data
+ * @returns {void}
+ */
+const provisionAddHosts = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.ADD_HOSTS]
+
+  if (!user || !password || !params.id) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'invalid provision ID'
+    )
+
+    return next()
+  }
+
+  const config = {
+    method: command.httpMethod,
+    path: '/provisions/{0}/hosts',
     user,
     password,
     request: params.id,
     post: {
-      ...(params.force !== undefined && { force: params.force }),
+      ...(params.amount != null && { amount: params.amount }),
+      ...(params.hosts != null && { hosts: params.hosts }),
     },
   }
 
@@ -448,7 +497,7 @@ const provisionUndeploy = (
 }
 
 /**
- * Retry a provision from a failed state.
+ * Delete hosts from a provision.
  *
  * @param {object} res - http response
  * @param {Function} next - express stepper
@@ -456,14 +505,58 @@ const provisionUndeploy = (
  * @param {object} userData - user data
  * @returns {void}
  */
-const provisionRetry = (
+const provisionDeleteHosts = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
   userData = {}
 ) => {
   const { user, password } = userData
-  const command = Commands[Actions.RETRY]
+  const command = Commands[Actions.DELETE_HOSTS]
+
+  if (!user || !password || !params.id || !params.ids) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'invalid provision or host IDs'
+    )
+
+    return next()
+  }
+
+  const config = {
+    method: command.httpMethod,
+    path: '/provisions/{0}/hosts',
+    user,
+    password,
+    request: params.id,
+    query: { ids: params.ids },
+  }
+
+  oneFormConnection(
+    config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
+ * Add public IPs to a provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {object} userData - user data
+ * @returns {void}
+ */
+const provisionAddPublicIps = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.ADD_PUBLIC_IPS]
 
   if (!user || !password || !params.id) {
     res.locals.httpCode = httpResponse(
@@ -477,12 +570,12 @@ const provisionRetry = (
 
   const config = {
     method: command.httpMethod,
-    path: '/provisions/{0}/retry',
+    path: '/provisions/{0}/public-network/ips',
     user,
     password,
     request: params.id,
     post: {
-      ...(params.force !== undefined && { force: params.force }),
+      ...(params.amount != null && { amount: params.amount }),
     },
   }
 
@@ -494,25 +587,22 @@ const provisionRetry = (
 }
 
 /**
- * Scale up or down a provision.
+ * Delete a public IP from a provision.
  *
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params
- * @param {number} params.nodes - number of nodes to up or scale
- * @param {string} params.direction - up or down string
  * @param {object} userData - user data
  * @returns {void}
  */
-const provisionScaleHost = (
+const provisionDeletePublicIp = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
   userData = {}
 ) => {
   const { user, password } = userData
-  const command = Commands[Actions.SCALE]
-  const nodes = params.nodes
+  const command = Commands[Actions.DELETE_PUBLIC_IP]
 
   if (!user || !password || !params.id) {
     res.locals.httpCode = httpResponse(
@@ -524,229 +614,7 @@ const provisionScaleHost = (
     return next()
   }
 
-  const isNull = nodes == null
-  const isPositiveNumber =
-    (typeof nodes === 'number' ||
-      (typeof nodes === 'string' && String(Number(nodes)) !== 'NaN')) &&
-    Number(nodes) > 0 &&
-    Number.isInteger(Number(nodes))
-  const isArrayOfStrings =
-    Array.isArray(nodes) && nodes.every((v) => typeof v === 'string')
-
-  if (isNull || (!isPositiveNumber && !isArrayOfStrings)) {
-    res.locals.httpCode = httpResponse(
-      methodNotAllowed,
-      '',
-      `invalid nodes ${nodes}`
-    )
-
-    return next()
-  }
-
-  if (params.direction == null || !['up', 'down'].includes(params.direction)) {
-    res.locals.httpCode = httpResponse(
-      methodNotAllowed,
-      '',
-      'invalid direction'
-    )
-
-    return next()
-  }
-
-  const config = {
-    method: command.httpMethod,
-    path: '/provisions/{0}/scale',
-    user,
-    password,
-    request: params.id,
-    post: {
-      direction: params.direction,
-      nodes: params.nodes,
-    },
-  }
-
-  oneFormConnection(
-    config,
-    (data) => success(next, res, data),
-    (data) => error(next, res, data)
-  )
-}
-
-/**
- * Add IP to a provision.
- *
- * @param {object} res - http response
- * @param {Function} next - express stepper
- * @param {object} params - params
- * @param {object} userData - user data
- * @returns {void}
- */
-const provisionAddIp = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {}
-) => {
-  const { user, password } = userData
-  const command = Commands[Actions.ADD_IP]
-
-  if (!user || !password || !params.id) {
-    res.locals.httpCode = httpResponse(
-      methodNotAllowed,
-      '',
-      'invalid provision ID'
-    )
-
-    return next()
-  }
-
-  if (!params.amount) {
-    res.locals.httpCode = httpResponse(methodNotAllowed, '', 'invalid amount')
-
-    return next()
-  }
-
-  const config = {
-    method: command.httpMethod,
-    path: '/provisions/{0}/add-ip',
-    user,
-    password,
-    request: params.id,
-    post: {
-      amount: params.amount,
-    },
-  }
-
-  oneFormConnection(
-    config,
-    (data) => success(next, res, data),
-    (data) => error(next, res, data)
-  )
-}
-
-/**
- * Add IP to a provision.
- *
- * @param {object} res - http response
- * @param {Function} next - express stepper
- * @param {object} params - params
- * @param {object} userData - user data
- * @returns {void}
- */
-const provisionAddHost = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {}
-) => {
-  const { user, password } = userData
-  const command = Commands[Actions.ADD_HOST]
-
-  if (!user || !password || !params.id) {
-    res.locals.httpCode = httpResponse(
-      methodNotAllowed,
-      '',
-      'invalid provision ID'
-    )
-
-    return next()
-  }
-
-  const config = {
-    method: command.httpMethod,
-    path: '/provisions/{0}/add-host',
-    user,
-    password,
-    request: params.id,
-    post: {},
-  }
-
-  params?.ips && (config.post.ips = params.ips)
-  params?.amount && (config.post.amount = params.amount)
-
-  oneFormConnection(
-    config,
-    (data) => success(next, res, data),
-    (data) => error(next, res, data)
-  )
-}
-
-/**
- * Remove HOST from a provision.
- *
- * @param {object} res - http response
- * @param {Function} next - express stepper
- * @param {object} params - params
- * @param {object} userData - user data
- * @returns {void}
- */
-const provisionRemoveHost = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {}
-) => {
-  const { user, password } = userData
-  const command = Commands[Actions.REMOVE_HOST]
-
-  if (!user || !password || !params.id) {
-    res.locals.httpCode = httpResponse(
-      methodNotAllowed,
-      '',
-      'invalid provision ID'
-    )
-
-    return next()
-  }
-
-  const config = {
-    method: command.httpMethod,
-    path: '/provisions/{0}/remove-host',
-    user,
-    password,
-    request: params.id,
-    post: {},
-  }
-
-  params?.ids && (config.post.ids = params.ids)
-  params?.amount && (config.post.amount = params.amount)
-
-  oneFormConnection(
-    config,
-    (data) => success(next, res, data),
-    (data) => error(next, res, data)
-  )
-}
-
-/**
- * Remove IP from a provision.
- *
- * @param {object} res - http response
- * @param {Function} next - express stepper
- * @param {object} params - params
- * @param {object} userData - user data
- * @returns {void}
- */
-const provisionRemoveIp = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {}
-) => {
-  const { user, password } = userData
-  const command = Commands[Actions.REMOVE_IP]
-
-  if (!user || !password || !params.id) {
-    res.locals.httpCode = httpResponse(
-      methodNotAllowed,
-      '',
-      'invalid provision ID'
-    )
-
-    return next()
-  }
-
-  if (!params.ar_id) {
+  if (params.ar_id == null || params.ar_id === '') {
     res.locals.httpCode = httpResponse(
       methodNotAllowed,
       '',
@@ -758,13 +626,10 @@ const provisionRemoveIp = (
 
   const config = {
     method: command.httpMethod,
-    path: '/provisions/{0}/remove-ip',
+    path: '/provisions/{0}/public-network/ips/{1}',
     user,
     password,
-    request: params.id,
-    post: {
-      ar_id: params.ar_id,
-    },
+    request: [params.id, params.ar_id],
   }
 
   oneFormConnection(
@@ -940,13 +805,11 @@ const provisionApi = {
   provisionCreate,
   provisionUpdate,
   provisionDelete,
-  provisionUndeploy,
-  provisionRetry,
-  provisionScaleHost,
-  provisionAddIp,
-  provisionAddHost,
-  provisionRemoveIp,
-  provisionRemoveHost,
+  provisionRecover,
+  provisionAddHosts,
+  provisionDeleteHosts,
+  provisionAddPublicIps,
+  provisionDeletePublicIp,
   provisionChmod,
   provisionChown,
   provisionChgrp,

@@ -24,7 +24,7 @@ module OneForm
         # @param opts [Hash] Optional parameters for filtering drivers
         # @return [Array[Hash]] List of drivers installed on the system
         def list_drivers(opts = {})
-            get('/drivers', opts)
+            get('/drivers', query_params(opts))
         end
 
         # Get information about a specific driver
@@ -33,6 +33,15 @@ module OneForm
         # @return [Hash] Information about the specified driver
         def get_driver(name)
             get("/drivers/#{name}")
+        end
+
+        # Get the input definitions for a driver deployment
+        #
+        # @param name [String] Name of the driver
+        # @param deployment [String] Deployment inventory name
+        # @return [Array<Hash>] Driver and deployment input definitions
+        def get_driver_inputs(name, deployment)
+            get("/drivers/#{name}/#{deployment}/inputs")
         end
 
         # Synchronize the list of drivers installed on the system

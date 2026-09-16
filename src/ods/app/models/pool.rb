@@ -72,15 +72,20 @@ module OpenNebula
             # @param [Integer] resource_id Numerical ID of the resource to retrieve
             # @param [String, nil] user_name If provided, perform the request on behalf
             #   of this user instead of the default client user
+            # @param with [Array<Symbol>] Named dependencies resolved by the pool
+            # @param raw [Boolean] Whether to skip document attribute parsing
             # @yieldparam [OpenNebula::DocumentJSON] resource The retrieved resource
+            # @yieldparam [Hash] dependencies Named dependency keyword arguments
             #
             # @return [OpenNebula::DocumentJSON, OpenNebula::Error] The resource in case
             #   of success, or an error otherwise
-            def get(resource_id, user_name = nil, &block)
+            def get(resource_id, user_name = nil, with: [], raw: false, &block)
                 resource_id = resource_id.to_i if resource_id
                 aux_client  = impersonate(user_name)
 
-                resource = self.class::DOCUMENT_CLASS.new_from_id(aux_client, resource_id)
+                resource = self.class::DOCUMENT_CLASS.new_from_id(
+                    aux_client, resource_id, :raw => raw
+                )
                 return resource if OpenNebula.is_error?(resource)
 
                 # Support dynamic child classes
@@ -91,7 +96,9 @@ module OpenNebula
                             self.class::DOCUMENT_TYPES[klass_type.to_s]
 
                     if klass && !resource.is_a?(klass)
-                        resource = klass.new_from_id(aux_client, resource_id)
+                        resource = klass.new_from_id(
+                            aux_client, resource_id, :raw => raw
+                        )
                         return resource if OpenNebula.is_error?(resource)
                     end
                 end
@@ -120,12 +127,10 @@ module OpenNebula
                     next rc if OpenNebula.is_error?(rc)
 
                     if block
-                        next OpenNebula::Error.new(
-                            "Invalid block arity #{block.arity} (expected 1)",
-                            OpenNebula::Error::EACTION
-                        ) unless block.arity == 1
+                        dependencies = resolve_dependencies(resource, with)
+                        next dependencies if OpenNebula.is_error?(dependencies)
 
-                        rc = block.call(resource)
+                        rc = block.call(resource, **dependencies)
                         next rc if OpenNebula.is_error?(rc)
                     end
 
@@ -147,10 +152,23 @@ module OpenNebula
             # No validation is performed for user_name. The caller must ensure the
             # requested identity was already authenticated/authorized.
             def impersonate(user_name)
+                return @client if user_name.nil?
+
                 raise ArgumentError, 'Cloud auth is required to impersonate users' \
                 if @cloud_auth.nil?
 
                 @cloud_auth.client(user_name)
+            end
+
+            # Resolves dependencies requested through get(with:)
+            def resolve_dependencies(_resource, dependencies)
+                dependencies = Array(dependencies)
+                return {} if dependencies.empty?
+
+                OpenNebula::Error.new(
+                    "Unsupported #{self.class} dependencies: #{dependencies.join(', ')}",
+                    OpenNebula::Error::EACTION
+                )
             end
 
             class << self
@@ -161,7 +179,7 @@ module OpenNebula
                 # @param resource_id [Integer, String] ID of the resource
                 # @return [OpenNebula::DocumentJSON, OpenNebula::Error] the resource or an error
                 def read(client, resource_id)
-                    pool = new(client)
+                    pool = new(:client => client)
 
                     pool.get(resource_id) do |resource|
                         resource

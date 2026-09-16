@@ -81,7 +81,8 @@ export const Hosts = ({ data, config }) => {
 
   const [updateCluster] = ClusterAPI.useUpdateClusterMutation()
   const { data: hosts = [], isFetching } = HostAPI.useGetHostsQuery()
-  const [scaleProvisionHosts] = ProvisionAPI.useScaleProvisionHostsMutation()
+  const [addHostsProvision] = ProvisionAPI.useAddHostsProvisionMutation()
+  const [deleteHostsProvision] = ProvisionAPI.useDeleteHostsProvisionMutation()
 
   const provisionID = cluster?.TEMPLATE?.ONEFORM?.PROVISION_ID
   const { data: dataProvision = {} } = ProvisionAPI.useGetProvisionQuery(
@@ -117,7 +118,10 @@ export const Hosts = ({ data, config }) => {
   const handleAddHost = async (nodes) => {
     if (!nodes) return
 
-    await scaleProvisionHosts({ id: provisionID, nodes, direction: 'up' })
+    await addHostsProvision({
+      id: provisionID,
+      ...(Array.isArray(nodes) ? { hosts: nodes } : { amount: Number(nodes) }),
+    })
 
     history.push(
       generatePath(PATH.INFRASTRUCTURE.CLUSTERS.CREATE_CLOUD_LOGS, {
@@ -134,10 +138,9 @@ export const Hosts = ({ data, config }) => {
   const handleDeleteHost = async (nodes) => {
     if (!nodes) return
 
-    await scaleProvisionHosts({
+    await deleteHostsProvision({
       id: provisionID,
-      nodes,
-      direction: 'down',
+      ids: nodes.join(','),
     })
 
     history.push(

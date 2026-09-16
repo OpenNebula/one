@@ -14,96 +14,280 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Class to operate with ansible
-class Ansible
+module OneForm
 
-    extend OneForm::Command
+    # Builds and cleans isolated Ansible executions for provisions
+    class Ansible
 
-    conf = ConfigLoader.instance.conf
+        COMP = 'ANS'
 
-    ONEDEPLOY_TAGS      = conf[:onedeploy_tags]
-    FORM_SERVER         = "http://#{conf[:host]}:#{conf[:port]}"
-    ONE_SERVER          = URI.parse(conf[:one_xmlrpc]).host
-    VENV_PATH           = '/usr/share/one/one-deploy/python-venv/'
+        ONEDEPLOY_TAGS = SERVER_CONF[:onedeploy_tags]
+        FORM_SERVER    = "http://#{SERVER_CONF[:server][:bind]}:" \
+                         "#{SERVER_CONF[:server][:port]}"
+        ONE_SERVER     = URI.parse(SERVER_CONF[:one_xmlrpc]).host
+        VENV_PATH      = '/usr/share/one/one-deploy/python-venv/'
 
-    class << self
+        ANSIBLE_PLAYBOOK = File.join(VENV_PATH, 'bin', 'ansible-playbook')
+        EXTRA_VARS_FILE   = '.oneform-extra-vars.json'
+        REQUIRED_FILES    = ['ansible.cfg', 'inventory.yaml', 'site.yaml']
 
-        # Generate connection details and terraform files
-        #
-        # @param provision [Provision] the provision object
-        # @param success_cb [Proc] the success callback
-        # @param failure_cb [Proc] the failure callback
-        def configure(provider, provision, success_cb, failure_cb)
-            # Create Provision folder if not exists
-            FileUtils.mkdir_p(provision.dir) unless File.exist? provision.dir
+        class << self
 
-            log = provision.logger
+            #------------------------------------------------------
+            # Commands
+            #------------------------------------------------------
 
-            # Copy and generate ansible files in ddir
-            ddir = ansible_dir(provision, true)
-            log.debug("Gathering Ansible files for provision #{provision.id}")
+            # Prepares the workspace and builds Ansible configuration
+            # @param provider [Provider] Provision provider
+            # @param provision [Provision] Provision owning the workspace
+            # @return [ODS::Command, OpenNebula::Error] Command or error
+            def configure(provider, provision)
+                # Every execution starts from the current driver configuration
+                directory = prepare_workspace(provider, provision)
 
-            FileUtils.cp_r("#{provider.driver_path}/ansible/.", ddir)
+                # The token is generated for the provision owner at execution time
+                auth = ODS::AuthController.user_auth(provision.client)
+                return auth if OpenNebula.is_error?(auth)
 
-            within_dir(ddir) do
-                check_files(ddir)
+                # Authentication is kept outside argv and restricted to the owner
+                extra_vars_path = File.join(directory, EXTRA_VARS_FILE)
+                write_secure_file(
+                    extra_vars_path,
+                    JSON.generate(extra_vars(provision, auth))
+                )
 
-                # Run ansible playbook in background
-                tags  = provision.body['onedeploy_tags'] || ONEDEPLOY_TAGS
-                evars = "provision_id=#{provision.id} "
-                evars += "form_server=#{FORM_SERVER} "
-                evars += "version=#{OpenNebula::VERSION} "
-                evars += "one_server=#{ONE_SERVER} "
-                evars += "one_auth=#{provision.user_auth}"
+                hosts = provision.resources.hosts.map(&:name)
+                tags  = provision.onedeploy_tags || ONEDEPLOY_TAGS
 
-                cmd = ". #{VENV_PATH}/bin/activate; "
-                # Force a locale that is always available in glibc.
-                cmd += 'LANG=C.UTF-8 LC_ALL=C.UTF-8 '
-                cmd += "ansible-playbook -i inventory.yaml site.yaml --tags '#{tags}' -e '#{evars}'"
+                command = ODS::Command.build(
+                    [
+                        ANSIBLE_PLAYBOOK,
+                        '-i',
+                        'inventory.yaml',
+                        'site.yaml',
+                        '--tags',
+                        tags.to_s,
+                        '-e',
+                        "@#{extra_vars_path}"
+                    ],
+                    :owner_id        => provision.id,
+                    :operation       => :ansible_playbook,
+                    :cwd             => directory,
+                    :component       => COMP,
+                    :stderr_formatter => lambda do |stdout, stderr, exit_code|
+                        stderr_formatter(stdout, stderr, exit_code, hosts)
+                    end,
+                    :stdout_formatter => method(:stdout_formatter),
+                    :env           => {
+                        'LANG'   => 'C.UTF-8',
+                        'LC_ALL' => 'C.UTF-8'
+                    },
+                    :cancel_signal => 'TERM',
+                    :cancel_grace  => SERVER_CONF[:cancel_grace]
+                )
+                return command if OpenNebula.is_error?(command)
 
-                log.info("Running ansible playbook for #{provision.deployment_file}")
-                log.debug("Command: #{cmd}")
+                Log.info(
+                    COMP,
+                    "Running Ansible playbook for provision #{provision.id}. " \
+                    'This operation may take several minutes',
+                    provision.id
+                )
 
-                run(cmd, log, success_cb, failure_cb)
+                command
+            rescue StandardError => e
+                Log.error(
+                    COMP,
+                    "Error preparing Ansible files: #{e.message} #{e.backtrace}",
+                    provision.id
+                )
+                OpenNebula::Error.new(e.message, OpenNebula::Error::EACTION)
             end
-        rescue StandardError => e
-            Log.error("Error preparing Ansible files: #{e.message} #{e.backtrace}")
-            raise e
-        end
 
-        private
+            #------------------------------------------------------
+            # Workspace
+            #------------------------------------------------------
 
-        # Generate ansible working directory
-        # /var/lib/oneform/provision/<id>/ansible
-        #
-        # @param provision [Provision] the provision object
-        # @param mkdir [Boolean] create the directory if not exists
-        def ansible_dir(provision, mkdir = false)
-            dirname = File.join(provision.dir, 'ansible')
+            # Removes the Ansible workspace after command consumption
+            # @param provision [Provision] Provision owning the workspace
+            # @return [true, OpenNebula::Error] Cleanup result
+            def cleanup(provision)
+                directory = ansible_dir(provision)
+                FileUtils.rm_rf(directory) if File.exist?(directory)
+                true
+            rescue StandardError => e
+                Log.warn(
+                    COMP,
+                    "Could not remove Ansible workspace: #{e.message}",
+                    provision.id
+                )
 
-            if mkdir
-                FileUtils.rm_rf(dirname) if File.exist? dirname
-                FileUtils.mkdir_p(dirname)
+                OpenNebula::Error.new(e.message, OpenNebula::Error::EACTION)
             end
 
-            dirname
-        end
+            private
 
-        # Check if ansible files exits in the given deployment directory
-        #
-        # @param ddir [String] the Ansible deployment directory
-        # @raise [RuntimeError] if the files are not found
-        def check_files(ddir)
-            # Check if site.yaml exists in the ansible directory
-            site_yaml = File.join(ddir, 'site.yaml')
-            raise "site.yaml not found in #{ddir}" unless File.exist? site_yaml
+            #------------------------------------------------------
+            # Input helpers
+            #------------------------------------------------------
 
-            inventory_yaml = File.join(ddir, 'inventory.yaml')
-            raise "inventory.yaml not found in #{ddir}" unless File.exist? inventory_yaml
+            # Extracts the actionable message from an Ansible failure
+            # @param stdout [String] Ansible standard output
+            # @param stderr [String] Ansible standard error
+            # @param _exit_code [Integer] Ansible process exit code
+            # @param hosts [Array<String>] Provision hosts ordered as the Ansible inventory
+            # @return [String, nil] Failure summary or standard error fallback
+            def stderr_formatter(stdout, stderr, _exit_code, hosts)
+                lines = stdout.each_line.map(&:strip)
+                index = lines.rindex do |line|
+                    line.match?(/fatal:|FAILED!|UNREACHABLE!/)
+                end
+                return stderr unless index
 
-            # Check if templates directory exists
-            templates_dir = File.join(ddir, 'templates')
-            raise "templates directory not found in #{ddir}" unless File.exist? templates_dir
+                failure = lines[index]
+                payload = failure[/=>\s*(\{.*\})\z/, 1]
+                return stderr unless payload
+
+                error = JSON.parse(payload)
+                message = error.is_a?(Hash) ? error['msg'].to_s.strip : ''
+                return stderr if message.empty?
+
+                node = failure[/fatal:\s*\[n(\d+)\]/, 1]
+                host = hosts[node.to_i - 1] if node
+                return message if host.nil? || host.empty?
+
+                "#{message} (affected host: #{host})"
+            rescue JSON::ParserError
+                stderr
+            end
+
+            # Selects Ansible execution progress for the provision log
+            # @param line [String] Ansible standard output line
+            # @return [Array<Symbol, String>, nil] Log level and message, or default handling
+            def stdout_formatter(line)
+                return unless line.start_with?('TASK ')
+                return if line.start_with?('TASK [Gathering Facts]')
+
+                task = line[/\ATASK \[(.*)\]/, 1]
+                return unless task
+
+                [:info, task]
+            end
+
+            # Builds the values consumed by OneDeploy playbooks
+            # @param provision [Provision] Provision supplying deployment values
+            # @param auth [String] Authentication token for the provision owner
+            # @return [Hash] JSON-compatible Ansible extra variables
+            def extra_vars(provision, auth)
+                # Ensure one published release
+                one_version = OpenNebula::VERSION
+                version_parts = one_version.split('.', 3)
+
+                if version_parts[1]&.match?(/\A\d+\z/) && version_parts[1].to_i.odd?
+                    one_version = "#{version_parts[0]}.#{version_parts[1].to_i - 1}"
+                end
+
+                vars = {
+                    :provision_id => provision.id,
+                    :form_server  => FORM_SERVER,
+                    :version      => one_version,
+                    :one_server   => ONE_SERVER,
+                    :one_auth     => auth,
+                    :user_inputs  => provision.values
+                }
+
+                ee_token = SERVER_CONF[:ee_token]
+                vars[:one_token] = ee_token if ee_token && !ee_token.empty?
+
+                vars
+            end
+
+            #------------------------------------------------------
+            # Workspace helpers
+            #------------------------------------------------------
+
+            # Rebuilds and validates the Ansible workspace from driver files
+            # @param provider [Provider] Provider supplying Ansible configuration
+            # @param provision [Provision] Provision owning the workspace
+            # @return [String] Prepared Ansible workspace
+            def prepare_workspace(provider, provision)
+                FileUtils.mkdir_p(provision.dir) unless File.exist?(provision.dir)
+
+                directory = ansible_dir(provision, true)
+                Log.debug(
+                    COMP,
+                    "Gathering Ansible files for provision #{provision.id}",
+                    provision.id
+                )
+
+                FileUtils.cp_r("#{provider.path}/ansible/.", directory)
+                validate_workspace!(directory)
+
+                directory
+            end
+
+            # Returns the Ansible directory and optionally recreates it
+            # @param provision [Provision] Provision owning the workspace
+            # @param recreate [Boolean] Remove and recreate the directory
+            # @return [String] Ansible workspace path
+            def ansible_dir(provision, recreate = false)
+                dirname = File.join(provision.dir, 'ansible')
+
+                if recreate
+                    FileUtils.rm_rf(dirname) if File.exist?(dirname)
+                    FileUtils.mkdir_p(dirname)
+                end
+
+                dirname
+            end
+
+            # Validates all files required to start an Ansible execution
+            # @param directory [String] Prepared Ansible workspace
+            # @raise [RuntimeError] If a required file or executable is missing
+            def validate_workspace!(directory)
+                REQUIRED_FILES.each do |filename|
+                    path = File.join(directory, filename)
+                    raise "#{filename} not found in #{directory}" \
+                        unless File.file?(path)
+                end
+
+                templates = File.join(directory, 'templates')
+                raise "templates directory not found in #{directory}" \
+                    unless Dir.exist?(templates)
+                raise "templates directory is empty in #{directory}" \
+                    if Dir.empty?(templates)
+
+                return if File.file?(ANSIBLE_PLAYBOOK) &&
+                          File.executable?(ANSIBLE_PLAYBOOK)
+
+                raise "ansible-playbook is not executable at #{ANSIBLE_PLAYBOOK}"
+            end
+
+            # Atomically writes a sensitive file with owner-only permissions
+            # @param path [String] Destination path
+            # @param content [String] File contents
+            def write_secure_file(path, content)
+                temporary = File.join(
+                    File.dirname(path),
+                    ".#{File.basename(path)}.#{SecureRandom.hex(8)}.tmp"
+                )
+
+                File.open(
+                    temporary,
+                    File::WRONLY | File::CREAT | File::EXCL,
+                    0o600
+                ) do |file|
+                    file.write(content)
+                    file.flush
+                    file.fsync
+                end
+
+                File.rename(temporary, path)
+            ensure
+                File.delete(temporary) \
+                    if temporary && File.exist?(temporary)
+            end
+
         end
 
     end

@@ -92,52 +92,44 @@ const provisionApi = oneApi.injectEndpoints({
       providesTags: [],
     }),
 
-    scaleProvisionHosts: builder.mutation({
+    addHostsProvision: builder.mutation({
       /**
        * Add hosts to a provision.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - User id
-       * @param {string|number} params.hosts - New host ids to add
-       * @returns {number} User id
+       * @param {string|number} params.id - Provision id
+       * @param {number} [params.amount] - Number of cloud hosts to add
+       * @param {string[]} [params.hosts] - On-premises hosts to add
+       * @returns {number} Provision id
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
-        const name = Actions.SCALE
-        Array.isArray(params?.hosts)
-          ? (params.ips = params.hosts.join(','))
-          : (params.amount = params.hosts)
-        delete params.hosts
+        const name = Actions.ADD_HOSTS
         const command = { name, ...Commands[name] }
 
         return { params, command }
       },
     }),
 
-    deleteHostProvision: builder.mutation({
+    deleteHostsProvision: builder.mutation({
       /**
-       * Add hosts to a provision.
+       * Delete hosts from a provision.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - provision id
-       * @param {string} params.direction - Scale direction (up|down)
-       * @param {number} params.nodes - Number of nodes to scale
-       * @returns {number} User id
+       * @param {string|number} params.id - Provision id
+       * @param {string} params.ids - Comma-separated host IDs
+       * @returns {number} Provision id
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
-        const name = Actions.SCALE
-        Array.isArray(params?.hosts)
-          ? (params.ips = params.hosts.join(','))
-          : (params.amount = params.hosts)
-        delete params.hosts
+        const name = Actions.DELETE_HOSTS
         const command = { name, ...Commands[name] }
 
         return { params, command }
       },
     }),
 
-    addIpsProvision: builder.mutation({
+    addPublicIpsProvision: builder.mutation({
       /**
        * Add IPs to a provision.
        *
@@ -148,16 +140,16 @@ const provisionApi = oneApi.injectEndpoints({
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
-        const name = Actions.ADD_IP
+        const name = Actions.ADD_PUBLIC_IPS
         const command = { name, ...Commands[name] }
 
         return { params, command }
       },
     }),
 
-    deleteIpsProvision: builder.mutation({
+    deletePublicIpProvision: builder.mutation({
       /**
-       * Delete IPs for a provision.
+       * Delete a public IP from a provision.
        *
        * @param {object} params - Request parameters
        * @param {string|number} params.id - provision id
@@ -166,7 +158,7 @@ const provisionApi = oneApi.injectEndpoints({
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
-        const name = Actions.REMOVE_IP
+        const name = Actions.DELETE_PUBLIC_IP
         const command = { name, ...Commands[name] }
 
         return { params, command }
@@ -190,9 +182,9 @@ const provisionApi = oneApi.injectEndpoints({
       },
       invalidatesTags: [PROVISION_POOL],
     }),
-    retryProvision: builder.mutation({
+    recoverProvision: builder.mutation({
       /**
-       * Retry a provision.
+       * Recover a provision.
        *
        * @param {object} params - Request parameters
        * @param {string|number} params.id - provision id
@@ -200,7 +192,7 @@ const provisionApi = oneApi.injectEndpoints({
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
-        const name = Actions.RETRY
+        const name = Actions.RECOVER
         const command = { name, ...Commands[name] }
 
         return { params, command }
@@ -210,34 +202,13 @@ const provisionApi = oneApi.injectEndpoints({
         { type: PROVISION_POOL },
       ],
     }),
-    undeployProvision: builder.mutation({
+    deleteProvision: builder.mutation({
       /**
-       * Undeploy a provision.
+       * Delete a provision.
        *
        * @param {object} params - Request parameters
        * @param {string|number} params.id - provision id
-       * @param {boolean} params.force - Force undeploy
-       * @returns {number} provision id
-       * @throws Fails when response isn't code 200
-       */
-      query: (params) => {
-        const name = Actions.UNDEPLOY
-        const command = { name, ...Commands[name] }
-
-        return { params, command }
-      },
-      invalidatesTags: (result, error, { id }) => [
-        { type: PROVISION, id },
-        { type: PROVISION_POOL },
-      ],
-    }),
-    removeProvision: builder.mutation({
-      /**
-       * Remove a provision.
-       *
-       * @param {object} params - Request parameters
-       * @param {string|number} params.id - provision id
-       * @param {boolean} params.force - Force removal
+       * @param {boolean} [params.force] - Force deletion
        * @returns {number} provision id
        * @throws Fails when response isn't code 200
        */
@@ -264,14 +235,12 @@ export const provisionQueries = (({
 
   // Mutations
   useCreateProvisionMutation,
-  useScaleProvisionHostsMutation,
-  useRetryProvisionMutation,
-  useUndeployProvisionMutation,
-  useRemoveProvisionMutation,
-  useAddHostProvisionMutation,
-  useDeleteHostProvisionMutation,
-  useAddIpsProvisionMutation,
-  useDeleteIpsProvisionMutation,
+  useAddHostsProvisionMutation,
+  useDeleteHostsProvisionMutation,
+  useRecoverProvisionMutation,
+  useDeleteProvisionMutation,
+  useAddPublicIpsProvisionMutation,
+  useDeletePublicIpProvisionMutation,
 }) => ({
   // Queries
   useGetProvisionQuery,
@@ -281,14 +250,12 @@ export const provisionQueries = (({
 
   // Mutations
   useCreateProvisionMutation,
-  useScaleProvisionHostsMutation,
-  useRetryProvisionMutation,
-  useUndeployProvisionMutation,
-  useRemoveProvisionMutation,
-  useAddHostProvisionMutation,
-  useDeleteHostProvisionMutation,
-  useAddIpsProvisionMutation,
-  useDeleteIpsProvisionMutation,
+  useAddHostsProvisionMutation,
+  useDeleteHostsProvisionMutation,
+  useRecoverProvisionMutation,
+  useDeleteProvisionMutation,
+  useAddPublicIpsProvisionMutation,
+  useDeletePublicIpProvisionMutation,
 }))(provisionApi)
 
 export { provisionApi as provisionEndpoints }
