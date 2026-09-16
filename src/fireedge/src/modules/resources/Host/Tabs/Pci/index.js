@@ -15,11 +15,65 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { Component } from 'react'
-import { HostAPI } from '@FeaturesModule'
 import { Box } from '@mui/material'
-import { getHostPcis } from '@ModelsModule'
+
+import { HostAPI } from '@FeaturesModule'
+import { getHostPcis, getHostNvswitchPartitions } from '@ModelsModule'
 import { T } from '@ConstantsModule'
 import { Table, PciProfileSelector } from '@ComponentsModule'
+import { getStyles } from '@modules/resources/Host/Tabs/Pci/styles'
+
+const PCI_COLUMNS = [
+  {
+    header: T.VM,
+    id: 'vm',
+    accessorFn: ({ VMID }) =>
+      VMID && VMID !== -1 && VMID !== '-1' ? VMID : '-',
+    grow: false,
+  },
+  { header: T.IfName, accessorKey: 'IFNAME' },
+  { header: T.Vendor, id: 'vendor', accessorKey: 'VENDOR' },
+  {
+    header: T.VendorName,
+    id: 'vendorName',
+    accessorKey: 'VENDOR_NAME',
+  },
+  { header: T.Class, id: 'class', accessorKey: 'CLASS' },
+  {
+    header: T.ClassName,
+    id: 'className',
+    accessorKey: 'CLASS_NAME',
+  },
+  { header: T.Device, id: 'device', accessorKey: 'DEVICE' },
+  {
+    header: T.DeviceName,
+    id: 'deviceName',
+    accessorKey: 'DEVICE_NAME',
+  },
+  {
+    header: T.ShortAddress,
+    id: 'shortAddress',
+    accessorKey: 'SHORT_ADDRESS',
+  },
+]
+
+const PARTITION_COLUMNS = [
+  { header: T.PartitionId, accessorKey: 'PARTITION_ID' },
+  {
+    header: T.Status,
+    accessorKey: 'PARTITION_STATUS',
+    cell: ({ getValue }) => getValue() || '-',
+  },
+  { header: T.GpuCount, accessorKey: 'NUM_GPUS' },
+  { header: T.GpuIds, accessorKey: 'PARTITION_GPU_IDS' },
+  {
+    header: T.GpuPciAddresses,
+    accessorKey: 'PARTITION_GPU_ADDR',
+    cell: ({ getValue }) => (
+      <Box className="partition-addresses">{getValue() || '-'}</Box>
+    ),
+  },
+]
 
 /**
  * @param {object} root0 - Params
@@ -33,52 +87,11 @@ export const HostPciTab = ({ data }) => {
 
   // Get PCI devices from the host
   const pcis = getHostPcis(host)
-
-  // Define table columns
-  const columns = [
-    {
-      header: T.VM,
-      id: 'vm',
-      accessorFn: ({ VMID }) =>
-        VMID && VMID !== -1 && VMID !== '-1' ? VMID : '-',
-      grow: false,
-    },
-    { header: T.IfName, accessorKey: 'IFNAME' },
-    { header: T.Vendor, id: 'vendor', accessorKey: 'VENDOR' },
-    {
-      header: T.VendorName,
-      id: 'vendorName',
-      accessorKey: 'VENDOR_NAME',
-    },
-    { header: T.Class, id: 'class', accessorKey: 'CLASS' },
-    {
-      header: T.ClassName,
-      id: 'className',
-      accessorKey: 'CLASS_NAME',
-    },
-    { header: T.Device, id: 'device', accessorKey: 'DEVICE' },
-    {
-      header: T.DeviceName,
-      id: 'deviceName',
-      accessorKey: 'DEVICE_NAME',
-    },
-    {
-      header: T.ShortAddress,
-      id: 'shortAddress',
-      accessorKey: 'SHORT_ADDRESS',
-    },
-  ]
+  const partitions = getHostNvswitchPartitions(host)
 
   return (
-    <Box display="grid" gridTemplateColumns="1fr 3fr" gap={1} height="100%">
-      <Box
-        sx={{
-          pr: 1,
-          borderRight: '1px solid',
-          borderColor: 'divider',
-          height: '100%',
-        }}
-      >
+    <Box sx={(theme) => getStyles({ theme })}>
+      <Box className="pci-profile-selector">
         <PciProfileSelector
           id={host?.ID}
           host={host}
@@ -88,7 +101,20 @@ export const HostPciTab = ({ data }) => {
         />
       </Box>
 
-      <Table columns={columns} data={pcis} isRowsSelectable={false} />
+      <Box className="pci-tables">
+        <Table columns={PCI_COLUMNS} data={pcis} isRowsSelectable={false} />
+        {partitions.length > 0 && (
+          <Table
+            title={T.NvswitchPartitions}
+            columns={PARTITION_COLUMNS}
+            data={partitions}
+            dataCy="host-nvswitch-partitions"
+            isRowsSelectable={false}
+            isEnableSearchBar
+            isEnableSort
+          />
+        )}
+      </Box>
     </Box>
   )
 }

@@ -286,3 +286,14 @@ export const getHostPcis = (host = {}) => {
 
   return pcis ? (Array.isArray(pcis) ? pcis : [pcis]) : []
 }
+
+/**
+ * Returns Fabric Manager partitions, including inactive partitions.
+ *
+ * @param {Host} host - Host
+ * @returns {object[]} - NVSwitch partitions reported by the host probe
+ */
+export const getHostNvswitchPartitions = (host = {}) =>
+  [host?.TEMPLATE?.NVSWITCH_PARTITION ?? []]
+    .flat()
+    .filter((partition) => partition && typeof partition === 'object')
