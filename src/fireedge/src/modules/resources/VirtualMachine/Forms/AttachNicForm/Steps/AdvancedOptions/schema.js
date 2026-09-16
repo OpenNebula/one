@@ -189,7 +189,7 @@ const GENERAL_FIELDS = ({
           },
           {
             condition: (value) => value === 'dummy',
-            steps: ['qos'],
+            steps: ['qos', 'security-groups'],
           },
         ],
       },

@@ -29,10 +29,21 @@ import NetworkValues, {
   STEP_ID as NETWORK_VALUES_ID,
 } from '@modules/resources/VirtualMachine/Forms/AttachNicForm/Steps/NetworkValues'
 
+import SecurityGroups, {
+  STEP_ID as SECURITY_GROUPS_ID,
+} from '@modules/resources/VirtualMachine/Forms/AttachNicForm/Steps/SecurityGroups'
+
 import { createSteps } from '@UtilsModule'
 
 const Steps = createSteps(
-  [AdvancedOptions, NetworksTable, NetworkAuto, NetworkValues, QOSOptions],
+  [
+    AdvancedOptions,
+    NetworksTable,
+    NetworkAuto,
+    SecurityGroups,
+    NetworkValues,
+    QOSOptions,
+  ],
   {
     saveState: true,
     transformInitialValue: (nic, schema) => {
@@ -93,7 +104,13 @@ const Steps = createSteps(
           NETWORK_ID: ID,
           NETWORK_UID,
           NETWORK_UNAME,
-          SECURITY_GROUPS,
+        },
+        [SECURITY_GROUPS_ID]: {
+          SECURITY_GROUPS: [SECURITY_GROUPS ?? []]
+            .flat()
+            .flatMap((value) => String(value).split(','))
+            .map((value) => value.trim())
+            .filter(Boolean),
         },
         [ADVANCED_ID]: castedValue[ADVANCED_ID],
         [QOS_ID]: castedValueQOS[QOS_ID],
@@ -105,6 +122,7 @@ const Steps = createSteps(
       const {
         [NETWORK_ID]: network,
         [QOS_ID]: qos,
+        [SECURITY_GROUPS_ID]: { SECURITY_GROUPS = [] } = {},
         [ADVANCED_ID]: advanced,
         [NETWORK_AUTO_ID]: networkAuto,
         [NETWORK_VALUES_ID]: networkValues,
@@ -133,6 +151,10 @@ const Steps = createSteps(
       return {
         ...(isDummy ? {} : network),
         ...(isDummy ? {} : qos),
+        ...(!isDummy &&
+          SECURITY_GROUPS.length && {
+            SECURITY_GROUPS: SECURITY_GROUPS.join(','),
+          }),
         ...{
           ...rAdvanced,
           ...pciAttrs,

@@ -32,14 +32,13 @@ export const STEP_ID = 'network'
 const HIDDEN_COLUMN_IDS = ['owner', 'group', 'labels']
 
 const getSelectedNetwork = (network = {}) => {
-  const { ID, NAME, UID, UNAME, SECURITY_GROUPS } = network
+  const { ID, NAME, UID, UNAME } = network
 
   return {
     NETWORK: NAME,
     NETWORK_ID: ID,
     NETWORK_UID: UID,
     NETWORK_UNAME: UNAME,
-    SECURITY_GROUPS,
   }
 }
 
@@ -74,7 +73,6 @@ const Content = () => {
               NETWORK_ID: undefined,
               NETWORK_UID: undefined,
               NETWORK_UNAME: undefined,
-              SECURITY_GROUPS: undefined,
             },
         {
           shouldDirty: true,
@@ -105,7 +103,6 @@ const Content = () => {
               NETWORK_ID: true,
               NETWORK_UID: true,
               NETWORK_UNAME: true,
-              SECURITY_GROUPS: true,
             },
           },
           { batch: true }
