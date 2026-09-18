@@ -50,6 +50,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <locale.h>
+#include <time.h>
 
 /* svncterm server */
 #include <fcntl.h>
@@ -2173,7 +2174,9 @@ int vncterm_cmd(int sd, int timeout, int width, int heigth,
             break;
     }
 
-    int count = 0;
+    struct timespec last_activity;
+
+    clock_gettime(CLOCK_MONOTONIC, &last_activity);
 
     char buffer[1024];
 
@@ -2194,7 +2197,14 @@ int vncterm_cmd(int sd, int timeout, int width, int heigth,
         tv.tv_sec  = 0;
         tv.tv_usec = 5000; /* 5 ms */
 
-        if ( count * 45 > timeout*1000 )
+        struct timespec now;
+
+        clock_gettime(CLOCK_MONOTONIC, &now);
+
+        if ( timeout > 0 &&
+             (now.tv_sec - last_activity.tv_sec > timeout ||
+              (now.tv_sec - last_activity.tv_sec == timeout &&
+               now.tv_nsec >= last_activity.tv_nsec)) )
         {
             break;
         }
@@ -2216,6 +2226,8 @@ int vncterm_cmd(int sd, int timeout, int width, int heigth,
 
             vt->ibuf_count = 0;
 
+            clock_gettime(CLOCK_MONOTONIC, &last_activity);
+
             last_time = time (NULL);
         }
 
@@ -2223,15 +2235,12 @@ int vncterm_cmd(int sd, int timeout, int width, int heigth,
 
         if ( num_fds == 0 )
         {
-            count++;
             continue;
         }
         else if ( num_fds == -1 )
         {
             break;
         }
-
-        count = 0;
 
         while ((c = read(master, buffer, 1024)) == -1)
         {
@@ -2244,6 +2253,11 @@ int vncterm_cmd(int sd, int timeout, int width, int heigth,
         if ( c < 0 )
         {
             break;
+        }
+
+        if ( c > 0 )
+        {
+            clock_gettime(CLOCK_MONOTONIC, &last_activity);
         }
 
         vncterm_puts(vt, buffer, c);

@@ -217,6 +217,7 @@ const createGuacamoleClient = (externalZone) => {
   const guacamoleWs = `${websocketProtocol}//${host}/fireedge/${endpoint}`
 
   const tunnel = new WebSocketTunnel(guacamoleWs)
+  tunnel.receiveTimeout = 60000
   const client = new Client(tunnel)
 
   return { client, tunnel }
