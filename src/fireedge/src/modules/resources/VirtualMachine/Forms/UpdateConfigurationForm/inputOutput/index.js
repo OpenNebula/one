@@ -16,11 +16,17 @@
 import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
+import { useWatch } from 'react-hook-form'
 
 import { FormWithSchema } from '@ComponentsModule'
+import { useTranslation } from '@ProvidersModule'
 
 import InputsSection from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/inputOutput/inputsSection'
 import VideoSection from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/inputOutput/videoSection'
+import {
+  GRAPHICS_TYPES,
+  normalizeGraphicsType,
+} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/inputOutput/graphicsSchema'
 import { GRAPHICS_FIELDS } from '@modules/resources/VirtualMachine/Forms/UpdateConfigurationForm/inputOutput/schema'
 import { T, HYPERVISORS } from '@ConstantsModule'
 
@@ -29,39 +35,66 @@ import { T, HYPERVISORS } from '@ConstantsModule'
  * @param {HYPERVISORS} props.hypervisor - VM hypervisor
  * @param {object} props.oneConfig - Config of oned.conf
  * @param {boolean} props.adminGroup - User is admin or not
+ * @param {object} props.vm - VM being updated
  * @returns {ReactElement} IO section component
  */
-const InputOutput = ({ hypervisor, oneConfig, adminGroup }) => (
-  <Stack
-    display="grid"
-    gap="1em"
-    sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
-  >
-    <FormWithSchema
-      cy={'io-graphics'}
-      fields={useMemo(
-        () => GRAPHICS_FIELDS({ hypervisor, oneConfig, adminGroup }),
-        [hypervisor]
-      )}
-      legend={T.Graphics}
-    />
-    <InputsSection
-      hypervisor={hypervisor}
-      oneConfig={oneConfig}
-      adminGroup={adminGroup}
-    />
-    <VideoSection
-      hypervisor={hypervisor}
-      oneConfig={oneConfig}
-      adminGroup={adminGroup}
-    />
-  </Stack>
-)
+const InputOutput = ({ hypervisor, oneConfig, adminGroup, vm }) => {
+  const { translate } = useTranslation()
+  const selectedGraphicsType = normalizeGraphicsType(
+    useWatch({ name: 'GRAPHICS.TYPE' })
+  )
+  const initialGraphics = [vm?.TEMPLATE?.GRAPHICS ?? []].flat()[0]
+  const initialGraphicsType = normalizeGraphicsType(initialGraphics?.TYPE)
+  const graphicsTypeChanged =
+    (initialGraphicsType === GRAPHICS_TYPES.SPICE &&
+      selectedGraphicsType === GRAPHICS_TYPES.VNC) ||
+    (initialGraphicsType === GRAPHICS_TYPES.VNC &&
+      selectedGraphicsType === GRAPHICS_TYPES.SPICE)
+  const graphicsFields = useMemo(
+    () =>
+      GRAPHICS_FIELDS({ hypervisor, oneConfig, adminGroup }).map((field) =>
+        field.name === 'GRAPHICS.TYPE'
+          ? {
+              ...field,
+              externalError: graphicsTypeChanged
+                ? translate(T.GraphicsTypeChangeRestartMessage)
+                : undefined,
+            }
+          : field
+      ),
+    [graphicsTypeChanged, hypervisor, translate]
+  )
+
+  return (
+    <Stack
+      display="grid"
+      gap="1em"
+      sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
+    >
+      <FormWithSchema
+        cy="io-graphics"
+        fields={graphicsFields}
+        legend={T.Graphics}
+      />
+      <InputsSection
+        hypervisor={hypervisor}
+        oneConfig={oneConfig}
+        adminGroup={adminGroup}
+      />
+      <VideoSection
+        hypervisor={hypervisor}
+        oneConfig={oneConfig}
+        adminGroup={adminGroup}
+      />
+    </Stack>
+  )
+}
 
 InputOutput.propTypes = {
   hypervisor: PropTypes.string,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  vm: PropTypes.object,
 }
 InputOutput.displayName = 'InputOutput'
 

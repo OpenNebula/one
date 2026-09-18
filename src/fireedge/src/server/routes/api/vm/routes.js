@@ -25,11 +25,13 @@ const { resource, postBody, query } = fromData
 
 const VM_SAVEASTEMPLATE = 'vm.saveastemplate'
 const GUACAMOLE = 'vm.guacamole'
+const SPICE = 'vm.spice'
 const VM_LOGS = 'vm.logs'
 
 const Actions = {
   VM_SAVEASTEMPLATE,
   GUACAMOLE,
+  SPICE,
   VM_LOGS,
 }
 
@@ -67,6 +69,19 @@ module.exports = {
           from: query,
         },
         download: {
+          from: query,
+        },
+      },
+    },
+    [SPICE]: {
+      path: `${basepath}/:id/spice`,
+      httpMethod: POST,
+      auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+        zone: {
           from: query,
         },
       },

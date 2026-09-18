@@ -20,8 +20,9 @@ const {
   generateGuacamoleSession,
   vmLogs,
 } = require('server/routes/api/vm/functions')
+const { generateSpiceSession } = require('server/services/spice/vm')
 
-const { VM_SAVEASTEMPLATE, GUACAMOLE, VM_LOGS } = Actions
+const { VM_SAVEASTEMPLATE, GUACAMOLE, SPICE, VM_LOGS } = Actions
 
 module.exports = [
   {
@@ -31,6 +32,10 @@ module.exports = [
   {
     ...Commands[GUACAMOLE],
     action: generateGuacamoleSession,
+  },
+  {
+    ...Commands[SPICE],
+    action: generateSpiceSession,
   },
   {
     ...Commands[VM_LOGS],

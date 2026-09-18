@@ -30,6 +30,12 @@ const Settings = loadable(
     ssr: false,
   }
 )
+const Spice = loadable(
+  () => import('@ContainersModule').then((module) => module.Spice),
+  {
+    ssr: false,
+  }
+)
 const Guacamole = loadable(
   () => import('@ContainersModule').then((module) => module.Guacamole),
   {
@@ -41,6 +47,7 @@ export const PATH = {
   DASHBOARD: '/dashboard',
   SETTINGS: '/settings',
   GUACAMOLE: '/guacamole/:id/:type',
+  SPICE: '/spice/:id',
 }
 
 export const ENDPOINTS = [
@@ -60,6 +67,12 @@ export const ENDPOINTS = [
     position: -1,
     Component: Settings,
     removeStyles: true,
+  },
+  {
+    title: 'SPICE',
+    path: PATH.SPICE,
+    Component: Spice,
+    disableLayout: true,
   },
   {
     title: 'Guacamole', // no need to translate

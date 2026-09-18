@@ -152,8 +152,9 @@ const getHeaderInfoStyles = ({ theme }) => {
  * @param {object} props - Props
  * @param {string} props.id - VM id
  * @param {object} props.vm - VM information
- * @param {string} props.connectionState - Guacamole connection state
- * @param {string} props.connectionStatus - Guacamole connection status
+ * @param {string} props.connectionState - Remote console connection state
+ * @param {string} props.connectionStatus - Remote console connection status
+ * @param {'Guacamole'|'SPICE'} props.connectionType - Remote console type
  * @returns {ReactElement} Header VM information for remote consoles
  */
 const HeaderVmInfo = ({
@@ -161,6 +162,7 @@ const HeaderVmInfo = ({
   vm: vmData,
   connectionState = '',
   connectionStatus = 'default',
+  connectionType,
 }) => {
   const { translate } = useTranslation()
   const { push: redirectTo } = useHistory()
@@ -288,8 +290,8 @@ const HeaderVmInfo = ({
                   startIcon={<Badge status={connectionStatus} type="dot" />}
                 />
               )}
-              {connectionState && (
-                <Tag status="information" title="Guacamole" />
+              {connectionState && connectionType && (
+                <Tag status="information" title={connectionType} />
               )}
             </Box>
           </Box>
@@ -336,6 +338,7 @@ HeaderVmInfo.propTypes = {
   vm: PropTypes.object,
   connectionState: PropTypes.string,
   connectionStatus: PropTypes.string,
+  connectionType: PropTypes.oneOf(['Guacamole', 'SPICE']).isRequired,
 }
 
 HeaderVmInfo.displayName = 'HeaderVmInfo'

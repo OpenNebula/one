@@ -14,4 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/resources/VirtualMachine/Consoles/Guacamole'
+export * from '@modules/resources/VirtualMachine/Consoles/Spice'
+export * from '@modules/resources/VirtualMachine/Consoles/Skeletons'
 export { default as HeaderVmInfo } from '@modules/resources/VirtualMachine/Consoles/HeaderVmInfo'

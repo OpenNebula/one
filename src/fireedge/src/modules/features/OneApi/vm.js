@@ -297,6 +297,22 @@ const vmApi = oneApi.injectEndpoints({
         } catch {}
       },
     }),
+    createSpiceSession: builder.mutation({
+      /**
+       * Creates a short-lived SPICE proxy session for a VM.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual machine id
+       * @returns {{websocket: string, password: string, expiresIn: number}} Session data
+       * @throws Fails when response is not code 200
+       */
+      query: (params) => {
+        const name = ExtraActions.SPICE
+        const command = { name, ...ExtraCommands[name] }
+
+        return { params, command }
+      },
+    }),
     getMonitoring: builder.query({
       /**
        * Returns the virtual machine monitoring records.
@@ -1541,6 +1557,7 @@ const vmQueries = (({
   useGetVmLogsQuery,
 
   // Mutations
+  useCreateSpiceSessionMutation,
   useAllocateVmMutation,
   useSaveAsTemplateMutation,
   useDeployMutation,
@@ -1614,6 +1631,7 @@ const vmQueries = (({
   useGetVmLogsQuery,
 
   // Mutations
+  useCreateSpiceSessionMutation,
   useAllocateVmMutation,
   useSaveAsTemplateMutation,
   useDeployMutation,

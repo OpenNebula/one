@@ -137,6 +137,7 @@ const defaults = {
   defaultSunstoneAuth: 'sunstone_auth',
   defaultBaseURL: '',
   endpointGuacamole: `${baseUrl}guacamole`,
+  endpointSpice: `${baseUrl}spice`,
   endpointExternalGuacamole: `${baseUrl}external-guacamole`,
   defaultNamespace: 'one',
   defaultMessageInvalidZone: 'Invalid Zone',

@@ -27,7 +27,14 @@ import {
 import { HYPERVISORS, ATTR_CONF_CAN_BE_UPDATED } from '@ConstantsModule'
 
 const getFields = (section) =>
-  section.map((attr) => ioSchema[attr]).filter(Boolean)
+  section
+    .flatMap((attr) =>
+      attr === 'KEYMAP'
+        ? [ioSchema.KEYMAP, ioSchema.CUSTOM_KEYMAP]
+        : ioSchema[attr]
+    )
+    .map((field) => (typeof field === 'function' ? field(true) : field))
+    .filter(Boolean)
 
 /**
  * @param {object} [formProps] - Form props

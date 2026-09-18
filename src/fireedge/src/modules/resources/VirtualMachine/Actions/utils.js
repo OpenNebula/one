@@ -166,20 +166,32 @@ export const generateMenuOptions = ({ keys, vm, ...optionContext }) => {
   )
 }
 
+const getGraphics = (vm = {}) =>
+  [vm?.TEMPLATE?.GRAPHICS ?? []].flat().find(({ TYPE } = {}) => Boolean(TYPE))
+
 const CONSOLE_ACTIONS = {
+  [VM_ACTIONS.SPICE]: {
+    title: T.Spice,
+    startIcon: <VncIcon />,
+    needsDisk: false,
+    needsNic: false,
+  },
   [VM_ACTIONS.VNC]: {
     title: T.Vnc,
     startIcon: <VncIcon />,
+    needsDisk: true,
     needsNic: false,
   },
   [VM_ACTIONS.SSH]: {
     title: T.Ssh,
     startIcon: <SshIcon />,
+    needsDisk: true,
     needsNic: true,
   },
   [VM_ACTIONS.RDP]: {
     title: T.Rdp,
     startIcon: <RdpIcon />,
+    needsDisk: true,
     needsNic: true,
   },
 }
@@ -194,19 +206,34 @@ export const generateConsoleOptions = ({
   defaultZone,
 }) =>
   Object.entries(CONSOLE_ACTIONS).map(
-    ([connectionType, { needsNic, ...option }]) => {
+    ([connectionType, { needsDisk, needsNic, ...option }]) => {
       const params = {
         id: vm?.ID,
         type: connectionType,
         ...(zone !== defaultZone ? { zone } : {}),
       }
+      const hypervisor = String(getHypervisor(vm) ?? '').toLowerCase()
+      const graphics = getGraphics(vm)
+      const graphicsType = String(graphics?.TYPE ?? '').toLowerCase()
+      const isSpice = connectionType === VM_ACTIONS.SPICE
+      const isGraphicsConsole = [VM_ACTIONS.SPICE, VM_ACTIONS.VNC].includes(
+        connectionType
+      )
+      const spicePort = Number(graphics?.PORT)
+      const isSpiceConfigured =
+        ['kvm', 'qemu'].includes(hypervisor) &&
+        Number.isInteger(spicePort) &&
+        spicePort > 0 &&
+        spicePort <= 65535
 
       const isDisabled =
         !viewConfig?.actions?.[connectionType] ||
         !isVmAvailableAction(connectionType, vm) ||
-        !getHypervisor(vm) ||
-        !getDisks(vm)?.length ||
-        (needsNic && !nicsIncludesTheConnectionType(vm, connectionType))
+        !hypervisor ||
+        (needsDisk && !getDisks(vm)?.length) ||
+        (needsNic && !nicsIncludesTheConnectionType(vm, connectionType)) ||
+        (isGraphicsConsole && graphicsType !== connectionType) ||
+        (isSpice && !isSpiceConfigured)
 
       return {
         ...option,
@@ -215,8 +242,10 @@ export const generateConsoleOptions = ({
         onClick: (evt) => {
           evt?.stopPropagation?.()
 
-          const path = `${generatePath(PATH.GUACAMOLE, params)}?zone=${zone}`
-          openConsoleTab(path)
+          const path = isSpice
+            ? generatePath(PATH.SPICE, { id: vm?.ID })
+            : generatePath(PATH.GUACAMOLE, params)
+          openConsoleTab(`${path}?zone=${zone}`)
         },
       }
     }

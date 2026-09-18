@@ -2115,6 +2115,8 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
     'Set the default heigth resolution for the video device',
   /* VM Template schema - Input/Output - graphics */
   Graphics: 'Graphics',
+  GraphicsTypeChangeRestartMessage:
+    'To apply the changes, you need to power off and then resume.',
   ListenOnIp: 'Listen on IP',
   ServerPort: 'Server port',
   ServerPortConcept: 'Port for the VNC/SPICE server',

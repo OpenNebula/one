@@ -24,6 +24,7 @@ import {
 } from '@UtilsModule'
 import { set } from 'lodash'
 import { reach } from 'yup'
+import { sanitizeGraphics } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/inputOutput/graphicsSchema'
 
 const omitEmptyValues = (values = {}) =>
   Object.fromEntries(
@@ -162,6 +163,13 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
     // If initial CONTEXT is empty, no context data should be sent (it will cause a core error). The Configuration tab is disabled in that case, but we need to ensure that when update another tab, no context data is sent.
     if (!initialValues?.TEMPLATE?.CONTEXT) {
       delete updatedFormData?.CONTEXT
+    }
+
+    const graphics = sanitizeGraphics(updatedFormData.GRAPHICS)
+    if (graphics) {
+      updatedFormData.GRAPHICS = graphics
+    } else {
+      delete updatedFormData.GRAPHICS
     }
 
     const drsBlockedChanged =

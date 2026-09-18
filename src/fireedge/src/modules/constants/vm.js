@@ -1128,6 +1128,7 @@ export const DUMMY_VM_ACTIONS_BY_STATE = {
 
 /** @enum {string} KVM Virtual machine actions by state */
 export const KVM_VM_ACTIONS_BY_STATE = {
+  [VM_ACTIONS.SPICE]: [STATES.RUNNING],
   [VM_ACTIONS.BACKUP_CREATE]: [STATES.POWEROFF, STATES.RUNNING],
   [VM_ACTIONS.DEPLOY]: [
     STATES.PENDING,

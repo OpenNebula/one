@@ -46,6 +46,7 @@ import { resolve } from 'path'
 import guacamole from './routes/websockets/guacamole'
 import guacamoleProxy from './routes/websockets/guacamoleProxy'
 import opennebulaWebsockets from './routes/websockets/opennebula'
+import spice from './routes/websockets/spice'
 import { messageTerminal } from './utils/general'
 import { getFireedgeConfig } from './utils/yml'
 
@@ -123,6 +124,8 @@ app.get('*', entrypoint404)
 const appServer = http.createServer(app)
 
 const websockets = opennebulaWebsockets(appServer) || []
+const spiceProxy = spice(appServer)
+spiceProxy && websockets.push(spiceProxy)
 
 let config = {
   color: 'red',
@@ -132,7 +135,7 @@ let config = {
 guacamole(appServer)
 
 appServer.on('upgrade', (req, socket, head) => {
-  const url = req?.url
+  const url = req?.url ?? ''
 
   if (url.startsWith(endpointExternalGuacamole)) {
     guacamoleProxy.upgrade(req, socket, head)

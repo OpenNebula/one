@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ObjectSchema, boolean, lazy, string, mixed } from 'yup'
+import { ObjectSchema, boolean, lazy, string } from 'yup'
 
 import { HYPERVISORS, INPUT_TYPES, T } from '@ConstantsModule'
 import {
   Field,
+  OPTION_SORTERS,
   arrayToOptions,
   disableFields,
   filterFieldsByHypervisor,
@@ -26,6 +27,44 @@ import {
 
 const { lxc } = HYPERVISORS
 const CUSTOM_KEYMAP_VALUE = 'custom'
+export const GRAPHICS_TYPES = {
+  VNC: 'VNC',
+  SPICE: 'SPICE',
+}
+
+/**
+ * @param {*} type - Graphics type
+ * @returns {string|undefined} Normalized supported graphics type
+ */
+export const normalizeGraphicsType = (type) => {
+  const normalizedType = typeof type === 'string' ? type.toUpperCase() : type
+
+  return Object.values(GRAPHICS_TYPES).includes(normalizedType)
+    ? normalizedType
+    : undefined
+}
+
+/**
+ * @param {object} context - Form schema context
+ * @returns {object} Graphics values from a template or VM form
+ */
+const getGraphicsFromContext = (context = {}) =>
+  context?.extra?.GRAPHICS ?? context?.GRAPHICS ?? {}
+
+/**
+ * Normalizes graphics values before submitting the form.
+ *
+ * @param {object} graphics - Graphics values
+ * @returns {object|undefined} Graphics values ready to submit
+ */
+export const sanitizeGraphics = (graphics = {}) => {
+  const type = normalizeGraphicsType(graphics?.TYPE)
+
+  if (!type) return undefined
+
+  return { ...graphics, TYPE: type.toLowerCase() }
+}
+
 const KEYMAP_VALUES = {
   ar: T.Arabic,
   hr: T.Croatian,
@@ -68,23 +107,21 @@ const KEYMAP_VALUES = {
 /** @type {Field} Type field */
 export const TYPE = (isUpdate) => ({
   name: 'GRAPHICS.TYPE',
-  type: INPUT_TYPES.SWITCH,
-  label: T.Vnc,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  label: T.Type,
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
-  validation: mixed()
-    .default(() => (isUpdate ? undefined : true))
-    .afterSubmit((value, { context }) => (value ? 'VNC' : undefined))
-    .test('is-valid-type', 'Invalid value', function (value) {
-      if (
-        typeof value === 'boolean' ||
-        value?.toUpperCase() === 'VNC' ||
-        value === undefined
-      ) {
-        return true
-      }
-
-      return false
-    }),
+  values: arrayToOptions(Object.values(GRAPHICS_TYPES), {
+    addEmpty: false,
+    sorter: OPTION_SORTERS.unsort,
+  }),
+  validation: string()
+    .trim()
+    .nullable()
+    .notRequired()
+    .transform((value) => normalizeGraphicsType(value) ?? value)
+    .oneOf(Object.values(GRAPHICS_TYPES))
+    .default(() => (isUpdate ? undefined : GRAPHICS_TYPES.VNC)),
 
   grid: { md: 12 },
 })
@@ -94,8 +131,6 @@ export const LISTEN = (isUpdate) => ({
   name: 'GRAPHICS.LISTEN',
   label: T.ListenOnIp,
   type: INPUT_TYPES.TEXT,
-  dependOf: TYPE().name,
-  htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
@@ -110,8 +145,6 @@ export const PORT = {
   label: T.ServerPort,
   tooltip: T.ServerPortConcept,
   type: INPUT_TYPES.TEXT,
-  dependOf: TYPE().name,
-  htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
@@ -123,13 +156,11 @@ export const KEYMAP = {
   name: 'GRAPHICS.KEYMAP',
   label: T.Keymap,
   type: INPUT_TYPES.AUTOCOMPLETE,
-  dependOf: TYPE().name,
   values: arrayToOptions(Object.entries(KEYMAP_VALUES), {
     addEmpty: false,
     getText: ([_, label]) => label,
     getValue: ([keymap]) => keymap,
   }),
-  htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .nullable(true)
@@ -138,11 +169,12 @@ export const KEYMAP = {
       value && KEYMAP_VALUES[value] ? value : CUSTOM_KEYMAP_VALUE
     )
     .default(() => undefined)
-    .afterSubmit((value, { context }) =>
-      value === CUSTOM_KEYMAP_VALUE
-        ? context.extra.GRAPHICS.CUSTOM_KEYMAP
-        : value
-    ),
+    .afterSubmit((value, { context }) => {
+      const graphics = getGraphicsFromContext(context)
+
+      return value === CUSTOM_KEYMAP_VALUE ? graphics.CUSTOM_KEYMAP : value
+    }),
+  grid: { md: 12 },
 }
 
 /** @type {Field} Custom keymap field */
@@ -155,24 +187,27 @@ export const CUSTOM_KEYMAP = {
     (!selectedKeymap ||
       selectedKeymap?.toLowerCase() !== CUSTOM_KEYMAP_VALUE) &&
     INPUT_TYPES.HIDDEN,
-  validation: lazy((_, { context }) =>
-    string()
-      .trim()
-      .when(`$extra.${KEYMAP.name}`, (keymap, schema) =>
-        keymap === CUSTOM_KEYMAP_VALUE
-          ? schema.required()
-          : schema.notRequired().nullable(true)
-      )
-      .default(() => {
-        const keymapFromTemplate = context.extra?.GRAPHICS?.KEYMAP
+  validation: lazy((_, { context }) => {
+    const graphics = getGraphicsFromContext(context)
+    const customKeymapRequired = graphics.KEYMAP === CUSTOM_KEYMAP_VALUE
+    const schema = string().trim()
+    const validation = customKeymapRequired
+      ? schema.required()
+      : schema.notRequired().nullable(true)
 
-        return KEYMAP_VALUES[keymapFromTemplate]
-          ? undefined
-          : keymapFromTemplate
-      })
-      // Modification type is not required in template
-      .afterSubmit(() => undefined)
-  ),
+    return (
+      validation
+        .default(() => {
+          const keymapFromTemplate = graphics.KEYMAP
+
+          return KEYMAP_VALUES[keymapFromTemplate]
+            ? undefined
+            : keymapFromTemplate
+        })
+        // Modification type is not required in template
+        .afterSubmit(() => undefined)
+    )
+  }),
   grid: { md: 12 },
 }
 
@@ -181,8 +216,6 @@ export const RANDOM_PASSWD = {
   name: 'GRAPHICS.RANDOM_PASSWD',
   label: T.GenerateRandomPassword,
   type: INPUT_TYPES.CHECKBOX,
-  dependOf: TYPE().name,
-  htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: boolean().yesOrNo(),
   grid: { md: 12 },
 }
@@ -192,9 +225,8 @@ export const PASSWD = {
   name: 'GRAPHICS.PASSWD',
   label: T.Password,
   type: INPUT_TYPES.PASSWORD,
-  dependOf: [TYPE().name, RANDOM_PASSWD.name],
-  htmlType: ([noneType, random] = []) =>
-    (!noneType || random) && INPUT_TYPES.HIDDEN,
+  dependOf: RANDOM_PASSWD.name,
+  htmlType: (random) => random && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
@@ -202,20 +234,33 @@ export const PASSWD = {
   grid: { md: 12 },
 }
 
-/** @type {Field} Command field */
-export const COMMAND = {
+/**
+ * @param {boolean} isUpdate - The form is being updated
+ * @returns {Field} Command field
+ */
+export const COMMAND = (isUpdate) => ({
   name: 'GRAPHICS.COMMAND',
   label: T.Command,
   notOnHypervisors: [lxc],
   type: INPUT_TYPES.TEXT,
-  dependOf: TYPE().name,
-  htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+  dependOf: 'GRAPHICS.TYPE',
+  htmlType: (type) =>
+    (isUpdate || normalizeGraphicsType(type) === GRAPHICS_TYPES.SPICE) &&
+    INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined),
+    .default(() => undefined)
+    .afterSubmit((value, { context }) => {
+      const graphics = getGraphicsFromContext(context)
+
+      return isUpdate ||
+        normalizeGraphicsType(graphics.TYPE) === GRAPHICS_TYPES.SPICE
+        ? undefined
+        : value
+    }),
   grid: { md: 12 },
-}
+})
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
@@ -235,7 +280,7 @@ export const GRAPHICS_FIELDS = (hypervisor, oneConfig, adminGroup, isUpdate) =>
         CUSTOM_KEYMAP,
         PASSWD,
         RANDOM_PASSWD,
-        COMMAND,
+        COMMAND(isUpdate),
       ],
       hypervisor
     ),
@@ -248,4 +293,4 @@ export const GRAPHICS_FIELDS = (hypervisor, oneConfig, adminGroup, isUpdate) =>
 export const GRAPHICS_SCHEMA = (hypervisor, oneConfig, adminGroup, isUpdate) =>
   getObjectSchemaFromFields(
     GRAPHICS_FIELDS(hypervisor, oneConfig, adminGroup, isUpdate)
-  )
+  ).afterSubmit(sanitizeGraphics)

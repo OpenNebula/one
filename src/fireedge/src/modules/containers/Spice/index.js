@@ -13,8 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
 import { Box, Container, Stack } from '@mui/material'
-import { ReactElement, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useHistory, useParams } from 'react-router'
 import { useLocation } from 'react-router-dom'
 
@@ -22,56 +30,49 @@ import {
   ConsoleActionsSkeleton,
   ConsoleDisplaySkeleton,
   ConsoleHeaderSkeleton,
-  GuacamoleActionButtons,
-  GuacamoleClipboard,
-  GuacamoleDisplay,
-  GuacamoleKeyboard,
-  GuacamoleMouse,
   HeaderVmInfo,
-  useGuacamoleSession,
+  SpiceActionButtons,
+  SpiceDisplay,
 } from '@ResourcesModule'
-
 import { VmAPI, useGeneral, useGeneralApi, useViews } from '@FeaturesModule'
-
-import { RESOURCE_NAMES, PATH } from '@ConstantsModule'
+import { PATH, RESOURCE_NAMES } from '@ConstantsModule'
 import { sentenceCase } from '@UtilsModule'
 
-/** @returns {ReactElement} Guacamole container */
-export const Guacamole = () => {
-  // set default zone for request
-  const [isZoneChanged, setIsZoneChanged] = useState(false)
-
+/** @returns {ReactElement} SPICE console container */
+export const Spice = () => {
+  const containerRef = useRef(null)
+  const headerRef = useRef(null)
+  const { id } = useParams()
   const location = useLocation()
-  const searchParams = new URLSearchParams(location.search)
-  const zone = searchParams.get('zone')
-
-  const { zone: selectedZone, defaultZone } = useGeneral()
+  const { push: redirectTo } = useHistory()
+  const { zone: selectedZone } = useGeneral()
   const { changeZone } = useGeneralApi()
+  const { view, [RESOURCE_NAMES.VM]: vmView } = useViews()
+  const [isZoneChanged, setIsZoneChanged] = useState(false)
+  const [retry, setRetry] = useState(0)
+  const [connection, setConnection] = useState({
+    state: 'connecting',
+    error: '',
+  })
+  const requestedZone = useMemo(
+    () => new URLSearchParams(location.search).get('zone'),
+    [location.search]
+  )
+  const isAvailableView = useMemo(
+    () => view && Boolean(vmView?.actions?.spice),
+    [view, vmView]
+  )
 
   useEffect(() => {
-    const handleChangeZone = async () => {
-      if (zone && zone !== selectedZone) {
-        await changeZone(zone)
+    const selectRequestedZone = async () => {
+      if (requestedZone && requestedZone !== selectedZone) {
+        await changeZone(requestedZone)
       }
       setIsZoneChanged(true)
     }
 
-    handleChangeZone()
-  }, [zone, selectedZone, changeZone])
-
-  const containerRef = useRef(null)
-  const headerRef = useRef(null)
-
-  const { id, type = '' } = useParams()
-  const { push: redirectTo } = useHistory()
-  const { view, [RESOURCE_NAMES.VM]: vmView } = useViews()
-
-  const isAvailableView = useMemo(
-    () => view && Boolean(vmView?.actions?.[type]),
-    [type, view, vmView]
-  )
-
-  const paramsGetGuacamoleSession = { id, type }
+    selectRequestedZone()
+  }, [requestedZone, selectedZone, changeZone])
 
   const {
     data: vm,
@@ -85,69 +86,41 @@ export const Guacamole = () => {
       skip: !id || !isAvailableView || !isZoneChanged,
     }
   )
-
   const isVmInfoReady = isVmInfoSuccess && !isVmInfoFetching
-
-  const { isError: queryIsError, data } = VmAPI.useGetGuacamoleSessionQuery(
-    paramsGetGuacamoleSession,
-    {
-      refetchOnMountOrArgChange: false,
-      skip: !id || !isAvailableView || !isZoneChanged || !isVmInfoReady,
-    }
-  )
-
-  const isGuacamoleReady = isVmInfoReady && Boolean(data)
+  const [createSession, sessionQuery] = VmAPI.useCreateSpiceSessionMutation()
+  const {
+    data: session,
+    error: sessionError,
+    isLoading: isSessionLoading,
+  } = sessionQuery
 
   useEffect(() => {
-    ;(queryIsError || vmInfoIsError || (view && !isAvailableView)) &&
+    if (id && isVmInfoReady && isAvailableView && isZoneChanged) {
+      createSession({ id })
+    }
+  }, [id, isVmInfoReady, isAvailableView, isZoneChanged, retry, createSession])
+
+  useEffect(() => {
+    if (vmInfoIsError || (view && !isAvailableView)) {
       redirectTo(PATH.DASHBOARD)
-  }, [queryIsError, vmInfoIsError, view, isAvailableView, redirectTo])
+    }
+  }, [vmInfoIsError, view, isAvailableView, redirectTo])
 
-  const guacamoleOption = useMemo(
-    () => ({
-      type,
-      vmID: id,
-      id: `${id}-${type}`,
-      container: containerRef.current,
-      header: headerRef.current,
-      zone: selectedZone,
-      externalZone: `${selectedZone}` !== `${defaultZone}`,
-      isReady: isGuacamoleReady,
-    }),
-    [
-      selectedZone,
-      isGuacamoleReady,
-      containerRef.current?.offsetWidth,
-      containerRef.current?.offsetHeight,
-      headerRef.current?.offsetWidth,
-      headerRef.current?.offsetHeight,
-    ]
-  )
+  const reconnect = useCallback(() => {
+    sessionQuery.reset()
+    setConnection({ state: 'connecting', error: '' })
+    setRetry((current) => current + 1)
+  }, [sessionQuery.reset])
 
-  const {
-    token,
-    clientState,
-    displayElement,
-    isError,
-    isConnected,
-    ...session
-  } = useGuacamoleSession(
-    guacamoleOption,
-    GuacamoleDisplay,
-    GuacamoleMouse,
-    GuacamoleKeyboard,
-    GuacamoleClipboard
-  )
-
-  const connectionStatus = useMemo(
-    () => (isError ? 'error' : isConnected ? 'success' : 'default'),
-    [isError, isConnected]
-  )
-
-  const connectionState = useMemo(
-    () => sentenceCase(clientState?.connectionState ?? ''),
-    [clientState?.connectionState]
-  )
+  const connectionStatus =
+    connection.state === 'error'
+      ? 'error'
+      : connection.state === 'connected'
+      ? 'success'
+      : 'default'
+  const connectionState = sentenceCase(connection.state)
+  const isSpiceReady = isVmInfoReady && Boolean(session)
+  const hasConnectionError = Boolean(sessionError || connection.error)
 
   return (
     <Box
@@ -170,11 +143,11 @@ export const Guacamole = () => {
       >
         {vm ? (
           <HeaderVmInfo
-            {...paramsGetGuacamoleSession}
+            id={`${id}`}
             vm={vm}
             connectionState={connectionState}
             connectionStatus={connectionStatus}
-            connectionType="Guacamole"
+            connectionType="SPICE"
           />
         ) : (
           <ConsoleHeaderSkeleton />
@@ -186,13 +159,28 @@ export const Guacamole = () => {
           flexWrap="wrap"
           gap="1em"
         >
-          {isGuacamoleReady && (
-            <GuacamoleActionButtons {...session} typeConnection={type} />
+          {isSpiceReady || hasConnectionError ? (
+            <SpiceActionButtons
+              id={`${id}-spice`}
+              handleReconnect={reconnect}
+              isLoading={isSessionLoading}
+            />
+          ) : (
+            <ConsoleActionsSkeleton widths={[36]} />
           )}
-          {!isGuacamoleReady && <ConsoleActionsSkeleton />}
         </Stack>
       </Stack>
-      {isGuacamoleReady ? displayElement : <ConsoleDisplaySkeleton />}
+      <Box sx={{ position: 'relative', minHeight: 0 }}>
+        {session ? (
+          <SpiceDisplay
+            key={session.websocket}
+            session={session}
+            onStatusChange={setConnection}
+          />
+        ) : (
+          <ConsoleDisplaySkeleton />
+        )}
+      </Box>
     </Box>
   )
 }

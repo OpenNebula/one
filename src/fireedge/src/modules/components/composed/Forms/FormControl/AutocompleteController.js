@@ -42,6 +42,7 @@ export const AutocompleteController = memo(
     onConditionChange,
     watcher,
     dependencies,
+    externalError,
     disableEnter = false,
     defaultValue,
   }) => {
@@ -78,7 +79,7 @@ export const AutocompleteController = memo(
     })
 
     const errorText = sentenceCase(
-      [error?.message]
+      [error?.message ?? externalError]
         ?.flat()
         ?.map((s) => s?.trim())
         ?.join(' ')
@@ -232,7 +233,9 @@ export const AutocompleteController = memo(
       />
     )
   },
-  (prevProps, nextProps) => prevProps.values === nextProps.values
+  (prevProps, nextProps) =>
+    prevProps.values === nextProps.values &&
+    prevProps.externalError === nextProps.externalError
 )
 
 AutocompleteController.propTypes = {
@@ -254,6 +257,7 @@ AutocompleteController.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
+  externalError: PropTypes.string,
   defaultValue: PropTypes.string,
 }
 

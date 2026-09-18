@@ -177,6 +177,7 @@ export const PATH = {
   },
   SUPPORT: `/${RESOURCE_NAMES.SUPPORT}`,
   GUACAMOLE: `/${SOCKETS.GUACAMOLE}/:id/:type`,
+  SPICE: `/${SOCKETS.SPICE}/:id`,
   SETTINGS: '/settings',
 }
 

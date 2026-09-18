@@ -100,6 +100,7 @@ const Content = ({ hypervisor, oneConfig, adminGroup, vm }) => {
             hypervisor={hypervisor}
             oneConfig={oneConfig}
             adminGroup={adminGroup}
+            vm={vm}
           />
         ),
         getError: (error) => ['GRAPHICS', 'INPUT'].some((id) => error?.[id]),

@@ -19,6 +19,7 @@ export const SOCKETS = {
   DISCONNECT: 'disconnect',
   HOOKS: 'hooks',
   GUACAMOLE: 'guacamole',
+  SPICE: 'spice',
   EXTERNAL_GUACAMOLE: 'external-guacamole',
 }
 

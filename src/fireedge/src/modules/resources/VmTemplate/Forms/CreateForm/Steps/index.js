@@ -24,6 +24,10 @@ import ExtraConfiguration, {
 import General, {
   STEP_ID as GENERAL_ID,
 } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/General'
+import {
+  normalizeGraphicsType,
+  sanitizeGraphics,
+} from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/inputOutput/graphicsSchema'
 
 import { T } from '@ConstantsModule'
 import {
@@ -106,7 +110,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     }
 
     // Init GRAPHICS.TYPE
-    const type = vmTemplate?.TEMPLATE?.GRAPHICS?.TYPE === 'VNC'
+    const type = normalizeGraphicsType(vmTemplate?.TEMPLATE?.GRAPHICS?.TYPE)
     if (type) {
       objectSchema[EXTRA_ID].GRAPHICS = {
         ...vmTemplate?.TEMPLATE?.GRAPHICS,
@@ -225,7 +229,10 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     delete formData.extra.TOPOLOGY.NUMA_VCPU
 
     // Graphics
-    if (!formData?.extra?.GRAPHICS?.TYPE) {
+    const graphics = sanitizeGraphics(formData?.extra?.GRAPHICS)
+    if (graphics) {
+      formData.extra.GRAPHICS = graphics
+    } else {
       delete formData?.extra?.GRAPHICS
     }
 
