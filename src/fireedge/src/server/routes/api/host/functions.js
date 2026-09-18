@@ -217,7 +217,7 @@ const flush = (
     action: HOST_POOL_INFO,
     parameters: getDefaultParamsOfOpennebulaCommand(HOST_POOL_INFO, GET),
     callback: (err, value = {}) => {
-      const { HOST_POOL = [] } = value
+      const { HOST_POOL = {} } = value
 
       if (err) {
         res.locals.httpCode = httpResponse(unauthorized, err)
@@ -226,24 +226,20 @@ const flush = (
         return
       }
 
-      const hostList = HOST_POOL.HOST
-      if (Array.isArray(hostList) && hostList.length > 1) {
-        const hostEnabledCount = hostList?.filter(
-          (obj) => obj?.STATE === '2' // Enabled
-        )?.length
+      const hostList = [HOST_POOL.HOST ?? []].flat()
+      const hasEnabledDestinationHost = hostList.some(
+        ({ ID: hostId, STATE: state }) =>
+          String(hostId) !== String(params.id) && String(state) === '2'
+      )
 
-        if (hostEnabledCount < 2) {
-          res.locals.httpCode = httpResponse(conflict, { type: 'err_one_host' })
-          next()
-
-          return
-        }
-
-        flushHost(res, next, params, userData, oneConnect)
-      } else {
+      if (!hasEnabledDestinationHost) {
         res.locals.httpCode = httpResponse(conflict, { type: 'err_one_host' })
         next()
+
+        return
       }
+
+      flushHost(res, next, params, userData, oneConnect)
     },
   })
 }
