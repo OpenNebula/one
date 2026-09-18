@@ -24,6 +24,8 @@ import { SCHEMA } from '@modules/resources/Cluster/Forms/CreateCloudForm/Steps/U
 
 export const STEP_ID = 'user_inputs'
 
+const FIELDS = (userInputs = []) => userInputs
+
 const Content = ({ deploymentConfs }) => {
   // Access to the form
   const { control } = useFormContext()
@@ -41,11 +43,7 @@ const Content = ({ deploymentConfs }) => {
     deploymentConf?.userInputsLayout &&
     deploymentConf?.userInputsLayout.length > 0
   ) {
-    return generateTabs(
-      deploymentConf?.userInputsLayout,
-      STEP_ID,
-      (userInputs = []) => userInputs
-    )
+    return generateTabs(deploymentConf?.userInputsLayout, STEP_ID, FIELDS)
   } else {
     return (
       <FormWithSchema
