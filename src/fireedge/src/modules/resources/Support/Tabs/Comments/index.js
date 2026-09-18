@@ -22,8 +22,20 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { marked } from 'marked'
 import PropTypes from 'prop-types'
 
-import { Button, FormWithSchema, SubmitButton, Text } from '@ComponentsModule'
-import { STYLE_BUTTONS, T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
+import {
+  AlertNotification,
+  Button,
+  FormWithSchema,
+  SubmitButton,
+  Text,
+} from '@ComponentsModule'
+import {
+  STATES,
+  STYLE_BUTTONS,
+  T,
+  TEXT_VARIANTS,
+  TEXT_WEIGHTS,
+} from '@ConstantsModule'
 import { useGeneralApi, useSupportAuth } from '@FeaturesModule'
 import {
   isoDateToMilliseconds,
@@ -45,6 +57,23 @@ const getCommentDate = (createdAt) =>
 
 const getCommentTimestamp = (comment = {}) =>
   comment?.createdAt ? isoDateToMilliseconds(comment.createdAt) : 0
+
+const getCommentErrorMessage = (error = {}) => {
+  const responseData = error?.data
+
+  if (typeof responseData?.data === 'string' && responseData.data.trim()) {
+    return responseData.data
+  }
+
+  if (
+    typeof responseData?.message === 'string' &&
+    responseData.message.trim()
+  ) {
+    return responseData.message
+  }
+
+  return T.SomethingWrong
+}
 
 const getFileName = (file) => {
   const selectedFile = Array.isArray(file) ? file[0] : file
@@ -142,7 +171,7 @@ const CommentBar = ({
   onSubmitComment,
   isSubmittingComment = false,
 }) => {
-  const { enqueueSuccess } = useGeneralApi()
+  const { enqueueError, enqueueSuccess } = useGeneralApi()
   const uploadInputRef = useRef()
   const [uploadedFileName, setUploadedFileName] = useState()
   const methods = useForm({
@@ -169,10 +198,14 @@ const CommentBar = ({
 
     fields.SOLVED && (commentBody.solved = true)
 
-    await onSubmitComment?.(commentBody)
-    enqueueSuccess(T.SuccessSupportCommentSent)
-    reset()
-    setUploadedFileName(undefined)
+    try {
+      await onSubmitComment?.(commentBody)
+      enqueueSuccess(T.SuccessSupportCommentSent)
+      reset()
+      setUploadedFileName(undefined)
+    } catch (error) {
+      enqueueError(T.ErrorSupportComment, [getCommentErrorMessage(error)])
+    }
   }
 
   const handleAttachmentChange = (event) => {
@@ -278,6 +311,7 @@ export const Comments = ({ data, config }) => {
   } = data || {}
   const isCommentsEnabled = config?.enabled !== false
   const canComment = config?.actions?.comment === true
+  const isClosed = ticket.status?.toUpperCase() === STATES.CLOSED
   const commentList = useMemo(
     () =>
       (Array.isArray(comments) ? [...comments] : []).sort(
@@ -291,13 +325,23 @@ export const Comments = ({ data, config }) => {
 
   return (
     <Box sx={(theme) => getStyles({ theme })}>
-      {canComment && (
-        <CommentBar
-          ticket={ticket}
-          onSubmitComment={onSubmitComment}
-          isSubmittingComment={isSubmittingComment}
-        />
-      )}
+      {canComment &&
+        (isClosed ? (
+          <AlertNotification
+            className="closed-ticket-alert"
+            type="primary"
+            status="information"
+            title={T.ClosedSupportTicket}
+            description={T.ClosedSupportTicketCannotComment}
+            isDismissible={false}
+          />
+        ) : (
+          <CommentBar
+            ticket={ticket}
+            onSubmitComment={onSubmitComment}
+            isSubmittingComment={isSubmittingComment}
+          />
+        ))}
       <Box className="comments-list">
         {commentList.map((comment) => (
           <BubbleMessage key={comment.id} comment={comment} />

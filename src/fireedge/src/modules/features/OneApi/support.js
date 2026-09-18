@@ -184,7 +184,7 @@ const authSupportApi = oneApi.injectEndpoints({
 
           return { data: response.data }
         } catch (axiosError) {
-          const { response } = axiosError
+          const response = axiosError?.response ?? axiosError
 
           return { error: { status: response?.status, data: response?.data } }
         }

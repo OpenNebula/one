@@ -848,6 +848,9 @@ module.exports = {
     'You should just use this. If you want to place the ticket as solved',
   AddComment: 'Add comment to close the ticket',
   MarkAsclosed: 'Please consider to this request resolved',
+  ClosedSupportTicket: 'This ticket is closed',
+  ClosedSupportTicketCannotComment:
+    'Closed tickets cannot receive new comments',
 
   /* sections - system */
   User: 'User',
@@ -3271,6 +3274,8 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
     'The template selected has a bad format. Ask your cloud administrator',
   ErrorShowbackCalculated: 'Error calculating showback: %s',
   ErrorSupportCredentials: 'Error with support credentials',
+  ErrorSupportComment: 'Could not send the comment: %s',
+  ErrorSupportOAuth: 'Could not connect to Zendesk. Please try again',
   ErrorVMGroupFetch: 'Failed to fetch VM Group data: %s',
   ErrorServiceActionRole: 'Action %s failed on role: %s. Error: %s',
   ErrorProvisionRetried: 'Error retrying Provision',

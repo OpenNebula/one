@@ -39,6 +39,11 @@ export const getStyles = ({ theme }) => ({
     paddingRight: `${theme.scale[100]}px`,
   },
 
+  '& .closed-ticket-alert': {
+    boxSizing: 'border-box',
+    width: '100%',
+  },
+
   '& .comment-bubble': {
     display: 'flex',
     flexDirection: 'column',
