@@ -14,7 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-export const RID = 'vrouter'
-export * as Forms from '@modules/resources/VirtualRouter/Forms'
-export * as Tabs from '@modules/resources/VirtualRouter/Tabs'
-export { VirtualRouterCard as Card } from '@modules/resources/VirtualRouter/Card'
+export { default } from '@modules/resources/VirtualRouter/Forms/AttachNicForm/Steps'

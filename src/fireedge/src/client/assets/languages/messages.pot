@@ -2667,6 +2667,16 @@ msgstr ""
 msgid "NIC detached successfully - Virtual machine #%s"
 msgstr ""
 
+#. T.AttachVRouterNicSuccess
+#: ./src/modules/constants/translates.js
+msgid "NIC attached successfully - Virtual router #%s"
+msgstr ""
+
+#. T.DetachVRouterNicSuccess
+#: ./src/modules/constants/translates.js
+msgid "NIC detached successfully - Virtual router #%s"
+msgstr ""
+
 #. T.UpdatedNicSuccess
 #: ./src/modules/constants/translates.js
 msgid "NIC updated successfully - Virtual machine #%s"

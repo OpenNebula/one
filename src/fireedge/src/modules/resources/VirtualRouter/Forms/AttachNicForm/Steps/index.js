@@ -14,7 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-export const RID = 'vrouter'
-export * as Forms from '@modules/resources/VirtualRouter/Forms'
-export * as Tabs from '@modules/resources/VirtualRouter/Tabs'
-export { VirtualRouterCard as Card } from '@modules/resources/VirtualRouter/Card'
+import Nic, {
+  STEP_ID as NIC_ID,
+} from '@modules/resources/VirtualRouter/Forms/AttachNicForm/Steps/Nic'
+import { createSteps } from '@UtilsModule'
+
+const Steps = createSteps([Nic], {
+  transformBeforeSubmit: (formData) => formData[NIC_ID],
+})
+
+export default Steps

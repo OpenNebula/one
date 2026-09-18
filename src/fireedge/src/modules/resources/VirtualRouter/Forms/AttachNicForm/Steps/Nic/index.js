@@ -14,7 +14,26 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-export const RID = 'vrouter'
-export * as Forms from '@modules/resources/VirtualRouter/Forms'
-export * as Tabs from '@modules/resources/VirtualRouter/Tabs'
-export { VirtualRouterCard as Card } from '@modules/resources/VirtualRouter/Card'
+import { FormWithSchema } from '@ComponentsModule'
+import { T } from '@ConstantsModule'
+import {
+  FIELDS,
+  SCHEMA,
+} from '@modules/resources/VirtualRouter/Forms/AttachNicForm/Steps/Nic/schema'
+
+export const STEP_ID = 'nic'
+
+const Content = () => (
+  <FormWithSchema id={STEP_ID} cy={STEP_ID} fields={FIELDS} />
+)
+
+/** @returns {object} Virtual Router NIC configuration step */
+const Nic = () => ({
+  id: STEP_ID,
+  label: T.ConfigureNetworking,
+  resolver: SCHEMA,
+  optionsValidate: { abortEarly: false },
+  content: Content,
+})
+
+export default Nic

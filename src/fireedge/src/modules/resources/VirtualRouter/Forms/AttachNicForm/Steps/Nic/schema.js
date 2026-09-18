@@ -14,7 +14,19 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-export const RID = 'vrouter'
-export * as Forms from '@modules/resources/VirtualRouter/Forms'
-export * as Tabs from '@modules/resources/VirtualRouter/Tabs'
-export { VirtualRouterCard as Card } from '@modules/resources/VirtualRouter/Card'
+import { mixed } from 'yup'
+
+import { T } from '@ConstantsModule'
+import { FIELDS as VROUTER_NIC_FIELDS } from '@modules/resources/VrTemplate/Forms/InstantiateForm/Steps/Networking/schema'
+import { getObjectSchemaFromFields } from '@UtilsModule'
+
+export const FIELDS = VROUTER_NIC_FIELDS.map((field) =>
+  field.name === 'NETWORK_ID'
+    ? {
+        ...field,
+        validation: mixed().required(T.SelectNetwork).default(null),
+      }
+    : field
+)
+
+export const SCHEMA = getObjectSchemaFromFields(FIELDS)

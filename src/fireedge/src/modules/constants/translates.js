@@ -668,6 +668,8 @@ module.exports = {
   ErrorsOcurred: '%s error(s) occurred',
   AttachNicSuccess: 'NIC attached successfully - Virtual machine #%s',
   DetachNicSuccess: 'NIC detached successfully - Virtual machine #%s',
+  AttachVRouterNicSuccess: 'NIC attached successfully - Virtual router #%s',
+  DetachVRouterNicSuccess: 'NIC detached successfully - Virtual router #%s',
   UpdatedNicSuccess: 'NIC updated successfully - Virtual machine #%s',
   AttachSecurityGroupSuccess:
     'Security group attached successfully - Virtual machine #%s',

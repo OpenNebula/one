@@ -54,6 +54,8 @@ export const VROUTER_ACTIONS = {
   UNLOCK: 'unlock',
   SHARE: 'share',
   UNSHARE: 'unshare',
+  ATTACH_NIC: 'nic-attach',
+  DETACH_NIC: 'nic-detach',
 
   RENAME: ACTIONS.RENAME,
   CHANGE_OWNER: ACTIONS.CHANGE_OWNER,

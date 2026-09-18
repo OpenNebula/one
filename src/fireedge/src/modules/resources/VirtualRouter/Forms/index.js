@@ -14,7 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-export const RID = 'vrouter'
-export * as Forms from '@modules/resources/VirtualRouter/Forms'
-export * as Tabs from '@modules/resources/VirtualRouter/Tabs'
-export { VirtualRouterCard as Card } from '@modules/resources/VirtualRouter/Card'
+import { ReactElement } from 'react'
+import { createAsyncForm, CreateStepsCallback } from '@UtilsModule'
+
+/**
+ * @param {object} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronously loaded form
+ */
+const AttachNicForm = createAsyncForm(() =>
+  import('@modules/resources/VirtualRouter/Forms/AttachNicForm')
+)
+
+export { AttachNicForm }

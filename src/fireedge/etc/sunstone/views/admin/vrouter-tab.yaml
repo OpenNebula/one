@@ -54,6 +54,9 @@ info-tabs:
     enabled: true
   nics:
     enabled: true
+    actions:
+      nic-attach: true
+      nic-detach: true
 
   template:
     enabled: true

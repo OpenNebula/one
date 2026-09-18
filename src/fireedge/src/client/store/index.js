@@ -67,6 +67,8 @@ export const createStore = ({ initState = {}, extraMiddleware = [] }) => {
             'payload.onSubmit',
             'payload.dialogProps.children',
             'payload.dialogProps.description', // Can potentially be a react node, so ignoring
+            'payload.dialogProps.steps', // Can be an async React form component
+            'meta.baseQueryMeta.state.modals', // Query metadata can contain modal components
           ],
           ignoredPaths: ['persist', 'modals'],
         },
