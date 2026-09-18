@@ -35,6 +35,7 @@ actions:
   lock: true
   unlock: true
   vnc: true
+  spice: true
   ssh: true
   rdp: true
   edit_labels: true

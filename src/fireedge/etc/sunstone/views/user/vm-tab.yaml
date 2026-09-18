@@ -41,6 +41,7 @@ actions:
   unresched: true
   update-user-template: true
   vnc: true
+  spice: true
 
 # Filters - List of criteria to filter the resources
 
