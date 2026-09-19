@@ -34,6 +34,7 @@ type ImageServiceClient interface {
 	SnapshotDelete(ctx context.Context, in *SnapshotDeleteRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
 	SnapshotRevert(ctx context.Context, in *SnapshotRevertRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
 	SnapshotFlatten(ctx context.Context, in *SnapshotFlattenRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
+	Resize(ctx context.Context, in *ResizeRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
 	Restore(ctx context.Context, in *RestoreRequest, opts ...grpc.CallOption) (*shared.ResponseXML, error)
 	PoolInfo(ctx context.Context, in *PoolInfoRequest, opts ...grpc.CallOption) (*shared.ResponseXML, error)
 }
@@ -190,6 +191,15 @@ func (c *imageServiceClient) SnapshotFlatten(ctx context.Context, in *SnapshotFl
 	return out, nil
 }
 
+func (c *imageServiceClient) Resize(ctx context.Context, in *ResizeRequest, opts ...grpc.CallOption) (*shared.ResponseID, error) {
+	out := new(shared.ResponseID)
+	err := c.cc.Invoke(ctx, "/one.image.ImageService/Resize", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *imageServiceClient) Restore(ctx context.Context, in *RestoreRequest, opts ...grpc.CallOption) (*shared.ResponseXML, error) {
 	out := new(shared.ResponseXML)
 	err := c.cc.Invoke(ctx, "/one.image.ImageService/Restore", in, out, opts...)
@@ -228,6 +238,7 @@ type ImageServiceServer interface {
 	SnapshotDelete(context.Context, *SnapshotDeleteRequest) (*shared.ResponseID, error)
 	SnapshotRevert(context.Context, *SnapshotRevertRequest) (*shared.ResponseID, error)
 	SnapshotFlatten(context.Context, *SnapshotFlattenRequest) (*shared.ResponseID, error)
+	Resize(context.Context, *ResizeRequest) (*shared.ResponseID, error)
 	Restore(context.Context, *RestoreRequest) (*shared.ResponseXML, error)
 	PoolInfo(context.Context, *PoolInfoRequest) (*shared.ResponseXML, error)
 	mustEmbedUnimplementedImageServiceServer()
@@ -284,6 +295,9 @@ func (UnimplementedImageServiceServer) SnapshotRevert(context.Context, *Snapshot
 }
 func (UnimplementedImageServiceServer) SnapshotFlatten(context.Context, *SnapshotFlattenRequest) (*shared.ResponseID, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SnapshotFlatten not implemented")
+}
+func (UnimplementedImageServiceServer) Resize(context.Context, *ResizeRequest) (*shared.ResponseID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Resize not implemented")
 }
 func (UnimplementedImageServiceServer) Restore(context.Context, *RestoreRequest) (*shared.ResponseXML, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Restore not implemented")
@@ -592,6 +606,24 @@ func _ImageService_SnapshotFlatten_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ImageService_Resize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResizeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImageServiceServer).Resize(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/one.image.ImageService/Resize",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImageServiceServer).Resize(ctx, req.(*ResizeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ImageService_Restore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RestoreRequest)
 	if err := dec(in); err != nil {
@@ -695,6 +727,10 @@ var _ImageService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SnapshotFlatten",
 			Handler:    _ImageService_SnapshotFlatten_Handler,
+		},
+		{
+			MethodName: "Resize",
+			Handler:    _ImageService_Resize_Handler,
 		},
 		{
 			MethodName: "Restore",

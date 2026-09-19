@@ -94,6 +94,10 @@ class ImageService final : public one::image::ImageService::Service
                                  const one::image::SnapshotFlattenRequest* request,
                                  one::ResponseID* response) override;
 
+    grpc::Status Resize(grpc::ServerContext* context,
+                        const one::image::ResizeRequest* request,
+                        one::ResponseID* response) override;
+
     grpc::Status Restore(grpc::ServerContext* context,
                          const one::image::RestoreRequest* request,
                          one::ResponseXML* response) override;
@@ -336,6 +340,21 @@ class ImageSnapshotFlattenGRPC : public RequestGRPC, public ImageAPI
 public:
     ImageSnapshotFlattenGRPC() :
         RequestGRPC("one.image.snapshotflatten", "/one.image.ImageService/SnapshotFlatten"),
+        ImageAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(const google::protobuf::Message* _request,
+                         google::protobuf::Message*       _response,
+                         RequestAttributesGRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class ImageResizeGRPC : public RequestGRPC, public ImageAPI
+{
+public:
+    ImageResizeGRPC() :
+        RequestGRPC("one.image.resize", "/one.image.ImageService/Resize"),
         ImageAPI(static_cast<Request&>(*this))
     {}
 
