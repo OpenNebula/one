@@ -110,14 +110,15 @@ module OneBEX
             app.post '/export' do
                 data = request_data
 
-                if data['VM_ID'].nil? || data['DS_ID'].nil?
-                    halt 400, json_error('Missing VM_ID or DS_ID')
+                if data['VM_ID'].nil? || data['DS_ID'].nil? ||
+                   data['BACKUP_DIR'].to_s.empty?
+                    halt 400, json_error('Missing VM_ID, DS_ID or BACKUP_DIR')
                 end
 
                 vm_id = data['VM_ID'].to_i
                 ds_id = data['DS_ID'].to_i
+                export_dir = data['BACKUP_DIR'].to_s
 
-                export_dir   = File.join(DS_DIR, ds_id.to_s, vm_id.to_s, 'backup')
                 exports_path = File.join(export_dir, 'interactive_exports.json')
 
                 unless File.exist?(exports_path)

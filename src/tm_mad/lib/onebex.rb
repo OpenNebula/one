@@ -219,7 +219,8 @@ module TransferManager
             req['Content-Type'] = 'application/json'
             req.body = JSON.generate(
                 :VM_ID => @vm_id,
-                :DS_ID => @ds_id
+                :DS_ID => @ds_id,
+                :BACKUP_DIR => @backup_dir
             )
 
             res = Net::HTTP.start(

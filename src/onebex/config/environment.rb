@@ -27,14 +27,12 @@ if !ONE_LOCATION
     LOG_LOCATION      ||= '/var/log/one'
     VAR_LOCATION      ||= '/var/lib/one'
     ETC_LOCATION      ||= '/var/tmp/one/etc'
-    DS_DIR            ||= '/var/lib/one/datastores'
 else
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
     VAR_LOCATION      ||= ONE_LOCATION + '/var'
     LOG_LOCATION      ||= ONE_LOCATION + '/var'
     ETC_LOCATION      ||= ONE_LOCATION + '/etc'
-    DS_DIR            ||= "#{ONE_LOCATION}/var/datastores"
 end
 
 ONEBEX_LOG         = LOG_LOCATION + '/onebex.log'
