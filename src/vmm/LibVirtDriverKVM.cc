@@ -816,9 +816,9 @@ int LibVirtDriver::deployment_description_kvm(
     get_attribute(vm, host, cluster, "VCPU", vcpu);
     get_attribute(vm, host, cluster, "VCPU_MAX", vcpu_max);
 
-    if (vcpu.empty())
+    if (vcpu.empty() && !vcpu_max.empty())
     {
-        vcpu = vcpu_max;
+        vcpu = "1";
     }
 
     if (!vcpu_max.empty())
