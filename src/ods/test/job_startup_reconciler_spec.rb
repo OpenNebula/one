@@ -152,7 +152,7 @@ RSpec.describe ODS::JobWorkflow::StartupReconciler do
         broken = owner(:id => 1, :state => :RUNNING, :active_job => context)
         valid = owner(:id => 2, :state => :RUNNING, :active_job => context)
         pool = OdsSpecSupport::MemoryPool.new([broken, valid])
-        workflow = workflow_class.new.configure(pool, scheduler)
+        configured_workflow = workflow_class.new.configure(pool, scheduler)
         allow(scheduler).to receive(:wake) do |workflow:, owner_id:, operation_id:|
             raise "unexpected workflow #{workflow}" unless workflow == :reconciler_spec
             raise 'broken resource' if owner_id == 1
@@ -160,7 +160,7 @@ RSpec.describe ODS::JobWorkflow::StartupReconciler do
             operation_id
         end
 
-        described_class.new(workflow).run
+        described_class.new(configured_workflow).run
 
         expect(scheduler).to have_received(:wake).twice
         expect(Log).to have_received(:error).with('JOB', /broken resource/, 1)

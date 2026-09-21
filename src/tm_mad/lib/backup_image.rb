@@ -353,7 +353,7 @@ class QemuImg
         if !map.empty?
             opts[:map=] = map
         else
-            opts[:map]  = ''
+            opts[:map] = ''
         end
 
         out = cmd('nbdinfo', uri, opts)

@@ -162,7 +162,6 @@ class ServiceLCM
     #
     # @return [OpenNebula::Error] Error if any
     # rubocop:disable Metrics/ParameterLists
-    # rubocop:disable Layout/LineLength
     def service_sched_action(external_user, service_id, action, period, number, args)
         # rubocop:enable Metrics/ParameterLists
         rc = @srv_pool.get(service_id, external_user) do |service|
@@ -175,7 +174,6 @@ class ServiceLCM
 
         rc
     end
-    # rubocop:enable Layout/LineLength
 
     # Delete sched action from service
     #
@@ -691,7 +689,6 @@ class ServiceLCM
     # @param cooldown      [Integer] New cooldown time
     #
     # @return [OpenNebula::Error] Error if any
-    # rubocop:disable Layout/LineLength
     def update_role_policies(external_user, service_id, role_name, policies, cooldown)
         rc = @srv_pool.get(service_id, external_user) do |service|
             role                = service.roles[role_name]
@@ -715,7 +712,6 @@ class ServiceLCM
 
         rc
     end
-    # rubocop:enable Layout/LineLength
 
     # Add role from running service
     #
@@ -1350,7 +1346,6 @@ class ServiceLCM
     #                       depending on the result of the deployment
     #
     # rubocop:disable Metrics/ParameterLists
-    # rubocop:disable Layout/LineLength
     def deploy_roles(external_user, roles, success_state, error_state, action, report)
         # rubocop:enable Metrics/ParameterLists
         rc = roles.each do |name, role|
@@ -1395,7 +1390,6 @@ class ServiceLCM
 
         rc
     end
-    # rubocop:enable Layout/LineLength
 
     def undeploy_roles(external_user, roles, success_state, error_state, action)
         roles.each do |name, role|
@@ -1422,7 +1416,6 @@ class ServiceLCM
     end
 
     # rubocop:disable Metrics/ParameterLists
-    # rubocop:disable Layout/LineLength
     def release_roles(external_user, roles, success_state, error_state, action, report)
         # rubocop:enable Metrics/ParameterLists
         roles.each do |name, role|
@@ -1446,7 +1439,6 @@ class ServiceLCM
                                           report)
         end
     end
-    # rubocop:enable Layout/LineLength
 
     def set_cardinality(role, cardinality, force)
         tmpl_json = "{ \"cardinality\" : #{cardinality},\n" \

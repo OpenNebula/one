@@ -742,7 +742,7 @@ RSpec.describe ODS::JobScheduler do
                 :concurrency => 1, :shutdown_timeout => 1
             )
             replacement_workflow = workflow_class.new(controls, events)
-                .configure(pool, replacement_scheduler)
+                                                 .configure(pool, replacement_scheduler)
             replacement_scheduler.register(replacement_workflow)
             expect(replacement_workflow.catch_up).to be(true)
             replacement_scheduler.start

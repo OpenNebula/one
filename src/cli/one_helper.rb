@@ -1380,9 +1380,8 @@ Bash symbols must be escaped on STDIN passing'
                 xsd = xsd['element']
             end
 
-            # rubocop:disable Style/ArrayCoercion
+            # rubocop:disable-next Style/ArrayCoercion
             xsd = [xsd] unless xsd.is_a? Array
-            # rubocop:enable Style/ArrayCoercion
 
             check_xsd(hash[ename], xsd)
 
@@ -2440,9 +2439,8 @@ Bash symbols must be escaped on STDIN passing'
                 when 'g'
                     ret += rwx * 10
                 else
-                    # rubocop:disable Lint/UselessNumericOperation
+                    # rubocop:disable-next Lint/UselessNumericOperation
                     ret += rwx * 1
-                    # rubocop:enable Lint/UselessNumericOperation
                 end
             end
 

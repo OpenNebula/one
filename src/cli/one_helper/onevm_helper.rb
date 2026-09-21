@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-# rubocop:disable Naming/UncommunicativeMethodParamName
 
 if !ONE_LOCATION
     MAD_LOCATION      = '/usr/lib/one/mads'
@@ -1161,9 +1160,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             puts
 
-            # rubocop:disable Layout/LineLength
+            # rubocop:disable-next Layout/LineLength
             CLIHelper.print_header(str_h1 % 'SECURITY GROUP   TYPE     PROTOCOL NETWORK                       RANGE          ', false)
-            # rubocop:enable Layout/LineLength
 
             CLIHelper::ShowTable.new(nil, self) do
                 column :ID, '', :size => 4 do |d|
@@ -1541,5 +1539,3 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     end
 
 end
-
-# rubocop:enable Naming/UncommunicativeMethodParamName

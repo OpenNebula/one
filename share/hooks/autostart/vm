@@ -62,9 +62,7 @@ require 'load_opennebula_paths'
 $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'opennebula'
-# rubocop:disable Style/MixinUsage
 include OpenNebula
-# rubocop:enable Style/MixinUsage
 
 require 'getoptlong'
 require 'base64'

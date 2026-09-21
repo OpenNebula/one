@@ -325,11 +325,9 @@ class VmmAction
         else
             path = name.to_s.upcase
         end
-        # rubocop:disable Style/GuardClause
         if (elem = @xml_data.elements[path])
             @data[name] = elem.text
         end
-        # rubocop:enable Style/GuardClause
     end
 
     # Adds a REXML node to a specific xpath

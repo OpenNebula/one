@@ -570,18 +570,15 @@ class HookExecutionManager
             action = key.split(' ').shift.to_sym
 
             # remove action from key
-            # rubocop:disable Style/RedundantArrayFlatten
             key = key.split(' ')[1..-1].flatten.join(' ')
-            # rubocop:enable Style/RedundantArrayFlatten
 
             case action
             when :EVENT
                 type, key = key.split(' ')
 
                 if type.downcase.to_sym == :state
-                    # rubocop:disable Style/RegexpLiteral
+                    # rubocop:disable-next Style/RegexpLiteral
                     key.gsub!(/(?:.(?!\/))+$/, '')
-                    # rubocop:enable Style/RegexpLiteral
                 end
 
                 content   = Base64.decode64(content)

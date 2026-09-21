@@ -297,7 +297,6 @@ class EventManager
     # @param [service_id] the service id
     # @param [role_name] the role name of the role which contains the VMs
     # @param [nodes] the list of nodes (VMs) to wait for
-    # rubocop:disable Layout/LineLength
     def wait_cooldown_action(external_user, service_id, role_name, cooldown_time)
         Log.info LOG_COMP, "Waiting #{cooldown_time}s for cooldown for " \
                            "service #{service_id} and role #{role_name}."
@@ -310,7 +309,6 @@ class EventManager
                             service_id,
                             role_name)
     end
-    # rubocop:enable Layout/LineLength
 
     # Wait for nodes to be in HOLD
     # @param [String]  External user to impersonate for performing the action

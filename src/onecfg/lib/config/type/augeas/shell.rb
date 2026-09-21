@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# rubocop:disable Style/ClassAndModuleChildren
+# rubocop:disable-next Style/ClassAndModuleChildren
 module OneCfg::Config::Type
 
     # Shell Augeas class
@@ -74,7 +74,7 @@ module OneCfg::Config::Type
         # Get list of keys (node names) from Augeas tree
         #
         # @return [Array] List of keys
-        # rubocop:disable Naming/AccessorMethodName
+        # rubocop:disable-next Naming/AccessorMethodName
         def get_keys
             keys = super(false)
 
@@ -82,7 +82,6 @@ module OneCfg::Config::Type
 
             keys
         end
-        # rubocop:enable Naming/AccessorMethodName
 
         # Check if content of both configuration objects is similar
         #
@@ -202,7 +201,7 @@ module OneCfg::Config::Type
 
                 # find exports outside assignments, e.g.:
                 # export KEY1 KEY2 KEY3
-                # rubocop:disable Style/OrAssignment
+                # rubocop:disable-next Style/OrAssignment
                 unless ret
                     # We might get Augeas key with index if multiple
                     # variables with same name is defined, but in @export,
@@ -215,7 +214,6 @@ module OneCfg::Config::Type
                     # @export/2 LIBVIRT_URI
                     ret = @content.exists("@export/*[.='#{strip_index(key)}']")
                 end
-                # rubocop:enable Style/OrAssignment
             rescue ::Augeas::MultipleMatchesError
                 ret = true
             end
@@ -370,12 +368,11 @@ module OneCfg::Config::Type
             unless exp.nil?
                 # Set export state only if it's different
                 # to current state.
-                # rubocop:disable Style/SoleNestedConditional
+                # rubocop:disable-next Style/SoleNestedConditional
                 if exp != exported_key?(key)
                     export_key(key, exp)
                     ret[:status] = true
                 end
-                # rubocop:enable Style/SoleNestedConditional
             end
 
             ret
@@ -425,4 +422,3 @@ module OneCfg::Config::Type
     end
 
 end
-# rubocop:enable Style/ClassAndModuleChildren

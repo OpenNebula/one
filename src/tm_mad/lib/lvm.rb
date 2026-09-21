@@ -141,7 +141,6 @@ module TransferManager
                 # |      | Live | Poweroff |
                 # | Full |    T |       TF |
                 # | Incr |    T |        T |
-                # rubocop:disable Style/GuardClause
                 if @vm_backup_config[:mode] == :full
                     ddst = "#{backup_dir}/disk.#{@id}.0"
                     orig = nil
@@ -214,7 +213,6 @@ module TransferManager
 
                     snap_clup << lvm_lock_sh("sudo lvremove -y #{qual(snap_prev)}")
                 end
-                # rubocop:enable Style/GuardClause
 
                 {
                     :snapshot      => snap_cmd,

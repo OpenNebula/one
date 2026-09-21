@@ -16,11 +16,10 @@ class OneDBLive
         @client ||= OpenNebula::Client.new
     end
 
-    # rubocop:disable Naming/MemoizedInstanceVariableName
+    # rubocop:disable-next Naming/MemoizedInstanceVariableName
     def system_db
         @system ||= OpenNebula::System.new(client)
     end
-    # rubocop:enable Naming/MemoizedInstanceVariableName
 
     def db_escape(string)
         escaped = string.gsub("'", "''")

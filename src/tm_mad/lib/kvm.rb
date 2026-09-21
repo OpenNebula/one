@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# rubocop:disable Style/ClassVars
+# rubocop:disable-next Style/ClassVars
 module TransferManager
 
     # KVM VM MAD module
@@ -136,4 +136,3 @@ module TransferManager
     end
 
 end
-# rubocop:enable Style/ClassVars

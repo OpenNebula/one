@@ -335,6 +335,7 @@ module OpenNebula
 
                     context = loaded.value
                     return ExecResult.stale unless context.failing?
+
                     parent = parent_reference(job)
 
                     step_children(context, job.step).reject(&:terminal?).each do |child|
@@ -540,7 +541,7 @@ module OpenNebula
 
                     context = loaded.value
                     parent = parent_reference(job)
-                    observations = step_children(context, job.step).map do |child|
+                    step_children(context, job.step).map do |child|
                         observation = child_workflow(child).observe_child(
                             child, :parent => parent
                         )
@@ -548,8 +549,6 @@ module OpenNebula
 
                         observation
                     end
-
-                    observations
                 rescue StandardError => e
                     error(e.message)
                 end

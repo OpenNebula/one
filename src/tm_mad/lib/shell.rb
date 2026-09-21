@@ -16,7 +16,7 @@
 
 require 'base64'
 
-# rubocop:disable Layout/HeredocIndentation, Layout/IndentationWidth
+# rubocop:disable-next Layout/HeredocIndentation, Layout/IndentationWidth
 module TransferManager
 
   # Functions to generate shell code. Mostly ported from mad/sh/scripts_common.sh
@@ -317,4 +317,3 @@ module TransferManager
   end
 
 end
-# rubocop:enable Layout/HeredocIndentation, Layout/IndentationWidth

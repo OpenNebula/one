@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# rubocop:disable Style/ClassAndModuleChildren
+# rubocop:disable-next Style/ClassAndModuleChildren
 module OneCfg::Config::Type
 
     # One Augeas class
@@ -95,9 +95,8 @@ module OneCfg::Config::Type
         #
         # @return [Boolean] True if OK.
         def validate
-            # rubocop:disable Lint/UselessAssignment
+            # rubocop:disable-next Lint/UselessAssignment
             tree = get_tree
-            # rubocop:enable Lint/UselessAssignment
 
             # TODO: validate here for parameters specified multiple times
             # tree.keys.each do |section|
@@ -110,11 +109,10 @@ module OneCfg::Config::Type
         # Get list of keys (node names) from Augeas tree
         #
         # @return [Array] List of keys
-        # rubocop:disable Naming/AccessorMethodName
+        # rubocop:disable-next Naming/AccessorMethodName
         def get_keys
             super(true)
         end
-        # rubocop:enable Naming/AccessorMethodName
 
         # Check if content of both configuration objects is similar
         #
@@ -134,7 +132,7 @@ module OneCfg::Config::Type
         # by unique string identification taken from subsection key field.
         #
         # @return [Hash] Hash with Augeas content
-        # rubocop:disable Naming/AccessorMethodName
+        # rubocop:disable-next Naming/AccessorMethodName
         def get_tree
             tree = super
 
@@ -208,7 +206,6 @@ module OneCfg::Config::Type
 
             tree
         end
-        # rubocop:enable Naming/AccessorMethodName
 
         # Get diff between 2 configuration files
         #
@@ -252,7 +249,7 @@ module OneCfg::Config::Type
                     val2 = tree2[key]
 
                     if val1.class == val2.class
-                        # rubocop:disable Style/CaseLikeIf
+                        # rubocop:disable-next Style/CaseLikeIf
                         if val1.is_a? Hash
                             ret << diff_subtree(val1, val2, path + [key])
                         elsif val1.is_a? Array
@@ -263,7 +260,6 @@ module OneCfg::Config::Type
                                   'Types to compare are not Hash nor Array ' \
                                   "(but #{val1.class})"
                         end
-                        # rubocop:enable Style/CaseLikeIf
                     else
                         # changed data structure
                         ret << {
@@ -440,7 +436,7 @@ module OneCfg::Config::Type
         def diff_subtree_rm(tree, path)
             ret = []
 
-            # rubocop:disable Style/CaseLikeIf
+            # rubocop:disable-next Style/CaseLikeIf
             if tree.is_a? Hash
                 # drop each parameter and value
                 # TODO: drop section key as last
@@ -487,7 +483,6 @@ module OneCfg::Config::Type
                       'Type of subtree is not Hash nor Array ' \
                       "(but #{tree.class})"
             end
-            # rubocop:enable Style/CaseLikeIf
 
             ret
         end
@@ -788,7 +783,7 @@ module OneCfg::Config::Type
 
             found = get_values(path)
 
-            # rubocop:disable Style/EmptyElse
+            # rubocop:disable-next Style/EmptyElse
             if found[0] == data['old']
                 if found.length > 1
                     # Even if we want to "set" unique parameter, there
@@ -817,7 +812,6 @@ module OneCfg::Config::Type
             else
                 # TODO, ??? exception ???
             end
-            # rubocop:enable Style/EmptyElse
 
             ret
         end
@@ -840,14 +834,13 @@ module OneCfg::Config::Type
             else
                 # if first element of path is section with known identifier,
                 # merge first 2 elements into Augeas-like path expression
-                # rubocop:disable Style/FormatStringToken
+                # rubocop:disable-next Style/FormatStringToken
                 if SECTIONS.key?(full_path[0])
                     full_path[0] = format("%s[%s = '%s']",
                                           full_path[0],
                                           SECTIONS[full_path[0]],
                                           full_path.delete_at(1))
                 end
-                # rubocop:enable Style/FormatStringToken
 
                 full_path.join('/')
             end
@@ -868,7 +861,7 @@ module OneCfg::Config::Type
                 new_key = parts.join('/')
 
                 # TODO: on duplicate tm_mad_system breaks the order
-                # rubocop:disable Style/Next
+                # rubocop:disable-next Style/Next
                 if key != new_key
                     if new_key.end_with?(']')
                         # if we are changing casing on last indexed []
@@ -892,7 +885,6 @@ module OneCfg::Config::Type
                               "#{changed} nodes instead of expected 1"
                     end
                 end
-                # rubocop:enable Style/Next
             end
         end
 
@@ -910,4 +902,3 @@ module OneCfg::Config::Type
     end
 
 end
-# rubocop:enable Style/ClassAndModuleChildren

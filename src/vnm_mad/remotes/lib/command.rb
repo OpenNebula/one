@@ -106,10 +106,9 @@ module VNMMAD
                 each do |c|
                     out << `#{c}`
 
-                    # rubocop:disable Style/SpecialGlobalVars
+                    # rubocop:disable-next Style/SpecialGlobalVars
                     raise StandardError, "Command Error: #{c}" \
                         unless $?.success?
-                    # rubocop:enable Style/SpecialGlobalVars
                 end
 
                 clear

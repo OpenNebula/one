@@ -134,7 +134,7 @@ end
 # Module to decorate Wait classes with the following methods:
 #   - Wait
 #
-# rubocop:disable Style/ClassAndModuleChildren
+# rubocop:disable-next Style/ClassAndModuleChildren
 module OpenNebula::WaitExt
 
     # Wait classes and the name published in ZMQ/STATE
@@ -269,9 +269,8 @@ module OpenNebula::WaitExt
     # @param obj [Object or Class] Object to check class
     def self.wait?(obj)
         # Get obj class to find parents in wait class
-        # rubocop:disable Style/TernaryParentheses
+        # rubocop:disable-next Style/TernaryParentheses
         (obj.is_a? Class) ? o_class = obj : o_class = obj.class
-        # rubocop:enable Style/TernaryParentheses
 
         found   = false
         i_class = o_class
@@ -291,4 +290,3 @@ module OpenNebula::WaitExt
     end
 
 end
-# rubocop:enable Style/ClassAndModuleChildren

@@ -138,7 +138,7 @@ module TransferManager
             end
 
             unless missing.empty?
-                raise "Missing required OneBEX configuration key(s) in " \
+                raise 'Missing required OneBEX configuration key(s) in ' \
                       "#{config_file}: #{missing.join(', ')}"
             end
 
@@ -287,6 +287,7 @@ module TransferManager
 
             raise message
         end
+
     end
 
 end

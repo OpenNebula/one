@@ -18,7 +18,7 @@
 # exposed through the OpenNebula XMLRPC API. The extensions include
 #   - mp_import helper that imports a template into a marketplace
 #
-# rubocop:disable Style/ClassAndModuleChildren
+# rubocop:disable-next Style/ClassAndModuleChildren
 module OpenNebula::ServiceTemplateExt
 
     def self.extend_object(obj)
@@ -80,4 +80,3 @@ module OpenNebula::ServiceTemplateExt
     end
 
 end
-# rubocop:enable Style/ClassAndModuleChildren

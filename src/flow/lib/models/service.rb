@@ -168,14 +168,13 @@ module OpenNebula
         # Return true if the service can be undeployed
         # @return true if the service can be undeployed, false otherwise
         def can_undeploy?
-            # rubocop:disable Style/IfWithBooleanLiteralBranches
+            # rubocop:disable-next Style/IfWithBooleanLiteralBranches
             if (transient_state? && state != Service::STATE['UNDEPLOYING']) ||
                 state == Service::STATE['DONE'] || failed_state?
                 false
             else
                 true
             end
-            # rubocop:enable Style/IfWithBooleanLiteralBranches
         end
 
         # Return true if the service can be updated

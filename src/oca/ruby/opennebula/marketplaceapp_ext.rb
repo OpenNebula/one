@@ -21,7 +21,7 @@ require 'opennebula/image_pool'
 # exposed through the OpenNebula XMLRPC API. The extensions include
 #   - export helper that creates OpenNebula related objects from a given app.
 #
-# rubocop:disable Style/ClassAndModuleChildren
+# rubocop:disable-next Style/ClassAndModuleChildren
 module OpenNebula::MarketPlaceAppExt
 
     include OpenNebula
@@ -539,4 +539,3 @@ module OpenNebula::MarketPlaceAppExt
     end
 
 end
-# rubocop:enable Style/ClassAndModuleChildren

@@ -130,7 +130,7 @@ module OneBEX
 
             delay = settings.config[:shutdown_delay] || 1
 
-            # rubocop:disable Style/GlobalVars
+            # rubocop:disable-next Style/GlobalVars
             Thread.new do
                 sleep delay.to_f
 
@@ -140,7 +140,6 @@ module OneBEX
 
                 $onebex_exit_code = 1
             end
-            # rubocop:enable Style/GlobalVars
         end
 
     end

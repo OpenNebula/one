@@ -124,7 +124,7 @@ SERVER={
     :format => String,
     :description => 'MySQL server hostname or IP. Defaults to localhost',
     :proc => lambda {|o, options|
-        options[:server]  = o
+        options[:server] = o
     }
 }
 
@@ -146,7 +146,7 @@ USERNAME={
     :format => String,
     :description => 'MySQL username',
     :proc => lambda {|o, options|
-        options[:user]    = o
+        options[:user] = o
     }
 }
 
@@ -157,7 +157,7 @@ PASSWORD={
     :format => String,
     :description => 'MySQL password. Leave unset to be prompted for it',
     :proc => lambda {|o, options|
-        options[:passwd]  = o
+        options[:passwd] = o
     }
 }
 
@@ -571,9 +571,8 @@ CommandParser::CmdParser.new(ARGV) do
             end
         rescue StandardError => e
             puts e.name
-            # rubocop:disable Lint/Debugger
+            # rubocop:disable-next Lint/Debugger
             pp e.backtrace
-            # rubocop:enable Lint/Debugger
             [-1, e.message]
         end
 

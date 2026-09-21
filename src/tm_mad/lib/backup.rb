@@ -217,7 +217,6 @@ module TransferManager
 
         # Given a sorted list of qcow2 files,
         # return a shell recipe that reconstructs the backing chain in-place.
-        # rubocop:disable Layout/LineLength
         def self.reconstruct_chain(paths, opts = {})
             return '' unless paths.size > 1
 
@@ -238,11 +237,10 @@ module TransferManager
 
             script.join("\n")
         end
-        # rubocop:enable Layout/LineLength
 
         # Given a sorted list of qcow2 files with backing chain properly reconstructed,
         # return a shell recipe that merges it into a single qcow2 image.
-        # rubocop:disable Style/ParallelAssignment, Layout/LineLength
+        # rubocop:disable-next Style/ParallelAssignment
         def self.merge_chain(paths, opts = {})
             return '' unless paths.size > 1
 
@@ -284,7 +282,6 @@ module TransferManager
 
         # Given a sorted list of qcow2 files with backing chain properly reconstructed,
         # return a shell recipe that commits all increments to the base image.
-        # rubocop:disable Style/ParallelAssignment, Layout/LineLength
         def self.commit_chain(paths, opts = {})
             return '' unless paths.size > 1
 
@@ -308,7 +305,6 @@ module TransferManager
 
             script.join("\n")
         end
-        # rubocop:enable Style/ParallelAssignment, Layout/LineLength
 
         def initialize(action_xml)
             @action = REXML::Document.new(action_xml).root

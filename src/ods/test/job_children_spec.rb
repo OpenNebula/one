@@ -294,7 +294,7 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
         failure = OpenNebula::Error.new(
             'temporary parent update failure', OpenNebula::Error::EACTION
         )
-        failed  = false
+        failed = false
 
         allow(parent_owner).to receive(:update_job_children!).and_wrap_original do |
             original, current_job, children
@@ -316,6 +316,7 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
 
         scheduler.start
         wait_until do
+            # rubocop:disable-next Style/SafeNavigationChainLength
             parent_owner.active_job&.children&.first&.operation_id == child_operation &&
                 child_owners.first.active_job&.waiting?
         end
@@ -335,9 +336,7 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
         unavailable = OpenNebula::Error.new('parent pool unavailable')
         reads       = 0
 
-        allow(parent_pool).to receive(:get).and_wrap_original do |
-            original, *args, **opts, &block
-        |
+        allow(parent_pool).to receive(:get).and_wrap_original do |original, *args, **opts, &block|
             reads += 1
             if reads == 2
                 unavailable
@@ -711,9 +710,7 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
             )
             parent_owner.update_job_children!(job, [expected])
             foreign_parent = ODS::Job::Parent.new(
-                **parent.to_h.merge(
-                    :operation_id => 'another-parent-operation'
-                )
+                **parent.to_h, :operation_id => 'another-parent-operation'
             )
             child_owners.first.begin_job!(
                 :step => :perform, :state => :RUNNING,
@@ -1002,6 +999,7 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
 
             scheduler.start
             wait_until do
+                # rubocop:disable-next Style/SafeNavigationChainLength
                 parent_owner.active_job&.children&.first&.operation_id == child.operation_id &&
                     child_owners.first.active_job&.waiting?
             end

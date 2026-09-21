@@ -97,9 +97,8 @@ module CommandParser
         # @param [String] str
         def usage(str)
             @usage = str
-            # rubocop:disable Naming/MemoizedInstanceVariableName
+            # rubocop:disable-next Naming/MemoizedInstanceVariableName
             @name ||= @usage.split(' ').first
-            # rubocop:enable Naming/MemoizedInstanceVariableName
         end
 
         # Defines the version the command

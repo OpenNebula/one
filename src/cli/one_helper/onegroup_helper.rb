@@ -67,7 +67,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
     def format_pool(_options)
         config_file = self.class.table_conf
 
-        # rubocop:disable Style/FormatStringToken
+        # rubocop:disable-next Style/FormatStringToken
         CLIHelper::ShowTable.new(config_file, self) do
             pool_default_quotas = lambda do |path|
                 limit = @data.dsearch('/GROUP_POOL/DEFAULT_GROUP_QUOTAS/'+path)
@@ -231,7 +231,6 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
             default :ID, :NAME, :USERS, :VMS, :MEMORY, :CPU, :PCI
         end
-        # rubocop:enable Style/FormatStringToken
     end
 
     # Parses a OpenNebula template string and turns it into a Hash

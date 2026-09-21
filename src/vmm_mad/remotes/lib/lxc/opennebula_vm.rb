@@ -388,13 +388,11 @@ class LXCVM < OpenNebulaVM
                 key = match[1].strip
                 value = match[2].strip
 
-                # rubocop:disable Style/ConditionalAssignment
                 if !raw_map[key].nil?
                     raw_map[key] = value
                 else
                     raw_map[key] = Array(raw_map[key]) << value
                 end
-                # rubocop:enable Style/ConditionalAssignment
             end
         rescue StandardError
         end

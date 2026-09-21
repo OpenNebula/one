@@ -236,10 +236,9 @@ module MAD
 
             supported_fs = ds_env['SUPPORTED_FS']&.split(',') || []
 
-            # rubocop:disable Layout/LineLength
+            # rubocop:disable-next Layout/LineLength
             raise StandardError, "Unsupported file system type: #{fs.inspect}. Supported types are: #{supported_fs}" \
                 unless supported_fs.include?(fs)
-            # rubocop:enable Layout/LineLength
 
             fs_opts = ds_env["FS_OPTS_#{fs}"] || ''
             # if ['ext2', 'ext3', 'ext4'].include?(fs)

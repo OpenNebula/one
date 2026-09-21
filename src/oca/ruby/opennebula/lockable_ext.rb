@@ -21,7 +21,7 @@ require 'date'
 #   - Unlock
 #   - Synchronize
 #
-# rubocop:disable Style/ClassAndModuleChildren
+# rubocop:disable-next Style/ClassAndModuleChildren
 module OpenNebula::LockableExt
 
     # Expire timeout for locking operation
@@ -128,9 +128,8 @@ module OpenNebula::LockableExt
         ]
 
         # Get obj class to find parents in lockable class
-        # rubocop:disable Style/TernaryParentheses
+        # rubocop:disable-next Style/TernaryParentheses
         (obj.is_a? Class) ? o_class = obj : o_class = obj.class
-        # rubocop:enable Style/TernaryParentheses
 
         found   = false
         i_class = o_class
@@ -150,4 +149,3 @@ module OpenNebula::LockableExt
     end
 
 end
-# rubocop:enable Style/ClassAndModuleChildren

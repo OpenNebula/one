@@ -148,13 +148,12 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        # rubocop:disable Metrics/ParameterLists
+        # rubocop:disable-next Metrics/ParameterLists
         def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
                   other_m, other_a)
             call(BACKUPJOB_METHODS[:chmod], @pe_id, owner_u, owner_m, owner_a, group_u,
                  group_m, group_a, other_u, other_m, other_a)
         end
-        # rubocop:enable Metrics/ParameterLists
 
         # Renames this Backup Job
         #

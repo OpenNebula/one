@@ -21,7 +21,6 @@ require_relative '../../DriverLogger'
 # This class parses and wraps the information in the Driver action data
 class OpenNebulaVM
 
-    # rubocop:disable Naming/PredicateName
     # rubocop:disable Naming/AccessorMethodName
 
     attr_reader :vm_id, :vm_name, :sysds_path, :rootfs_id
@@ -360,7 +359,6 @@ class OpenNebulaVM
         end
     end
 
-    # rubocop:enable Naming/PredicateName
     # rubocop:enable Naming/AccessorMethodName
 
 end

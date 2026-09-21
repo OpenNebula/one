@@ -1326,6 +1326,7 @@ module OpenNebula
                 )
             end
 
+            # rubocop:disable-next Metrics/ParameterLists
             def child_observation(
                 child, resource, status, operation_id, error = nil,
                 relationship_error: false

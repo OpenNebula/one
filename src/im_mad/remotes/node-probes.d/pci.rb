@@ -231,11 +231,9 @@ def sriov_pf?(device)
         device_attr?(device, 'sriov_totalvfs')
 end
 
-# rubocop:disable Naming/PredicateName
 def has_virtfn?(device)
     device_attr?(device, 'virtfn0')
 end
-# rubocop:enable Naming/PredicateName
 
 def legacy?(device)
     File.exist? File.join mdev_bus_path(device)

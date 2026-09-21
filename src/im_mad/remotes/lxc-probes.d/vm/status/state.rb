@@ -29,7 +29,7 @@ begin
     value  = config.elements['PROBES_PERIOD/SYNC_STATE_VM']&.text.to_s.strip
     sync   = value.empty? ? 180 : value.to_i
 rescue StandardError
-    sync   = 180
+    sync = 180
 end
 
 begin

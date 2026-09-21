@@ -37,7 +37,7 @@ require_relative 'vmgroup_map'
 require_relative 'vntemplate_map'
 require_relative 'zone_map'
 
-# rubocop:disable Style/Documentation
+# rubocop:disable-next Style/Documentation
 module GRPCMappings
 
     class MapLoader
@@ -75,4 +75,3 @@ module GRPCMappings
     end
 
 end
-# rubocop:enable Style/Documentation

@@ -49,10 +49,6 @@
 		<fileName>*</fileName>
 	</suppress>
 	<suppress>
-		<id>incorrectStringBooleanError</id>
-		<fileName>*</fileName>
-	</suppress>
-	<suppress>
 		<id>checkersReport</id>
 		<fileName>*</fileName>
 	</suppress>

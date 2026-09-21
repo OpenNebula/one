@@ -789,7 +789,7 @@ class KVMDomain
             Nbd.stop_nbd
         end
 
-        # rubocop:disable Style/CombinableLoops
+        # rubocop:disable-next Style/CombinableLoops
         dids.each do |d|
             idisk = QemuImg.new("#{@vm_dir}/disk.#{d}")
 
@@ -801,7 +801,6 @@ class KVMDomain
 
             idisk.bitmap("one-#{@vid}-#{@backup_id}", :add => '')
         end
-        # rubocop:enable Style/CombinableLoops
 
         log("[BCK]: CBT incremental backup done in #{Time.now - init}s")
     end
@@ -856,7 +855,7 @@ class KVMDomain
         sources.each {|source| Nbd.stop_nbd(source) }
         sources.clear
 
-        # rubocop:disable Style/CombinableLoops
+        # rubocop:disable-next Style/CombinableLoops
         dids.each do |d|
             idisk = QemuImg.new("#{@vm_dir}/disk.#{d}")
 
@@ -868,7 +867,6 @@ class KVMDomain
 
             idisk.bitmap("one-#{@vid}-#{@backup_id}", :add => '')
         end
-        # rubocop:enable Style/CombinableLoops
 
         log("[BCK]: CBT incremental backup done in #{Time.now - init}s")
     ensure

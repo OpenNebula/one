@@ -41,12 +41,10 @@ require 'fileutils'
 class DSMonitor
 
     def initialize(config)
-        # rubocop:disable Lint/SuppressedException
         begin
             @ds_location = config.elements['DATASTORE_LOCATION'].text.to_s
         rescue StandardError
         end
-        # rubocop:enable Lint/SuppressedException
 
         @ds_location ||= '/var/lib/one/datastores'
 

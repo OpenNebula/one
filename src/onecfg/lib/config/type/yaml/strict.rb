@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# rubocop:disable Style/ClassAndModuleChildren
+# rubocop:disable-next Style/ClassAndModuleChildren
 module OneCfg::Config::Type
 
     # Yaml strict class, order in arrays matters
@@ -35,4 +35,3 @@ module OneCfg::Config::Type
     end
 
 end
-# rubocop:enable Style/ClassAndModuleChildren

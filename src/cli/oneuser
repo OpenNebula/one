@@ -773,13 +773,11 @@ CommandParser::CmdParser.new(ARGV) do
         auth_string = "#{user['NAME']}:#{token}"
         auth_file   = helper.auth_file(auth_string)
 
-        # rubocop:disable Lint/SuppressedException
         begin
             File.unlink(auth_file)
             puts "Removing #{auth_file}"
         rescue Errno::ENOENT
         end
-        # rubocop:enable Lint/SuppressedException
 
         0
     end

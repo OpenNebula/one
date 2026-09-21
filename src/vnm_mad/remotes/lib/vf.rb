@@ -70,14 +70,13 @@ module VNMMAD::VirtualFunction
             end
         end
 
-        # rubocop:disable Style/CombinableLoops
+        # rubocop:disable-next Style/CombinableLoops
         vm.each_pci do |pci|
             next if pci[:short_address].nil?
             next if is_attach && pci[:attach] != 'YES'
 
             configure_vf(pci)
         end
-        # rubocop:enable Style/CombinableLoops
         # There is no deactivate_vf
         # vf and representors are left dirty until next (re)activation
     end
@@ -207,7 +206,7 @@ module VNMMAD::VirtualFunction
                 if portname.match(/pf\d+vf#{vf[:index]}$/) || portname == "vf#{vf[:index]}"
                     vf[:rep] = nic
                 elsif portname.match(/p\d/)
-                    vf[:pf]  = nic
+                    vf[:pf] = nic
                 end
             rescue StandardError
                 # phys_port_name on VF and dumb PF throws "Operation not supported"

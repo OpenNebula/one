@@ -26,11 +26,10 @@ RG_SETUP_END   = '%%RUBYGEMS_SETUP_END%%'
 
 # Bundled Ruby gems loader code.
 # IMPORTANT: Update here and commit into Git as well!
-# rubocop:disable Layout/HeredocIndentation
+# rubocop:disable-next Layout/HeredocIndentation
 RG_SETUP = <<-EOT
 require 'load_opennebula_paths'
 EOT
-# rubocop:enable Layout/HeredocIndentation
 
 #####
 

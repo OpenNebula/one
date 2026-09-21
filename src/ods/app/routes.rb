@@ -23,9 +23,9 @@ module OpenNebula
 
             def self.registered(app)
                 # Helpers and modules
-                app.helpers  RequestHelper
-                app.helpers  ResponseHelper
-                app.helpers  LogsHelper
+                app.helpers RequestHelper
+                app.helpers ResponseHelper
+                app.helpers LogsHelper
 
                 app.register AuthController
                 app.register ErrorController

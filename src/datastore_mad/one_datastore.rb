@@ -207,7 +207,7 @@ class DatastoreDriver < OpenNebulaDriver
         end
     end
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable-next Metrics/ParameterLists
     def do_image_action(id, ds, action, stdin, sys = '', encode64 = false)
         if !sys.empty?
             return unless sys_available?(sys, id, action)
@@ -230,7 +230,6 @@ class DatastoreDriver < OpenNebulaDriver
 
         send_message(ACTION[action], result, id, info)
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def get_ds_type(drv_message)
         message = Base64.decode64(drv_message)

@@ -263,7 +263,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        # rubocop:disable Style/FormatStringToken
+        # rubocop:disable-next Style/FormatStringToken
         CLIHelper::ShowTable.new(config_file, self) do
             pool_default_quotas = lambda do |path|
                 limit = @data.dsearch('/USER_POOL/DEFAULT_USER_QUOTAS/'+path)
@@ -434,7 +434,6 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
             default :ID, :NAME, :ENABLED, :GROUP, :AUTH, :VMS, :MEMORY, :CPU, :PCI
         end
-        # rubocop:enable Style/FormatStringToken
     end
 
     def find_token(user, token, group = nil, show_expired = false)

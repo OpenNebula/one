@@ -23,13 +23,12 @@ LOG_FILE ||= nil unless defined?(LOG_FILE)
 #---------------------------------------------------------------------------
 module Command
 
-    # rubocop:disable Style/HashSyntax
+    # rubocop:disable-next Style/HashSyntax
     def log(message)
         return unless LOG_FILE
 
         File.write(LOG_FILE, "#{Time.now.strftime('%H:%M:%S.%L')} #{message}\n", mode: 'a')
     end
-    # rubocop:enable Style/HashSyntax
 
     def cmd(command, args, opts = {})
         opts.each do |key, value|

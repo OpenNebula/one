@@ -366,11 +366,10 @@ begin
     end
 
     # Compact memory
-    # rubocop:disable Layout/LineLength
+    # rubocop:disable-next Layout/LineLength
     if ENV['CLEANUP_MEMORY_ON_STOP'].to_s.upcase == 'YES'
         `(sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &`
     end
-    # rubocop:enable Layout/LineLength
 rescue StandardError => e
     STDERR.puts "Error migrating VM #{@deploy_id}: #{e.message}"
     STDERR.puts e.backtrace.to_s

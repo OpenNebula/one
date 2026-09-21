@@ -101,7 +101,7 @@ begin
             payload = read_exact(socket, bytes_to_write)
 
             File.open(to, 'r+b') do |file|
-                file.truncate(total_size) if total_size > 0 && file.size == 0
+                file.truncate(total_size) if total_size > 0 && File.empty?(file)
                 file.seek(start_byte)
 
                 bytes_written = file.write(payload)

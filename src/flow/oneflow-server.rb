@@ -133,9 +133,7 @@ set :dump_errors, true
 set :raise_errors, false
 set :show_exceptions, false
 
-# rubocop:disable Style/MixinUsage
 include CloudLogger
-# rubocop:enable Style/MixinUsage
 
 if conf[:log] && conf[:log][:system] == 'syslog'
     logger   = Syslog::Logger.new('oneflow')
@@ -721,7 +719,6 @@ post '/service_template/:id/action' do
     opts   = action['params']
     opts   = {} if opts.nil?
 
-    # rubocop:disable Style/ConditionalAssignment
     case action['perform']
     when 'instantiate'
         rc = service_template.info
@@ -952,7 +949,6 @@ post '/service_template/:id/action' do
     else
         OpenNebula::Error.new("Action #{action['perform']} not supported")
     end
-    # rubocop:enable Style/ConditionalAssignment
 
     if OpenNebula.is_error?(rc)
         return internal_error(rc.message, one_error_to_http(rc.errno))

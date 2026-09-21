@@ -20,7 +20,7 @@ $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'grpc')
 
 require 'lib/grpc_map_loader'
 
-# rubocop:disable Style/Documentation
+# rubocop:disable-next Style/Documentation
 module OpenNebula
 
     class GRPCClient
@@ -102,4 +102,3 @@ module OpenNebula
     end
 
 end
-# rubocop:enable Style/Documentation

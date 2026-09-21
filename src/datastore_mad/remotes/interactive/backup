@@ -65,7 +65,7 @@ end
 vm_xml_path  = "#{vm_dir}/vm.xml"
 exports_path = "#{vm_dir}/interactive_exports.json"
 
-# rubocop:disable Layout/HeredocIndentation
+# rubocop:disable-next Layout/HeredocIndentation
 cmd = <<~EOS
     ruby -rjson -rbase64 - #{Shellwords.escape(vm_xml_path)} #{Shellwords.escape(exports_path)} <<'RUBY'
         payload = {
@@ -76,7 +76,6 @@ cmd = <<~EOS
         STDOUT.write(JSON.generate(payload))
 RUBY
 EOS
-# rubocop:enable Layout/HeredocIndentation
 
 # Read vm.xml and interactive_exports.json
 rc = TransferManager::Action.ssh 'read_interactive_backup_metadata',

@@ -311,9 +311,8 @@ module OpenNebula
         ]
 
         def self.init_default_vn_name_template(vn_name_template)
-            # rubocop:disable Style/ClassVars
+            # rubocop:disable-next Style/ClassVars
             @@vn_name_template = vn_name_template
-            # rubocop:enable Style/ClassVars
         end
 
         DOCUMENT_TYPE = 101

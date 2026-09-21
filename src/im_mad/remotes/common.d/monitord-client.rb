@@ -63,7 +63,6 @@ class ProbeRunner
     #   probes. If rc is -1 it signal failure and data is the error message of
     #   the failing probe
     #
-    # rubocop:disable Lint/SuppressedException
     def run_probes
         data = ''
         dpro = Dir.new(@path).entries.sort
@@ -106,7 +105,6 @@ class ProbeRunner
 
         [0, data]
     end
-    # rubocop:enable Lint/SuppressedException
 
     # Singleton call for run_probes method
     def self.run_once(hyperv, probes, stdin)
