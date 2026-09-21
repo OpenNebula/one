@@ -538,6 +538,8 @@ int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
 
     one_util::split_unique(sg_str, ',', security_groups);
 
+    obj_template->replace("SECURITY_GROUPS", one_util::join(security_groups, ','));
+
     check_vlan_consistency();
 
     if (obj_template->get("VNET_UPDATE"))
