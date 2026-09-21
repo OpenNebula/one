@@ -25,6 +25,7 @@ module VNMMAD::VirtualFunction
     # Attributes that can be updated on update_nic action
     SUPPORTED_UPDATE = [
         :vlan_id,
+        :mtu,
         :spoofchk,
         :trust
     ]
@@ -257,7 +258,8 @@ module VNMMAD::VirtualFunction
     #
     def configure_pf_link(vf, pci)
         cmd = "#{command(:ip)} link set #{vf[:pf]} vf #{vf[:index]}"
-        cmd << " mac #{pci[:mac]}" if pci[:mac]
+
+        [:mac, :mtu].each {|m| cmd << " #{m} #{pci[m]}" if pci[m] }
 
         # Can fail if NIC doesn't support flag in the given eswitch mode
         [:spoofchk, :trust].each {|f| cmd << " #{f} #{on_off(pci[f])}" if pci[f] }
@@ -272,6 +274,8 @@ module VNMMAD::VirtualFunction
 
             cmd << " vlan #{vlan_id}"
         end
+
+        return if cmd.end_with?("vf #{vf[:index]}")
 
         LocalCommand.run_sh("#{command(:ip)} link set #{vf[:pf]} up")
         LocalCommand.run_sh(cmd)
