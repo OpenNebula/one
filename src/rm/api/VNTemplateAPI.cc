@@ -59,24 +59,12 @@ Request::ErrorCode VNTemplateAPI::instantiate(int oid,
         current_tmpl = std::make_unique<VirtualNetworkTemplate>(*tmpl);
 
         vntmpl->get_permissions(perms);
-
-        vntmpl->get_template_attribute("CLUSTER_IDS", cluster_ids_str);
     }
     else
     {
         att.resp_id = oid;
 
         return Request::NO_EXISTS;
-    }
-
-    if (!cluster_ids_str.empty())
-    {
-        clpool->exist(cluster_ids_str, cluster_ids);
-    }
-
-    if (cluster_ids_str.empty())
-    {
-        cluster_ids.insert(0);
     }
 
     if (!str_tmpl.empty() && extended_tmpl.parse_str_or_xml(str_tmpl, att.resp_msg) != 0)
@@ -89,6 +77,17 @@ Request::ErrorCode VNTemplateAPI::instantiate(int oid,
     if (ec != Request::SUCCESS)
     {
         return ec;
+    }
+
+    tmpl->get("CLUSTER_IDS", cluster_ids_str);
+
+    if (!cluster_ids_str.empty())
+    {
+        clpool->exist(cluster_ids_str, cluster_ids);
+    }
+    else
+    {
+        cluster_ids.insert(0);
     }
 
     /* ---------------------------------------------------------------------- */
