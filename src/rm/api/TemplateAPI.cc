@@ -394,17 +394,6 @@ Request::ErrorCode TemplateAPI::instantiate_helper(int oid,
 
     ar.add_auth(AuthRequest::USE, perms); //USE TEMPLATE
 
-    if (!str_uattrs.empty())
-    {
-        string tmpl_str;
-
-        tmpl->to_xml(tmpl_str);
-
-        // CREATE TEMPLATE
-        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::TEMPLATE,
-                           tmpl_str);
-    }
-
     extended_tmpl = *tmpl;
 
     VirtualMachineDisks::extended_info(att.uid, &extended_tmpl);
