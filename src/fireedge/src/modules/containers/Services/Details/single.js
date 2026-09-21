@@ -49,21 +49,8 @@ import {
   getServiceTotalRoles,
   getServiceTotalVms,
 } from '@ModelsModule'
-import { permissionsToOctal, toSnakeCase } from '@UtilsModule'
+import { getPermissionOctet } from '@UtilsModule'
 import { Service } from '@ResourcesModule'
-
-const getPermissionOctet = (permissions = {}, newPermission = {}) => {
-  const [key, value] = Object.entries(newPermission)[0] ?? []
-  if (!key) return undefined
-
-  const [member, permission] = toSnakeCase(key).toUpperCase().split('_')
-  const fullPermissionName = `${member}_${permission[0]}`
-
-  return permissionsToOctal({
-    ...permissions,
-    [fullPermissionName]: value,
-  })
-}
 
 /**
  * @param {object} root0 - Params

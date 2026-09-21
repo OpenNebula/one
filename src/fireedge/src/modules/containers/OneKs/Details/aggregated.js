@@ -27,12 +27,7 @@ import {
 import { OneKsAPI, useModalsApi } from '@FeaturesModule'
 import { Component, useMemo } from 'react'
 
-import {
-  createActions,
-  getCommonValue,
-  permissionsToOctal,
-  toSnakeCase,
-} from '@UtilsModule'
+import { createActions, getCommonValue, getPermissionOctet } from '@UtilsModule'
 
 import {
   ONEKS_ACTIONS,
@@ -44,20 +39,6 @@ import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Cancel as CloseIcon, RefreshCircular, Trash } from 'iconoir-react'
 import { OneKs as OneKsResource } from '@ResourcesModule'
-
-const getPermissionOctet = (permissions = {}, newPermission = {}) => {
-  const [key, value] = Object.entries(newPermission)[0] ?? []
-
-  if (!key) return undefined
-
-  const [member, permission] = toSnakeCase(key).toUpperCase().split('_')
-  const fullPermissionName = `${member}_${permission?.[0]}`
-
-  return permissionsToOctal({
-    ...permissions,
-    [fullPermissionName]: value,
-  })
-}
 
 /**
  * @param {object} root0 - Params

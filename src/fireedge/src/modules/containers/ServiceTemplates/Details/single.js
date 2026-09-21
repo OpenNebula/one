@@ -25,7 +25,7 @@ import {
 } from '@ComponentsModule'
 
 import { Component, useEffect, useMemo } from 'react'
-import { timeFromMilliseconds } from '@UtilsModule'
+import { timeFromMilliseconds, getPermissionOctet } from '@UtilsModule'
 import { ServiceTemplate } from '@ResourcesModule'
 import { getLabelTags } from '@ModelsModule'
 import { T, PATH, RESOURCE_NAMES } from '@ConstantsModule'
@@ -136,7 +136,17 @@ export const SingleView = ({
   }
 
   const handleChangePermission = async (newPermission) => {
-    await changePermissions({ id: selectedTemplate?.ID, ...newPermission })
+    const octet = getPermissionOctet(
+      selectedTemplate?.PERMISSIONS,
+      newPermission
+    )
+    if (octet === undefined) return
+
+    await changePermissions({
+      id: selectedTemplate?.ID,
+      octet,
+    })
+
     await refreshTemplate({ id: selectedTemplate?.ID })
   }
 

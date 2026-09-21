@@ -36,7 +36,7 @@ import {
   Trash,
 } from 'iconoir-react'
 import { ONEKS_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
-import { createActions, permissionsToOctal, toSnakeCase } from '@UtilsModule'
+import { createActions, getPermissionOctet } from '@UtilsModule'
 import { getLabelTags, getVirtualOneKsState } from '@ModelsModule'
 import { OneKsAPI, useModalsApi } from '@FeaturesModule'
 import { OneKs as OneKsResource } from '@ResourcesModule'
@@ -65,20 +65,6 @@ const isKubernetesVersionHigher = (candidate, current) => {
   }
 
   return false
-}
-
-const getPermissionOctet = (permissions = {}, newPermission = {}) => {
-  const [key, value] = Object.entries(newPermission)[0] ?? []
-
-  if (!key) return undefined
-
-  const [member, permission] = toSnakeCase(key).toUpperCase().split('_')
-  const fullPermissionName = `${member}_${permission?.[0]}`
-
-  return permissionsToOctal({
-    ...permissions,
-    [fullPermissionName]: value,
-  })
 }
 
 /**

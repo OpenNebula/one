@@ -16,7 +16,11 @@
 import { XMLBuilder, XMLParser } from 'fast-xml-parser'
 import { set, get, isEmpty, isNaN } from 'lodash'
 import { DateTime, Settings } from 'luxon'
-import { sentenceCase, stringToBoolean } from '@modules/utils/string'
+import {
+  sentenceCase,
+  stringToBoolean,
+  toSnakeCase,
+} from '@modules/utils/string'
 import {
   CURRENCY,
   CURRENT_TIME_ZONE,
@@ -370,6 +374,27 @@ export const permissionsToOctal = (permissions) => {
   ]
     .map(getCategoryValue)
     .join('')
+}
+
+/**
+ * Returns the permission octet after applying a single permission change
+ * to the current resource permissions.
+ *
+ * @param {object} permissions - Current resource permissions
+ * @param {object} newPermission - Permission to update
+ * @returns {string|undefined} Updated permissions in octal format
+ */
+export const getPermissionOctet = (permissions = {}, newPermission = {}) => {
+  const [key, value] = Object.entries(newPermission)[0] ?? []
+  if (!key) return undefined
+
+  const [member, permission] = toSnakeCase(key).toUpperCase().split('_')
+  const fullPermissionName = `${member}_${permission[0]}`
+
+  return permissionsToOctal({
+    ...permissions,
+    [fullPermissionName]: value,
+  })
 }
 
 /**

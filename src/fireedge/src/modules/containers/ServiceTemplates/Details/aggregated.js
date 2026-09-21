@@ -28,6 +28,7 @@ import { useModalsApi, ServiceTemplateAPI } from '@FeaturesModule'
 import { Component, useMemo } from 'react'
 import { T, STYLE_BUTTONS, RESOURCE_NAMES } from '@ConstantsModule'
 import { getServiceTotalNetworks, getServiceTotalRoles } from '@ModelsModule'
+import { getPermissionOctet } from '@UtilsModule'
 import { Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Trash, Cancel as CloseIcon } from 'iconoir-react'
@@ -71,9 +72,13 @@ export const AggregatedView = ({
 
   const handleChangePermission = async (newPermission) => {
     await Promise.all(
-      selectedTemplates.map(({ ID }) =>
-        changePermissions({ id: ID, ...newPermission })
-      )
+      selectedTemplates.map(({ ID, PERMISSIONS }) => {
+        const octet = getPermissionOctet(PERMISSIONS, newPermission)
+
+        return octet === undefined
+          ? Promise.resolve()
+          : changePermissions({ id: ID, octet })
+      })
     )
 
     await handleRefresh()
