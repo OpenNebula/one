@@ -19,99 +19,14 @@ $LOAD_PATH.unshift('/var/tmp/one')
 
 require 'fileutils'
 require 'tempfile'
-require 'json'
 require 'English'
 require 'tmpdir'
 require 'open3'
 require 'CommandManager'
 require 'DriverLogger'
 
-# --- Class to Parse .rdiff ---
-class RbdDiffParser
-
-    MAGIC_HEADER_V1 = "rbd diff v1\n".freeze
-    MAGIC_HEADER_V2 = "rbd diff v2\n".freeze
-
-    attr_reader :version, :size, :records
-
-    def initialize
-        @records = []
-        @size = nil
-        @version = nil
-    end
-
-    def parse(file_path)
-        File.open(file_path, 'rb') do |file|
-            detect_version(file)
-
-            loop do
-                tag_byte = file.read(1)
-                break unless tag_byte
-
-                tag = tag_byte.chr
-                break if tag == 'e'
-
-                process_record(tag, file)
-            end
-        end
-
-        self
-    end
-
-    private
-
-    def detect_version(file)
-        header = file.read(MAGIC_HEADER_V1.bytesize)
-
-        @version =
-            case header
-            when MAGIC_HEADER_V1
-                1
-            when MAGIC_HEADER_V2
-                2
-            else
-                raise 'Unknown diff header. Not an rbd diff v1 or v2 file.'
-            end
-    end
-
-    def process_record(tag, file)
-        file.read(8) if @version == 2 && ['f', 't', 's'].include?(tag)
-
-        case tag
-        when 'f', 't'
-            len = file.read(4).unpack1('L<')
-            file.read(len)
-        when 's'
-            @size = file.read(8).unpack1('Q<')
-        when 'w'
-            read_write_record(file)
-        when 'z'
-            read_zero_record(file)
-        else
-            raise "Unknown diff tag '#{tag}' at position #{file.pos - 1}."
-        end
-    end
-
-    def read_write_record(file)
-        file.read(8) if @version == 2
-
-        offset = file.read(8).unpack1('Q<')
-        length = file.read(8).unpack1('Q<')
-        data   = file.read(length)
-
-        @records << { :type => :write, :offset => offset, :length => length, :data => data }
-    end
-
-    def read_zero_record(file)
-        file.read(8) if @version == 2
-
-        offset = file.read(8).unpack1('Q<')
-        length = file.read(8).unpack1('Q<')
-
-        @records << { :type => :zero, :offset => offset, :length => length }
-    end
-
-end
+require_relative 'onebex'
+require_relative 'rbd_parser'
 
 #-------------------------------------------------------------------------------
 # Setup an NBD server to pull changes, an optional map can be provided
@@ -242,11 +157,17 @@ def pull_changes(diff_parser, nbd_uri)
     end
 end
 
-# --- Main ---
-if ARGV.length < 4
+interactive = ARGV.first == '--interactive'
+ARGV.shift if interactive
+
+expected_args = interactive ? 6 : 4
+
+if ARGV.length != expected_args
     puts 'Error: Missing arguments.'
     puts "Usage: #{$PROGRAM_NAME} <rbd_image> <start_snap_name> " \
-     '<end_snap_fullname> <output_filename>'
+         '<end_snap_fullname> <output_filename>'
+    puts "       #{$PROGRAM_NAME} --interactive <rbd_image> <start_snap_name> " \
+         '<end_snap_fullname> <output_filename> <disk_id> <size_mib>'
     exit 1
 end
 
@@ -254,19 +175,41 @@ ceph_user  = ENV['CEPH_USER']
 ceph_key   = ENV['CEPH_KEY']
 ceph_conf  = ENV['CEPH_CONF']
 
-rbd_image, start_snap_name, end_snap_fullname, filename = ARGV[0..3]
+rbd_image, start_snap_name, end_snap_fullname, filename, disk_id, size_mib = ARGV[0..5]
 
 begin
     OpenNebula::DriverLogger.log_info 'Starting Ceph full backup.'
+
+    exports_path = File.join(File.dirname(filename.to_s), 'interactive_exports.json')
+
+    rbd_source_path = "rbd:#{end_snap_fullname}"
+    rbd_source_path += ":id=#{ceph_user}" unless ceph_user.to_s.empty?
+    rbd_source_path += ":keyfile=#{ceph_key}" unless ceph_key.to_s.empty?
+    rbd_source_path += ":conf=#{ceph_conf}" unless ceph_conf.to_s.empty?
 
     if start_snap_name.upcase == 'NONE'
         # Full Backup
         output_file = filename.to_s
 
-        rbd_source_path = "rbd:#{end_snap_fullname}"
-        rbd_source_path += ":id=#{ceph_user}" unless ceph_user.to_s.empty?
-        rbd_source_path += ":keyfile=#{ceph_key}" unless ceph_key.to_s.empty?
-        rbd_source_path += ":conf=#{ceph_conf}" unless ceph_conf.to_s.empty?
+        if interactive
+            TransferManager::OneBEX.write_exports(
+                exports_path,
+                disk_id,
+                {
+                    :source   => rbd_source_path,
+                    :exporter => 'rbd',
+                    :format   => 'raw',
+                    :mode     => 'full',
+                    :size     => size_mib.to_i
+                }
+            )
+
+            OpenNebula::DriverLogger.log_info(
+                "Ceph interactive full backup ready: #{output_file}"
+            )
+
+            exit 0
+        end
 
         FileUtils.rm(output_file) if File.exist?(output_file)
 
@@ -291,8 +234,11 @@ begin
         rbd_cmd += " --keyfile #{ceph_key}" if ceph_key && !ceph_key.empty?
         rbd_cmd += " --conf #{ceph_conf}" if ceph_conf && !ceph_conf.empty?
 
+        interactive_ready = false
+
         begin
-            temp_rdiff_path = File.join(Dir.tmpdir,
+            temp_dir = interactive ? File.dirname(filename.to_s) : Dir.tmpdir
+            temp_rdiff_path = File.join(temp_dir,
                                         "rbd-diff-#{Process.pid}-#{Time.now.to_i}.rdiff")
 
             #--- STEP 1: Generating temporary diff
@@ -300,12 +246,35 @@ begin
                        "\"#{rbd_target_path}\" \"#{temp_rdiff_path}\""
             LocalCommand.run(diff_cmd)
 
-            #--- STEP 2: Creating destination QCOW2 with backing file
-            diff_parser = RbdDiffParser.new
+            if interactive
+                TransferManager::OneBEX.write_exports(
+                    exports_path,
+                    disk_id,
+                    {
+                        :source       => rbd_source_path,
+                        :exporter     => 'rbd',
+                        :format       => 'raw',
+                        :mode         => 'incremental',
+                        :size         => size_mib.to_i,
+                        :diff         => temp_rdiff_path
+                    }
+                )
+
+                interactive_ready = true
+
+                OpenNebula::DriverLogger.log_info(
+                    "Ceph interactive incremental backup ready: #{output_qcow_path}"
+                )
+
+                exit 0
+            end
+
+            diff_parser = RbdDiffParser.new(:record_mode => payload)
             diff_parser.parse(temp_rdiff_path)
 
             raise 'ERROR: Could not determine size from rdiff.' unless diff_parser.size
 
+            #--- STEP 2: Creating destination QCOW2 with backing file
             FileUtils.rm(output_qcow_path) if File.exist?(output_qcow_path)
 
             create_cmd = "qemu-img create -f qcow2 -b \"#{rbd_backing_path}\" " \
@@ -325,9 +294,11 @@ begin
             rebase_cmd = "qemu-img rebase -u -b \"\" -F qcow2 \"#{output_qcow_path}\""
             LocalCommand.run(rebase_cmd)
 
-            OpenNebula::DriverLogger.log_info "Ceph Backup completed successfully: #{output_file}"
+            OpenNebula::DriverLogger.log_info(
+                "Ceph Backup completed successfully: #{output_qcow_path}"
+            )
         ensure
-            if temp_rdiff_path && File.exist?(temp_rdiff_path)
+            if temp_rdiff_path && !interactive_ready && File.exist?(temp_rdiff_path)
                 FileUtils.rm(temp_rdiff_path)
             end
         end

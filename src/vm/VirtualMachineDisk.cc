@@ -202,7 +202,8 @@ bool VirtualMachineDisk::support_interactive() const
     one_util::toupper(tm_mad);
     one_util::toupper(format);
 
-    if ( tm_mad == "LVM" || tm_mad == "FS_LVM" || tm_mad == "FS_LVM_SSH" )
+    if ( tm_mad == "LVM" || tm_mad == "FS_LVM" || tm_mad == "FS_LVM_SSH" ||
+         tm_mad == "CEPH" )
     {
         return true;
     }

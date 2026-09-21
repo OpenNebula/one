@@ -29,6 +29,7 @@ module OneBEX
 
                 registry.register('nbd', OneBEX::Exporters::NBD)
                 registry.register('lvm', OneBEX::Exporters::LVM)
+                registry.register('rbd', OneBEX::Exporters::RBD)
 
                 registry
             end
