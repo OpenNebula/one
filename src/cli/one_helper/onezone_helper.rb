@@ -43,8 +43,17 @@ class Replicator
           :service => 'opennebula' },
         { :name    => 'oneflow-server.conf',
           :service => 'opennebula-flow' },
+        { :name     => 'oneform-server.conf',
+          :service  => 'opennebula-form',
+          :optional => true },
         { :name    => 'onegate-server.conf',
-          :service => 'opennebula-gate' }
+          :service => 'opennebula-gate' },
+        { :name     => 'oneks-server.conf',
+          :service  => 'opennebula-ks',
+          :optional => true },
+        { :name     => 'fireedge-server.conf',
+          :service  => 'opennebula-fireedge',
+          :optional => true }
     ]
 
     FOLDERS = [
@@ -113,7 +122,7 @@ class Replicator
         copy_onedconf(keep_ha)
 
         FILES.each do |file|
-            copy_and_check(file[:name], file[:service])
+            copy_and_check(file[:name], file[:service], file.fetch(:optional, false))
         end
 
         # Folders to be copied
@@ -161,14 +170,34 @@ class Replicator
     # Replaces a file with the version located on a remote server
     # Only replaces the file if it's different from the remote one
     #
-    # @param file    [String] File to check
-    # @param service [String] Service to restart
-    def copy_and_check(file, service)
+    # @param file     [String] File to check
+    # @param service  [String] Service to restart
+    # @param optional [Boolean] Skip files missing locally or remotely
+    def copy_and_check(file, service, optional)
         puts "Checking #{file}"
 
         if !File.exist?("/etc/one/#{file}")
-            STDERR.puts "File #{file} not found"
-            exit(-1)
+            if optional
+                puts "Optional file #{file} not found locally, skipping"
+                return
+            else
+                STDERR.puts "File #{file} not found"
+                exit(-1)
+            end
+        end
+
+        if optional
+            # Quote the command so the tests run remotely. An inaccessible
+            # directory is an error, not an absent optional file.
+            result = ssh("'test -x /etc/one && " \
+                         "{ test -e /etc/one/#{file} || " \
+                         "test -L /etc/one/#{file} || echo missing; }'")
+
+            if result.stdout.strip == 'missing'
+                puts "Optional file #{file} not found on " \
+                     "#{@remote_server}, skipping"
+                return
+            end
         end
 
         temp_file = Tempfile.new("#{file}-temp")
@@ -430,7 +459,7 @@ class Replicator
         # if oneadmin doesn't work neither, fail
         unless rc
             STDERR.puts 'ERROR'
-            STDERR.puts "Couldn't execute command #{cmd} on remote host"
+            STDERR.puts "Couldn't copy #{src} from remote host"
             exit(-1)
         end
     end
