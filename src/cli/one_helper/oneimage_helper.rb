@@ -406,7 +406,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                     ''
                 end
             end
-            column :ID, 'Snapshot ID', :size=>3 do |d|
+            column :ID, 'Snapshot ID', :adjust, :size=>3 do |d|
                 d['ID']
             end
 
@@ -449,11 +449,11 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
     def format_backup_increments(image)
         table=CLIHelper::ShowTable.new(nil, self) do
-            column :ID, 'Increment ID', :size=>3 do |d|
+            column :ID, 'Increment ID', :adjust, :size=>3 do |d|
                 d['ID']
             end
 
-            column :PID, 'Parent increment ID', :size=>3 do |d|
+            column :PID, 'Parent increment ID', :adjust, :size=>3 do |d|
                 d['PARENT_ID']
             end
 

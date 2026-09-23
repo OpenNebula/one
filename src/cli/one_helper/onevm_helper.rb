@@ -903,7 +903,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             puts
             CLIHelper.print_header(str_h1 % 'VM DISKS', false)
             CLIHelper::ShowTable.new(nil, self) do
-                column :ID, '', :size => 3 do |d|
+                column :ID, '', :adjust, :size => 3 do |d|
                     d['DISK_ID']
                 end
 
@@ -1063,7 +1063,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             CLIHelper::ShowTable.new(nil, self) do
-                column :ID, '', :size => 3 do |d|
+                column :ID, '', :adjust, :size => 3 do |d|
                     if d['DOUBLE_ENTRY']
                         ''
                     else
@@ -1164,7 +1164,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             CLIHelper.print_header(str_h1 % 'SECURITY GROUP   TYPE     PROTOCOL NETWORK                       RANGE          ', false)
 
             CLIHelper::ShowTable.new(nil, self) do
-                column :ID, '', :size => 4 do |d|
+                column :ID, '', :adjust, :size => 4 do |d|
                     d['SECURITY_GROUP_ID']
                 end
 
@@ -1187,7 +1187,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     protocol
                 end
 
-                column :VNET, '', :size => 4 do |d|
+                column :VNET, '', :adjust, :size => 4 do |d|
                     d['NETWORK_ID']
                 end
 
@@ -1355,12 +1355,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
     def format_history(vm)
         table = CLIHelper::ShowTable.new(nil, self) do
-            column :SEQ, 'Sequence number', :size => 3 do |d|
+            column :SEQ, 'Sequence number', :adjust, :size => 3 do |d|
                 d['SEQ']
             end
 
             column :UID, 'UID of the user that performed the action',
-                   :left, :size => 4 do |d|
+                   :left, :adjust, :size => 4 do |d|
                 if d['UID'] != '-1'
                     d['UID']
                 else
@@ -1385,7 +1385,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 VirtualMachine.get_history_action d['ACTION']
             end
 
-            column :DS, 'System Datastore', :size => 4 do |d|
+            column :DS, 'System Datastore', :adjust, :size => 4 do |d|
                 d['DS_ID']
             end
 
@@ -1437,11 +1437,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     ''
                 end
             end
-            column :ID, 'Snapshot ID', :size => 3 do |d|
+            column :ID, 'Snapshot ID', :adjust, :size => 3 do |d|
                 d['ID']
             end
 
-            column :DISK, 'Disk ID', :size => 4 do |d|
+            column :DISK, 'Disk ID', :adjust, :size => 4 do |d|
                 d['DISK_ID']
             end
 
@@ -1518,7 +1518,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
     def format_template_snapshots(vm)
         table = CLIHelper::ShowTable.new(nil, self) do
-            column :ID, '', :size => 4 do |d|
+            column :ID, '', :adjust, :size => 4 do |d|
                 d['SNAPSHOT_ID'] unless d.nil?
             end
 
