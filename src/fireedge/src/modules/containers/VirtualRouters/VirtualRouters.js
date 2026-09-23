@@ -133,6 +133,7 @@ export function VirtualRouters() {
 
   return (
     <ResourceContainer
+      dataCy={vrTable.dataCy}
       resourceName={T.VirtualRouters}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -149,6 +150,7 @@ export function VirtualRouters() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={vrTable.dataCy}
                 columns={vrTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -176,6 +178,7 @@ export function VirtualRouters() {
                     <VirtualRouter.Card
                       key={id}
                       vrouter={vrouter}
+                      dataCy={`${vrTable.dataCy}-${id}`}
                       isSelected={selectedItems?.includes(id)}
                       onCheck={() =>
                         setSelectedItems(

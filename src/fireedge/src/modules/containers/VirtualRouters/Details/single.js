@@ -227,6 +227,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Delete} ${T.VirtualRouter}`,
+        dataCy: 'modal-delete',
         description: (
           <ResourceActionConfirmation
             description={T['resource.delete.confirmation']}
@@ -252,6 +253,7 @@ export const SingleView = ({
         [
           InfoSlot,
           {
+            dataCy: 'vrouter-info',
             isTitleEditable: canRename,
             onTitleChange: handleRename,
             isTitleEditDisabled: isActionsDisabled,
@@ -306,6 +308,7 @@ export const SingleView = ({
                         startIcon: <RefreshDouble width="16px" height="16px" />,
                         onClick: handleRefresh,
                         value: 'refresh',
+                        'data-cy': 'action-refresh',
                         tooltip: T.Refresh,
                         isDisabled: isActionsDisabled,
                       },
@@ -325,6 +328,7 @@ export const SingleView = ({
                         ),
                         onClick: handleDeleteForm,
                         value: 'delete',
+                        'data-cy': 'action-delete',
                         tooltip: T.Delete,
                         isDestructive: true,
                         isDisabled: isDeleteDisabled,
@@ -333,6 +337,7 @@ export const SingleView = ({
                         startIcon: <Cancel width="16px" height="16px" />,
                         onClick: handleClose,
                         value: 'close',
+                        'data-cy': 'action-close',
                         tooltip: T.Close,
                       },
                     ].filter(Boolean),

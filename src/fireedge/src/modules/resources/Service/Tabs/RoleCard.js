@@ -29,12 +29,20 @@ import { getRoleState, getServiceRoleNodes } from '@ModelsModule'
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
  * @param {boolean} root0.isRemoveCheckbox - Whether to hide the checkbox
+ * @param {string} root0.dataCy - Card Cypress selector
  * @param {object} ref - Forwarded ref
  * @returns {Component} Service role card component
  */
 export const ServiceRoleCard = forwardRef(
   (
-    { role = {}, isSelected, onCheck, onClick, isRemoveCheckbox = false },
+    {
+      role = {},
+      isSelected,
+      onCheck,
+      onClick,
+      isRemoveCheckbox = false,
+      dataCy,
+    },
     ref
   ) => {
     const {
@@ -67,6 +75,7 @@ export const ServiceRoleCard = forwardRef(
         onClick={onClick}
         isSelected={isSelected}
         isRemoveCheckbox={isRemoveCheckbox}
+        dataCy={dataCy}
         slots={[
           [
             TitleSlot,
@@ -141,6 +150,7 @@ ServiceRoleCard.propTypes = {
   onCheck: PropTypes.func,
   onClick: PropTypes.func,
   isRemoveCheckbox: PropTypes.bool,
+  dataCy: PropTypes.string,
 }
 
 ServiceRoleCard.displayName = 'ServiceRoleCard'

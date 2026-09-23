@@ -125,6 +125,7 @@ export function ServiceTemplates() {
 
   return (
     <ResourceContainer
+      dataCy={servicetemplateTable.dataCy}
       resourceName={T.Templates}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -145,6 +146,7 @@ export function ServiceTemplates() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={servicetemplateTable.dataCy}
                 columns={servicetemplateTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -167,6 +169,7 @@ export function ServiceTemplates() {
                 {items?.map(({ NAME, ID, GNAME, UNAME, TEMPLATE, LABELS }) => (
                   <ServiceTemplate.Card
                     key={ID}
+                    dataCy={`${servicetemplateTable.dataCy}-${ID}`}
                     NAME={NAME}
                     ID={ID}
                     GNAME={GNAME}

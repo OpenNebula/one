@@ -67,6 +67,7 @@ const generateOption = ({
   return {
     eACTION,
     title,
+    dataCy: actionType ? `action-${actionType}` : undefined,
     tooltip: action?.tooltip ?? title,
     ...optionProps,
     isDisabled:

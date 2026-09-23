@@ -181,6 +181,7 @@ export const ScheduledActions = ({ data, config }) => {
               return (
                 <ServiceRoleCard
                   key={`role-${roleId}`}
+                  dataCy={`role-${roleId}`}
                   role={role}
                   isSelected={selectedRoleIds.includes(roleId)}
                   onCheck={() =>

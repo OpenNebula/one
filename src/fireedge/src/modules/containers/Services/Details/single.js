@@ -261,6 +261,7 @@ export const SingleView = ({
         [
           InfoSlot,
           {
+            dataCy: 'service-info',
             isTitleEditable: canRename,
             onTitleChange: handleRename,
             isTitleEditDisabled: isActionsDisabled,
@@ -281,6 +282,7 @@ export const SingleView = ({
               >
                 {!!recoverOptions.length && (
                   <MenuButton
+                    dataCy="action-service-recover"
                     placeholder={T.Recover}
                     options={[recoverOptions]}
                     isDisabled={isActionsDisabled}
@@ -303,6 +305,7 @@ export const SingleView = ({
                         value: 'refresh',
                         tooltip: T.Refresh,
                         isDisabled: isActionsDisabled,
+                        'data-cy': 'detail-refresh',
                       },
                     ],
                     [

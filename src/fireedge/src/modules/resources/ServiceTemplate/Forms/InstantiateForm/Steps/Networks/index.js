@@ -112,6 +112,7 @@ const Content = () => {
         NETWORK_TYPES?.[watch(`${STEP_ID}.${STEP_ID}.${idx}.type`)] ||
         `${T.No} ${T.Type}`
       }
+      dataCy="network"
     >
       {selectedNetwork != null && wNetworks?.length > 0 && (
         <>

@@ -41,11 +41,12 @@ import {
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
+ * @param {string} root0.dataCy - Card data-cy
  * @param {object} ref - Forwarded ref
  * @returns {Component} Service card component
  */
 export const ServiceCard = forwardRef(
-  ({ service = {}, isSelected, onCheck, onClick }, ref) => {
+  ({ service = {}, isSelected, onCheck, onClick, dataCy }, ref) => {
     const {
       ID,
       NAME,
@@ -65,6 +66,7 @@ export const ServiceCard = forwardRef(
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
+        dataCy={dataCy}
         slots={[
           [
             TitleSlot,
@@ -114,6 +116,7 @@ ServiceCard.propTypes = {
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,
+  dataCy: PropTypes.string,
 }
 
 ServiceCard.displayName = 'ServiceCard'

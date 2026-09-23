@@ -48,6 +48,7 @@ const renderValue = (renderer, ...args) =>
  * @param {string} props.className - Extra card class name
  * @param {string} props.titleClassName - Extra title class name
  * @param {string} props.subtitleClassName - Extra subtitle class name
+ * @param {string} props.dataCy - Card Cypress selector
  * @returns {object} Selectable card
  */
 export const SelectableCardPanelCard = ({
@@ -63,6 +64,7 @@ export const SelectableCardPanelCard = ({
   className,
   titleClassName,
   subtitleClassName,
+  dataCy,
 }) => {
   const title = renderValue(renderTitle, item, index)
   const subtitle = renderValue(renderSubtitle, item, index)
@@ -73,6 +75,7 @@ export const SelectableCardPanelCard = ({
     <Box
       onClick={() => onClick?.(index)}
       sx={(theme) => getSelectableCardPanelCardStyles({ theme })}
+      data-cy={dataCy}
       className={clsx(
         'selectable-card-panel-card',
         isSelected && 'selected',
@@ -114,4 +117,5 @@ SelectableCardPanelCard.propTypes = {
   className: PropTypes.string,
   titleClassName: PropTypes.string,
   subtitleClassName: PropTypes.string,
+  dataCy: PropTypes.string,
 }

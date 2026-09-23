@@ -73,6 +73,7 @@ export default {
   },
   [SERVICE_ACTION_ENUM.ADD_ROLE]: {
     title: T.AddRole,
+    dataCy: 'service-role-add',
     useMutation: ServiceAPI.useServiceAddRoleMutation,
     form: Forms.AddRoleForm,
     dialogProps: {

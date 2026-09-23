@@ -43,13 +43,14 @@ import { getLockIcon } from '@UtilsModule'
  * @returns {Component} Virtual Router card component
  */
 export const VirtualRouterCard = forwardRef(
-  ({ vrouter = {}, isSelected, onCheck, onClick }, ref) => {
+  ({ vrouter = {}, dataCy, isSelected, onCheck, onClick }, ref) => {
     const { NAME, UNAME, GNAME, LABELS } = vrouter
     const labelTags = getLabelTags(LABELS)
 
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -95,6 +96,7 @@ export const VirtualRouterCard = forwardRef(
 
 VirtualRouterCard.propTypes = {
   vrouter: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,

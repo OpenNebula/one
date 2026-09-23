@@ -73,7 +73,7 @@ export const VmTemplateCard = forwardRef((data = {}, ref) => {
   return (
     <Card
       ref={ref}
-      dataCy={`template-${ID}`}
+      dataCy={`vm-template-${ID}`}
       onCheck={onCheck}
       onClick={onClick}
       isSelected={isSelected}

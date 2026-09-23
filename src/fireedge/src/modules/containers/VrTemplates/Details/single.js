@@ -111,6 +111,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Delete} ${T.VRTemplate}`,
+        dataCy: 'modal-delete',
         description: (
           <ResourceActionConfirmation
             description={T['template.delete.confirmation']}
@@ -179,6 +180,7 @@ export const SingleView = ({
         [
           InfoSlot,
           {
+            dataCy: 'vr-template-info',
             isTitleEditable: true,
             onTitleChange: handleRename,
             isTitleEditDisabled: isRenaming,

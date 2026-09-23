@@ -136,5 +136,5 @@ export const VMTEMPLATE_COLUMNS = [
 export const vmtemplateTable = createTable(
   VMTEMPLATE_COLUMNS,
   VmTemplateAPI.useGetTemplatesQuery,
-  { dataCy: 'vm-templates' }
+  { dataCy: 'vm-template' }
 )

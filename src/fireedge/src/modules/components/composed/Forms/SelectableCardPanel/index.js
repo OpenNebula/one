@@ -57,6 +57,7 @@ const getValue = (getter, ...args) =>
  * @param {string} props.sidebarPosition - Sidebar render position
  * @param {string} props.className - Extra root class name
  * @param {object} props.children - Right area content
+ * @param {string} props.dataCy - Sidebar Cypress selector
  * @returns {object} Selectable card panel
  */
 export const SelectableCardPanel = ({
@@ -78,9 +79,10 @@ export const SelectableCardPanel = ({
   sidebarPosition = 'left',
   className,
   children,
+  dataCy,
 }) => {
   const sidebar = showSidebar && (
-    <Box className="sidebar">
+    <Box className="sidebar" data-cy={dataCy}>
       <SubmitButton
         type={STYLE_BUTTONS.TYPE.SECONDARY}
         data-cy={addButtonCy}
@@ -106,6 +108,7 @@ export const SelectableCardPanel = ({
               icon={cardIcon}
               renderTitle={renderCardTitle}
               renderSubtitle={renderCardSubtitle}
+              dataCy={`${dataCy}-${idx}`}
             />
           )
         })}
@@ -149,4 +152,5 @@ SelectableCardPanel.propTypes = {
   sidebarPosition: PropTypes.oneOf(['left', 'bottom']),
   className: PropTypes.string,
   children: PropTypes.node,
+  dataCy: PropTypes.string,
 }

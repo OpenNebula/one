@@ -159,6 +159,7 @@ export function Services() {
 
   return (
     <ResourceContainer
+      dataCy={serviceTable.dataCy}
       resourceName={T.Services}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -178,6 +179,7 @@ export function Services() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={serviceTable.dataCy}
                 columns={serviceTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -204,6 +206,7 @@ export function Services() {
                   return (
                     <Service.Card
                       key={id}
+                      dataCy={`${serviceTable.dataCy}-${id}`}
                       service={service}
                       isSelected={selectedItems?.includes(id)}
                       onCheck={() =>

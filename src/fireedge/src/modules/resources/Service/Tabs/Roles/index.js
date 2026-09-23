@@ -171,6 +171,7 @@ export const Roles = ({ data, config }) => {
               <>
                 <MenuButton
                   placeholder={T.Manage}
+                  dataCy="service-role-manage"
                   options={[managementActions]}
                   isDisabled={isPerformingAction}
                 />
