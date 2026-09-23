@@ -55,6 +55,11 @@ def read_exact(io, size)
     data
 end
 
+server = nil
+socket = nil
+pipe_r = nil
+pipe_w = nil
+
 begin
     if bind_addr.nil? || bind_addr.empty?
         raise StandardError, 'Missing bind address'
@@ -71,7 +76,6 @@ begin
     File.open(to, 'wb') {}
 
     server = TCPServer.new(bind_addr, port)
-    socket = nil
 
     pipe_r, pipe_w = IO.pipe
 
@@ -86,33 +90,63 @@ begin
     end
 
     Signal.trap(:TERM) do
-        pipe_w.write 'W'
+        pipe_w.write('W') rescue nil
     end
 
     loop do
         begin
-            socket = nil
             socket = server.accept
             socket.binmode
 
-            header = read_exact(socket, 24)
-            start_byte, bytes_to_write, total_size = header.unpack('Q>Q>Q>')
+            #-------------------------------------------------------------------
+            # OneBEX frame types:
+            #
+            #   0x00 - DATA
+            #          Followed by:
+            #            start byte : uint64
+            #            data size  : uint64
+            #            total size : uint64
+            #            payload    : data size bytes
+            #
+            #   0x01 - FINISH
+            #          No additional data. Terminates the server.
+            #-------------------------------------------------------------------
+            frame_type = read_exact(socket, 1).unpack1('C')
 
-            payload = read_exact(socket, bytes_to_write)
+            case frame_type
+            when 0x01
+                break
 
-            File.open(to, 'r+b') do |file|
-                file.truncate(total_size) if total_size > 0 && File.empty?(file)
-                file.seek(start_byte)
+            when 0x00
+                header = read_exact(socket, 24)
 
-                bytes_written = file.write(payload)
+                start_byte, bytes_to_write, total_size =
+                    header.unpack('Q>Q>Q>')
 
-                if bytes_written != bytes_to_write
-                    raise StandardError,
-                          "Partial write: #{bytes_written}/#{bytes_to_write} bytes written"
+                payload = read_exact(socket, bytes_to_write)
+
+                File.open(to, 'r+b') do |file|
+                    if total_size > 0 && file.size.zero?
+                        file.truncate(total_size)
+                    end
+
+                    file.seek(start_byte)
+
+                    bytes_written = file.write(payload)
+
+                    if bytes_written != bytes_to_write
+                        raise StandardError,
+                              "Partial write: #{bytes_written}/" \
+                              "#{bytes_to_write} bytes written"
+                    end
+
+                    file.flush
+                    file.fsync
                 end
 
-                file.flush
-                file.fsync
+            else
+                raise StandardError,
+                      "Invalid OneBEX frame type: #{frame_type}"
             end
         rescue IOError, Errno::EBADF
             break if server.closed?
@@ -120,9 +154,15 @@ begin
             raise
         ensure
             socket.close rescue nil
+            socket = nil
         end
     end
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)
+ensure
+    socket.close rescue nil
+    server.close rescue nil
+    pipe_r.close rescue nil
+    pipe_w.close rescue nil
 end
