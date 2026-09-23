@@ -963,11 +963,25 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
         return Request::ACTION;
     }
 
+    // Get System DS information from current History record
+    c_ds_id  = vm->get_ds_id();
+    c_tm_mad = vm->get_tm_mad();
+
     if (live)
     {
         if (vm->is_pinned())
         {
             att.resp_msg = "VM with a pinned NUMA topology cannot be live-migrated";
+
+            return Request::ACTION;
+        }
+
+        // Live datastore migration does not preserve qcow2 system snapshots.
+        // Copying the disks after blockcopy to restore them
+        // can overwrite disks in use by QEMU and cause data loss (#8092).
+        if (ds_id != -1 && ds_id != c_ds_id && vm->has_snapshots())
+        {
+            att.resp_msg = "Cannot live migrate datastore of VMs with system snapshots";
 
             return Request::ACTION;
         }
@@ -982,10 +996,6 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
             }
         }
     }
-
-    // Get System DS information from current History record
-    c_ds_id  = vm->get_ds_id();
-    c_tm_mad = vm->get_tm_mad();
 
     // Check we are not migrating to the same host and the same system DS
     c_hid = vm->get_hid();

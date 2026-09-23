@@ -103,6 +103,24 @@ def cleanup_host(kvm_vm, error, type)
     raise StandardError, error
 end
 
+# Check if the VM includes qcow2 disks with snapshots.
+def qcow2_and_snap?(kvm_vm)
+    kvm_vm.disks.each do |disk|
+        path = disk[1]
+
+        next if path.symlink?
+
+        qimg = QemuImg.new path
+
+        format = qimg['format']
+        snaps  = qimg['snapshots'] && !qimg['snapshots'].empty?
+
+        return true if format == 'qcow2' && snaps
+    end
+
+    false
+end
+
 # Analyzes the VM's disks and prepares them for migration.
 #
 # It creates placeholder disks on the destination for local storage migrations
@@ -295,6 +313,10 @@ begin
     dst_path = @dst_vm_dir.parent.basename.to_s
 
     kvm_vm = KvmDomain.new(@deploy_id)
+
+    if src_path != dst_path && qcow2_and_snap?(kvm_vm)
+        raise 'Cannot migrate storage of VMs with qcow2 disks with snapshots'
+    end
 
     # Migration can't be done with domain snapshots, drop them first
     kvm_vm.snapshots_delete
