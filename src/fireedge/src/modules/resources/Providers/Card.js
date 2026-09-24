@@ -42,11 +42,12 @@ const toArray = (value) =>
  * @param {boolean} root0.isSelected - Whether card is selected
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
+ * @param {string} root0.dataCy - Card data-cy
  * @param {object} ref - Forwarded ref
  * @returns {Component} ProviderCard component
  */
 export const ProviderCard = forwardRef(
-  ({ provider, isSelected, onCheck, onClick }, ref) => {
+  ({ provider, isSelected, onCheck, onClick, dataCy }, ref) => {
     const { ID, NAME, UNAME, GNAME, TEMPLATE = {} } = provider ?? {}
     const providerBody =
       TEMPLATE?.PROVIDER_BODY && typeof TEMPLATE.PROVIDER_BODY === 'object'
@@ -65,6 +66,7 @@ export const ProviderCard = forwardRef(
         isSelected={isSelected}
         icon={getLogoSource(providerBody?.fireedge)}
         iconAspectRatio="1 / 1"
+        dataCy={dataCy}
         slots={[
           [TitleSlot, { title: NAME }],
           [
@@ -111,6 +113,7 @@ ProviderCard.propTypes = {
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,
+  dataCy: PropTypes.string,
 }
 
 ProviderCard.displayName = 'ProviderCard'

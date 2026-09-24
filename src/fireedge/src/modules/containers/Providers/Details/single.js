@@ -105,6 +105,7 @@ export const SingleView = ({
       isConfirmDialog: true,
       dialogProps: {
         title: `${T.Delete} ${T.Providers}`,
+        dataCy: 'modal-delete',
         description: (
           <ResourceActionConfirmation
             description={T['resource.delete.confirmation']}
@@ -162,6 +163,7 @@ export const SingleView = ({
         [
           InfoSlot,
           {
+            dataCy: 'provider-info',
             isTitleEditable: true,
             onTitleChange: handleRename,
             isTitleEditDisabled: isActionsDisabled,
@@ -206,6 +208,7 @@ export const SingleView = ({
                         onClick: handleOpenDeleteForm,
                         value: 'delete',
                         isDisabled: !canDelete || isActionsDisabled,
+                        'data-cy': 'action-delete',
                       },
                       {
                         startIcon: <Cancel width="16px" height="16px" />,

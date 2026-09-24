@@ -50,6 +50,9 @@ const PROVIDER = {
   grid: { md: 12 },
   fieldProps: {
     preserveState: true,
+    isEnableSearchBar: true,
+    isEnableSort: true,
+    isEnableFilters: true,
   },
 }
 

@@ -94,6 +94,7 @@ const Content = () => {
         handleEdit={handleChangeAttribute}
         handleDelete={handleDeleteAttribute}
         isFullHeight={false}
+        dataCy={'oneform-tags'}
       />
     </Box>
   )

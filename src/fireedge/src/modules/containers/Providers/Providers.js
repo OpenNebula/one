@@ -130,6 +130,7 @@ export function Providers() {
 
   return (
     <ResourceContainer
+      dataCy={providerTable.dataCy}
       resourceName={T.Providers}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -151,6 +152,7 @@ export function Providers() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={providerTable.dataCy}
                 columns={providerTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -176,6 +178,7 @@ export function Providers() {
                   return (
                     <Provider.Card
                       key={id}
+                      dataCy={`${providerTable.dataCy}-${id}`}
                       provider={provider}
                       isSelected={selectedItems?.includes(id)}
                       onCheck={() =>
