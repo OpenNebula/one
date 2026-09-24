@@ -92,6 +92,7 @@ const clientCallbacks = {
         {
           vmPort: settings?.connection?.port,
           hostAddr: settings?.connection?.hostname,
+          targetAddr: settings?.tunnel?.host,
           settings,
           rangePorts,
         },

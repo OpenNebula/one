@@ -84,9 +84,10 @@ const deleteTunnel = (pid) => {
  * @param {string} vmParams.srcPort - internal port
  * @param {string} vmParams.dstPort - external port
  * @param {string} vmParams.host - external host
+ * @param {string} vmParams.targetAddr - destination address from the external host
  * @returns {string} command
  */
-const createCommand = ({ srcPort, dstPort, host }) => {
+const createCommand = ({ srcPort, dstPort, host, targetAddr }) => {
   const command = 'bash'
   const commandArg = ['-c']
 
@@ -94,7 +95,7 @@ const createCommand = ({ srcPort, dstPort, host }) => {
   const args = [
     '-N',
     '-L',
-    `${srcPort}:${internalHost}:${dstPort}`,
+    `${srcPort}:${targetAddr}:${dstPort}`,
     `${host}`,
     '& echo $!',
   ]
@@ -151,6 +152,7 @@ const startSSHTunnel = async ({ command, args }) =>
  * @param {object} vmParams - vm params
  * @param {string} vmParams.vmPort - graphics port. vmInfo.TEMPLATE?.GRAPHICS?.PORT
  * @param {string} vmParams.hostAddr - graphics hostname
+ * @param {string} vmParams.targetAddr - graphics address from the hypervisor
  * @param {object} vmParams.settings - settings guacamole console
  * @param {Array} vmParams.rangePorts - range vnc ports
  * @param {object} callbacks - callbacks
@@ -158,13 +160,14 @@ const startSSHTunnel = async ({ command, args }) =>
  * @param {Function} callbacks.error - error callback
  */
 const create = async (
-  { vmPort, hostAddr, settings = {}, rangePorts },
+  { vmPort, hostAddr, targetAddr = internalHost, settings = {}, rangePorts },
   { connect = defaultEmptyFunction, error = defaultEmptyFunction } = {}
 ) => {
   const paramsCommands = {
     srcPort: vmPort,
     dstPort: vmPort,
     host: hostAddr,
+    targetAddr,
   }
 
   const availablePort = await findAvailablePortInRange(

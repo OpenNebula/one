@@ -161,7 +161,21 @@ const generateGuacamoleSession = (
       return
     }
 
+    const vncListenAddress = VM.TEMPLATE?.GRAPHICS?.LISTEN
+    const tunnelHost =
+      ensuredType === 'vnc'
+        ? {
+            host:
+              !vncListenAddress || vncListenAddress === '0.0.0.0'
+                ? '127.0.0.1'
+                : vncListenAddress === '::'
+                ? '::1'
+                : vncListenAddress,
+          }
+        : undefined
+
     const connection = {
+      ...(tunnelHost && { tunnel: tunnelHost }),
       connection: {
         type: ensuredType,
         settings: {
@@ -243,11 +257,9 @@ const generateGuacamoleSession = (
 const getVncSettings = (vmInfo) => {
   const config = {}
 
-  if (!config.hostname) {
-    const data = [].concat(...[vmInfo.HISTORY_RECORDS?.HISTORY ?? []])
-    const lastRecord = data[data.length - 1]
-    config.hostname = lastRecord?.HOSTNAME ?? 'localhost'
-  }
+  const data = [].concat(...[vmInfo.HISTORY_RECORDS?.HISTORY ?? []])
+  const lastRecord = data[data.length - 1]
+  config.hostname = lastRecord?.HOSTNAME ?? 'localhost'
 
   config.port = vmInfo.TEMPLATE?.GRAPHICS?.PORT ?? '5900'
   config.password = vmInfo.TEMPLATE?.GRAPHICS?.PASSWD ?? null
