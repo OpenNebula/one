@@ -1,0 +1,458 @@
+name: Sync Productboard
+
+on:
+  issues:
+    types:
+      - field_added
+      - closed
+      - reopened
+      - milestoned
+      - demilestoned
+
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: sync-productboard-${{ github.repository }}-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  sync-productboard:
+    runs-on: ubuntu-latest
+
+    env:
+      PB_TOKEN: ${{ secrets.PB_TOKEN }}
+      PB_BASE: https://api.productboard.com/v2
+
+      PB_GH_ISSUE_FIELD_ID: ${{ vars.PB_GH_ISSUE_FIELD_ID }}
+      PB_GH_STATUS_FIELD_ID: ${{ vars.PB_GH_STATUS_FIELD_ID }}
+
+      GH_PB_FIELD_NAME: ProductBoard
+
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Sync GitHub issue with Productboard
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "========================================"
+          echo "GitHub -> Productboard"
+          echo "========================================"
+          echo
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Issue:      #$ISSUE_NUMBER"
+          echo "Event:      ${{ github.event.action }}"
+          echo
+
+          #
+          # ============================================================
+          # 1. READ CURRENT GITHUB ISSUE
+          # ============================================================
+          #
+
+          ISSUE=$(curl -fsSL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER")
+
+          ISSUE_URL=$(printf '%s' "$ISSUE" | jq -r '.html_url')
+          ISSUE_STATE=$(printf '%s' "$ISSUE" | jq -r '.state')
+          MILESTONE_TITLE=$(printf '%s' "$ISSUE" \
+            | jq -r '.milestone.title // empty')
+
+          case "$ISSUE_STATE" in
+            open)
+              PB_STATUS="Open"
+              ;;
+            closed)
+              PB_STATUS="Closed"
+              ;;
+            *)
+              echo "ERROR: Unsupported GitHub issue state: $ISSUE_STATE"
+              exit 1
+              ;;
+          esac
+
+          echo "Issue URL: $ISSUE_URL"
+          echo "Status:    $PB_STATUS"
+
+          if [ -n "$MILESTONE_TITLE" ]; then
+            echo "Milestone: $MILESTONE_TITLE"
+          else
+            echo "Milestone: none"
+          fi
+
+
+          #
+          # ============================================================
+          # 2. READ "Product Board Feature" ISSUE FIELD
+          # ============================================================
+          #
+
+          ISSUE_FIELDS=$(curl -fsSL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/issue-field-values")
+
+          PB_FEATURE_URL=$(printf '%s' "$ISSUE_FIELDS" \
+            | jq -r --arg NAME "$GH_PB_FIELD_NAME" '
+                .[]
+                | select(.issue_field_name == $NAME)
+                | .value // empty
+              ' \
+            | head -n1)
+
+          if [ -z "$PB_FEATURE_URL" ]; then
+            echo
+            echo "'$GH_PB_FIELD_NAME' is empty."
+            echo "Nothing to synchronize."
+            exit 0
+          fi
+
+          echo
+          echo "Productboard Feature:"
+          echo "$PB_FEATURE_URL"
+
+
+          #
+          # ============================================================
+          # 3. EXTRACT PRODUCTBOARD FEATURE UUID
+          # ============================================================
+          #
+          
+          #
+          # First try the old URL format, where the UUID was directly
+          # present in the URL.
+          #
+          FEATURE_ID=$(printf '%s' "$PB_FEATURE_URL" \
+            | grep -oE \
+              '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' \
+            | head -n1 \
+            || true)
+          
+          #
+          # New Productboard URL format:
+          # https://...productboard.com/detail/<BASE64>/details
+
+          if [ -z "$FEATURE_ID" ]; then
+          
+            PB_ENTITY_ID=$(printf '%s' "$PB_FEATURE_URL" \
+              | sed -nE 's#^.*/detail/([^/]+)/details.*#\1#p')
+          
+            if [ -n "$PB_ENTITY_ID" ]; then
+          
+              DECODED_ENTITY_ID=$(printf '%s' "$PB_ENTITY_ID" \
+                | base64 -d 2>/dev/null \
+                || true)
+          
+              echo "Decoded Productboard entity: $DECODED_ENTITY_ID"
+          
+              FEATURE_ID=$(printf '%s' "$DECODED_ENTITY_ID" \
+                | grep -oE \
+                  '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' \
+                | head -n1 \
+                || true)
+          
+            fi
+          fi
+          
+          if [ -z "$FEATURE_ID" ]; then
+            echo "ERROR: Could not extract Productboard Feature UUID from:"
+            echo "$PB_FEATURE_URL"
+            exit 1
+          fi
+          
+          echo "Productboard Feature ID: $FEATURE_ID"
+
+
+          #
+          # ============================================================
+          # 4. VALIDATE PRODUCTBOARD FEATURE
+          # ============================================================
+          #
+
+          FEATURE=$(curl -fsSL \
+            "$PB_BASE/entities/$FEATURE_ID" \
+            -H "Authorization: Bearer $PB_TOKEN" \
+            -H 'Accept: application/json')
+
+          ENTITY_TYPE=$(printf '%s' "$FEATURE" \
+            | jq -r '.data.type // empty')
+
+          if [ "$ENTITY_TYPE" != "feature" ]; then
+            echo "ERROR: Productboard entity is not a Feature"
+            exit 1
+          fi
+
+
+          #
+          # ============================================================
+          # 5. UPDATE TEST-GH Issue + TEST-GH Status
+          # ============================================================
+          #
+
+          echo
+          echo "Updating Productboard GitHub fields..."
+
+          if [ -z "${PB_GH_ISSUE_FIELD_ID:-}" ]; then
+            echo "ERROR: PB_GH_ISSUE_FIELD_ID is empty"
+            exit 1
+          fi
+          
+          if [ -z "${PB_GH_STATUS_FIELD_ID:-}" ]; then
+            echo "ERROR: PB_GH_STATUS_FIELD_ID is empty"
+            exit 1
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg ISSUE_FIELD "$PB_GH_ISSUE_FIELD_ID" \
+            --arg STATUS_FIELD "$PB_GH_STATUS_FIELD_ID" \
+            --arg ISSUE_URL "$ISSUE_URL" \
+            --arg STATUS "$PB_STATUS" \
+            '{
+              data: {
+                fields: {
+                  ($ISSUE_FIELD): $ISSUE_URL,
+                  ($STATUS_FIELD): $STATUS
+                }
+              }
+            }')
+
+          echo
+          echo "Productboard field IDs:"
+          echo "TEST-GH Issue:  $PB_GH_ISSUE_FIELD_ID"
+          echo "TEST-GH Status: $PB_GH_STATUS_FIELD_ID"
+          
+          echo
+          echo "Payload sent to Productboard:"
+          printf '%s\n' "$PAYLOAD" | jq .
+          
+          PB_RESPONSE_FILE=$(mktemp)
+          
+          HTTP_CODE=$(curl -sS \
+            -o "$PB_RESPONSE_FILE" \
+            -w '%{http_code}' \
+            -X PATCH \
+            "$PB_BASE/entities/$FEATURE_ID" \
+            -H "Authorization: Bearer $PB_TOKEN" \
+            -H 'Accept: application/json' \
+            -H 'Content-Type: application/json' \
+            -d "$PAYLOAD")
+          
+          echo
+          echo "Productboard HTTP status: $HTTP_CODE"
+          echo "Productboard response:"
+          
+          if jq . "$PB_RESPONSE_FILE" >/dev/null 2>&1; then
+            jq . "$PB_RESPONSE_FILE"
+          else
+            cat "$PB_RESPONSE_FILE"
+          fi
+          
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo
+            echo "ERROR: Productboard update failed"
+            exit 1
+          fi
+          
+          rm -f "$PB_RESPONSE_FILE"
+
+          echo "TEST-GH Issue:  $ISSUE_URL"
+          echo "TEST-GH Status: $PB_STATUS"
+
+
+          #
+          # ============================================================
+          # 6. FIND TARGET PRODUCTBOARD RELEASE
+          # ============================================================
+          #
+
+          TARGET_RELEASE_ID=""
+          TARGET_RELEASE_NAME=""
+
+          if [ -n "$MILESTONE_TITLE" ]; then
+
+            #
+            # GitHub:
+            #   Release 7.6
+            #
+            # Productboard:
+            #   7.6
+            #
+
+            if [[ "$MILESTONE_TITLE" != "Release "* ]]; then
+              echo
+              echo "ERROR: Milestone '$MILESTONE_TITLE' does not start with 'Release '"
+              exit 1
+            fi
+
+            TARGET_RELEASE_NAME="${MILESTONE_TITLE#Release }"
+
+            echo
+            echo "Looking for Productboard Release '$TARGET_RELEASE_NAME'..."
+
+            URL="$PB_BASE/entities?type%5B%5D=release"
+
+            while [ -n "$URL" ]; do
+
+              RELEASES=$(curl -fsSL \
+                "$URL" \
+                -H "Authorization: Bearer $PB_TOKEN" \
+                -H 'Accept: application/json')
+
+              TARGET_RELEASE_ID=$(printf '%s' "$RELEASES" \
+                | jq -r --arg NAME "$TARGET_RELEASE_NAME" '
+                    .data[]
+                    | select(.fields.name == $NAME)
+                    | .id
+                  ' \
+                | head -n1)
+
+              if [ -n "$TARGET_RELEASE_ID" ]; then
+                break
+              fi
+
+              URL=$(printf '%s' "$RELEASES" \
+                | jq -r '.links.next // empty')
+            done
+
+            if [ -z "$TARGET_RELEASE_ID" ]; then
+              echo "ERROR: Productboard Release '$TARGET_RELEASE_NAME' not found"
+              exit 1
+            fi
+
+            echo "Productboard Release ID: $TARGET_RELEASE_ID"
+
+          fi
+
+
+          #
+          # ============================================================
+          # 7. READ CURRENT PRODUCTBOARD RELEASES
+          # ============================================================
+          #
+
+          RELATIONSHIPS=$(curl -fsSL --get \
+            "$PB_BASE/entities/$FEATURE_ID/relationships" \
+            -H "Authorization: Bearer $PB_TOKEN" \
+            -H 'Accept: application/json' \
+            --data-urlencode 'type=link' \
+            --data-urlencode 'target[type]=release')
+
+          CURRENT_RELEASE_IDS=$(printf '%s' "$RELATIONSHIPS" \
+            | jq -r '.data[].target.id // empty')
+
+          CURRENT_RELEASE_COUNT=$(printf '%s' "$RELATIONSHIPS" \
+            | jq '[.data[].target.id] | length')
+
+
+          #
+          # ============================================================
+          # 8. CHECK WHETHER RELEASE IS ALREADY CORRECT
+          # ============================================================
+          #
+
+          if [ -z "$MILESTONE_TITLE" ] && \
+             [ "$CURRENT_RELEASE_COUNT" -eq 0 ]; then
+
+            echo
+            echo "Productboard Release already empty."
+            echo "Synchronization completed."
+            exit 0
+
+          fi
+
+          if [ -n "$TARGET_RELEASE_ID" ] && \
+             [ "$CURRENT_RELEASE_COUNT" -eq 1 ]; then
+
+            CURRENT_RELEASE_ID=$(printf '%s' "$RELATIONSHIPS" \
+              | jq -r '.data[0].target.id')
+
+            if [ "$CURRENT_RELEASE_ID" = "$TARGET_RELEASE_ID" ]; then
+
+              echo
+              echo "Productboard Release already synchronized:"
+              echo "$TARGET_RELEASE_NAME"
+              echo "Synchronization completed."
+              exit 0
+
+            fi
+          fi
+
+
+          #
+          # ============================================================
+          # 9. REMOVE CURRENT PRODUCTBOARD RELEASES
+          # ============================================================
+          #
+
+          if [ -n "$CURRENT_RELEASE_IDS" ]; then
+
+            echo
+            echo "Removing current Productboard Release(s)..."
+
+            while read -r OLD_RELEASE_ID; do
+
+              [ -z "$OLD_RELEASE_ID" ] && continue
+
+              echo "Removing: $OLD_RELEASE_ID"
+
+              curl -fsSL -X DELETE \
+                "$PB_BASE/entities/$FEATURE_ID/relationships/link/$OLD_RELEASE_ID" \
+                -H "Authorization: Bearer $PB_TOKEN" \
+                >/dev/null
+
+            done <<< "$CURRENT_RELEASE_IDS"
+
+          fi
+
+
+          #
+          # ============================================================
+          # 10. SET NEW PRODUCTBOARD RELEASE
+          # ============================================================
+          #
+
+          if [ -z "$MILESTONE_TITLE" ]; then
+
+            echo
+            echo "Release synchronized:"
+            echo "GitHub:       no milestone"
+            echo "Productboard: no Release"
+
+          else
+
+            RELEASE_PAYLOAD=$(jq -n \
+              --arg ID "$TARGET_RELEASE_ID" \
+              '{
+                data: {
+                  type: "link",
+                  target: {
+                    id: $ID
+                  }
+                }
+              }')
+
+            curl -fsSL -X POST \
+              "$PB_BASE/entities/$FEATURE_ID/relationships" \
+              -H "Authorization: Bearer $PB_TOKEN" \
+              -H 'Accept: application/json' \
+              -H 'Content-Type: application/json' \
+              -d "$RELEASE_PAYLOAD" \
+              >/dev/null
+
+            echo
+            echo "Release synchronized:"
+            echo "GitHub:       $MILESTONE_TITLE"
+            echo "Productboard: $TARGET_RELEASE_NAME"
+
+          fi
+
+          echo
+          echo "Synchronization completed."
