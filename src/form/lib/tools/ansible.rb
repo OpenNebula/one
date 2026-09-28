@@ -180,12 +180,11 @@ module OneForm
             # @return [Hash] JSON-compatible Ansible extra variables
             def extra_vars(provision, auth)
                 # Ensure one published release
-                one_version = OpenNebula::VERSION
-                version_parts = one_version.split('.', 3)
+                major, minor = OpenNebula::VERSION.split('.', 3)
+                minor  = minor.to_i
+                minor -= 1 if minor.odd?
 
-                if version_parts[1]&.match?(/\A\d+\z/) && version_parts[1].to_i.odd?
-                    one_version = "#{version_parts[0]}.#{version_parts[1].to_i - 1}"
-                end
+                one_version = "#{major}.#{minor}"
 
                 vars = {
                     :provision_id => provision.id,
