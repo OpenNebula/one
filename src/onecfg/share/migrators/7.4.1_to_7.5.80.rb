@@ -21,11 +21,23 @@
 module Migrator
 
     # Preupgrade steps
-    def pre_up
-    end
+    def pre_up; end
 
     # Upgrade steps
     def up
+        process('/etc/one/oneform-server.conf', 'Yaml') do |old, new|
+            break unless old.is_a?(Hash) && new.is_a?(Hash)
+
+            host = old[:host]
+            port = old[:port]
+
+            new.delete(:host)
+            new.delete(:port)
+
+            new[:server] ||= {}
+            new[:server][:bind] = host if old.key?(:host)
+            new[:server][:port] = port if old.key?(:port)
+        end
     end
 
 end

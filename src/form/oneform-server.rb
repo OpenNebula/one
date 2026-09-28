@@ -16,27 +16,7 @@
 
 APP_NAME = 'oneform'
 
-module OneForm
-
-    # OneForm's public configuration keeps the legacy host/port shape. ODS
-    # receives the equivalent server settings generated during startup.
-    module ServerConfig
-
-        def self.normalize!(config)
-            config[:server] = config[:server].merge(
-                :bind => config[:host],
-                :port => config[:port]
-            )
-        end
-
-    end
-
-end
-
 require_relative '../ods/ods-server'
-
-OneForm::ServerConfig.normalize!(SERVER_CONF)
-
 require_relative 'config/environment'
 
 # OpenNebula Formation provisioning engine
@@ -48,10 +28,6 @@ module OneForm
         COMP = 'SRV'
 
         configure do
-            SERVER_CONF[:server].each do |key, value|
-                set key, value
-            end
-
             begin
                 ODS::ThreadManager.instance.configure(
                     APP_NAME, :shutdown_timeout => SERVER_CONF[:shutdown_timeout]

@@ -7023,6 +7023,12 @@ patches:
             extra:
                 multiple: true
         -   path: []
+            key: DOCUMENT_ENCRYPTED_ATTR
+            value: '"PROVIDER_BODY"'
+            state: ins
+            extra:
+                multiple: true
+        -   path: []
             key: REUSE_ADDRESS
             value: '"NO"'
             state: ins
@@ -8022,8 +8028,9 @@ patches:
             VM_ENCRYPTED_ATTR = "CONTEXT/PASSWORD"
             VM_ENCRYPTED_ATTR = "ONEAPP_ONEKS_CLUSTER_SPEC"
 
-            # Encrypted attrs for Edge Cluster documents
+            # Encrypted attrs for OneForm documents
             DOCUMENT_ENCRYPTED_ATTR = "PROVISION_BODY"
+            DOCUMENT_ENCRYPTED_ATTR = "PROVIDER_BODY"
 
             USER_ENCRYPTED_ATTR = "SSH_PRIVATE_KEY"
             USER_ENCRYPTED_ATTR = "SSH_PASSPHRASE"
@@ -9321,13 +9328,29 @@ patches:
             # OpenNebula daemon contact information
             :one_xmlrpc: http://localhost:2633/RPC2
 
-            # Host and port where OneForm server will run
-            :host: 127.0.0.1
-            :port: 13013
+            # OneForm server configuration mapped directly to Sinatra
+            :server:
+              :environment: production
+              :bind: 127.0.0.1
+              :port: 13013
+              :host_authorization:
+                :permitted_hosts: []
 
             ################################################################################
             # Defaults
             ################################################################################
+
+            # Number of concurrent lifecycle jobs
+            :concurrency: 10
+
+            # Maximum time, in seconds, to wait for server shutdown
+            :shutdown_timeout: 30
+
+            # Maximum time, in seconds, allowed for external commands
+            :command_timeout: 3600
+
+            # Grace period, in seconds, before forcing command cancellation
+            :cancel_grace: 30
 
             # Path where OneForm will store the generated files for each provision
             :work_dir: /tmp/oneform/
@@ -9341,6 +9364,9 @@ patches:
             #   - stage2: KVM node provisioning
             #   - stage3: Manage OpenNebula objects (datastores and networks)
             :onedeploy_tags: stage2,stage3,network
+
+            # Enterprise Edition token passed to OneDeploy as one_token when provided
+            #:ee_token:
 
             #############################################################
             # Auth
