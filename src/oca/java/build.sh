@@ -30,6 +30,10 @@ EXA_DIR="./share/examples"
 
 OCA_JAR=$JAR_DIR"/org.opennebula.client.jar"
 
+# Lowest Java supported by the shipped jar: keep it independent of the builder JDK
+# (RHEL/Alma 9 and Debian 12 provide OpenJDK 17)
+JAVA_RELEASE="${JAVA_RELEASE:-17}"
+
 
 #-------------------------------------------------------------------------------
 # COMMAND LINE PARSING
@@ -99,7 +103,7 @@ do_jar()
     mkdir -p $JAR_DIR
 
     echo "Compiling java files into class files..."
-    javac -d $BIN_DIR -cp $LIB_DIR"/*" `find src -name *.java`
+    javac --release $JAVA_RELEASE -d $BIN_DIR -cp $LIB_DIR"/*" `find src -name *.java`
 
     if [ $? -eq 0 ]; then
         echo "Packaging class files in a jar..."
@@ -110,7 +114,7 @@ do_jar()
 do_examples()
 {
     echo "Compiling OpenNebula Cloud API Examples..."
-    javac -d $EXA_DIR -classpath $OCA_JAR:$LIB_DIR/* `find share/examples -name *.java`
+    javac --release $JAVA_RELEASE -d $EXA_DIR -classpath $OCA_JAR:$LIB_DIR/* `find share/examples -name *.java`
 }
 
 do_clean()
