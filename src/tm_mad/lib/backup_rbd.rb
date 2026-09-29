@@ -269,7 +269,7 @@ begin
                 exit 0
             end
 
-            diff_parser = RbdDiffParser.new(:record_mode => payload)
+            diff_parser = RbdDiffParser.new(:record_mode => :payload)
             diff_parser.parse(temp_rdiff_path)
 
             raise 'ERROR: Could not determine size from rdiff.' unless diff_parser.size
