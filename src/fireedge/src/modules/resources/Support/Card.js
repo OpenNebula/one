@@ -30,10 +30,11 @@ import PropTypes from 'prop-types'
  * @param {Function} root0.onCheck - Check handler
  * @param {Function} root0.onClick - Click handler
  * @param {object} ref - Forwarded ref
+ * @param {string} root0.dataCy - Card data-cy
  * @returns {Component} SupportCard component
  */
 export const SupportCard = forwardRef(
-  ({ ticket = {}, isSelected, onCheck, onClick }, ref) => {
+  ({ ticket = {}, isSelected, onCheck, onClick, dataCy }, ref) => {
     const { id, subject, created_at: createdAt } = ticket
     const { color: stateColor, name: stateName } = getSupportState(ticket) ?? {}
 
@@ -43,6 +44,7 @@ export const SupportCard = forwardRef(
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
+        dataCy={dataCy}
         slots={[
           [
             TitleSlot,
@@ -81,6 +83,7 @@ SupportCard.propTypes = {
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,
+  dataCy: PropTypes.string,
 }
 
 SupportCard.displayName = 'SupportCard'

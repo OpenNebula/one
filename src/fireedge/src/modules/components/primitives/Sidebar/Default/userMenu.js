@@ -253,6 +253,7 @@ export const SidebarUserMenu = ({ isExpanded = false }) => {
             {version && `v${version}`}
           </Typography>
           <Typography
+            data-cy="officialSupport"
             className={`one-supported ${
               isSupported ? 'supported' : 'unsuported'
             }`}

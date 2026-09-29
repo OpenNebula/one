@@ -191,6 +191,7 @@ function SupportTickets() {
 
   return (
     <ResourceContainer
+      dataCy={supportTable.dataCy}
       resourceName={T.Support}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -209,6 +210,7 @@ function SupportTickets() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={supportTable.dataCy}
                 columns={supportTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -233,6 +235,7 @@ function SupportTickets() {
 
                   return (
                     <SupportResource.Card
+                      dataCy={`${supportTable.dataCy}-${id}`}
                       key={id}
                       ticket={ticket}
                       isSelected={selectedItems?.includes(id)}
