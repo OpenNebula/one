@@ -252,33 +252,58 @@ module VNMMAD::VirtualFunction
     end
 
     #
-    # Configure a virtual function using the physical function NIC
+    # Raise the shared PF MTU without lowering it for other VFs.
+    # Serialize the read and write across concurrent VM operations.
+    def set_pf_mtu(pf, mtu)
+        File.open("/tmp/onevnm-pf-#{pf}-mtu-lock", 'w') do |lock|
+            lock.flock(File::LOCK_EX)
+
+            current = Integer(File.read("/sys/class/net/#{pf}/mtu").strip)
+            next if Integer(mtu) <= current
+
+            LocalCommand.run_sh("#{command(:ip)} link set #{pf} mtu #{mtu}")
+        end
+    rescue StandardError => e
+        OpenNebula::DriverLogger.log_error("Could not set PF #{pf} MTU to #{mtu}: #{e.message}")
+    end
+
+    #
+    # Configure the PF, VF and representor links
     #
     # @param [Hash] vf :pf,:index,:rep physical function ifname, vf index, representor
     #
     def configure_pf_link(vf, pci)
-        cmd = "#{command(:ip)} link set #{vf[:pf]} vf #{vf[:index]}"
+        # helpers
+        ip  = command(:ip)
+        pf  = vf[:pf]
+        mtu = pci[:mtu]
 
-        [:mac, :mtu].each {|m| cmd << " #{m} #{pci[m]}" if pci[m] }
+        vf_settings = []
+        vf_settings << "mac #{pci[:mac]}" if pci[:mac]
 
         # Can fail if NIC doesn't support flag in the given eswitch mode
-        [:spoofchk, :trust].each {|f| cmd << " #{f} #{on_off(pci[f])}" if pci[f] }
-
-        if !vf[:rep]
-            # if no vlan id is set use 0 to reset it
-            vlan_id = if pci[:vlan_id]
-                          pci[:vlan_id]
-                      else
-                          0
-                      end
-
-            cmd << " vlan #{vlan_id}"
+        [:spoofchk, :trust].each do |f|
+            vf_settings << "#{f} #{on_off(pci[f])}" if pci[f]
         end
 
-        return if cmd.end_with?("vf #{vf[:index]}")
+        # Reset legacy VF VLAN when none is configured.
+        vf_settings << "vlan #{pci[:vlan_id] || 0}" unless vf[:rep]
 
-        LocalCommand.run_sh("#{command(:ip)} link set #{vf[:pf]} up")
-        LocalCommand.run_sh(cmd)
+        return if vf_settings.empty? && !mtu
+
+        # PF
+        commands = ["#{ip} link set #{pf} up"]
+        set_pf_mtu(pf, mtu) if mtu
+
+        # VF
+        unless vf_settings.empty?
+            commands << "#{ip} link set #{pf} vf #{vf[:index]} #{vf_settings.join(' ')}"
+        end
+
+        # REP
+        commands << "#{ip} link set #{vf[:rep]} mtu #{mtu}" if vf[:rep] && mtu
+
+        commands.each {|cmd| LocalCommand.run_sh(cmd) }
     end
 
 end
