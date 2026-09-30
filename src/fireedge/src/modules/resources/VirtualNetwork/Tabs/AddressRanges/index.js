@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import PropTypes from 'prop-types'
-import { Component, useMemo } from 'react'
+import { Component, useMemo, useRef } from 'react'
 import { Box } from '@mui/material'
 import { MoreVert, Plus as AddIcon } from 'iconoir-react'
 import {
@@ -23,6 +23,7 @@ import {
   MenuButton,
   ProgressBar,
   ResourceActionConfirmation,
+  Switch,
   TablePanel,
   Tag,
 } from '@ComponentsModule'
@@ -72,6 +73,7 @@ export const AddressRanges = ({ data, config }) => {
     VnAPI.useUpdateVNetRangeMutation()
   const [removeAR, { isLoading: isRemovingAddressRange }] =
     VnAPI.useRemoveRangeFromVNetMutation()
+  const forceDelete = useRef(false)
 
   // State
   const actions = config?.actions ?? {}
@@ -245,8 +247,12 @@ export const AddressRanges = ({ data, config }) => {
     await handleRefresh?.()
   }
 
-  const handleDeleteAddressRange = async (addressRange) => {
-    await removeAR({ id: vnet?.ID, address: addressRange?.AR_ID }).unwrap()
+  const handleDeleteAddressRange = async (addressRange, force = false) => {
+    await removeAR({
+      id: vnet?.ID,
+      address: addressRange?.AR_ID,
+      force,
+    }).unwrap()
     await handleRefresh?.()
   }
 
@@ -272,17 +278,27 @@ export const AddressRanges = ({ data, config }) => {
         handleUpdateAddressRange(updatedAr, addressRange),
     })
 
-  const handleDeleteAddressRangeForm = (addressRange) =>
-    showModal({
+  const handleDeleteAddressRangeForm = (addressRange) => {
+    forceDelete.current = false
+
+    return showModal({
       isConfirmDialog: true,
       dialogProps: {
         title: T.DeleteAddressRange,
         description: (
-          <ResourceActionConfirmation
-            description={T['resource.delete.confirmation']}
-            resources={{ ID: addressRange?.AR_ID ?? addressRange?.INDEX }}
-            resourceType={T.AddressRanges}
-          />
+          <Box display="grid" gap={2}>
+            <ResourceActionConfirmation
+              description={T['resource.delete.confirmation']}
+              resources={{ ID: addressRange?.AR_ID ?? addressRange?.INDEX }}
+              resourceType={T.AddressRanges}
+            />
+            <Switch
+              label={T.Force}
+              onChange={(force) => {
+                forceDelete.current = force
+              }}
+            />
+          </Box>
         ),
         confirmLabel: T.Delete,
         cancelLabel: T.Cancel,
@@ -290,8 +306,10 @@ export const AddressRanges = ({ data, config }) => {
           isDestructive: true,
         },
       },
-      onSubmit: () => handleDeleteAddressRange(addressRange),
+      onSubmit: () =>
+        handleDeleteAddressRange(addressRange, forceDelete.current),
     })
+  }
 
   return (
     <Box display="flex" flexDirection="column" gap="1em">

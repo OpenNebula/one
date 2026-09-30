@@ -191,6 +191,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * @param {object} params - Request params
        * @param {string} params.id - Virtual network id
        * @param {number|string} params.address - ID of the address range to remove
+       * @param {boolean} [params.force] - Force deletion
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
        */

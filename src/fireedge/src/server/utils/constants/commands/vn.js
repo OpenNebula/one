@@ -112,6 +112,10 @@ module.exports = {
           from: postBody,
           default: 0,
         },
+        force: {
+          from: postBody,
+          default: false,
+        },
       },
     },
     [VN_AR_UPDATE]: {
