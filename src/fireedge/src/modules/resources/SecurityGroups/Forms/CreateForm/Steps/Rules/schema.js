@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, mixed } from 'yup'
+import { string, object, mixed, number } from 'yup'
 import {
   Field,
   arrayToOptions,
@@ -111,11 +111,13 @@ export const ICMP_TYPE = {
     getText: ([_, value]) => value,
     getValue: ([key]) => key,
   }),
-  validation: mixed().when(PROTOCOL.name, {
-    is: (protocol) => protocol === PROTOCOL_STRING.ICMP,
-    then: (schema) => schema.required(),
-    otherwise: (schema) => schema.notRequired().nullable(),
-  }),
+  validation: mixed()
+    .transform((value) => (value == null ? value : String(value)))
+    .when(PROTOCOL.name, {
+      is: (protocol) => protocol === PROTOCOL_STRING.ICMP,
+      then: (schema) => schema.default(() => '').required(),
+      otherwise: (schema) => schema.notRequired().nullable(),
+    }),
   grid: { md: 12 },
 }
 
@@ -133,11 +135,13 @@ export const ICMPV6_TYPE = {
     getText: ([_, value]) => value,
     getValue: ([key]) => key,
   }),
-  validation: mixed().when(PROTOCOL.name, {
-    is: (protocol) => protocol === PROTOCOL_STRING.ICMPV6,
-    then: (schema) => schema.required(),
-    otherwise: (schema) => schema.notRequired().nullable(),
-  }),
+  validation: mixed()
+    .transform((value) => (value == null ? value : String(value)))
+    .when(PROTOCOL.name, {
+      is: (protocol) => protocol === PROTOCOL_STRING.ICMPV6,
+      then: (schema) => schema.default(() => '').required(),
+      otherwise: (schema) => schema.notRequired().nullable(),
+    }),
   grid: { md: 12 },
 }
 
@@ -222,10 +226,11 @@ export const SIZE = {
   dependOf: TARGET.name,
   label: T.Size,
   type: INPUT_TYPES.TEXT,
-  htmlType: (range) => range !== T.ManualNetwork && INPUT_TYPES.HIDDEN,
-  validation: mixed().when(TARGET.name, {
+  htmlType: (range) =>
+    range !== T.ManualNetwork ? INPUT_TYPES.HIDDEN : 'number',
+  validation: number().when(TARGET.name, {
     is: (protocol) => protocol === T.ManualNetwork,
-    then: (schema) => schema.required(),
+    then: (schema) => schema.integer().required(),
     otherwise: (schema) => schema.notRequired().nullable(),
   }),
   grid: { md: 12 },

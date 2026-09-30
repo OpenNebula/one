@@ -279,14 +279,6 @@ export const SingleView = ({
 
                     [
                       {
-                        startIcon: <Edit width="16px" height="16px" />,
-                        onClick: handleEdit,
-                        value: 'edit',
-                        'data-cy': 'action-update_dialog',
-                        tooltip: T.Edit,
-                        isDisabled: isActionsDisabled,
-                      },
-                      {
                         startIcon: <CloneIcon width="16px" height="16px" />,
                         onClick: handleOpenCloneForm,
                         value: 'clone',
@@ -315,6 +307,7 @@ export const SingleView = ({
                         startIcon: <Edit width="16px" height="16px" />,
                         onClick: handleEdit,
                         value: 'edit',
+                        'data-cy': 'action-update_dialog',
                         tooltip: T.Edit,
                         isDisabled: isActionsDisabled,
                       },

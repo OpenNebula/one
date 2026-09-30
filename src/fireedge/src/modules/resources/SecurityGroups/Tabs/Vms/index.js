@@ -36,8 +36,10 @@ export const Vms = ({ data, config }) => {
         .concat(selected?.ERROR_VMS?.ID)
         .concat(selected?.OUTDATED_VMS?.ID)
         .concat(selected?.UPDATED_VMS?.ID)
+        .concat(selected?.UPDATING_VMS?.ID)
+        .filter((id) => id !== undefined && id !== null && id !== '')
     ),
-  ]
+  ].join(',')
 
   const { data: vms = [], isFetching: isLoadingVms } = secGroupVmTable.useData(
     { ids: selectedVmIds },
