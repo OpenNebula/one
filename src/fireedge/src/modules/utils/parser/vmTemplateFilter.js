@@ -129,11 +129,20 @@ const filterTemplateData = (
     : alwaysIncludeAttributes
 
   // Filter data of formData.general
-  const newGeneral = reduceGeneral(
+  let newGeneral = reduceGeneral(
     formData?.general,
     modifiedFields?.general,
     normalizedTemplate?.general,
     includeAttributes
+  )
+
+  // Custom variables are stored at the template root, along with general
+  // attributes. Apply their modifications to the original template so a
+  // removed custom variable is not restored when the final template is built.
+  newGeneral = reduceGeneral(
+    formData?.['custom-variables'],
+    modifiedFields?.['custom-variables'],
+    newGeneral
   )
 
   // Filter data of formData.extra

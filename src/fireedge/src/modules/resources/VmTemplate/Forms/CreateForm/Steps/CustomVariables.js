@@ -35,7 +35,7 @@ export const STEP_ID = 'custom-variables'
 
 const Content = ({ isUpdate }) => {
   const { setValue, reset, getValues, watch } = useFormContext()
-  const { useLoadOsProfile } = useGeneralApi()
+  const { useLoadOsProfile, setModifiedFields } = useGeneralApi()
   const customVars = useWatch({ name: STEP_ID }) ?? {}
 
   const [fetchProfile] = SystemAPI.useLazyGetOsProfilesQuery()
@@ -84,8 +84,12 @@ const Content = ({ isUpdate }) => {
 
       set(newCustomVars, attributePath, value)
       setValue(STEP_ID, cleanEmpty(newCustomVars))
+
+      const modifiedAttribute = {}
+      set(modifiedAttribute, attributePath, true)
+      setModifiedFields({ [STEP_ID]: modifiedAttribute }, { direct: true })
     },
-    [customVars, setValue]
+    [customVars, setModifiedFields, setValue]
   )
 
   const handleDeleteAttribute = useCallback(
@@ -96,8 +100,12 @@ const Content = ({ isUpdate }) => {
       const newCustomVars = cloneObject(customVars)
       unset(newCustomVars, attributePath)
       setValue(STEP_ID, cleanEmpty(newCustomVars))
+
+      const modifiedAttribute = {}
+      set(modifiedAttribute, attributePath, { __delete__: true })
+      setModifiedFields({ [STEP_ID]: modifiedAttribute }, { direct: true })
     },
-    [customVars, setValue]
+    [customVars, setModifiedFields, setValue]
   )
 
   return (
