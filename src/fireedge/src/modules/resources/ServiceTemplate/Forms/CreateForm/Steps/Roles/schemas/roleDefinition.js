@@ -119,6 +119,7 @@ export const TEMPLATE_ID_FIELD = {
   singleSelect: true,
   fieldProps: {
     preserveState: true,
+    isEnableSearchBar: true,
   },
 }
 
