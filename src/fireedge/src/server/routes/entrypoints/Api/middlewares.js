@@ -125,5 +125,6 @@ const getZone = (selectedZone) => {
 
 module.exports = {
   getZone,
+  validateUser,
   validateSession,
 }

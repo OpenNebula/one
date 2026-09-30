@@ -16,7 +16,9 @@
 
 const { getFireedgeConfig } = require('server/utils/yml')
 const { opennebulaConnect } = require('server/utils/opennebula')
+const { validateAuth } = require('server/utils/jwt')
 const { defaults } = require('server/utils/constants')
+const { validateUser } = require('server/routes/entrypoints/Api/middlewares')
 const {
   verifyUserExists,
   resolveTFAResponse,
@@ -48,7 +50,17 @@ const tryRemoteAuth = async (req, res) => {
   const protocol = REMOTE_PROTOCOL_MAP?.[appConfig?.auth]
 
   if (!protocol) return
-  if (req.cookies?.[defaultJwtCookieName]) return
+
+  if (req.cookies?.[defaultJwtCookieName]) {
+    const { aud, jti } = validateAuth(req) ?? {}
+    if (validateUser(aud, jti)) return
+
+    res.clearCookie(defaultJwtCookieName, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+    })
+  }
 
   const headerNames =
     appConfig.auth === 'x509' ? defaultHeaderx509 : defaultHeaderRemote
