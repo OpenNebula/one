@@ -98,10 +98,13 @@ export const getStyles = ({ theme }) => {
         borderRadius: `${theme.borderRadius.xlg}px`,
         border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
 
-        '& .info-icon': {
+        '& .image-container, & .image-fallback': {
           width: '100%',
           height: '100%',
-          aspectRatio: '1/1',
+        },
+        '& .image-container img': {
+          maxWidth: '100%',
+          maxHeight: '100%',
         },
       },
       '& .info-title, & .info-id': {

@@ -55,6 +55,78 @@ module OneKSHelper
         cluster_id
     end
 
+    # Renders the aggregate history returned by /clusters/:id/historic.
+    def format_historic(events)
+        CLIHelper::ShowTable.new(nil, self) do
+            column :TIME, '', :left, :size => 16 do |event|
+                OpenNebulaHelper.time_to_str(event[:time])
+            end
+
+            column :ACTION, '', :left, :size => 30 do |event|
+                event[:action]
+            end
+
+            column :DESCRIPTION, '', :left, :expand => true do |event|
+                event[:description]
+            end
+
+            column :KIND, '', :left, :size => 15 do |event|
+                event[:kind]
+            end
+
+            column :RESOURCE_ID, '', :left, :size => 11 do |event|
+                event[:resource_id]
+            end
+
+            default :TIME, :ACTION, :DESCRIPTION, :KIND, :RESOURCE_ID
+        end.show(Array(events), {})
+    end
+
+    # Renders pods returned by a Group or the aggregate Cluster endpoint.
+    def format_pods(pods, aggregate: false)
+        pods = Array(pods).sort_by {|pod| pod[:namespace].to_s }
+
+        CLIHelper::ShowTable.new(nil, self) do
+            column :NAMESPACE, '', :left, :size => 24,
+                   :adjust => true, :expand => true do |pod|
+                pod[:namespace] || '--'
+            end
+
+            column :POD, '', :left, :size => 30,
+                   :adjust => true, :expand => true do |pod|
+                pod[:pod] || '--'
+            end
+
+            column :STATE, '', :left, :size => 16, :adjust => true do |pod|
+                pod[:state]&.upcase || '--'
+            end
+
+            if aggregate
+                column :KIND, '', :left, :size => 14, :adjust => true do |pod|
+                    pod[:role] || '--'
+                end
+
+                column :GROUP_ID, '', :left, :size => 10, :adjust => true do |pod|
+                    pod[:group_id] || '--'
+                end
+            end
+
+            column :'VM ID', '', :left, :size => 8, :adjust => true do |pod|
+                pod[:vm_id] || '--'
+            end
+
+            column :REASON, '', :left, :size => 30, :adjust => true do |pod|
+                reason = pod[:reason]
+                reason.nil? || reason.empty? ? '--' : reason
+            end
+
+            columns = [:NAMESPACE, :POD, :STATE]
+            columns.concat([:KIND, :GROUP_ID]) if aggregate
+            columns.concat([:'VM ID', :REASON])
+            default(*columns)
+        end.show(pods, {})
+    end
+
     def resolve_inputs(client, inputs_method, family, flavour)
         rc = client.public_send(inputs_method, family, flavour, :exclude_defaults => true)
         return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
@@ -121,6 +193,71 @@ module OneKSHelper
     end
 
     private
+
+    def metadata_label(key)
+        key.to_s.gsub(/([a-z\d])([A-Z])/, '\\1 \\2').tr('_', ' ').upcase
+    end
+
+    def display_value(value)
+        case value
+        when Array
+            if value.all? {|item| !item.is_a?(Hash) && !item.is_a?(Array) }
+                value.join(', ')
+            else
+                JSON.generate(value)
+            end
+        when Hash
+            JSON.generate(value)
+        else
+            value.to_s
+        end
+    end
+
+    def format_about(about)
+        items = Array(about)
+        return if items.empty?
+
+        puts
+        CLIHelper.print_header('ABOUT', false)
+
+        items.each_with_index do |item, index|
+            puts if index.positive?
+            format_about_item(item)
+        end
+    end
+
+    def format_about_item(item, depth = 0, bullet = false)
+        return unless item.is_a?(Hash)
+
+        title       = item[:title] || item['title']
+        description = item[:description] || item['description']
+        code        = item[:code] || item['code']
+        steps       = item[:steps] || item['steps']
+        prefix      = ('  ' * depth) + (bullet ? '- ' : '')
+        indent      = '  ' * (depth + (bullet ? 1 : 0))
+
+        puts "#{prefix}#{title}" unless title.to_s.empty?
+        puts "#{indent}#{description}" unless description.to_s.empty?
+
+        unless code.to_s.empty?
+            puts "#{indent}Run:"
+            code.to_s.each_line {|line| puts "#{indent}  #{line.chomp}" }
+        end
+
+        Array(steps).each do |step|
+            format_about_item(step, depth + (bullet ? 1 : 0), true)
+        end
+    end
+
+    def print_document_error(error)
+        return unless error
+
+        time = OpenNebulaHelper.time_to_str(error[:timestamp])
+
+        puts "#{CLIHelper::ANSI_RED}ERROR#{CLIHelper::ANSI_RESET}: " \
+             "#{error[:message]} (#{time})"
+        puts
+    end
 
     def format_flavour_defaults(defaults)
         defaults = defaults.to_h

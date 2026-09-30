@@ -1,0 +1,17 @@
+id: 'fe52263b-88af-4a0f-bc9b-6ce0e321786a'
+repo: https://helm.ngc.nvidia.com/nvidia
+chart: gpu-operator
+version: v25.10
+
+metadata:
+  name: NVIDIA GPU Operator Dependency
+  description: Internal NVIDIA GPU Operator dependency for GPU applications.
+
+installDefaults:
+  releaseName: oneks-nvidia-gpu-operator
+  targetNamespace: gpu-operator
+  createNamespace: true
+defaultValuesContent: |-
+  cdi:
+    nriPluginEnabled: true
+dependencies: []

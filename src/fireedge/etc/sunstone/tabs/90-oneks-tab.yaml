@@ -7,6 +7,9 @@
     - title: Kubernetes Logs
       path: /kubernetes/create_kubernetes_logs/:id
       Component: CreateKubernetesLogs
+    - title: Install Application
+      path: /kubernetes/:id/applications/install
+      Component: InstallOneKsApplication
     - title: K8S Clusters
       path: /kubernetes
       icon: XrayView

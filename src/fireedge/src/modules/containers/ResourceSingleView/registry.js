@@ -42,6 +42,10 @@ const serviceView = ({ resourceView }) => ({
 const idArgs = (id) => ({ id })
 const expandedArgs = (id) => ({ id, extended: true })
 const oneKsArgs = (id) => ({ id, expand: true })
+const oneKsApplicationArgs = (_, { data }) => ({
+  id: data.cluster_id,
+  release_name: data.release_name,
+})
 const supportArgs = () => undefined
 const selectSupportTicket = (tickets = [], id) =>
   tickets.find((ticket) => String(ticket?.id) === String(id))
@@ -131,6 +135,13 @@ export const RESOURCE_SINGLE_VIEW = Object.freeze({
     'getOneKsCluster',
     rawActions,
     { getArgs: oneKsArgs }
+  ),
+  [RESOURCE_NAMES.ONEKS_APPLICATION]: drawer(
+    () => import('@modules/containers/OneKs/Details/Application'),
+    'selectedData',
+    'getOneKsClusterApplication',
+    undefined,
+    { getArgs: oneKsApplicationArgs, hydrate: false }
   ),
   [RESOURCE_NAMES.PROVIDER]: drawer(
     () => import('@modules/containers/Providers/Details'),

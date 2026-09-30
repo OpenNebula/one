@@ -74,7 +74,12 @@ module OneKS
             rescue StandardError => e
                 errors << "OneKS readiness check failed: #{e.message}"
             ensure
-                cleanup if @id
+                if @id
+                    cleanup_rc = cleanup
+                    if OpenNebula.is_error?(cleanup_rc)
+                        errors << "Probe VM cleanup failed: #{cleanup_rc.message}"
+                    end
+                end
 
                 if errors.empty?
                     progress(
@@ -90,6 +95,10 @@ module OneKS
                     )
                 end
             end
+
+            return true if errors.empty?
+
+            OpenNebula::Error.new(errors.join('; '), OpenNebula::Error::EACTION)
         end
 
         private
@@ -135,10 +144,17 @@ module OneKS
         end
 
         def wait_probe_vm_running
+            current = probe_vm_running_status
+            return current if current
+
             rc = ODS::EventSubscriber.subscribe_for_state(
-                [@id], :state => 'ACTIVE', :lcm_state => 'RUNNING', :timeout => TIMEOUT
+                [@id],
+                :state     => 'ACTIVE',
+                :lcm_state => 'RUNNING',
+                :timeout   => TIMEOUT
             ) do |_key, _content, _xml|
-                return true
+                result = probe_vm_running_status
+                return result if result
             end
 
             return rc if OpenNebula.is_error?(rc)
@@ -152,6 +168,24 @@ module OneKS
                 "OneKS probe VM monitoring failed: #{e.message}",
                 OpenNebula::Error::EACTION
             )
+        end
+
+        def probe_vm_running_status
+            vm = OpenNebula::VirtualMachine.new_with_id(@id, @client)
+            rc = vm.info
+
+            return OpenNebula::Error.new(
+                "Cannot read OneKS probe VM (ID=#{@id}): #{rc.message}",
+                OpenNebula::Error::EACTION
+            ) if OpenNebula.is_error?(rc)
+            return true if vm.state_str == 'ACTIVE' && vm.lcm_state_str == 'RUNNING'
+
+            return OpenNebula::Error.new(
+                "OneKS probe VM (ID=#{@id}) entered #{vm.state_str}/#{vm.lcm_state_str}",
+                OpenNebula::Error::EACTION
+            ) if ['DONE', 'FAILED'].include?(vm.state_str)
+
+            nil
         end
 
         def wait_probe_vm_context

@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 require 'tempfile'
 require 'json'
+require 'io/console'
 require 'yaml'
 
 require 'one_helper'
@@ -203,27 +204,54 @@ class ODSHelper < OpenNebulaHelper::OneHelper
             type        = normalize_input_type(input[:type])
             default     = input[:default]
             match       = input[:match]
+            mandatory   = input.fetch(:mandatory, false)
+            sensitive   = input.fetch(:sensitive, false)
 
             puts "  * (#{name}) #{description} [type: #{input[:type]}]"
 
             header = '    '
-            header += "Press enter for default (#{default}). " if default
+            if input.key?(:default)
+                value =
+                    if sensitive
+                        '<hidden>'
+                    elsif default.is_a?(Array) || default.is_a?(Hash)
+                        JSON.generate(default)
+                    else
+                        default.to_s
+                    end
+                header += "Press enter for default (#{value}). "
+            end
 
-            answer = case type
-                     when 'string'
-                         ask_string_input(header, default, match)
-                     when 'number'
-                         ask_number_input(header, default, match)
-                     when 'list'
-                         ask_list_input(header, default, match)
-                     when 'map'
-                         ask_map_input(header, default)
-                     else
-                         STDERR.puts "Unknown input type '#{input[:type]}' for '#{name}'"
-                         exit(-1)
-                     end
+            loop do
+                answer =
+                    if sensitive
+                        ask_sensitive_input(header, default, type, match)
+                    else
+                        case type
+                        when 'string'
+                            ask_string_input(header, default, match)
+                        when 'number'
+                            ask_number_input(header, default, match)
+                        when 'bool'
+                            ask_bool_input(header, default)
+                        when 'list', 'tuple'
+                            ask_list_input(header, default, match)
+                        when 'map', 'object'
+                            ask_map_input(header, default)
+                        else
+                            STDERR.puts "Unknown input type '#{input[:type]}' for '#{name}'"
+                            exit(-1)
+                        end
+                    end
 
-            answers[name] = answer
+                if answer.nil? && mandatory
+                    puts '    A value is required.'
+                    next
+                end
+
+                answers[name] = answer unless answer.nil?
+                break
+            end
         end
 
         answers
@@ -262,7 +290,7 @@ class ODSHelper < OpenNebulaHelper::OneHelper
     # Open the editor with JSON content and return the edited file path.
     # @param prefix  [String]
     # @param content [Object]
-    # @return [String]
+    # @return [String, nil]
     def self.open_json_editor(prefix, content)
         tmp  = Tempfile.new(prefix)
         path = tmp.path
@@ -311,6 +339,8 @@ class ODSHelper < OpenNebulaHelper::OneHelper
                 raw = STDIN.readline.strip
 
                 if raw.empty?
+                    return if default.nil?
+
                     answer = default
                     return answer if options.include?(answer)
                 else
@@ -334,7 +364,7 @@ class ODSHelper < OpenNebulaHelper::OneHelper
     # @param header  [String]
     # @param default [Object]
     # @param match   [Hash, nil]
-    # @return [Integer, Float]
+    # @return [Integer, Float, nil]
     def ask_number_input(header, default, match)
         min = match&.dig(:values, :min)
         max = match&.dig(:values, :max)
@@ -344,6 +374,8 @@ class ODSHelper < OpenNebulaHelper::OneHelper
             print "#{header}Enter a number#{range_msg}: "
 
             raw = STDIN.readline.strip
+            return if raw.empty? && default.nil?
+
             raw = default.to_s if raw.empty?
 
             if raw.match?(/\A-?\d+\z/)
@@ -365,11 +397,28 @@ class ODSHelper < OpenNebulaHelper::OneHelper
         end
     end
 
+    # Prompt for boolean input
+    # @param header  [String]
+    # @param default [Object]
+    # @return [Boolean, nil]
+    def ask_bool_input(header, default)
+        loop do
+            print "#{header}Enter true or false: "
+            raw = STDIN.readline.strip
+
+            return default if raw.empty?
+            return true if ['true', 'yes'].include?(raw.downcase)
+            return false if ['false', 'no'].include?(raw.downcase)
+
+            puts '    Input must be true or false.'
+        end
+    end
+
     # Prompt for list input
     # @param header  [String]
     # @param default [Object]
     # @param match   [Hash, nil]
-    # @return [Array]
+    # @return [Array, nil]
     def ask_list_input(header, default, match)
         loop do
             print "#{header}Enter comma-separated values: "
@@ -379,8 +428,7 @@ class ODSHelper < OpenNebulaHelper::OneHelper
                 if default.is_a?(Array)
                     return default
                 else
-                    puts '    No default available.'
-                    next
+                    return
                 end
             end
 
@@ -403,37 +451,100 @@ class ODSHelper < OpenNebulaHelper::OneHelper
     # Prompt for map input
     # @param header  [String]
     # @param default [Object]
-    # @return [Hash]
+    # @return [Hash, nil]
     def ask_map_input(header, default)
         loop do
-            print "#{header}Enter KEY=VALUE pairs separated by commas: "
+            print "#{header}Enter a JSON object or KEY=VALUE pairs separated by commas: "
             raw = STDIN.readline.strip
 
             if raw.empty?
                 if default.is_a?(Hash)
                     return default
                 else
-                    puts '    No default available.'
-                    next
+                    return
                 end
             end
 
-            begin
-                answer = {}
+            rc, answer = ODSHelper.parse_values_option(raw)
+            return answer if rc.zero?
 
-                raw.split(',').each do |pair|
-                    key, value = pair.split('=', 2)
+            puts '    Invalid map format. Expected KEY=VALUE,... or a JSON object.'
+        end
+    end
 
-                    raise ArgumentError if key.nil? || value.nil?
-                    raise ArgumentError if key.strip.empty? || value.strip.empty?
+    # Prompt without echoing the entered value and coerce it to its declared type
+    # @param header  [String]
+    # @param default [Object]
+    # @param type    [String]
+    # @param match   [Hash, nil]
+    # @return [Object, nil]
+    def ask_sensitive_input(header, default, type, match)
+        loop do
+            print "#{header}Enter a value: "
+            raw = read_sensitive_value
 
-                    answer[key.strip] = value.strip
-                end
+            return default if raw.nil?
 
-                return answer
-            rescue StandardError
-                puts '    Invalid map format. Expected KEY=VALUE,...'
-            end
+            return coerce_user_input(raw, type, match)
+        rescue ArgumentError => e
+            puts "    #{e.message}"
+        end
+    end
+
+    # Reads a value from the terminal without echoing it
+    # @return [String, nil]
+    def read_sensitive_value
+        value = STDIN.noecho(&:gets)
+        puts
+
+        value&.chomp.then {|item| item.to_s.empty? ? nil : item }
+    end
+
+    # Coerces raw input for prompts that cannot use the visible type helpers
+    # @param raw   [String]
+    # @param type  [String]
+    # @param match [Hash, nil]
+    # @return [Object]
+    def coerce_user_input(raw, type, match)
+        case type
+        when 'string'
+            values = match[:values] if match&.dig(:type) == 'list'
+            raise ArgumentError, 'Input is not one of the allowed values.' \
+                if values && !values.include?(raw)
+
+            raw
+        when 'number'
+            number = Integer(raw, :exception => false) || Float(raw, :exception => false)
+            raise ArgumentError, 'Input must be a number.' unless number
+
+            min = match&.dig(:values, :min)
+            max = match&.dig(:values, :max)
+            raise ArgumentError, "Input must be greater than or equal to #{min}." \
+                if min && number < min
+            raise ArgumentError, "Input must be less than or equal to #{max}." \
+                if max && number > max
+
+            number
+        when 'bool'
+            return true if ['true', 'yes'].include?(raw.downcase)
+            return false if ['false', 'no'].include?(raw.downcase)
+
+            raise ArgumentError, 'Input must be true or false.'
+        when 'list', 'tuple'
+            values = raw.split(',').map(&:strip).reject(&:empty?)
+            allowed = Array(match[:values]) if match&.dig(:type) == 'list'
+            invalid = values - allowed if allowed
+            raise ArgumentError, "Invalid values: #{invalid.join(', ')}" \
+                if invalid&.any?
+
+            values
+        when 'map', 'object'
+            rc, value = ODSHelper.parse_values_option(raw)
+            raise ArgumentError, value unless rc.zero?
+
+            value
+        else
+            raise ArgumentError, "Unknown input type '#{type}'"
         end
     end
 
@@ -441,14 +552,7 @@ class ODSHelper < OpenNebulaHelper::OneHelper
     # @param type [String]
     # @return [String]
     def normalize_input_type(type)
-        case type
-        when /\Amap\(/
-            'map'
-        when /\Alist\(/
-            'list'
-        else
-            type
-        end
+        type.to_s.downcase.gsub(/\(.*\)\z/, '')
     end
 
     #------------------------------------------------------

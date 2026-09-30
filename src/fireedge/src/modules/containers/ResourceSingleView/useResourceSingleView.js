@@ -67,7 +67,9 @@ export const useResourceSingleView = () => {
     return rawEntries.map((entry) => ({
       ...entry,
       title: getResourceTitle(entry?.data, entry?.resource),
-      breadcrumbs: getResourceBreadcrumbs(getBreadcrumbs, entry),
+      breadcrumbs:
+        entry.props?.breadcrumbs ??
+        getResourceBreadcrumbs(getBreadcrumbs, entry),
     }))
   }, [baseEntry, getBreadcrumbs, stack.entries])
   const activeIndex = clampStackIndex(stack.activeIndex, entries)
@@ -77,6 +79,19 @@ export const useResourceSingleView = () => {
   )
 
   const closeResourceSingleView = useCallback(() => setStack(EMPTY_STACK), [])
+
+  const popResourceSingleView = useCallback(() => {
+    setStack(({ entries: stackEntries, activeIndex: stackActiveIndex }) => {
+      const childIndex = stackActiveIndex - (baseEntryRef.current ? 1 : 0)
+      const nextEntries = stackEntries.slice(0, Math.max(childIndex, 0))
+
+      return {
+        entries: nextEntries,
+        activeIndex:
+          getRenderedStackLength(nextEntries, baseEntryRef.current) - 1,
+      }
+    })
+  }, [])
 
   const goBackResourceSingleView = useCallback(() => {
     setStack(({ entries: stackEntries, activeIndex: stackActiveIndex }) => ({
@@ -196,7 +211,7 @@ export const useResourceSingleView = () => {
         }
       })
 
-      hydrateResourceSingleView(nextEntry)
+      if (nextEntry.isHydrating) hydrateResourceSingleView(nextEntry)
 
       return true
     },
@@ -252,6 +267,7 @@ export const useResourceSingleView = () => {
     clearResourceSingleViewBase,
     openResourceSingleView,
     closeResourceSingleView,
+    popResourceSingleView,
     goBackResourceSingleView,
     goForwardResourceSingleView,
     goToResourceSingleView,

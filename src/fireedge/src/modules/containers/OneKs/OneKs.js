@@ -22,7 +22,7 @@ import {
   Table,
   Tag,
 } from '@ComponentsModule'
-import { RESOURCE_NAMES, TABLE_VIEW_MODE, T } from '@ConstantsModule'
+import { PATH, RESOURCE_NAMES, TABLE_VIEW_MODE, T } from '@ConstantsModule'
 import {
   OneKsAPI,
   useFunctionality,
@@ -36,7 +36,8 @@ import {
   sortTableData,
   timeFromMilliseconds,
 } from '@UtilsModule'
-import { ReactElement, useCallback, useMemo } from 'react'
+import { ReactElement, useCallback, useEffect, useMemo } from 'react'
+import { useHistory, useLocation } from 'react-router-dom'
 import { DetailsDrawer } from '@modules/containers/OneKs/Details'
 import { OneKs as OneKsResource } from '@ResourcesModule'
 
@@ -111,6 +112,8 @@ const columns = [
  * @returns {ReactElement} OneKs list and selected row(s)
  */
 export function OneKs() {
+  const history = useHistory()
+  const { state: locationState } = useLocation()
   const { zone } = useGeneral()
   const { searchExpression, sortExpression, selectedItems, containerView } =
     useFunctionality()
@@ -173,6 +176,17 @@ export function OneKs() {
     () => items?.filter(({ ID }) => selectedItems?.includes(toId(ID))) ?? [],
     [items, selectedItems]
   )
+
+  useEffect(() => {
+    const id = locationState?.selectedClusterId
+
+    if (!id || !items?.some((cluster) => toId(cluster.ID) === toId(id))) {
+      return
+    }
+
+    setSelectedItems([toId(id)])
+    history.replace(PATH.ONEKS.LIST)
+  }, [history, items, locationState?.selectedClusterId])
 
   const rowSelection = useMemo(
     () => Object.fromEntries(selectedItems.map((id) => [id, true])),

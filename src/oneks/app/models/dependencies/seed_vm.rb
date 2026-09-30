@@ -105,9 +105,15 @@ module OneKS
 
         # Monitor seed VM creation
         # @param group [K8sGroup] Group owning the seed vm
-        # @param stop_flag [ODS::ThreadManager::StopFlag] Shared cancellation flag
-        def wait_create(group, stop_flag)
-            wait_seed_state(group, READY_STATE, stop_flag)
+        # @param stop_flag [ODS::CancelFlag] Shared cancellation flag
+        def wait_create(group, stop_flag, client_provider: nil)
+            rc = wait_seed_state(
+                group, READY_STATE, stop_flag,
+                :client_provider => client_provider
+            )
+            return rc if OpenNebula.is_error?(rc)
+
+            super
         rescue StandardError => e
             OpenNebula::Error.new(
                 "Monitoring of seed VM failed: #{e.message}",
@@ -115,12 +121,13 @@ module OneKS
             )
         end
 
-        def destroy(group)
+        def destroy(group, client_provider: nil)
             return unless @id
 
-            vm = OpenNebula::VirtualMachine.new_with_id(@id, group.client)
+            client = dependency_client(group, client_provider)
+            vm     = OpenNebula::VirtualMachine.new_with_id(@id, client)
             rc = vm.terminate(true)
-            return rc if OpenNebula.is_error?(rc)
+            return rc if OpenNebula.is_error?(rc) && rc.errno != OpenNebula::Error::ENO_EXISTS
 
             Log.info(COMP, "Seed VM (ID=#{@id}) destroyed successfully", group.cluster_id)
 
@@ -138,16 +145,16 @@ module OneKS
         # Waits until the ONEKS_STATE of a single VM reaches the target value
         # @param group [K8sGroup] Group owning the seed VM
         # @param target [String] Expected ONEKS_STATE value
-        # @param stop_flag [ODS::ThreadManager::StopFlag] Shared cancellation flag
+        # @param stop_flag [ODS::CancelFlag] Shared cancellation flag
         # @return [Boolean, OpenNebula::Error]
         #   - true if the VM reached the target state
         #   - OpenNebula::Error if there was a failure, timeout, or cancellation
-        def wait_seed_state(group, target, stop_flag)
+        def wait_seed_state(group, target, stop_flag, client_provider: nil)
             return OpenNebula::Error.new(
                 'Seed VM ID cannot be nil', OpenNebula::Error::EACTION
             ) if @id.nil?
 
-            current = seed_state(group.client)
+            current = seed_state(dependency_client(group, client_provider))
 
             # Return success if already at target
             return true if current == target
@@ -175,8 +182,12 @@ module OneKS
                 next unless event_vm_id&.match?(/\A\d+\z/)
                 next unless event_vm_id.to_i == @id
 
-                current = seed_state(group.client)
-                Log.info(COMP, "Seed VM entered state #{current}", group.cluster_id)
+                current = seed_state(dependency_client(group, client_provider))
+                Log.info(
+                    COMP,
+                    "Seed VM (ID=#{@id}) entered state #{current}",
+                    group.cluster_id
+                )
 
                 if OpenNebula.is_error?(current)
                     return OpenNebula::Error.new(

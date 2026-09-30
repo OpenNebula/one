@@ -280,6 +280,31 @@ RSpec.describe 'ODS controller route DSLs' do
             expect(context.body_value).to eq('{"name":"demo"}')
         end
 
+        it 'passes validated parameters to show and attribute handlers' do
+            schema = Class.new(Dry::Validation::Contract)
+            received = []
+            controller.show(:params_schema => schema) do |_document, args|
+                received << args
+            end
+            controller.attribute(:name, :params_schema => schema) do |_document, value, args|
+                [value, args[:enabled]]
+            end
+            controller.register_routes(app)
+
+            app.routes.each do |route|
+                context = RouteContext.new
+                context.params = { :id => '7', :enabled => 'false' }
+                context.checked_params = { :id => 7, :enabled => false }
+                context.instance_exec(&route.block)
+
+                next unless route.path.end_with?('/name')
+
+                expect(JSON.parse(context.body_value)).to eq(['demo', false])
+            end
+
+            expect(received).to eq([{ :id => 7, :enabled => false }])
+        end
+
         it 'lists filtered documents with per-document serialization policy' do
             second = double('second document')
             allow(second).to receive(:to_json).and_return('{"name":"second"}')
@@ -322,6 +347,20 @@ RSpec.describe 'ODS controller route DSLs' do
             missing.singleton_class.send(:define_method, :execute, &route.block)
             missing.execute
             expect(missing.errors).to include(['Log file not found', 404])
+        end
+
+        it 'uses the validated boolean value when paginating logs' do
+            controller.logs(:params_schema => Class.new(Dry::Validation::Contract))
+            controller.register_routes(app)
+            context = RouteContext.new
+            context.params = { :id => '7', :all => 'true' }
+            context.checked_params = { :id => 7, :all => false }
+            allow(File).to receive(:exist?).and_return(true)
+
+            context.instance_exec(&app.routes.first.block)
+
+            path = File.join(LOG_LOCATION, APP_NAME, '7.log')
+            expect(context.log_page_request).to eq([path, 1, 100, false])
         end
 
         it 'returns transformed attributes and action responses' do

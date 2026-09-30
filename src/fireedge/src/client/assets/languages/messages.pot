@@ -2,6 +2,96 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+#. T.Applications
+#: ./src/modules/constants/translates.js
+msgid "Applications"
+msgstr ""
+
+#. T.InstalledApplications
+#: ./src/modules/constants/translates.js
+msgid "Installed applications"
+msgstr ""
+
+#. T.Application
+#: ./src/modules/constants/translates.js
+msgid "Application"
+msgstr ""
+
+#. T.InstallApplication
+#: ./src/modules/constants/translates.js
+msgid "Install Application"
+msgstr ""
+
+#. T.SelectApplication
+#: ./src/modules/constants/translates.js
+msgid "Select an application"
+msgstr ""
+
+#. T.ApplicationDefinitionError
+#: ./src/modules/constants/translates.js
+msgid "Could not load the application definition."
+msgstr ""
+
+#. T.ApplicationInstallabilityPending
+#: ./src/modules/constants/translates.js
+msgid "Wait for the application compatibility check to finish."
+msgstr ""
+
+#. T.ApplicationNotInstallable
+#: ./src/modules/constants/translates.js
+msgid "This application cannot be installed in the selected cluster."
+msgstr ""
+
+#. T.ApplicationCatalogueUnavailable
+#: ./src/modules/constants/translates.js
+msgid "The application catalogue is currently unavailable."
+msgstr ""
+
+#. T.ReleaseName
+#: ./src/modules/constants/translates.js
+msgid "Release name"
+msgstr ""
+
+#. T.Dependencies
+#: ./src/modules/constants/translates.js
+msgid "Dependencies"
+msgstr ""
+
+#. T.Uninstall
+#: ./src/modules/constants/translates.js
+msgid "Uninstall"
+msgstr ""
+
+#. T.UninstallApplication
+#: ./src/modules/constants/translates.js
+msgid "Uninstall application"
+msgstr ""
+
+#. T.UninstallApplicationConfirmation
+#: ./src/modules/constants/translates.js
+msgid "Uninstall this application from the cluster?"
+msgstr ""
+
+#. T.TargetNamespace
+#: ./src/modules/constants/translates.js
+msgid "Target namespace"
+msgstr ""
+
+#. T.CreateNamespace
+#: ./src/modules/constants/translates.js
+msgid "Create namespace if it does not exist"
+msgstr ""
+
+#. T.SuccessApplicationInstallStarted
+#: ./src/modules/constants/translates.js
+msgid "Application installation started"
+msgstr ""
+
+#. T.ErrorApplicationInstallation
+#: ./src/modules/constants/translates.js
+msgid "Error installing application: %s"
+msgstr ""
+
 #. T.Back
 #: ./src/modules/constants/translates.js
 msgid "Back"
@@ -325,6 +415,16 @@ msgstr ""
 #. T.SelectAll
 #: ./src/modules/constants/translates.js
 msgid "Select all"
+msgstr ""
+
+#. T.SelectOne
+#: ./src/modules/constants/translates.js
+msgid "Select one"
+msgstr ""
+
+#. T.SelectOneOrMore
+#: ./src/modules/constants/translates.js
+msgid "Select one or more"
 msgstr ""
 
 #. T.SelectAImage
@@ -967,6 +1067,11 @@ msgstr ""
 msgid "Migrate live"
 msgstr ""
 
+#. T.NotConfigured
+#: ./src/modules/constants/translates.js
+msgid "Not configured"
+msgstr ""
+
 #. T.Off
 #: ./src/modules/constants/translates.js
 msgid "Off"
@@ -1065,6 +1170,16 @@ msgstr ""
 #. T.Release, T.RELEASE
 #: ./src/modules/constants/translates.js
 msgid "Release"
+msgstr ""
+
+#. T.ResourceVersion
+#: ./src/modules/constants/translates.js
+msgid "Resource version"
+msgstr ""
+
+#. T.ChartVersion
+#: ./src/modules/constants/translates.js
+msgid "Chart version"
 msgstr ""
 
 #. T.ReleaseIp
@@ -1655,6 +1770,16 @@ msgstr ""
 #. T.UPDATE_NIC
 #: ./src/modules/constants/translates.js
 msgid "Update NIC"
+msgstr ""
+
+#. T.VMGROUP_ADD
+#: ./src/modules/constants/translates.js
+msgid "Associate with VM Group"
+msgstr ""
+
+#. T.VMGROUP_DEL
+#: ./src/modules/constants/translates.js
+msgid "Remove from VM Group"
 msgstr ""
 
 #. T.CHANGE_MODE
@@ -3397,6 +3522,16 @@ msgstr ""
 msgid "Please consider to this request resolved"
 msgstr ""
 
+#. T.ClosedSupportTicket
+#: ./src/modules/constants/translates.js
+msgid "This ticket is closed"
+msgstr ""
+
+#. T.ClosedSupportTicketCannotComment
+#: ./src/modules/constants/translates.js
+msgid "Closed tickets cannot receive new comments"
+msgstr ""
+
 #. T.User
 #: ./src/modules/constants/translates.js
 msgid "User"
@@ -4727,6 +4862,16 @@ msgstr ""
 msgid "A generated UUID for a LibVirt secret"
 msgstr ""
 
+#. T.ResticBackend
+#: ./src/modules/constants/translates.js
+msgid "Restic backend"
+msgstr ""
+
+#. T.ResticBackendConcept
+#: ./src/modules/constants/translates.js
+msgid "Storage backend used by Restic. SFTP is used by default"
+msgstr ""
+
 #. T.ResticPassword
 #: ./src/modules/constants/translates.js
 msgid "Restic password"
@@ -4740,6 +4885,96 @@ msgstr ""
 #. T.ResticSFTPServer
 #: ./src/modules/constants/translates.js
 msgid "Restic SFTP server"
+msgstr ""
+
+#. T.ResticS3AccessKeyId
+#: ./src/modules/constants/translates.js
+msgid "Restic S3 access key ID"
+msgstr ""
+
+#. T.ResticS3AccessKeyIdConcept
+#: ./src/modules/constants/translates.js
+msgid "Access key ID used to authenticate with S3"
+msgstr ""
+
+#. T.ResticS3SecretAccessKey
+#: ./src/modules/constants/translates.js
+msgid "Restic S3 secret access key"
+msgstr ""
+
+#. T.ResticS3SecretAccessKeyConcept
+#: ./src/modules/constants/translates.js
+msgid "Secret access key used to authenticate with S3"
+msgstr ""
+
+#. T.ResticS3Bucket
+#: ./src/modules/constants/translates.js
+msgid "Restic S3 bucket"
+msgstr ""
+
+#. T.ResticS3BucketConcept
+#: ./src/modules/constants/translates.js
+msgid "Bucket name only, without the endpoint URL"
+msgstr ""
+
+#. T.ResticS3Region
+#: ./src/modules/constants/translates.js
+msgid "Restic S3 region"
+msgstr ""
+
+#. T.ResticS3RegionConcept
+#: ./src/modules/constants/translates.js
+msgid "Defaults to us-east-1 when omitted"
+msgstr ""
+
+#. T.ResticS3Endpoint
+#: ./src/modules/constants/translates.js
+msgid "Restic S3 endpoint"
+msgstr ""
+
+#. T.ResticS3EndpointConcept
+#: ./src/modules/constants/translates.js
+msgid "Defaults to s3.amazonaws.com and can include a URL scheme"
+msgstr ""
+
+#. T.ResticS3ForcePathStyle
+#: ./src/modules/constants/translates.js
+msgid "Force path-style S3 access"
+msgstr ""
+
+#. T.ResticS3ForcePathStyleConcept
+#: ./src/modules/constants/translates.js
+msgid "Required by many non-AWS S3-compatible backends"
+msgstr ""
+
+#. T.ResticS3CACert
+#: ./src/modules/constants/translates.js
+msgid "Restic S3 CA certificate path"
+msgstr ""
+
+#. T.ResticS3CACertConcept
+#: ./src/modules/constants/translates.js
+msgid "Path to a custom CA certificate available on the KVM hosts"
+msgstr ""
+
+#. T.ResticS3InsecureTLS
+#: ./src/modules/constants/translates.js
+msgid "Disable S3 TLS certificate verification"
+msgstr ""
+
+#. T.ResticS3InsecureTLSConcept
+#: ./src/modules/constants/translates.js
+msgid "Disable TLS certificate verification for lab or debug environments only"
+msgstr ""
+
+#. T.ResticS3TotalMB
+#: ./src/modules/constants/translates.js
+msgid "Restic S3 capacity (MB)"
+msgstr ""
+
+#. T.ResticS3TotalMBConcept
+#: ./src/modules/constants/translates.js
+msgid "Capacity used for monitoring. Defaults to 1048576 MB when omitted"
 msgstr ""
 
 #. T.Priority
@@ -5245,6 +5480,26 @@ msgstr ""
 #. T.VMGroups
 #: ./src/modules/constants/translates.js
 msgid "VM Groups"
+msgstr ""
+
+#. T.NoVMGroup
+#: ./src/modules/constants/translates.js
+msgid "No VM Group association"
+msgstr ""
+
+#. T.NoVMGroupDescription
+#: ./src/modules/constants/translates.js
+msgid "Associate this virtual machine with a VM Group and role."
+msgstr ""
+
+#. T.NoVMGroupsAvailable
+#: ./src/modules/constants/translates.js
+msgid "No VM Groups available"
+msgstr ""
+
+#. T.NoVMGroupsAvailableDescription
+#: ./src/modules/constants/translates.js
+msgid "Create a VM Group or request use permission before associating this virtual machine."
 msgstr ""
 
 #. T.Templates
@@ -7222,6 +7477,91 @@ msgstr ""
 msgid "Exec"
 msgstr ""
 
+#. T.CheckStatus
+#: ./src/modules/constants/translates.js
+msgid "Check status"
+msgstr ""
+
+#. T.CommandFinishedWithoutOutput
+#: ./src/modules/constants/translates.js
+msgid "Command finished without output."
+msgstr ""
+
+#. T.CommandWasCancelled
+#: ./src/modules/constants/translates.js
+msgid "Command was cancelled."
+msgstr ""
+
+#. T.CommandStillRunning
+#: ./src/modules/constants/translates.js
+msgid "Command is still running"
+msgstr ""
+
+#. T.CommandStillRunningDescription
+#: ./src/modules/constants/translates.js
+msgid "This command may take several minutes. You can safely leave this page and check the result later by pressing Check status."
+msgstr ""
+
+#. T.ExecutionStartedTime
+#: ./src/modules/constants/translates.js
+msgid "Started %s"
+msgstr ""
+
+#. T.LastChecked
+#: ./src/modules/constants/translates.js
+msgid "Last checked: %s"
+msgstr ""
+
+#. T.NoOutput
+#: ./src/modules/constants/translates.js
+msgid "No output"
+msgstr ""
+
+#. T.ReRun
+#: ./src/modules/constants/translates.js
+msgid "Re-run"
+msgstr ""
+
+#. T.ReturnCode
+#: ./src/modules/constants/translates.js
+msgid "exit %s"
+msgstr ""
+
+#. T.Run
+#: ./src/modules/constants/translates.js
+msgid "Run"
+msgstr ""
+
+#. T.ExecuteCommandInVM
+#: ./src/modules/constants/translates.js
+msgid "Execute command in VM"
+msgstr ""
+
+#. T.GuestContextualization
+#: ./src/modules/constants/translates.js
+msgid "requires guest contextualization"
+msgstr ""
+
+#. T.EnterCommand
+#: ./src/modules/constants/translates.js
+msgid "cat << \"EOT\" > /etc/yum.repos.d/opennebula.repo\n[opennebula]\nname=OpenNebula Community Edition\nbaseurl=https://downloads.opennebula.io/repo/7.2/RedHat/$releasever/$basearch\nenabled=1\ngpgkey=https://downloads.opennebula.io/repo/repo2.key..."
+msgstr ""
+
+#. T.JustNow
+#: ./src/modules/constants/translates.js
+msgid "just now"
+msgstr ""
+
+#. T.CommandExecutionStarted
+#: ./src/modules/constants/translates.js
+msgid "Command execution started for VM %s"
+msgstr ""
+
+#. T.CommandExecutionCancellationRequested
+#: ./src/modules/constants/translates.js
+msgid "Command execution cancellation requested for VM %s"
+msgstr ""
+
 #. T.HowManyBackupsQuestion
 #: ./src/modules/constants/translates.js
 msgid "How many backups do you want to keep?"
@@ -7910,6 +8250,11 @@ msgstr ""
 #. T.ResolutionHeightConcept
 #: ./src/modules/constants/translates.js
 msgid "Set the default heigth resolution for the video device"
+msgstr ""
+
+#. T.GraphicsTypeChangeRestartMessage
+#: ./src/modules/constants/translates.js
+msgid "To apply the changes, you need to power off and then resume."
 msgstr ""
 
 #. T.ListenOnIp
@@ -9292,6 +9637,31 @@ msgstr ""
 msgid "Automatic Outer VLAN ID"
 msgstr ""
 
+#. T.Sriov
+#: ./src/modules/constants/translates.js
+msgid "Configure SRIOV network"
+msgstr ""
+
+#. T.SpoofCheck
+#: ./src/modules/constants/translates.js
+msgid "VF MAC Spoofing filter"
+msgstr ""
+
+#. T.SpoofCheckConcept
+#: ./src/modules/constants/translates.js
+msgid "Prevents the VF from sending outbound traffic with unauthorized source MAC addresses."
+msgstr ""
+
+#. T.TrustCheck
+#: ./src/modules/constants/translates.js
+msgid "VF Trust"
+msgstr ""
+
+#. T.TrustCheckConcept
+#: ./src/modules/constants/translates.js
+msgid "Grants the VF elevated privileges to enter promiscuous mode."
+msgstr ""
+
 #. T.InvalidAttribute
 #: ./src/modules/constants/translates.js
 msgid "Invalid attribute"
@@ -9735,6 +10105,31 @@ msgstr ""
 #. T.GpuMemoryBandwidthUtilization
 #: ./src/modules/constants/translates.js
 msgid "Memory bandwidth utilization"
+msgstr ""
+
+#. T.NvswitchPartitions
+#: ./src/modules/constants/translates.js
+msgid "NVSwitch partitions"
+msgstr ""
+
+#. T.PartitionId
+#: ./src/modules/constants/translates.js
+msgid "Partition ID"
+msgstr ""
+
+#. T.GpuCount
+#: ./src/modules/constants/translates.js
+msgid "GPU count"
+msgstr ""
+
+#. T.GpuIds
+#: ./src/modules/constants/translates.js
+msgid "GPU IDs"
+msgstr ""
+
+#. T.GpuPciAddresses
+#: ./src/modules/constants/translates.js
+msgid "GPU PCI addresses"
 msgstr ""
 
 #. T.CpuHost
@@ -12012,6 +12407,16 @@ msgstr ""
 msgid "VM group updated - #%s %s"
 msgstr ""
 
+#. T.SuccessVMGroupAssociated
+#: ./src/modules/constants/translates.js
+msgid "VM Group associated successfully - Virtual machine #%s"
+msgstr ""
+
+#. T.SuccessVMGroupRemoved
+#: ./src/modules/constants/translates.js
+msgid "VM Group removed successfully - Virtual machine #%s"
+msgstr ""
+
 #. T.SuccessVMTemplateCreated
 #: ./src/modules/constants/translates.js
 msgid "VM Template created - #%s"
@@ -12220,6 +12625,16 @@ msgstr ""
 #. T.ErrorSupportCredentials
 #: ./src/modules/constants/translates.js
 msgid "Error with support credentials"
+msgstr ""
+
+#. T.ErrorSupportComment
+#: ./src/modules/constants/translates.js
+msgid "Could not send the comment: %s"
+msgstr ""
+
+#. T.ErrorSupportOAuth
+#: ./src/modules/constants/translates.js
+msgid "Could not connect to Zendesk. Please try again"
 msgstr ""
 
 #. T.ErrorVMGroupFetch
@@ -12800,6 +13215,26 @@ msgstr ""
 #. T.UPGRADING_FAILURE
 #: ./src/modules/constants/translates.js
 msgid "Upgrading Failure"
+msgstr ""
+
+#. T.INSTALLING_APPLICATION
+#: ./src/modules/constants/translates.js
+msgid "Installing application"
+msgstr ""
+
+#. T.INSTALLING_APPLICATION_FAILURE
+#: ./src/modules/constants/translates.js
+msgid "Installing application failure"
+msgstr ""
+
+#. T.DELETING_APPLICATION
+#: ./src/modules/constants/translates.js
+msgid "Deleting application"
+msgstr ""
+
+#. T.DELETING_APPLICATION_FAILURE
+#: ./src/modules/constants/translates.js
+msgid "Deleting application failure"
 msgstr ""
 
 #. T.count

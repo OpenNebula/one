@@ -34,6 +34,10 @@ const getDetailRequest = (entry = {}) => {
  * @returns {boolean} Whether an entry has a detail query to execute
  */
 const canHydrateResource = (entry) => {
+  if (getResourceSingleView(entry.resource)?.detail?.hydrate === false) {
+    return false
+  }
+
   const { endpoint, id } = getDetailRequest(entry)
 
   return Boolean(endpoint && hasValue(id))
@@ -52,7 +56,7 @@ const fetchResourceDetails = async (dispatch, entry) => {
   let request
 
   try {
-    request = dispatch(endpoint.initiate(detail.getArgs(id)))
+    request = dispatch(endpoint.initiate(detail.getArgs(id, entry)))
 
     const queryData = await request.unwrap()
     const resourceData = detail.select

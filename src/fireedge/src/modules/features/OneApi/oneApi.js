@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { createApi } from '@reduxjs/toolkit/query/react'
 
+import { T } from '@ConstantsModule'
 import { enqueueSnackbar } from '@modules/features/General/actions'
 import {
   DOCUMENT,
@@ -51,14 +52,20 @@ const oneApi = createApi({
     } catch (axiosError) {
       const { message, data = {}, status, statusText } = axiosError
       const { message: messageFromServer, data: errorFromOned } = data
+      const nestedMessage =
+        typeof errorFromOned === 'string'
+          ? errorFromOned
+          : errorFromOned?.message
 
       const error =
-        message ??
+        message ||
         formatError(errorFromOned?.type, {
-          fallback: errorFromOned || messageFromServer,
-        }) ??
-        messageFromServer ??
-        statusText
+          fallback: nestedMessage || messageFromServer,
+        }) ||
+        nestedMessage ||
+        messageFromServer ||
+        statusText ||
+        T.SomethingWrong
 
       if (status === 204) {
         const state = needStateInMeta ? getState() : {}

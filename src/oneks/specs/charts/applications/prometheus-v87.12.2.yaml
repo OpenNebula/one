@@ -1,0 +1,14 @@
+id: 'd511b694-d868-4e40-8224-fdf6a0ca3383'
+repo: https://prometheus-community.github.io/helm-charts
+chart: kube-prometheus-stack
+version: v87.12.2
+
+metadata:
+  name: Prometheus
+  description: Prometheus is a monitoring system and time series database.
+  documentationUrl: https://prometheus.io/docs/introduction/overview/
+
+defaultValuesContent: |-
+  grafana:
+    enabled: false
+dependencies: []

@@ -16,6 +16,22 @@
 
 module OneKS
 
+    # Routes Kubernetes readiness through the monitor fake when configured.
+    module VMWatchdogFake
+
+        attr_writer :monitor
+
+        def register_vm(vm_id, group_id, cluster_id)
+            result = super
+            return result if vm_id.nil? || group_id.nil? || cluster_id.nil?
+
+            @monitor&.enqueue_node_ready(cluster_id, group_id, vm_id)
+
+            result
+        end
+
+    end
+
     # Fake K8s Helper for testing
     module K8sFake
 
@@ -30,6 +46,36 @@ module OneKS
             :scale      => 'Kubernetes scale (dummy)',
             :kubeconfig => 'Kubeconfig retrieval (dummy)'
         }
+
+        attr_writer :application_fake
+
+        def apply_application(cluster, chart:, installation:)
+            valid = !chart.nil? && !installation[:release_name].to_s.empty? &&
+                    !installation[:target_namespace].to_s.empty? &&
+                    [true, false].include?(installation[:create_namespace]) &&
+                    installation.fetch(:user_inputs_values, {}).is_a?(Hash)
+            return false unless valid
+            return true unless @application_fake
+
+            applications = Application.release_group(
+                cluster.applications, installation[:release_name]
+            )
+            @application_fake.install(
+                cluster.id,
+                :chart        => chart,
+                :release_name => installation[:release_name],
+                :applications => applications
+            )
+        end
+
+        def delete_application(cluster, chart_id:, release_name:)
+            valid = !chart_id.to_s.empty? && !release_name.to_s.empty?
+            return false unless valid
+            return true unless @application_fake
+
+            applications = Application.release_group(cluster.applications, release_name)
+            @application_fake.delete(cluster.id, :applications => applications)
+        end
 
         # Ensures group state by manually creating all cluster resources
         def gather_info(group, spec = nil)
@@ -147,13 +193,10 @@ module OneKS
             return cluster if OpenNebula.is_error?(cluster)
 
             group = K8sGroup.find_by_uuid(cluster.groups, group_uuid)
-            return OpenNebula::Error.new(
-                "Group #{group_uuid} not found in Cluster #{cluster.id}",
-                OpenNebula::Error::EACTION
-            ) if group.nil? || group.empty?
+            return true if group.nil? || group.empty?
 
             errors = []
-            group.vms.each do |vm_id|
+            group.vm_ids.each do |vm_id|
                 rc = OneHelper::VirtualMachine.delete(client, vm_id, :force => true)
                 if OpenNebula.is_error?(rc)
                     errors << { :vm_id => vm_id, :error => rc.message }
@@ -187,7 +230,7 @@ module OneKS
             return OpenNebula::Error.new(
                 "Group #{group_uuid} not found in Cluster #{cluster.id}",
                 OpenNebula::Error::EACTION
-            ) if group.nil? || group.empty?
+            ) if group.nil?
 
             diff = target - group.vms.size
 
@@ -195,7 +238,7 @@ module OneKS
                 rc = instantiate_group(client, diff, group.base_group_name('node'))
                 return rc if OpenNebula.is_error?(rc)
             elsif diff.negative?
-                group.vms.first(diff.abs).each do |vm_id|
+                group.vm_ids.first(diff.abs).each do |vm_id|
                     rc = OneHelper::VirtualMachine.delete(client, vm_id, :force => true)
                     return rc if OpenNebula.is_error?(rc)
                 end

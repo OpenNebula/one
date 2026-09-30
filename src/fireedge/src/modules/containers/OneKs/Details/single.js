@@ -97,6 +97,11 @@ export const SingleView = ({
     { id: selectedId, expand: true },
     { skip: !isOpen || selectedId === undefined }
   )
+  const { currentData: installedApplications } =
+    OneKsAPI.useGetOneKsClusterApplicationsQuery(
+      { id: selectedId },
+      { skip: !isOpen || selectedId === undefined }
+    )
   const { data: families = [], isLoading: isLoadingFamilies } =
     OneKsAPI.useGetOneKsFamiliesQuery()
   const [recover, { isLoading: isRecovering }] =
@@ -360,6 +365,12 @@ export const SingleView = ({
                   status={'default'}
                 />,
                 T.KubernetesVersion,
+              ],
+              [
+                Array.isArray(installedApplications)
+                  ? String(installedApplications.length)
+                  : '-',
+                T.InstalledApplications,
               ],
             ],
           },

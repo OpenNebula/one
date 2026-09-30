@@ -34,10 +34,11 @@ import { v4 as uuidv4 } from 'uuid'
  * @param {Array} root0.items - Step item content
  * @param {object} root0.children - Step item children
  * @param {number} root0.start - First marker number
+ * @param {string} root0.variant - Step marker layout
  * @returns {Component} - StepList component
  */
 export const StepList = forwardRef(
-  ({ children, items = [], start = 1, ...opts }, ref) => {
+  ({ children, items = [], start = 1, variant = 'default', ...opts }, ref) => {
     const listId = useMemo(() => uuidv4(), [])
     const steps = useMemo(
       () => (items.length ? items : Children.toArray(children)),
@@ -52,7 +53,7 @@ export const StepList = forwardRef(
         : element
 
     return (
-      <Box sx={(theme) => getStyles({ theme })}>
+      <Box sx={(theme) => getStyles({ theme, variant })}>
         <MUIList
           className="steplist-container"
           component="ol"
@@ -80,6 +81,7 @@ StepList.propTypes = {
   children: PropTypes.node,
   items: PropTypes.arrayOf(PropTypes.node),
   start: PropTypes.number,
+  variant: PropTypes.oneOf(['default', 'timeline']),
 }
 
 StepList.displayName = 'StepList'

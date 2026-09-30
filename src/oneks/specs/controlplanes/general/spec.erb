@@ -37,6 +37,7 @@ stringData:
             name: "<%= cluster[:deployment][:networks][:private][:name] %>"
           virtualRouter:
             templateName: "<%= group[:router_template_name] %>"
+      ONE_AUTH: <%= one_auth.to_s.dump %>
     ---
     apiVersion: v1
     kind: ServiceAccount
@@ -107,6 +108,29 @@ stringData:
               effect: NoSchedule
           nodeSelector:
             node-role.kubernetes.io/control-plane: "true"
+<% if features[:monitor] %>
+    ---
+    apiVersion: helm.cattle.io/v1
+    kind: HelmChart
+    metadata:
+      name: oneks-monitor
+      namespace: kube-system
+    spec:
+      chart: oneks-monitor
+      repo: <%= features[:monitor][:chart_repo].dump %>
+<% unless features[:monitor][:chart_version].empty? %>
+      version: <%= features[:monitor][:chart_version].dump %>
+<% end %>
+      targetNamespace: kube-system
+      createNamespace: true
+      valuesContent: |
+        monitor:
+          endpoint: <%= features[:monitor][:endpoint].dump %>
+          clusterID: <%= cluster[:id].to_s.dump %>
+          openNebulaEndpoint: <%= one_xmlrpc.to_s.dump %>
+          key: <%= monitor_key.dump %>
+          authSecretName: cloud-config
+<% end %>
 type: addons.cluster.x-k8s.io/resource-set
 ---
 apiVersion: addons.cluster.x-k8s.io/v1beta1

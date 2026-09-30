@@ -103,6 +103,8 @@ RSpec.describe ODS::JobScheduler do
             def commit_work(_owner, result, token:)
                 @mutex.synchronize { @commit_counts[token] += 1 }
                 @events.add([:commit, token, result])
+                raise @controls[token][:commit_failure] if @controls[token][:commit_failure]
+
                 true
             end
 
@@ -269,6 +271,49 @@ RSpec.describe ODS::JobScheduler do
                     :operation_id => job.operation_id
                 ).message
             ).to include('stopped')
+        end
+    end
+
+    describe 'manual recovery resolution' do
+        it 'completes a failed step without executing its handler again' do
+            controls[:manual_success] = {}
+            owner = build_owner(1, :manual_success)
+            owner.state = :RUNNING_FAILURE
+
+            scheduler.start
+            result = workflow.request_recovery(owner.id, 'admin') do
+                ODS::Job.recover(:success, :state => :RUNNING)
+            end
+            expect(result).to be_a(String)
+
+            events.wait_until do |observed|
+                observed.any? {|event| event == [:complete, owner.id] }
+            end
+
+            expect(owner.state).to eq(:DONE)
+            expect(owner.active_job).to be_nil
+            expect(workflow.execution_counts[:manual_success]).to eq(0)
+        end
+
+        it 'fails an active step without executing its handler' do
+            controls[:manual_failure] = {}
+            owner = build_owner(1, :manual_failure)
+
+            scheduler.start
+            result = workflow.request_recovery(owner.id, 'admin') do
+                ODS::Job.recover(:failure, :state => :RUNNING)
+            end
+            expect(result).to be_a(String)
+
+            events.wait_until do |observed|
+                observed.any? do |event|
+                    event[0, 2] == [:failed, owner.id]
+                end
+            end
+
+            expect(owner.state).to eq(:RUNNING_FAILURE)
+            expect(owner.error[:message]).to eq('Manually failed by admin')
+            expect(workflow.execution_counts[:manual_failure]).to eq(0)
         end
     end
 
@@ -515,6 +560,24 @@ RSpec.describe ODS::JobScheduler do
             expect(workflow.execution_counts.values).to all(eq(1))
             expect(workflow.commit_counts).not_to have_key('partial-2')
         end
+
+        it 'terminally fails an unexpected commit exception without retrying the step' do
+            controls[:commit_failure] = { :commit_failure => 'commit exploded' }
+            owner = build_owner(1, :commit_failure)
+            operation_id = owner.active_job.id
+            schedule_owner(owner)
+
+            scheduler.start
+            events.wait_until do |observed|
+                observed.any? {|event| event[0, 2] == [:failed, owner.id] }
+            end
+
+            expect(owner.state).to eq(:RUNNING_FAILURE)
+            expect(owner.error[:message]).to eq('perform failed: commit exploded')
+            expect(workflow.execution_counts[:commit_failure]).to eq(1)
+            expect(workflow.commit_counts[:commit_failure]).to eq(1)
+            expect(scheduler.job_for(owner.id, operation_id)).to be_nil
+        end
     end
 
     describe 'thread-pool outcomes' do
@@ -659,6 +722,32 @@ RSpec.describe ODS::JobScheduler do
             expect(scheduler.job_for(1, operation_id)).to be_nil
         end
 
+        it 'interrupts an obsolete attempt without requesting durable cancellation' do
+            started = OdsSpecSupport::Gate.new
+            release = OdsSpecSupport::Gate.new
+            command = SchedulerSpecCommand.new(:started => started, :release => release)
+            controls[:obsolete] = { :type => :command, :command => command }
+            owner = build_owner(1, :obsolete)
+            before = owner.active_job.to_h
+            schedule_owner(owner)
+            scheduler.start
+            started.wait
+
+            expect(
+                scheduler.interrupt(
+                    owner.id, owner.active_job.id, :before_attempt => 2
+                )
+            ).to eq(:requested)
+            Timeout.timeout(1) do
+                sleep(0.01) while scheduler.job_for(owner.id, owner.active_job.id)
+            end
+
+            expect(command.cancel_count).to eq(1)
+            expect(owner.state).to eq(:RUNNING)
+            expect(owner.active_job.to_h).to eq(before)
+            expect(owner.active_job.cancellation).to be_nil
+        end
+
         it 'shutdown cancels active commands, discards pending runtime entries and is idempotent' do
             started = OdsSpecSupport::Gate.new
             release = OdsSpecSupport::Gate.new
@@ -741,8 +830,8 @@ RSpec.describe ODS::JobScheduler do
             replacement_scheduler = described_class.new(
                 :concurrency => 1, :shutdown_timeout => 1
             )
-            replacement_workflow = workflow_class.new(controls, events)
-                                                 .configure(pool, replacement_scheduler)
+            replacement_workflow =
+                workflow_class.new(controls, events).configure(pool, replacement_scheduler)
             replacement_scheduler.register(replacement_workflow)
             expect(replacement_workflow.catch_up).to be(true)
             replacement_scheduler.start
@@ -813,7 +902,10 @@ RSpec.describe ODS::JobScheduler, 'event-driven waits' do
             end
 
             define_method(:ready) do |resource, **_opts|
-                ready = resource.instance_variable_get(:@ready) == true
+                observed = resource.instance_variable_get(:@ready)
+                raise 'wait check exploded' if observed == :raise
+
+                ready = observed == true
                 log.add([:checked, ready])
                 ready
             end
@@ -888,6 +980,17 @@ RSpec.describe ODS::JobScheduler, 'event-driven waits' do
         expect(workflow.finish_calls).to eq(0)
         expect(scheduler.job_for(owner.id, operation_id)).to be_nil
     end
+
+    it 'terminally fails an unexpected wait-check exception' do
+        operation_id = owner.active_job.id
+
+        expect(workflow.dispatch_event(owner.id, :changed, :ready => :raise))
+            .to eq('wait check exploded')
+
+        expect(owner.state).to eq(:RUNNING_FAILURE)
+        expect(owner.error[:message]).to eq('wait check exploded')
+        expect(scheduler.job_for(owner.id, operation_id)).to be_nil
+    end
 end
 
 RSpec.describe ODS::JobScheduler, 'workflow outcome orchestration' do
@@ -929,6 +1032,10 @@ RSpec.describe ODS::JobScheduler, 'workflow outcome orchestration' do
                 case mode
                 when :invalid
                     :invalid_result
+                when :raised_failure
+                    raise 'raised handler failure'
+                when :returned_error
+                    OpenNebula::Error.new('returned handler failure')
                 when :failure, :retry_failure
                     ODS::Job.fail('primary failure')
                 else
@@ -951,8 +1058,10 @@ RSpec.describe ODS::JobScheduler, 'workflow outcome orchestration' do
                 ODS::Job.success
             end
 
-            def cancel_first(_resource, **_args)
+            def cancel_first(_resource, mode:, **_args)
                 calls << [:cancel]
+                raise 'cancel callback exploded' if mode == :cancel_raise
+
                 ODS::Job.fail('cancelled first')
             end
         end
@@ -1029,6 +1138,28 @@ RSpec.describe ODS::JobScheduler, 'workflow outcome orchestration' do
                                      ])
     end
 
+    it 'persists a raised handler error without retrying the operation' do
+        job = queued_job(:raised_failure)
+
+        execute(job)
+
+        expect(owner.state).to eq(:RUNNING_FAILURE)
+        expect(owner.error[:message]).to eq('raised handler failure')
+        expect(workflow.calls.count {|call| call.first == :first }).to eq(1)
+        expect(scheduler.job_for(owner.id, job.operation_id)).to be_nil
+    end
+
+    it 'persists a returned domain error without retrying the operation' do
+        job = queued_job(:returned_error)
+
+        execute(job)
+
+        expect(owner.state).to eq(:RUNNING_FAILURE)
+        expect(owner.error[:message]).to eq('returned handler failure')
+        expect(workflow.calls.count {|call| call.first == :first }).to eq(1)
+        expect(scheduler.job_for(owner.id, job.operation_id)).to be_nil
+    end
+
     it 'merges finalizer failure details without losing the primary failure' do
         allow(workflow).to receive(:first).and_wrap_original do |original, resource, **args|
             original.call(resource, **args)
@@ -1052,6 +1183,19 @@ RSpec.describe ODS::JobScheduler, 'workflow outcome orchestration' do
         expect(owner.state).to eq(:RUNNING_FAILURE)
         expect(owner.error[:message]).to eq('cancelled first')
         expect(workflow.calls).to eq([[:cleanup, :success], [:cancel]])
+    end
+
+    it 'terminally fails an unexpected cancellation callback exception' do
+        job = queued_job(:cancel_raise)
+        owner.request_job_cancellation!(:actor => 'alice')
+        job.request_cancel!(owner.active_job.cancellation)
+
+        execute(job)
+
+        expect(owner.state).to eq(:RUNNING_FAILURE)
+        expect(owner.error[:message]).to eq('cancel callback exploded')
+        expect(workflow.calls).to eq([[:cleanup, :cancel_raise], [:cancel]])
+        expect(scheduler.job_for(owner.id, job.operation_id)).to be_nil
     end
 
     it 'honors cancellation requested by an step before runtime resolution' do
@@ -1097,6 +1241,11 @@ RSpec.describe ODS::JobScheduler, 'workflow outcome orchestration' do
         expect(job.status).to eq(:pending)
         expect(owner.state).to eq(:RUNNING)
         expect(workflow.calls.count {|call| call.first == :first }).to eq(1)
+        expect(Log).to have_received(:debug).with(
+            ODS::JobScheduler::COMP,
+            /Retrying .* first operation .*: persistence unavailable/,
+            owner.id
+        )
 
         allow(pool).to receive(:get).and_call_original
         job.retry_at = nil

@@ -121,17 +121,21 @@ module OneKS
             raise NotImplementedError
         end
 
-        # Wait until resource is ready
-        # Subclasses must implement this method to define the callback logic
-        # after creation, implementing the stop flag as well for error handling
-        def wait_create(group, stop_flag)
-            raise NotImplementedError
+        # Applies common post-creation handling. Concrete dependencies wait for
+        # their own resource and call +super+ once it is ready.
+        def wait_create(group, _stop_flag, client_provider: nil)
+            if destroy_on_ready?
+                rc = destroy(group, :client_provider => client_provider)
+                return rc if OpenNebula.is_error?(rc)
+            end
+
+            self
         end
 
         # Destroys the dependency.
         # Subclasses must implement this method to properly delete or clean up
         # the dependency from OpenNebula.
-        def destroy(group)
+        def destroy(group, client_provider: nil)
             raise NotImplementedError
         end
 
@@ -187,6 +191,15 @@ module OneKS
             obj
         rescue NameError => e
             raise ArgumentError, "Invalid dependency class in JSON payload: #{e.message}"
+        end
+
+        private
+
+        # Resolves the current OpenNebula client for a dependency operation.
+        def dependency_client(group, client_provider)
+            return group.client unless client_provider
+
+            client_provider.call
         end
 
     end

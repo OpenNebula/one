@@ -15,3 +15,4 @@
  * ------------------------------------------------------------------------- */
 export * from '@modules/models/OneKs/general'
 export * from '@modules/models/OneKs/table'
+export * from '@modules/models/OneKs/application'

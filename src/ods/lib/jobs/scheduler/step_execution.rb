@@ -79,9 +79,14 @@ module OpenNebula
                             break
                         end
 
-                        result = run_step(workflow, state.job, step)
+                        result =
+                            if state.job.resolution
+                                ExecResult.ok(workflow.manual_outcome(state.job, step))
+                            else
+                                run_step(workflow, state.job, step)
+                            end
                         if result.retry?
-                            defer(state)
+                            defer_retry(state, workflow, result.value)
                             break
                         end
                         break if result.stale? || result.stopped? ||
@@ -91,7 +96,7 @@ module OpenNebula
 
                         result = run_runtime(workflow, state.job, result.value)
                         if result.retry?
-                            defer(state)
+                            defer_retry(state, workflow, result.value)
                             break
                         end
                         break if result.stale? || result.stopped? ||
@@ -100,7 +105,7 @@ module OpenNebula
                         outcome  = workflow.normalize_outcome(result.value)
                         finalizer = run_finalizer(workflow, state.job, step)
                         if finalizer.retry?
-                            defer(state)
+                            defer_retry(state, workflow, finalizer.value)
                             break
                         end
                         break if finalizer.stale? || finalizer.stopped? ||
@@ -131,7 +136,7 @@ module OpenNebula
                             # Persist terminal completion and release the job.
                             result = @trans.complete(workflow, state.job, outcome)
                             if result.retry?
-                                defer(state)
+                                defer_retry(state, workflow, result.value)
                                 break
                             end
                             raise result.value.message if result.error?
@@ -144,7 +149,7 @@ module OpenNebula
                             break if result.stale? || result.cancelled?
 
                             if result.retry?
-                                defer(state)
+                                defer_retry(state, workflow, result.value)
                                 break
                             end
 
@@ -165,7 +170,11 @@ module OpenNebula
                     unless state.job.shutdown_requested?
                         state.job.failure_outcome = Job.fail(e.message)
                         result = @trans.unhandled(workflow, state.job, step, e)
-                        defer(state) if result.error? || result.retry?
+                        if result.retry?
+                            defer_retry(state, workflow, result.value)
+                        elsif result.error?
+                            defer(state)
+                        end
                     end
                 ensure
                     @scheduler.finish(
@@ -186,7 +195,7 @@ module OpenNebula
                     return false if result.stale? || result.cancelled?
 
                     if result.retry?
-                        defer(state)
+                        defer_retry(state, workflow, result.value)
                         return false
                     end
 
@@ -213,7 +222,11 @@ module OpenNebula
                     result = @trans.failure(
                         workflow, state.job, step, failure
                     )
-                    defer(state) if result.error? || result.retry?
+                    if result.retry?
+                        defer_retry(state, workflow, result.value)
+                    elsif result.error?
+                        defer(state)
+                    end
                     result
                 end
 
@@ -229,7 +242,11 @@ module OpenNebula
                         ensure_failure,
                         :finalized => finalized
                     )
-                    defer(state) if result.error? || result.retry?
+                    if result.retry?
+                        defer_retry(state, workflow, result.value)
+                    elsif result.error?
+                        defer(state)
+                    end
                     state.suspend! if result.waiting?
 
                     true
@@ -249,9 +266,17 @@ module OpenNebula
                             next
                         end
 
-                        outcome = workflow.execute_handler(
-                            handler, resource, job.args, loaded_dependencies
-                        )
+                        begin
+                            outcome = workflow.execute_handler(
+                                handler, resource, job.args, loaded_dependencies
+                            )
+                        rescue StandardError => e
+                            outcome = Job.fail(e.message)
+                        end
+
+                        # Keep handler outcomes local so domain errors become
+                        # terminal job failures.
+                        nil
                     end
 
                     return ExecResult.retry(rc) if OpenNebula.is_error?(rc)
@@ -299,6 +324,17 @@ module OpenNebula
                 def defer(state)
                     @scheduler.defer(state.job)
                     state.defer!
+                end
+
+                def defer_retry(state, workflow, error)
+                    Log.debug(
+                        JobScheduler::COMP,
+                        "Retrying #{workflow.job_label(state.job)} operation " \
+                        "#{state.job.id}: #{error.message}",
+                        state.job.owner_id
+                    )
+
+                    defer(state)
                 end
 
             end

@@ -1,0 +1,35 @@
+id: 'e3a6dcfe-abca-406a-a73b-d173b75b143a'
+repo: https://charts.longhorn.io
+chart: longhorn
+version: v1.12.1
+
+metadata:
+  name: Longhorn
+  description: Longhorn distributed block storage for the NVIDIA Run:ai same-cluster validation deployment.
+
+defaultValuesContent: |-
+  persistence:
+    createStorageClass: true
+    defaultClass: true
+    defaultClassReplicaCount: 1
+    reclaimPolicy: Delete
+  defaultSettings:
+    deletingConfirmationFlag: true
+installDefaults:
+  releaseName: oneks-longhorn
+  targetNamespace: longhorn-system
+  createNamespace: true
+
+preUninstall:
+  - name: Enable Longhorn deletion
+    patch:
+      apiVersion: longhorn.io/v1beta2
+      kind: Setting
+      metadata:
+        name: deleting-confirmation-flag
+        namespace: ${targetNamespace}
+      type: merge
+      content:
+        value: "true"
+
+dependencies: []

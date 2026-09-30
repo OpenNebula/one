@@ -56,6 +56,7 @@ export const RESOURCE_NAMES = {
   SUPPORT: 'support',
   DASHBOARD: 'dashboard',
   ONEKS: 'kubernetes',
+  ONEKS_APPLICATION: 'kubernetes-application',
 }
 
 export const RESOURCE_ICON_NAMES = Object.freeze({
@@ -70,6 +71,7 @@ export const RESOURCE_ICON_NAMES = Object.freeze({
   [RESOURCE_NAMES.IMAGE]: 'BoxIso',
   [RESOURCE_NAMES.MARKETPLACE]: 'SimpleCart',
   [RESOURCE_NAMES.ONEKS]: 'XrayView',
+  [RESOURCE_NAMES.ONEKS_APPLICATION]: 'Packages',
   [RESOURCE_NAMES.PROVIDER]: 'SettingsProfiles',
   [RESOURCE_NAMES.SEC_GROUP]: 'HistoricShield',
   [RESOURCE_NAMES.SERVICE]: 'Packages',

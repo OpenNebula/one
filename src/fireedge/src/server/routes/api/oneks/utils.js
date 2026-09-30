@@ -56,7 +56,7 @@ const oneKsConnection = (
   success = () => undefined,
   error = () => undefined
 ) => {
-  const { method, path, user, password, request, post } = requestData
+  const { method, path, user, password, request, post, query } = requestData
   const optionMethod = method || GET
   const optionPath = path || '/'
 
@@ -77,6 +77,7 @@ const oneKsConnection = (
   }
 
   if (post) options.data = post
+  if (query) options.params = query
 
   axios(options)
     .then((response) => {

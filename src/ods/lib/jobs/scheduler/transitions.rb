@@ -195,7 +195,11 @@ module OpenNebula
                 end
 
                 def cancel_locked(workflow, resource, job, step, ensure_failure = nil)
-                    outcome = workflow.cancel(resource, job, step)
+                    begin
+                        outcome = workflow.cancel(resource, job, step)
+                    rescue StandardError => e
+                        outcome = Job.fail(e.message)
+                    end
                     message = outcome.message
 
                     if ensure_failure.is_a?(Job::Failure)

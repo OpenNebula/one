@@ -1,0 +1,17 @@
+id: '6137389d-6b75-4cc5-a03d-608bcd596f14'
+chart: oci://registry.k8s.io/lws/charts/lws
+version: 0.10.0
+
+metadata:
+  name: LeaderWorkerSet Operator 0.10.0
+  description: Private LeaderWorkerSet dependency for coordinated multi-pod and multi-node LLM workloads.
+
+defaultValuesContent: |-
+  {}
+
+installDefaults:
+  releaseName: oneks-leader-worker-set
+  targetNamespace: lws-system
+  createNamespace: true
+
+dependencies: []

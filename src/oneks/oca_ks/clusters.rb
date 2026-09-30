@@ -58,6 +58,30 @@ module OneKS
             get("/clusters/#{id}", opts)
         end
 
+        # GET /clusters/:id/observations
+        # Retrieve the latest Kubernetes observations stored for a cluster
+        # @param id [String] Cluster ID
+        # @return [Array<Hash>] Cluster observations
+        def get_cluster_observations(id)
+            get("/clusters/#{id}/observations")
+        end
+
+        # GET /clusters/:id/historic
+        # Retrieve the aggregate history of a Cluster and its groups.
+        # @param id [String] Cluster ID
+        # @return [Array<Hash>] Aggregate history events
+        def get_cluster_historic(id)
+            get("/clusters/#{id}/historic")
+        end
+
+        # GET /clusters/:id/pods
+        # Retrieve the aggregate pods of a Cluster and its groups.
+        # @param id [String] Cluster ID
+        # @return [Array<Hash>] Aggregate pods
+        def get_cluster_pods(id)
+            get("/clusters/#{id}/pods")
+        end
+
         # GET /clusters/deployment/check
         # Retrieve readiness check service status
         # @return [Hash] Readiness check status
@@ -132,7 +156,7 @@ module OneKS
         # Initiates an upgrade of a Kubernetes cluster
         # @param id [String] Cluster ID
         # @param k8s_version [String] K8sversion to upgrade
-        # @return [Hash] Cluster created
+        # @return [Integer] Operation result/status
         def upgrade_cluster(id, k8s_version)
             post("/clusters/#{id}/upgrade", { :kubernetes_version => k8s_version })
         end
@@ -140,9 +164,13 @@ module OneKS
         # POST /clusters/:id/recover
         # Tries to recover a cluster in a warning or failure state
         # @param id [String] Cluster ID
+        # @param action [Symbol, String] retry, success, failure, or delete-db
         # @return [Integer] Recover result/status
-        def recover_cluster(id)
-            post("/clusters/#{id}/recover")
+        def recover_cluster(id, action = :retry)
+            post(
+                "/clusters/#{id}/recover",
+                { :action => action.to_s.tr('_', '-') }
+            )
         end
 
         # DELETE /clusters/:id

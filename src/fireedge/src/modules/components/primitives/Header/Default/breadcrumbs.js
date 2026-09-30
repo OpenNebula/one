@@ -79,8 +79,23 @@ export const BreadcrumbTrail = ({ breadcrumbs = [], className, showHome }) => {
         data-cy="breadcrumbs"
         className={'breadcrumb-links'}
       >
-        {breadcrumbs.map(({ label, path }, i) => {
+        {breadcrumbs.map(({ label, path, onClick }, i) => {
           const translatedLabel = translateBreadcrumbLabel(label, translate)
+
+          if (onClick && i < breadcrumbs.length - 1) {
+            return (
+              <Link
+                key={i}
+                underline="hover"
+                color="inherit"
+                component="button"
+                className="breadcrumb-item"
+                onClick={onClick}
+              >
+                {translatedLabel}
+              </Link>
+            )
+          }
 
           return path && i < breadcrumbs.length - 1 ? (
             <Link
@@ -113,6 +128,7 @@ BreadcrumbTrail.propTypes = {
     PropTypes.shape({
       label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
       path: PropTypes.string,
+      onClick: PropTypes.func,
     })
   ),
   className: PropTypes.string,

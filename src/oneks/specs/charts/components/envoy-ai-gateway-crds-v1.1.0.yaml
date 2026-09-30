@@ -1,0 +1,17 @@
+id: '3f07dee5-5ad8-4b59-a22f-ce6328b64cdd'
+chart: oci://docker.io/envoyproxy/ai-gateway-crds-helm
+version: v1.1.0
+
+metadata:
+  name: Envoy AI Gateway CRDs v1.1.0
+  description: Private Envoy AI Gateway CRD dependency.
+
+defaultValuesContent: |-
+  {}
+
+installDefaults:
+  releaseName: oneks-envoy-ai-gateway-crds
+  targetNamespace: envoy-ai-gateway-system
+  createNamespace: true
+
+dependencies: []

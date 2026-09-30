@@ -83,6 +83,8 @@ class OneKSGroupHelper < ODSHelper
 
             puts
 
+            print_document_error(body[:error])
+
             CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
             ['OWNER', 'GROUP', 'OTHER'].each do |e|
@@ -101,29 +103,10 @@ class OneKSGroupHelper < ODSHelper
 
             puts Kernel.format(str, 'FAMILY', body[:family]          || '--')
             puts Kernel.format(str, 'FLAVOUR', body[:flavour]        || '--')
+
             format_capacity(body[:user_inputs_values])
-            puts Kernel.format(str, 'VM IDS', body[:vms].join(',') || '--')
-
-            puts
-
+            format_vms(body[:vms])
             format_dependencies(body[:dependencies])
-
-            CLIHelper.print_header('GROUP HISTORIC', false)
-            CLIHelper::ShowTable.new(nil, self) do
-                column :ACTION, '', :left, :size => 30, :adjust => true do |d|
-                    d[:action]
-                end
-
-                column :DESCRIPTION, '', :left, :size => 50, :adjust => true do |d|
-                    d[:description]
-                end
-
-                column :TIME, '', :left, :size => 15 do |d|
-                    OpenNebulaHelper.time_to_str(d[:time])
-                end
-
-                default :TIME, :ACTION, :DESCRIPTION
-            end.show(Array(body[:historic]), {})
 
             remaining = body.reject do |k, _|
                 [
@@ -140,7 +123,11 @@ class OneKSGroupHelper < ODSHelper
                     :user_inputs_values,
                     :historic,
                     :endpoint,
-                    :registration_time
+                    :registration_time,
+                    :error,
+                    :active_job,
+                    :kubernetes_version,
+                    :target_kubernetes_version
                 ].include?(k)
             end
 
@@ -150,6 +137,25 @@ class OneKSGroupHelper < ODSHelper
             end
 
             0
+        end
+    end
+
+    def historic(client, group_id, options = {})
+        cluster_id = resolve_cluster_group(client, group_id)
+        return cluster_id if is_error?(cluster_id)
+
+        response = client.get_cluster_historic(cluster_id)
+        render_response(response, options) {|events| format_historic(events) }
+    end
+
+    def pods(client, group_id, options = {})
+        cluster_id = resolve_cluster_group(client, group_id)
+        return cluster_id if is_error?(cluster_id)
+
+        response = client.get_cluster_nodegroup_pods(cluster_id, group_id)
+
+        render_response(response, options) do |data|
+            format_pods(data)
         end
     end
 
@@ -166,8 +172,6 @@ class OneKSGroupHelper < ODSHelper
         if CloudClient.is_error?(rc)
             [rc[:err_code], rc[:message]]
         else
-            puts "ID: #{rc[:ID]}"
-
             0
         end
     end
@@ -202,16 +206,6 @@ class OneKSGroupHelper < ODSHelper
         0
     end
 
-    def recover(client, group_id)
-        cluster_id = resolve_cluster_group(client, group_id)
-        return cluster_id if is_error?(cluster_id)
-
-        rc = client.recover_cluster_nodegroup(cluster_id, group_id)
-        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
-
-        0
-    end
-
     def delete(client, group_ids)
         group_ids.each do |group_id|
             cluster_id = resolve_cluster_group(client, group_id)
@@ -224,7 +218,38 @@ class OneKSGroupHelper < ODSHelper
         0
     end
 
+    def recover(client, group_id, action = :retry)
+        cluster_id = resolve_cluster_group(client, group_id)
+        return cluster_id if is_error?(cluster_id)
+
+        rc = client.recover_cluster_nodegroup(cluster_id, group_id, action)
+        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+
+        0
+    end
+
     private
+
+    def format_vms(vms)
+        puts
+
+        CLIHelper.print_header('VMS', false)
+        CLIHelper::ShowTable.new(nil, self) do
+            column :ID, '', :left, :size => 12, :adjust => true do |vm|
+                vm[:id] || '--'
+            end
+
+            column :READY, '', :left, :size => 8 do |vm|
+                vm[:ready] ? 'YES' : 'NO'
+            end
+
+            column :PODS, '', :left, :size => 8 do |vm|
+                Array(vm[:pods]).size
+            end
+
+            default :ID, :READY, :PODS
+        end.show(Array(vms), {})
+    end
 
     def format_pool
         config_file = self.class.table_conf
@@ -282,8 +307,8 @@ class OneKSGroupHelper < ODSHelper
         deps = Array(dependencies)
         return if deps.empty?
 
+        puts
         header = '%-80s'
-
         CLIHelper.print_header(header % 'DEPENDENCIES', false)
         CLIHelper::ShowTable.new(nil, self) do
             column :NAME, '', :left, :size => 24 do |d|
@@ -300,11 +325,10 @@ class OneKSGroupHelper < ODSHelper
 
             default :NAME, :ID, :READY
         end.show(deps, {})
-
-        puts
     end
 
     def format_capacity(values)
+        puts
         str = '%-20s: %-20s'
 
         CAPACITY_ATTRS.each do |key|

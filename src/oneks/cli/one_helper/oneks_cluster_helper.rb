@@ -58,16 +58,22 @@ class OneKSClusterHelper < ODSHelper
     end
 
     def show(client, cluster_id, options)
-        options.merge!({ :expand => true })
-        show_resource(client, :get_cluster, cluster_id, options) do |response|
+        response = client.get_cluster(cluster_id, :expand => true)
+        return [response[:err_code], response[:message]] if CloudClient.is_error?(response)
+
+        body = response[:TEMPLATE][:CLUSTER_BODY]
+        applications = Array(body[:applications]).reject do |application|
+            application[:parent]
+        end
+
+        render_response(response, options) do
             str    = '%-20s: %-20s'
             str_h1 = '%-80s'
 
-            body     = response[:TEMPLATE][:CLUSTER_BODY]
             reg_time = OpenNebulaHelper.time_to_str(body[:registration_time])
 
-            cp  = body[:control_plane] || {}
-            vms = Array(cp[:vms])
+            cp     = body[:control_plane] || {}
+            vm_ids = Array(cp[:vms]).map {|vm| vm[:id] }
 
             CLIHelper.print_header(
                 str_h1 % "ONEKS CLUSTER #{response[:ID]} INFORMATION"
@@ -84,6 +90,8 @@ class OneKSClusterHelper < ODSHelper
             puts Kernel.format str, 'REGISTRATION TIME', reg_time
 
             puts
+
+            print_document_error(body[:error])
 
             CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
@@ -126,7 +134,7 @@ class OneKSClusterHelper < ODSHelper
             puts Kernel.format(str, 'FAMILY',  cp[:family]  || '--')
             puts Kernel.format(str, 'FLAVOUR', cp[:flavour] || '--')
             puts Kernel.format(str, 'STATE',   cp[:state]   || '--')
-            puts Kernel.format(str, 'VM IDS',  vms.empty? ? '--' : vms.join(','))
+            puts Kernel.format(str, 'VM IDS',  vm_ids.empty? ? '--' : vm_ids.join(','))
 
             puts
 
@@ -168,34 +176,25 @@ class OneKSClusterHelper < ODSHelper
 
             puts
 
-            CLIHelper.print_header('CLUSTER HISTORIC', false)
-            CLIHelper::ShowTable.new(nil, self) do
-                column :ACTION, '', :left, :size => 30, :adjust => true do |d|
-                    d[:action]
-                end
-
-                column :DESCRIPTION, '', :left, :size => 50, :adjust => true do |d|
-                    d[:description]
-                end
-
-                column :TIME, '', :left, :size => 15 do |d|
-                    OpenNebulaHelper.time_to_str(d[:time])
-                end
-
-                default :TIME, :ACTION, :DESCRIPTION
-            end.show(Array(body[:historic]), {})
+            CLIHelper.print_header(str_h1 % 'APPLICATIONS', false)
+            format_applications(applications)
 
             remaining = body.reject do |k, _|
                 [
                     :name,
                     :description,
                     :kubernetes_version,
+                    :target_kubernetes_version,
                     :state,
+                    :features,
                     :deployment,
                     :control_plane,
                     :node_groups,
+                    :applications,
                     :registration_time,
-                    :historic
+                    :historic,
+                    :error,
+                    :active_job
                 ].include?(k)
             end
 
@@ -208,11 +207,40 @@ class OneKSClusterHelper < ODSHelper
         end
     end
 
+    def historic(client, cluster_id, options = {})
+        response = client.get_cluster_historic(cluster_id)
+        render_response(response, options) {|events| format_historic(events) }
+    end
+
     def kubeconfig(client, cluster_id, options = {})
         response = client.get_cluster_kubeconfig(cluster_id)
 
         render_response(response, options) do |data|
             puts data[:kubeconfig] || ''
+        end
+    end
+
+    def observations(client, cluster_id, options = {})
+        response = client.get_cluster_observations(cluster_id)
+
+        render_response(response, options) do |data|
+            format_observations(data)
+        end
+    end
+
+    def pods(client, cluster_id, options = {})
+        response = client.get_cluster_pods(cluster_id)
+
+        render_response(response, options) do |data|
+            format_pods(data, :aggregate => true)
+        end
+    end
+
+    def application(client, cluster_id, release_name, options = {})
+        response = client.get_cluster_application(cluster_id, release_name)
+
+        render_response(response, options) do |data|
+            format_application(data, cluster_id)
         end
     end
 
@@ -269,9 +297,9 @@ class OneKSClusterHelper < ODSHelper
         0
     end
 
-    def recover(client, ids)
+    def recover(client, ids, action = :retry)
         ids.each do |id|
-            rc = client.recover_cluster(id)
+            rc = client.recover_cluster(id, action)
             return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
         end
 
@@ -362,6 +390,98 @@ class OneKSClusterHelper < ODSHelper
     end
 
     private
+
+    def format_applications(applications)
+        applications = Array(applications)
+        if applications.empty?
+            puts '--'
+            return
+        end
+
+        failures = applications.select {|application| application[:state] == 'error' }
+
+        failures.each do |application|
+            puts "#{CLIHelper::ANSI_RED}ERROR#{CLIHelper::ANSI_RESET}: " \
+                 "#{application[:release_name]} is in error state: " \
+                 "#{application[:error_msg]}"
+        end
+        puts unless failures.empty?
+
+        CLIHelper::ShowTable.new(nil, self) do
+            column :'RELEASE NAME', '', :left, :size => 30, :adjust => true do |application|
+                application[:release_name] || '--'
+            end
+
+            column :STATE, '', :left, :size => 15, :adjust => true do |application|
+                application[:state]&.upcase || '--'
+            end
+
+            default :'RELEASE NAME', :STATE
+        end.show(applications, {})
+    end
+
+    def format_application(application, cluster_id)
+        str      = '%-20s: %s'
+        metadata = application[:metadata] || {}
+
+        CLIHelper.print_header(
+            "ONEKS #{application[:release_name].upcase} APPLICATION IN CLUSTER #{cluster_id}"
+        )
+        puts Kernel.format(str, 'ID', application[:id] || '--')
+
+        metadata.reject {|key, _value| key.to_sym == :about }.each do |key, value|
+            puts Kernel.format(str, metadata_label(key), display_value(value))
+        end
+
+        puts Kernel.format(str, 'RELEASE NAME', application[:release_name] || '--')
+        puts Kernel.format(str, 'VERSION', application[:version] || '--')
+        puts Kernel.format(str, 'STATE', application[:state]&.upcase || '--')
+        puts Kernel.format(str, 'PARENT', application[:parent] || '--')
+        puts Kernel.format(str, 'ERROR', application[:error_msg]) if application[:error_msg]
+
+        dependencies = Array(application[:dependencies])
+        unless dependencies.empty?
+            puts
+            CLIHelper.print_header('DEPENDENCIES', false)
+            format_applications(dependencies)
+        end
+
+        format_about(metadata[:about]) if metadata[:about]
+    end
+
+    def format_observations(observations)
+        CLIHelper::ShowTable.new(nil, self) do
+            column :NAMESPACE, '', :left, :size => 24,
+                   :adjust => true, :expand => true do |item|
+                item[:namespace] || '--'
+            end
+
+            column :RESOURCE, '', :left, :size => 18, :adjust => true do |item|
+                item[:resource] || '--'
+            end
+
+            column :NAME, '', :left, :size => 30,
+                   :adjust => true, :expand => true do |item|
+                item[:name] || '--'
+            end
+
+            column :PATH, '', :left, :size => 28, :adjust => true do |item|
+                item[:path] || '--'
+            end
+
+            column :VALUE, '', :left, :size => 16, :adjust => true do |item|
+                value = item[:value]
+                value = value.upcase if value.is_a?(String)
+                value.nil? ? '--' : value
+            end
+
+            column :TIME, '', :left, :size => 15 do |item|
+                OpenNebulaHelper.time_to_str(item[:createdAt])
+            end
+
+            default :NAMESPACE, :RESOURCE, :NAME, :PATH, :VALUE, :TIME
+        end.show(Array(observations), {})
+    end
 
     def format_pool
         config_file = self.class.table_conf

@@ -54,12 +54,16 @@ const NodeGroups = ({ data }) => {
   const selectedNodeGroup = useMemo(
     () =>
       tableData.find(
-        (nodeGroup) => String(nodeGroup?.id) === String(selectedNodeGroupId)
+        (nodeGroup, index) =>
+          String(nodeGroup?.id ?? index) === String(selectedNodeGroupId)
       ),
     [selectedNodeGroupId, tableData]
   )
   const selectedVmIds = useMemo(
-    () => [].concat(selectedNodeGroup?.vms ?? []).map(String),
+    () =>
+      []
+        .concat(selectedNodeGroup?.vms ?? [])
+        .map((vm) => String(vm?.id ?? vm?.ID ?? vm)),
     [selectedNodeGroup]
   )
   const { data: vms = [], isFetching: isFetchingVms } = vmsTable.useData()
@@ -139,7 +143,11 @@ const NodeGroups = ({ data }) => {
                     String(selectedNodeGroupId) === String(nodeGroupId)
                   }
                   onCheck={() => handleSelectNodeGroup(nodeGroupId)}
-                  onClick={() => handleSelectNodeGroup(nodeGroupId)}
+                  onClick={(event) => {
+                    if (!event.target.closest('.card-checkbox')) {
+                      handleSelectNodeGroup(nodeGroupId)
+                    }
+                  }}
                 />
               )
             })}
@@ -159,8 +167,12 @@ const NodeGroups = ({ data }) => {
             rowDetailsResourceId={RESOURCE_NAMES.VM}
             toolbar={<NodeGroupActions id={id} node={selectedNodeGroup} />}
             emptyContentProps={{
-              title: T.NoNodeGroupSelected,
-              subtitle: T.SelectNodeGroupConcept,
+              title: selectedNodeGroup
+                ? T.NoDataAvailable
+                : T.NoNodeGroupSelected,
+              subtitle: selectedNodeGroup
+                ? undefined
+                : T.SelectNodeGroupConcept,
             }}
           />
         </Box>

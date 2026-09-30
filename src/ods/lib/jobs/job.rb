@@ -36,6 +36,7 @@ module OpenNebula
                         :step,
                         :args,
                         :failure_state,
+                        :resolution,
                         :parent,
                         :cancel_flag
 
@@ -62,6 +63,7 @@ module OpenNebula
                 @step          = attributes[:step]
                 @args          = (attributes[:args] || {}).dup
                 @failure_state = attributes[:failure_state]
+                @resolution    = attributes[:resolution]
                 @parent        = attributes[:parent]
                 @children      = Array(attributes[:children]).dup.freeze
 
@@ -239,6 +241,8 @@ module OpenNebula
                 raise ArgumentError, 'Job args must be a Hash' unless args.is_a?(Hash)
                 raise ArgumentError, 'Job failure state must be a Symbol' \
                     unless failure_state.nil? || failure_state.is_a?(Symbol)
+                raise ArgumentError, 'Invalid job manual resolution' \
+                    unless [nil, :success, :failure].include?(resolution)
                 raise ArgumentError, 'Invalid job parent' \
                     unless parent.nil? || parent.is_a?(Parent)
                 raise ArgumentError, 'Invalid job children' \
@@ -258,7 +262,7 @@ module OpenNebula
             FIELDS = [
                 :id, :attempt, :step, :args, :external_user, :created_at,
                 :failure_state, :wait, :cancellation, :pending_failure,
-                :parent, :children
+                :resolution, :parent, :children
             ]
 
             attr_reader :id,
@@ -271,6 +275,7 @@ module OpenNebula
                         :wait,
                         :cancellation,
                         :pending_failure,
+                        :resolution,
                         :parent,
                         :children
 
@@ -318,6 +323,7 @@ module OpenNebula
                     :wait          => wait,
                     :cancellation  => cancellation,
                     :pending_failure => pending_failure,
+                    :resolution    => symbol(data[:resolution]),
                     :parent        => parent,
                     :children      => children
                 )
@@ -343,6 +349,7 @@ module OpenNebula
                 @wait          = attrs[:wait]&.freeze
                 @cancellation  = immutable(attrs[:cancellation])
                 @pending_failure = immutable(attrs[:pending_failure])
+                @resolution    = attrs[:resolution]
                 @parent        = attrs[:parent]
                 @children      = Array(attrs[:children]).dup.freeze
 
@@ -377,16 +384,31 @@ module OpenNebula
                     step == job.step
             end
 
-            def recover(external_user:, args: nil, step: nil, failure_state: nil)
-                copy(
+            def recover(external_user:, **recovery)
+                unknown = recovery.keys - [
+                    :args, :step, :failure_state, :resolution, :clear_wait
+                ]
+                raise ArgumentError, "Unknown recovery options: #{unknown.join(', ')}" \
+                    unless unknown.empty?
+
+                args          = recovery.fetch(:args, nil)
+                step          = recovery.fetch(:step, nil)
+                failure_state = recovery.fetch(:failure_state, nil)
+                resolution    = recovery.fetch(:resolution, nil)
+                clear_wait    = recovery.fetch(:clear_wait, false)
+                changes = {
                     :attempt       => attempt + 1,
                     :args          => args || self.args,
                     :step          => step || self.step,
                     :external_user => external_user,
                     :failure_state => failure_state,
                     :cancellation  => nil,
-                    :pending_failure => nil
-                )
+                    :pending_failure => nil,
+                    :resolution    => resolution
+                }
+                changes[:wait] = nil if clear_wait
+
+                copy(**changes)
             end
 
             def transition(job, outcome)
@@ -395,7 +417,8 @@ module OpenNebula
                     :args          => outcome.args || job.args,
                     :failure_state => outcome.failure_state,
                     :wait          => nil,
-                    :pending_failure => nil
+                    :pending_failure => nil,
+                    :resolution    => nil
                 )
             end
 
@@ -503,6 +526,7 @@ module OpenNebula
                     :wait          => wait&.to_h,
                     :cancellation  => cancellation,
                     :pending_failure => pending_failure,
+                    :resolution    => resolution,
                     :parent        => parent&.to_h,
                     :children      => children.empty? ? nil : children.map(&:to_h)
                 }.compact
@@ -562,6 +586,8 @@ module OpenNebula
                     if created_at && !created_at.positive?
                 raise ArgumentError, 'Active job failure state must be a Symbol' \
                     unless failure_state.nil? || failure_state.is_a?(Symbol)
+                raise ArgumentError, 'Invalid active job manual resolution' \
+                    unless [nil, :success, :failure].include?(resolution)
                 raise ArgumentError, 'Active job wait must be a Job::Wait' \
                     unless wait.nil? || wait.is_a?(Job::Wait)
                 raise ArgumentError, 'Active job parent must be a Job::Parent' \

@@ -14,27 +14,46 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { forwardRef } from 'react'
+import { forwardRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 import { getStyles } from '@modules/components/primitives/Images/Default/styles'
 
 export const Image = forwardRef(
-  ({ src, width, height, alt, aspectRatio, ...opts }, ref) => (
-    <Box
-      ref={ref}
-      sx={(theme) => getStyles({ theme, aspectRatio })}
-      className={'image-container'}
-    >
-      <img
-        src={src}
-        width={width}
-        height={height}
-        alt={alt}
-        className={'avatar-image'}
-      />
-    </Box>
-  )
+  ({ src, width, height, alt, aspectRatio, fallback, onError }, ref) => {
+    const [failedSrc, setFailedSrc] = useState()
+    const showFallback = fallback && (!src || failedSrc === src)
+
+    return (
+      <Box
+        ref={ref}
+        sx={(theme) => getStyles({ theme, aspectRatio })}
+        className="image-container"
+      >
+        {showFallback ? (
+          <Box
+            className="avatar-image image-fallback"
+            width={width}
+            height={height}
+          >
+            {fallback}
+          </Box>
+        ) : (
+          <img
+            src={src}
+            width={width}
+            height={height}
+            alt={alt}
+            className="avatar-image"
+            onError={(event) => {
+              fallback && setFailedSrc(src)
+              onError?.(event)
+            }}
+          />
+        )}
+      </Box>
+    )
+  }
 )
 
 Image.propTypes = {
@@ -43,6 +62,8 @@ Image.propTypes = {
   height: PropTypes.number,
   alt: PropTypes.string,
   aspectRatio: PropTypes.string,
+  fallback: PropTypes.node,
+  onError: PropTypes.func,
 }
 
 Image.displayName = 'Image'

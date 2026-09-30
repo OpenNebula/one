@@ -31,6 +31,7 @@ module OpenNebula
             #----------------------------------------------------------------------------
 
             VALIDATION_EC = 400 # bad request by the client
+            CONFLICT_EC   = 409 # request conflicts with the resource capabilities
             OPERATION_EC  = 405 # operation not allowed (e.g: in current state)
             GENERAL_EC    = 500 # general error
 
@@ -90,6 +91,8 @@ module OpenNebula
                     403  # Forbidden
                 when OpenNebula::Error::ENO_EXISTS
                     404  # Not Found
+                when CONFLICT_EC
+                    409  # Conflict
                 when OpenNebula::Error::EACTION, OPERATION_EC
                     405  # Method Not Allowed (invalid action)
                 when OpenNebula::Error::EXML_RPC_CALL

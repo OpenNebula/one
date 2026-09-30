@@ -1,0 +1,155 @@
+id: '8323494d-06ad-48e1-8ebe-779a2a91f17d'
+chart: oci://ghcr.io/kserve/charts/kserve-runtime-configs
+version: v0.20.0
+
+metadata:
+  name: KServe LLMInferenceService Platform
+  description: KServe LLMInferenceService platform with Gateway API routing, Envoy AI Gateway, LeaderWorkerSet, runtime configurations, and node-local model caching. Requires the cert-manager installed by Cluster API.
+
+defaultValuesContent: |-
+  kserve:
+    llmisvcConfigs:
+      enabled: true
+    servingruntime:
+      enabled: false
+
+dependencies:
+  - chartId: 8e593398-654d-4ce8-854c-cc644afef3c9
+  - chartId: c1cfdfc2-49bb-4811-b503-0347442d1fd6
+  - chartId: 9f1436c4-5316-45f1-9ff6-f0f3a2ec0465
+  - chartId: 6137389d-6b75-4cc5-a03d-608bcd596f14
+  - chartId: 190ed924-cb1f-451f-aa7b-282bf03a271e
+  - chartId: 4e76821a-f6ed-4194-bfe0-43aadefef0c0
+
+preInstall:
+  - name: Wait for cert-manager
+    wait:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: cert-manager
+        namespace: cert-manager
+      condition: Available
+      timeout: 300s
+  - name: Wait for cert-manager webhook
+    wait:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: cert-manager-webhook
+        namespace: cert-manager
+      condition: Available
+      timeout: 300s
+  - name: Wait for cert-manager CA injector
+    wait:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: cert-manager-cainjector
+        namespace: cert-manager
+      condition: Available
+      timeout: 300s
+  - name: Create KServe GatewayClass
+    apply:
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: GatewayClass
+      metadata:
+        name: oneks-kserve-envoy
+      spec:
+        controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  - name: Wait for KServe GatewayClass
+    wait:
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: GatewayClass
+      metadata:
+        name: oneks-kserve-envoy
+      condition: Accepted
+      timeout: 300s
+  - name: Create KServe Gateway
+    apply:
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: Gateway
+      metadata:
+        name: oneks-kserve-gateway
+        namespace: kserve
+      spec:
+        gatewayClassName: oneks-kserve-envoy
+        listeners:
+          - name: http
+            protocol: HTTP
+            port: 80
+            allowedRoutes:
+              namespaces:
+                from: All
+        infrastructure:
+          labels:
+            serving.kserve.io/gateway: oneks-kserve-gateway
+  - name: Wait for KServe Gateway acceptance
+    wait:
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: Gateway
+      metadata:
+        name: oneks-kserve-gateway
+        namespace: kserve
+      condition: Accepted
+      timeout: 600s
+  - name: Wait for KServe Gateway programming
+    wait:
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: Gateway
+      metadata:
+        name: oneks-kserve-gateway
+        namespace: kserve
+      condition: Programmed
+      timeout: 600s
+  - name: Create local model jobs namespace
+    apply:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: kserve-localmodel-jobs
+    retain: true
+  - name: Create local models StorageClass
+    apply:
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: oneks-local-models
+      provisioner: kubernetes.io/no-provisioner
+      volumeBindingMode: WaitForFirstConsumer
+      reclaimPolicy: Retain
+    retain: true
+  - name: Create local model node group
+    apply:
+      apiVersion: serving.kserve.io/v1alpha1
+      kind: LocalModelNodeGroup
+      metadata:
+        name: oneks-local-model-workers
+      spec:
+        storageLimit: 2Gi
+        persistentVolumeClaimSpec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 2Gi
+          storageClassName: oneks-local-models
+          volumeMode: Filesystem
+        persistentVolumeSpec:
+          accessModes:
+            - ReadWriteOnce
+          volumeMode: Filesystem
+          capacity:
+            storage: 2Gi
+          local:
+            path: "/models"
+          storageClassName: oneks-local-models
+          nodeAffinity:
+            required:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: kserve/localmodel
+                      operator: In
+                      values:
+                        - worker
+    retain: true

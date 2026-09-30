@@ -39,6 +39,9 @@ export const getStyles = ({ theme, aspectRatio }) => {
       borderRadius: `${theme.scale[150]}px`,
       border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
     },
+    '& .image-fallback': {
+      boxSizing: 'content-box',
+    },
   }
 
   return {

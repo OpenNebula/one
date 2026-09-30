@@ -22,11 +22,18 @@ const {
 const basepath = '/oneks'
 const ApiBasePath = '/clusters'
 const ApiBasePathNodeGroups = '/nodegroups'
+const ApiBasePathApplications = '/applications'
 const { GET, POST, DELETE, PATCH } = httpMethod
 const { resource, postBody, query } = fromData
 
 const Actions = {
   LIST: 'oneks.list',
+  LIST_APPLICATIONS: 'oneks.list_applications',
+  SHOW_APPLICATION: 'oneks.show_application',
+  LIST_CLUSTER_APPLICATIONS: 'oneks.list_cluster_applications',
+  SHOW_CLUSTER_APPLICATION: 'oneks.show_cluster_application',
+  INSTALL_APPLICATION: 'oneks.install_application',
+  DELETE_CLUSTER_APPLICATION: 'oneks.delete_cluster_application',
   LIST_FAMILIES: 'oneks.list_families',
   LIST_NODEGROUP_FAMILIES: 'oneks.list_nodegroup_families',
   SHOW: 'oneks.show',
@@ -36,6 +43,7 @@ const Actions = {
   DELETE: 'oneks.delete',
   KUBECONFIG: 'oneks.kubeconfig',
   ENDPOINT: 'oneks.endpoint',
+  HISTORIC: 'oneks.historic',
   CREATE_NODEGROUP: 'oneks.create_nodegroup',
   UPDATE_NODEGROUP: 'oneks.update_nodegroup',
   DELETE_NODEGROUP: 'oneks.delete_nodegroup',
@@ -56,6 +64,82 @@ const Commands = {
     apiPath: ApiBasePath,
     httpMethod: GET,
     auth: true,
+  },
+  [Actions.LIST_APPLICATIONS]: {
+    path: `${basepath}/applications`,
+    apiPath: ApiBasePathApplications,
+    httpMethod: GET,
+    auth: true,
+    params: {
+      all: {
+        from: query,
+      },
+      cluster_id: {
+        from: query,
+      },
+    },
+  },
+  [Actions.SHOW_APPLICATION]: {
+    path: `${basepath}/applications/:application_id`,
+    apiPath: `${ApiBasePathApplications}/{0}`,
+    httpMethod: GET,
+    auth: true,
+    params: {
+      application_id: {
+        from: resource,
+      },
+      cluster_id: {
+        from: query,
+      },
+    },
+  },
+  [Actions.LIST_CLUSTER_APPLICATIONS]: {
+    path: `${basepath}/:id/applications`,
+    apiPath: `${ApiBasePath}/{0}/applications`,
+    httpMethod: GET,
+    auth: true,
+    params: {
+      id: {
+        from: resource,
+      },
+      all: {
+        from: query,
+      },
+    },
+  },
+  [Actions.INSTALL_APPLICATION]: {
+    path: `${basepath}/:id/applications`,
+    apiPath: `${ApiBasePath}/{0}/applications`,
+    httpMethod: POST,
+    auth: true,
+    params: {
+      id: {
+        from: resource,
+      },
+      template: {
+        from: postBody,
+      },
+    },
+  },
+  [Actions.SHOW_CLUSTER_APPLICATION]: {
+    path: `${basepath}/:id/applications/:release_name`,
+    apiPath: `${ApiBasePath}/{0}/applications/{1}`,
+    httpMethod: GET,
+    auth: true,
+    params: {
+      id: { from: resource },
+      release_name: { from: resource },
+    },
+  },
+  [Actions.DELETE_CLUSTER_APPLICATION]: {
+    path: `${basepath}/:id/applications/:release_name`,
+    apiPath: `${ApiBasePath}/{0}/applications/{1}`,
+    httpMethod: DELETE,
+    auth: true,
+    params: {
+      id: { from: resource },
+      release_name: { from: resource },
+    },
   },
   [Actions.LIST_FAMILIES]: {
     path: `${basepath}/families`,
@@ -80,7 +164,6 @@ const Commands = {
       },
       expand: {
         from: query,
-        default: false,
       },
     },
   },
@@ -162,6 +245,17 @@ const Commands = {
   [Actions.ENDPOINT]: {
     path: `${basepath}/endpoint/:id`,
     apiPath: `${ApiBasePath}/{0}/endpoint`,
+    httpMethod: GET,
+    auth: true,
+    params: {
+      id: {
+        from: resource,
+      },
+    },
+  },
+  [Actions.HISTORIC]: {
+    path: `${basepath}/:id/historic`,
+    apiPath: `${ApiBasePath}/{0}/historic`,
     httpMethod: GET,
     auth: true,
     params: {

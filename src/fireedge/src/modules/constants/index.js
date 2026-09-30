@@ -223,42 +223,6 @@ export const SOCKETS = {
   HOOKS: 'hooks',
 }
 
-/** @enum {string} Names of resource */
-export const RESOURCE_NAMES = {
-  ACL: 'acl',
-  APP: 'marketplace-app',
-  BACKUP: 'backup',
-  BACKUPJOBS: 'backupjobs',
-  CLUSTER: 'cluster',
-  DASHBOARD: 'dashboard',
-  DATASTORE: 'datastore',
-  DRIVER: 'driver',
-  FILE: 'file',
-  GROUP: 'group',
-  HOST: 'host',
-  IMAGE: 'image',
-  LOGO: 'logo',
-  MARKETPLACE: 'marketplace',
-  ONEKS: 'kubernetes',
-  PROVIDER: 'provider',
-  PROVISION: 'provision',
-  SEC_GROUP: 'security-group',
-  SERVICE: 'service',
-  SERVICE_TEMPLATE: 'service-template',
-  SUPPORT: 'support',
-  USER: 'user',
-  VDC: 'virtual-data-center',
-  VLAN_GROUP: 'vlan-group',
-  VM: 'vm',
-  VM_GROUP: 'vm-group',
-  VM_TEMPLATE: 'vm-template',
-  VNET: 'virtual-network',
-  VN_TEMPLATE: 'network-template',
-  VROUTER: 'vrouter',
-  VROUTER_TEMPLATE: 'vrouter-template',
-  ZONE: 'zone',
-}
-
 export * as ACTIONS from '@modules/constants/actions'
 export * as T from '@modules/constants/translates'
 

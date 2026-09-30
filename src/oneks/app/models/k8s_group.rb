@@ -19,7 +19,12 @@ module OneKS
     # Represents a group of VMs
     class K8sGroup < ODS::Document
 
+        VM_DELETION_STATES = ['EPILOG', 'CLEANUP_DELETE']
+
         include ODS::StateMachine
+        include ODS::Errorable
+        include ODS::Jobable
+        include ODS::Historyable
 
         attr_reader :client, :body, :tag
 
@@ -60,16 +65,8 @@ module OneKS
         EVENTS = {
             :change_state     => 'State changed',
             :vm_added         => 'VM added to the group',
-            :vm_removed       => 'VM removed from the group'
-        }
-
-        RECOVERY_ACTIONS = {
-            :BOOTSTRAPPING_FAILURE  => :group_bootstrap_action,
-            :PROVISIONING_FAILURE   => :group_provision_action,
-            :SCALING_FAILURE        => :group_scale_action,
-            :UPGRADING_FAILURE      => :group_upgrade_action,
-            :DEPROVISIONING_FAILURE => :group_deprovision_action,
-            :WARNING                => :group_running_action
+            :vm_removed       => 'VM removed from the group',
+            :vm_ready_changed => 'VM readiness changed'
         }
 
         state_machine(
@@ -78,20 +75,26 @@ module OneKS
                 :PENDING        => [:BOOTSTRAPPING],
                 :BOOTSTRAPPING  => [:PROVISIONING, :BOOTSTRAPPING_FAILURE],
                 :PROVISIONING   => [:RUNNING, :PROVISIONING_FAILURE],
-                :RUNNING        => [:SCALING, :UPGRADING, :DEPROVISIONING, :WARNING],
+                :RUNNING        => [:SCALING, :DEPROVISIONING, :WARNING],
                 :SCALING        => [:RUNNING, :SCALING_FAILURE],
-                :UPGRADING      => [:RUNNING, :UPGRADING_FAILURE],
                 :DEPROVISIONING => [:DONE, :DEPROVISIONING_FAILURE],
                 :DONE           => [],
                 :ANY            => [:DEPROVISIONING, :DONE],
-                :WARNING        => [:RUNNING, :SCALING, :UPGRADING, :DEPROVISIONING],
+                :WARNING        => [:RUNNING, :SCALING, :DEPROVISIONING],
                 :BOOTSTRAPPING_FAILURE => [:BOOTSTRAPPING],
                 :PROVISIONING_FAILURE   => [:PROVISIONING],
                 :SCALING_FAILURE        => [:SCALING],
-                :UPGRADING_FAILURE      => [:UPGRADING],
                 :DEPROVISIONING_FAILURE => [:DEPROVISIONING]
             }
         )
+
+        RECOVER_STATES = {
+            :BOOTSTRAPPING_FAILURE  => :BOOTSTRAPPING,
+            :PROVISIONING_FAILURE   => :PROVISIONING,
+            :SCALING_FAILURE        => :SCALING,
+            :DEPROVISIONING_FAILURE => :DEPROVISIONING,
+            :WARNING                => :RUNNING
+        }
 
         # Overrides the state setter from StateMachine to log state changes
         def state=(new_state)
@@ -107,11 +110,11 @@ module OneKS
             )
 
             register_event(
-                :name => EVENTS[:change_state],
-                :desc => "State changed from #{prev_state} to #{state}"
+                :change_state,
+                :description => "State changed from #{prev_state} to #{state}"
             )
 
-            update
+            clear_error unless RECOVER_STATES.key?(state)
         end
 
         #------------------------------------------------------
@@ -142,7 +145,7 @@ module OneKS
 
             # Ensure group name and add cluster id to the template before allocation
             name     = K8sGroup.ensure_unique_name(template[:name], cluster.groups)
-            template = template.merge({ :name => name, :cluster_id => cluster.id })
+            template = template.merge(:name => name, :cluster_id => cluster.id)
 
             return OpenNebula::Error.new(
                 'Invalid cluster_id: expected a non-negative cluster ID',
@@ -156,7 +159,10 @@ module OneKS
         def info(raw: false)
             # Skip dynamic definition for 'state'
             # since it's already defined
-            super(:skip_methods => [:state], :raw => raw)
+            rc = super(:skip_methods => [:state], :raw => raw)
+            return rc if OpenNebula.is_error?(rc)
+
+            normalize_legacy_vms!
         end
 
         # Delete the k8sgroup document
@@ -179,14 +185,6 @@ module OneKS
                 "#{removed_type} (ID=#{removed_id}) was deleted successfully",
                 from_cluster
             )
-        end
-
-        def register_event(name:, desc:)
-            historic << {
-                :action      => name,
-                :description => desc,
-                :time        => Time.now.to_i
-            }
         end
 
         #------------------------------------------------------
@@ -245,33 +243,78 @@ module OneKS
         # Group operations
         #------------------------------------------------------
 
+        def vm_ids
+            vms.map {|vm| vm[:id] }
+        end
+
+        def find_vm(vm_id)
+            vms.find {|vm| vm[:id].to_i == vm_id.to_i }
+        end
+
         def add_vm(vm_id)
             raise ArgumentError, 'vm_id cannot be nil' if vm_id.nil?
             raise ArgumentError, "VM #{vm_id} is already registered in this group" \
-            if vms.include?(vm_id)
+                if vm_registered?(vm_id)
 
-            vms << vm_id
+            cluster = parent_cluster
+            raise cluster.message if OpenNebula.is_error?(cluster)
 
-            register_event(
-                :name => EVENTS[:vm_added],
-                :desc => "VM #{vm_id} added"
-            )
+            vms << {
+                :id    => vm_id,
+                :ready => !cluster.feature_enabled?(:monitor),
+                :pods  => []
+            }
+
+            register_event(:vm_added, :description => "VM #{vm_id} added")
 
             vm_id
         end
 
         def del_vm(vm_id)
-            idx = vms.index {|id| id == vm_id }
+            idx = vms.index {|vm| vm[:id].to_i == vm_id.to_i }
             return false unless idx
 
             vms.delete_at(idx)
 
+            register_event(:vm_removed, :description => "VM #{vm_id} removed")
+
+            true
+        end
+
+        def vm_registered?(vm_id)
+            !find_vm(vm_id).nil?
+        end
+
+        def update_vm_ready(vm_id, ready)
+            vm = find_vm(vm_id)
+            raise ArgumentError, "VM #{vm_id} is not registered in this group" unless vm
+
+            return false if vm[:ready] == ready
+
+            vm[:ready] = ready
+
             register_event(
-                :name => EVENTS[:vm_removed],
-                :desc => "VM #{vm_id} removed"
+                :vm_ready_changed,
+                :description => "VM #{vm_id} K8s readiness changed to #{ready}"
             )
 
             true
+        end
+
+        def update_vm_pods(vm_id, pods)
+            vm = find_vm(vm_id)
+            raise ArgumentError, "VM #{vm_id} is not registered in this group" unless vm
+
+            vm[:pods] = pods
+        end
+
+        # Returns all pods stored by the group enriched with their owning VM ID.
+        def pods
+            Array(vms).flat_map do |vm|
+                Array(vm[:pods]).map do |pod|
+                    pod.merge(:vm_id => vm[:id])
+                end
+            end
         end
 
         def empty?
@@ -279,8 +322,8 @@ module OneKS
         end
 
         def all_running?
-            vms.all? do |vm_id|
-                vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
+            vm_ids.all? do |vm_id|
+                vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @client)
                 rc = vm.info
 
                 if OpenNebula.is_error?(rc)
@@ -292,6 +335,12 @@ module OneKS
             end
         end
 
+        def all_nodes_ready?
+            return expected_size.to_i.zero? if vms.empty?
+
+            vms.all? {|vm| vm[:ready] }
+        end
+
         # Prevent re-running provisioning when the group has already
         # reached its expected size. This avoids cases where CAPONE
         # has already created the nodes after the cluster entered
@@ -301,7 +350,7 @@ module OneKS
         end
 
         def ready?
-            provisioned? && all_running?
+            provisioned? && all_running? && all_nodes_ready?
         end
 
         def parent_cluster
@@ -318,7 +367,7 @@ module OneKS
         # Stops and returns an OpenNebula::Error if any dependency fails.
         # @param cluster [Cluster] The cluster object
         def bootstrap_dependencies
-            dependencies.each do |dep|
+            dependencies.reject(&:ready?).each do |dep|
                 begin
                     rc = dep.create(self)
                     return rc if OpenNebula.is_error?(rc)
@@ -334,15 +383,17 @@ module OneKS
         end
 
         # Attempts to recover all registered dependencies for the group.
-        # Resets the dependency readiness and lets each dependency decide
-        # how to repair or recreate its managed resource.
+        # Destroys dependency resources and removes their persisted definitions
+        # so the next bootstrap always recreates them from scratch.
         def recover_dependencies
-            dependencies.each do |dep|
+            dependencies.dup.each do |dep|
                 begin
                     dep.ready = false
 
                     rc = dep.recover(self)
                     return rc if OpenNebula.is_error?(rc)
+
+                    del_dependency(dep.name)
                 rescue StandardError => e
                     return OpenNebula::Error.new(
                         "Recovery failed for dependency #{dep.class}(#{dep.name}): #{e.message}",
@@ -352,12 +403,15 @@ module OneKS
             end
 
             # Delete any VMs associated with the group in case they were created by a dependency
-            vms.dup.each do |vm_id|
+            vm_ids.each do |vm_id|
                 rc = OneHelper::VirtualMachine.delete(@client, vm_id, :force => true)
-                return rc if OpenNebula.is_error?(rc)
+                return rc if OpenNebula.is_error?(rc) && rc.errno != OpenNebula::Error::ENO_EXISTS
 
                 del_vm(vm_id)
             end
+
+            rc = cleanup_dependencies
+            return rc if OpenNebula.is_error?(rc)
 
             true
         end
@@ -406,11 +460,6 @@ module OneKS
             raise NotImplementedError
         end
 
-        # Upgrade the group to a new version or configuration
-        def upgrade
-            raise NotImplementedError
-        end
-
         #------------------------------------------------------
         # Serialization
         #------------------------------------------------------
@@ -421,25 +470,47 @@ module OneKS
 
             body.delete(:user_inputs)
             body.delete(:kubeconfig)
+            body.delete(:historic)
+            body.delete('historic')
 
             body
         end
 
-        # Transform the document body to JSON
-        def to_json(opts = {})
-            document = to_hash.clone
-            body     = @body.clone
+        # Builds the public group representation
+        def to_h(opts = {})
+            document = super(opts)
+            body     = document['DOCUMENT']['TEMPLATE'][TEMPLATE_TAG]
 
-            # Remove attributes (if exists)
             body.delete(:json_class)
-            body[:dependencies].each {|dep| dep.delete(:json_class) }
+            body[:dependencies] = Array(body[:dependencies]).map do |dependency|
+                value = dependency.respond_to?(:to_h) ? dependency.to_h : dependency
+                value.delete(:json_class) if value.is_a?(Hash)
+                value
+            end
 
-            # Clean body
             body.delete(:user_inputs)
             body.delete(:kubeconfig)
+            body.delete(:historic)
+            body.delete(:active_job)
 
-            document['DOCUMENT']['TEMPLATE'][TEMPLATE_TAG] = body
-            document.to_json(opts)
+            document
+        end
+
+        # Transforms the public group representation to JSON
+        def to_json(opts = {})
+            to_h(opts).to_json
+        end
+
+        private
+
+        # Converts the legacy VM ID list into the current persisted records
+        def normalize_legacy_vms!
+            return unless @body[:vms].is_a?(Array)
+            return unless @body[:vms].all? {|vm| vm.is_a?(Integer) }
+
+            @body[:vms] = @body[:vms].map do |vm_id|
+                { :id => vm_id, :ready => true, :pods => [] }
+            end
         end
 
         class << self
@@ -553,6 +624,7 @@ module OneKS
             def basic_attrs(group)
                 {
                     :id       => group.id,
+                    :name     => group.name,
                     :uuid     => group.uuid,
                     :type     => group.type,
                     :flavour  => group.flavour,
@@ -561,7 +633,7 @@ module OneKS
             end
 
             def recovery_for(state)
-                RECOVERY_ACTIONS[state.to_sym]
+                RECOVER_STATES[state.to_sym]
             rescue NoMethodError
                 nil
             end
@@ -605,44 +677,6 @@ module OneKS
                 end
 
                 @families
-            end
-
-            def add_flavour(family_name, flavour_yaml)
-                family = family_by_name(family_name)
-
-                return OpenNebula::Error.new(
-                    "Family #{family_name} not found",
-                    OpenNebula::Error::ENO_EXISTS
-                ) unless family
-
-                unless flavour_yaml.is_a?(Hash)
-                    return OpenNebula::Error.new(
-                        "Invalid flavour YAML for family #{family_name}",
-                        OpenNebula::Error::EACTION
-                    )
-                end
-
-                flavour_defs = FamilyHelper.build_flavours(flavour_yaml.deep_symbolize_keys)
-
-                return OpenNebula::Error.new(
-                    "No valid flavours found for family #{family_name}",
-                    OpenNebula::Error::EACTION
-                ) if flavour_defs.empty?
-
-                family[:flavours] ||= []
-
-                flavour_defs.each do |flavour|
-                    family[:flavours].reject! {|item| item[:name] == flavour[:name] }
-                    family[:flavours] << flavour
-
-                    Log.debug(
-                        COMP,
-                        "Additional flavour '#{flavour[:name]}' added to " \
-                        "#{self::COMPONENT_NAME} family '#{family[:family]}'"
-                    )
-                end
-
-                family
             end
 
             # Returns all loaded families
@@ -743,7 +777,7 @@ module OneKS
             end
 
             def find_by_vm(groups, vm_id)
-                groups.find {|g| g.vms.any? {|id| id == vm_id } }
+                groups.find {|group| group.vm_registered?(vm_id) }
             end
 
             def find_dep_by_name(group, dep_name)
@@ -849,33 +883,6 @@ module OneKS
                 )
             end
 
-        end
-
-    end
-
-    # K8sGroup schema
-    class K8sGroupSchema < ODS::Schema
-
-        params do
-            required(:name).filled(:string)
-            required(:uuid).filled(:string)
-            optional(:description).filled(:string)
-            required(:cluster_id).filled(:integer)
-            required(:family).filled(:string)
-            required(:flavour).filled(:string)
-            required(:type).filled(:string)
-            required(:state).filled(:string, :included_in? => K8sGroup.states.map(&:to_s))
-            required(:vms).array(:integer)
-            required(:dependencies).array(:hash)
-            required(:user_inputs).array(:hash)
-            required(:user_inputs_values).hash
-            required(:registration_time).filled(:integer)
-        end
-
-        rule(:name, :uuid) do
-            next if ODS::RequestHelper.rfc1123_name?(value)
-
-            key.failure(ODS::RequestHelper::RFC1123_ERROR)
         end
 
     end

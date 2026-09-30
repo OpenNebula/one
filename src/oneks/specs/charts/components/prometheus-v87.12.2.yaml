@@ -1,0 +1,17 @@
+id: '2071c399-d4cd-41a0-9e3a-011d2b00f634'
+repo: https://prometheus-community.github.io/helm-charts
+chart: kube-prometheus-stack
+version: v87.12.2
+
+metadata:
+  name: Prometheus Dependency
+  description: Internal Prometheus dependency for applications that require managed monitoring.
+
+installDefaults:
+  releaseName: oneks-prometheus
+  targetNamespace: monitoring
+  createNamespace: true
+defaultValuesContent: |-
+  grafana:
+    enabled: false
+dependencies: []

@@ -236,14 +236,11 @@ const odsUserInputValidation = (type, odsUserInput) => {
  * @returns {Field} Field Properties
  */
 export const schemaOdsUserInputField = (odsUserInput = {}) => {
-  // Get base input type for ODS User Input
   const type = odsUserInputType(odsUserInput)
 
-  // Get yup validator, input type and default value for ODS User Input
   const { validation, inputType, defaultValue, disable } =
     odsUserInputValidation(type, odsUserInput)
 
-  // Base Field config for odsUserInput
   const odsUserInputLabel = T[odsUserInput.name] ?? odsUserInput.name
   const config = {
     name: odsUserInput.name,
@@ -335,9 +332,7 @@ export const schemaOdsUserInputField = (odsUserInput = {}) => {
       break
     }
 
-    // At first stage, we treat maps and list as the same
     case tlist: {
-      // Get list values
       values = odsUserInput.match.values.map((option) => ({
         text: option,
         value: option,
@@ -366,17 +361,13 @@ export const schemaOdsUserInputField = (odsUserInput = {}) => {
 
         config.optionsOnly = true
       } else {
-        // values: List of values to show to the user
         config.values = values
-        // optionsOnly: Restrict to the values of the list so the user cannot type a different value
         config.optionsOnly = true
       }
 
       break
     }
 
-    // oneform_onprem_hosts is the only value that is a list(string),
-    // so, it has is own custom tooltip
     case tListString: {
       config.type = inputType
       config.tooltip = [T.PressKeysToAddAHost, ['ENTER']]

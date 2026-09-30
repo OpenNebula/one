@@ -105,7 +105,20 @@ module OpenNebula
                                     resource, waiting_job, context.wait, check_dependencies
                                 )
 
-                                next result.value if result.error?
+                                if result.error?
+                                    failure = Job.fail(result.value.message)
+                                    state   = waiting_job.failure_state ||
+                                              step.resolve_failure(failure)
+                                    persisted = @workflow.fail!(
+                                        resource, waiting_job, state, failure.message
+                                    )
+
+                                    next persisted.value if persisted.error?
+
+                                    value      = failure.message
+                                    failed_job = waiting_job
+                                    next
+                                end
 
                                 if result.ok? && result.value.is_a?(Job::Next)
                                     next_job = waiting_job.next(result.value)

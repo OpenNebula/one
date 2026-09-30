@@ -47,6 +47,7 @@ RSpec.describe ODS::ResponseHelper do
             OpenNebula::Error::EAUTHORIZATION => 401,
             OpenNebula::Error::EAUTHENTICATION => 403,
             OpenNebula::Error::ENO_EXISTS => 404,
+            ODS::ResponseHelper::CONFLICT_EC => 409,
             OpenNebula::Error::EACTION => 405,
             OpenNebula::Error::EXML_RPC_CALL => 502,
             OpenNebula::Error::EINTERNAL => 500,

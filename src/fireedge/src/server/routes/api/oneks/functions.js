@@ -117,6 +117,301 @@ const clusters = (res = {}, next = defaultEmptyFunction, _, userData = {}) => {
 }
 
 /**
+ * Get the OneKS application catalogue.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {boolean} [params.all] - include internal components
+ * @param {string|number} [params.cluster_id] - cluster for installability
+ * @param {object} userData - user data
+ * @returns {Array} - List of OneKS applications
+ */
+const applications = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.LIST_APPLICATIONS]
+
+  if (!user || !password) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'missing credentials'
+    )
+
+    return next()
+  }
+
+  const config = {
+    method: command.httpMethod,
+    path: command.apiPath,
+    user,
+    password,
+  }
+
+  const queryParams = {
+    ...(params.all !== undefined && { all: params.all }),
+    ...(params.cluster_id !== undefined && { cluster_id: params.cluster_id }),
+  }
+
+  if (Object.keys(queryParams).length > 0) config.query = queryParams
+
+  oneKsConnection(
+    config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
+ * Get a complete OneKS application definition.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {string} params.application_id - catalogue application ID
+ * @param {string|number} [params.cluster_id] - cluster for installability
+ * @param {object} userData - user data
+ * @returns {object} - OneKS application definition
+ */
+const application = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.SHOW_APPLICATION]
+
+  if (!user || !password) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'missing credentials'
+    )
+
+    return next()
+  }
+
+  if (!params.application_id) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'missing application id'
+    )
+
+    return next()
+  }
+
+  const config = {
+    method: command.httpMethod,
+    path: command.apiPath,
+    user,
+    password,
+    request: params.application_id,
+  }
+
+  if (params.cluster_id !== undefined) {
+    config.query = { cluster_id: params.cluster_id }
+  }
+
+  oneKsConnection(
+    config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
+ * Get applications installed in a OneKS cluster.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {string|number} params.id - cluster ID
+ * @param {boolean} [params.all] - include dependency applications
+ * @param {object} userData - user data
+ * @returns {Array} - Installed OneKS applications
+ */
+const clusterApplications = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.LIST_CLUSTER_APPLICATIONS]
+
+  if (!user || !password || !params.id) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'missing credentials or cluster id'
+    )
+
+    return next()
+  }
+
+  const config = {
+    method: command.httpMethod,
+    path: command.apiPath,
+    user,
+    password,
+    request: params.id,
+  }
+
+  if (params.all === true || params.all === 'true') {
+    config.query = { all: true }
+  }
+
+  oneKsConnection(
+    config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
+ * Get an installed application release in a OneKS cluster.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {string|number} params.id - cluster ID
+ * @param {string} params.release_name - installed release name
+ * @param {object} userData - user data
+ * @returns {object} Installed application release
+ */
+const clusterApplication = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.SHOW_CLUSTER_APPLICATION]
+
+  if (!user || !password || !params.id || !params.release_name) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'missing credentials, cluster id or release name'
+    )
+
+    return next()
+  }
+
+  const config = {
+    method: command.httpMethod,
+    path: command.apiPath,
+    user,
+    password,
+    request: [params.id, params.release_name],
+  }
+
+  oneKsConnection(
+    config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
+ * Install a catalogue application in a OneKS cluster.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {string|number} params.id - cluster ID
+ * @param {object|string} params.template - installation attributes
+ * @param {object} userData - user data
+ * @returns {void}
+ */
+const installApplication = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.INSTALL_APPLICATION]
+
+  if (!user || !password || !params.id || !params.template) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'missing credentials, cluster id or application attributes'
+    )
+
+    return next()
+  }
+
+  const config = {
+    method: command.httpMethod,
+    path: command.apiPath,
+    user,
+    password,
+    request: params.id,
+    post: params.template,
+  }
+
+  oneKsConnection(
+    config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
+ * Delete an installed application release from a OneKS cluster.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {string|number} params.id - cluster ID
+ * @param {string} params.release_name - installed release name
+ * @param {object} userData - user data
+ * @returns {void}
+ */
+const deleteClusterApplication = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.DELETE_CLUSTER_APPLICATION]
+
+  if (!user || !password || !params.id || !params.release_name) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'missing credentials, cluster id or release name'
+    )
+
+    return next()
+  }
+
+  const config = {
+    method: command.httpMethod,
+    path: command.apiPath,
+    user,
+    password,
+    request: [params.id, params.release_name],
+  }
+
+  oneKsConnection(
+    config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
  * Get clusters families list of oneks.
  *
  * @param {object} res - http response
@@ -164,6 +459,8 @@ const clustersFamilies = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params
+ * @param {string|number} params.id - cluster ID
+ * @param {boolean} [params.expand] - expand cluster references
  * @param {object} userData - user data
  * @returns {object} - A oneks cluster
  */
@@ -198,11 +495,13 @@ const cluster = (
 
   const config = {
     method: command.httpMethod,
-    path: params?.expand ? `${command.apiPath}?expand` : command.apiPath,
+    path: command.apiPath,
     user,
     password,
     request: params.id,
   }
+
+  if (params.expand !== undefined) config.query = { expand: params.expand }
 
   oneKsConnection(
     config,
@@ -595,6 +894,57 @@ const clusterEndpoint = (
 
   oneKsConnection(
     config,
+    (data) => success(next, res, data),
+    (data) => error(next, res, data)
+  )
+}
+
+/**
+ * Get the combined event history of a OneKS cluster and its node groups.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {object} userData - user data
+ * @returns {Array} - Cluster events
+ */
+const clusterHistoric = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const command = Commands[Actions.HISTORIC]
+
+  if (!user || !password) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'missing credentials'
+    )
+
+    return next()
+  }
+
+  if (!params.id) {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'missing cluster id'
+    )
+
+    return next()
+  }
+
+  oneKsConnection(
+    {
+      method: command.httpMethod,
+      path: command.apiPath,
+      user,
+      password,
+      request: params.id,
+    },
     (data) => success(next, res, data),
     (data) => error(next, res, data)
   )
@@ -1222,6 +1572,12 @@ const upgradeKubernetesVersion = (
 
 const oneksApi = {
   clusters,
+  applications,
+  application,
+  clusterApplications,
+  clusterApplication,
+  installApplication,
+  deleteClusterApplication,
   clustersFamilies,
   nodegroupFamilies,
   cluster,
@@ -1231,6 +1587,7 @@ const oneksApi = {
   clusterDelete,
   clusterKubeconfig,
   clusterEndpoint,
+  clusterHistoric,
   createNodeGroup,
   updateNodeGroup,
   deleteNodeGroup,

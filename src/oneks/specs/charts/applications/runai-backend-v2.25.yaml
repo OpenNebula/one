@@ -1,0 +1,359 @@
+id: '905abc6e-7cea-4a0a-bc84-ad215a3fc1fe'
+repo: https://helm.ngc.nvidia.com/nvidia/runai
+chart: control-plane
+version: v2.25
+authSecret: ${resourceNamePrefix}-helm-repo-creds
+
+metadata:
+  name: NVIDIA Run:ai Platform
+  description: NVIDIA Run:ai control plane with managed ingress, GPU, monitoring, storage, certificate and CA-distribution.
+  documentationUrl: https://docs.nvidia.com/run-ai/self-hosted/index.html
+  about:
+    - title: Connect to NVIDIA Run:ai User Interface
+      description: Access the Run:ai control plane using the configured domain.
+      steps:
+        - title: Get Ingress
+          description: Retrieve information about the ingress resource.
+          code: kubectl get ingress -n ${releaseName} ${releaseName}-ingress -o json | jq -r '.status.loadBalancer.ingress[0].ip'
+        - title: Update /etc/hosts
+          description: Add the configured domain to your local /etc/hosts file.
+          code: echo '${ingressIP} ${domain}' | sudo tee -a /etc/hosts
+
+userInputs:
+  - name: domain
+    description: Fully qualified domain name used to access the Run:ai control plane.
+    type: string
+    mandatory: true
+  - name: adminUsername
+    description: Username for the initial Run:ai administrator account.
+    type: string
+    mandatory: true
+  - name: registryEmail
+    description: Email address stored in the NVIDIA registry pull secret.
+    type: string
+    mandatory: true
+  - name: adminPassword
+    description: Password for the initial Run:ai administrator account.
+    type: string
+    mandatory: true
+    sensitive: true
+  - name: ngcApiKey
+    description: NVIDIA NGC API key used to pull Run:ai images and charts.
+    type: string
+    mandatory: true
+    sensitive: true
+
+defaultValuesContent: |-
+  global:
+    domain: ${domain}
+    imagePullSecrets:
+      - name: ${resourceNamePrefix}-registry-creds
+    ingress:
+      ingressClass: haproxy
+    customCA:
+      enabled: true
+    postgresql:
+      auth:
+        host: ${resourceNamePrefix}-postgresql
+    cache:
+      url: ${resourceNamePrefix}-nats:4222
+      readUrl: ${resourceNamePrefix}-nats:4222
+    pubsub:
+      url: ${resourceNamePrefix}-nats:4222
+  postgresql:
+    fullnameOverride: ${resourceNamePrefix}-postgresql
+  nats:
+    fullnameOverride: ${resourceNamePrefix}-nats
+  thanos:
+    fullnameOverride: ${resourceNamePrefix}-thanos
+    query:
+      stores:
+        - dnssrv+_grpc._tcp.${resourceNamePrefix}-thanos-receive
+  tenantsManager:
+    config:
+      adminUsername: ${adminUsername}
+      existingSecret: ${resourceNamePrefix}-admin-credentials
+      secretKeys:
+        adminPasswordKey: ADMIN_PASSWORD
+      defaultMetricStore:
+        read:
+          url: http://${resourceNamePrefix}-thanos-query:9090
+  metricsService:
+    config:
+      datasourceUrl: http://${resourceNamePrefix}-thanos-query:9090
+  keycloakx:
+    imagePullSecrets:
+      - name: ${resourceNamePrefix}-registry-creds
+
+dependencies:
+  - chartId: e3a6dcfe-abca-406a-a73b-d173b75b143a
+  - chartId: 97dac03b-ff7d-465e-94a6-ad04355c4379
+  - chartId: fe52263b-88af-4a0f-bc9b-6ce0e321786a
+  - chartId: 2071c399-d4cd-41a0-9e3a-011d2b00f634
+  - chartId: b86f6623-d38d-4cdb-8702-35fdacff3e6a
+
+preInstall:
+  - name: Create RunAI backend namespace
+    apply:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: ${targetNamespace}
+        labels:
+          oneks.opennebula.io/runai-ca-target: "true"
+  - name: Create RunAI namespace
+    apply:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: runai
+        labels:
+          oneks.opennebula.io/runai-ca-target: "true"
+  - name: Create Helm repository credentials
+    apply:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: ${resourceNamePrefix}-helm-repo-creds
+        namespace: kube-system
+      type: kubernetes.io/basic-auth
+      stringData:
+        username: $oauthtoken
+        password: ${ngcApiKey}
+  - name: Create RunAI admin credentials
+    apply:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: ${resourceNamePrefix}-admin-credentials
+        namespace: ${targetNamespace}
+      type: Opaque
+      stringData:
+        ADMIN_PASSWORD: ${adminPassword}
+  - name: Create backend registry credentials
+    apply:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: ${resourceNamePrefix}-registry-creds
+        namespace: ${targetNamespace}
+      type: kubernetes.io/dockerconfigjson
+      stringData:
+        .dockerconfigjson: |-
+          {
+            "auths": {
+              "https://nvcr.io": {
+                "username": "$oauthtoken",
+                "password": "${ngcApiKey}",
+                "email": "${registryEmail}"
+              }
+            }
+          }
+  - name: Create RunAI registry credentials
+    apply:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: ${resourceNamePrefix}-registry-creds
+        namespace: runai
+      type: kubernetes.io/dockerconfigjson
+      stringData:
+        .dockerconfigjson: |-
+          {
+            "auths": {
+              "https://nvcr.io": {
+                "username": "$oauthtoken",
+                "password": "${ngcApiKey}",
+                "email": "${registryEmail}"
+              }
+            }
+          }
+  - name: Wait for ingress class
+    wait:
+      apiVersion: networking.k8s.io/v1
+      kind: IngressClass
+      metadata:
+        name: haproxy
+      timeout: 600s
+  - name: Wait for HAProxy ingress service
+    wait:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: oneks-haproxy-ingress
+        namespace: haproxy-controller
+      timeout: 600s
+  - name: Create internal DNS configuration
+    apply:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: ${resourceNamePrefix}-internal-dns
+        namespace: kube-system
+        labels:
+          app.kubernetes.io/managed-by: oneks
+          oneks.opennebula.io/component: runai-internal-dns
+      data:
+        runai.server: |-
+          ${domain}:53 {
+              errors
+              rewrite name exact ${domain} oneks-haproxy-ingress.haproxy-controller.svc.cluster.local
+              kubernetes cluster.local
+              cache 30
+          }
+  - name: Configure CoreDNS
+    apply:
+      apiVersion: helm.cattle.io/v1
+      kind: HelmChartConfig
+      metadata:
+        name: rke2-coredns
+        namespace: kube-system
+        labels:
+          app.kubernetes.io/managed-by: oneks
+          oneks.opennebula.io/component: runai-internal-dns
+      spec:
+        valuesContent: |-
+          extraConfig:
+            import:
+              parameters: /etc/coredns/oneks/*.server
+          extraVolumes:
+            - name: oneks-runai-internal-dns
+              configMap:
+                name: ${resourceNamePrefix}-internal-dns
+          extraVolumeMounts:
+            - name: oneks-runai-internal-dns
+              mountPath: /etc/coredns/oneks
+              readOnly: true
+  - name: Create self-signed issuer
+    apply:
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: ${resourceNamePrefix}-selfsigned
+      spec:
+        selfSigned: {}
+  - name: Wait for self-signed issuer
+    wait:
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: ${resourceNamePrefix}-selfsigned
+      condition: Ready
+      timeout: 300s
+  - name: Create RunAI CA certificate
+    apply:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: ${resourceNamePrefix}-ca
+        namespace: cert-manager
+      spec:
+        isCA: true
+        commonName: RunAI Local CA
+        secretName: ${resourceNamePrefix}-ca
+        privateKey:
+          algorithm: RSA
+          size: 4096
+        issuerRef:
+          name: ${resourceNamePrefix}-selfsigned
+          kind: ClusterIssuer
+          group: cert-manager.io
+  - name: Wait for RunAI CA certificate
+    wait:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: ${resourceNamePrefix}-ca
+        namespace: cert-manager
+      condition: Ready
+      timeout: 300s
+  - name: Create RunAI CA issuer
+    apply:
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: ${resourceNamePrefix}-ca
+      spec:
+        ca:
+          secretName: ${resourceNamePrefix}-ca
+  - name: Wait for RunAI CA issuer
+    wait:
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: ${resourceNamePrefix}-ca
+      condition: Ready
+      timeout: 300s
+  - name: Create backend TLS certificate
+    apply:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: ${resourceNamePrefix}-backend-tls
+        namespace: ${targetNamespace}
+      spec:
+        secretName: runai-backend-tls
+        dnsNames:
+          - ${domain}
+        issuerRef:
+          name: ${resourceNamePrefix}-ca
+          kind: ClusterIssuer
+          group: cert-manager.io
+  - name: Wait for backend TLS certificate
+    wait:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: ${resourceNamePrefix}-backend-tls
+        namespace: ${targetNamespace}
+      condition: Ready
+      timeout: 300s
+  - name: Create cluster domain TLS certificate
+    apply:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: ${resourceNamePrefix}-cluster-domain-tls
+        namespace: runai
+      spec:
+        secretName: runai-cluster-domain-tls-secret
+        dnsNames:
+          - ${domain}
+        issuerRef:
+          name: ${resourceNamePrefix}-ca
+          kind: ClusterIssuer
+          group: cert-manager.io
+  - name: Wait for cluster domain TLS certificate
+    wait:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: ${resourceNamePrefix}-cluster-domain-tls
+        namespace: runai
+      condition: Ready
+      timeout: 300s
+  - name: Create RunAI CA bundle
+    apply:
+      apiVersion: trust.cert-manager.io/v1alpha1
+      kind: Bundle
+      metadata:
+        name: runai-ca-cert
+      spec:
+        sources:
+          - secret:
+              name: ${resourceNamePrefix}-ca
+              key: ca.crt
+        target:
+          namespaceSelector:
+            matchLabels:
+              oneks.opennebula.io/runai-ca-target: "true"
+          secret:
+            key: runai-ca.pem
+  - name: Wait for RunAI CA bundle
+    wait:
+      apiVersion: trust.cert-manager.io/v1alpha1
+      kind: Bundle
+      metadata:
+        name: runai-ca-cert
+      condition: Synced
+      timeout: 300s

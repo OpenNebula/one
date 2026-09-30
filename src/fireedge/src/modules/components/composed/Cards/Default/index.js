@@ -26,7 +26,8 @@ import { Image } from '@modules/components/primitives/Images/Default'
  * Card component.
  *
  * @param {object} root0 - Params
- * @param {object} root0.icon - Card icon
+ * @param {string} root0.icon - Card icon source
+ * @param {object} root0.iconFallback - Card icon fallback
  * @param {string} root0.iconAspectRatio - Card icon aspect ratio
  * @param {number} root0.iconSize - Card icon size
  * @param {Function} root0.onCheck - Check handler
@@ -41,6 +42,7 @@ export const Card = forwardRef(
   (
     {
       icon,
+      iconFallback,
       iconAspectRatio,
       iconSize = 24,
       isSelected = false,
@@ -59,7 +61,7 @@ export const Card = forwardRef(
           getStyles({
             theme,
             isSelected,
-            hasIcon: Boolean(icon),
+            hasIcon: Boolean(icon || iconFallback),
           }),
         ...(Array.isArray(sx) ? sx : [sx]),
       ].filter(Boolean)}
@@ -76,17 +78,22 @@ export const Card = forwardRef(
           />
         )}
         <Box className="card-details">
-          {icon && (
+          {(icon || iconFallback) && (
             <Image
               width={iconSize}
               height={iconSize}
               aspectRatio={iconAspectRatio}
-              src={`${icon}`}
+              src={icon ? `${icon}` : undefined}
               alt=""
-              onError={(e) => {
-                e.target.onerror = null
-                e.target.src = DEFAULT_IMAGE
-              }}
+              fallback={iconFallback}
+              onError={
+                iconFallback
+                  ? undefined
+                  : (event) => {
+                      event.target.onerror = null
+                      event.target.src = DEFAULT_IMAGE
+                    }
+              }
             />
           )}
           <Box className="card-slots">
@@ -114,6 +121,7 @@ Card.propTypes = {
   isSelected: PropTypes.bool,
   isRemoveCheckbox: PropTypes.bool,
   icon: PropTypes.node,
+  iconFallback: PropTypes.node,
   iconAspectRatio: PropTypes.string,
   iconSize: PropTypes.number,
   slots: PropTypes.array,

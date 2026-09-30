@@ -85,6 +85,16 @@ RSpec.describe ODS::UserInputsRules do
         expect(validate(list, 'c').errors.to_h).to include(:zone)
     end
 
+    it 'does not evaluate match constraints for a value with the wrong type' do
+        input = { :name => 'size', :type => 'number', :match => {
+            :type => 'number', :values => { :min => 2 }
+        } }
+        result = nil
+
+        expect { result = validate(input, 'bad') }.not_to raise_error
+        expect(result.errors.to_h).to include(:size)
+    end
+
     it 'validates grouped map matches against another input value' do
         inputs = [
             { :name => 'region', :type => 'string' },

@@ -23,13 +23,14 @@ module OneKS
         KUBECTL_PATH    = SERVER_CONF[:kubectl_path]
         KUBECONFIG_PATH = SERVER_CONF[:kubeconfig_path]
         K8S_TIMEOUT     = SERVER_CONF[:k8s_timeout]
-
         ACTIONS = {
             :apply      => 'Kubernetes apply',
             :upgrade    => 'Kubernetes upgrade',
             :delete     => 'Kubernetes delete',
             :scale      => 'Kubernetes scale',
-            :kubeconfig => 'Kubeconfig retrieval'
+            :kubeconfig => 'Kubeconfig retrieval',
+            :apply_application  => 'application plan apply',
+            :delete_application => 'application plan delete'
         }
 
         class << self
@@ -83,23 +84,13 @@ module OneKS
                 )
             end
 
-            # Upgrade a Kubernetes resource from a rendered manifest
+            # Apply the rendered resources for a Kubernetes cluster upgrade.
             # @param client [OpenNebula::Client] OpenNebula client
             # @param leader [Integer] VM ID of the cluster leader
             # @param spec [String] Kubernetes spec content
             # @return [true, OpenNebula::Error]
             def upgrade(client, leader, spec)
-                spec      = YAML.load_stream(spec)
-                resources = spec.select do |doc|
-                    ['MachineDeployment', 'RKE2ControlPlane'].include?(doc['kind'])
-                end
-
-                return OpenNebula::Error.new(
-                    'Upgradeable resource not found or ambiguous in rendered manifest',
-                    OpenNebula::Error::EACTION
-                ) unless resources.one?
-
-                apply(client, leader, resources.first.to_yaml)
+                apply(client, leader, spec)
             rescue StandardError => e
                 OpenNebula::Error.new(
                     "Error running #{ACTIONS[:upgrade]} on VM #{leader}: #{e.message}",
@@ -121,7 +112,8 @@ module OneKS
                            "ONEMachineTemplate/#{group_uuid} " \
                            "MachineHealthCheck/#{group_uuid}"
 
-                cmd = "#{KUBECTL_PATH} --kubeconfig #{KUBECONFIG_PATH} delete #{resource}"
+                cmd = "#{KUBECTL_PATH} --kubeconfig #{KUBECONFIG_PATH} " \
+                      "delete --ignore-not-found=true --wait=false #{resource}"
                 rc  = OneHelper::VirtualMachine.exec(
                     client, leader, cmd,
                     :timeout => K8S_TIMEOUT
@@ -164,6 +156,51 @@ module OneKS
                 )
             end
 
+            # Sends one complete application plan through a single VM Exec
+            def apply_application(cluster, chart:, installation:)
+                leader = cluster.leader
+                return leader if OpenNebula.is_error?(leader)
+
+                plan = ApplicationPlan.compile(:chart => chart, :installation => installation)
+                return plan if OpenNebula.is_error?(plan)
+
+                launch_application_script(cluster.client, leader, plan.fetch(:script))
+            rescue StandardError => e
+                OpenNebula::Error.new(
+                    "Error running #{ACTIONS[:apply_application]}: #{e.message}",
+                    OpenNebula::Error::EACTION
+                )
+            end
+
+            # Checks the runtime releases and launches their deletion plan
+            def delete_application(cluster, chart_id:, release_name:)
+                leader = cluster.leader
+                return leader if OpenNebula.is_error?(leader)
+
+                application = Application.by_release(cluster.applications, release_name)
+                script      = ApplicationPlan.delete_script(
+                    :release_name => release_name,
+                    :chart_id => chart_id,
+                    :target_namespace => application.target_namespace
+                )
+                return script if OpenNebula.is_error?(script)
+
+                releases = Application.release_group(
+                    cluster.applications, release_name
+                ).map(&:release_name)
+
+                exists = application_chart_exists?(cluster.client, leader, releases)
+                return exists if OpenNebula.is_error?(exists)
+                return :not_found unless exists
+
+                launch_application_script(cluster.client, leader, script)
+            rescue StandardError => e
+                OpenNebula::Error.new(
+                    "Error running #{ACTIONS[:delete_application]}: #{e.message}",
+                    OpenNebula::Error::EACTION
+                )
+            end
+
             # Retrieve kubeconfig from the VM
             # @param client [OpenNebula::Client] OpenNebula client
             # @param leader [Integer] VM ID of the cluster leader
@@ -192,29 +229,13 @@ module OneKS
                 )
             end
 
-            def load_manifest(spec)
-                manifest = YAML.load_stream(spec)
-
-                return OpenNebula::Error.new(
-                    'Manifest is empty', OpenNebula::Error::EACTION
-                ) if manifest.empty?
-
-                manifest
-            rescue Psych::SyntaxError => e
-                OpenNebula::Error.new("Invalid manifest: #{e.message}", OpenNebula::Error::EACTION)
-            end
-
-            def resource_by_kind(resources, kind)
-                resources.find {|resource| resource['kind'] == kind }
-            end
-
             def retrieve_kubeconfig(group)
                 return OpenNebula::Error.new(
                     'Unable to extract kubeconfig: no VMs associated with the ControlPlane',
                     OpenNebula::Error::EACTION
                 ) if group.vms.nil? || group.vms.empty?
 
-                kubeconfig_string = K8s.kubeconfig(group.client, group.vms.first)
+                kubeconfig_string = K8s.kubeconfig(group.client, group.vm_ids.first)
                 return kubeconfig_string if OpenNebula.is_error?(kubeconfig_string)
 
                 kubeconfig_hash = YAML.safe_load(kubeconfig_string, :aliases => true)
@@ -240,6 +261,62 @@ module OneKS
                 return endpoint if OpenNebula.is_error?(endpoint)
 
                 "https://#{endpoint}:6443"
+            end
+
+            #------------------------------------------------------
+            # Helpers
+            #------------------------------------------------------
+
+            # Submits the plan without waiting for its guest execution result
+            def launch_application_script(client, leader, script)
+                command = Shellwords.join(
+                    ['/bin/sh', '-s', '--', KUBECTL_PATH, KUBECONFIG_PATH]
+                )
+
+                rc = OneHelper::VirtualMachine.exec(
+                    client, leader, command,
+                    :stdin => Base64.strict_encode64(script),
+                    :wait => false
+                )
+                return rc if OpenNebula.is_error?(rc)
+
+                true
+            end
+
+            # Checks all runtime releases before starting an asynchronous delete.
+            def application_chart_exists?(client, leader, releases)
+                return false if releases.empty?
+
+                command = Shellwords.join(
+                    [
+                        KUBECTL_PATH, '--kubeconfig', KUBECONFIG_PATH,
+                        '-n', ApplicationPlan::NAMESPACE, 'get',
+                        *releases.map {|release| "helmchart/#{release}" },
+                        '--ignore-not-found', '-o', 'name'
+                    ]
+                )
+                rc = OneHelper::VirtualMachine.exec(
+                    client, leader, command, :timeout => K8S_TIMEOUT
+                )
+                return rc if OpenNebula.is_error?(rc)
+
+                !rc[:stdout].to_s.empty?
+            end
+
+            def load_manifest(spec)
+                manifest = YAML.load_stream(spec)
+
+                return OpenNebula::Error.new(
+                    'Manifest is empty', OpenNebula::Error::EACTION
+                ) if manifest.empty?
+
+                manifest
+            rescue Psych::SyntaxError => e
+                OpenNebula::Error.new("Invalid manifest: #{e.message}", OpenNebula::Error::EACTION)
+            end
+
+            def resource_by_kind(resources, kind)
+                resources.find {|resource| resource['kind'] == kind }
             end
 
         end

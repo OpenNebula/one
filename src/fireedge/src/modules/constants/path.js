@@ -173,6 +173,7 @@ export const PATH = {
     LIST: `/${RESOURCE_NAMES.ONEKS}`,
     DETAIL: `/${RESOURCE_NAMES.ONEKS}/:id`,
     CREATE: `/${RESOURCE_NAMES.ONEKS}/create`,
+    INSTALL_APPLICATION: `/${RESOURCE_NAMES.ONEKS}/:id/applications/install`,
     CREATE_CLOUD_LOGS: `/${RESOURCE_NAMES.ONEKS}/create_kubernetes_logs/:id`,
   },
   SUPPORT: `/${RESOURCE_NAMES.SUPPORT}`,

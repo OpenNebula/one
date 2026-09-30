@@ -66,12 +66,21 @@ module OneKS
             get("/clusters/#{id}/nodegroups/#{nodegroup_id}", opts)
         end
 
+        # GET /clusters/:id/nodegroups/:nodegroup_id/pods
+        # Retrieve the latest Kubernetes pods stored for a nodegroup
+        # @param id [String] Cluster ID
+        # @param nodegroup_id [String] NodeGroup ID
+        # @return [Array<Hash>] NodeGroup pods including their VM ID
+        def get_cluster_nodegroup_pods(id, nodegroup_id)
+            get("/clusters/#{id}/nodegroups/#{nodegroup_id}/pods")
+        end
+
         # POST /clusters/:id/nodegroups
         # Add a new nodegroup to a cluster
         #
         # @param id [String] Cluster ID
         # @param template [Hash] NodeGroup template
-        # @return [Hash] Created NodeGroup / operation result
+        # @return [Integer] Operation result/status
         def create_cluster_nodegroup(id, template)
             post("/clusters/#{id}/nodegroups", template)
         end
@@ -97,25 +106,28 @@ module OneKS
             delete("/clusters/#{id}/nodegroups/#{nodegroup_id}")
         end
 
-        # POST /clusters/:id/nodegroups/:nodegroup_id/recover
-        # Tries to recover a specific nodegroup in a cluster
-        #
-        # @param id [String] Cluster ID
-        # @param nodegroup_id [String] NodeGroup ID
-        # @return [Hash] Recovery operation result
-        def recover_cluster_nodegroup(id, nodegroup_id)
-            post("/clusters/#{id}/nodegroups/#{nodegroup_id}/recover")
-        end
-
         # POST /clusters/:id/nodegroups/:nodegroup_id/scale
         # Scale a specific nodegroup in a cluster
         #
         # @param id [String] Cluster ID
         # @param nodegroup_id [String] NodeGroup ID
         # @param payload [Hash] Body with :count (Integer)
-        # @return [Hash] Scale operation result
+        # @return [Hash] Empty response on success
         def scale_cluster_nodegroup(id, nodegroup_id, payload)
             post("/clusters/#{id}/nodegroups/#{nodegroup_id}/scale", payload)
+        end
+
+        # POST /clusters/:id/nodegroups/:nodegroup_id/recover
+        # Recover the active cluster operation involving a specific nodegroup
+        # @param id [String] Cluster ID
+        # @param nodegroup_id [String] NodeGroup ID
+        # @param action [Symbol, String] retry, success, or failure
+        # @return [Hash] Empty response on accepted recovery
+        def recover_cluster_nodegroup(id, nodegroup_id, action = :retry)
+            post(
+                "/clusters/#{id}/nodegroups/#{nodegroup_id}/recover",
+                :action => action.to_s
+            )
         end
 
         # GET /groups

@@ -18,10 +18,11 @@ import { Info } from '@modules/resources/OneKs/Tabs/Info'
 import NodeGroups from '@modules/resources/OneKs/Tabs/NodeGroups'
 import Kubeconfig from '@modules/resources/OneKs/Tabs/Kubeconfig'
 import Logs from '@modules/resources/OneKs/Tabs/Logs'
+import Applications from '@modules/resources/OneKs/Tabs/Applications'
 import Events from '@modules/resources/OneKs/Tabs/Events'
 import { Selection } from '@modules/resources/OneKs/Tabs/Selection'
 
 export { Events, Info, Kubeconfig, Logs, NodeGroups, Selection }
 
-export const Single = [Info, NodeGroups, Logs, Events, Kubeconfig]
+export const Single = [Info, NodeGroups, Applications, Logs, Events, Kubeconfig]
 export const Aggregated = [Selection, Info]

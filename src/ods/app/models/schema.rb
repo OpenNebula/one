@@ -122,7 +122,10 @@ module OpenNebula
                                 next
                             end
 
-                            validate_type(self, input_name, input_type, input_value)
+                            next unless validate_type(
+                                self, input_name, input_type, input_value
+                            )
+
                             validate_match(
                                 self, input_name, input[:match], input_value, user_inputs_values
                             )
@@ -138,20 +141,26 @@ module OpenNebula
             # @param value [Object] The value of the input
             # @param type [String]  The expected type of the input
             def validate_type(ctx, name, type, value)
-                case type
-                when 'string'
-                    ctx.key(name).failure('must be a string') unless value.is_a?(String)
-                when 'number'
-                    ctx.key(name).failure('must be a number') unless value.is_a?(Numeric)
-                when 'bool'
-                    ctx.key(name).failure('must be a boolean') unless [true, false].include?(value)
-                when 'list', 'tuple'
-                    ctx.key(name).failure('must be a list') unless value.is_a?(Array)
-                when 'map', 'object'
-                    ctx.key(name).failure('must be a map') unless value.is_a?(Hash)
-                else
-                    ctx.key(name).failure('Unknown type')
-                end
+                valid, message =
+                    case type
+                    when 'string'
+                        [value.is_a?(String), 'must be a string']
+                    when 'number'
+                        [value.is_a?(Numeric), 'must be a number']
+                    when 'bool'
+                        [[true, false].include?(value), 'must be a boolean']
+                    when 'list', 'tuple'
+                        [value.is_a?(Array), 'must be a list']
+                    when 'map', 'object'
+                        [value.is_a?(Hash), 'must be a map']
+                    else
+                        ctx.key(name).failure('Unknown type')
+                        return false
+                    end
+
+                ctx.key(name).failure(message) unless valid
+
+                valid
             end
 
             # Validates the match conditions for the input value

@@ -1,0 +1,17 @@
+id: '8e593398-654d-4ce8-854c-cc644afef3c9'
+chart: oci://ghcr.io/kserve/charts/kserve-llmisvc-crd
+version: v0.20.0
+
+metadata:
+  name: KServe LLMInferenceService CRDs v0.20.0
+  description: Private KServe LLMInferenceService and Gateway API Inference Extension CRD dependency.
+
+defaultValuesContent: |-
+  {}
+
+installDefaults:
+  releaseName: kserve-llmisvc-crd
+  targetNamespace: kserve
+  createNamespace: true
+
+dependencies: []

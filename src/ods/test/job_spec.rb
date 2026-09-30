@@ -47,6 +47,7 @@ RSpec.describe ODS::Job do
             )
 
             expect(recovery.state).to eq(:RUNNING)
+            expect(recovery.result).to eq(:retry)
             expect(success.name).to eq(:created)
             expect(continuation.step).to eq(:finish)
             expect(continuation.failure_state).to eq(:FAILURE)
@@ -64,6 +65,16 @@ RSpec.describe ODS::Job do
                 :type => :children, :check => :children_ready,
                 :forward_args => true
             )
+        end
+
+        it 'declares explicit manual recovery results while defaulting to retry' do
+            expect(described_class.recover(:state => :RUNNING)).to be_retry
+            expect(
+                described_class.recover(:success, :state => :RUNNING).result
+            ).to eq(:success)
+            expect do
+                described_class.recover(:unknown, :state => :RUNNING)
+            end.to raise_error(ArgumentError, /Invalid job recovery result/)
         end
 
         it 'builds command and thread outcomes with explicit success results' do

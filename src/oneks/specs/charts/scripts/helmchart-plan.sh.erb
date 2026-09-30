@@ -1,0 +1,108 @@
+#!/bin/sh
+# Copyright 2026, OpenNebula Project, OpenNebula Systems.
+# Licensed under the Apache License, Version 2.0.
+
+set -eu
+
+KUBECTL="${1:?kubectl path is required}"
+KUBECONFIG="${2:?kubeconfig path is required}"
+
+k() { "$KUBECTL" --kubeconfig "$KUBECONFIG" "$@"; }
+
+<% if install -%>
+HELM_NAMESPACE=<%= helm_namespace %>
+CURRENT_OPERATION=
+CURRENT_RELEASE=
+CURRENT_STEP=
+
+mark_resource() {
+    k -n "$HELM_NAMESPACE" annotate --overwrite "$1" \
+        "oneks.opennebula.io/state=$2" \
+        "oneks.opennebula.io/error=${3:-}" >/dev/null
+}
+
+resource_value() {
+    k -n "$HELM_NAMESPACE" get "$1" -o "jsonpath=$2" 2>/dev/null || true
+}
+
+reset_failed_chart() {
+    reset_release=$1
+    reset_timeout=$2
+    reset_status=$(resource_value "helmchart/$reset_release" \
+        '{.metadata.labels.oneks\.opennebula\.io/managed}{"/"}{.metadata.annotations.oneks\.opennebula\.io/state}')
+
+    [ "$reset_status" = true/failed ] || return 0
+
+    k -n "$HELM_NAMESPACE" annotate --overwrite "helmchart/$reset_release" \
+        oneks.opennebula.io/state=installing \
+        oneks.opennebula.io/error- >/dev/null
+    k -n "$HELM_NAMESPACE" delete "helmchart/$reset_release" \
+        --wait=true --timeout="$reset_timeout"
+}
+
+wait_for_job() {
+    wait_job=$1
+    wait_seconds=${2%s}
+    wait_deadline=$(($(date +%s) + wait_seconds))
+
+    while [ "$(date +%s)" -lt "$wait_deadline" ]; do
+        conditions=" $(resource_value "job/$wait_job" \
+            '{range .status.conditions[*]}{.type}={.status}{" "}{end}')"
+
+        case "$conditions" in
+            *' Complete=True '*) return 0 ;;
+            *' Failed=True '*) return 1 ;;
+        esac
+        sleep 2
+    done
+
+    return 1
+}
+
+apply_chart() {
+    release=$1
+    timeout=$2
+
+    reset_failed_chart "$release" "$timeout"
+    k apply -f -
+
+    if k -n "$HELM_NAMESPACE" wait --for=condition=JobCreated \
+        "helmchart/$release" --timeout="$timeout"; then
+        job=$(k -n "$HELM_NAMESPACE" get "helmchart/$release" \
+            -o jsonpath='{.status.jobName}')
+
+        if wait_for_job "$job" "$timeout"; then
+            mark_resource "helmchart/$release" ready
+            return 0
+        fi
+    fi
+
+    failure_message=$(resource_value "helmchart/$release" \
+        '{range .status.conditions[?(@.type=="Failed")]}{.message}{end}')
+    mark_resource "helmchart/$release" failed \
+        "${failure_message:-Helm installer Job failed or timed out}"
+    return 1
+}
+
+fail_operation() {
+    rc=$?
+    trap - EXIT
+
+    [ "$rc" -eq 0 ] && exit 0
+    [ -n "$CURRENT_OPERATION" ] || exit "$rc"
+
+    state=$(resource_value "helmchart/$CURRENT_RELEASE" \
+        '{.metadata.annotations.oneks\.opennebula\.io/state}')
+
+    if [ "$state" != failed ]; then
+        mark_resource "configmap/$CURRENT_OPERATION" failed \
+            "${CURRENT_STEP:-Application plan failed}" 2>/dev/null || true
+    fi
+
+    exit "$rc"
+}
+
+trap fail_operation EXIT
+
+<% end -%>
+<%= steps %>

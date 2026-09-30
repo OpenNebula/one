@@ -104,7 +104,6 @@ const ResourceSingleViewDrawer = ({
       slots={[[ResourceSingleViewLoading, { handleClose }]]}
     />
   )
-
   if (view.isHydrating) return loading
 
   return (

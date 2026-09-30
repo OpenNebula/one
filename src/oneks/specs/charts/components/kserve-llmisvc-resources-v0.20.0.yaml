@@ -1,0 +1,52 @@
+id: '190ed924-cb1f-451f-aa7b-282bf03a271e'
+chart: oci://ghcr.io/kserve/charts/kserve-llmisvc-resources
+version: v0.20.0
+
+metadata:
+  name: KServe LLMInferenceService Resources v0.20.0
+  description: Private KServe LLMInferenceService controller dependency.
+
+defaultValuesContent: |-
+  kserve:
+    # Standalone LLMInferenceService installation.
+    createSharedResources: true
+
+    localmodel:
+      enabled: true
+      jobNamespace: kserve-localmodel-jobs
+      disableVolumeManagement: false
+      securityContext:
+        fsGroup: 65532
+
+    controller:
+      # Avoid requiring Knative or Istio.
+      deploymentMode: Standard
+
+      gateway:
+        domain: example.com
+        urlScheme: http
+
+        disableIstioVirtualHost: true
+        disableIngressCreation: false
+
+        localGateway:
+          gateway: ""
+          gatewayService: ""
+          knativeGatewayService: ""
+
+        ingressGateway:
+          enableGatewayApi: true
+          createGateway: false
+          kserveGateway: kserve/oneks-kserve-gateway
+          className: oneks-kserve-envoy
+
+    llmisvc:
+      createGIECRDs: true
+
+installDefaults:
+  releaseName: kserve-llmisvc-resources
+  targetNamespace: kserve
+  createNamespace: true
+
+# Major platform dependencies are declared by the public parent.
+dependencies: []

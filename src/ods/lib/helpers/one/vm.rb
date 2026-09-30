@@ -175,15 +175,16 @@ module OpenNebula
                     Resource.wait_until_deleted(vm, :state => 6)
                 end
 
-                # Runs a QEMU guest-agent command and waits for its result.
+                # Runs a QEMU guest-agent command, optionally waiting for its result.
                 # @param client [OpenNebula::Client] OpenNebula client.
                 # @param vm_id [Integer] VM ID.
                 # @param cmd [String] Guest command.
-                # @param opts [Hash] Optional stdin and timeout values.
-                # @return [Hash, OpenNebula::Error] command result or an API error.
+                # @param opts [Hash] Optional stdin, timeout and wait values.
+                # @return [Hash, true, OpenNebula::Error] result, submission or API error.
                 def self.exec(client, vm_id, cmd, opts = {})
                     stdin   = opts.fetch(:stdin, '')
                     timeout = opts.fetch(:timeout, 60)
+                    wait    = opts.fetch(:wait, true)
 
                     vm = OpenNebula::VirtualMachine.new_with_id(vm_id, client)
                     return vm if OpenNebula.is_error?(vm)
@@ -194,6 +195,8 @@ module OpenNebula
                         "Command failed on VM #{vm_id}: #{rc.message}",
                         OpenNebula::Error::EACTION
                     ) if OpenNebula.is_error?(rc)
+
+                    return true unless wait
 
                     wait_exec(vm, cmd, timeout)
                 rescue StandardError => e

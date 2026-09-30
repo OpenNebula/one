@@ -17,19 +17,23 @@ import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 import { EventsViewer } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
+import { OneKsAPI } from '@FeaturesModule'
 
 /**
- * Render events viewer tab showing the Events of the cluster (only for OneForm clusters).
+ * Render events from the OneKS cluster and its node groups.
  *
  * @param {object} props - Props
  * @param {object} props.data - Tab data
  * @returns {ReactElement} Events tab
  */
 const Events = ({ data: tabData }) => {
-  const cluster = tabData?.selected ?? {}
-  const events = cluster?.TEMPLATE?.CLUSTER_BODY?.historic ?? []
+  const id = tabData?.selected?.ID ?? tabData?.id
+  const { data: events = [], isFetching } = OneKsAPI.useGetOneKsHistoricQuery(
+    { id },
+    { skip: !id }
+  )
 
-  return <EventsViewer events={events} isLoading={tabData?.isLoading} />
+  return <EventsViewer events={events} isLoading={isFetching} />
 }
 
 Events.propTypes = {

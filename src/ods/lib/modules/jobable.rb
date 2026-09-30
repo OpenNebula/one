@@ -81,13 +81,19 @@ module OpenNebula
             end
 
             # Prepares the current durable operation for an explicit retry.
-            def recover_job!(
-                state:,
-                external_user:,
-                args: nil,
-                step: nil,
-                failure_state: nil
-            )
+            def recover_job!(state:, external_user:, **options)
+                unknown = options.keys - [
+                    :args, :step, :failure_state, :resolution, :clear_wait
+                ]
+                raise ArgumentError, "Unknown recover job options: #{unknown.join(', ')}" \
+                    unless unknown.empty?
+
+                args          = options.fetch(:args, nil)
+                step          = options.fetch(:step, nil)
+                failure_state = options.fetch(:failure_state, nil)
+                resolution    = options.fetch(:resolution, nil)
+                clear_wait    = options.fetch(:clear_wait, false)
+
                 context = active_job
                 raise ArgumentError, "#{job_resource_label} has no active job" unless context
                 raise ArgumentError, 'Recovered job state must be a Symbol' \
@@ -101,7 +107,9 @@ module OpenNebula
                     :external_user => external_user,
                     :args          => args,
                     :step          => step,
-                    :failure_state => failure_state
+                    :failure_state => failure_state,
+                    :resolution    => resolution,
+                    :clear_wait    => clear_wait
                 )
                 self.state = state
 
@@ -148,6 +156,7 @@ module OpenNebula
                     :step          => context.step,
                     :args          => context.args,
                     :failure_state => context.failure_state,
+                    :resolution    => context.resolution,
                     :parent        => context.parent,
                     :children      => context.children,
                     :cancellation  => context.cancellation

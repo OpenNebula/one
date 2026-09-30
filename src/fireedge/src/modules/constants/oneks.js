@@ -116,6 +116,26 @@ export const ONEKS_STATE = {
     color: 'error',
     finalState: true,
   },
+  INSTALLING_APPLICATION: {
+    name: 'INSTALLING_APPLICATION',
+    color: 'information',
+    finalState: false,
+  },
+  INSTALLING_APPLICATION_FAILURE: {
+    name: 'INSTALLING_APPLICATION_FAILURE',
+    color: 'error',
+    finalState: true,
+  },
+  DELETING_APPLICATION: {
+    name: 'DELETING_APPLICATION',
+    color: 'information',
+    finalState: false,
+  },
+  DELETING_APPLICATION_FAILURE: {
+    name: 'DELETING_APPLICATION_FAILURE',
+    color: 'error',
+    finalState: true,
+  },
   DEPROVISIONING: {
     name: 'DEPROVISIONING',
     color: 'information',

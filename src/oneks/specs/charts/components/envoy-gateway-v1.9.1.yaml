@@ -1,0 +1,57 @@
+id: 'c1cfdfc2-49bb-4811-b503-0347442d1fd6'
+chart: oci://docker.io/envoyproxy/gateway-helm
+version: v1.9.1
+
+metadata:
+  name: Envoy Gateway for KServe v1.9.1
+  description: Private Envoy Gateway dependency providing Gateway API CRDs, Envoy Gateway CRDs, and InferencePool extension integration.
+
+defaultValuesContent: |-
+  crds:
+    enabled: true
+
+  deployment:
+    replicas: 1
+
+  config:
+    envoyGateway:
+      gateway:
+        controllerName: gateway.envoyproxy.io/gatewayclass-controller
+
+      extensionApis:
+        enableEnvoyPatchPolicy: true
+        enableBackend: true
+
+      extensionManager:
+        backendResources:
+          - group: inference.networking.k8s.io
+            kind: InferencePool
+            version: v1
+
+        hooks:
+          xdsTranslator:
+            translation:
+              listener:
+                includeAll: true
+              route:
+                includeAll: true
+              cluster:
+                includeAll: true
+              secret:
+                includeAll: true
+            post:
+              - Translation
+              - Cluster
+              - Route
+
+        service:
+          fqdn:
+            hostname: ai-gateway-controller.envoy-ai-gateway-system.svc.cluster.local
+            port: 1063
+
+installDefaults:
+  releaseName: oneks-envoy-gateway
+  targetNamespace: envoy-gateway-system
+  createNamespace: true
+
+dependencies: []

@@ -17,9 +17,10 @@
 /**
  * @param {object} root0 - Params
  * @param {object} root0.theme - Current theme in use
+ * @param {string} root0.variant - Step marker layout
  * @returns {object} - StepList styles
  */
-export const getStyles = ({ theme }) => {
+export const getStyles = ({ theme, variant }) => {
   const baseStyles = {
     alignSelf: 'stretch',
 
@@ -117,5 +118,37 @@ export const getStyles = ({ theme }) => {
 
   return {
     ...baseStyles,
+    ...(variant === 'timeline' && {
+      '& .steplist-container': {
+        ...baseStyles['& .steplist-container'],
+        gap: `${theme.scale[500]}px`,
+      },
+      '& .steplist-item': {
+        ...baseStyles['& .steplist-item'],
+        position: 'relative',
+        gridTemplateColumns: `${theme.scale[600]}px minmax(0, 1fr)`,
+        gap: `${theme.scale[300]}px`,
+      },
+      '& .steplist-item:not(:last-child)::after': {
+        content: '""',
+        position: 'absolute',
+        top: `${theme.scale[600]}px`,
+        bottom: `-${theme.scale[500]}px`,
+        left: `calc(${theme.scale[600]}px / 2)`,
+        borderLeft: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
+      },
+      '& .item-marker': {
+        ...baseStyles['& .item-marker'],
+        alignItems: 'flex-start',
+        bgcolor: 'transparent',
+        borderRadius: 0,
+        color: 'text.secondary',
+        fontWeight: 400,
+      },
+      '& .item-content': {
+        ...baseStyles['& .item-content'],
+        minWidth: 0,
+      },
+    }),
   }
 }

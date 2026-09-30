@@ -21,13 +21,16 @@ module OneKS
 
         def self.registered(app)
             app.register Sinatra::Namespace
+            app.helpers  OneKS::FeatureHelper
 
             app.namespace '/api/v1' do
                 get '/' do
                     'Welcome to the OpenNebula Kubernetes Service API v1'
                 end
 
-                register ODS::LogController
+                register FamilyController
+                register ApplicationController
+                register MonitorController
                 register ClusterController
                 register NodeGroupController
             end

@@ -72,6 +72,18 @@ export const getVirtualOneKsStateControlPlane = (oneks) => {
 }
 
 /**
+ * Returns compatibility information for a catalogue application.
+ *
+ * @param {object} application - Catalogue application
+ * @param {boolean} application.installable - Whether it can be installed
+ * @returns {{name: string, color: string}} Application compatibility state
+ */
+export const getApplicationState = ({ installable } = {}) =>
+  installable
+    ? { name: 'Compatible', color: 'success' }
+    : { name: 'Not compatible', color: 'error' }
+
+/**
  * Get the progress for a oneks.
  *
  * @param {string} state - OneKS state

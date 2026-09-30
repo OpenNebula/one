@@ -245,6 +245,110 @@ const oneKsApi = oneApi.injectEndpoints({
         }
       },
     }),
+    getOneKsApplications: builder.query({
+      /**
+       * Retrieves the public OneKS application catalog.
+       *
+       * @param {object} [params] - Optional query parameters
+       * @param {boolean} [params.all] - Include internal components
+       * @param {string|number} [params.cluster_id] - Cluster for installability
+       * @returns {object[]} Application catalog
+       */
+      query: (params = {}) => {
+        const name = Actions.LIST_APPLICATIONS
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      transformResponse: (data) => (Array.isArray(data) ? data : []),
+    }),
+
+    getOneKsApplication: builder.query({
+      /**
+       * Retrieves one complete application definition.
+       *
+       * @param {object} params - Request params
+       * @param {string} params.application_id - Catalog application ID
+       * @param {string|number} [params.cluster_id] - Cluster for installability
+       * @returns {object} Application definition
+       */
+      query: (params) => {
+        const name = Actions.SHOW_APPLICATION
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      transformResponse: (data) => data ?? {},
+    }),
+    getOneKsClusterApplications: builder.query({
+      /**
+       * Retrieves applications installed in a OneKS cluster.
+       *
+       * @param {object} params - Request params
+       * @param {string|number} params.id - Cluster ID
+       * @param {boolean} [params.all] - Include dependency applications
+       * @returns {object[]} Installed applications
+       */
+      query: (params) => {
+        const name = Actions.LIST_CLUSTER_APPLICATIONS
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      transformResponse: (data) => (Array.isArray(data) ? data : []),
+      providesTags: (_, __, { id }) => [oneKsDetailTag(id)],
+    }),
+    getOneKsClusterApplication: builder.query({
+      /**
+       * Retrieves an installed application release.
+       *
+       * @param {object} params - Request params
+       * @param {string|number} params.id - Cluster ID
+       * @param {string} params.release_name - Installed release name
+       * @returns {object} Installed application release
+       */
+      query: (params) => {
+        const name = Actions.SHOW_CLUSTER_APPLICATION
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      providesTags: (_, __, { id }) => [oneKsDetailTag(id)],
+    }),
+    installOneKsApplication: builder.mutation({
+      /**
+       * Installs a catalogue application in a OneKS cluster.
+       *
+       * @param {object} params - Request params
+       * @param {string|number} params.id - Cluster ID
+       * @param {object} params.template - Installation attributes
+       * @returns {void}
+       */
+      query: (params) => {
+        const name = Actions.INSTALL_APPLICATION
+        const command = { name, ...Commands[name] }
+
+        return { params, command, showNotification: false }
+      },
+      invalidatesTags: (_, __, { id }) => [oneKsDetailTag(id), ONEKS_POOL],
+    }),
+    deleteOneKsClusterApplication: builder.mutation({
+      /**
+       * Deletes an installed application release.
+       *
+       * @param {object} params - Request params
+       * @param {string|number} params.id - Cluster ID
+       * @param {string} params.release_name - Installed release name
+       * @returns {void}
+       */
+      query: (params) => {
+        const name = Actions.DELETE_CLUSTER_APPLICATION
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [oneKsDetailTag(id), ONEKS_POOL],
+    }),
     deleteOneKsCluster: builder.mutation({
       query: (params) => {
         const name = Actions.DELETE
@@ -345,6 +449,23 @@ const oneKsApi = oneApi.injectEndpoints({
 
         return data
       },
+    }),
+    getOneKsHistoric: builder.query({
+      /**
+       * Retrieves events from a cluster and its node groups.
+       *
+       * @param {object} params - Request params
+       * @param {string|number} params.id - Cluster id
+       * @returns {object[]} Cluster and node group events
+       */
+      query: (params) => {
+        const name = Actions.HISTORIC
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      transformResponse: (data) => (Array.isArray(data) ? data : []),
+      keepUnusedDataFor: 0,
     }),
     createOneKsCluster: builder.mutation({
       /**
@@ -606,16 +727,28 @@ const oneKsQueries = (({
   useLazyGetOneKsClustersQuery,
   useGetOneKsClusterQuery,
   useLazyGetOneKsClusterQuery,
+  useGetOneKsApplicationsQuery,
+  useLazyGetOneKsApplicationsQuery,
+  useGetOneKsApplicationQuery,
+  useLazyGetOneKsApplicationQuery,
+  useGetOneKsClusterApplicationsQuery,
+  useLazyGetOneKsClusterApplicationsQuery,
+  useGetOneKsClusterApplicationQuery,
+  useLazyGetOneKsClusterApplicationQuery,
   useGetOneKsFamiliesQuery,
   useLazyGetOneKsFamiliesQuery,
   useGetKubeConfigQuery,
   useLazyGetKubeConfigQuery,
+  useGetOneKsHistoricQuery,
+  useLazyGetOneKsHistoricQuery,
   useGetKubernetesLogsQuery,
   useLazyGetKubernetesLogsQuery,
   useGetOneKsNodegroupFamiliesQuery,
   useLazyGetOneKsNodegroupFamiliesQuery,
 
   // Mutations
+  useInstallOneKsApplicationMutation,
+  useDeleteOneKsClusterApplicationMutation,
   useCreateOneKsClusterMutation,
   useValidateOneKsDeploymentMutation,
   useDeleteOneKsClusterMutation,
@@ -635,16 +768,28 @@ const oneKsQueries = (({
   useLazyGetOneKsClustersQuery,
   useGetOneKsClusterQuery,
   useLazyGetOneKsClusterQuery,
+  useGetOneKsApplicationsQuery,
+  useLazyGetOneKsApplicationsQuery,
+  useGetOneKsApplicationQuery,
+  useLazyGetOneKsApplicationQuery,
+  useGetOneKsClusterApplicationsQuery,
+  useLazyGetOneKsClusterApplicationsQuery,
+  useGetOneKsClusterApplicationQuery,
+  useLazyGetOneKsClusterApplicationQuery,
   useGetOneKsFamiliesQuery,
   useLazyGetOneKsFamiliesQuery,
   useGetKubeConfigQuery,
   useLazyGetKubeConfigQuery,
+  useGetOneKsHistoricQuery,
+  useLazyGetOneKsHistoricQuery,
   useGetKubernetesLogsQuery,
   useLazyGetKubernetesLogsQuery,
   useGetOneKsNodegroupFamiliesQuery,
   useLazyGetOneKsNodegroupFamiliesQuery,
 
   // Mutations
+  useInstallOneKsApplicationMutation,
+  useDeleteOneKsClusterApplicationMutation,
   useCreateOneKsClusterMutation,
   useValidateOneKsDeploymentMutation,
   useDeleteOneKsClusterMutation,

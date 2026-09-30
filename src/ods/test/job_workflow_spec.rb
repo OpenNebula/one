@@ -128,6 +128,7 @@ RSpec.describe ODS::JobWorkflow do
         end
         allow(scheduler).to receive(:retry_startup).and_return(:reconciler_spec)
         allow(scheduler).to receive(:cancel).and_return(:requested)
+        allow(scheduler).to receive(:interrupt).and_return(:not_found)
     end
 
     describe 'DSL declarations and validation' do
@@ -383,6 +384,109 @@ RSpec.describe ODS::JobWorkflow do
             expect(scheduler).not_to have_received(:schedule)
         end
 
+        it 'fails a durable wait when its event handler requests failure' do
+            waiting = Class.new(described_class) do
+                workflow_id :workflow_spec
+                failure_states(:RUNNING => :RUNNING_FAILURE)
+                stable_states(:DONE)
+
+                event :failed, :handler => :apply_failure
+                step :observe,
+                     :state => :RUNNING,
+                     :success => ODS::Job.complete(:DONE),
+                     :failure => :RUNNING_FAILURE
+
+                attr_reader :checks
+
+                def initialize
+                    @checks = 0
+                    super
+                end
+
+                def observe(_resource)
+                    ODS::Job.wait(:events => [:failed], :check => :ready)
+                end
+
+                def apply_failure(_resource, message:)
+                    ODS::EventResult.fail(message)
+                end
+
+                def ready(_resource)
+                    @checks += 1
+                    false
+                end
+            end
+            waiting.define_singleton_method(:name) { 'FailingWaitSpecWorkflow' }
+
+            instance = waiting.new.configure(pool, scheduler)
+            owner.begin_job!(
+                :step => :observe, :state => :RUNNING, :args => {},
+                :external_user => 'alice'
+            )
+            job  = owner.build_job(instance.id)
+            wait = ODS::Job.wait(:events => [:failed], :check => :ready)
+
+            expect(instance.resolve_wait!(owner, job, wait, {}, :persist => true))
+                .to be_waiting
+            expect(instance).to receive(:notify_parent).with(
+                an_object_having_attributes(
+                    :operation_id => job.operation_id,
+                    :step => :observe
+                )
+            ).and_call_original
+
+            expect(instance.dispatch_event(7, :failed, :message => 'VM failed'))
+                .to eq('VM failed')
+            expect(instance.checks).to eq(1)
+            expect(owner.state).to eq(:RUNNING_FAILURE)
+            expect(owner.error[:message]).to eq('VM failed')
+            expect(owner.active_job).to have_attributes(
+                :step => :observe,
+                :wait => an_object_having_attributes(:events => [:failed])
+            )
+            expect(scheduler).not_to have_received(:schedule)
+        end
+
+        it 'fails an active step before its durable wait is persisted' do
+            workflow_class = Class.new(described_class) do
+                workflow_id :workflow_spec
+                failure_states(:RUNNING => :RUNNING_FAILURE)
+                stable_states(:DONE)
+
+                event :failed, :handler => :apply_failure
+                step :observe,
+                     :state => :RUNNING,
+                     :success => ODS::Job.complete(:DONE),
+                     :failure => :RUNNING_FAILURE
+
+                def observe(_resource)
+                    ODS::Job.wait(:events => [:failed], :check => :ready)
+                end
+
+                def apply_failure(_resource, message:)
+                    ODS::EventResult.fail(message)
+                end
+
+                def ready(_resource)
+                    false
+                end
+            end
+            workflow_class.define_singleton_method(:name) { 'EarlyFailureSpecWorkflow' }
+
+            instance = workflow_class.new.configure(pool, scheduler)
+            owner.begin_job!(
+                :step => :observe, :state => :RUNNING, :args => {},
+                :external_user => 'alice'
+            )
+
+            expect(instance.dispatch_event(7, :failed, :message => 'early VM failure'))
+                .to eq('early VM failure')
+            expect(owner.state).to eq(:RUNNING_FAILURE)
+            expect(owner.error[:message]).to eq('early VM failure')
+            expect(owner.active_job.wait).to be_nil
+            expect(scheduler).not_to have_received(:schedule)
+        end
+
         it 'validates wait events, dependencies and step success' do
             unknown = Class.new(described_class) do
                 workflow_id :workflow_spec
@@ -469,7 +573,7 @@ RSpec.describe ODS::JobWorkflow do
             end.to raise_error(ArgumentError, /cannot wait with named success/)
         end
 
-        it 'recovers a failed wait without rerunning preparation for its step' do
+        it 'runs preparation for a cancelled wait but not an ordinary failed wait' do
             waiting = Class.new(described_class) do
                 workflow_id :workflow_spec
                 failure_states(:RUNNING => :RUNNING_FAILURE)
@@ -517,6 +621,30 @@ RSpec.describe ODS::JobWorkflow do
                 :wait => an_object_having_attributes(
                     :events => [:changed], :check => :ready
                 )
+            )
+
+            cancelled = job_context(
+                :step => :observe,
+                :wait => ODS::Job.wait(:events => [:changed], :check => :ready)
+            )
+            owner.active_job = ODS::JobContext.from_h(
+                cancelled.to_h.merge(
+                    :cancellation => {
+                        :requested_by => 'alice', :requested_at => 1,
+                        :status => :cancelled, :cancelled_at => 2
+                    }
+                )
+            )
+            owner.state = :RUNNING_FAILURE
+
+            result = instance.request_recovery(7, 'admin') do
+                ODS::Job.recover(:state => :RUNNING)
+            end
+
+            expect(result).to be_a(String)
+            expect(owner.active_job).to have_attributes(
+                :attempt => 2, :step => :recover_observe,
+                :external_user => 'admin'
             )
         end
     end
@@ -594,6 +722,30 @@ RSpec.describe ODS::JobWorkflow do
             expect(owner.active_job).to have_attributes(
                 :attempt => 2, :step => :recover_perform,
                 :failure_state => :RUNNING_FAILURE, :external_user => 'admin'
+            )
+        end
+
+        it 'persists a manual resolution without running the recovery preparation step' do
+            owner.state = :RUNNING
+            owner.active_job = job_context(:args => { :value => 2 })
+            owner.state = :RUNNING_FAILURE
+
+            result = workflow.request_recovery(7, 'admin') do
+                ODS::Job.recover(:success, :state => :RUNNING)
+            end
+
+            expect(result).to be_a(String)
+            expect(owner.active_job).to have_attributes(
+                :attempt => 2, :step => :perform, :resolution => :success,
+                :external_user => 'admin'
+            )
+            expect(scheduler).to have_received(:interrupt).with(
+                7, 'operation', :before_attempt => 2
+            )
+            expect(scheduler).to have_received(:schedule).with(
+                an_object_having_attributes(
+                    :step => :perform, :resolution => :success
+                )
             )
         end
     end

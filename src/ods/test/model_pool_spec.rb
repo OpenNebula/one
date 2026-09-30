@@ -26,6 +26,7 @@ RSpec.describe ODS::Pool do
         Class.new(described_class) do
             const_set(:DOCUMENT_CLASS, document_class)
             const_set(:DOCUMENT_TYPES, {})
+            const_set(:DOCUMENT_TYPE, 999)
         end
     end
 
@@ -46,12 +47,28 @@ RSpec.describe ODS::Pool do
     end
 
     it 'impersonates through cloud auth and rejects it when unavailable' do
+        expect(pool.impersonate(nil)).to equal(client)
+        expect(auth).to have_received(:client).with(nil)
+
         expect(pool.impersonate('alice')).to equal(client)
         expect(auth).to have_received(:client).with('alice')
 
         pool.instance_variable_set(:@cloud_auth, nil)
         expect(pool.impersonate(nil)).to equal(client)
         expect { pool.impersonate('alice') }.to raise_error(ArgumentError, /Cloud auth/)
+    end
+
+    it 'refreshes the administrative client before loading the pool' do
+        initial_client = instance_double(OpenNebula::Client)
+        current_client = instance_double(OpenNebula::Client)
+        allow(auth).to receive(:client).and_return(initial_client, current_client)
+        allow(current_client).to receive(:call).and_return('<DOCUMENT_POOL/>')
+
+        authenticated_pool = pool_class.new(:auth => auth)
+
+        expect(authenticated_pool.info).to be_nil
+        expect(auth).to have_received(:client).twice
+        expect(current_client).to have_received(:call)
     end
 
     it 'loads and locks a resource, resolves dependencies, and returns the block result' do

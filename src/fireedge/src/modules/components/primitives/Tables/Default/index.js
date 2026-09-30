@@ -662,7 +662,7 @@ Table.propTypes = {
   getRowId: PropTypes.func,
   onVisibleRowIdsChange: PropTypes.func,
   isMultiRowSelection: PropTypes.bool,
-  isRowsSelectable: PropTypes.bool,
+  isRowsSelectable: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   isDisablePagination: PropTypes.bool,
   isDisabled: PropTypes.bool,
   isLoading: PropTypes.bool,

@@ -36,29 +36,35 @@ export const ResourceSingleViewHost = ({ children }) => {
   const {
     ResourceSingleView,
     clearResourceSingleViewBase,
+    closeResourceSingleView,
     goBackResourceSingleView,
     goForwardResourceSingleView,
     goToResourceSingleView,
     openResourceSingleView,
+    popResourceSingleView,
     registerResourceSingleViewBase,
     stack,
   } = useResourceSingleView()
   const value = useMemo(
     () => ({
       clearResourceSingleViewBase,
+      closeResourceSingleView,
       goBackResourceSingleView,
       goForwardResourceSingleView,
       goToResourceSingleView,
       openResourceSingleView,
+      popResourceSingleView,
       registerResourceSingleViewBase,
       stack,
     }),
     [
       clearResourceSingleViewBase,
+      closeResourceSingleView,
       goBackResourceSingleView,
       goForwardResourceSingleView,
       goToResourceSingleView,
       openResourceSingleView,
+      popResourceSingleView,
       registerResourceSingleViewBase,
       stack,
     ]

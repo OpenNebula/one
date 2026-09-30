@@ -52,11 +52,19 @@ const EditOneKsNodeGroupForm = createAsyncForm(() =>
   import('@modules/resources/OneKs/Forms/EditOneKsNodeGroupForm')
 )
 
+/**
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const InstallApplicationForm = createAsyncForm(() =>
+  import('@modules/resources/OneKs/Forms/InstallApplicationForm')
+)
+
 export {
   ScaleKsGroupForm,
   CreateOneKsClusterForm,
   CreateOneKsNodeGroupForm,
   EditOneKsNodeGroupForm,
+  InstallApplicationForm,
 }
 
 export { useDeleteKsClusterConfirmation } from './DeleteKsClusterForm'

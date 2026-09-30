@@ -16,6 +16,8 @@
 
 export * as Tabs from '@modules/resources/OneKs/Tabs'
 export * as Forms from '@modules/resources/OneKs/Forms'
+export * as Details from '@modules/resources/OneKs/Details'
 
 export const RID = 'kubernetes'
 export { OneKsCard as Card } from '@modules/resources/OneKs/Card'
+export { OneKsApplicationCard as ApplicationCard } from '@modules/resources/OneKs/ApplicationCard'

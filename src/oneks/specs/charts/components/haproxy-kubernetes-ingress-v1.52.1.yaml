@@ -1,0 +1,30 @@
+id: 'b86f6623-d38d-4cdb-8702-35fdacff3e6a'
+repo: https://haproxytech.github.io/helm-charts
+chart: kubernetes-ingress
+version: 1.52.1
+
+metadata:
+  name: HAProxy Kubernetes Ingress Controller
+  description: Provides the HAProxy ingress data plane used by NVIDIA Run:ai.
+
+defaultValuesContent: |-
+  fullnameOverride: oneks-haproxy-ingress
+
+  controller:
+    kind: Deployment
+    replicaCount: 1
+
+    ingressClass: haproxy
+    ingressClassResource:
+      name: haproxy
+      default: false
+
+    service:
+      type: LoadBalancer
+
+installDefaults:
+  releaseName: oneks-haproxy-ingress
+  targetNamespace: haproxy-controller
+  createNamespace: true
+
+dependencies: []

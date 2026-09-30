@@ -1,0 +1,17 @@
+id: '010cfab9-a3bf-44ec-8458-0351da06ef40'
+chart: oci://ghcr.io/kserve/charts/kserve-localmodel-crd
+version: v0.20.0
+
+metadata:
+  name: KServe LocalModel CRDs v0.20.0
+  description: Private KServe LocalModel CRD dependency for node-local model caching.
+
+defaultValuesContent: |-
+  {}
+
+installDefaults:
+  releaseName: kserve-localmodel-crd
+  targetNamespace: kserve
+  createNamespace: true
+
+dependencies: []

@@ -94,6 +94,11 @@ module OpenNebula
                     job = @workflow.build_job(resource)
                     return ExecResult.error(job) if OpenNebula.is_error?(job)
 
+                    if job.resolution
+                        result = resolve_manual_children(job, job.resolution)
+                        return result unless result.ok?
+                    end
+
                     result = ensure_requests(job)
                     return result if result.retry? || result.waiting? || result.stale?
                     return schedule_failure(job, result.value) if result.error?
@@ -112,6 +117,14 @@ module OpenNebula
                         end
 
                         return ExecResult.waiting(job.operation_id)
+                    end
+
+                    if job.resolution && result.value == :resolve
+                        scheduled = @workflow.scheduler.schedule(job)
+                        return ExecResult.retry(scheduled) \
+                            if OpenNebula.is_error?(scheduled)
+
+                        return ExecResult.ok(scheduled)
                     end
 
                     return ExecResult.ok(job.operation_id) \
@@ -198,19 +211,32 @@ module OpenNebula
                     ExecResult.retry(error_value(e.message))
                 end
 
-                # Recovers related children before making the parent executable again.
+                # Makes the parent executable before recovering related children so
+                # their parent relationship remains valid when they are scheduled.
                 def recover(resource, recovery, actor)
                     context = resource.active_job
-                    parent  = Job::Parent.new(
-                        :workflow => @workflow.id, :owner_id => resource.id,
-                        :operation_id => context.id, :parent_step => context.step
-                    )
 
-                    step_children(context, context.step).each do |child|
-                        result = child_workflow(child).recover_child(
-                            child, :parent => parent, :actor => actor
+                    unless recovery.retry?
+                        current = nil
+                        rc = @workflow.pool.get(resource.id, actor) do |parent_resource|
+                            next unless parent_resource.active_job == context
+
+                            @workflow.recover_locked!(parent_resource, recovery, actor)
+                            current = parent_resource
+                        end
+
+                        return ExecResult.retry(rc) if OpenNebula.is_error?(rc)
+                        return ExecResult.stale unless current
+
+                        interrupted = @workflow.scheduler.interrupt(
+                            current.id,
+                            current.active_job.id,
+                            :before_attempt => current.active_job.attempt
                         )
-                        return result unless result.ok?
+                        return ExecResult.retry(interrupted) \
+                            if OpenNebula.is_error?(interrupted)
+
+                        return resume(current)
                     end
 
                     current = nil
@@ -223,6 +249,20 @@ module OpenNebula
 
                     return ExecResult.retry(rc) if OpenNebula.is_error?(rc)
                     return ExecResult.stale unless current
+
+                    recovered = current.active_job
+                    parent = Job::Parent.new(
+                        :workflow => @workflow.id, :owner_id => resource.id,
+                        :operation_id => recovered.id,
+                        :parent_step => recovered.step
+                    )
+
+                    step_children(recovered, recovered.step).each do |child|
+                        result = child_workflow(child).recover_child(
+                            child, :parent => parent, :actor => actor
+                        )
+                        return result unless result.ok?
+                    end
 
                     resume(current)
                 rescue StandardError => e
@@ -289,6 +329,26 @@ module OpenNebula
                 end
 
                 private
+
+                def resolve_manual_children(job, resolution)
+                    loaded = load_context(job)
+                    return loaded unless loaded.ok?
+
+                    context = loaded.value
+                    parent  = parent_reference(job)
+
+                    step_children(context, job.step).each do |child|
+                        result = child_workflow(child).recover_child(
+                            child,
+                            :parent     => parent,
+                            :actor      => job.external_user,
+                            :resolution => resolution
+                        )
+                        return result unless result.ok?
+                    end
+
+                    ExecResult.ok
+                end
 
                 def persist_intent(job, children, wait, args)
                     result = nil
@@ -594,7 +654,7 @@ module OpenNebula
                                 observation.status
                             )
                         end
-                        if failure
+                        if failure && context.resolution.nil?
                             result = error(child_failure_message(failure))
                             next
                         end
@@ -606,12 +666,32 @@ module OpenNebula
                             next
                         end
 
+                        if context.resolution == :failure
+                            result = ExecResult.ok(:resolve)
+                            next
+                        end
+
+                        if failure
+                            result = error(child_failure_message(failure))
+                            next
+                        end
+
+                        if context.resolution == :success
+                            result = ExecResult.ok(:resolve)
+                            next
+                        end
+
                         # All remaining child operations are settled. Invoke the
                         # parent domain predicate with their resource snapshots.
-                        children  = observations.map(&:resource)
-                        satisfied = @workflow.execute_child_predicate(
-                            context.wait.check, resource, context.args, children
-                        )
+                        children = observations.map(&:resource)
+                        begin
+                            satisfied = @workflow.execute_child_predicate(
+                                context.wait.check, resource, context.args, children
+                            )
+                        rescue StandardError => e
+                            result = error(e.message)
+                            next
+                        end
 
                         unless [true, false].include?(satisfied)
                             result = error(

@@ -45,10 +45,13 @@ module OneKS
         # Returns an array with all VMS registered as part of the group
         def vms
             flat_map do |group|
-                group.vms.map do |vm_id|
-                    { :id         => vm_id,
-                      :group_id   => group.id,
-                      :cluster_id => group.cluster_id }
+                group.vms.map do |vm|
+                    {
+                        :id         => vm[:id],
+                        :ready      => vm[:ready],
+                        :group_id   => group.id,
+                        :cluster_id => group.cluster_id
+                    }
                 end
             end
         end

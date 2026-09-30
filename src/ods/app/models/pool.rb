@@ -66,6 +66,13 @@ module OpenNebula
                 ids.include?(id)
             end
 
+            # Retrieves the pool using a fresh administrative CloudAuth client.
+            def info(*args)
+                @client = @cloud_auth.client if @cloud_auth
+
+                super
+            end
+
             # Retrieves a DOCUMENT_CLASS element from OpenNebula, locking the resource
             # during the block execution.
             #
@@ -152,12 +159,10 @@ module OpenNebula
             # No validation is performed for user_name. The caller must ensure the
             # requested identity was already authenticated/authorized.
             def impersonate(user_name)
+                return @cloud_auth.client(user_name) if @cloud_auth
                 return @client if user_name.nil?
 
-                raise ArgumentError, 'Cloud auth is required to impersonate users' \
-                if @cloud_auth.nil?
-
-                @cloud_auth.client(user_name)
+                raise ArgumentError, 'Cloud auth is required to impersonate users'
             end
 
             # Resolves dependencies requested through get(with:)

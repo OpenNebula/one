@@ -248,18 +248,31 @@ module OpenNebula
                             next
                         end
 
-                        result =
-                            if outcome.is_a?(Job::ThreadPool)
-                                workflow.commit_thread_pool(
-                                    outcome.commit, resource, item, task_result, outcome.args
-                                )
-                            else
-                                workflow.commit_thread(
-                                    outcome.commit, resource, task_result, outcome.args
-                                )
-                            end
+                        begin
+                            result =
+                                if outcome.is_a?(Job::ThreadPool)
+                                    workflow.commit_thread_pool(
+                                        outcome.commit,
+                                        resource,
+                                        item,
+                                        task_result,
+                                        outcome.args
+                                    )
+                                else
+                                    workflow.commit_thread(
+                                        outcome.commit,
+                                        resource,
+                                        task_result,
+                                        outcome.args
+                                    )
+                                end
+                        rescue StandardError => e
+                            result = Job.fail(task_error(job, e).message)
+                        end
 
-                        next result if OpenNebula.is_error?(result)
+                        # Keep callback outcomes local so returned domain errors
+                        # and exceptions cannot be mistaken for pool failures.
+                        nil
                     end
 
                     return ExecResult.retry(rc) if OpenNebula.is_error?(rc)

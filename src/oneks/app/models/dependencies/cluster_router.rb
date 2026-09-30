@@ -53,9 +53,12 @@ module OneKS
 
         # Monitor cluster router creation by CAPONE
         # @param group [K8sGroup] Group owning the router
-        # @param stop_flag [ODS::ThreadManager::StopFlag] Shared cancellation flag
-        def wait_create(group, stop_flag)
-            wait_for_vrouter(group, stop_flag)
+        # @param stop_flag [ODS::CancelFlag] Shared cancellation flag
+        def wait_create(group, stop_flag, client_provider: nil)
+            rc = wait_for_vrouter(group, stop_flag)
+            return rc if OpenNebula.is_error?(rc)
+
+            super
         rescue StandardError => e
             OpenNebula::Error.new(
                 "Monitoring of cluster router failed: #{e.message}",
@@ -63,18 +66,17 @@ module OneKS
             )
         end
 
-        def destroy(group)
+        def destroy(group, client_provider: nil)
             return unless @id
 
-            rc = OneHelper::VRouter.delete(group.client, @id)
-            return rc if OpenNebula.is_error?(rc)
+            client = dependency_client(group, client_provider)
+            rc     = OneHelper::VRouter.delete(client, @id)
+            return rc if OpenNebula.is_error?(rc) && rc.errno != OpenNebula::Error::ENO_EXISTS
 
             @id    = nil
             @ready = false
             true
         rescue StandardError => e
-            self.state = :ERROR
-
             OpenNebula::Error.new(
                 "Cluster router destroy failed: #{e.message}",
                 OpenNebula::Error::EACTION
@@ -85,7 +87,7 @@ module OneKS
 
         # Waits until a vrouter is instantiated for the given group
         # @param group [K8sGroup] Group owning the router
-        # @param stop_flag [ODS::ThreadManager::StopFlag] Shared cancellation flag
+        # @param stop_flag [ODS::CancelFlag] Shared cancellation flag
         # @return [Integer, OpenNebula::Error]
         #   - returns the VR ID if detected
         #   - OpenNebula::Error on timeout or error
@@ -100,10 +102,10 @@ module OneKS
                 VR_API_ALLOCATE, :timeout => @creation_timeout, :stop_flag => stop_flag
             ) do |xml|
                 # If event nil, is not an event related to OneKS router
-                event = OneKS::EventManager.parse_vr_event(group, xml)
+                event = OneKS::EventHandler.parse_vr_event(group, xml)
                 next unless event && event[:cluster_id] == group.cluster_id
 
-                @id = event[:vr_id]
+                @id = event[:vr_id].to_i
 
                 Log.info(
                     COMP,
@@ -123,28 +125,31 @@ module OneKS
         class << self
 
             def ensure_requirements(_opts = {})
+                ensure_tproxy_ports!(REQUIRED_TPROXY_PORTS)
+            end
+
+            # Ensures the shared TProxy configuration exposes every service port.
+            def ensure_tproxy_ports!(ports)
                 network_conf = File.join(VAR_LOCATION, NETWORK_CONF)
 
-                data = YAML.load_file(network_conf)
+                data   = YAML.load_file(network_conf)
                 tproxy = data[:tproxy] || data['tproxy']
 
-                unless tproxy
-                    raise(
-                        'OneKS cluster router dependency requires TPROXY ' \
-                        "to be enabled in #{network_conf}"
-                    )
-                end
+                raise(
+                    'OneKS cluster router dependency requires TPROXY ' \
+                    "to be enabled in #{network_conf}"
+                ) unless tproxy
 
                 service_ports = Array(tproxy).map do |entry|
                     entry[:service_port] || entry['service_port']
                 end.compact.map(&:to_i)
 
-                missing_ports = REQUIRED_TPROXY_PORTS - service_ports
+                missing_ports = ports - service_ports
 
                 raise(
                     'OneKS cluster router dependency requires TPROXY ' \
-                    "service_port entries #{REQUIRED_TPROXY_PORTS.join(', ')} " \
-                    "in #{network_conf}. Missing: #{missing_ports.join(', ')}"
+                    "service_port entries #{ports.join(', ')} in #{network_conf}. " \
+                    "Missing: #{missing_ports.join(', ')}"
                 ) unless missing_ports.empty?
 
                 true

@@ -27,10 +27,75 @@ module OneKS
 
         COMP = 'SRV'
 
-        configure do
+        set :monitor_fake_enabled, false
+        set :application_fake_enabled, false
+
+        # Builds and starts all the components owned by the OneKS server process
+        def self.bootstrap_server
             Log.info COMP, "Bootstrapping OneKS server (env: #{settings.environment})"
 
-            # Load templates, files and verify configuration
+            # Validate templates and files before starting background components
+            validate_features!
+            validate_k8s_configuration!
+            validate_chart_catalogue!
+
+            # Configure the shared manager that owns all server background threads
+            tm = ODS::ThreadManager.instance
+            tm.configure(APP_NAME, :shutdown_timeout => SERVER_CONF[:shutdown_timeout])
+
+            # Create the scheduler responsible for executing lifecycle jobs
+            scheduler = ODS::JobScheduler.new(
+                :concurrency      => SERVER_CONF[:concurrency],
+                :shutdown_timeout => SERVER_CONF[:shutdown_timeout]
+            )
+
+            # Obtain the lifecycle managers and create the VM state watcher
+            cluster_lcm = OneKS::ClusterLCM.instance
+            group_lcm   = OneKS::GroupLCM.instance
+            vm_watchdog = OneKS::VMWatchdog.new(
+                group_lcm, :auth => settings.cloud_auth
+            )
+
+            # Create the document pools used by lifecycle and watchdog operations and connect
+            # them to the LCM and scheduler
+            c_pool = OneKS::ClusterDocumentPool.new(:auth => settings.cloud_auth)
+            g_pool = OneKS::K8sGroupDocumentPool.new(:auth => settings.cloud_auth)
+
+            cluster_lcm.configure(c_pool, scheduler)
+            group_lcm.configure(g_pool, scheduler)
+
+            scheduler.register(cluster_lcm)
+            scheduler.register(group_lcm)
+
+            # Configure application callbacks before lifecycle workers can submit plans
+            ApplicationFake.configure(K8s) if settings.application_fake_enabled
+
+            # Configure the monitor before indexing existing VMs through the watchdog
+            MonitorFake.configure(
+                vm_watchdog,
+                :cloud_auth => settings.cloud_auth,
+                :endpoint   => "http://127.0.0.1:#{settings.port}/api/v1"
+            ) if settings.monitor_fake_enabled
+
+            # Subscribe to VM changes before lifecycle workers start processing jobs
+            rc = vm_watchdog.start(g_pool)
+            raise rc if OpenNebula.is_error?(rc)
+
+            # Recover persisted jobs before starting scheduler worker threads
+            cluster_lcm.catch_up
+            group_lcm.catch_up
+
+            scheduler.start
+
+            at_exit { tm.stop! }
+        rescue StandardError => e
+            tm&.stop!
+            Log.error COMP, "Error bootstrapping OneKS server: #{e.message}"
+            exit(1)
+        end
+
+        # Loads and validates the configuration required by every K8s group type
+        def self.validate_k8s_configuration!
             [OneKS::ControlPlane, OneKS::NodeGroup].each do |k8s_group|
                 rc = k8s_group.validate_conf!
                 next unless OpenNebula.is_error?(rc)
@@ -38,40 +103,45 @@ module OneKS
                 Log.error(COMP, "Server initialization failed: #{rc.message}")
                 exit(1)
             end
+        end
 
-            ODS::ThreadManager.instance.configure(APP_NAME)
-            OneKS::ClusterLCM.instance.configure(settings.cloud_auth)
+        # Validates every configured optional feature before server startup.
+        def self.validate_features!
+            rc = OneKS::Features.validate!
+            return unless OpenNebula.is_error?(rc)
+
+            Log.error(COMP, "Server initialization failed: #{rc.message}")
+            exit(1)
+        end
+
+        # Loads the immutable chart catalogue before accepting requests or events.
+        def self.validate_chart_catalogue!
+            rc = OneKS::Chart.load!
+            return unless OpenNebula.is_error?(rc)
+
+            Log.error(COMP, "Server initialization failed: #{rc.message}")
+            exit(1)
         end
 
         configure :development do
+            # Replace external Kubernetes operations with local development fakes
             K8s.singleton_class.prepend(OneKS::K8sFake)
+            VMWatchdog.prepend(OneKS::VMWatchdogFake)
 
-            {
-                OneKS::ControlPlane => 'controlplanes',
-                OneKS::NodeGroup    => 'nodegroups'
-            }.each do |k8s_group, dir_name|
-                path = File.join(ONEKS_SPEC_DIR, 'extra', dir_name, '*.yaml')
+            set :application_fake_enabled, OneKS::Features.enabled[:monitor]
 
-                Dir.glob(path).sort.each do |flavour_file|
-                    family_name = File.basename(flavour_file, '.yaml')
-                    flavour_yaml = YAML.safe_load(
-                        File.read(flavour_file, :encoding => 'UTF-8'),
-                        :aliases => false
-                    )
-
-                    rc = k8s_group.add_flavour(family_name, flavour_yaml)
-                    next unless OpenNebula.is_error?(rc)
-
-                    Log.error(COMP, "Server initialization failed: #{rc.message}")
-                    exit(1)
-                end
-            end
+            # Enable periodic encrypted pod, observation and readiness reports
+            set :monitor_fake_enabled, OneKS::Features.enabled[:monitor]
         end
 
         configure :staging do
             set :dump_errors, true
             set :raise_errors, true
             set :show_exceptions, true
+        end
+
+        configure do
+            bootstrap_server
         end
 
         Log.info COMP, "Starting OneKS server (env: #{settings.environment})"

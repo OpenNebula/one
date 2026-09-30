@@ -19,663 +19,154 @@ module OneKS
     # Kubernetes cluster controller
     module ClusterController
 
-        # Schema for Cluster POST requests
-        class PostClusterSchema < Dry::Validation::Contract
+        # Cluster document and lifecycle endpoints
+        module K8sCluster
 
-            params do
-                required(:name).filled(:string)
-                optional(:description).filled(:string)
-                required(:kubernetes_version).filled(:string)
-                required(:deployment).hash(ClusterDeployment::SCHEMA)
+            extend ODS::DocumentController
 
-                # Control Plane specification
-                required(:spec).hash do
-                    optional(:name).filled(:string)
-                    optional(:description).filled(:string)
-                    optional(:family).filled(:string)
-                    required(:flavour).filled(:string)
-                    optional(:user_inputs_values).hash
-                end
-            end
-
-            rule(:name) do
-                next if ODS::RequestHelper.rfc1123_name?(value)
-
-                key.failure(ODS::RequestHelper::RFC1123_ERROR)
-            end
-
-            rule(:spec => :name) do
-                next unless key?
-                next if ODS::RequestHelper.rfc1123_name?(value)
-
-                key.failure(ODS::RequestHelper::RFC1123_ERROR)
-            end
-
-        end
-
-        # Schema for Cluster deployment validation/check requests
-        class DeploymentSchema < Dry::Validation::Contract
-
-            params(ClusterDeployment::SCHEMA)
-
-        end
-
-        # Schema for Cluster PATCH requests
-        class PatchClusterSchema < Dry::Validation::Contract
-
-            params do
-                optional(:name).filled(:string)
-                optional(:description).filled(:string)
-            end
-
-            rule(:name) do
-                next unless key?
-                next if ODS::RequestHelper.rfc1123_name?(value)
-
-                key.failure(ODS::RequestHelper::RFC1123_ERROR)
-            end
-
-        end
-
-        def self.registered(app)
-            app.logs '/clusters', OneKS::Cluster
-
-            # GET /clusters/families
-            # Retrieve a list of all available clusters families and their flavours
-            #
-            # Returns:
-            #   200 OK - Array of clusters (JSON)
-            #   401 Unauthorized
-            #   500 Internal Server Error
-            app.get '/clusters/families' do
-                families = OneKS::ControlPlane.families(:except => [:templates])
-
-                return internal_error(
-                    families.message, one_error_to_http(families.errno)
-                ) if OpenNebula.is_error?(families)
-
-                status 200
-                body process_response(families)
-            rescue StandardError => e
-                return general_error(e)
-            end
-
-            # GET /clusters/families/:family
-            # Retrieve a specific cluster family and its flavours by name
-            #
-            # Params:
-            #   :family [String] - Cluster family name
-            #
-            # Returns:
-            #   200 OK - Cluster family (JSON)
-            #   401 Unauthorized
-            #   500 Internal Server Error
-            app.get '/clusters/families/:family' do
-                family = OneKS::ControlPlane.family_by_name(
-                    params[:family],
-                    :except => [:templates]
-                )
-
-                return internal_error(
-                    family.message, one_error_to_http(family.errno)
-                ) if OpenNebula.is_error?(family)
-
-                status 200
-                body process_response(family)
-            rescue StandardError => e
-                return general_error(e)
-            end
-
-            # GET /clusters/families/:family/inputs
-            # Retrieve inputs for a specific flavour of the family, including its default values
-            #
-            # Params:
-            #   :family [String] - Cluster family name
-            #   :flavour [String] - Cluster flavour name
-            #   exclude_defaults [Flag] - If present, excludes default values from the response
-            #
-            # Returns:
-            #   200 OK - Cluster flavour inputs (JSON)
-            #   401 Unauthorized
-            #   500 Internal Server Error
-            app.get '/clusters/families/:family/:flavour/inputs' do
-                exclude_defaults = params.key?(:exclude_defaults)
-                inputs = OneKS::ControlPlane.inputs_for(
-                    params[:family], params[:flavour], :exclude_defaults => exclude_defaults
-                )
-
-                return internal_error(
-                    inputs.message, one_error_to_http(inputs.errno)
-                ) if OpenNebula.is_error?(inputs)
-
-                status 200
-                body process_response(inputs)
-            rescue StandardError => e
-                return general_error(e)
-            end
+            BASE_PATH = '/clusters'
+            ODS_CLASS = OneKS::Cluster
+            ODS_POOL  = OneKS::ClusterDocumentPool
 
             # GET /clusters
-            # Retrieve a list of all existing clusters
-            #
-            # Returns:
-            #   200 OK - Array of clusters (JSON)
-            #   401 Unauthorized
-            #   500 Internal Server Error
-            app.get '/clusters' do
-                pool   = OneKS::ClusterDocumentPool.new(:client => @client)
-                rc     = pool.info
+            list :raw => true
 
-                if OpenNebula.is_error?(rc)
-                    return internal_error(rc.message, one_error_to_http(rc.errno))
-                end
-
-                clusters = []
-
-                pool.ids.each do |id|
-                    cluster = OneKS::Cluster.new_from_id(@client, id, :raw => true)
-
-                    return internal_error(
-                        cluster.message, one_error_to_http(cluster.errno)
-                    ) if OpenNebula.is_error?(cluster)
-
-                    clusters << cluster
-                end
-
-                status 200
-                body process_response(clusters)
-            rescue StandardError => e
-                return general_error(e)
+            # GET /clusters/:id[?expand=true]
+            show :raw => true, :params_schema => ShowParamsSchema do |cluster, args|
+                cluster.expand_references! if args.fetch(:expand, false)
             end
 
-            # GET /clusters/deployment/check
-            # Retrieve OneKS readiness check service status.
-            #
-            # Returns:
-            #   200 OK - Readiness check status (JSON)
-            #   401 Unauthorized
-            #   500 Internal Server Error
-            app.get '/clusters/deployment/check', :oneadmin_only => true do
-                status 200
-                body process_response({ :enabled => OneKS::ClusterReadiness.enabled? })
-            rescue StandardError => e
-                return general_error(e)
+            # GET /clusters/:id/observations
+            attribute :observations do |cluster, observations|
+                feature = require_feature!(cluster, :monitor)
+                next feature if OpenNebula.is_error?(feature)
+
+                observations
             end
 
-            # GET /:id
-            # Retrieve a specific cluster.
-            #
-            # Params:
-            #   :id [String] - Cluster ID
-            #   expand [Flag] - If present, expands the cluster content
-            #
-            # Returns:
-            #   200 OK - Cluster found (JSON)
-            #   401 Unauthorized
-            #   404 Not Found
-            #   500 Internal Server Error
-            app.get '/clusters/:id' do
-                expand  = params.key?(:expand)
-                cluster = OneKS::Cluster.new_from_id(@client, params[:id], :raw => true)
-
-                return internal_error(
-                    cluster.message, one_error_to_http(cluster.errno)
-                ) if OpenNebula.is_error?(cluster)
-
-                cluster.expand_references! if expand
-
-                status 200
-                body process_response(cluster)
-            rescue StandardError => e
-                return general_error(e)
+            # GET /clusters/:id/historic
+            get 'historic' do |cluster|
+                cluster.historic_events
             end
 
-            # POST /clusters/deployment/validate
-            # Validate deployment placement and required appliances without
-            # creating or importing any resources.
-            #
-            # Body (JSON):
-            #   cluster.id [Integer]          - OpenNebula cluster ID
-            #   networks.public.id [Integer]  - Public network ID
-            #   networks.private.id [Integer] - Private network ID
-            #   datastores.image.id [Integer] - Optional image datastore ID
-            #
-            # Returns:
-            #   200 OK - Deployment can be used
-            #   400 Bad Request
-            #   401 Unauthorized
-            #   500 Internal Server Error
-            app.post '/clusters/deployment/validate' do
-                body = check_body(request, DeploymentSchema)
+            # GET /clusters/:id/pods
+            get 'pods' do |cluster|
+                feature = require_feature!(cluster, :monitor)
+                next feature if OpenNebula.is_error?(feature)
 
-                return internal_error(
-                    body.message, one_error_to_http(body.errno)
-                ) if OpenNebula.is_error?(body)
-
-                rc = ClusterDeployment.validate(@client, body)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 200
-                body process_response({ :valid => true })
-            rescue ODS::RequestHelper::InvalidRequestError => e
-                return internal_error(e.message, ODS::ResponseHelper::VALIDATION_EC)
-            rescue StandardError => e
-                return general_error(e)
+                cluster.pods
             end
 
-            # POST /clusters/deployment/check
-            # Run a live provisioning test to verify that the selected deployment
-            # can successfully deploy and operate a OneKS cluster
-            #
-            # Body (JSON):
-            #   cluster.id [Integer]          - OpenNebula cluster ID
-            #   networks.public.id [Integer]  - Public network ID
-            #   networks.private.id [Integer] - Private network ID
-            #   datastores.image.id [Integer] - Optional image datastore ID
-            #
-            # Returns:
-            #   200 OK - Health check events
-            #   400 Bad Request
-            #   401 Unauthorized
-            #   500 Internal Server Error
-            app.post '/clusters/deployment/check', :oneadmin_only => true do
-                unless OneKS::ClusterReadiness.enabled?
-                    return internal_error(
-                        'OneKS readiness check service is not enabled',
-                        ODS::ResponseHelper::OPERATION_EC
-                    )
-                end
-
-                body = check_body(request, DeploymentSchema)
-
-                return internal_error(
-                    body.message, one_error_to_http(body.errno)
-                ) if OpenNebula.is_error?(body)
-
-                rc = ClusterDeployment.validate(@client, body)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                stream_events(:event_name => 'check_cluster') do |events|
-                    OneKS::ClusterReadiness.run(@client, body, :stream => events)
-                end
-            rescue ODS::RequestHelper::InvalidRequestError => e
-                return internal_error(e.message, ODS::ResponseHelper::VALIDATION_EC)
-            rescue StandardError => e
-                return general_error(e)
-            end
-
-            # POST /
-            # Create a new cluster.
-            #
-            # Body (JSON):
-            #   name [String]               - Name of the cluster
-            #   kubernetes_version [String] - k8s version to use
-            #   deployment.cluster.id [Integer]          - OpenNebula cluster ID
-            #   deployment.networks.public.id [Integer]  - Public network ID
-            #   deployment.networks.private.id [Integer] - Private network ID
-            #   deployment.datastores.image.id [Integer] - Optional image datastore ID
-            #   spec.family [String]        - Control plane family to use
-            #   spec.flavour [String]       - Flavour of the family to use
-            #   spec.user_inputs_values [Hash] - Inputs values for the flavour
-            #
-            # Returns:
-            #   201 Created - Cluster deployment initialized
-            #   400 Bad Request
-            #   401 Unauthorized
-            #   500 Internal Server Error
-            app.post '/clusters' do
-                body = check_body(request, PostClusterSchema)
-
-                return internal_error(
-                    body.message, one_error_to_http(body.errno)
-                ) if OpenNebula.is_error?(body)
-
-                cluster = OneKS::Cluster.create(@client, body)
-
-                return internal_error(
-                    cluster.message, one_error_to_http(cluster.errno)
-                ) if OpenNebula.is_error?(cluster)
+            # POST /clusters
+            create :schema => PostClusterSchema do |attributes|
+                cluster = OneKS::Cluster.create(@client, attributes)
+                next cluster if OpenNebula.is_error?(cluster)
 
                 rc = cluster.provision(:actor => @username)
+                next rc if OpenNebula.is_error?(rc)
 
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 201
-                body process_response(cluster)
-            rescue ODS::RequestHelper::InvalidRequestError => e
-                return internal_error(e.message, ODS::ResponseHelper::VALIDATION_EC)
-            rescue StandardError => e
-                return general_error(e)
+                cluster
             end
 
-            # PATCH /:id
-            # Updates a cluster's internal data.
-            #
-            # Params:
-            #   :id [String] - ID of the cluster
-            #
-            # Body (JSON):
-            #   Patch data for the cluster (e.g., 'name', 'description', etc.)
-            #
-            # Returns:
-            #   200 OK - Updated cluster (JSON)
-            #   400 Bad Request - If input is invalid or malformed
-            #   500 Internal Server Error - If OpenNebula error
-            app.patch '/clusters/:id' do
-                body = check_body(request, PatchClusterSchema)
-
-                return internal_error(
-                    body.message, one_error_to_http(body.errno)
-                ) if OpenNebula.is_error?(body)
-
-                cluster = OneKS::Cluster.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    cluster.message, one_error_to_http(cluster.errno)
-                ) if OpenNebula.is_error?(cluster)
-
-                rc = cluster.update(body)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                rc = cluster.info
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 200
-                body process_response(cluster)
-            rescue ODS::RequestHelper::InvalidRequestError => e
-                return internal_error(e.message, ODS::ResponseHelper::VALIDATION_EC)
-            rescue KeyError => e
-                return internal_error(
-                    "Missing field: #{e.message}",
-                    ODS::ResponseHelper::VALIDATION_EC
-                )
-            rescue StandardError => e
-                return general_error(e)
-            end
+            # PATCH /clusters/:id
+            update :schema => PatchClusterSchema
 
             # POST /clusters/:id/chmod
-            # Changes the permissions of a cluster and all associated group documents.
-            #
-            # Params:
-            #   :id [String] - Cluster ID
-            #
-            # Body (JSON):
-            #   octet [String] - Required, new octet permission string (e.g., "640")
-            #
-            # Returns:
-            #   204 No Content - Cluster permissions updated
-            #   400 Bad Request - If input data is invalid
-            #   404 Not Found - Cluster not found
-            #   500 Internal Server Error - If OpenNebula error
-            app.post '/clusters/:id/chmod' do
-                body = check_body(request)
-
-                return internal_error(
-                    'Missing `octet` attribute', ODS::ResponseHelper::VALIDATION_EC
-                ) unless body[:octet]
-
-                cluster = OneKS::Cluster.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    cluster.message, one_error_to_http(cluster.errno)
-                ) if OpenNebula.is_error?(cluster)
-
-                rc = cluster.chmod_octet(body[:octet])
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            rescue ODS::RequestHelper::InvalidRequestError => e
-                return internal_error(e.message, ODS::ResponseHelper::VALIDATION_EC)
-            rescue StandardError => e
-                return general_error(e)
-            end
+            chmod
 
             # POST /clusters/:id/chown
-            # Changes the owner of a cluster and all associated group documents.
-            #
-            # Params:
-            #   :id [String] - Cluster ID
-            #
-            # Body (JSON):
-            #   owner_id [Integer] - Required, new user ID
-            #   group_id [Integer] - Optional, new group ID
-            #
-            # Returns:
-            #   204 No Content - Cluster ownership updated
-            #   400 Bad Request - If input data is invalid or missing
-            #   404 Not Found - Cluster not found
-            #   500 Internal Server Error - If OpenNebula error
-            app.post '/clusters/:id/chown' do
-                body = check_body(request)
-
-                return internal_error(
-                    'Missing `owner_id` attribute', ODS::ResponseHelper::VALIDATION_EC
-                ) unless body[:owner_id]
-
-                cluster = OneKS::Cluster.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    cluster.message, one_error_to_http(cluster.errno)
-                ) if OpenNebula.is_error?(cluster)
-
-                owner_id = body[:owner_id].to_i
-                group_id = (body[:group_id] || -1).to_i
-                rc       = cluster.chown(owner_id, group_id)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            rescue ODS::RequestHelper::InvalidRequestError => e
-                return internal_error(e.message, ODS::ResponseHelper::VALIDATION_EC)
-            rescue StandardError => e
-                return general_error(e)
-            end
+            chown
 
             # POST /clusters/:id/chgrp
-            # Changes the group ownership of a cluster and all associated group documents.
-            #
-            # Params:
-            #   :id [String] - Cluster ID
-            #
-            # Body (JSON):
-            #   group_id [Integer] - Required, new group ID
-            #
-            # Returns:
-            #   204 No Content - Cluster group ownership updated
-            #   400 Bad Request - If input data is invalid or missing
-            #   404 Not Found - Cluster not found
-            #   500 Internal Server Error - If OpenNebula error
-            app.post '/clusters/:id/chgrp' do
-                body = check_body(request)
+            chgrp
 
-                return internal_error(
-                    'Missing `group_id` attribute', ODS::ResponseHelper::VALIDATION_EC
-                ) unless body[:group_id]
-
-                cluster = OneKS::Cluster.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    cluster.message, one_error_to_http(cluster.errno)
-                ) if OpenNebula.is_error?(cluster)
-
-                rc = cluster.chgrp(body[:group_id].to_i)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            rescue ODS::RequestHelper::InvalidRequestError => e
-                return internal_error(e.message, ODS::ResponseHelper::VALIDATION_EC)
-            rescue StandardError => e
-                return general_error(e)
+            # DELETE /clusters/:id[?force=true]
+            delete :status => 202, :params_schema => DeleteParamsSchema do |cluster, args|
+                rc = cluster.deprovision(
+                    :actor => @username, :force => args.fetch(:force, false)
+                )
+                next rc if OpenNebula.is_error?(rc)
             end
 
-            # DELETE /:id
-            # Delete a specific cluster.
-            #
-            # Params:
-            #   :id [String] - Cluster ID
-            #   force [Flag] - If present, force the cluster deletion
-            #
-            # Returns:
-            #   204 No Content - Cluster deleted
-            #   401 Unauthorized
-            #   404 Not Found
-            #   500 Internal Server Error
-            app.delete '/clusters/:id' do
-                force   = params.key?(:force)
-                cluster = OneKS::Cluster.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    cluster.message, one_error_to_http(cluster.errno)
-                ) if OpenNebula.is_error?(cluster)
-
-                rc = cluster.deprovision(:actor => @username, :force => force)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            rescue StandardError => e
-                return general_error(e)
-            end
-
-            # GET /:id/kubeconfig
-            # Retrieve the kubeconfig of a specific workload cluster.
-            #
-            # Params:
-            #   :id [String] - Cluster UUID
-            #
-            # Returns:
-            #   200 OK - Kubeconfig YAML
-            #   401 Unauthorized
-            #   404 Not Found
-            #   500 Internal Server Error
-            app.get '/clusters/:id/kubeconfig' do
-                cluster = OneKS::Cluster.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    cluster.message, one_error_to_http(cluster.errno)
-                ) if OpenNebula.is_error?(cluster)
-
+            # GET /clusters/:id/kubeconfig
+            get 'kubeconfig' do |cluster|
                 kubeconfig = cluster.kubeconfig
+                next kubeconfig if OpenNebula.is_error?(kubeconfig)
 
-                return internal_error(
-                    kubeconfig.message, one_error_to_http(kubeconfig.errno)
-                ) if OpenNebula.is_error?(kubeconfig)
-
-                return internal_error(
-                    kubeconfig.message, one_error_to_http(kubeconfig.errno)
-                ) if OpenNebula.is_error?(kubeconfig)
-
-                status 200
-                body process_response({ :kubeconfig => kubeconfig })
-            rescue StandardError => e
-                return general_error(e)
+                { :kubeconfig => kubeconfig }
             end
 
             # POST /clusters/:id/recover
-            # Tries to recover a cluster in a warning or failure state
-            #
-            # Params:
-            #   :id [String] - Cluster UUID
-            #
-            # Returns:
-            #   204 OK - Recovery has been started
-            #   401 Unauthorized
-            #   404 Not Found
-            #   500 Internal Server Error
-            app.post '/clusters/:id/recover' do
-                cluster = OneKS::Cluster.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    cluster.message, one_error_to_http(cluster.errno)
-                ) if OpenNebula.is_error?(cluster)
-
-                rc = cluster.recover(:actor => @username)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 204
-            rescue StandardError => e
-                return general_error(e)
+            post(
+                'recover',
+                :schema   => RecoverClusterSchema,
+                :status   => 202,
+                :response => false
+            ) do |cluster, attributes|
+                cluster.recover(
+                    :action => attributes.fetch(:action, 'retry'),
+                    :actor  => @username
+                )
             end
 
             # POST /clusters/:id/upgrade
-            # Initiates an upgrade of a Kubernetes cluster.
-            #
-            # Params:
-            #   :id [String] - ID of the cluster
-            #
-            # Body (JSON):
-            #   kubernetes_version [String] - New k8s version to upgrade to
-            #
-            # Returns:
-            #   200 OK - Upgrade has been started
-            #   400 Bad Request - If input is invalid or malformed
-            #   404 Not Found - Cluster not found
-            #   500 Internal Server Error - If OpenNebula error
-            app.post '/clusters/:id/upgrade' do
-                body    = check_body(request)
-                cluster = OneKS::Cluster.new_from_id(@client, params[:id])
-
-                return internal_error(
-                    cluster.message, one_error_to_http(cluster.errno)
-                ) if OpenNebula.is_error?(cluster)
-
-                cp_family = ControlPlane.family_by_name(cluster.control_plane[:family])
-
-                return internal_error(
-                    "Control plane family #{cluster.control_plane[:family]} not found",
-                    one_error_to_http(OpenNebula::Error::ENO_EXISTS)
-                ) if cp_family.nil?
-
-                return internal_error(
-                    "Kubernetes version #{body[:kubernetes_version]} not valid. " \
-                    "Valid versions: #{cp_family[:supported_k8s_versions].join(', ')}",
-                    ODS::ResponseHelper::VALIDATION_EC
-                ) unless cp_family[:supported_k8s_versions].include?(body[:kubernetes_version])
-
-                rc = cluster.upgrade(body[:kubernetes_version], :actor => @username)
-
-                return internal_error(
-                    rc.message, one_error_to_http(rc.errno)
-                ) if OpenNebula.is_error?(rc)
-
-                status 200
-                body process_response(cluster)
-            rescue ODS::RequestHelper::InvalidRequestError => e
-                return internal_error(e.message, ODS::ResponseHelper::VALIDATION_EC)
-            rescue KeyError => e
-                return internal_error(
-                    "Missing field: #{e.message}",
-                    ODS::ResponseHelper::VALIDATION_EC
-                )
-            rescue StandardError => e
-                return general_error(e)
+            post(
+                'upgrade',
+                :schema   => UpgradeClusterSchema,
+                :status   => 202,
+                :response => false
+            ) do |cluster, attributes|
+                cluster.upgrade(attributes[:kubernetes_version], :actor => @username)
             end
+
+            # GET /clusters/:id/logs[?all=true]
+            logs :params_schema => LogsParamsSchema
+
+        end
+
+        # Cluster deployment validation and readiness endpoints
+        module Deployment
+
+            extend ODS::GenericController
+
+            BASE_PATH = '/clusters/deployment'
+
+            # GET /clusters/deployment/check
+            get 'check', :oneadmin_only => true do
+                { :enabled => OneKS::ClusterReadiness.enabled? }
+            end
+
+            # POST /clusters/deployment/validate
+            post 'validate', :schema => DeploymentSchema do |deployment|
+                rc = ClusterDeployment.validate(@client, deployment)
+                next rc if OpenNebula.is_error?(rc)
+
+                { :valid => true }
+            end
+
+            # POST /clusters/deployment/check
+            post(
+                'check', :schema => DeploymentSchema, :oneadmin_only => true, :response => false
+            ) do |deployment|
+                next OpenNebula::Error.new(
+                    'OneKS readiness check service is not enabled',
+                    ODS::ResponseHelper::OPERATION_EC
+                ) unless OneKS::ClusterReadiness.enabled?
+
+                rc = ClusterDeployment.validate(@client, deployment)
+                next rc if OpenNebula.is_error?(rc)
+
+                stream_events(:event_name => 'check_cluster') do |events|
+                    OneKS::ClusterReadiness.run(@client, deployment, :stream => events)
+                end
+            end
+
+        end
+
+        # Registers routes in static-to-dynamic order
+        def self.registered(app)
+            Deployment.register_routes(app)
+            K8sCluster.register_routes(app)
         end
 
     end

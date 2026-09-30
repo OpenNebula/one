@@ -19,8 +19,6 @@ module OneKS
     # Represents a control plane within a cluster
     class ControlPlane < K8sGroup
 
-        include ODS::StateMachine
-
         DOCUMENT_ATTRS = K8sGroup::DOCUMENT_ATTRS + [:kubeconfig, :endpoint]
         FAMILIES_DIR   = File.join(ONEKS_SPEC_DIR, 'controlplanes')
         COMPONENT_NAME = name.split('::').last
@@ -39,7 +37,7 @@ module OneKS
         # Renders the control plane spec (chart definitions)
         # for the control plane
         # @return [Hash, OpenNebula::Error]
-        def render
+        def render(k8s_version: nil)
             cluster = parent_cluster
             return cluster if OpenNebula.is_error?(cluster)
 
@@ -57,6 +55,7 @@ module OneKS
                     :deployment => deployment
                 }
             )
+            cluster_values[:kubernetes_version] = k8s_version if k8s_version
 
             group_values = plain_body.merge(
                 {
@@ -67,12 +66,18 @@ module OneKS
                 }
             )
 
+            features = cluster.features
+
             # Generate values for controlplane spec template
             values = {
-                :cluster    => cluster_values,
-                :group      => group_values,
-                :one_auth   => one_auth,
-                :one_xmlrpc => one_xmlrpc
+                :cluster     => cluster_values,
+                :group       => group_values,
+                :monitor_key => cluster.monitor_key,
+                :features    => {
+                    :monitor => features[:monitor] ? SERVER_CONF[:monitor] : nil
+                },
+                :one_auth    => one_auth,
+                :one_xmlrpc  => one_xmlrpc
             }
 
             # Render group templates before render main spec
@@ -86,6 +91,29 @@ module OneKS
         rescue StandardError => e
             OpenNebula::Error.new(
                 "Error rendering Control Plane template: #{e.message}",
+                OpenNebula::Error::EACTION
+            )
+        end
+
+        # Renders the ControlPlane resource required for a Kubernetes upgrade.
+        def render_upgrade(k8s_version:)
+            spec = render(:k8s_version => k8s_version)
+            return spec if OpenNebula.is_error?(spec)
+
+            manifest = K8s.load_manifest(spec)
+            return manifest if OpenNebula.is_error?(manifest)
+
+            resource = K8s.resource_by_kind(manifest, 'RKE2ControlPlane')
+
+            return OpenNebula::Error.new(
+                'RKE2ControlPlane resource not found in rendered manifest',
+                OpenNebula::Error::EACTION
+            ) unless resource
+
+            resource.to_yaml
+        rescue StandardError => e
+            OpenNebula::Error.new(
+                "Error rendering Control Plane upgrade: #{e.message}",
                 OpenNebula::Error::EACTION
             )
         end
@@ -119,12 +147,30 @@ module OneKS
         def deprovision(*)
             errors = []
 
-            vms.each do |vm_id|
+            vm_ids.each do |vm_id|
+                vm = OneHelper::VirtualMachine.get(@client, vm_id)
+                if OpenNebula.is_error?(vm) || vm.state_str == 'DONE'
+                    del_vm(vm_id)
+                    next
+                end
+
+                if K8sGroup::VM_DELETION_STATES.include?(vm.lcm_state_str)
+                    Log.debug(
+                        K8sGroup::COMP,
+                        "VM #{vm_id} deletion is already in progress " \
+                        "(LCM_STATE=#{vm.lcm_state_str})",
+                        cluster_id
+                    )
+                    next
+                end
+
                 rc = OneHelper::VirtualMachine.delete(@client, vm_id, :force => true)
-                if OpenNebula.is_error?(rc)
+                if OpenNebula.is_error?(rc) && rc.errno != OpenNebula::Error::ENO_EXISTS
                     errors << { :vm_id => vm_id, :error => rc.message }
                     next
                 end
+
+                del_vm(vm_id) if OpenNebula.is_error?(rc)
             end
 
             return OpenNebula::Error.new(
@@ -141,18 +187,6 @@ module OneKS
         rescue StandardError => e
             OpenNebula::Error.new(
                 "Error scaling #{type}: #{e.message}",
-                OpenNebula::Error::EACTION
-            )
-        end
-
-        def upgrade
-            spec = render
-            return spec if OpenNebula.is_error?(spec)
-
-            K8s.upgrade(@client, vms.first, spec)
-        rescue StandardError => e
-            OpenNebula::Error.new(
-                "Error upgrading #{type}: #{e.message}",
                 OpenNebula::Error::EACTION
             )
         end

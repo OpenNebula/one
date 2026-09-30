@@ -18,10 +18,12 @@ import { createContext, useContext } from 'react'
 
 const contextValue = {
   clearResourceSingleViewBase: () => undefined,
+  closeResourceSingleView: () => undefined,
   goBackResourceSingleView: () => undefined,
   goForwardResourceSingleView: () => undefined,
   goToResourceSingleView: () => undefined,
   openResourceSingleView: () => false,
+  popResourceSingleView: () => undefined,
   registerResourceSingleViewBase: () => false,
   stack: { entries: [], activeIndex: -1 },
 }

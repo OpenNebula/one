@@ -19,6 +19,12 @@ const { Actions, Commands } = require('server/routes/api/oneks/routes')
 
 const {
   clusters,
+  applications,
+  application,
+  clusterApplications,
+  clusterApplication,
+  installApplication,
+  deleteClusterApplication,
   clustersFamilies,
   nodegroupFamilies,
   cluster,
@@ -28,6 +34,7 @@ const {
   clusterDelete,
   clusterKubeconfig,
   clusterEndpoint,
+  clusterHistoric,
   createNodeGroup,
   updateNodeGroup,
   deleteNodeGroup,
@@ -49,6 +56,30 @@ const endpoints = [
     ...Commands[Actions.LIST],
   },
   {
+    action: applications,
+    ...Commands[Actions.LIST_APPLICATIONS],
+  },
+  {
+    action: application,
+    ...Commands[Actions.SHOW_APPLICATION],
+  },
+  {
+    action: clusterApplications,
+    ...Commands[Actions.LIST_CLUSTER_APPLICATIONS],
+  },
+  {
+    action: clusterApplication,
+    ...Commands[Actions.SHOW_CLUSTER_APPLICATION],
+  },
+  {
+    action: installApplication,
+    ...Commands[Actions.INSTALL_APPLICATION],
+  },
+  {
+    action: deleteClusterApplication,
+    ...Commands[Actions.DELETE_CLUSTER_APPLICATION],
+  },
+  {
     action: clustersFamilies,
     ...Commands[Actions.LIST_FAMILIES],
   },
@@ -67,6 +98,10 @@ const endpoints = [
   {
     action: clusterEndpoint,
     ...Commands[Actions.ENDPOINT],
+  },
+  {
+    action: clusterHistoric,
+    ...Commands[Actions.HISTORIC],
   },
   {
     action: validateClusterDeployment,

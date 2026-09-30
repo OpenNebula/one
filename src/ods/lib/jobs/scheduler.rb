@@ -290,6 +290,57 @@ module OpenNebula
                 OpenNebula::Error.new(e.message, OpenNebula::Error::EACTION)
             end
 
+            # Stops obsolete in-memory executions without requesting durable
+            # workflow cancellation. Pending jobs are discarded immediately;
+            # running jobs receive the same cooperative shutdown signal used by
+            # server shutdown and are left tracked until their worker exits.
+            #
+            # @param owner_id [String, Integer] Persistent owner identifier
+            # @param operation_id [String] Durable operation identifier
+            # @param before_attempt [Integer, nil] Stop only older attempts
+            # @return [Symbol, OpenNebula::Error] requested, not_found, or an error
+            def interrupt(owner_id, operation_id, before_attempt: nil)
+                commands = []
+                found    = false
+
+                @mutex.synchronize do
+                    key = operation_key(owner_id, operation_id)
+                    ids = Array(@operations[key]).dup
+
+                    ids.each do |job_id|
+                        job = @jobs[job_id]
+                        next unless job
+                        next if before_attempt && job.attempt >= before_attempt.to_i
+
+                        found = true
+                        running = @running[job.owner_key]
+
+                        if running&.id == job.id
+                            job.status = :stopping
+                            job.request_shutdown!
+                            commands << [job.id, job.command] if job.command
+                        else
+                            @queue.delete(job.id)
+                            untrack(job)
+                        end
+                    end
+
+                    @condition.broadcast if found
+                end
+
+                commands.each do |job_id, command|
+                    ThreadManager.instance.start("interrupt-#{job_id}") do
+                        command.cancel
+                    rescue StandardError => e
+                        Log.warn(COMP, "Could not interrupt command: #{e.message}")
+                    end
+                end
+
+                found ? :requested : :not_found
+            rescue StandardError => e
+                OpenNebula::Error.new(e.message, OpenNebula::Error::EACTION)
+            end
+
             private
 
             # Signals every runtime component without waiting for it to finish.

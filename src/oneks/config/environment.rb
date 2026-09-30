@@ -26,15 +26,23 @@ APP_ROOT = File.expand_path('..', __dir__)
 
 # External libraries
 require 'active_support/core_ext/string/indent'
+require 'ffi-rzmq'
+require 'openssl'
 require 'securerandom'
 require 'shellwords'
+require 'set'
 require 'uri'
+require 'digest'
 
 # Helpers
 require_relative File.join(APP_ROOT, 'lib', 'helpers', 'appliance_helper')
+require_relative File.join(APP_ROOT, 'lib', 'event_handler')
+require_relative File.join(APP_ROOT, 'lib', 'helpers', 'feature_helper')
 require_relative File.join(APP_ROOT, 'lib', 'helpers', 'oneks_helper')
 require_relative File.join(APP_ROOT, 'lib', 'helpers', 'k8s_helper')
 require_relative File.join(APP_ROOT, 'lib', 'fakes', 'k8s_fake')
+require_relative File.join(APP_ROOT, 'lib', 'monitor_payload')
+require_relative File.join(APP_ROOT, 'lib', 'fakes', 'monitor_fake')
 
 OneHelper::Image.extend(OneKS::OneHelperExtensions::Image)
 OneHelper::Template.extend(OneKS::OneHelperExtensions::Template)
@@ -45,18 +53,30 @@ require_relative File.join(APP_ROOT, 'app', 'models', 'k8s_dependency')
 require_relative File.join(APP_ROOT, 'app', 'models', 'k8s_group')
 require_relative File.join(APP_ROOT, 'app', 'models', 'dependencies', 'seed_vm')
 require_relative File.join(APP_ROOT, 'app', 'models', 'dependencies', 'cluster_router')
+require_relative File.join(APP_ROOT, 'app', 'models', 'features')
 require_relative File.join(APP_ROOT, 'app', 'models', 'groups', 'controlplane')
 require_relative File.join(APP_ROOT, 'app', 'models', 'groups', 'nodegroup')
+require_relative File.join(APP_ROOT, 'app', 'models', 'applications', 'chart')
+require_relative File.join(APP_ROOT, 'app', 'models', 'applications', 'validations')
+require_relative File.join(APP_ROOT, 'app', 'models', 'applications', 'application_plan')
+require_relative File.join(APP_ROOT, 'app', 'models', 'applications', 'application')
 require_relative File.join(APP_ROOT, 'app', 'models', 'cluster')
+require_relative File.join(APP_ROOT, 'app', 'models', 'schemas')
 require_relative File.join(APP_ROOT, 'app', 'models', 'pools')
 
 # Services
 require_relative File.join(APP_ROOT, 'app', 'services', 'cluster_readiness')
 require_relative File.join(APP_ROOT, 'app', 'services', 'cluster_lcm')
-require_relative File.join(APP_ROOT, 'app', 'services', 'event_manager', 'event_manager')
-require_relative File.join(APP_ROOT, 'app', 'services', 'cluster_wd')
+require_relative File.join(APP_ROOT, 'app', 'services', 'group_lcm')
+require_relative File.join(APP_ROOT, 'app', 'services', 'vm_watchdog')
+
+# API lifecycle event dispatcher depends on the loaded workflows
+require_relative File.join(APP_ROOT, 'lib', 'api_events')
+require_relative File.join(APP_ROOT, 'lib', 'fakes', 'application_fake')
 
 # Controllers
+require_relative File.join(APP_ROOT, 'app', 'controllers', 'schemas')
+
 APP_PATHS = [File.join(APP_ROOT, 'app', 'controllers')]
 APP_PATHS.each do |path|
     Dir.glob(File.join(path, '*.rb')).sort.each {|file| require file }

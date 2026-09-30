@@ -165,6 +165,8 @@ module OpenNebula
                 result           = nil
                 waiting_resource = nil
                 composition      = nil
+                manual_resource  = nil
+                previous_attempt = nil
 
                 rc = pool.get(owner_id, actor, :with => with) do |resource, **dependencies|
                     result = yield(resource, **dependencies)
@@ -175,35 +177,24 @@ module OpenNebula
 
                         context   = resource.active_job
                         step_name = context&.step
-                        step      = step_for(step_name)
+                        step_for(step_name)
 
                         if context.wait.is_a?(Job::ChildrenWait)
                             composition = [resource, result]
                             next
                         end
 
-                        if !context.waiting? &&
-                           step.kind == :normal && step.recover
-                            step_name = :"recover_#{step.name}"
-                            step      = step_for(step_name)
-                        end
+                        previous_attempt = context.attempt
+                        recover_locked!(resource, result, actor)
 
-                        failure_state = context.failure_state
-                        failure_state ||= resource.state if step.kind == :recovery
-
-                        resource.recover_job!(
-                            :state         => result.state,
-                            :external_user => actor,
-                            :args          => result.args,
-                            :step          => step_name,
-                            :failure_state => failure_state
-                        )
-
-                        if resource.active_job.waiting?
+                        if result.retry? && resource.active_job.waiting?
                             waiting_resource = resource
                             result = resource.active_job.id
-                        else
+                        elsif result.retry?
                             result = schedule(resource)
+                        else
+                            manual_resource = resource
+                            result = resource.active_job.id
                         end
                     end
 
@@ -212,12 +203,174 @@ module OpenNebula
 
                 return rc if OpenNebula.is_error?(rc)
                 return public_result(@composition.recover(*composition, actor)) if composition
-                return result unless waiting_resource
+                return resume_wait(waiting_resource) if waiting_resource
 
-                resume_wait(waiting_resource)
+                if manual_resource
+                    interrupted = scheduler.interrupt(
+                        manual_resource.id,
+                        manual_resource.active_job.id,
+                        :before_attempt => previous_attempt + 1
+                    )
+                    return interrupted if OpenNebula.is_error?(interrupted)
+
+                    return schedule(manual_resource)
+                end
+
+                result
             rescue StandardError => e
                 OpenNebula::Error.new(
                     "Error requesting action recovery: #{e.message}",
+                    OpenNebula::Error::EACTION
+                )
+            end
+
+            # Recovers or manually resolves one child of the active composition.
+            # The child keeps its durable parent relation, so its terminal result
+            # wakes and resolves the parent through the normal composition path.
+            def request_child_recovery(owner_id, actor, child:, action: :retry)
+                action = action.to_sym
+                raise ArgumentError, "Invalid child recovery action #{action}" \
+                    unless [:retry, :success, :failure].include?(action)
+
+                target = nil
+                parent = nil
+                result = nil
+                context = nil
+                failed_parent = false
+
+                rc = pool.get(owner_id, actor) do |resource|
+                    context = resource.active_job
+                    unless context
+                        result = OpenNebula::Error.new(
+                            "Resource #{resource.id} has no active composition to recover",
+                            OpenNebula::Error::EACTION
+                        )
+                        next
+                    end
+
+                    target = context.children.find do |candidate|
+                        candidate.workflow == child[:workflow] &&
+                            candidate.owner_id.to_i == child[:owner_id].to_i
+                    end
+                    unless target
+                        result = OpenNebula::Error.new(
+                            "Child #{child[:workflow]} #{child[:owner_id]} is not part of " \
+                            "Resource #{resource.id} active composition",
+                            OpenNebula::Error::EACTION
+                        )
+                        next
+                    end
+
+                    parent = Job::Parent.new(
+                        :workflow     => id,
+                        :owner_id     => resource.id,
+                        :operation_id => context.id,
+                        :parent_step  => target.parent_step
+                    )
+                    failed_parent = self.class.failure_states.value?(resource.state)
+                end
+
+                return rc if OpenNebula.is_error?(rc)
+                return result if OpenNebula.is_error?(result)
+
+                workflow = scheduler.workflow_for_id(target.workflow)
+                observation = workflow.observe_child(target, :parent => parent)
+                return public_result(observation) if observation.is_a?(ExecResult)
+
+                allowed =
+                    if action == :retry
+                        Job::Child::FAILURE_STATUSES
+                    else
+                        [:active, :failed]
+                    end
+                unless allowed.include?(observation.status)
+                    return OpenNebula::Error.new(
+                        "Child #{target.workflow} #{target.owner_id} cannot be resolved " \
+                        "with #{action} while it is #{observation.status}",
+                        OpenNebula::Error::EACTION
+                    )
+                end
+
+                # A terminal child failure also leaves its owner in a terminal
+                # failure state. Reactivate the parent composition before the
+                # selected child so its completion notification can be consumed.
+                if failed_parent
+                    rc = pool.get(owner_id, actor) do |resource|
+                        unless resource.active_job == context
+                            result = OpenNebula::Error.new(
+                                "Resource #{resource.id} lifecycle operation changed " \
+                                'while recovering its child',
+                                OpenNebula::Error::EACTION
+                            )
+                            next
+                        end
+
+                        state = recovery_state_for(resource.state)
+                        unless state
+                            result = OpenNebula::Error.new(
+                                "Resource #{resource.id} is not recoverable from " \
+                                "#{resource.state}",
+                                OpenNebula::Error::EACTION
+                            )
+                            next
+                        end
+
+                        resource.recover_job!(
+                            :state => state, :external_user => actor
+                        )
+                        context = resource.active_job
+                        target = context.children.find do |candidate|
+                            candidate.workflow == child[:workflow] &&
+                                candidate.owner_id.to_i == child[:owner_id].to_i
+                        end
+                        parent = Job::Parent.new(
+                            :workflow     => id,
+                            :owner_id     => resource.id,
+                            :operation_id => context.id,
+                            :parent_step  => target.parent_step
+                        )
+                    end
+
+                    return rc if OpenNebula.is_error?(rc)
+                    return result if OpenNebula.is_error?(result)
+                end
+
+                public_result(
+                    workflow.recover_child(
+                        target, :parent => parent, :actor => actor, :resolution => action
+                    )
+                )
+            rescue StandardError => e
+                OpenNebula::Error.new(
+                    "Error requesting child action recovery: #{e.message}",
+                    OpenNebula::Error::EACTION
+                )
+            end
+
+            # Releases durable ownership and stops any matching in-memory
+            # execution without running cancellation or recovery callbacks.
+            # Intended for an explicit administrative database purge
+            def abandon_operation(owner_id, actor)
+                context = nil
+                result  = nil
+
+                rc = pool.get(owner_id, actor) do |resource|
+                    context = resource.active_job
+                    result  = resource.discard_job!(context) if context
+                end
+
+                return true if OpenNebula.is_error?(rc) && missing_resource?(rc)
+                return rc if OpenNebula.is_error?(rc)
+                return result.value if result&.error?
+                return true unless context
+
+                interrupted = scheduler.interrupt(owner_id, context.id)
+                return interrupted if OpenNebula.is_error?(interrupted)
+
+                true
+            rescue StandardError => e
+                OpenNebula::Error.new(
+                    "Error abandoning workflow operation: #{e.message}",
                     OpenNebula::Error::EACTION
                 )
             end
@@ -288,14 +441,27 @@ module OpenNebula
             # @param persist [Boolean] Whether to store a newly returned wait
             # @return [ExecResult] Wait resolution
             def resolve_wait!(resource, job, wait, dependencies, persist: false)
-                step = step_for(job.step)
-                @definition.validate_wait!(step, wait)
+                transition = nil
+                begin
+                    step = step_for(job.step)
+                    @definition.validate_wait!(step, wait)
 
-                satisfied = execute_handler(wait.check, resource, job.args, dependencies)
+                    satisfied = execute_handler(
+                        wait.check, resource, job.args, dependencies
+                    )
 
-                raise(
-                    ArgumentError, "Wait check #{wait.check} must return true or false"
-                ) unless [true, false].include?(satisfied)
+                    raise(
+                        ArgumentError, "Wait check #{wait.check} must return true or false"
+                    ) unless [true, false].include?(satisfied)
+
+                    transition = resolve_success(
+                        step, Job.success, :failure_state => job.failure_state
+                    ) if satisfied
+                rescue StandardError => e
+                    return ExecResult.error(
+                        OpenNebula::Error.new(e.message, OpenNebula::Error::EACTION)
+                    )
+                end
 
                 unless satisfied
                     result = resource.wait_job!(job, wait) if persist
@@ -304,8 +470,7 @@ module OpenNebula
                     return ExecResult.waiting
                 end
 
-                transition = resolve_success(step, Job.success, :failure_state => job.failure_state)
-                persisted  = transition!(resource, job, transition)
+                persisted = transition!(resource, job, transition)
                 return persisted unless persisted.ok?
 
                 ExecResult.ok(transition)
@@ -347,6 +512,8 @@ module OpenNebula
                     resource = current
                 end
 
+                return ExecResult.stale \
+                    if OpenNebula.is_error?(rc) && missing_resource?(rc)
                 return ExecResult.retry(rc) if OpenNebula.is_error?(rc)
                 return ExecResult.stale unless resource
 
@@ -470,9 +637,10 @@ module OpenNebula
                         if child.operation_id.nil? &&
                            (context.step != child.step || context.args != child.args)
                             result = ExecResult.error(
-                                relation_error(
+                                OpenNebula::Error.new(
                                     "Child #{id} #{child.owner_id} has incompatible " \
-                                    'step or arguments for the parent request'
+                                    'step or arguments for the parent request',
+                                    OpenNebula::Error::EACTION
                                 )
                             )
                             next
@@ -480,7 +648,11 @@ module OpenNebula
 
                         observation = inspect_child(child, resource, parent)
                         if observation.relationship_error?
-                            result = ExecResult.error(relation_error(observation.error))
+                            result = ExecResult.error(
+                                OpenNebula::Error.new(
+                                    observation.error, OpenNebula::Error::EACTION
+                                )
+                            )
                             next
                         end
 
@@ -517,14 +689,25 @@ module OpenNebula
 
                 result
             rescue ArgumentError => e
-                ExecResult.error(relation_error("Error requesting child action: #{e.message}"))
+                ExecResult.error(
+                    OpenNebula::Error.new(
+                        "Error requesting child action: #{e.message}",
+                        OpenNebula::Error::EACTION
+                    )
+                )
             rescue StandardError => e
-                ExecResult.retry(relation_error("Error requesting child action: #{e.message}"))
+                ExecResult.retry(
+                    OpenNebula::Error.new(
+                        "Error requesting child action: #{e.message}",
+                        OpenNebula::Error::EACTION
+                    )
+                )
             end
 
-            # Runs a failed child's declared cancellation cleanup and releases
-            # its durable context. This is intentionally limited to terminal
-            # failure states, where no runtime worker remains active.
+            # Releases a failed child's durable context without treating the
+            # administrative discard as cancellation. This is intentionally
+            # limited to terminal failure states, where no runtime worker remains
+            # active; the replacement lifecycle owns any required domain cleanup.
             def discard_failed_child(child, parent:, actor:)
                 result = nil
 
@@ -543,42 +726,21 @@ module OpenNebula
 
                     mismatch = child_relation_mismatch(child, context, parent)
                     if mismatch && !orphaned_failed_child?(context, parent)
-                        result = ExecResult.error(relation_error(mismatch))
+                        result = ExecResult.error(
+                            OpenNebula::Error.new(mismatch, OpenNebula::Error::EACTION)
+                        )
                         next
                     end
 
                     unless self.class.failure_states.value?(resource.state)
                         result = ExecResult.error(
-                            relation_error(
+                            OpenNebula::Error.new(
                                 "Child #{id} #{child.owner_id} is still executing in " \
-                                "#{resource.state}"
+                                "#{resource.state}",
+                                OpenNebula::Error::EACTION
                             )
                         )
                         next
-                    end
-
-                    unless context.cancelled?
-                        step = step_for(context.step)
-
-                        unless step.cancelable?
-                            result = ExecResult.error(
-                                relation_error(
-                                    "Child #{id} #{child.owner_id} #{context.step} " \
-                                    'has no cleanup action'
-                                )
-                            )
-                            next
-                        end
-
-                        outcome = cancel(resource, resource.build_job(id), step)
-                        unless outcome.is_a?(Job::Failure)
-                            result = ExecResult.error(
-                                relation_error(
-                                    "Child #{id} #{child.owner_id} cleanup did not fail its action"
-                                )
-                            )
-                            next
-                        end
                     end
 
                     result = resource.discard_job!(context)
@@ -591,9 +753,19 @@ module OpenNebula
 
                 ExecResult.ok(:discarded)
             rescue ArgumentError => e
-                ExecResult.error(relation_error("Error discarding child action: #{e.message}"))
+                ExecResult.error(
+                    OpenNebula::Error.new(
+                        "Error discarding child action: #{e.message}",
+                        OpenNebula::Error::EACTION
+                    )
+                )
             rescue StandardError => e
-                ExecResult.retry(relation_error("Error discarding child action: #{e.message}"))
+                ExecResult.retry(
+                    OpenNebula::Error.new(
+                        "Error discarding child action: #{e.message}",
+                        OpenNebula::Error::EACTION
+                    )
+                )
             end
 
             # Enqueues a child only after both relationship sides are durable.
@@ -603,7 +775,11 @@ module OpenNebula
                 rc = pool.get(child.owner_id, nil) do |resource|
                     observation = inspect_child(child, resource, parent)
                     if observation.relationship_error?
-                        result = ExecResult.error(relation_error(observation.error))
+                        result = ExecResult.error(
+                            OpenNebula::Error.new(
+                                observation.error, OpenNebula::Error::EACTION
+                            )
+                        )
                         next
                     end
 
@@ -636,7 +812,12 @@ module OpenNebula
 
                 ExecResult.ok(resumed.value)
             rescue StandardError => e
-                ExecResult.retry(relation_error("Error scheduling child action: #{e.message}"))
+                ExecResult.retry(
+                    OpenNebula::Error.new(
+                        "Error scheduling child action: #{e.message}",
+                        OpenNebula::Error::EACTION
+                    )
+                )
             end
 
             # Reads a child state and proves its durable relationship.
@@ -647,8 +828,9 @@ module OpenNebula
                 end
 
                 if OpenNebula.is_error?(rc)
-                    return child_observation(child, nil, :missing, child.operation_id, rc.message) \
-                        if missing_resource?(rc)
+                    return child_observation(
+                        child, nil, :missing, child.operation_id, :error => rc.message
+                    ) if missing_resource?(rc)
 
                     return ExecResult.retry(rc)
                 end
@@ -666,7 +848,11 @@ module OpenNebula
                 rc = pool.get(child.owner_id, actor) do |resource|
                     observation = inspect_child(child, resource, parent)
                     if observation.relationship_error?
-                        result = ExecResult.error(relation_error(observation.error))
+                        result = ExecResult.error(
+                            OpenNebula::Error.new(
+                                observation.error, OpenNebula::Error::EACTION
+                            )
+                        )
                         next
                     end
 
@@ -693,20 +879,31 @@ module OpenNebula
 
                 result
             rescue StandardError => e
-                ExecResult.retry(relation_error("Error cancelling child action: #{e.message}"))
+                ExecResult.retry(
+                    OpenNebula::Error.new(
+                        "Error cancelling child action: #{e.message}",
+                        OpenNebula::Error::EACTION
+                    )
+                )
             end
 
             # Recovers or reconnects an owned child operation.
-            def recover_child(child, parent:, actor:)
+            def recover_child(child, parent:, actor:, resolution: :retry)
                 result           = nil
                 waiting_resource = nil
+                manual_resource  = nil
+                previous_attempt = nil
 
                 rc = pool.get(child.owner_id, actor) do |resource|
                     observation = inspect_child(child, resource, parent)
                     context = resource.active_job
 
                     if observation.relationship_error?
-                        result = ExecResult.error(relation_error(observation.error))
+                        result = ExecResult.error(
+                            OpenNebula::Error.new(
+                                observation.error, OpenNebula::Error::EACTION
+                            )
+                        )
                         next
                     end
 
@@ -715,13 +912,49 @@ module OpenNebula
                         next
                     end
 
-                    if observation.status == :failed
+                    if resolution != :retry
+                        if observation.status == :failed &&
+                           context.resolution == resolution
+                            result = ExecResult.ok(:failed)
+                            next
+                        end
+
+                        state =
+                            if self.class.failure_states.key?(resource.state)
+                                resource.state
+                            else
+                                recovery_state_for(resource.state)
+                            end
+                        unless state
+                            result = ExecResult.error(
+                                OpenNebula::Error.new(
+                                    "Child #{id} #{child.owner_id} is not manually " \
+                                    "resolvable from #{resource.state}",
+                                    OpenNebula::Error::EACTION
+                                )
+                            )
+                            next
+                        end
+
+                        if context.resolution != resolution
+                            previous_attempt = context.attempt
+                            recovery = Job.recover(resolution, :state => state)
+                            recover_locked!(resource, recovery, actor)
+                        end
+
+                        manual_resource = resource
+                        result = ExecResult.ok(resource.active_job.id)
+                        next
+                    end
+
+                    if Job::Child::FAILURE_STATUSES.include?(observation.status)
                         state = recovery_state_for(resource.state)
                         unless state
                             result = ExecResult.error(
-                                relation_error(
+                                OpenNebula::Error.new(
                                     "Child #{id} #{child.owner_id} is not recoverable from " \
-                                    "#{resource.state}"
+                                    "#{resource.state}",
+                                    OpenNebula::Error::EACTION
                                 )
                             )
                             next
@@ -729,7 +962,8 @@ module OpenNebula
 
                         step_name = context.step
                         step      = step_for(step_name)
-                        if !context.waiting? && step.kind == :normal && step.recover
+                        if step.kind == :normal && step.recover &&
+                           (!context.waiting? || context.cancelled?)
                             step_name = :"recover_#{step.name}"
                             step      = step_for(step_name)
                         end
@@ -758,13 +992,44 @@ module OpenNebula
                 return ExecResult.ok(:missing) \
                     if OpenNebula.is_error?(rc) && missing_resource?(rc)
                 return ExecResult.retry(rc) if OpenNebula.is_error?(rc)
+
+                if manual_resource
+                    if previous_attempt
+                        interrupted = scheduler.interrupt(
+                            manual_resource.id,
+                            manual_resource.active_job.id,
+                            :before_attempt => previous_attempt + 1
+                        )
+                        return ExecResult.retry(interrupted) \
+                            if OpenNebula.is_error?(interrupted)
+                    end
+
+                    if manual_resource.active_job.wait.is_a?(Job::ChildrenWait)
+                        return @composition.resume(manual_resource)
+                    end
+
+                    scheduled = schedule(manual_resource)
+                    return ExecResult.retry(scheduled) if OpenNebula.is_error?(scheduled)
+
+                    return ExecResult.ok(scheduled)
+                end
                 return result unless waiting_resource
 
                 resume_wait_result(waiting_resource)
             rescue ArgumentError => e
-                ExecResult.error(relation_error("Error recovering child action: #{e.message}"))
+                ExecResult.error(
+                    OpenNebula::Error.new(
+                        "Error recovering child action: #{e.message}",
+                        OpenNebula::Error::EACTION
+                    )
+                )
             rescue StandardError => e
-                ExecResult.retry(relation_error("Error recovering child action: #{e.message}"))
+                ExecResult.retry(
+                    OpenNebula::Error.new(
+                        "Error recovering child action: #{e.message}",
+                        OpenNebula::Error::EACTION
+                    )
+                )
             end
 
             # Notifies a related parent after a child transition or event.
@@ -838,9 +1103,10 @@ module OpenNebula
                 end
                 if OpenNebula.is_error?(rc)
                     return ExecResult.error(
-                        relation_error(
+                        OpenNebula::Error.new(
                             "Child #{id} #{resource.id} #{context.step} has no current " \
-                            'parent action'
+                            'parent action',
+                            OpenNebula::Error::EACTION
                         )
                     ) if missing_resource?(rc)
 
@@ -850,13 +1116,18 @@ module OpenNebula
                 return ExecResult.ok(decision) if decision
 
                 ExecResult.error(
-                    relation_error(
-                        "Child #{id} #{resource.id} #{context.step} has no current parent action"
+                    OpenNebula::Error.new(
+                        "Child #{id} #{resource.id} #{context.step} has no current " \
+                        'parent action',
+                        OpenNebula::Error::EACTION
                     )
                 )
             rescue KeyError
                 ExecResult.error(
-                    relation_error("Parent workflow #{parent.workflow} is not registered")
+                    OpenNebula::Error.new(
+                        "Parent workflow #{parent.workflow} is not registered",
+                        OpenNebula::Error::EACTION
+                    )
                 )
             end
 
@@ -866,7 +1137,24 @@ module OpenNebula
                 step_name = context.step
                 step      = step_for(step_name)
 
-                if !context.waiting? && step.kind == :normal && step.recover
+                unless recovery.retry?
+                    job = build_job(resource)
+                    raise job.message if OpenNebula.is_error?(job)
+
+                    manual_outcome(job, step, actor, recovery.result)
+                    return resource.recover_job!(
+                        :state         => recovery.state,
+                        :external_user => actor,
+                        :args          => recovery.args,
+                        :step          => step_name,
+                        :failure_state => context.failure_state,
+                        :resolution    => recovery.result,
+                        :clear_wait    => !context.wait.is_a?(Job::ChildrenWait)
+                    )
+                end
+
+                if step.kind == :normal && step.recover &&
+                   (!context.waiting? || context.cancelled?)
                     step_name = :"recover_#{step.name}"
                     step      = step_for(step_name)
                 end
@@ -1109,6 +1397,41 @@ module OpenNebula
                 step.resolve_failure(failure)
             end
 
+            # Converts a durable manual resolution into the ordinary outcome of
+            # the current step. This deliberately reuses normal transition and
+            # finalizer processing instead of mutating lifecycle state directly.
+            def manual_outcome(job, step, actor = job.external_user, resolution = job.resolution)
+                case resolution
+                when :success
+                    name = nil
+                    if step.success.is_a?(Hash)
+                        raise ArgumentError,
+                              "Job step #{step.name} has an ambiguous manual success" \
+                            unless step.success.size == 1
+
+                        name = step.success.keys.first
+                    end
+
+                    success    = Job.success(name)
+                    transition = resolve_success(
+                        step, success, :failure_state => job.failure_state
+                    )
+                    if transition.is_a?(Job::Complete) && transition.owner_deleted?
+                        raise ArgumentError,
+                              "Job step #{step.name} deletes its owner and cannot be " \
+                              'completed manually'
+                    end
+
+                    success
+                when :failure
+                    failure = Job.fail("Manually failed by #{actor}")
+                    resolve_failure(step, failure) unless job.failure_state
+                    failure
+                else
+                    raise ArgumentError, 'Job has no manual resolution'
+                end
+            end
+
             # Builds and schedules the current persisted owner job
             #
             # @param resource [Object] Persistent resource containing the job context
@@ -1291,18 +1614,19 @@ module OpenNebula
                 if context
                     mismatch = child_relation_mismatch(child, context, parent)
                     return child_observation(
-                        child, resource, :failed, child.operation_id, mismatch,
+                        child, resource, :failed, child.operation_id,
+                        :error => mismatch,
                         :relationship_error => true
                     ) if mismatch
 
                     return child_observation(
                         child, resource, :cancelled, context.id,
-                        resource_error(resource)
+                        :error => resource_error(resource)
                     ) if context.cancelled?
 
                     return child_observation(
                         child, resource, :failed, context.id,
-                        resource_error(resource)
+                        :error => resource_error(resource)
                     ) if self.class.failure_states.value?(resource.state)
 
                     status = context.cancelling? ? :cancel_requested : :active
@@ -1315,30 +1639,26 @@ module OpenNebula
 
                 return child_observation(
                     child, resource, :failed, child.operation_id,
-                    resource_error(resource)
+                    :error => resource_error(resource)
                 ) if self.class.failure_states.value?(resource.state)
 
                 child_observation(
                     child, resource, :failed, child.operation_id,
-                    "Child #{id} #{child.owner_id} #{child.step} has no durable job in " \
-                    "#{resource.state}",
+                    :error => "Child #{id} #{child.owner_id} #{child.step} has no " \
+                              "durable job in #{resource.state}",
                     :relationship_error => true
                 )
             end
 
-            # rubocop:disable-next Metrics/ParameterLists
-            def child_observation(
-                child, resource, status, operation_id, error = nil,
-                relationship_error: false
-            )
+            def child_observation(child, resource, status, operation_id, **options)
                 child = child.with(
                     :status => status,
                     :operation_id => operation_id || child.operation_id,
-                    :error => error
+                    :error => options[:error]
                 )
                 Composition::Observation.new(
                     :child => child, :resource => resource,
-                    :relationship_error => relationship_error
+                    :relationship_error => options.fetch(:relationship_error, false)
                 ).freeze
             end
 
@@ -1356,12 +1676,7 @@ module OpenNebula
             end
 
             def missing_resource?(value)
-                OpenNebula.is_error?(value) &&
-                    value.errno == OpenNebula::Error::ENO_EXISTS
-            end
-
-            def relation_error(message)
-                OpenNebula::Error.new(message, OpenNebula::Error::EACTION)
+                OpenNebula.is_error?(value) && value.errno == OpenNebula::Error::ENO_EXISTS
             end
 
             # Requests cancellation for a pool-locked resource

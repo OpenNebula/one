@@ -22,6 +22,7 @@ import { EditPencil } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import EditableTitle from '@modules/components/composed/DetailsDrawer/Default/slots/info/EditableTitle'
 import { DEFAULT_IMAGE, STYLE_BUTTONS, T } from '@ConstantsModule'
+import { Image } from '@modules/components/primitives/Images'
 import { Tooltip } from '@modules/components/primitives/Tooltip'
 import { useTranslation } from '@ProvidersModule'
 import { CompactToolbar } from '@modules/components/primitives/Buttons/CompactToolbar'
@@ -41,6 +42,7 @@ export const InfoSlot = forwardRef(
   (
     {
       icon,
+      iconFallback,
       title,
       isTitleEditable = false,
       onTitleChange,
@@ -75,16 +77,17 @@ export const InfoSlot = forwardRef(
         <Box className={'info-container'}>
           <Box className="info-top-row">
             <Box className="info-header">
-              {icon && (
+              {(icon || iconFallback) && (
                 <Box className="icon-container">
-                  <img
-                    className="info-icon"
+                  <Image
                     src={icon}
                     alt=""
-                    onError={(e) => {
-                      e.target.onerror = null
-                      e.target.src = DEFAULT_IMAGE
-                    }}
+                    width={32}
+                    height={32}
+                    aspectRatio="1/1"
+                    fallback={
+                      iconFallback ?? <img src={DEFAULT_IMAGE} alt="" />
+                    }
                   />
                 </Box>
               )}
@@ -177,6 +180,7 @@ export const InfoSlot = forwardRef(
 
 InfoSlot.propTypes = {
   icon: PropTypes.string,
+  iconFallback: PropTypes.node,
   title: PropTypes.string,
   id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   labels: PropTypes.array,

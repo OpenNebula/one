@@ -19,8 +19,6 @@ module OneKS
     # Represents a node group within a cluster
     class NodeGroup < K8sGroup
 
-        include ODS::StateMachine
-
         FAMILIES_DIR   = File.join(ONEKS_SPEC_DIR, 'nodegroups')
         COMPONENT_NAME = name.split('::').last
 
@@ -30,7 +28,7 @@ module OneKS
 
         # Renders the nodegroup spec (chart definitions)
         # @return [Hash, OpenNebula::Error]
-        def render
+        def render(k8s_version: nil)
             cluster = parent_cluster
             return cluster if OpenNebula.is_error?(cluster)
 
@@ -46,6 +44,7 @@ module OneKS
                     :deployment => deployment
                 }
             )
+            cluster_values[:kubernetes_version] = k8s_version if k8s_version
 
             group_values = plain_body.merge(
                 {
@@ -86,6 +85,29 @@ module OneKS
             )
         end
 
+        # Renders the MachineDeployment resource required for a Kubernetes upgrade.
+        def render_upgrade(k8s_version:)
+            spec = render(:k8s_version => k8s_version)
+            return spec if OpenNebula.is_error?(spec)
+
+            manifest = K8s.load_manifest(spec)
+            return manifest if OpenNebula.is_error?(manifest)
+
+            resource = K8s.resource_by_kind(manifest, 'MachineDeployment')
+
+            return OpenNebula::Error.new(
+                'MachineDeployment resource not found in rendered manifest',
+                OpenNebula::Error::EACTION
+            ) unless resource
+
+            resource.to_yaml
+        rescue StandardError => e
+            OpenNebula::Error.new(
+                "Error rendering #{type} upgrade: #{e.message}",
+                OpenNebula::Error::EACTION
+            )
+        end
+
         def provision
             return if provisioned?
 
@@ -107,12 +129,30 @@ module OneKS
             if force
                 errors = []
 
-                vms.each do |vm_id|
+                vm_ids.each do |vm_id|
+                    vm = OneHelper::VirtualMachine.get(@client, vm_id)
+                    if OpenNebula.is_error?(vm) || vm.state_str == 'DONE'
+                        del_vm(vm_id)
+                        next
+                    end
+
+                    if K8sGroup::VM_DELETION_STATES.include?(vm.lcm_state_str)
+                        Log.debug(
+                            K8sGroup::COMP,
+                            "VM #{vm_id} deletion is already in progress " \
+                            "(LCM_STATE=#{vm.lcm_state_str})",
+                            cluster_id
+                        )
+                        next
+                    end
+
                     rc = OneHelper::VirtualMachine.delete(@client, vm_id, :force => true)
-                    if OpenNebula.is_error?(rc)
+                    if OpenNebula.is_error?(rc) && rc.errno != OpenNebula::Error::ENO_EXISTS
                         errors << { :vm_id => vm_id, :error => rc.message }
                         next
                     end
+
+                    del_vm(vm_id) if OpenNebula.is_error?(rc)
                 end
 
                 return OpenNebula::Error.new(
@@ -148,19 +188,23 @@ module OneKS
             )
         end
 
-        def upgrade
-            cluster = parent_cluster
-            return cluster if OpenNebula.is_error?(cluster)
+        def self.rollback_create(cluster, group_id)
+            group = new_from_id(cluster.client, group_id)
+            if OpenNebula.is_error?(group)
+                return true if group.errno == OpenNebula::Error::ENO_EXISTS
 
-            spec = render
-            return spec if OpenNebula.is_error?(spec)
+                return group
+            end
 
-            K8s.upgrade(cluster.client, cluster.leader, spec)
-        rescue StandardError => e
-            OpenNebula::Error.new(
-                "Error upgrading #{type}: #{e.message}",
-                OpenNebula::Error::EACTION
-            )
+            if cluster.node_group(group.id)
+                rc = cluster.del_group(group.id)
+                return rc if OpenNebula.is_error?(rc)
+
+                rc = cluster.update
+                return rc if OpenNebula.is_error?(rc)
+            end
+
+            group.delete(:force => true)
         end
 
     end

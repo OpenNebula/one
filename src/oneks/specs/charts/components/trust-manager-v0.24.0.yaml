@@ -1,0 +1,54 @@
+id: '97dac03b-ff7d-465e-94a6-ad04355c4379'
+chart: oci://quay.io/jetstack/charts/trust-manager
+version: v0.24.0
+
+metadata:
+  name: trust-manager
+  description: Distributes the Run:ai local CA certificate into runai-backend without OneKS reading Secret data.
+
+defaultValuesContent: |-
+  secretTargets:
+    enabled: true
+    authorizedSecretsAll: false
+    authorizedSecrets:
+      - runai-ca-cert
+
+  app:
+    trust:
+      namespace: cert-manager
+
+installDefaults:
+  releaseName: oneks-trust-manager
+  targetNamespace: cert-manager
+  createNamespace: false
+
+dependencies: []
+
+preInstall:
+  - name: Wait for cert-manager
+    wait:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: cert-manager
+        namespace: cert-manager
+      condition: Available
+      timeout: 300s
+  - name: Wait for cert-manager webhook
+    wait:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: cert-manager-webhook
+        namespace: cert-manager
+      condition: Available
+      timeout: 300s
+  - name: Wait for cert-manager CA injector
+    wait:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: cert-manager-cainjector
+        namespace: cert-manager
+      condition: Available
+      timeout: 300s

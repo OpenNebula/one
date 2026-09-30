@@ -1,0 +1,18 @@
+id: '9f1436c4-5316-45f1-9ff6-f0f3a2ec0465'
+chart: oci://docker.io/envoyproxy/ai-gateway-helm
+version: v1.1.0
+
+metadata:
+  name: Envoy AI Gateway v1.1.0
+  description: Private Envoy AI Gateway controller dependency providing AI-aware and InferencePool routing integration.
+
+defaultValuesContent: |-
+  {}
+
+installDefaults:
+  releaseName: oneks-envoy-ai-gateway
+  targetNamespace: envoy-ai-gateway-system
+  createNamespace: true
+
+dependencies:
+  - chartId: 3f07dee5-5ad8-4b59-a22f-ce6328b64cdd

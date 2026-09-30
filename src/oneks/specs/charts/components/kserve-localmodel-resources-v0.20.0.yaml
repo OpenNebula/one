@@ -1,0 +1,25 @@
+id: '4e76821a-f6ed-4194-bfe0-43aadefef0c0'
+chart: oci://ghcr.io/kserve/charts/kserve-localmodel-resources
+version: v0.20.0
+
+metadata:
+  name: KServe LocalModel Resources v0.20.0
+  description: Private KServe LocalModel controller dependency for node-local model caching.
+
+defaultValuesContent: |-
+  kserve:
+    createSharedResources: false
+    localmodelnode:
+      controller:
+        nodeSelector:
+          kserve/localmodel: worker
+
+installDefaults:
+  releaseName: kserve-localmodel-resources
+  targetNamespace: kserve
+  createNamespace: true
+
+dependencies:
+  - chartId: 010cfab9-a3bf-44ec-8458-0351da06ef40
+  - chartId: 8371473e-d23d-4fe7-b336-8aad93f402bd
+  - chartId: 190ed924-cb1f-451f-aa7b-282bf03a271e

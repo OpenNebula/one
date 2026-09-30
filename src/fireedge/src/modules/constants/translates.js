@@ -15,6 +15,28 @@
  * ------------------------------------------------------------------------- */
 module.exports = {
   /* pagination / stepper */
+  Applications: 'Applications',
+  InstalledApplications: 'Installed applications',
+  Application: 'Application',
+  InstallApplication: 'Install Application',
+  SelectApplication: 'Select an application',
+  ApplicationDefinitionError: 'Could not load the application definition.',
+  ApplicationInstallabilityPending:
+    'Wait for the application compatibility check to finish.',
+  ApplicationNotInstallable:
+    'This application cannot be installed in the selected cluster.',
+  ApplicationCatalogueUnavailable:
+    'The application catalogue is currently unavailable.',
+  ReleaseName: 'Release name',
+  Dependencies: 'Dependencies',
+  Uninstall: 'Uninstall',
+  UninstallApplication: 'Uninstall application',
+  UninstallApplicationConfirmation:
+    'Uninstall this application from the cluster?',
+  TargetNamespace: 'Target namespace',
+  CreateNamespace: 'Create namespace if it does not exist',
+  SuccessApplicationInstallStarted: 'Application installation started',
+  ErrorApplicationInstallation: 'Error installing application: %s',
   Back: 'Back',
   Previous: 'Previous',
   NumberPerPage: 'Number of rows per page',
@@ -253,6 +275,8 @@ module.exports = {
   Recreate: 'Recreate',
   Refresh: 'Refresh',
   Release: 'Release',
+  ResourceVersion: 'Resource version',
+  ChartVersion: 'Chart version',
   ReleaseIp: 'Release IP',
   Remove: 'Remove',
   Rename: 'Rename',
@@ -3436,6 +3460,10 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
   PROVISIONING_FAILURE: 'Provisioning Failure',
   UPGRADING: 'Upgrading',
   UPGRADING_FAILURE: 'Upgrading Failure',
+  INSTALLING_APPLICATION: 'Installing application',
+  INSTALLING_APPLICATION_FAILURE: 'Installing application failure',
+  DELETING_APPLICATION: 'Deleting application',
+  DELETING_APPLICATION_FAILURE: 'Deleting application failure',
   WARNING: 'Warning',
 
   /* User Inputs kubernetes */

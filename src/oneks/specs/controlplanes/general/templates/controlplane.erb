@@ -21,6 +21,9 @@ HYPERVISOR = "kvm"
 LXD_SECURITY_PRIVILEGED = "true"
 MEMORY = "<%= group[:user_inputs_values][:memory] %>"
 SCHED_REQUIREMENTS = "<%= cluster[:deployment][:sched_requirements] %>"
+CPU_MODEL=[
+  MODEL="host-passthrough"
+]
 OS = [
   ARCH            = "x86_64",
   FIRMWARE_SECURE = "YES"

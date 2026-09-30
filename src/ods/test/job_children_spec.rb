@@ -296,9 +296,7 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
         )
         failed = false
 
-        allow(parent_owner).to receive(:update_job_children!).and_wrap_original do |
-            original, current_job, children
-        |
+        update_children = lambda do |original, current_job, children|
             if !failed && children.any?(&:requested?)
                 failed = true
                 ODS::ExecResult.error(failure)
@@ -306,6 +304,9 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
                 original.call(current_job, children)
             end
         end
+        allow(parent_owner).to receive(:update_job_children!).and_wrap_original(
+            &update_children
+        )
 
         expect(parent_workflow.start_children(job, outcome)).to be_waiting
         child_operation = child_owners.first.active_job.id
@@ -316,8 +317,8 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
 
         scheduler.start
         wait_until do
-            # rubocop:disable-next Style/SafeNavigationChainLength
-            parent_owner.active_job&.children&.first&.operation_id == child_operation &&
+            parent_child = parent_owner.active_job&.children&.first
+            parent_child&.operation_id == child_operation &&
                 child_owners.first.active_job&.waiting?
         end
 
@@ -461,7 +462,7 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
         expect(parent_owner.active_job.id).to eq(job.operation_id)
     end
 
-    it 'releases failed composed children before discarding their failed parent action' do
+    it 'discards terminal failed children without running cancellation callbacks' do
         parent_owner.begin_job!(
             :step => :perform, :state => :RUNNING, :args => {},
             :external_user => 'alice'
@@ -482,6 +483,7 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
             owner.state = :RUNNING_FAILURE
         end
         parent_owner.state = :RUNNING_FAILURE
+        expect(child_workflow).not_to receive(:cancel)
 
         result = parent_workflow.discard_failed_composition(parent_owner.id, 'alice')
 
@@ -765,6 +767,23 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
         expect(parent_owner.active_job).to be_nil
     end
 
+    it 'terminally fails an unexpected parent predicate exception' do
+        controls[10] = :ready
+        controls[11] = :ready
+        allow(parent_workflow).to receive(:children_ready)
+            .and_raise('parent predicate exploded')
+
+        start_parent
+        operation_id = parent_owner.active_job.id
+        scheduler.start
+        wait_until { parent_owner.state == :RUNNING_FAILURE }
+
+        expect(parent_owner.error[:message]).to eq('parent predicate exploded')
+        expect(parent_workflow.calls).to eq(1)
+        expect(child_workflow.calls.values).to all(eq(1))
+        expect(scheduler.job_for(parent_owner.id, operation_id)).to be_nil
+    end
+
     context 'when the parent is temporarily unavailable' do
         let(:child_owners) { [OdsSpecSupport::MemoryOwner.new(:id => 10)] }
 
@@ -854,6 +873,102 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
         expect(operation_ids).to all(be_a(String))
     end
 
+    it 'reactivates a failed parent before recovering one failed child' do
+        controls[10] = :fail
+        controls[11] = :ready
+        start_parent
+        scheduler.start
+        wait_until { parent_owner.state == :RUNNING_FAILURE }
+
+        controls[10] = :ready
+
+        result = parent_workflow.request_child_recovery(
+            parent_owner.id,
+            'alice',
+            :child  => { :workflow => :child_spec, :owner_id => 10 },
+            :action => :retry
+        )
+
+        expect(result).to be_a(String)
+        wait_until { parent_owner.state == :DONE }
+        expect(child_owners.first.state).to eq(:DONE)
+        expect(child_workflow.calls[10]).to eq(2)
+    end
+
+    it 'propagates manual success through active children without rerunning handlers' do
+        start_parent
+        scheduler.start
+        wait_until { child_owners.all? {|owner| owner.active_job&.waiting? } }
+
+        result = parent_workflow.request_recovery(parent_owner.id, 'admin') do
+            ODS::Job.recover(:success, :state => :RUNNING)
+        end
+        expect(result).to be_a(String)
+        wait_until { parent_owner.state == :DONE }
+
+        expect(child_owners.map(&:state)).to all(eq(:DONE))
+        expect(parent_workflow.calls).to eq(1)
+        expect(child_workflow.calls.values).to all(eq(1))
+    end
+
+    it 'propagates manual failure through active children without rerunning handlers' do
+        start_parent
+        scheduler.start
+        wait_until { child_owners.all? {|owner| owner.active_job&.waiting? } }
+
+        result = parent_workflow.request_recovery(parent_owner.id, 'admin') do
+            ODS::Job.recover(:failure, :state => :RUNNING)
+        end
+        expect(result).to be_a(String)
+        wait_until { parent_owner.state == :RUNNING_FAILURE }
+
+        expect(child_owners.map(&:state)).to all(eq(:RUNNING_FAILURE))
+        expect(parent_owner.error[:message]).to eq('Manually failed by admin')
+        expect(parent_workflow.calls).to eq(1)
+        expect(child_workflow.calls.values).to all(eq(1))
+    end
+
+    it 'manually resolves only the selected active child' do
+        start_parent
+        scheduler.start
+        wait_until { child_owners.all? {|owner| owner.active_job&.waiting? } }
+
+        result = parent_workflow.request_child_recovery(
+            parent_owner.id,
+            'admin',
+            :child  => { :workflow => :child_spec, :owner_id => 10 },
+            :action => :success
+        )
+        expect(result).to be_a(String)
+        wait_until { child_owners.first.state == :DONE }
+
+        expect(parent_owner.state).to eq(:RUNNING)
+        expect(child_owners.last.state).to eq(:RUNNING)
+        expect(child_owners.last.active_job).to be_waiting
+
+        controls[11] = :ready
+        child_workflow.dispatch_event(11, :released)
+        wait_until { parent_owner.state == :DONE }
+    end
+
+    it 'lets a selected active child failure fail the parent naturally' do
+        start_parent
+        scheduler.start
+        wait_until { child_owners.all? {|owner| owner.active_job&.waiting? } }
+
+        result = parent_workflow.request_child_recovery(
+            parent_owner.id,
+            'admin',
+            :child  => { :workflow => :child_spec, :owner_id => 10 },
+            :action => :failure
+        )
+        expect(result).to be_a(String)
+        wait_until { parent_owner.state == :RUNNING_FAILURE }
+
+        expect(child_owners.first.state).to eq(:RUNNING_FAILURE)
+        expect(parent_owner.error[:message]).to include('Manually failed by admin')
+    end
+
     it 'propagates a child failure received while its workflow is waiting' do
         start_parent
         scheduler.start
@@ -886,6 +1001,31 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
         expect(parent_owner.state).to eq(:RUNNING_FAILURE)
         expect(child_owners.map(&:state)).to all(eq(:RUNNING_FAILURE))
         expect(parent_workflow.calls).to eq(1)
+    end
+
+    it 'retries a cancelled composition through the same child relationships' do
+        start_parent
+        scheduler.start
+        wait_until { child_owners.all? {|owner| owner.active_job&.waiting? } }
+
+        expect(parent_workflow.request_cancellation(parent_owner.id, 'alice'))
+            .to eq(:requested)
+        wait_until do
+            parent_owner.active_job&.cancelled? &&
+                child_owners.all? {|owner| owner.active_job&.cancelled? }
+        end
+
+        controls[10] = :ready
+        controls[11] = :ready
+        result = parent_workflow.request_recovery(parent_owner.id, 'alice') do
+            ODS::Job.recover(:state => :RUNNING)
+        end
+
+        expect(result).to be_a(String)
+        wait_until { parent_owner.state == :DONE }
+        expect(child_owners.map(&:state)).to all(eq(:DONE))
+        expect(parent_workflow.calls).to eq(1)
+        expect(child_workflow.calls.values).to all(eq(1))
     end
 
     it 'does not leave unmanaged children when cancellation races the request' do
@@ -999,8 +1139,8 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
 
             scheduler.start
             wait_until do
-                # rubocop:disable-next Style/SafeNavigationChainLength
-                parent_owner.active_job&.children&.first&.operation_id == child.operation_id &&
+                parent_child = parent_owner.active_job&.children&.first
+                parent_child&.operation_id == child.operation_id &&
                     child_owners.first.active_job&.waiting?
             end
 

@@ -20,6 +20,7 @@ require 'base64'
 require 'opennebula/ods/client'
 require 'opennebula/ods/helpers'
 require 'opennebula/ks/clusters'
+require 'opennebula/ks/applications'
 require 'opennebula/ks/nodegroups'
 require 'cloud/CloudClient'
 
@@ -37,6 +38,7 @@ module OneKS
         }
 
         include OneKS::Clusters
+        include OneKS::Applications
         include OneKS::NodeGroups
 
         def initialize(username: nil, password: nil, endpoint: nil, opts: {})

@@ -48,18 +48,27 @@ module OpenNebula
             # Declares recovery of an existing durable job.
             class Recovery
 
-                attr_reader :state, :args
+                RESULTS = [:retry, :success, :failure]
 
-                def initialize(state:, args: nil)
+                attr_reader :result, :state, :args
+
+                def initialize(result = :retry, state:, args: nil)
+                    @result = result
                     @state = state
                     @args  = args&.dup&.freeze
 
+                    raise ArgumentError, "Invalid job recovery result #{@result}" \
+                        unless RESULTS.include?(@result)
                     raise ArgumentError, 'Recovered job state must be a Symbol' \
                         unless @state.is_a?(Symbol)
                     raise ArgumentError, 'Recovered job args must be a Hash' \
                         unless @args.nil? || @args.is_a?(Hash)
 
                     freeze
+                end
+
+                def retry?
+                    result == :retry
                 end
 
             end
@@ -76,8 +85,8 @@ module OpenNebula
                 end
 
                 # Declares recovery of an existing durable job.
-                def recover(state:, args: nil)
-                    Recovery.new(:state => state, :args => args)
+                def recover(result = :retry, state:, args: nil)
+                    Recovery.new(result, :state => state, :args => args)
                 end
 
             end

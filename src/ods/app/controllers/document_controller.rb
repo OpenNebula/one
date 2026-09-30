@@ -91,22 +91,33 @@ module OpenNebula
             #   :id [String] - Document ID
             #   :include_sensitive [Boolean] - Includes sensitive values for the owner or oneadmin
             # @param options [Hash] Loading and Sinatra route options
+            # @option options [Class, Symbol] :params_schema Request params validation schema
             # @yieldparam document [OpenNebula::Document] Loaded document
+            # @yieldparam params [Hash, nil] Validated params when a schema is configured
             def show(**options, &prepare)
-                raw = options.delete(:raw) || false
+                raw           = options.delete(:raw) || false
+                params_schema = options.delete(:params_schema)
 
                 routes << lambda do |app|
-                    base_path      = self::BASE_PATH
-                    resource_class = self::ODS_CLASS
+                    base_path        = self::BASE_PATH
+                    resource_class   = self::ODS_CLASS
+                    params_validator =
+                        params_schema.is_a?(Symbol) ? const_get(params_schema) : params_schema
 
                     app.get "#{base_path}/:id", **options do
+                        args = check_params(params, params_validator) if params_validator
+
+                        return internal_error(
+                            args.message, one_error_to_http(args.errno)
+                        ) if OpenNebula.is_error?(args)
+
                         document = resource_class.new_from_id(@client, params[:id], :raw => raw)
 
                         return internal_error(
                             document.message, one_error_to_http(document.errno)
                         ) if OpenNebula.is_error?(document)
 
-                        instance_exec(document, &prepare) if prepare
+                        instance_exec(document, args, &prepare) if prepare
 
                         status 200
                         body process_response(
@@ -186,9 +197,9 @@ module OpenNebula
             def attribute(attribute, **options, &transform)
                 path = options.delete(:path) || attribute
 
-                get(path, **options) do |document|
+                get(path, **options) do |document, args|
                     value = document.public_send(attribute)
-                    transform ? instance_exec(document, value, &transform) : value
+                    transform ? instance_exec(document, value, args, &transform) : value
                 end
             end
 
@@ -441,20 +452,39 @@ module OpenNebula
             #   :page [Integer] - Page number
             #   :per_page [Integer] - Entries per page
             #   :all [Boolean] - Returns the complete log history
-            def logs
-                routes << lambda do |app|
-                    base_path      = self::BASE_PATH
-                    resource_class = self::ODS_CLASS
+            def logs(**options)
+                params_schema = options.delete(:params_schema)
 
-                    app.get "#{base_path}/:id/logs", :ensure_resource_access => resource_class do
+                routes << lambda do |app|
+                    base_path        = self::BASE_PATH
+                    resource_class   = self::ODS_CLASS
+                    params_validator =
+                        params_schema.is_a?(Symbol) ? const_get(params_schema) : params_schema
+
+                    app.get(
+                        "#{base_path}/:id/logs",
+                        :ensure_resource_access => resource_class,
+                        **options
+                    ) do
+                        args = check_params(params, params_validator) if params_validator
+
+                        return internal_error(
+                            args.message, one_error_to_http(args.errno)
+                        ) if OpenNebula.is_error?(args)
+
                         log_file = File.join(LOG_LOCATION, APP_NAME, "#{params[:id]}.log")
                         return internal_error(
                             'Log file not found', 404
                         ) unless File.exist?(log_file)
 
-                        all_logs = params.key?(:all)
-                        page     = [params.fetch(:page, 1).to_i, 1].max
-                        per_page = [params.fetch(:per_page, 100).to_i, 1].max
+                        query    = args || params
+                        all_logs = if args
+                                       args.fetch(:all, false)
+                                   else
+                                       params.key?(:all)
+                                   end
+                        page     = [query.fetch(:page, 1).to_i, 1].max
+                        per_page = [query.fetch(:per_page, 100).to_i, 1].max
                         logs     = get_logs_page(log_file, page, per_page, all_logs)
 
                         status 200

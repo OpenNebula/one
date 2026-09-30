@@ -1,0 +1,17 @@
+id: '8371473e-d23d-4fe7-b336-8aad93f402bd'
+chart: oci://ghcr.io/kserve/charts/kserve-crd
+version: v0.20.0
+
+metadata:
+  name: KServe Serving CRDs v0.20.0
+  description: Private classic KServe CRDs including InferenceService, required by the LocalModel controller.
+
+defaultValuesContent: |-
+  {}
+
+installDefaults:
+  releaseName: kserve-crd
+  targetNamespace: kserve
+  createNamespace: true
+
+dependencies: []
