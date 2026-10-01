@@ -9404,6 +9404,21 @@ patches:
             value: true
             state: ins
             extra: {}
+        -   path:
+            - :server
+            key: :bind
+            value: 0.0.0.0
+            old: 127.0.0.1
+            state: set
+            extra: {}
+        -   path: []
+            key: :monitor
+            value:
+                :endpoint: 'http://169.254.16.9:10780/api/v1'
+                :chart_repo: 'https://opennebula.github.io/cluster-api-provider-opennebula/charts/'
+                :chart_version: '0.1.0'
+            state: ins
+            extra: {}
         content: |
             ################################################################################
             # Server Configuration
@@ -9421,7 +9436,7 @@ patches:
             # Server configuration where OneKS server will run
             :server:
               :environment: production
-              :bind: 127.0.0.1
+              :bind: 0.0.0.0
               :port: 10780
 
             # Subscribe endpoint for OpenNebula events (must match those in oned.conf)
@@ -9433,6 +9448,13 @@ patches:
             # Automatically import the OneKS appliance into the default datastore at startup.
             # Disable this option in air-gapped environments or when importing it manually
             :appliance_auto_import: true
+
+            # OneKS monitor deployed inside each workload cluster. It reports Kubernetes
+            # state to this OneKS API through the cluster router's TPROXY network.
+            :monitor:
+              :endpoint: 'http://169.254.16.9:10780/api/v1'
+              :chart_repo: 'https://opennebula.github.io/cluster-api-provider-opennebula/charts/'
+              :chart_version: '0.1.0'
 
             ################################################################################
             # Kubernetes Configuration

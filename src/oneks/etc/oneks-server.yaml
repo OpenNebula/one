@@ -25,7 +25,7 @@
     :bind:
       :required: false
       :type: address
-      :default: 127.0.0.1
+      :default: 0.0.0.0
     :port:
       :required: false
       :type: integer
@@ -103,21 +103,18 @@
     - x509
 
 :monitor:
-  :required: false
+  :required: true
   :type: object
   :keys:
     :endpoint:
-      :required: false
+      :required: true
       :type: string
-      :default: 'http://169.254.16.9:10780/api/v1'
     :chart_repo:
-      :required: false
+      :required: true
       :type: string
-      :default: 'https://opennebula.github.io/cluster-api-provider-opennebula/charts/'
     :chart_version:
-      :required: false
+      :required: true
       :type: string
-      :default: '0.1.0'
 
 :expire_delta:
   :required: false
