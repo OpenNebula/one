@@ -166,7 +166,7 @@ module MAD
     rescue StandardError
     end
 
-    def self.run(host, script, errmsg = nil)
+    def self.run(host, script, errmsg = nil, forward: false)
         script = <<~EOF
             set -eo pipefail
 
@@ -176,7 +176,9 @@ module MAD
             #{script}
         EOF
         rc = if host
-                 ssh_opts = '-o ForwardAgent=yes'
+                 # Agent forwarding needs its own connection, a reused master may not forward it
+                 ssh_opts = ''
+                 ssh_opts = '-o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes' if forward
                  SSHCommand.run('/bin/bash -s', host, nil, script, nil, ssh_opts)
              else
                  LocalCommand.run('/bin/bash -s', nil, script)

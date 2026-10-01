@@ -62,7 +62,8 @@ MAD::LVMWrapper.with_lvm_lock(lvmvm.pool.vgname) do
 end
 
 # Copy VM dir from SRC to DST host
-MAD.run(arg_srchost, <<~EOF, "Error migrating VM dir from #{arg_srchost} to #{arg_dsthost}")
+errmsg = "Error migrating VM dir from #{arg_srchost} to #{arg_dsthost}"
+MAD.run(arg_srchost, <<~EOF, errmsg, :forward => true)
     tar -C '#{arg_sysdir}' -cSf - . | ssh "#{arg_dsthost}" "tar -xSf - -C '#{arg_sysdir}'"
 EOF
 
