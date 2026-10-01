@@ -29,7 +29,7 @@ RUBY_LIB_LOCATION  = '/usr/lib/one/ruby'
 GEMS_LOCATION      = '/usr/share/one/gems'
 LOG_LOCATION       = '/var/log'
 RUN_LOCATION       = '/var/run'
-REMOTES_LOCATION   = '/var/tmp/one'
+REMOTES_LOCATION   = '/var/lib/one-remotes'
 CONFIGURATION_FILE = REMOTES_LOCATION + '/etc/vnm/OpenNebulaNetwork.conf'
 
 # %%RUBYGEMS_SETUP_BEGIN%%

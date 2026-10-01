@@ -71,7 +71,7 @@ datastores.each do |ds|
     driver.chomp!
 
     # NOTE: tm folder may not be defined relative for custom datastore_location
-    tm_script = "/var/tmp/one/tm/#{driver}/monitor_ds"
+    tm_script = "/var/lib/one-remotes/tm/#{driver}/monitor_ds"
 
     next unless File.exist? tm_script
 

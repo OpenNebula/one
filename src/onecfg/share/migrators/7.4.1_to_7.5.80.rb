@@ -38,6 +38,33 @@ module Migrator
             new[:server][:bind] = host if old.key?(:host)
             new[:server][:port] = port if old.key?(:port)
         end
+
+        process('/etc/one/oned.conf', 'Augeas::ONE') do |old, new|
+            break unless old && new
+
+            bug7899_scripts_remote_dir(new)
+        end
+
+        process('/etc/one/onehem-server.conf', 'Yaml') do |old, new|
+            break unless old.is_a?(Hash) && new.is_a?(Hash)
+
+            bug7899_remote_hook_base_path(old, new)
+        end
+    end
+
+    # Since 7.5.80 the remote scripts directory is fixed to
+    # /var/lib/one-remotes; the configuration attribute is gone
+    def bug7899_scripts_remote_dir(new)
+        new.rm('SCRIPTS_REMOTE_DIR')
+    end
+
+    # Since 7.5.80 the remote hooks are executed from the hooks
+    # directory inside the fixed remote scripts directory. Drop the old
+    # stock value so that the new default applies; keep custom paths.
+    def bug7899_remote_hook_base_path(old, new)
+        return unless old[:remote_hook_base_path] == '/var/tmp/one/hooks'
+
+        new.delete(:remote_hook_base_path)
     end
 
 end

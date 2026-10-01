@@ -43,7 +43,7 @@ require 'CommandManager'
 template64 = STDIN.read
 hostname   = ARGV[0]
 
-remote_clean ="/var/tmp/one/vnm/elastic/remote_clean #{hostname}"
+remote_clean ="/var/lib/one-remotes/vnm/elastic/remote_clean #{hostname}"
 
 begin
     drv = ElasticDriver.from_base64(template64, hostname)

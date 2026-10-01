@@ -26,7 +26,7 @@ module VNMMAD
     # Module to handle transparent proxies.
     module TProxy
 
-        LOCK_FILE = '/tmp/onevnm-tproxy-lock'
+        LOCK_FILE = '/var/lock/one/onevnm-tproxy-lock'
 
         # Return the hypervisor facing veth device
         def self.veth(nic)

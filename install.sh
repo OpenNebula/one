@@ -90,6 +90,7 @@ fi
 if [ -z "$ROOT" ] ; then
     BIN_LOCATION="/usr/bin"
     LIB_LOCATION="/usr/lib/one"
+    LIBEXEC_LOCATION="/usr/libexec/one"
     SBIN_LOCATION="/usr/sbin"
     ETC_LOCATION="/etc/one"
     LOG_LOCATION="/var/log/one"
@@ -139,6 +140,7 @@ else
     BIN_LOCATION="$ROOT/bin"
     SBIN_LOCATION="$ROOT/sbin"
     LIB_LOCATION="$ROOT/lib"
+    LIBEXEC_LOCATION="$ROOT/libexec"
     ETC_LOCATION="$ROOT/etc"
     VAR_LOCATION="$ROOT/var"
     RUN_LOCATION="$VAR_LOCATION/run"
@@ -237,7 +239,7 @@ INSTALL_FILES=(
     MAD_RUBY_LIB_FILES:"$LIB_LOCATION"/ruby
     MAD_RUBY_LIB_FILES:"$VAR_LOCATION"/remotes
     MADS_LIB_FILES:"$LIB_LOCATION"/mads
-    REMOTE_FILES:"$VAR_LOCATION"/remotes
+    SUDO_SBIN_FILES:"$LIBEXEC_LOCATION"
 
     IM_PROBES_FILES:"$VAR_LOCATION"/remotes/im
     IM_PROBES_ETC_KVM_PROBES_FILES:"$VAR_LOCATION"/remotes/etc/im/kvm-probes.d
@@ -361,7 +363,7 @@ INSTALL_TREES=(
     src/schedm_mad/remotes/one_drs/lib:"$VAR_LOCATION"/remotes/scheduler/one_drs/lib:mapper,models
     src/schedm_mad/remotes/one_drs/lib/mapper:"$VAR_LOCATION"/remotes/scheduler/one_drs/lib/mapper
     src/schedm_mad/remotes/one_drs/lib/models:"$VAR_LOCATION"/remotes/scheduler/one_drs/lib/models
-    src/vnm_mad/remotes/lib:"$VAR_LOCATION"/remotes/vnm
+    src/vnm_mad/remotes/lib:"$VAR_LOCATION"/remotes/vnm:ip_netns_exec,tproxy
     src/cli/one_helper:"$LIB_LOCATION"/ruby/cli/one_helper
     src/cloud/common:"$LIB_LOCATION"/ruby/cloud:CloudAuth
     src/cloud/common/CloudAuth:"$LIB_LOCATION"/ruby/cloud/CloudAuth:SunstoneCloudAuth.rb
@@ -662,8 +664,15 @@ RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
 # and remotes directory
 #-----------------------------------------------------------------------------
 
-REMOTE_FILES="src/vmm_mad/remotes/kvm/vgpu
-              src/vmm_mad/remotes/kvm/vtpm_setup"
+#-------------------------------------------------------------------------------
+# Host helper files executed through sudo, installed under $LIBEXEC_LOCATION
+# by the node packages. Referenced by the sudoers rules
+#-------------------------------------------------------------------------------
+
+SUDO_SBIN_FILES="src/vmm_mad/remotes/kvm/vgpu
+                 src/vmm_mad/remotes/kvm/vtpm_setup
+                 src/vnm_mad/remotes/lib/tproxy
+                 src/vnm_mad/remotes/lib/ip_netns_exec"
 
 MAD_RUBY_LIB_FILES="src/mad/ruby/DriverLogger.rb \
                     src/mad/ruby/CommandManager.rb"

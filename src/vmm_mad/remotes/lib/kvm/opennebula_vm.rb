@@ -33,7 +33,7 @@ module VirtualMachineManagerKVM
     # Default locations for kvmrc file on the front-end (local) or
     # hypervisor (remote)
     KVMRC_LOCAL  = '/var/lib/one/remotes/etc/vmm/kvm/kvmrc'
-    KVMRC_REMOTE = '/var/tmp/one/etc/vmm/kvm/kvmrc'
+    KVMRC_REMOTE = '/var/lib/one-remotes/etc/vmm/kvm/kvmrc'
 
     # Loads env from the default local (front-end) path
     def load_local_env

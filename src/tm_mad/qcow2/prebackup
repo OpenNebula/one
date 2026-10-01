@@ -65,7 +65,7 @@ bck_dir = if base_path
               "#{rdir}/backup"
           end
 
-qcow2_util = '/var/tmp/one/tm/lib/backup_qcow2.rb'
+qcow2_util = '/var/lib/one-remotes/tm/lib/backup_qcow2.rb'
 qcow2_cmd  = "#{qcow2_util} -d \"#{disks}\" -x #{bck_dir}/vm.xml -p #{rdir}"
 
 pipe_r, pipe_w = IO.pipe

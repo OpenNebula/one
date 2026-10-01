@@ -34,7 +34,7 @@ require 'load_opennebula_paths'
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-$LOAD_PATH.unshift('/var/tmp/one')
+$LOAD_PATH.unshift('/var/lib/one-remotes')
 
 require 'fileutils'
 require 'tempfile'

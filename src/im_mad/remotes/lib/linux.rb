@@ -38,7 +38,7 @@ class LinuxHost
       'nettx'      => ->(m) { m.net[:tx] }
     }
 
-    DB_PATH = '/var/tmp/one_db'
+    DB_PATH = '/var/lib/one-remotes-db'
     DB_NAME = 'host.db'
 
     ######

@@ -54,7 +54,7 @@ class LXCConfiguration < Hash
 
     # Configuration attributes that are not customizable
     FIXED_CONFIGURATION = {
-        :profiles_location  => '/var/tmp/one/etc/vmm/lxc/profiles',
+        :profiles_location  => '/var/lib/one-remotes/etc/vmm/lxc/profiles',
         :id_map => 600100001, # First id for mapping
         :max_map => 65536     # Max id for mapping
     }

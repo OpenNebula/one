@@ -61,12 +61,14 @@ module VNMMAD
         end
 
         # Locking function to serialized driver operations if needed. Similar
-        # to flock. File is created as /tmp/onevnm-<driver>-lock
+        # to flock. File is created as /var/lock/one/onevnm-<driver>-lock
         def lock
             return unless @locking
 
             driver_name = self.class.name.downcase
-            @locking_file = File.open("/tmp/onevnm-#{driver_name}-lock", 'w')
+            @locking_file = File.open(
+                "/var/lock/one/onevnm-#{driver_name}-lock", 'w'
+            )
             @locking_file.flock(File::LOCK_EX)
         end
 
@@ -368,7 +370,7 @@ module VNMMAD
             hostname = args[0]
 
             cmd = "run-parts #{$PROGRAM_NAME}.d".gsub('/var/lib/one/remotes',
-                                                      '/var/tmp/one')
+                                                      '/var/lib/one-remotes')
             args.each {|arg| cmd << " --arg=\"#{arg}\"" }
 
             SSHCommand.run(cmd, hostname, nil, stdin, 60)

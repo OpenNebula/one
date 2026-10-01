@@ -370,7 +370,6 @@ void OpenNebulaTemplate::set_conf_default()
     #  LISTEN_ADDRESS, GRPC_LISTEN_ADDRESS
     #  PORT, GRPC_PORT
     #  DB
-    #  SCRIPTS_REMOTE_DIR
     #  VM_SUBMIT_ON_HOLD
     #  API_LIST_ORDER
     #  VNC_PORTS
@@ -387,7 +386,6 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("GRPC_PORT", "2634");
     set_conf_single("GRPC_LISTEN_ADDRESS", "0.0.0.0");
 #endif
-    set_conf_single("SCRIPTS_REMOTE_DIR", "/var/tmp/one");
     set_conf_single("VM_SUBMIT_ON_HOLD", "NO");
     set_conf_single("API_LIST_ORDER", "DESC");
     set_conf_single("SHOWBACK_ONLY_RUNNING", "NO");

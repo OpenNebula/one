@@ -1378,8 +1378,8 @@ function send_to_monitor {
     fi
 
     # Read monitord config
-    if [ -f "/var/tmp/one_db/etc/monitord.conf" ]; then
-        mon_conf="/var/tmp/one_db/etc/monitord.conf"
+    if [ -f "/var/lib/one-remotes-db/etc/monitord.conf" ]; then
+        mon_conf="/var/lib/one-remotes-db/etc/monitord.conf"
     elif [ -f "/etc/one/monitord.conf" ]; then
         mon_conf="/etc/one/monitord.conf"
     elif [ -n "$ONE_LOCATION" ] && [ -f "$ONE_LOCATION/etc/monitord.conf" ]; then

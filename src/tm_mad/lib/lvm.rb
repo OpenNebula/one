@@ -130,7 +130,7 @@ module TransferManager
                 snap_cmd    = ''
                 expo_cmd    = ''
                 snap_clup   = ''
-                backup_util = '/var/tmp/one/tm/lib/backup_lvmthin.rb'
+                backup_util = '/var/lib/one-remotes/tm/lib/backup_lvmthin.rb'
 
                 if @interactive
                     return backup_cmds_interactive(backup_dir, ds, live, backup_util)

@@ -25,7 +25,8 @@ module TransferManager
     # OneBEX client used by interactive backups.
     class OneBEX
 
-        REMOTE_LIB_DIR = '/var/tmp/one/tm/lib'
+        # Remote TM scripts run with /var/lib/one-remotes/tm/lib as their installed libdir.
+        REMOTE_LIB_DIR = '/var/lib/one-remotes/tm/lib'
 
         CONFIG_FILE = File.expand_path(
             '../../etc/onebex/onebex-server.conf',

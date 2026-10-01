@@ -376,8 +376,8 @@ DERIVED_METRICS = [
 ]
 
 # Path constants
-FORECAST_CONFIG_FILE = "/var/tmp/one/etc/im/kvm-probes.d/forecast.conf"
-ENTITIES_CONFIG_FILE = "/var/tmp/one_db/config"
+FORECAST_CONFIG_FILE = "/var/lib/one-remotes/etc/im/kvm-probes.d/forecast.conf"
+ENTITIES_CONFIG_FILE = "/var/lib/one-remotes-db/config"
 
 # ########################
 # Main functions

@@ -217,7 +217,6 @@ void Nebula::start(bool bootstrap_only)
     int      fd;
     sigset_t mask;
     int      signal;
-    string   scripts_remote_dir;
     SqlDB *  db_backend;
     bool     solo;
 
@@ -245,8 +244,6 @@ void Nebula::start(bool bootstrap_only)
         config_file << *nebula_configuration << endl;
         config_file.close();
     }
-
-    nebula_configuration->get("SCRIPTS_REMOTE_DIR", scripts_remote_dir);
 
     // -----------------------------------------------------------
     // Get Hostname

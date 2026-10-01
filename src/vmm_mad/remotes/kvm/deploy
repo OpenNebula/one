@@ -87,7 +87,7 @@ fi
 # Create vGPU following NVIDIA official guide:
 #     https://docs.nvidia.com/grid/latest/pdf/grid-vgpu-user-guide.pdf
 #-------------------------------------------------------------------------------
-(sudo -l | grep -q vgpu) && sudo /var/tmp/one/vgpu "CREATE" "$DEP_FILE_LOCATION/vm.xml"
+(sudo -l | grep -q vgpu) && sudo /usr/libexec/one/vgpu "CREATE" "$DEP_FILE_LOCATION/vm.xml"
 
 #---------------------------------------------------------------------------
 # Recover vTPM directory
@@ -104,7 +104,7 @@ fi
 # If there's a saved TPM, copy it to libvirt's directory
 if [ -d "$DEP_FILE_LOCATION/tpm" ]; then
     DOM_UUID=$(xmllint --xpath '/domain/uuid/text()' "$DEP_FILE")
-    (sudo -l | grep -q vtpm_setup) && sudo /var/tmp/one/vtpm_setup recover "$DOM_UUID" "$DEP_FILE_LOCATION"
+    (sudo -l | grep -q vtpm_setup) && sudo /usr/libexec/one/vtpm_setup recover "$DOM_UUID" "$DEP_FILE_LOCATION"
 fi
 
 DATA=`virsh --connect $LIBVIRT_URI create $DEP_FILE`

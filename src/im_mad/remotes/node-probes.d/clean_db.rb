@@ -19,7 +19,7 @@ require 'fileutils'
 
 begin
     FILE_PATTERN  = '*.db'
-    DB_DIR_PATH   = '/var/tmp/one_db/'
+    DB_DIR_PATH   = '/var/lib/one-remotes-db/'
     OLD_THRESHOLD = 6 * 7 * 24 * 60 * 60 # 6 weeks in seconds
 
     threshold = Time.now - OLD_THRESHOLD

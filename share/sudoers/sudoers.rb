@@ -22,7 +22,7 @@ class Sudoers
 
     attr_accessor :cmds
 
-    def initialize(lib_location)
+    def initialize(lib_location, libexec_location = '/usr/libexec/one')
         # Commands required to be used as root, without password, by oneadmin
         @cmds = {
             :NET => [
@@ -35,7 +35,7 @@ class Sudoers
                 'ip rule *',
                 'ip tuntap *',
                 'nft',
-                '/var/tmp/one/vnm/tproxy',
+                "#{libexec_location}/tproxy",
                 'bridge',
                 'devlink',
                 'ethtool'
@@ -44,11 +44,11 @@ class Sudoers
                 'ip netns add *',
                 'ip netns delete *',
                 'ip netns pids *',
-                '/var/tmp/one/vnm/ip_netns_exec ip address *',
-                '/var/tmp/one/vnm/ip_netns_exec ip link *',
-                '/var/tmp/one/vnm/ip_netns_exec ip -j link show *',
-                '/var/tmp/one/vnm/ip_netns_exec ip route *',
-                '/var/tmp/one/vnm/ip_netns_exec sysctl -w ' \
+                "#{libexec_location}/ip_netns_exec ip address *",
+                "#{libexec_location}/ip_netns_exec ip link *",
+                "#{libexec_location}/ip_netns_exec ip -j link show *",
+                "#{libexec_location}/ip_netns_exec ip route *",
+                "#{libexec_location}/ip_netns_exec sysctl -w " \
                 'net.ipv4.conf.all.arp_ignore=0 net.ipv4.conf.default.arp_ignore=0'
             ],
             :LVM => [
@@ -87,8 +87,8 @@ class Sudoers
             ],
             :MARKET => ["#{lib_location}/sh/create_container_image.sh"],
             :MEM => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],
-            :VGPU => ['sudo', '/var/tmp/one/vgpu'],
-            :VTPM => ['sudo', '/var/tmp/one/vtpm_setup'],
+            :VGPU => ['sudo', "#{libexec_location}/vgpu"],
+            :VTPM => ['sudo', "#{libexec_location}/vtpm_setup"],
             :NFS => ['mount', 'umount', '/usr/bin/sed -i -f /proc/self/fd/0 /etc/fstab'],
             :SCSI => [
                 'blockdev',

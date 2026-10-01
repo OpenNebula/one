@@ -109,7 +109,7 @@ function vgpuctl() {
 }
 
 function update_pci_info() {
-    PID_FILE="/var/tmp/one_db/.monitor_client.pid"
+    PID_FILE="/var/lib/one-remotes-db/.monitor_client.pid"
 
     if [[ -s "$PID_FILE" ]]; then
         PID=$(cat "$PID_FILE")
@@ -130,10 +130,12 @@ ACTION=${1,,}
 # datastore -> vm deploy ID
 VM="$2"
 
-XPATH="$(dirname $0)/datastore/xpath.rb --stdin"
+REMOTES_DIR="/var/lib/one-remotes"
 
-source "$(dirname $0)/etc/vmm/kvm/kvmrc"
-source "$(dirname $0)/scripts_common.sh"
+XPATH="$REMOTES_DIR/datastore/xpath.rb --stdin"
+
+source "$REMOTES_DIR/etc/vmm/kvm/kvmrc"
+source "$REMOTES_DIR/scripts_common.sh"
 
 case "$ACTION" in
     "create")

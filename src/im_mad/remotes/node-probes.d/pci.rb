@@ -40,7 +40,7 @@ UDEV_RENAMES = extract_pci_interfaces('/etc/udev/rules.d/99-rename.rules')
 
 # File-based cache for network interface names.
 # Stores mappings as files: `<dir>/<pci_address>` contains `<ifname>`.
-NET_NAMES_CACHE_DIR = '/var/tmp/one_db/pci_net_names'
+NET_NAMES_CACHE_DIR = '/var/lib/one-remotes-db/pci_net_names'
 
 begin
     probes_path = File.dirname(File.realdirpath(__FILE__))

@@ -40,7 +40,7 @@ module DriverExecHelper
     # Initialize module variables
     def initialize_helper(directory, options)
         @config = read_configuration
-        @remote_scripts_base_path = @config['SCRIPTS_REMOTE_DIR']
+        @remote_scripts_base_path = '/var/lib/one-remotes'
 
         @local_actions = options[:local_actions]
         @per_drvr_local_actions = options[:per_drvr_local_actions] || []

@@ -149,7 +149,7 @@ class KVMDomain
         return unless @vm.elements['TEMPLATE/TPM/MODEL']
 
         <<~EOS
-            (sudo -l | grep -q vtpm_setup) && sudo /var/tmp/one/vtpm_setup backup "#{@dom}" "#{@vm_dir}"
+            (sudo -l | grep -q vtpm_setup) && sudo /usr/libexec/one/vtpm_setup backup "#{@dom}" "#{@vm_dir}"
             tar zcvf #{@bck_dir}/disk.tpm.0 -C #{@vm_dir} tpm
         EOS
     end

@@ -26,7 +26,7 @@ if !ONE_LOCATION
     GEMS_LOCATION     ||= '/usr/share/one/gems'
     LOG_LOCATION      ||= '/var/log/one'
     VAR_LOCATION      ||= '/var/lib/one'
-    ETC_LOCATION      ||= '/var/tmp/one/etc'
+    ETC_LOCATION      ||= '/var/lib/one-remotes/etc'
 else
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'

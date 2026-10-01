@@ -232,11 +232,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         cluster_id = options[:cluster]
 
-        rc = OpenNebula::System.new(@client).get_configuration
-        return -1, rc.message if OpenNebula.is_error?(rc)
-
-        conf = rc
-        sync_manager = HostSyncManager.new(conf)
+        sync_manager = HostSyncManager.new
 
         # Verify the existence of REMOTES_LOCATION
         if !File.directory? REMOTES_LOCATION

@@ -220,9 +220,9 @@ end
 #-------------------------------------------------------------------------------
 # Configuration (from monitord)
 #   DB_PATH: Folder to include metrics DB for forecasting. It also includes
-#   local additions in the hypervisor (/var/tmp/one uses rsync --delete)
+#   local additions in the hypervisor (/var/lib/one-remotes uses rsync --delete)
 #-------------------------------------------------------------------------------
-DB_PATH   = '/var/tmp/one_db'
+DB_PATH   = '/var/lib/one-remotes-db'
 ETC_PATH  = "#{DB_PATH}/etc"
 PCI_CACHE = "#{DB_PATH}/pci_net_names"
 PID_FILE  = "#{DB_PATH}/.monitor_client.pid"
@@ -230,6 +230,17 @@ PID_FILE  = "#{DB_PATH}/.monitor_client.pid"
 MONITORD_CONF = "#{ETC_PATH}/monitord.conf"
 
 FileUtils.mkdir_p(DB_PATH)
+
+# One-time migration of the metrics DB from the pre-7.6 location. This
+# client is the only writer of the DB files and any old client has been
+# stopped before this one is started, so the move is race free.
+LEGACY_DB_PATH = '/var/tmp/one_db'
+
+if !File.exist?(File.join(DB_PATH, 'host.db')) && File.directory?(LEGACY_DB_PATH)
+    FileUtils.mv(Dir.glob("#{LEGACY_DB_PATH}/*"), DB_PATH, :force => true)
+    FileUtils.rm_rf(LEGACY_DB_PATH)
+end
+
 FileUtils.rm_rf(PCI_CACHE)
 FileUtils.mkdir_p(ETC_PATH)
 

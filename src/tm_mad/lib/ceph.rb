@@ -167,7 +167,7 @@ module TransferManager
                 expo_clup  = ''
                 snap_abort = ''
 
-                backup_util = '/var/tmp/one/tm/lib/backup_rbd.rb'
+                backup_util = '/var/lib/one-remotes/tm/lib/backup_rbd.rb'
 
                 if @interactive
                     return backup_cmds_interactive(backup_dir, ds, live, backup_util)

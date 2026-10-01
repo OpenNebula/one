@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and          #
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
-$LOAD_PATH.unshift('/var/tmp/one')
+$LOAD_PATH.unshift('/var/lib/one-remotes')
 
 require 'fileutils'
 require 'tempfile'

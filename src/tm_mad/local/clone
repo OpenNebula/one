@@ -80,7 +80,7 @@ ds = TransferManager::Datastore.from_image_ds(:image  => image,
 # --------------------------------------------------------------------------
 
 if ds['/DATASTORE/TEMPLATE/CACHE_ENABLE'].to_s.upcase == 'YES' && image['/IMAGE/PERSISTENT'] == '0'
-    cache_util = '/var/tmp/one/tm/lib/tm_cache.rb'
+    cache_util = '/var/lib/one-remotes/tm/lib/tm_cache.rb'
 
     config = {
         :ds_xml    => ds.xml_to_hash,

@@ -24,7 +24,7 @@ if !ONE_LOCATION
     ETC_LOCATION  = '/etc/one'
     LIB_LOCATION  = '/usr/lib/one'
     HOOK_LOCATION = '/var/lib/one/remotes/hooks'
-    REMOTE_HOOK_LOCATION = '/var/tmp/one/hooks'
+    REMOTE_HOOK_LOCATION = '/var/lib/one-remotes/hooks'
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
     GEMS_LOCATION     = '/usr/share/one/gems'
 else
@@ -33,7 +33,7 @@ else
     ETC_LOCATION  = ONE_LOCATION + '/etc'
     LIB_LOCATION  = ONE_LOCATION + '/lib'
     HOOK_LOCATION = ONE_LOCATION + '/var/remotest/hooks'
-    REMOTE_HOOK_LOCATION = '/var/tmp/one/hooks'
+    REMOTE_HOOK_LOCATION = '/var/lib/one-remotes/hooks'
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end

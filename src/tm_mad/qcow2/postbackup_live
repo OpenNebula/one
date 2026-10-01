@@ -44,7 +44,7 @@ bck_dir = if base_path
               "#{rdir}/backup"
           end
 
-qcow2_util = '/var/tmp/one/tm/lib/backup_qcow2.rb'
+qcow2_util = '/var/lib/one-remotes/tm/lib/backup_qcow2.rb'
 
 post_script = <<~EOS
     set -ex -o pipefail

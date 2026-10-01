@@ -37,8 +37,8 @@ module VNMMAD
             :lsmod         => 'lsmod',
             :ipset         => 'sudo -n ipset',
             :nft           => 'sudo -n nft',
-            :tproxy        => 'sudo -n /var/tmp/one/vnm/tproxy',
-            :ip_netns_exec => 'sudo -n --preserve-env=NETNS /var/tmp/one/vnm/ip_netns_exec',
+            :tproxy        => 'sudo -n /usr/libexec/one/tproxy',
+            :ip_netns_exec => 'sudo -n --preserve-env=NETNS /usr/libexec/one/ip_netns_exec',
             :bridge        => 'sudo -n bridge',
             :devlink       => 'sudo -n devlink',
             :ethtool       => 'sudo -n ethtool'

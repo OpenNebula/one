@@ -18,7 +18,7 @@
 
 STDIN=`cat -`
 
-PYTHON_PATH=/var/tmp/one/im/lib/python
+PYTHON_PATH=/var/lib/one-remotes/im/lib/python
 
 PYTHON_VERSION=$(python3 --version | cut -d ' ' -f2)
 
@@ -38,7 +38,7 @@ else
 fi
 
 HOST_ID=$(echo "${STDIN}"  | xmllint --xpath 'string(//HOST_ID)' -)
-ENTITYH="host,${HOST_ID},0,/var/tmp/one_db"
+ENTITYH="host,${HOST_ID},0,/var/lib/one-remotes-db"
 
 export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
 export OPENBLAS_NUM_THREADS=${OPENBLAS_NUM_THREADS:-1}

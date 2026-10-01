@@ -35,7 +35,7 @@ class Restic
     RESTIC_BIN_PATHS = {
         :frontend => "#{ENV['ONE_LOCATION']&.then {|p| "#{p}/var" } || '/var/lib/one'}" \
                      '/remotes/datastore/restic/restic',
-        :hypervisor => '/var/tmp/one/datastore/restic/restic'
+        :hypervisor => '/var/lib/one-remotes/datastore/restic/restic'
     }.freeze
 
     class << self
@@ -675,9 +675,9 @@ class Restic
                 mkdir -p '#{@path}/'
 
                 # Check if the correct restic binary is available.
-                [[ -x /var/tmp/one/datastore/restic/restic ]] && \
-                [[ -f /var/tmp/one/VERSION ]] && \
-                [[ '#{one_version}' = $(head -1 /var/tmp/one/VERSION) ]] && \
+                [[ -x /var/lib/one-remotes/datastore/restic/restic ]] && \
+                [[ -f /var/lib/one-remotes/VERSION ]] && \
+                [[ '#{one_version}' = $(head -1 /var/lib/one-remotes/VERSION) ]] && \
                 echo true || echo false
 
                 # Collect filesystem stats.

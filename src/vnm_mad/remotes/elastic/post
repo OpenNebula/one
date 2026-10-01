@@ -44,7 +44,7 @@ template64 = STDIN.read
 deploy_id = ARGV[0]
 hostname  = ARGV[1]
 
-remote_post ="/var/tmp/one/vnm/elastic/remote_post #{deploy_id} #{hostname}"
+remote_post ="/var/lib/one-remotes/vnm/elastic/remote_post #{deploy_id} #{hostname}"
 
 begin
     drv = ElasticDriver.from_base64(template64, hostname, deploy_id)

@@ -27,7 +27,7 @@ count=0
 deploy_id=$1
 
 # Get datastore path to get vm.xml
-VMDIR="$(/var/tmp/one/vgpu "DATASTORE" "$deploy_id")"
+VMDIR="$(/usr/libexec/one/vgpu "DATASTORE" "$deploy_id")"
 
 #---------------------------------------------------------------------------
 # Back up vTPM directory from libvirt to /tpm in VM dir
@@ -35,7 +35,7 @@ VMDIR="$(/var/tmp/one/vgpu "DATASTORE" "$deploy_id")"
 domxml="$(virsh --connect $LIBVIRT_URI dumpxml "$deploy_id")"
 if echo "$domxml" | "$XPATH" -t '/domain/devices/tpm/backend[@type="emulator"]' > /dev/null 2>&1; then
     DOM_UUID=$(echo "$domxml" | "$XPATH" '/domain/uuid')
-    (sudo -l | grep -q vtpm_setup) && sudo /var/tmp/one/vtpm_setup backup "$DOM_UUID" "$VMDIR"
+    (sudo -l | grep -q vtpm_setup) && sudo /usr/libexec/one/vtpm_setup backup "$DOM_UUID" "$VMDIR"
 fi
 
 shutdown_command="virsh --connect $LIBVIRT_URI shutdown $deploy_id"
@@ -86,7 +86,7 @@ force_shutdown "$deploy_id" \
     "virsh --connect $LIBVIRT_URI destroy $deploy_id"
 
 # Destroy vGPU. Only if supported by node
-(sudo -l | grep -q vgpu) && sudo /var/tmp/one/vgpu "DELETE" "$VMDIR/vm.xml"
+(sudo -l | grep -q vgpu) && sudo /usr/libexec/one/vgpu "DELETE" "$VMDIR/vm.xml"
 
 # Compact memory
 if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then

@@ -53,7 +53,7 @@ class BaseDomain
     DB_MONITOR_KEYS = MONITOR_KEYS.clone
     DB_MONITOR_KEYS.freeze
 
-    DB_PATH = '/var/tmp/one_db'
+    DB_PATH = '/var/lib/one-remotes-db'
 
     def initialize(name)
         @name = name

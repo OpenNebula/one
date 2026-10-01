@@ -88,7 +88,7 @@ datastores.each do |ds|
                             "/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/" <<
                             'RECOVERY_SNAPSHOT_FREQ')
 
-            rs_script = '/var/tmp/one/tm/ssh/recovery_snap_create_live'
+            rs_script = '/var/lib/one-remotes/tm/ssh/recovery_snap_create_live'
             next if freq.empty? || replica.empty? || !File.exist?(rs_script)
 
             o, _e, s = Open3.capture3("#{rs_script} #{vm_id} " <<

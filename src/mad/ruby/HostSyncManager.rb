@@ -24,31 +24,21 @@
 # rubocop:disable Style/ParallelAssignment
 
 require 'CommandManager'
+require 'shellwords'
 
 # This helper module introduces a common routine that synchronizes
 # the "remotes".
 class HostSyncManager
 
-    def initialize(one_config = nil)
+    def initialize
         one_location = ENV['ONE_LOCATION']&.delete("'")
         if one_location.nil?
-            @one_config_path         = '/var/lib/one/config'
             @local_scripts_base_path = '/var/lib/one/remotes'
         else
-            @one_config_path         = one_location + '/var/config'
             @local_scripts_base_path = one_location + '/var/remotes'
         end
 
-        # Do a simple parsing of the config file unless the values
-        # are already provided. NOTE: We don't care about "arrays" here..
-        one_config ||= File.read(@one_config_path).lines.each_with_object({}) \
-        do |line, object|
-            key, value = line.split('=').map(&:strip)
-            object[key.upcase] = value
-        end
-
-        @remote_scripts_base_path = one_config['SCRIPTS_REMOTE_DIR']
-        @remote_scripts_base_path&.delete!("'")
+        @remote_scripts_base_path = '/var/lib/one-remotes'
     end
 
     def update_remotes(hostname, logger = nil, copy_method = :rsync, subset = nil)
@@ -69,9 +59,11 @@ class HostSyncManager
 
         case copy_method
         when :ssh
+            # Empty the directory instead of recreating it; removing it
+            # would fail as its parent is not writable by oneadmin
             mkdir_cmd = assemble_cmd.call [
-                "rm -rf '#{@remote_scripts_base_path}'/",
-                "mkdir -p '#{@remote_scripts_base_path}'/"
+                "mkdir -p '#{@remote_scripts_base_path}'/",
+                "find '#{@remote_scripts_base_path}'/ -mindepth 1 -delete"
             ]
 
             sync_cmd = assemble_cmd.call [
@@ -91,8 +83,18 @@ class HostSyncManager
             ]
         end
 
-        cmd = SSHCommand.run(mkdir_cmd, hostname, logger)
-        return cmd.code if error?(cmd)
+        # Escape the command so it fully runs on the remote side. Otherwise
+        # the local shell would interpret the metacharacters (';', '&&') and
+        # run all but the first command locally.
+        cmd = SSHCommand.run(mkdir_cmd.shellescape, hostname, logger)
+
+        if error?(cmd)
+            STDERR.puts "Could not create '#{@remote_scripts_base_path}' " \
+                        "on host '#{hostname}'. The directory is created " \
+                        'by the OpenNebula node packages; make sure they ' \
+                        'are installed and up to date on the host.'
+            return cmd.code
+        end
 
         cmd = LocalCommand.run(sync_cmd, logger)
         return cmd.code if error?(cmd)

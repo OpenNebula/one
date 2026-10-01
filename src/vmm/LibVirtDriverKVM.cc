@@ -1509,7 +1509,7 @@ int LibVirtDriver::deployment_description_kvm(
 
             file << "\t\t<filesystem type='mount' accessmode='passthrough'>\n"
                  << "\t\t\t<driver type='virtiofs' queue='1024'/>\n"
-                 << "\t\t\t<binary path='/var/tmp/one/vmm/kvm/virtiofsd.sh' xattr='on'>\n"
+                 << "\t\t\t<binary path='/var/lib/one-remotes/vmm/kvm/virtiofsd.sh' xattr='on'>\n"
                  << "\t\t\t\t<cache mode='always'/>\n"
                  << "\t\t\t\t<sandbox mode='namespace'/>\n"
                  << "\t\t\t</binary>\n"
