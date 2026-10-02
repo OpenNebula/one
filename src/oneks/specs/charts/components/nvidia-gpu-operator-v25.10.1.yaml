@@ -1,7 +1,7 @@
 id: 'fe52263b-88af-4a0f-bc9b-6ce0e321786a'
 repo: https://helm.ngc.nvidia.com/nvidia
 chart: gpu-operator
-version: v25.10
+version: v25.10.1
 
 metadata:
   name: NVIDIA GPU Operator Dependency
@@ -12,6 +12,8 @@ installDefaults:
   targetNamespace: gpu-operator
   createNamespace: true
 defaultValuesContent: |-
-  cdi:
-    nriPluginEnabled: true
+  toolkit:
+    env:
+    - name: CONTAINERD_SOCKET
+      value: /run/k3s/containerd/containerd.sock
 dependencies: []
