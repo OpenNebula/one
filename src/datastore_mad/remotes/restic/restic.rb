@@ -706,10 +706,15 @@ class Restic
 
             if restic_found == 'false'
                 sync_manager = HostSyncManager.new
-                sync_manager.update_remotes "#{@user}@#{@sftp}",
-                                            nil,
-                                            :rsync,
-                                            ['VERSION', 'datastore/restic/restic']
+                rc = sync_manager.update_remotes "#{@user}@#{@sftp}",
+                                                 nil,
+                                                 :rsync,
+                                                 ['VERSION', 'datastore/restic/restic']
+
+                raise StandardError, 'Unable to sync the restic binary to ' \
+                    "the backup server '#{@sftp}': /var/lib/one-remotes " \
+                    "must exist on it and be owned by '#{@user}'" \
+                    if rc != 0
             end
 
             {
