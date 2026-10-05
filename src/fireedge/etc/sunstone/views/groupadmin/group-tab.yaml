@@ -54,5 +54,5 @@ info-tabs:
     actions:
       get_showback: true
 
-  'VLAN Group':
+  vlanrules:
     enabled: true

@@ -12,7 +12,7 @@ actions:
   create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
   deploy: false
   migrate: false
-  migrate_live: false
+  live-migrate: false
   hold: false
   release: false
   suspend: false
@@ -98,12 +98,11 @@ info-tabs:
   storage:
     enabled: true
     actions:
-      disk-attach:
-        enabled: true
+      disk-attach-image: true
+      disk-attach-volatile: true
       disk-detach: true
       disk-resize: true
-      disk_saveas:
-        enabled: true
+      disk-saveas: true
 
   network:
     enabled: true

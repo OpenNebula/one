@@ -40,7 +40,7 @@ info-tabs:
       enabled: true
       actions:
         chown: true
-        cgrp: true
+        chgrp: true
     roles_panel:
       enabled: true
     roles-affinity_panel:

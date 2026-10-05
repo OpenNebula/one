@@ -55,9 +55,9 @@ info-tabs:
   sched_actions:
     enabled: true
     actions:
-      sched_action_create: true
-      sched_action_update: true
-      sched_action_delete: true
+      sched-add: true
+      sched-update: true
+      sched-delete: true
   
 
 # Dialogs
