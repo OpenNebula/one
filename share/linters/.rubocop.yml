@@ -338,6 +338,9 @@ Layout/SpaceAroundKeyword:
 #######
 # STYLE
 #######
+nStyle/DirectiveScope:
+  Enabled: false
+
 
 # it's mandatory to left a empty line before guard clause
 Style/GuardClause:
