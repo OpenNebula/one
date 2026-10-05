@@ -153,10 +153,10 @@ module OneBEX
             # Finish NBD exporter
             # Stops a managed qemu-nbd process and removes its unix socket.
             # ----------------------------------------------------------------
-            def finish(xfr)
+            def finish(xfr, force: false)
                 return true if xfr[:external_nbd]
 
-                stop_process(xfr[:pid])
+                stop_process(xfr[:pid], :force => force)
 
                 FileUtils.rm_f(xfr[:socket]) if xfr[:socket]
 
@@ -259,15 +259,22 @@ module OneBEX
 
                     sleep interval
                 end
+            rescue Errno::ECHILD
+                :exited
             end
 
             # Terminates a managed child process, escalating to KILL on timeout.
-            def stop_process(pid)
+            def stop_process(pid, force: false)
                 return if pid.nil?
 
                 @logger.info("Stopping process #{pid}")
 
-                Process.kill('TERM', pid)
+                Process.kill(force ? 'KILL' : 'TERM', pid)
+
+                if force
+                    Process.detach(pid)
+                    return
+                end
 
                 wait_process(pid, :timeout => 5)
             rescue Timeout::Error

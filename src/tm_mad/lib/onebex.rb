@@ -42,11 +42,11 @@ module TransferManager
             @vm_id          = vm_id
             @ds_id          = ds_id
             @backup_dir     = backup_dir
+            @result_file    = File.join(backup_dir, 'interactive-result.json')
 
             conf = self.class.load_config(config_file)
 
-            @uri     = URI("http://#{conf[:host]}:#{conf[:port]}")
-            @timeout = conf[:onebex_timeout].to_i
+            @uri = URI("http://#{conf[:host]}:#{conf[:port]}")
         end
 
         def self.start(vm_id:, ds_id:, backup_dir:, exports: nil,
@@ -134,7 +134,7 @@ module TransferManager
                 raise "Invalid OneBEX configuration file #{config_file}"
             end
 
-            missing = [:host, :port, :onebex_timeout].select do |key|
+            missing = [:host, :port].select do |key|
                 conf[key].nil? || conf[key].to_s.empty?
             end
 
@@ -148,13 +148,20 @@ module TransferManager
 
         # Starts the OneBEX server, writes the exports, and waits for completion.
         def start(exports = nil)
+            File.delete(@result_file) if File.exist?(@result_file)
+
             write_all_exports(exports) if exports
 
-            start_server unless running?
+            2.times do |attempt|
+                start_server unless running?
+                break if start_export
 
-            start_export
+                raise 'OneBEX is stopping' if attempt == 1
 
-            finish?
+                wait_for_stop
+            end
+
+            wait_for_finish
         end
 
         private
@@ -196,20 +203,14 @@ module TransferManager
 
         def ready?(timeout = 60)
             started_at = Time.now
-            error      = nil
 
             until Time.now - started_at > timeout
-                begin
-                    return true if running?
-                rescue StandardError => e
-                    error = e.message
-                end
+                return true if running?
 
                 sleep 1
             end
 
-            raise 'Timeout waiting for OneBEX server to start for VM ' \
-                  "#{@vm_id}: #{error}"
+            raise "Timeout waiting for OneBEX server to start for VM #{@vm_id}"
         end
 
         def start_export
@@ -228,66 +229,46 @@ module TransferManager
                 uri.host,
                 uri.port,
                 :open_timeout => 2,
-                :read_timeout => 5
+                :read_timeout => 300
             ) {|http| http.request(req) }
+
+            # No export was admitted.
+            return false if res.code.to_i == 503
 
             raise "Error starting OneBEX export: #{res.body}" unless res.code.to_i == 200
 
             true
+        rescue Errno::ECONNREFUSED
+            false
         end
 
-        def status
-            JSON.parse(get("/status?VM_ID=#{@vm_id}").body)
-        end
-
-        def cancel(message)
-            uri = @uri + "/vms/#{@vm_id}/cancel"
-
-            req = Net::HTTP::Post.new(uri)
-
-            req['Content-Type'] = 'application/json'
-            req.body = JSON.generate(
-                :MESSAGE => message
-            )
-
-            res = Net::HTTP.start(
-                uri.host,
-                uri.port,
-                :open_timeout => 2,
-                :read_timeout => 5
-            ) {|http| http.request(req) }
-
-            raise "Error cancelling OneBEX backup: #{res.body}" \
-                unless res.code.to_i == 200
-
-            true
-        end
-
-        def finish?
+        def wait_for_stop(timeout = 60)
             started_at = Time.now
 
-            until Time.now - started_at > @timeout
-                begin
-                    current_status = status
+            while running?
+                raise 'Timeout waiting for OneBEX server to stop' if Time.now - started_at > timeout
 
-                    if current_status['STATUS'] != 'executing'
-                        raise 'Backup cancelled' if current_status['SUCCESS'] == false
+                sleep 1
+            end
+        end
 
-                        return true
-                    end
-                rescue StandardError
-                    raise 'Backup cancelled'
+        def wait_for_finish
+            # OneBEX publishes the result only after the VM backup finishes.
+            until File.exist?(@result_file)
+                unless running?
+                    break if File.exist?(@result_file)
+
+                    raise 'Backup failed'
                 end
 
                 sleep 1
             end
 
-            message = 'Timeout waiting for external backup server to finish for ' \
-                      "VM #{@vm_id}."
+            raise 'Backup failed' unless JSON.parse(File.read(@result_file)) == true
 
-            cancel(message)
-
-            raise message
+            true
+        rescue StandardError
+            raise 'Backup failed'
         end
 
     end

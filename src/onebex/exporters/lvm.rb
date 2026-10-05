@@ -27,6 +27,9 @@ module OneBEX
 
             SECTOR_SIZE = 512
 
+            # Shared across exporters; hash collisions only serialize unrelated pools.
+            POOL_LOCKS = Array.new(512) { Mutex.new }.freeze
+
             # Stores shared exporter configuration and logging dependencies.
             def initialize(config:, logger:)
                 @config = config
@@ -116,7 +119,9 @@ module OneBEX
                         }
                     ]
                 when 'incremental'
-                    thin_delta_extents(xfr)
+                    POOL_LOCKS[xfr[:tpool].hash % POOL_LOCKS.length].synchronize do
+                        thin_delta_extents(xfr)
+                    end
                 else
                     raise "Unsupported LVM export mode: #{xfr[:mode]}"
                 end
@@ -165,7 +170,7 @@ module OneBEX
             # Finish LVM exporter
             # Completes the export; LVM device cleanup is handled by TM scripts.
             # ----------------------------------------------------------------
-            def finish(_xfr)
+            def finish(_xfr, force: false)
                 true
             end
 

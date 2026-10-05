@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# rubocop:disable Style/GlobalVars
-
 require_relative 'config/environment'
 require_relative 'bex_state'
 
@@ -46,47 +44,6 @@ rescue StandardError => e
 end
 
 # --------------------------------------------------------------------------
-# OneBEX session state
-# --------------------------------------------------------------------------
-
-$onebex_exit_code = 0
-$onebex_puma      = nil
-
-def finalize_pending_transfers(message)
-    OneBEX::BEX.dispose_transfers.each do |vm_id, transfers|
-        next if transfers.empty?
-
-        OneBEX::BEX.warn "Finalizing #{transfers.size} pending " \
-                         "transfer(s) for VM #{vm_id}: #{message}"
-
-        transfers.each do |transfer_id, transfer|
-            remove = {
-                :vm_id       => transfer[:vm_id],
-                :transfer_id => transfer[:transfer_id]
-            }
-
-            OneBEX::BEX.del_transfer(remove, false) do |xfr|
-                begin
-                    xfr[:exporter].finish(xfr) if xfr[:exporter]
-
-                    xfr[:status]  = 'finished'
-                    xfr[:success] = false
-                    xfr[:message] = message
-
-                    OneBEX::BEX.warn "Transfer #{transfer_id} finalized as " \
-                                     "failed: #{message}"
-                rescue StandardError => e
-                    OneBEX::BEX.error 'Failed to finalize transfer ' \
-                                      "#{transfer_id}: #{e.message}"
-
-                    OneBEX::BEX.error e.backtrace.join("\n") if e.backtrace
-                end
-            end
-        end
-    end
-end
-
-# --------------------------------------------------------------------------
 # Sinatra app
 # --------------------------------------------------------------------------
 
@@ -100,7 +57,6 @@ module OneBEX
         set :host_authorization, { :permitted_hosts => [] }
 
         set :bex, OneBEX::BEX
-        set :config, OneBEX::BEX.conf
         set :logger, OneBEX::BEX.logger
 
         set :dump_errors, true
@@ -120,69 +76,35 @@ end
 # --------------------------------------------------------------------------
 
 if __FILE__ == $PROGRAM_NAME
-    user_config = OneBEX::BEX.conf[:puma] || {}
+    bex = OneBEX::BEX
+
+    user_config = bex.conf[:puma] || {}
 
     min_threads = user_config[:min_threads] || 1
     max_threads = user_config[:max_threads] || 4
 
     puma_config = Puma::Configuration.new do |puma|
         puma.app OneBEX::OneBEXServer
-        puma.bind "tcp://#{OneBEX::BEX.conf[:host]}:#{OneBEX::BEX.conf[:port]}"
+        puma.bind "tcp://#{bex.conf[:host]}:#{bex.conf[:port]}"
         puma.threads min_threads.to_i, max_threads.to_i
     end
 
-    $onebex_puma = Puma::Launcher.new(puma_config)
-    OneBEX::BEX.puma = $onebex_puma
+    bex.puma = Puma::Launcher.new(puma_config)
 
     begin
-        OneBEX::BEX.info 'Starting OneBEX server'
-        OneBEX::BEX.info "OneBEX Puma config: bind=#{OneBEX::BEX.conf[:host]}:" \
-                         "#{OneBEX::BEX.conf[:port]}, " \
-                         "threads=#{min_threads}:#{max_threads}"
+        bex.logger.info 'Starting OneBEX server'
+        bex.logger.info "OneBEX Puma config: bind=#{bex.conf[:host]}:" \
+                 "#{bex.conf[:port]}, threads=#{min_threads}:#{max_threads}"
 
-        Thread.new do
-            loop do
-                sleep 10
-
-                idle_for = OneBEX::BEX.idle_for
-
-                next if idle_for < OneBEX::BEX.idle_timeout
-
-                OneBEX::BEX.info "No requests received for #{idle_for.round}s, " \
-                                 'stopping OneBEX server'
-
-                finalize_pending_transfers(
-                    "OneBEX server idle timeout after #{idle_for.round}s"
-                )
-
-                $onebex_puma&.stop
-                break
-            end
-        rescue StandardError => e
-            OneBEX::BEX.error 'Error in OneBEX idle monitoring shutdown ' \
-                              "thread: #{e.message}"
-
-            $onebex_exit_code = 1
-        end
-
-        $onebex_puma.run
-    rescue Interrupt
-        OneBEX::BEX.info 'OneBEX interrupted'
-
-        finalize_pending_transfers('OneBEX interrupted')
-
-        $onebex_exit_code = 1
+        bex.puma.run
     rescue StandardError => e
-        OneBEX::BEX.error "OneBEX failed: #{e.message}"
-        OneBEX::BEX.error e.backtrace.join("\n") if e.backtrace
+        bex.logger.error "OneBEX failed: #{e.message}"
+        bex.logger.error e.backtrace.join("\n") if e.backtrace
 
-        finalize_pending_transfers("OneBEX failed: #{e.message}")
-
-        $onebex_exit_code = 1
+        bex.exit_code = 1
     end
 
-    OneBEX::BEX.info "OneBEX exiting with code #{$onebex_exit_code}"
+    bex.logger.info "OneBEX exiting with code #{bex.exit_code}"
 
-    exit($onebex_exit_code)
+    exit(bex.exit_code)
 end
-# rubocop:enable Style/GlobalVars

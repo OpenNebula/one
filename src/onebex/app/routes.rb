@@ -26,8 +26,6 @@ module OneBEX
             app.helpers OneBEX::Helpers
 
             app.before do
-                settings.bex.touch
-
                 content_type :json
             end
 
@@ -40,7 +38,7 @@ module OneBEX
                 e = env['sinatra.error']
                 error_msg = e&.message || 'Internal server error'
 
-                log_msg = if settings.config&.dig(:log, :level) == 3 && e
+                log_msg = if bex.conf.dig(:log, :level) == 3 && e
                               [error_msg, e.backtrace&.join("\n")].compact.join("\n")
                           else
                               error_msg
@@ -88,15 +86,14 @@ module OneBEX
 
                 vm_id = data['VM_ID'].to_i
 
-                transfers = bex.vm_transfers(vm_id)
-                success   = bex.vm_success(vm_id)
-
-                [200, json_response(
+                status = bex.xfrs.vm(vm_id)&.status || {
                     :VM_ID     => vm_id,
-                    :STATUS    => transfers.empty? ? 'ready' : 'executing',
-                    :SUCCESS   => success,
-                    :TRANSFERS => transfers
-                )]
+                    :STATUS    => 'ready',
+                    :SUCCESS   => nil,
+                    :TRANSFERS => []
+                }
+
+                [200, json_response(status)]
             end
 
             app.get '/exporters' do
@@ -112,89 +109,87 @@ module OneBEX
 
                 if data['VM_ID'].nil? || data['DS_ID'].nil? ||
                    data['BACKUP_DIR'].to_s.empty?
-                    halt 400, json_error('Missing VM_ID, DS_ID or BACKUP_DIR')
+                    raise BEXState::ExportError.new(400, 'Missing VM_ID, DS_ID or BACKUP_DIR')
                 end
 
                 vm_id = data['VM_ID'].to_i
                 ds_id = data['DS_ID'].to_i
                 export_dir = data['BACKUP_DIR'].to_s
 
-                exports_path = File.join(export_dir, 'interactive_exports.json')
+                vm = bex.xfrs.reserve(vm_id)
+                vm.prepare do
+                    exports_path = File.join(export_dir, 'interactive_exports.json')
 
-                unless File.exist?(exports_path)
-                    halt 404, json_error("Export file not found: #{exports_path}")
-                end
-
-                exports = JSON.parse(File.read(exports_path))
-                disks   = data['DISKS'] || exports.keys
-
-                log.info "Starting exports for VM #{vm_id} with disks #{disks}"
-
-                export_specs = disks.map do |disk_id|
-                    disk_id = disk_id.to_i
-                    disk    = exports[disk_id.to_s]
-
-                    if disk.nil?
-                        halt 404, json_error("Disk #{disk_id} not found")
+                    unless File.exist?(exports_path)
+                        raise BEXState::ExportError.new(404,
+                                                        "Export file not found: #{exports_path}")
                     end
 
-                    exporter_name  = disk['exporter'].to_s
-                    exporter_class = exporter_registry.find(exporter_name)
+                    exports = JSON.parse(File.read(exports_path))
+                    disks   = data['DISKS'] || exports.keys
 
-                    if exporter_class.nil?
-                        halt 400, json_error("Unsupported exporter: #{exporter_name}")
+                    log.info "Starting exports for VM #{vm_id} with disks #{disks}"
+
+                    export_specs = disks.map do |disk_id|
+                        disk_id = disk_id.to_i
+                        disk    = exports[disk_id.to_s]
+
+                        if disk.nil?
+                            raise BEXState::ExportError.new(404, "Disk #{disk_id} not found")
+                        end
+
+                        exporter_name  = disk['exporter'].to_s
+                        exporter_class = exporter_registry.find(exporter_name)
+
+                        if exporter_class.nil?
+                            raise BEXState::ExportError.new(
+                                400, "Unsupported exporter: #{exporter_name}"
+                            )
+                        end
+
+                        {
+                            :disk_id        => disk_id,
+                            :disk           => disk,
+                            :exporter_name  => exporter_name,
+                            :exporter_class => exporter_class
+                        }
                     end
 
-                    {
-                        :disk_id        => disk_id,
-                        :disk           => disk,
-                        :exporter_name  => exporter_name,
-                        :exporter_class => exporter_class
-                    }
-                end
+                    transfers = export_specs.map do |spec|
+                        disk_id        = spec[:disk_id]
+                        disk           = spec[:disk]
+                        exporter_name  = spec[:exporter_name]
+                        exporter_class = spec[:exporter_class]
 
-                transfers = export_specs.map do |spec|
-                    disk_id        = spec[:disk_id]
-                    disk           = spec[:disk]
-                    exporter_name  = spec[:exporter_name]
-                    exporter_class = spec[:exporter_class]
+                        {
+                            :transfer_id   => "one-#{vm_id}-#{disk_id}-#{SecureRandom.hex(4)}",
+                            :disk_id       => disk_id,
+                            :exporter_name => exporter_name,
+                            :export_dir    => export_dir,
+                            :format        => disk['format'],
+                            :source        => disk['source'],
+                            :map           => disk['map'],
+                            :disk          => disk,
+                            :exporter      => exporter_class.new(:config => bex.conf,
+                                                                 :logger => log)
+                        }
+                    end
 
-                    transfer = {
-                        :transfer_id   => "one-#{vm_id}-#{disk_id}-#{SecureRandom.hex(4)}",
-                        :vm_id         => vm_id,
-                        :ds_id         => ds_id,
-                        :disk_id       => disk_id,
-                        :exporter_name => exporter_name,
-                        :export_dir    => export_dir,
-                        :format        => disk['format'],
-                        :source        => disk['source'],
-                        :map           => disk['map'],
-                        :disk          => disk,
-                        :status        => 'starting'
-                    }
-
-                    transfer[:exporter] = exporter_class.new(
-                        :config => bex.conf,
-                        :logger => log
-                    )
-
-                    rc = transfer[:exporter].start(transfer)
-
-                    transfer[:rc]     = rc
-                    transfer[:status] = rc ? 'ready' : 'error'
-
-                    bex.add_transfer(transfer)
-
-                    bex.transfer_response(transfer)
+                    vm.start(export_dir, transfers)
                 end
 
                 [200, json_response(
                     :VM_ID     => vm_id,
                     :DS_ID     => ds_id,
-                    :TRANSFERS => transfers
+                    :TRANSFERS => vm.status[:TRANSFERS]
                 )]
-            rescue JSON::ParserError => e
-                halt 500, json_error("Invalid interactive_exports.json: #{e.message}")
+            rescue BEXState::ExportError => e
+                halt e.code, json_error(e.message)
+            rescue StandardError => e
+                log.error "Error exporting VM #{vm_id}: #{e.message}"
+                halt 500, json_error(e.message)
+            ensure
+                stop_server if vm
             end
 
             # ---------------------------------------------------------------- #
@@ -291,7 +286,9 @@ module OneBEX
 
             app.post '/vms/:vm_id/cancel' do
                 vm_id_param = params[:vm_id].to_s
-                message     = request_data['MESSAGE'] || 'Backup cancelled'
+                data        = request_data
+                message     = data['MESSAGE'] || 'Backup cancelled'
+                force       = data['FORCE'].nil? || data['FORCE'].to_s.downcase == 'true'
 
                 vm_id = if vm_id_param.include?('-')
                             vm_id_param.split('-').last.to_i
@@ -299,28 +296,10 @@ module OneBEX
                             vm_id_param.to_i
                         end
 
-                bex.dispose_vm_transfers(vm_id).each_value do |transfer|
-                    begin
-                        transfer[:exporter].finish(transfer) if transfer[:exporter]
-                    rescue StandardError => e
-                        log.error 'Error stopping exporter for ' \
-                                  "#{transfer[:transfer_id]}: #{e.message}"
-                    end
+                log.info "Cancelling exports for VM #{vm_id}: #{message}"
 
-                    transfer[:status]  = 'cancelled'
-                    transfer[:success] = false
-                    transfer[:message] = message
-
-                    bex.del_transfer(
-                        {
-                            :vm_id       => transfer[:vm_id],
-                            :transfer_id => transfer[:transfer_id]
-                        },
-                        false
-                    )
-                end
-
-                stop_server
+                vm = bex.xfrs.cancel(vm_id, :force => force)
+                complete_vm(vm)
 
                 [200, json_response(
                     :VM_ID             => vm_id,
@@ -338,41 +317,13 @@ module OneBEX
                 data    = request_data
                 success = data.fetch('SUCCESS', true).to_s.downcase == 'true'
                 message = data['MESSAGE']
-                remove  = nil
-                response = nil
 
-                with_transfer(:dispose => true) do |transfer|
-                    log.info "Finalizing transfer #{transfer[:transfer_id]}: " \
-                             "success=#{success}, message=#{message}"
+                transfer_id = params[:transfer_id]
+                log.info "Finalizing transfer #{transfer_id}: " \
+                         "success=#{success}, message=#{message}"
 
-                    begin
-                        transfer[:exporter].finish(transfer)
-                    rescue StandardError => e
-                        success = false
-
-                        log.error 'Error stopping exporter for ' \
-                                  "#{transfer[:transfer_id]}: #{e.message}"
-                    end
-
-                    transfer[:status]  = 'finished'
-                    transfer[:success] = success
-                    transfer[:message] = message
-
-                    remove = {
-                        :vm_id       => transfer[:vm_id],
-                        :transfer_id => transfer[:transfer_id]
-                    }
-
-                    response = {
-                        :VM_ID             => transfer[:vm_id],
-                        :TRANSFER_ID       => transfer[:transfer_id],
-                        :STATUS            => 'finished',
-                        :SUCCESS           => success,
-                        :PENDING_TRANSFERS => []
-                    }
-                end
-
-                response[:PENDING_TRANSFERS] = bex.del_transfer(remove, success)
+                response = bex.xfrs.for_transfer(transfer_id)&.finalize(transfer_id, success)
+                halt 404, json_error('Transfer not found') unless response
 
                 [200, json_response(response)]
             end
@@ -386,28 +337,18 @@ module OneBEX
                             vm_id_param.to_i
                         end
 
-                transfers = bex.vm_transfers(vm_id)
-                success   = bex.vm_success(vm_id)
-
-                unless transfers.empty?
-                    halt 409, json_response(
-                        :VM_ID             => vm_id,
-                        :STATUS            => 'executing',
-                        :SUCCESS           => success,
-                        :PENDING_TRANSFERS => transfers.map {|transfer| transfer[:TRANSFER_ID] }
-                    )
-                end
-
-                log.info "No pending transfers for VM #{vm_id}, success=#{success}"
-
-                stop_server
-
-                [200, json_response(
+                response = complete_vm(bex.xfrs.vm(vm_id)) || {
                     :VM_ID             => vm_id,
                     :STATUS            => 'finished',
-                    :SUCCESS           => success,
+                    :SUCCESS           => nil,
                     :PENDING_TRANSFERS => []
-                )]
+                }
+
+                halt 409, json_response(response) if response[:STATUS] == 'executing'
+
+                log.info "No pending transfers for VM #{vm_id}, success=#{response[:SUCCESS]}"
+
+                [200, json_response(response)]
             end
 
             ['get', 'head', 'post', 'put', 'delete', 'options', 'patch'].each do |method|

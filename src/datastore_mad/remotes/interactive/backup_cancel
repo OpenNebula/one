@@ -39,7 +39,7 @@ TransferManager::Datastore.load_env
 # HTTP helpers
 # ------------------------------------------------------------------------------
 
-def http_post_json(uri, body = nil, open_timeout: 2, read_timeout: 5)
+def http_post_json(uri, body = nil, open_timeout: 2, read_timeout: 300)
     req = Net::HTTP::Post.new(uri.request_uri)
     req['Content-Type'] = 'application/json'
 

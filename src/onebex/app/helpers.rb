@@ -101,7 +101,7 @@ module OneBEX
         # Transfer state helpers
         # ---------------------------------------------------------------- #
 
-        def with_transfer(dispose: false, &block)
+        def with_transfer(&block)
             transfer_id = params[:transfer_id]
 
             unless block
@@ -114,7 +114,9 @@ module OneBEX
 
             found = false
 
-            result = bex.with_transfer(transfer_id, :dispose => dispose) do |transfer|
+            vm = bex.xfrs.for_transfer(transfer_id)
+
+            result = vm&.with(transfer_id) do |transfer|
                 found = true
                 block.call(transfer)
             end
@@ -125,22 +127,24 @@ module OneBEX
         end
 
         def stop_server
-            return unless bex.transfers_empty?
+            return unless bex.xfrs.stop
 
             log.info 'All OneBEX transfers finished, stopping server'
 
-            delay = settings.config[:shutdown_delay] || 1
+            bex.puma&.stop
+        rescue StandardError => e
+            log.error "Error stopping OneBEX Puma launcher: #{e.message}"
 
-            # rubocop:disable-next Style/GlobalVars
-            Thread.new do
-                sleep delay.to_f
+            bex.exit_code = 1
+        end
 
-                $onebex_puma&.stop
-            rescue StandardError => e
-                log.error "Error stopping OneBEX Puma launcher: #{e.message}"
+        def complete_vm(vm)
+            response = vm&.finish
+            return response if response && response[:STATUS] == 'executing'
 
-                $onebex_exit_code = 1
-            end
+            stop_server
+
+            response
         end
 
     end
