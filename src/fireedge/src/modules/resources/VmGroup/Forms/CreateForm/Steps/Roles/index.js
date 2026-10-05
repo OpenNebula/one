@@ -166,6 +166,7 @@ const Content = () => {
         renderCardTitle={renderRoleTitle}
         renderCardSubtitle={renderRoleSubtitle}
         sidebarSize={23}
+        dataCy={'role'}
       >
         {selectedRole && (
           <Box

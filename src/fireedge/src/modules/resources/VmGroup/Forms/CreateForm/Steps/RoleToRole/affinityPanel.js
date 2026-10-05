@@ -132,6 +132,7 @@ const sanitizeGroups = (groups = [], roles = [], policy) => {
  * @param {Function} props.onToggleRole - Role toggle handler
  * @param {Function} props.onCreate - Group create handler
  * @param {Function} props.onCancel - Cancel handler
+ * @param {string} props.dataCy - Tag for dataCy
  * @returns {Component} Group builder
  */
 const GroupBuilder = ({
@@ -141,6 +142,7 @@ const GroupBuilder = ({
   onToggleRole,
   onCreate,
   onCancel,
+  dataCy,
 }) => {
   const { translate } = useTranslation()
   const hasEnoughRoles = selectedRoles.length >= 2
@@ -179,6 +181,7 @@ const GroupBuilder = ({
               onChange={() => onToggleRole(role.NAME)}
               text={role.NAME}
               value={role.NAME}
+              dataCy={`${dataCy}-${role.NAME}`}
             />
           </Box>
         ))}
@@ -190,6 +193,7 @@ const GroupBuilder = ({
           size="small"
           startIcon={<Plus width="16px" height="16px" />}
           type="secondary"
+          dataCy={`${dataCy}-add-action`}
         >
           {translate(T.AddGroup)}
         </Button>
@@ -218,6 +222,7 @@ GroupBuilder.propTypes = {
   onToggleRole: PropTypes.func,
   onCreate: PropTypes.func,
   onCancel: PropTypes.func,
+  dataCy: PropTypes.string,
 }
 
 /**
@@ -235,6 +240,7 @@ GroupBuilder.propTypes = {
  * @param {Function} props.onCreateGroup - Create group handler
  * @param {Function} props.onDeleteGroup - Delete group handler
  * @param {Function} props.onDeleteRole - Delete role handler
+ * @param {string} props.dataCy - Tag for dataCy
  * @returns {Component} Affinity card
  */
 const AffinityCard = ({
@@ -249,6 +255,7 @@ const AffinityCard = ({
   onCreateGroup,
   onDeleteGroup,
   onDeleteRole,
+  dataCy,
 }) => {
   const { translate } = useTranslation()
   const config = GROUP_TYPES[type]
@@ -309,6 +316,7 @@ const AffinityCard = ({
             onToggleRole={(roleName) => onToggleRole(type, roleName)}
             onCreate={() => onCreateGroup(type)}
             onCancel={() => onCancelBuilder(type)}
+            dataCy={dataCy}
           />
         )}
 
@@ -328,6 +336,7 @@ const AffinityCard = ({
             onClick={() => onOpenBuilder(type)}
             startIcon={<Plus />}
             type="transparent"
+            dataCy={`${dataCy}-add-group`}
           >
             {config.addLabel}
           </Button>
@@ -349,6 +358,7 @@ AffinityCard.propTypes = {
   onCreateGroup: PropTypes.func,
   onDeleteGroup: PropTypes.func,
   onDeleteRole: PropTypes.func,
+  dataCy: PropTypes.string,
 }
 
 /**
@@ -534,6 +544,7 @@ const RoleAffinityPanel = ({
         onCreateGroup={handleAddGroup}
         onDeleteGroup={handleDeleteGroup}
         onDeleteRole={handleDeleteRoleFromGroup}
+        dataCy={'affinity'}
       />
       <AffinityCard
         type="ANTI_AFFINED"
@@ -547,6 +558,7 @@ const RoleAffinityPanel = ({
         onCreateGroup={handleAddGroup}
         onDeleteGroup={handleDeleteGroup}
         onDeleteRole={handleDeleteRoleFromGroup}
+        dataCy={'anti-affinity'}
       />
     </Box>
   )

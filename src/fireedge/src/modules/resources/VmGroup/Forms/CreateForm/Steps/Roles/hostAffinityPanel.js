@@ -163,11 +163,20 @@ const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
         }}
       >
         <ButtonGroup
+          dataCy="host-affinity-type"
           selected={affinityType}
           onSelectionChange={handleAffinitySelectionChange}
           buttons={[
-            { title: affinedLabel, value: 'Affined' },
-            { title: antiAffinedLabel, value: 'Anti-Affined' },
+            {
+              title: affinedLabel,
+              value: 'Affined',
+              dataCy: 'host-affinity-affined',
+            },
+            {
+              title: antiAffinedLabel,
+              value: 'Anti-Affined',
+              dataCy: 'host-affinity-anti-affined',
+            },
           ]}
         />
         <Tooltip title={addRoleAffinityLabel} placement="right">

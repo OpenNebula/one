@@ -48,6 +48,8 @@ export const Checkbox = forwardRef(
     ref
   ) => {
     const { translateText } = useTranslation()
+    const { dataCy, ...boxProps } = opts
+    const optionDataCy = boxProps?.['data-cy'] ?? dataCy
     const isSmall = size === 'small'
     const [isCheckedInternal, setIsCheckedInternal] = useControllableState({
       value: checked,
@@ -59,7 +61,8 @@ export const Checkbox = forwardRef(
       <Box
         sx={(theme) => getStyles({ theme, size, status })}
         ref={ref}
-        {...opts}
+        data-cy={optionDataCy}
+        {...boxProps}
       >
         <FormControlLabel
           disabled={isDisabled}
@@ -125,5 +128,6 @@ Checkbox.propTypes = {
   checked: PropTypes.oneOfType([PropTypes.bool, PropTypes.oneOf([null])]),
   isDisabled: PropTypes.bool,
   inputProps: PropTypes.object,
+  dataCy: PropTypes.string,
 }
 Checkbox.displayName = 'Checkbox'

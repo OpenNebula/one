@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import { Component } from 'react'
 import { TablePanel } from '@ComponentsModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { vmgroupVmTable, VMGROUP_VM_COLUMNS } from '@ModelsModule'
+import { vmgroupVmTable, VMGROUP_VM_COLUMNS, vmsTable } from '@ModelsModule'
 
 const VMGROUP_VM_RESOURCE_COLUMNS = VMGROUP_VM_COLUMNS.filter(
   ({ id }) => !['owner', 'group'].includes(id)
@@ -40,6 +40,7 @@ export const VMs = ({ data, config }) => {
 
   return (
     <TablePanel
+      dataCy={vmsTable.dataCy}
       key={'Templates-Tab'}
       columns={vmgroupVmTable.columns([
         ...VMGROUP_VM_RESOURCE_COLUMNS,
@@ -65,6 +66,7 @@ export const VMs = ({ data, config }) => {
       isLoading={isLoadingVms}
       openRowDetailsOnClick
       rowDetailsResourceId={RESOURCE_NAMES.VM}
+      isEnableSearchBar={true}
     />
   )
 }

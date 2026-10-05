@@ -116,6 +116,7 @@ export function VmGroups() {
 
   return (
     <ResourceContainer
+      dataCy={vmgroupTable.dataCy}
       resourceName={T.VMGroups}
       onRefresh={refresh}
       isRefreshing={isRefreshing}
@@ -133,6 +134,7 @@ export function VmGroups() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={vmgroupTable.dataCy}
                 columns={vmgroupTable.columns()}
                 data={items}
                 isLoading={isRefreshing}
@@ -164,6 +166,7 @@ export function VmGroups() {
                     LABELS,
                   }) => (
                     <VmGroup.Card
+                      dataCy={`${vmgroupTable.dataCy}-${ID}`}
                       key={ID}
                       NAME={NAME}
                       ID={ID}

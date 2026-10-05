@@ -57,6 +57,7 @@ export const VmGroupCard = forwardRef((data = {}, ref) => {
     isSelected,
     onCheck,
     onClick,
+    dataCy,
   } = data
   const labelTags = getLabelTags(LABELS)
 
@@ -66,6 +67,7 @@ export const VmGroupCard = forwardRef((data = {}, ref) => {
       onCheck={onCheck}
       onClick={onClick}
       isSelected={isSelected}
+      dataCy={dataCy}
       slots={[
         [
           TitleSlot,

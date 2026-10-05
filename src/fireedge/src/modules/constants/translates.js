@@ -675,7 +675,7 @@ module.exports = {
   Vrouter: 'Vrouter',
   SessionExpired: 'Sorry, your session has expired',
   WrongUsernamePassword: 'Wrong username or password',
-  SomethingWrong: 'Something go wrong',
+  SomethingWrong: 'Something went wrong',
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   CannotConnectOneForm:
     'Cannot connect to OneForm server, please verify that service is running.',

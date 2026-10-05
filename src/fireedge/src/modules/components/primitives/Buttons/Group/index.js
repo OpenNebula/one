@@ -133,6 +133,7 @@ export const ButtonGroup = forwardRef(
       selected: selectedProp,
       isMultipleSelectable,
       onSelectionChange,
+      dataCy,
     },
     ref
   ) => {
@@ -189,6 +190,7 @@ export const ButtonGroup = forwardRef(
     return (
       <MUIButtonGroup
         className="buttongroup-container"
+        data-cy={dataCy}
         sx={(theme) => getStyles({ theme })}
         ref={ref}
       >
@@ -218,6 +220,7 @@ ButtonGroup.propTypes = {
     PropTypes.string,
   ]),
   onSelectionChange: PropTypes.func,
+  dataCy: PropTypes.string,
 }
 
 ButtonGroup.displayName = 'ButtonGroup'

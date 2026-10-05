@@ -204,12 +204,14 @@ export const SingleView = ({
                       onClick: handleLock,
                       value: 'lock',
                       isDisabled: isActionsDisabled,
+                      dataCy: 'action-vmgroup_disable',
                     },
                     {
                       startIcon: <NoLock width="16px" height="16px" />,
                       onClick: handleUnlock,
                       value: 'unlock',
                       isDisabled: isActionsDisabled,
+                      dataCy: 'action-vmgroup_enable',
                     },
                   ]}
                 />
@@ -229,6 +231,7 @@ export const SingleView = ({
                         onClick: handleEdit,
                         value: 'edit',
                         isDisabled: templateIsLocked || isActionsDisabled,
+                        'data-cy': 'action-update_dialog',
                       },
                       {
                         startIcon: <RefreshDouble width="16px" height="16px" />,
@@ -256,6 +259,7 @@ export const SingleView = ({
                         onClick: handleOpenDeleteForm,
                         value: 'delete',
                         isDisabled: templateIsLocked || isActionsDisabled,
+                        'data-cy': 'action-vmgroup_delete',
                       },
                       {
                         startIcon: <Cancel width="16px" height="16px" />,

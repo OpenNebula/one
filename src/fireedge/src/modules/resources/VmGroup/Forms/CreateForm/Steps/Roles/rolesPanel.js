@@ -72,6 +72,7 @@ const RoleVmVmPanel = ({ selectedRoleIndex, formId }) => {
           options={policyOptions}
           placeholder={noneLabel}
           error={error?.message}
+          dataCy={'policy-selector'}
         />
       </Box>
     </CollapsiblePanel>

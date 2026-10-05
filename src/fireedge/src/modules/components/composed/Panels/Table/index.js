@@ -26,6 +26,7 @@ export const TablePanel = forwardRef(
       size = 'medium',
       isLoading = false,
       isFullHeight = false,
+      dataCy,
       ...props
     },
     ref
@@ -38,6 +39,7 @@ export const TablePanel = forwardRef(
       size={size}
       isLoading={isLoading}
       isFullHeight={isFullHeight}
+      dataCy={dataCy}
       {...props}
     />
   )
@@ -54,4 +56,5 @@ TablePanel.propTypes = {
   isFullHeight: PropTypes.bool,
   openRowDetailsOnClick: PropTypes.bool,
   rowDetailsResourceId: PropTypes.string,
+  dataCy: PropTypes.string,
 }
