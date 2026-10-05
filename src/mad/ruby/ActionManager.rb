@@ -96,6 +96,7 @@ class ActionManager
     # +action_id+ an id to identify the action (to cancel it later)
     # +aargs+ arguments to call the action
     def trigger_action(aname, action_id, *aargs)
+        queue_size = nil
 
         @threads_mutex.synchronize {
             return if @finalize
@@ -130,11 +131,17 @@ class ActionManager
 
             @action_queue << @actions[aname].merge(:args => aargs,
                     :id => action_id)
+            queue_size = @action_queue.size
 
             if @num_running < @concurrency
                 @threads_cond.signal
             end
         }
+
+        if queue_size > @concurrency && respond_to?(:log)
+            log(-1, "WARN: Action queue size (#{queue_size}) is greater than " \
+                    "the number of threads (#{@concurrency})")
+        end
     end
 
     def cancel_action(action_id)
@@ -277,4 +284,3 @@ if __FILE__ == $0
 
     s.am.start_listener
 end
-

@@ -129,7 +129,7 @@ module DriverExecHelper
         msg = message.strip
 
         msg.each_line do |line|
-            m = line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
+            m = line.match(/^(ERROR|WARN|DEBUG|INFO):(.*)$/)
 
             if m
                 severity = SEVERITY_MAP[m[1]]
