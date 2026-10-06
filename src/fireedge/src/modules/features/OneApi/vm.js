@@ -1253,6 +1253,27 @@ const vmApi = oneApi.injectEndpoints({
         { type: VM_POOL, id },
       ],
     }),
+    cancelBackup: builder.mutation({
+      /**
+       * Cancels the active VM backup operation.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual machine id
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_BACKUP_CANCEL
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+        VM_POOL,
+      ],
+    }),
     restore: builder.mutation({
       /**
        * Restore the VM.
@@ -1589,6 +1610,7 @@ const vmQueries = (({
   useUpdateConfigurationMutation,
   useRecoverMutation,
   useBackupMutation,
+  useCancelBackupMutation,
   useRestoreMutation,
   useLockVmMutation,
   useUnlockVmMutation,
@@ -1663,6 +1685,7 @@ const vmQueries = (({
   useUpdateConfigurationMutation,
   useRecoverMutation,
   useBackupMutation,
+  useCancelBackupMutation,
   useRestoreMutation,
   useLockVmMutation,
   useUnlockVmMutation,

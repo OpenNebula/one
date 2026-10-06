@@ -110,6 +110,8 @@ export const useActions = ({ context }) => {
   const [deploy, { isLoading: isDeploying }] = VmAPI.useDeployMutation()
   const [recover, { isLoading: isRecovering }] = VmAPI.useRecoverMutation()
   const [backup, { isLoading: isBackuping }] = VmAPI.useBackupMutation()
+  const [cancelBackup, { isLoading: isCancellingBackup }] =
+    VmAPI.useCancelBackupMutation()
   const [restore, { isLoading: isRestoring }] = VmAPI.useRestoreMutation()
   const [performAction, { isLoading: isPerformingVmAction }] =
     VmAPI.useActionVmMutation()
@@ -148,6 +150,7 @@ export const useActions = ({ context }) => {
         [VmAPI.useAttachPciMutation, attachPci],
         [VmAPI.useAttachSecurityGroupMutation, attachSecGroup],
         [VmAPI.useBackupMutation, backup],
+        [VmAPI.useCancelBackupMutation, cancelBackup],
         [VmAPI.useCreateDiskSnapshotMutation, createDiskSnapshot],
         [VmAPI.useCreateVmSnapshotMutation, createVmSnapshot],
         [VmAPI.useDeleteDiskSnapshotMutation, deleteDiskSnapshot],
@@ -178,6 +181,7 @@ export const useActions = ({ context }) => {
       attachPci,
       attachSecGroup,
       backup,
+      cancelBackup,
       changeOwnership,
       changePermissions,
       createDiskSnapshot,
@@ -223,6 +227,7 @@ export const useActions = ({ context }) => {
     isAttachingPci ||
     isAttachingSecGroup ||
     isBackuping ||
+    isCancellingBackup ||
     isChangingOwnership ||
     isChangingPermissions ||
     isDeletingDiskSnapshot ||

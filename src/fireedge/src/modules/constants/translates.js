@@ -380,6 +380,7 @@ module.exports = {
   ATTACH_NIC_ALIAS: 'Attach NIC alias',
   ATTACH_PCI: 'Attach PCI',
   ATTACH_SEC_GROUP: 'Attach security group',
+  BACKUP_CANCEL: 'Cancel backup',
   BACKUP_CONFIGURE: 'Configure backups',
   BACKUP_CREATE: 'Create backup',
   BACKUP_RESTORE: 'Restore backup',

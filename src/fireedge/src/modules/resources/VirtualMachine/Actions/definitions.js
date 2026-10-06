@@ -416,6 +416,12 @@ export default {
       },
     },
   },
+  [VM_ACTION_ENUM.BACKUP_CANCEL]: {
+    useMutation: VmAPI.useCancelBackupMutation,
+    description: T['resource.cancel.confirmation'],
+    confirmLabel: T.Cancel,
+    isDestructive: true,
+  },
   [VM_ACTION_ENUM.BACKUP_RESTORE]: {
     title: 'Restore Backup',
     tooltip: 'Restore Backup',

@@ -63,9 +63,9 @@ export const Backup = ({ data, config }) => {
     [actions, vmForBackupConfig]
   )
 
-  const [configureBackupOption] =
+  const [configureBackupOption, cancelBackupOption] =
     VirtualMachine.Actions.Utils.generateMenuOptions({
-      keys: [VM_ACTION_ENUM.BACKUP_CONFIGURE],
+      keys: [VM_ACTION_ENUM.BACKUP_CONFIGURE, VM_ACTION_ENUM.BACKUP_CANCEL],
       actions: backupActions,
       vm: vmForBackupConfig,
       viewConfig: config,
@@ -74,11 +74,14 @@ export const Backup = ({ data, config }) => {
 
   return (
     <Box sx={(theme) => getStyles({ theme })}>
-      <Button
-        {...configureBackupOption}
-        dataCy="backup-vm"
-        type={STYLE_BUTTONS.TYPE.SECONDARY}
-      />
+      <Box sx={{ display: 'flex', gap: '8px' }}>
+        <Button
+          {...configureBackupOption}
+          dataCy="backup-vm"
+          type={STYLE_BUTTONS.TYPE.SECONDARY}
+        />
+        <Button {...cancelBackupOption} type={STYLE_BUTTONS.TYPE.SECONDARY} />
+      </Box>
       <Box className="table-container">
         <Table
           columns={vmbackupsTable.columns()}

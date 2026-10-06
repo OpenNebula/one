@@ -55,6 +55,7 @@ const VM_SCHED_ADD = 'vm.schedadd'
 const VM_SCHED_UPDATE = 'vm.schedupdate'
 const VM_SCHED_DELETE = 'vm.scheddelete'
 const VM_BACKUP = 'vm.backup'
+const VM_BACKUP_CANCEL = 'vm.backupcancel'
 const VM_POOL_INFO = 'vmpool.info'
 const VM_POOL_INFO_EXTENDED = 'vmpool.infoextended'
 const VM_POOL_INFOSET = 'vmpool.infoset'
@@ -106,6 +107,7 @@ const Actions = {
   VM_SCHED_UPDATE,
   VM_SCHED_DELETE,
   VM_BACKUP,
+  VM_BACKUP_CANCEL,
   VM_POOL_INFO,
   VM_POOL_INFO_EXTENDED,
   VM_POOL_INFOSET,
@@ -781,6 +783,15 @@ module.exports = {
         reset: {
           from: postBody,
           default: false,
+        },
+      },
+    },
+    [VM_BACKUP_CANCEL]: {
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
         },
       },
     },
