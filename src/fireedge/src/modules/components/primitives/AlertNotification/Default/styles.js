@@ -61,7 +61,6 @@ const getStatusColors = (palette, status) => {
  */
 export const getStyles = ({ theme, type, status }) => {
   const colors = getStatusColors(theme.palette, status)
-  const isSuccess = status === 'success'
 
   const baseStyle = {
     position: 'relative',
@@ -88,29 +87,6 @@ export const getStyles = ({ theme, type, status }) => {
     inline: {
       border: 'none',
       gap: `${theme.scale[400]}px`,
-    },
-  }
-
-  const statusIcon = {
-    '& .status-icon': {
-      width: `calc(${theme.scale[600]}px - ${
-        isSuccess ? theme.scale[100] : 0
-      }px)`,
-      height: `calc(${theme.scale[600]}px - ${
-        isSuccess ? theme.scale[100] : 0
-      }px)`,
-      color: colors.iconFill,
-      borderRadius: '50%',
-      ...(isSuccess && { backgroundColor: colors.iconFill }),
-    },
-
-    '& .status-icon path:first-of-type': {
-      stroke: theme.palette.surface.primary,
-      fill: colors.iconFill,
-    },
-
-    '& .status-icon path:last-of-type': {
-      stroke: theme.palette.surface.primary,
     },
   }
 
@@ -185,7 +161,6 @@ export const getStyles = ({ theme, type, status }) => {
   return {
     ...baseStyle,
     ...(variants?.[type] ?? variants.primary),
-    ...statusIcon,
     ...content,
     ...textContent,
     ...title,

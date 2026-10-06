@@ -1612,6 +1612,8 @@ module.exports = {
     'Create an empty disk with the selected size for this VM template.',
   ImageDiskConcept:
     'Attach a disk from an existing OpenNebula image stored in a datastore.',
+  ImagePermissionWarning:
+    'You do not have permission to view this image. Please ask your administrator to grant you permission to access this image.',
   Snapshot: 'Snapshot',
   Snapshots: 'Snapshots',
   SnapshotName: 'Snapshot name',

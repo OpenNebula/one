@@ -40,7 +40,7 @@ import {
   transformActionsCreate,
 } from '@UtilsModule'
 
-import { STEP_MAP, T, TAB_FORM_MAP, PATH } from '@ConstantsModule'
+import { STEP_MAP, T, TAB_FORM_MAP, PATH, FILTER_POOL } from '@ConstantsModule'
 
 const _ = require('lodash')
 
@@ -71,21 +71,28 @@ export function CreateVmTemplate() {
   const [allocate] = VmTemplateAPI.useAllocateTemplateMutation()
   const { adminGroup, oneConfig } = useSystemData()
 
-  const { data: apiTemplateDataExtended } = VmTemplateAPI.useGetTemplateQuery(
-    { id: templateId, extended: true },
-    { skip: templateId === undefined }
-  )
-
   const { data: apiTemplateData } = VmTemplateAPI.useGetTemplateQuery(
     { id: templateId, extended: false },
     { skip: templateId === undefined }
   )
 
+  const { data: extendedTemplateData, isError: isExtendedTemplateError } =
+    VmTemplateAPI.useGetTemplateQuery(
+      { id: templateId, extended: true, showNotification: false },
+      { skip: !apiTemplateData }
+    )
+  const apiTemplateDataExtended = isExtendedTemplateError
+    ? apiTemplateData
+    : extendedTemplateData
+
   VmGroupAPI.useGetVMGroupsQuery(undefined, {
     refetchOnMountOrArgChange: false,
   })
   HostAPI.useGetHostsQuery(undefined, { refetchOnMountOrArgChange: false })
-  ImageAPI.useGetImagesQuery(undefined, { refetchOnMountOrArgChange: false })
+  ImageAPI.useGetImagesQuery(
+    { filter: FILTER_POOL.ALL_RESOURCES },
+    { refetchOnMountOrArgChange: false }
+  )
   UserAPI.useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
   DatastoreAPI.useGetDatastoresQuery(undefined, {
     refetchOnMountOrArgChange: false,

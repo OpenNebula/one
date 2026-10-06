@@ -92,14 +92,15 @@ const vmTemplateApi = oneApi.injectEndpoints({
        * @param {string} params.id - Template id
        * @param {boolean} params.extended - True to include extended information
        * @param {boolean} [params.decrypt] - True to decrypt contained secrets (only admin)
+       * @param {boolean} [params.showNotification] - Whether to display request errors
        * @returns {VmTemplate} Get template identified by id
        * @throws Fails when response isn't code 200
        */
-      query: (params) => {
+      query: ({ showNotification = true, ...params }) => {
         const name = Actions.TEMPLATE_INFO
         const command = { name, ...Commands[name] }
 
-        return { params, command, needStateInMeta: true }
+        return { params, command, needStateInMeta: true, showNotification }
       },
       transformResponse: (data, meta) =>
         withResourceLabels(
@@ -109,7 +110,7 @@ const vmTemplateApi = oneApi.injectEndpoints({
         ),
       providesTags: (_, __, { id }) =>
         withProfileLabelsTags([{ type: TEMPLATE, id }]),
-      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ id, extended }, { dispatch, queryFulfilled }) {
         try {
           const { data: resourceFromQuery } = await queryFulfilled
 
@@ -121,6 +122,9 @@ const vmTemplateApi = oneApi.injectEndpoints({
             )
           )
         } catch {
+          // Extended information can fail when a referenced image is inaccessible.
+          if (extended) return
+
           // if the query fails, we want to remove the resource from the pool
           dispatch(
             vmTemplateApi.util.updateQueryData(

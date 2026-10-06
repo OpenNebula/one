@@ -17,32 +17,10 @@
 import { Component, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import { Box, Typography, IconButton } from '@mui/material'
-import {
-  InfoEmpty,
-  Check,
-  WarningTriangle,
-  WarningCircle,
-  Cancel,
-} from 'iconoir-react'
+import { Cancel } from 'iconoir-react'
+import { StatusIcon } from '@modules/components/primitives/StatusIcon'
 import { getStyles } from '@modules/components/primitives/AlertNotification/Default/styles'
 import { useTranslation } from '@ProvidersModule'
-
-/**
- * Get status icon based on the status type.
- *
- * @param {string} status - Alert status
- * @returns {Component} - Icon component for the status
- */
-const getStatusIcon = (status) => {
-  const iconMap = {
-    information: InfoEmpty,
-    success: Check,
-    warning: WarningTriangle,
-    error: WarningCircle,
-  }
-
-  return iconMap?.[status] ?? InfoEmpty
-}
 
 /**
  * AlertNotification component displays informational alerts with different
@@ -71,7 +49,6 @@ export const AlertNotification = forwardRef(
     ref
   ) => {
     const { translate } = useTranslation()
-    const StatusIcon = getStatusIcon(status)
     const showStatusIcon = type !== 'inline'
     const showCloseButton = isDismissible && type !== 'inline'
 
@@ -84,7 +61,9 @@ export const AlertNotification = forwardRef(
         {...opts}
       >
         <Box className="alert-content">
-          {showStatusIcon && <StatusIcon className="status-icon" />}
+          {showStatusIcon && (
+            <StatusIcon className="status-icon" status={status} />
+          )}
           <Box className="text-content">
             {title && (
               <Typography className="alert-title">

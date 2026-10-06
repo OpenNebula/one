@@ -29,11 +29,13 @@ import {
   Legend,
   MetadataSlot,
   ResourceActionConfirmation,
+  StatusIcon,
   TitleSlot,
+  Tooltip,
 } from '@ComponentsModule'
 
-import { T, VM_ACTION_ENUM } from '@ConstantsModule'
-import { useGeneralApi, useModalsApi } from '@FeaturesModule'
+import { T, VM_ACTION_ENUM, FILTER_POOL } from '@ConstantsModule'
+import { ImageAPI, useGeneralApi, useModalsApi } from '@FeaturesModule'
 import { getDiskName } from '@ModelsModule'
 import * as VirtualMachine from '@modules/resources/VirtualMachine'
 import { STEP_ID as EXTRA_ID } from '@modules/resources/VmTemplate/Forms/CreateForm/Steps/ExtraConfiguration/constants'
@@ -108,7 +110,8 @@ const getDiskMetadata = (disk) => [
   [T.Serial, formatValue(disk?.SERIAL)],
 ]
 
-const isImageDisk = (disk) => disk?.IMAGE || disk?.IMAGE_ID
+const isImageDisk = (disk) =>
+  !!disk?.IMAGE || (disk?.IMAGE_ID != null && disk.IMAGE_ID !== '')
 
 const getDiskFormat = (disk) => {
   const format = String(disk?.FORMAT).toLowerCase()
@@ -136,12 +139,12 @@ const getDiskTags = (disk) =>
   ].filter(Boolean)
 
 const getDiskCardName = (disk) => {
-  if (isImageDisk(disk)) return getDiskName(disk)
+  if (isImageDisk(disk)) return getDiskName(disk) ?? `#${disk.IMAGE_ID}`
 
   return formatSize(disk?.SIZE)
 }
 
-const DiskTitleSlot = ({ labels = [], title }) => (
+const DiskTitleSlot = ({ labels = [], title, isImageUnavailable }) => (
   <Box
     sx={(theme) => ({
       alignItems: 'center',
@@ -154,15 +157,26 @@ const DiskTitleSlot = ({ labels = [], title }) => (
   >
     <TitleSlot title={title} />
     {labels.length > 0 && <LabelSlot labels={labels} />}
+    {isImageUnavailable && (
+      <Tooltip title={T.ImagePermissionWarning}>
+        <StatusIcon
+          status="warning"
+          size={20}
+          tabIndex={0}
+          sx={{ ml: 'auto' }}
+        />
+      </Tooltip>
+    )}
   </Box>
 )
 
 DiskTitleSlot.propTypes = {
   labels: PropTypes.array,
   title: PropTypes.string,
+  isImageUnavailable: PropTypes.bool,
 }
 
-const StorageDiskCard = ({ actions, disk }) => {
+const StorageDiskCard = ({ actions, disk, isImageUnavailable }) => {
   const tags = getDiskTags(disk)
   const slots = [
     [
@@ -170,6 +184,7 @@ const StorageDiskCard = ({ actions, disk }) => {
       {
         labels: getDiskTitleTags(disk),
         title: getDiskCardName(disk),
+        isImageUnavailable,
       },
     ],
     [MetadataSlot, { labels: getDiskMetadata(disk) }],
@@ -189,6 +204,7 @@ const StorageDiskCard = ({ actions, disk }) => {
 StorageDiskCard.propTypes = {
   actions: PropTypes.array,
   disk: PropTypes.object,
+  isImageUnavailable: PropTypes.bool,
 }
 
 const AttachDiskTypeDialog = ({ onCancel, onSelect }) => (
@@ -217,6 +233,23 @@ const Storage = ({ hypervisor, oneConfig, adminGroup, vmTemplate }) => {
   } = useGeneralApi()
   const { showModal } = useModalsApi()
   const { getValues, setValue } = useFormContext()
+  const { data: images = [], isSuccess: imagesLoaded } =
+    ImageAPI.useGetImagesQuery(
+      { filter: FILTER_POOL.ALL_RESOURCES },
+      { refetchOnMountOrArgChange: false }
+    )
+
+  const isImageUnavailable = (disk) =>
+    imagesLoaded &&
+    isImageDisk(disk) &&
+    !images.some((image) =>
+      disk.IMAGE_ID != null && disk.IMAGE_ID !== ''
+        ? String(image.ID) === String(disk.IMAGE_ID)
+        : image.NAME === disk.IMAGE &&
+          (disk.IMAGE_UID == null ||
+            String(image.UID) === String(disk.IMAGE_UID)) &&
+          (!disk.IMAGE_UNAME || image.UNAME === disk.IMAGE_UNAME)
+    )
 
   const {
     fields: disks = [],
@@ -563,6 +596,7 @@ const Storage = ({ hypervisor, oneConfig, adminGroup, vmTemplate }) => {
                 actions={getDiskActions(disk)}
                 key={disk?.id ?? `${disk?.NAME}-${disk?.DISK_ID}`}
                 disk={disk}
+                isImageUnavailable={isImageUnavailable(disk)}
               />
             ))}
           </Box>
