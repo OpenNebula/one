@@ -58,6 +58,8 @@ function getDsAndTMMad({
   } else if (STORAGE_BACKEND === DS_STORAGE_BACKENDS.VIRTIOFS.value) {
     dsMad = DS_STORAGE_BACKENDS.VIRTIOFS.value
     tmMad = DS_STORAGE_BACKENDS.VIRTIOFS.value
+  } else if (STORAGE_BACKEND === DS_STORAGE_BACKENDS.NETAPP_SYS.value) {
+    tmMad = TRANSFER_OPTIONS.NETAPP.value
   } else {
     const storageBackend = STORAGE_BACKEND.split('-')
     dsMad = storageBackend[0]

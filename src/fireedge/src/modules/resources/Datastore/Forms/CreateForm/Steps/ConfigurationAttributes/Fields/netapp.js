@@ -151,6 +151,7 @@ const NETAPP_SUFFIX = {
 const NETAPP_GROW_THRESHOLD = {
   name: 'NETAPP_GROW_THRESHOLD',
   label: T.NetappGrowThresh,
+  defaultValue: 90,
   dependOf: '$general.STORAGE_BACKEND',
   type: INPUT_TYPES.SLIDER,
   htmlType: (type) => !typeIsOneOf(type, [isNetapp]) && INPUT_TYPES.HIDDEN,
@@ -159,16 +160,16 @@ const NETAPP_GROW_THRESHOLD = {
     then: (schema) =>
       schema
         .positive()
-        .min(0)
-        .max(100)
-        .default(() => 0)
+        .min(1)
+        .max(99)
+        .default(() => 90)
         .notRequired(),
     otherwise: (schema) => schema.notRequired(),
   }),
   grid: { xs: 12, md: 6 },
   fieldProps: {
-    min: 0,
-    max: 100,
+    min: 1,
+    max: 99,
     step: 1,
     startAdornment: <InputAdornment position="start">%</InputAdornment>,
   },
