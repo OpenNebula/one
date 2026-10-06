@@ -1884,6 +1884,7 @@ export const ATTR_CONF_CAN_BE_UPDATED = {
     'LOCALTIME',
     'HYPERV',
     'GUEST_AGENT',
+    'IOTHREADS',
     'GIC',
     'RAS',
     'MIGRATE_AUTO_CONVERGE',
