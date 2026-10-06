@@ -1855,6 +1855,8 @@ module.exports = {
   VirtualCpuModification: 'Virtual CPU modification',
   AllowUsersToModifyVirtualCpu:
     "Allow users to modify this template's default Virtual CPU on instantiate",
+  RestrictedUserInputModification:
+    "This input cannot be changed because it's restricted.",
   EnableHotResize: 'Enable hot resize',
   Hotplug: 'Hotplug',
   Ballooning: 'Ballooning',

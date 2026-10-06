@@ -37,8 +37,48 @@ import {
   filterFieldsByHypervisor,
   getObjectSchemaFromFields,
   disableFields,
+  isRestrictedAttributes,
 } from '@UtilsModule'
-import { T, HYPERVISORS, VmTemplateFeatures } from '@ConstantsModule'
+import {
+  T,
+  HYPERVISORS,
+  INPUT_TYPES,
+  VmTemplateFeatures,
+} from '@ConstantsModule'
+
+/**
+ * Disable capacity modification fields backed by restricted USER_INPUTS.
+ *
+ * @param {object[]} fields - Capacity fields
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
+ * @returns {object[]} Capacity fields
+ */
+const disableCapacityFields = (fields, oneConfig, adminGroup) =>
+  disableFields(fields, '', oneConfig, adminGroup).map((field) => {
+    const [modification, capacity] = field.name.split('.')
+    const isRestricted =
+      modification === 'MODIFICATION' &&
+      !adminGroup &&
+      isRestrictedAttributes(
+        capacity,
+        'USER_INPUTS',
+        oneConfig?.VM_RESTRICTED_ATTR
+      )
+
+    return isRestricted
+      ? {
+          ...field,
+          disabledTooltip: T.RestrictedUserInputModification,
+          fieldProps: {
+            ...field.fieldProps,
+            disabled: true,
+            ...(field.type === INPUT_TYPES.AUTOCOMPLETE &&
+              !field.multiple && { isDisabled: true }),
+          },
+        }
+      : field
+  })
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
@@ -99,7 +139,7 @@ const SECTIONS = (
     {
       id: 'capacity',
       legend: T.Memory,
-      fields: disableFields(
+      fields: disableCapacityFields(
         filterFieldsByHypervisor(
           [
             ...MEMORY_FIELDS,
@@ -108,7 +148,6 @@ const SECTIONS = (
           ],
           hypervisor
         ),
-        '',
         oneConfig,
         adminGroup
       ),
@@ -129,9 +168,8 @@ const SECTIONS = (
     !features?.hide_cpu && {
       id: 'capacity',
       legend: T.CPUShares,
-      fields: disableFields(
+      fields: disableCapacityFields(
         filterFieldsByHypervisor(CPU_FIELDS, hypervisor),
-        '',
         oneConfig,
         adminGroup
       ),
@@ -149,9 +187,8 @@ const SECTIONS = (
     {
       id: 'capacity',
       legend: T.VirtualCpu,
-      fields: disableFields(
+      fields: disableCapacityFields(
         filterFieldsByHypervisor(VCPU_FIELDS, hypervisor),
-        '',
         oneConfig,
         adminGroup
       ),

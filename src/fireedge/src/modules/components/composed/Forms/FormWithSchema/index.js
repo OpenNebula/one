@@ -33,6 +33,7 @@ import { useFormContext, useFormState, useWatch } from 'react-hook-form'
 import { INPUT_TYPES } from '@ConstantsModule'
 import { Field, deepStringify, isDeeplyEmpty, simpleHash } from '@UtilsModule'
 import { Accordion } from '@modules/components/primitives/Accordion'
+import { Tooltip } from '@modules/components/primitives/Tooltip'
 import { TextController } from '@modules/components/composed/Forms/FormControl/TextController'
 import { PasswordController } from '@modules/components/composed/Forms/FormControl/PasswordController'
 import { OtpController } from '@modules/components/composed/Forms/FormControl/OtpController'
@@ -559,7 +560,16 @@ FormWithSchema.propTypes = {
 }
 
 const FieldComponent = memo(
-  ({ id, cy, dependOf, stepControl, gridItemSx, legend, ...attributes }) => {
+  ({
+    id,
+    cy,
+    dependOf,
+    stepControl,
+    gridItemSx,
+    legend,
+    disabledTooltip,
+    ...attributes
+  }) => {
     const formContext = useFormContext()
 
     const disableSteps = useDisableStep()
@@ -668,6 +678,20 @@ const FieldComponent = memo(
           validation: fieldProps.validation,
           fieldProps: fieldProps.fieldProps,
         })
+        const input = createElement(INPUT_CONTROLLER[type], {
+          key: `${key}-${i}`,
+          control: formContext.control,
+          cy: dataCy,
+          dependencies: nameOfDependField,
+          name: inputName,
+          type: htmlType === false ? undefined : htmlType,
+          dependOf,
+          onConditionChange: handleConditionChange,
+          ...fieldProps,
+          ...(fieldPropsWithMinimum && {
+            fieldProps: fieldPropsWithMinimum,
+          }),
+        })
 
         yield (
           <Fragment key={`${key}-split-${i}`}>
@@ -687,20 +711,21 @@ const FieldComponent = memo(
               {...gridProps}
               sx={[gridSx, gridItemSx].filter(Boolean)}
             >
-              {createElement(INPUT_CONTROLLER[type], {
-                key: `${key}-${i}`,
-                control: formContext.control,
-                cy: dataCy,
-                dependencies: nameOfDependField,
-                name: inputName,
-                type: htmlType === false ? undefined : htmlType,
-                dependOf,
-                onConditionChange: handleConditionChange,
-                ...fieldProps,
-                ...(fieldPropsWithMinimum && {
-                  fieldProps: fieldPropsWithMinimum,
-                }),
-              })}
+              {disabledTooltip ? (
+                <Tooltip title={disabledTooltip}>
+                  <Box
+                    tabIndex={0}
+                    sx={{
+                      cursor: 'not-allowed',
+                      '& > *': { pointerEvents: 'none' },
+                    }}
+                  >
+                    {input}
+                  </Box>
+                </Tooltip>
+              ) : (
+                input
+              )}
             </Grid>
           </Fragment>
         )
@@ -734,6 +759,7 @@ FieldComponent.propTypes = {
     }),
   ]),
   gridItemSx: PropTypes.object,
+  disabledTooltip: PropTypes.string,
 }
 
 FieldComponent.displayName = 'FieldComponent'
