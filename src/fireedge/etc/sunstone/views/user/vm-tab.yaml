@@ -142,6 +142,8 @@ info-tabs:
 
   backup:
     enabled: true
+    actions:
+      backup-cancel: true
 
   history:
     enabled: true

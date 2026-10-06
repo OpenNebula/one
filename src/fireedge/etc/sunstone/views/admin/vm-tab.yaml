@@ -141,6 +141,7 @@ info-tabs:
   backup:
     enabled: true
     actions:
+      backup-cancel: true
       backup-configure: true
       backup-create: true
       backup-restore: true
