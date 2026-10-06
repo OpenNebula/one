@@ -31,6 +31,7 @@ const getFields = (section) =>
 
 // Supported fields
 const OS_FIELDS = getFields(ATTR_CONF_CAN_BE_UPDATED.OS)
+const CPU_MODEL_FIELDS = getFields(ATTR_CONF_CAN_BE_UPDATED.CPU_MODEL)
 const FEATURES_FIELDS = getFields(ATTR_CONF_CAN_BE_UPDATED.FEATURES)
 const RAW_FIELDS = getFields(ATTR_CONF_CAN_BE_UPDATED.RAW)
 
@@ -42,6 +43,16 @@ const RAW_FIELDS = getFields(ATTR_CONF_CAN_BE_UPDATED.RAW)
  * @returns {Section[]} Sections
  */
 const SECTIONS = ({ hypervisor, oneConfig, adminGroup }) => [
+  {
+    id: 'os-cpu-model',
+    legend: T.CpuModel,
+    fields: disableFields(
+      filterFieldsByHypervisor(CPU_MODEL_FIELDS, hypervisor),
+      'CPU_MODEL',
+      oneConfig,
+      adminGroup
+    ),
+  },
   {
     id: 'os-boot',
     legend: T.Boot,

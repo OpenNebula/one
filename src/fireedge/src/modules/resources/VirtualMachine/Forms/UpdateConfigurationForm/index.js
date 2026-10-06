@@ -41,10 +41,16 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
     const context = template?.CONTEXT ?? {}
     const bootOrder = template?.OS?.BOOT
     const nics = [].concat(template?.NIC ?? []).flat()
+    const cpuModel = template.CPU_MODEL && { ...template.CPU_MODEL }
+
+    if (cpuModel?.FEATURES) {
+      cpuModel.FEATURES = (cpuModel.FEATURES ?? '').split(',')
+    }
     const knownTemplate = schema.cast(
       {
         ...vmTemplate,
         ...template,
+        ...(cpuModel && { CPU_MODEL: cpuModel }),
         ONEDRS_BLOCKED: vmTemplate?.USER_TEMPLATE?.ONEDRS_BLOCKED,
       },
       { stripUnknown: true, context: { ...template } }
@@ -93,8 +99,8 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
       }
     }
 
-    if (template.CPU_MODEL) {
-      knownTemplate.CPU_MODEL = { ...template.CPU_MODEL }
+    if (cpuModel) {
+      knownTemplate.CPU_MODEL = cpuModel
     }
 
     if (template.OS) {
@@ -143,6 +149,19 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
         ...restFormData.OS,
         BOOT: extra?.OS?.BOOT ?? restFormData.OS?.BOOT,
       },
+    }
+
+    if (updatedFormData.CPU_MODEL) {
+      if (Array.isArray(updatedFormData.CPU_MODEL.FEATURES)) {
+        updatedFormData.CPU_MODEL.FEATURES =
+          updatedFormData.CPU_MODEL.FEATURES.join(', ')
+      }
+
+      updatedFormData.CPU_MODEL = omitEmptyValues(updatedFormData.CPU_MODEL)
+
+      if (!Object.keys(updatedFormData.CPU_MODEL).length) {
+        delete updatedFormData.CPU_MODEL
+      }
     }
 
     if (updatedFormData?.CONTEXT?.ENCODE_START_SCRIPT) {

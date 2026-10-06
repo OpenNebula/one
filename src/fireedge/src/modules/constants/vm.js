@@ -1893,6 +1893,7 @@ export const ATTR_CONF_CAN_BE_UPDATED = {
   INPUT: ['TYPE', 'BUS'],
   GRAPHICS: ['TYPE', 'LISTEN', 'PASSWD', 'KEYMAP'],
   RAW: ['DATA', 'TYPE', 'VALIDATE'],
+  CPU_MODEL: ['MODEL', 'FEATURES'],
   CONTEXT: '*',
   BACKUP_CONFIG: '*',
 }

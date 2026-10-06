@@ -1427,6 +1427,7 @@ module.exports = {
   INPUT: 'Input',
   GRAPHICS: 'Graphics',
   RAW: 'Raw',
+  CPU_MODEL: 'CPU Model',
   CONTEXT: 'Context',
   BACKUP_CONFIG: 'Backup Config',
   /* tabs */
