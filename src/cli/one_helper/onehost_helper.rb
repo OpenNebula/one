@@ -291,6 +291,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         # Run the jobs in threads
         host_errors = []
+        host_stale  = []
         queue_lock = Mutex.new
         error_lock = Mutex.new
         total = queue.length
@@ -315,19 +316,20 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
                     print_update_info(total - size, total, host['NAME'])
 
-                    retries = 3
+                    copy_method = options[:ssh] ? :ssh : :rsync
+                    rc = sync_manager.update_remotes(host['NAME'],
+                                                     nil,
+                                                     copy_method)
 
-                    begin
-                        copy_method = options[:ssh] ? :ssh : :rsync
-                        rc = sync_manager.update_remotes(host['NAME'],
-                                                         nil,
-                                                         copy_method)
-                    rescue IOError
-                        # Workaround for broken Ruby 2.5
-                        # https://github.com/OpenNebula/one/issues/3229
-                        if (retries -= 1) > 0
-                            sleep 1
-                            retry
+                    if rc == 0
+                        rc, pids = sync_manager.stop_stale_monitord_clients(
+                            host['NAME']
+                        )
+
+                        if !pids.empty?
+                            error_lock.synchronize do
+                                host_stale << host['NAME']
+                            end
                         end
                     end
 
@@ -346,6 +348,13 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         ts.each {|t| t.join }
 
         puts
+
+        if !host_stale.empty?
+            puts 'Stopped the monitoring client running from the old ' \
+                 'remotes directory on the following hosts, monitord ' \
+                 'restarts it from the synced remotes:'
+            host_stale.each {|h| puts "* #{h}" }
+        end
 
         if host_errors.empty?
             puts 'All hosts updated successfully.'

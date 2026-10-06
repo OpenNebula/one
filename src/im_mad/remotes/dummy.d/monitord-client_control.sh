@@ -58,9 +58,11 @@ function start_client() {
     ps axuww | grep "$CLIENT $ARGV" | grep -v grep > /dev/null 2>&1 || exit -1
 }
 
-# Stop the client
+# Stop the client. Match any client of this host (hypervisor and HID) no
+# matter where it runs from, so that a client started from an old remotes
+# directory (/var/tmp/one before 7.5) is stopped as well.
 function stop_client() {
-    local pids=$(ps axuww | grep "$CLIENT $ARGV" | grep -v grep | awk '{print $2}')
+    local pids=$(pgrep -f "/${BASENAME}\.rb ${ARGV}\$")
 
     if [ -n "$pids" ]; then
         kill $pids

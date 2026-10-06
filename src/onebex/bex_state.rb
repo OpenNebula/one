@@ -231,7 +231,7 @@ module OneBEX
 
                     @state   = :cancelled
                     @success = false
-                    @changed.wait(@mutex) while @preparing unless force
+                    @changed.wait(@mutex) while @preparing && !force
 
                     @transfers.values.reject {|xfr| xfr[:closing] && !force }.each do |xfr|
                         xfr[:closing] = true
@@ -244,7 +244,7 @@ module OneBEX
 
                 # Other finalizers may already own some transfers.
                 @mutex.synchronize do
-                    @changed.wait(@mutex) until @transfers.empty? unless force
+                    @changed.wait(@mutex) until @transfers.empty? || force
                 end
             end
 

@@ -53,30 +53,26 @@ class HostSyncManager
             sources = subset.join(' ')
         end
 
-        assemble_cmd = lambda do |steps|
-            "exec 2>/dev/null; #{steps.join(' && ')}"
-        end
-
         case copy_method
         when :ssh
             # Empty the directory instead of recreating it; removing it
             # would fail as its parent is not writable by oneadmin
-            mkdir_cmd = assemble_cmd.call [
+            mkdir_cmd = assemble_cmd [
                 "mkdir -p '#{@remote_scripts_base_path}'/",
                 "find '#{@remote_scripts_base_path}'/ -mindepth 1 -delete"
             ]
 
-            sync_cmd = assemble_cmd.call [
+            sync_cmd = assemble_cmd [
                 "cd '#{@local_scripts_base_path}'/",
                 "scp -rp #{sources} " \
                     "'#{hostname}':'#{@remote_scripts_base_path}'/"
             ]
         when :rsync
-            mkdir_cmd = assemble_cmd.call [
+            mkdir_cmd = assemble_cmd [
                 "mkdir -p '#{@remote_scripts_base_path}'/"
             ]
 
-            sync_cmd = assemble_cmd.call [
+            sync_cmd = assemble_cmd [
                 "cd '#{@local_scripts_base_path}'/",
                 "rsync -LRaz --delete #{sources} " \
                     "'#{hostname}':'#{@remote_scripts_base_path}'/"
@@ -100,6 +96,33 @@ class HostSyncManager
         return cmd.code if error?(cmd)
 
         0
+    end
+
+    # Stops the monitord clients of the host that are not running from the
+    # remotes directory, i.e. that were started from the directory used
+    # before 7.5 (/var/tmp/one). Such a client keeps running the old probes
+    # after a sync, as the directory it reads them from is no longer
+    # updated. monitord restarts the client, from the synced remotes, once
+    # it misses the host beacons (MONITORING_INTERVAL_HOST seconds at most).
+    #
+    # @param hostname [String] host to connect to
+    # @return [Array] exit code and the PIDs of the stopped clients
+    def stop_stale_monitord_clients(hostname, logger = nil)
+        stale_cmd = assemble_cmd [
+            "pids=$(pgrep -af '/monitord-client\\.rb ' | " \
+                "grep -v ' #{@remote_scripts_base_path}/' | cut -d ' ' -f 1)",
+            'if [ -n "$pids" ]; then kill -9 $pids && echo $pids; fi'
+        ]
+
+        cmd = SSHCommand.run(stale_cmd.shellescape, hostname, logger)
+
+        return [cmd.code, []] if error?(cmd)
+
+        [0, cmd.stdout.split]
+    end
+
+    def assemble_cmd(steps)
+        "exec 2>/dev/null; #{steps.join(' && ')}"
     end
 
     def error?(cmd)

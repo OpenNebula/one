@@ -170,7 +170,7 @@ module OneBEX
             # Finish LVM exporter
             # Completes the export; LVM device cleanup is handled by TM scripts.
             # ----------------------------------------------------------------
-            def finish(_xfr, force: false)
+            def finish(_xfr, **)
                 true
             end
 
