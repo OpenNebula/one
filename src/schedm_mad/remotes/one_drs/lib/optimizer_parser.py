@@ -109,6 +109,15 @@ class OptimizerParser:
         self.mode = mode
         self._plan_id = -1
 
+        # Remove `STOPPED` and `UNDEPLOYED` VMs.
+        if self.mode.upper() == "OPTIMIZE":
+            skipped_states = {4, 9}
+            vms = self.scheduler_driver_action.vm_pool.vm
+            vms[:] = [vm for vm in vms if vm.state not in skipped_states]
+            vm_ids = [vm.id for vm in vms]
+            vm_reqs = self.scheduler_driver_action.requirements.vm
+            vm_reqs[:] = [vm_req for vm_req in vm_reqs if vm_req.id in vm_ids]
+
         # The required attributes of the datastores.
         # Dict {dstore id: dstore attrs} for system local datastores.
         local_dstore_attrs: dict[int, dict[str, Any]] = {}
@@ -199,6 +208,25 @@ class OptimizerParser:
     def log_vm(level: str, vm_id: int, message: str):
         # Format: "LEVEL: [vm_id] <message>"
         sys.stderr.write(f"{level}: {vm_id} {message}\n")
+
+    def check_vm_states(self):
+        # Refers to the cluster workload optimization case only.
+        stopped_states = {4, 5, 8, 9}
+        unsupported = False
+        for vm in self.scheduler_driver_action.vm_pool.vm:
+            # `ACTIVE`/`RUNNING` state.
+            if vm.state == 3 and vm.lcm_state == 3:
+                continue
+            # `STOPPED`, `SUSPENDED`, `POWEROFF`, or `UNDEPLOYED` state.
+            if vm.state in stopped_states:
+                continue
+            unsupported = True
+            state = f"state {vm.state}"
+            if vm.state == 3:
+                state = f"{state} and LCM state {vm.lcm_state}"
+            msg = f"Optimization skipped: VM {vm.id} in the {state}"
+            self.log_general("ERROR", msg)
+        return unsupported
 
     @classmethod
     def _load_config(cls, mode: str) -> dict:
@@ -760,6 +788,8 @@ class OptimizerParser:
     def _map_vm_state(state: int, lcm_state: int) -> VMState:
         if state == 3 and lcm_state == 3:
             return VMState.RUNNING
+        elif state == 5:
+            return VMState.SUSPENDED
         elif state == 8:
             return VMState.POWEROFF
         elif state == 1:
@@ -905,10 +935,15 @@ class OptimizerParser:
         memory = int(vm.template.memory)
         factor = self.config["MEMORY_SYSTEM_DS_SCALE"]
         if memory > 0 and factor >= 0:
-            sys_size += int(memory * factor)
+            corr = int(memory * factor)
+            sys_size += corr
+        else:
+            corr = 0
 
         kwa = self._find_datastores(vm_req)
-        req = DStoreRequirement(id=0, vm_id=int(vm.id), size=sys_size, **kwa)
+        req = DStoreRequirement(
+            id=0, vm_id=int(vm.id), size=sys_size, overhead=corr, **kwa
+        )
         sys_storage = {0: req}
         if self.mode.upper() != "PLACE":
             img_storage.clear()

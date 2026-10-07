@@ -2,6 +2,7 @@
 
 from collections import defaultdict as ddict
 from collections.abc import Callable, Collection, Mapping
+from dataclasses import replace
 from itertools import chain, combinations
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
@@ -262,31 +263,72 @@ class ILPOptimizer(Mapper):
             host_cap.id: host_cap for host_cap in host_capacities
         }
 
-        # Shared datastore capacities. Transformed to match only one
-        # cluster when `self._narrow` is `False`.
-        # Datastore ID -> storage capacity.
-        all_dstore_caps: dict[int, DStoreCapacity]
-        if free:
-            self._dstore_caps = all_dstore_caps = {
-                dstore_cap.id: dstore_cap for dstore_cap in dstore_capacities
-            }
-        else:
-            used_storage: dict[int, int] = {}
-            for (vm_id, req_id), dstore_id in used_shared_dstores.items():
-                if dstore_id not in used_storage:
-                    used_storage[dstore_id] = 0
-                size = all_vm_reqs[vm_id].storage[req_id].size
-                used_storage[dstore_id] += size
+        # Shared system datastore capacities.
+        self._dstore_caps = all_dstore_caps = {
+            dstore_cap.id: dstore_cap for dstore_cap in dstore_capacities
+        }
 
-            self._dstore_caps = all_dstore_caps = {}
-            for dstore_cap in dstore_capacities:
-                dstore_id = dstore_cap.id
-                used = used_storage.get(dstore_id, 0)
-                all_dstore_caps[dstore_id] = DStoreCapacity(
-                    id=dstore_id,
-                    size=Capacity(dstore_cap.size.free + used, used),
-                    cluster_ids=dstore_cap.cluster_ids
-                )
+        # Transform system datastore capacities so that the used storage
+        # space corresponds only to the space used by the considered VMs
+        # and excludes the disks (and checkpoints) of stopped and
+        # undeployed VMs, as well as the space used by the VMs from
+        # other clusters (in the case of shared storage).
+        # NOTE: For suspended VMs, the space overhead for the
+        # the checkpoint files is approximated with the memory and the
+        # `MEMORY_SYSTEM_DS_SCALE` factor.
+        if not free:
+            susp_state = VMState.SUSPENDED
+
+            # System shared datastores.
+            shared_usage: dict[int, int] = {}
+            for (vm_id, req_id), sdstore_id in used_shared_dstores.items():
+                if sdstore_id not in shared_usage:
+                    shared_usage[sdstore_id] = 0
+                if vm_id not in all_vm_reqs:
+                    continue
+                vm_req = all_vm_reqs[vm_id]
+                storage_req = vm_req.storage[req_id]
+                size = storage_req.size
+                if vm_req.state is not susp_state:
+                    size -= storage_req.overhead
+                shared_usage[sdstore_id] += size
+            for sdstore_id, sdstore_cap in all_dstore_caps.items():
+                used = shared_usage.get(sdstore_id, 0)
+                if used >= sdstore_cap.size.usage:
+                    continue
+                new_cap = Capacity(sdstore_cap.size.free + used, used)
+                repl_dstore_cap = replace(sdstore_cap, size=new_cap)
+                all_dstore_caps[sdstore_id] = repl_dstore_cap
+
+            # System local datastores.
+            local_usage: dict[tuple[int, int], int] = {}
+            for (vm_id, req_id), ldstore_idx in used_local_dstores.items():
+                if ldstore_idx not in local_usage:
+                    local_usage[ldstore_idx] = 0
+                if vm_id not in all_vm_reqs:
+                    continue
+                vm_req = all_vm_reqs[vm_id]
+                storage_req = vm_req.storage[req_id]
+                size = storage_req.size
+                if vm_req.state is not susp_state:
+                    size -= storage_req.overhead
+                local_usage[ldstore_idx] += size
+            for host_id, host_cap in all_host_caps.items():
+                if not host_cap.dstores:
+                    continue
+                changed = False
+                new_dstores: dict[int, Capacity] = {}
+                for ldstore_id, ldstore_cap in host_cap.dstores.items():
+                    used = local_usage.get((host_id, ldstore_id), 0)
+                    if used >= ldstore_cap.usage:
+                        new_dstores[ldstore_id] = ldstore_cap
+                    else:
+                        new_cap = Capacity(ldstore_cap.free + used, used)
+                        new_dstores[ldstore_id] = new_cap
+                        changed = True
+                if changed:
+                    repl_host_cap = replace(host_cap, dstores=new_dstores)
+                    all_host_caps[host_id] = repl_host_cap
 
         # Image datastore capacities.
         # Datastore ID -> storage capacity.
@@ -295,7 +337,7 @@ class ILPOptimizer(Mapper):
         }
 
         # VNet capacities.
-        self._vnet_caps = {
+        self._vnet_caps = all_vnet_caps = {
             vnet_cap.id: vnet_cap for vnet_cap in vnet_capacities
         }
 
@@ -361,7 +403,10 @@ class ILPOptimizer(Mapper):
                 vmg_ = vmg
 
             affined_vm_matches |= vmg_.find_host_matches(
-                vm_requirements, host_capacities, vnet_capacities, free
+                all_vm_reqs.values(),
+                all_host_caps.values(),
+                all_vnet_caps.values(),
+                free
             )
 
         # Suitable VM requirements and PCI devices.
@@ -372,7 +417,7 @@ class ILPOptimizer(Mapper):
             matches = (
                 affined_vm_matches.get(vm_id)
                 or vm_req.find_host_matches(
-                    host_capacities, vnet_capacities, free
+                    all_host_caps.values(), all_vnet_caps.values(), free
                 )
             )
             pcid_matches += matches.pci_devices

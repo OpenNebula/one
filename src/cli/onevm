@@ -659,10 +659,10 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     migrate_desc = <<-EOT.unindent
-        Migrates the given running VM to another Host. If used with --live
+        Migrates the given VM to another Host. If used with --live
         parameter the migration is done without downtime.
 
-        States: RUNNING
+        States: RUNNING, SUSPENDED, POWEROFF
     EOT
 
     command :migrate, migrate_desc, [:range, :vmid_list], :hostid,

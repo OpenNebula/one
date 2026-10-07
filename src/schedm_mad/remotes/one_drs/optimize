@@ -35,6 +35,8 @@ def main():
 
     # Parse XML input and build Optimizer
     parser = OptimizerParser(stdin_data=decoded_data, mode="optimize")
+    if parser.check_vm_states():
+        sys.exit(1)
     optimizer = parser.build_optimizer()
 
     # Execute Optimizer

@@ -75,6 +75,7 @@ class VMState(Enum):
     PENDING = 'pending'
     RESCHED = 'resched'
     RUNNING = 'running'
+    SUSPENDED = 'suspended'
     POWEROFF = 'poweroff'
 
 
@@ -102,6 +103,9 @@ class DStoreRequirement:
     id: int
     vm_id: int
     size: int
+    # The overhead, e.g. for the checkpoint file, calculated as the
+    # product of the momory and the `MEMORY_SYSTEM_DS_SCALE` factor.
+    overhead: int = 0
     # The IDs of the matching host local datastores.
     # Dict {host ID: list of IDs of the matching datastores}. If `None`,
     # all local datastores are considered matching.
