@@ -159,6 +159,14 @@ module GRPCMappings
             stub.snapshot_flatten(req, options)
         end,
 
+        'image.resize' => lambda do |one_auth, endpoint, *args, options|
+            stub = One::Image::ImageService::Stub.new(endpoint, :this_channel_is_insecure)
+            req  = One::Image::ResizeRequest.new(:session_id     => one_auth,
+                                                 :oid            => args[0],
+                                                 :size           => args[1])
+            stub.resize(req, options)
+        end,
+
         'image.restore' => lambda do |one_auth, endpoint, *args, options|
             stub = One::Image::ImageService::Stub.new(endpoint, :this_channel_is_insecure)
             req  = One::Image::RestoreRequest.new(:session_id     => one_auth,

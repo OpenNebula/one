@@ -17,6 +17,7 @@
 #include "ImageManager.h"
 #include "NebulaLog.h"
 #include "ImagePool.h"
+#include "Quotas.h"
 #include "SyncRequest.h"
 #include "Template.h"
 #include "Nebula.h"
@@ -1601,4 +1602,151 @@ int ImageManager::restore_image(int iid, int dst_ds_id, const std::string& txml,
     result = sr.message;
 
     return sr.result ? 0 : -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::resize_image(int iid, const string& size, long long res_size,
+                               int uid, int gid, string& error)
+{
+    const auto* imd = get();
+
+    if ( imd == nullptr )
+    {
+        error = "Could not get datastore driver";
+        NebulaLog::log("ImM", Log::ERROR, error);
+
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Get image with write lock and check action consistency:               */
+    /*    type is OS or DATABLOCK                                             */
+    /*    state is READY                                                      */
+    /*    new size > current size                                             */
+    /*                                                                        */
+    /*  The write lock (ipool->get) is held from the READY check through the  */
+    /*  driver message send and the state update to LOCKED. This prevents     */
+    /*  concurrent resize requests from passing the READY check at once.      */
+    /* ---------------------------------------------------------------------- */
+
+    auto img = ipool->get(iid);
+
+    if ( img == nullptr )
+    {
+        error = "Image does not exist";
+        return -1;
+    }
+
+    int ds_id = img->get_ds_id();
+
+    string ds_data;
+
+    long long ds_avail = 0;
+    bool      ds_check = false;
+
+    if (auto ds = dspool->get_ro(ds_id))
+    {
+        ds->decrypt();
+
+        ds->to_xml(ds_data);
+
+        ds_check = ds->get_avail_mb(ds_avail);
+    }
+    else
+    {
+        error = "Datastore no longer exists";
+        return -1;
+    }
+
+    if ( img->get_type() != Image::OS && img->get_type() != Image::DATABLOCK )
+    {
+        error = "Only images of type OS and DATABLOCK can be resized";
+        return -1;
+    }
+
+    if (img->get_state() != Image::READY)
+    {
+        error = "Cannot resize image in state " + Image::state_to_str(img->get_state());
+        return -1;
+    }
+
+    /* Drivers resize IMAGE/SOURCE, but a snapshot chain serves the guest from
+     * its newest layer, whose virtual size is independent of the base. Reverting
+     * a snapshot would also restore the pre-resize size while the DB keeps the
+     * new one.
+     */
+    if (img->get_snapshots().size() > 0)
+    {
+        error = "Cannot resize images with snapshots";
+        return -1;
+    }
+
+    long long new_size = 0;
+    long long cur_size = img->get_size();
+
+    istringstream iss(size);
+    iss >> new_size;
+
+    if (iss.fail() || !iss.eof() || new_size <= 0)
+    {
+        error = "Invalid size value: " + size;
+        return -1;
+    }
+
+    /* The quota was reserved for new_size - res_size. A resize that landed in
+     * between would make the reservation and the growth two different numbers.
+     */
+    if (cur_size != res_size)
+    {
+        error = "Image size changed, resize again";
+        return -1;
+    }
+
+    if (new_size <= cur_size)
+    {
+        ostringstream oss;
+        oss << "New size (" << new_size
+            << " MiB) must be greater than current size (" << cur_size << " MiB)";
+        error = oss.str();
+        return -1;
+    }
+
+    long long delta = new_size - cur_size;
+
+    if (ds_check && (delta > ds_avail))
+    {
+        error = "Not enough space in datastore";
+        return -1;
+    }
+
+    string   img_tmpl;
+    string   extra_data = "<EXTRA_DATA><SIZE>" + to_string(new_size) + "</SIZE></EXTRA_DATA>";
+    string   drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
+
+    /* ---------------------------------------------------------------------- */
+    /*  Record what the request reserved, the callback refunds it on failure,  */
+    /*  including the case where the image is deleted meanwhile                */
+    /* ---------------------------------------------------------------------- */
+
+    {
+        lock_guard<mutex> lock(resize_quotas_mutex);
+
+        resize_quotas[iid] = {uid, gid, ds_id, delta};
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Send action to driver and lock the image                              */
+    /* ---------------------------------------------------------------------- */
+
+    image_msg_t msg(ImageManagerMessages::RESIZE, "", iid, drv_msg);
+
+    imd->write(msg);
+
+    img->set_state(Image::LOCKED);
+
+    ipool->update(img.get());
+
+    return 0;
 }

@@ -601,6 +601,106 @@ Request::ErrorCode ImageAPI::snapshot_flatten(int oid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+Request::ErrorCode ImageAPI::resize(int oid,
+                                    const std::string& size,
+                                    RequestAttributes& att)
+{
+    Nebula& nd = Nebula::instance();
+
+    ImageManager *  imagem = nd.get_imagem();
+    DatastorePool * dspool = nd.get_dspool();
+
+    if ( auto ec = basic_authorization(oid, att); ec != Request::SUCCESS )
+    {
+        return ec;
+    }
+
+    int       ds_id;
+    int       img_uid;
+    int       img_gid;
+    long long cur_size;
+
+    if ( auto img = ipool->get_ro(oid) )
+    {
+        ds_id    = img->get_ds_id();
+        img_uid  = img->get_uid();
+        img_gid  = img->get_gid();
+        cur_size = img->get_size();
+    }
+    else
+    {
+        att.resp_id = oid;
+
+        return Request::NO_EXISTS;
+    }
+
+    // Growing the image consumes datastore capacity, as clone and allocate do
+    att.auth_op = AuthRequest::USE;
+
+    if ( auto ec = basic_authorization(dspool, ds_id, PoolObjectSQL::DATASTORE, att);
+         ec != Request::SUCCESS )
+    {
+        return ec;
+    }
+
+    long long new_size = 0;
+
+    istringstream iss(size);
+
+    iss >> new_size;
+
+    if ( iss.fail() || !iss.eof() || new_size <= 0 )
+    {
+        att.resp_msg = "Invalid size value: " + size;
+
+        return Request::ACTION;
+    }
+
+    if ( new_size <= cur_size )
+    {
+        ostringstream oss;
+
+        oss << "New size (" << new_size
+            << " MiB) must be greater than current size (" << cur_size << " MiB)";
+
+        att.resp_msg = oss.str();
+
+        return Request::ACTION;
+    }
+
+    /* The image owner pays for the extra space, as it does for the size the
+     * image already uses. resize_image is given cur_size and refuses the
+     * resize if the image no longer has it, so the amount charged here is the
+     * amount the image grows by.
+     */
+    Template img_usage;
+
+    img_usage.add("DATASTORE", ds_id);
+    img_usage.add("SIZE", new_size - cur_size);
+    img_usage.add("IMAGES", 0);
+
+    RequestAttributes att_quota(img_uid, img_gid, att);
+
+    if ( !quota_authorization(&img_usage, Quotas::DATASTORE, att_quota, att.resp_msg) )
+    {
+        return Request::AUTHORIZATION;
+    }
+
+    int rc = imagem->resize_image(oid, size, cur_size, img_uid, img_gid, att.resp_msg);
+
+    if ( rc < 0 )
+    {
+        quota_rollback(&img_usage, Quotas::DATASTORE, att_quota);
+
+        return Request::ACTION;
+    }
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 Request::ErrorCode ImageAPI::restore(int oid,
                                      int ds_id,
                                      const std::string& opt_tmpl,
