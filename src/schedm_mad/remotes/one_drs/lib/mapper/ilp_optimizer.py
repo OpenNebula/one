@@ -55,6 +55,8 @@ class ILPOptimizer(Mapper):
         "_host_caps",
         "_dstore_caps",
         "_img_dstore_caps",
+        "_aux_shared_space",
+        "_aux_local_space",
         "_vnet_caps",
         "_criteria",
         "_migrations",
@@ -105,6 +107,8 @@ class ILPOptimizer(Mapper):
         _host_caps: dict[int, HostCapacity]
         _dstore_caps: dict[int, DStoreCapacity]
         _img_dstore_caps: dict[int, DStoreCapacity]
+        _aux_shared_space: dict[int, float]
+        _aux_local_space: dict[tuple[int, int], float]
         _vnet_caps: dict[int, VNetCapacity]
         _criteria: Optional[Union[str, Mapping, Callable]]
         _migrations: bool
@@ -268,6 +272,14 @@ class ILPOptimizer(Mapper):
             dstore_cap.id: dstore_cap for dstore_cap in dstore_capacities
         }
 
+        # Auxiliary shared system datastore space, not occupied by the
+        # considered VMs.
+        self._aux_shared_space = {}
+
+        # Auxiliary local system datastore space, not occupied by the
+        # considered VMs.
+        self._aux_local_space = {}
+
         # Transform system datastore capacities so that the used storage
         # space corresponds only to the space used by the considered VMs
         # and excludes the disks (and checkpoints) of stopped and
@@ -278,8 +290,11 @@ class ILPOptimizer(Mapper):
         # `MEMORY_SYSTEM_DS_SCALE` factor.
         if not free:
             susp_state = VMState.SUSPENDED
+            aux_shared_space = self._aux_shared_space
+            aux_local_space = self._aux_local_space
 
             # System shared datastores.
+            # Estimated shared storage usage by considered VMs only.
             shared_usage: dict[int, int] = {}
             for (vm_id, req_id), sdstore_id in used_shared_dstores.items():
                 if sdstore_id not in shared_usage:
@@ -299,8 +314,11 @@ class ILPOptimizer(Mapper):
                 new_cap = Capacity(sdstore_cap.size.free + used, used)
                 repl_dstore_cap = replace(sdstore_cap, size=new_cap)
                 all_dstore_caps[sdstore_id] = repl_dstore_cap
+                diff = sdstore_cap.size.usage - used
+                aux_shared_space[sdstore_id] = diff
 
             # System local datastores.
+            # Estimated local storage usage by considered VMs only.
             local_usage: dict[tuple[int, int], int] = {}
             for (vm_id, req_id), ldstore_idx in used_local_dstores.items():
                 if ldstore_idx not in local_usage:
@@ -325,6 +343,8 @@ class ILPOptimizer(Mapper):
                     else:
                         new_cap = Capacity(ldstore_cap.free + used, used)
                         new_dstores[ldstore_id] = new_cap
+                        diff = ldstore_cap.usage - used
+                        aux_local_space[host_id, ldstore_id] = diff
                         changed = True
                 if changed:
                     repl_host_cap = replace(host_cap, dstores=new_dstores)
@@ -346,7 +366,7 @@ class ILPOptimizer(Mapper):
             'cpu_usage',
             'cpu_ratio',
             'memory',
-            'space',
+            'storage_space',
             'disk_usage',
             'net_usage'
         }
@@ -1168,6 +1188,8 @@ class ILPOptimizer(Mapper):
         all_vm_reqs = self._vm_reqs
         all_host_caps = self._host_caps
         all_dstores = self._dstore_caps
+        aux_shared_space = self._aux_shared_space
+        aux_local_space = self._aux_local_space
         max_dstore_load = Var(name=f"max_dstore_load_{name}", lowBound=0)
         self._balance[name] = max_dstore_load
 
@@ -1189,25 +1211,25 @@ class ILPOptimizer(Mapper):
         if self._narrow:
             for (host_id, dstore_id), req_sum in local_dstore_req.items():
                 req_sum += all_host_caps[host_id].dstores[dstore_id].usage
-            # NOTE: The capacities of the shared datastores are
-            # corrected to match the specific cluster.
             for dstore_id, req_sum in shared_dstore_req.items():
                 req_sum += all_dstores[dstore_id].size.usage
 
         for (host_id, dstore_id), req_sum in local_dstore_req.items():
             total = all_host_caps[host_id].dstores[dstore_id].total
-            if total != 0.0:
+            aux = aux_local_space.get((host_id, dstore_id), 0.0)
+            if total != 0.0 or aux != 0.0:
                 model += (
-                    req_sum / total <= max_dstore_load,
+                    (req_sum + aux) / (total + aux) <= max_dstore_load,
                     f"max_{name}_load_for_local_host_{host_id}_datastore_"
                     f"{dstore_id}"
                 )
 
         for dstore_id, req_sum in shared_dstore_req.items():
             total = all_dstores[dstore_id].size.total
-            if total != 0.0:
+            aux = aux_shared_space.get(dstore_id, 0.0)
+            if total != 0.0 or aux != 0.0:
                 model += (
-                    req_sum / total <= max_dstore_load,
+                    (req_sum + aux) / (total + aux) <= max_dstore_load,
                     f"max_{name}_load_for_shared_datastore_{dstore_id}"
                 )
 
@@ -1259,7 +1281,7 @@ class ILPOptimizer(Mapper):
     def _add_balance_variable(self, name: str) -> Var:
         model = self._model
 
-        if name == 'space':
+        if name == 'storage_space':
             return self._add_dstore_space_variable(name=name)
         if name == 'disk_usage':
             return self._add_dstore_usage_variable(name=name)

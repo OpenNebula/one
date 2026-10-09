@@ -174,6 +174,10 @@ const INPUTS = {
     label: `${T.Memory}`,
     tooltip: T.MemoryWeightConcept,
   },
+  STORAGE_WEIGHT: {
+    label: `${T.Storage}`,
+    tooltip: T.StorageWeightConcept,
+  },
   NET_WEIGHT: {
     label: `${T.Network}`,
     tooltip: T.NetWeightConcept,

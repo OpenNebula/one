@@ -803,6 +803,7 @@ class OptimizerParser:
             "CPU_USAGE_WEIGHT": "CPU_USAGE",
             "CPU_WEIGHT": "CPU",
             "MEMORY_WEIGHT": "MEMORY",
+            "STORAGE_WEIGHT": "STORAGE",
             "DISK_WEIGHT": "DISK",
             "NET_WEIGHT": "NET",
         }
@@ -1041,7 +1042,7 @@ class OptimizerParser:
         return current
 
     def _normalize_weights(self, cluster_config):
-        keys = ["CPU_USAGE", "CPU", "MEMORY", "DISK", "NET"]
+        keys = ["CPU_USAGE", "CPU", "MEMORY", "STORAGE", "DISK", "NET"]
         provided = {
             k: OptimizerParser._sanity_check(cluster_config[k])
             for k in keys
@@ -1054,6 +1055,8 @@ class OptimizerParser:
             lower_key = key.lower()
             if key == "CPU":
                 new_key = f"{lower_key}_ratio"
+            elif key == "STORAGE":
+                new_key = "storage_space"
             elif key in ["DISK", "NET"]:
                 new_key = f"{lower_key}_usage"
             else:

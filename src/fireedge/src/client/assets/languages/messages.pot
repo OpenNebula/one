@@ -3962,6 +3962,11 @@ msgstr ""
 msgid "Relative importance of the requested memory across the hosts"
 msgstr ""
 
+#. T.StorageWeightConcept
+#: ./src/modules/constants/translates.js
+msgid "Relative importance of storage space utilization across the datastores"
+msgstr ""
+
 #. T.DiskWeightConcept
 #: ./src/modules/constants/translates.js
 msgid "Relative importance of the disk usage across the hosts"

@@ -186,6 +186,7 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
         "MEMORY_WEIGHT",
         "NET_WEIGHT",
         "DISK_WEIGHT",
+        "STORAGE_WEIGHT",
         "PREDICTIVE"
     };
 

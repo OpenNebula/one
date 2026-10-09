@@ -978,6 +978,8 @@ module.exports = {
   CpuWeightConcept: 'Relative importance of the requested CPU across the hosts',
   MemoryWeightConcept:
     'Relative importance of the requested memory across the hosts',
+  StorageWeightConcept:
+    'Relative importance of storage space utilization across the datastores',
   DiskWeightConcept: 'Relative importance of the disk usage across the hosts',
   NetWeightConcept: 'Relative importance of the network usage across the hosts',
   PredictiveWeightConcept:
