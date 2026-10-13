@@ -126,7 +126,7 @@ begin
                 payload = read_exact(socket, bytes_to_write)
 
                 File.open(to, 'r+b') do |file|
-                    if total_size > 0 && file.empty?
+                    if total_size > 0 && file.size.zero? # rubocop:disable Style/ZeroLengthPredicate
                         file.truncate(total_size)
                     end
 
