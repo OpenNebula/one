@@ -76,7 +76,8 @@ app_prefix        = xpath(xml, 'MARKETPLACE/TEMPLATE/APP_PREFIX')        || 'mar
 signature_version = xpath(xml, 'MARKETPLACE/TEMPLATE/SIGNATURE_VERSION')
 endpoint          = xpath(xml, 'MARKETPLACE/TEMPLATE/ENDPOINT')
 force_path_style  = xpath(xml, 'MARKETPLACE/TEMPLATE/FORCE_PATH_STYLE')
-read_length       = xpath(xml, 'MARKETPLACE/TEMPLATE/READx_LENGTH')
+read_length       = xpath(xml, 'MARKETPLACE/TEMPLATE/READ_LENGTH') ||
+                    xpath(xml, 'MARKETPLACE/TEMPLATE/READx_LENGTH')
 
 name   = "#{app_prefix}-#{id}"
 source = "s3://#{bucket}/#{name}"
