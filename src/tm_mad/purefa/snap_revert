@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/purefa'
+
+include TransferManager
+include OpenNebula
+
+arg_src    = ARGV[0]
+arg_snapid = ARGV[1]
+arg_vmid   = ARGV[2]
+arg_dsid   = ARGV[3]
+
+snap_revert = Action.new(:vm_id => arg_vmid, :action_name => 'snap_revert')
+
+src = Action::Location.new(arg_src)
+
+purefa_ds = Datastore.new_with_id(arg_dsid, snap_revert.one)
+rc = purefa_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = purefa_ds.to_hash['DATASTORE']['TEMPLATE']
+
+purefa_host    = ds_hash['PUREFA_HOST']
+purefa_token   = ds_hash['PUREFA_API_TOKEN']
+purefa_version = ds_hash.key?('PUREFA_VERSION') ? ds_hash['PUREFA_VERSION'] : PureFA::DEFAULT_API_VERSION
+purefa_suffix  = ds_hash.key?('PUREFA_SUFFIX') ? "_#{ds_hash['PUREFA_SUFFIX']}" : ''
+
+purefa = PureFA.new(
+    :host        => purefa_host,
+    :target      => nil,
+    :api_token   => purefa_token,
+    :api_version => purefa_version,
+    :action      => snap_revert
+)
+
+DriverLogger.log_info "Reverting snapshot #{arg_snapid} to #{src.path} " \
+                      "for VM #{arg_vmid} Disk #{src.disk_id}"
+
+begin
+    vol_name = "one_#{arg_vmid}_disk_#{src.disk_id}#{purefa_suffix}"
+    volume   = purefa.get_volume(vol_name)
+    snapshot = volume.get_snapshot(arg_snapid)
+    snapshot.restore
+    DriverLogger.log_info "Reverted snapshot #{arg_snapid} to #{src.path}"
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Error reverting to snapshot #{arg_snapid} " \
+                                       "for #{arg_vmid}: #{e.message}"
+    exit 1
+end
+
+exit 0

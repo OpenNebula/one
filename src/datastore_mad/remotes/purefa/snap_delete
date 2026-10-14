@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../../tm/lib/tm_action'
+require_relative '../../tm/lib/purefa'
+
+include TransferManager
+include OpenNebula
+
+daction64 = STDIN.read
+image_id  = ARGV[0]
+
+begin
+    action = Base64.decode64(daction64)
+    xml = REXML::Document.new(action).root
+
+    img_source  = xml.elements['IMAGE/SOURCE'].text
+    snap_id     = xml.elements['IMAGE/TARGET_SNAPSHOT'].text.to_i
+
+    purefa_host    = xml.elements['DATASTORE/TEMPLATE/PUREFA_HOST'].text
+    purefa_token   = xml.elements['DATASTORE/TEMPLATE/PUREFA_API_TOKEN'].text
+
+    purefa_version = xml.elements['DATASTORE/TEMPLATE/PUREFA_VERSION']
+    purefa_version = purefa_version.nil? ? PureFA::DEFAULT_API_VERSION : purefa_version.text
+
+    snap_delete = Action.new(:action_name => 'snap_delete')
+
+    purefa = PureFA.new(
+        :host   => purefa_host,
+        :target => nil,
+        :token  => purefa_token,
+        :action => snap_delete,
+        :version => purefa_version
+    )
+
+    img_vol = purefa.get_volume(img_source)
+    target_snap = img_vol.get_snapshot(snap_id)
+    target_snap.destroy
+    target_snap.delete
+
+    OpenNebula::DriverLogger.log_info "Snapshot ID #{snap_id} removed from image ID #{image_id}"
+rescue StandardError => e
+    STDERR.puts "Error removing snapshot ID #{snap_id} from image ID #{image_id}: #{e.message}"
+    exit(-1)
+end

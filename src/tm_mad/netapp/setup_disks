@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/netapp'
+
+# This script sets up the disks for a VM on the hypervisor
+# It should be called from the hypervisor that needs to setup the disks
+# Triggered by the Deployment script
+
+vm_id = ARGV[0].to_i
+
+setup_disks = TransferManager::Action.new(:vm_id => vm_id, :action_name => 'setup_disks')
+
+vm_obj = OpenNebula::VirtualMachine.new_with_id(vm_id, setup_disks.one)
+rc = vm_obj.info
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+vm = vm_obj.to_hash['VM']
+
+hist  = vm['HISTORY_RECORDS']['HISTORY']
+ds_id = hist.is_a?(Array) ? hist.last['DS_ID']    : hist['DS_ID']
+host  = hist.is_a?(Array) ? hist.last['HOSTNAME'] : hist['HOSTNAME']
+
+netapp_ds = OpenNebula::Datastore.new_with_id(ds_id, setup_disks.one)
+rc = netapp_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = netapp_ds.to_hash['DATASTORE']['TEMPLATE']
+
+# Exit if it's not a netapp datastore
+exit 0 unless ds_hash.key?('NETAPP_HOST')
+
+netapp_host = ds_hash['NETAPP_HOST']
+netapp_user = ds_hash['NETAPP_USER']
+netapp_pass = ds_hash['NETAPP_PASS']
+igroup      = ds_hash['NETAPP_IGROUP']
+target      = ds_hash['NETAPP_TARGET']
+
+netapp_suffix = ds_hash.key?('NETAPP_SUFFIX') ? "_#{ds_hash['NETAPP_SUFFIX']}" : ''
+
+auth = Base64.strict_encode64("#{netapp_user}:#{netapp_pass}")
+netapp = TransferManager::NetApp.new(auth, netapp_host, target, :action => setup_disks)
+
+vm_disks = vm['TEMPLATE']['DISK'].is_a?(Array) ? vm['TEMPLATE']['DISK'] : [vm['TEMPLATE']['DISK']]
+
+vm_disks.each do |disk|
+    disk_id = disk['DISK_ID']
+    volume_name = "one_#{vm_id}_disk_#{disk_id}#{netapp_suffix}"
+
+    volume = TransferManager::NetApp::Volume.new({ 'name' => volume_name }, netapp)
+    # volume.fetch_data
+
+    lun = volume.lun
+    # lun.fetch_data
+
+    lun.create_lun_map({ 'igroup' => { 'uuid' => igroup } }) unless lun.lun_map
+
+    link_exists = setup_disks.ssh(
+        :cmds => "test -L /var/lib/one/datastores/#{ds_id}/#{vm_id}/disk.#{disk_id}",
+        :host => host
+    ).code == 0
+
+    if link_exists
+        OpenNebula::DriverLogger.log_info 'Symlink already exists ' \
+                                          "/var/lib/one/datastores/#{ds_id}/#{vm_id}" \
+                                          "/disk.#{disk_id}"
+        next
+    end
+
+    disk_path = lun.lun_map.setup_disk(:host => host)
+
+    link_command = "ln -sf #{disk_path} /var/lib/one/datastores/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+    setup_disks.ssh(
+        :cmds => link_command,
+        :host => host
+    )
+    OpenNebula::DriverLogger.log_info "Created symlink #{disk_path} → " \
+                                      "/var/lib/one/datastores/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+end

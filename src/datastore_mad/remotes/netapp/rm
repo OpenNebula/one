@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../../tm/lib/tm_action'
+require_relative '../../tm/lib/netapp'
+
+daction64 = STDIN.read
+image_id  = ARGV[0]
+
+begin
+    action = Base64.decode64(daction64)
+    xml = REXML::Document.new(action).root
+
+    img_source = xml.elements['IMAGE/SOURCE'].text
+    ds_id = xml.elements['DATASTORE/ID'].text
+
+    netapp_host = xml.elements['DATASTORE/TEMPLATE/NETAPP_HOST'].text
+    netapp_user = xml.elements['DATASTORE/TEMPLATE/NETAPP_USER'].text
+    netapp_pass = xml.elements['DATASTORE/TEMPLATE/NETAPP_PASS'].text
+    netapp_target = xml.elements['DATASTORE/TEMPLATE/NETAPP_TARGET'].text
+
+    netapp_suffix = xml.elements['DATASTORE/TEMPLATE/NETAPP_SUFFIX']
+    netapp_suffix = netapp_suffix.nil? ? '' : "_#{netapp_suffix.text}"
+
+    if img_source.empty?
+        vol_name = "one_#{ds_id}_#{image_id}#{netapp_suffix}"
+    else
+        vol_name =img_source.split('/')[2]
+    end
+
+    rm = TransferManager::Action.new(:action_name => 'rm')
+
+    auth   = Base64.strict_encode64("#{netapp_user}:#{netapp_pass}")
+    netapp = TransferManager::NetApp.new(auth, netapp_host, netapp_target, :action => rm)
+
+    img_vol = TransferManager::NetApp::Volume.new({ 'name' => vol_name }, netapp)
+
+    begin
+        img_lun = img_vol.lun
+        img_lun.delete_with_map if img_lun
+    rescue TransferManager::NetApp::API::Error => e
+        OpenNebula::DriverLogger.log_info "LUN #{img_vol.name} missing/already deleted" \
+            if e.code == '404'
+        raise e
+    end
+
+    OpenNebula::DriverLogger.log_info "Deleted LUN for image ID #{image_id}"
+
+    img_vol.delete
+
+    OpenNebula::DriverLogger.log_info "Deleted volume for image ID #{image_id}"
+rescue TransferManager::NetApp::Volume::VolumeMissing => e
+    OpenNebula::DriverLogger.log_info "Volume #{vol_name} missing " \
+                                      "or already deleted: #{e.message}"
+    exit 0
+rescue StandardError => e
+    STDERR.puts "Error removing image ID #{image_id}: #{e.message}"
+    exit(-1)
+end

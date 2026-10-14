@@ -1,0 +1,76 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../../tm/lib/tm_action'
+require_relative '../../tm/lib/datastore'
+require_relative '../../tm/lib/netapp'
+
+daction64 = STDIN.read
+_image_id = ARGV[0]
+
+action = Base64.decode64(daction64)
+xml = REXML::Document.new(action).root
+
+ds_id  = xml.elements['DATASTORE/ID'].text.to_i
+img_id = xml.elements['IMAGE/ID'].text.to_i
+
+netapp_ds = OpenNebula::Datastore.new_with_id(ds_id, OpenNebula::Client.new)
+rc = netapp_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = netapp_ds.to_hash['DATASTORE']['TEMPLATE']
+
+host        = ds_hash['NETAPP_HOST']
+user        = ds_hash['NETAPP_USER']
+password    = ds_hash['NETAPP_PASS']
+target      = ds_hash['NETAPP_TARGET']
+
+netapp_suffix = xml.elements['DATASTORE/TEMPLATE/NETAPP_SUFFIX']
+netapp_suffix = netapp_suffix.nil? ? '' : "_#{netapp_suffix.text}"
+
+auth = Base64.strict_encode64("#{user}:#{password}")
+netapp = TransferManager::NetApp.new(auth, host, target, :action => nil)
+
+# get size of lun
+begin
+    volume_name = "one_#{ds_id}_#{img_id}#{netapp_suffix}"
+    volume = TransferManager::NetApp::Volume.new({ 'name' => volume_name }, netapp)
+    lun    = volume.lun
+
+    raise "No LUN found in volume one_#{ds_id}_#{img_id}#{netapp_suffix}" if lun.nil?
+
+    lun.fetch_data({ 'fields' => 'space' })
+    size_mb = lun['space']['size'].to_i/1024/1024.round
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error 'Error getting size of LUN ' \
+                                       "one_#{ds_id}_#{img_id}: #{e.message}"
+    raise
+end
+
+lun_path = "netapp:///vol/#{volume_name}/#{volume_name}_lun"
+
+output_xml  = '<IMPORT_INFO>'
+output_xml << "<IMPORT_SOURCE><![CDATA[#{lun_path}]]></IMPORT_SOURCE>"
+output_xml << '<DISPOSE>NO</DISPOSE>'
+output_xml << '<FORMAT><![CDATA[RAW]]></FORMAT>'
+output_xml << '<MD5><![CDATA[NA]]></MD5>'
+output_xml << "<SIZE><![CDATA[#{size_mb}]]></SIZE>"
+output_xml << '</IMPORT_INFO>'
+
+puts output_xml

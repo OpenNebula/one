@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/netapp'
+
+arg_src   = ARGV[0]
+arg_dst   = ARGV[1]
+arg_vmid  = ARGV[2]
+_arg_dsid = ARGV[3]
+
+mvds = TransferManager::Action.new(:vm_id => arg_vmid, :action_name => 'mvds')
+
+src = TransferManager::Action::Location.new(arg_src)
+dst = TransferManager::Action::Location.new(arg_dst)
+
+# Retrieve source datastore information
+src_ds = OpenNebula::Datastore.new_with_id(mvds.disk_attribute(src.disk_id, 'DATASTORE_ID').to_i,
+                                           mvds.one)
+rc = src_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = src_ds.to_hash['DATASTORE']['TEMPLATE']
+
+host     = ds_hash['NETAPP_HOST']
+user     = ds_hash['NETAPP_USER']
+password = ds_hash['NETAPP_PASS']
+target   = ds_hash['NETAPP_TARGET']
+
+netapp_suffix = ds_hash.key?('NETAPP_SUFFIX') ? "_#{ds_hash['NETAPP_SUFFIX']}" : ''
+
+auth   = Base64.strict_encode64("#{user}:#{password}")
+netapp = TransferManager::NetApp.new(auth, host, target, :action => mvds)
+
+OpenNebula::DriverLogger.log_info "Cloning #{src.path} to #{dst.path}"
+
+new_volume_name = dst.dir.split[-1]
+new_lun_name    = dst.base
+source_lun      = nil
+
+begin
+    source_vol_name = "one_#{arg_vmid}_disk_#{src.disk_id}#{netapp_suffix}"
+    source_volume   = TransferManager::NetApp::Volume.new({ 'name' => source_vol_name }, netapp)
+    source_lun      = source_volume.lun
+    OpenNebula::DriverLogger.log_info "Found source volume #{source_vol_name}"
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Error finding source volume #{source_vol_name}: " \
+                                       "#{e.message}"
+    exit 1
+end
+
+rc = mvds.ssh(
+    :host => src.host,
+    :cmds => "rm -f #{src.path}",
+    :nostderr => false
+)
+if rc.code != 0
+    OpenNebula::DriverLogger.log_error "Error removing source file #{src.path}: #{rc.stderr}"
+    exit 1
+end
+
+begin
+    source_lun.lun_map.remove_connection(src.host, :force => true)
+    OpenNebula::DriverLogger.log_info "Removed LUN connection for #{source_lun.name}"
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Error removing LUN connection for #{source_lun.name}: " \
+                                        "#{e.message}"
+    exit 1
+end
+
+begin
+    source_lun.lun_map.delete if source_lun.lun_map
+    OpenNebula::DriverLogger.log_info "Deleted LUN map for #{source_lun.name}"
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Error deleting LUN map for #{source_lun.name}: " \
+                                        "#{e.message}"
+    exit 1
+end
+
+source_volume.rename(new_volume_name)
+OpenNebula::DriverLogger.log_info "Renamed source volume to #{new_volume_name}"
+source_lun.rename(new_lun_name)
+
+exit 0

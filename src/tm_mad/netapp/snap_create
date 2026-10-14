@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/netapp'
+require_relative '../lib/kvm'
+
+include TransferManager::KVM
+
+arg_src    = ARGV[0]
+arg_snapid = ARGV[1]
+arg_vmid   = ARGV[2]
+arg_dsid   = ARGV[3]
+
+live = __FILE__.end_with? '_live'
+snap_create = TransferManager::Action.new(:vm_id => arg_vmid, :action_name => 'snap_create')
+
+src = TransferManager::Action::Location.new(arg_src)
+
+netapp_ds = OpenNebula::Datastore.new_with_id(arg_dsid, snap_create.one)
+rc = netapp_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = netapp_ds.to_hash['DATASTORE']['TEMPLATE']
+
+host     = ds_hash['NETAPP_HOST']
+user     = ds_hash['NETAPP_USER']
+password = ds_hash['NETAPP_PASS']
+
+netapp_suffix = ds_hash.key?('NETAPP_SUFFIX') ? "_#{ds_hash['NETAPP_SUFFIX']}" : ''
+
+auth = Base64.strict_encode64("#{user}:#{password}")
+netapp = TransferManager::NetApp.new(auth, host, false, :action => snap_create)
+
+OpenNebula::DriverLogger.log_info "Creating snapshot for Disk ID #{src.disk_id} " \
+                                  "of VM ID #{arg_vmid}"
+
+begin
+    source_vol_name = "one_#{arg_vmid}_disk_#{src.disk_id}#{netapp_suffix}"
+    source_volume   = TransferManager::NetApp::Volume.new({ 'name' => source_vol_name }, netapp)
+    OpenNebula::DriverLogger.log_info "Found source volume #{source_vol_name}"
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error 'Error finding source volume ' \
+                                       "#{source_vol_name}: #{e.message}"
+    exit 1
+end
+
+begin
+    freeze_cmd, thaw_cmd = live ? fsfreeze(snap_create.vm, snap_create.vm.deploy_id) : nil
+    snapshot_data = { 'name' => "one_snap_#{arg_snapid}" }
+
+    if live
+        rc = snap_create.ssh(:host => src.host, :cmds => freeze_cmd)
+        raise rc.message if OpenNebula.is_error?(rc)
+    end
+    _snapshot = source_volume.create_snapshot(snapshot_data)
+    OpenNebula::DriverLogger.log_info "Created snapshot #{arg_snapid} for #{source_vol_name}"
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Error creating snapshot #{arg_snapid} " \
+    "for #{source_vol_name}: #{e.message}"
+    exit 1
+ensure
+    if live
+        rc = snap_create.ssh(:host => src.host, :cmds => thaw_cmd)
+        raise rc.message if OpenNebula.is_error?(rc)
+    end
+end
+
+exit 0

@@ -1,0 +1,109 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/netapp'
+
+arg_src   = ARGV[0]
+arg_size  = ARGV[1].to_i
+arg_vmid  = ARGV[2]
+
+resize = TransferManager::Action.new(:vm_id => arg_vmid, :action_name => 'resize')
+src    = TransferManager::Action::Location.new(arg_src)
+vm     = OpenNebula::VirtualMachine.new_with_id(arg_vmid, resize.one)
+vm.info!
+
+vm_history = vm.to_hash['VM']['HISTORY_RECORDS']['HISTORY']
+if vm_history.is_a?(Array)
+    dsid = vm_history.last['DS_ID']
+else
+    dsid = vm_history['DS_ID']
+end
+
+src_ds = OpenNebula::Datastore.new_with_id(dsid, resize.one)
+rc = src_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+volume_resized = false
+begin
+    ds_hash = src_ds.to_hash['DATASTORE']['TEMPLATE']
+
+    host     = ds_hash['NETAPP_HOST']
+    user     = ds_hash['NETAPP_USER']
+    password = ds_hash['NETAPP_PASS']
+    target   = ds_hash['NETAPP_TARGET']
+
+    netapp_suffix = ds_hash.key?('NETAPP_SUFFIX') ? "_#{ds_hash['NETAPP_SUFFIX']}" : ''
+
+    netapp_reserve = if ds_hash.key?('NETAPP_RESERVE')
+                         ds_hash['NETAPP_RESERVE'].to_i
+                     else
+                         TransferManager::NetApp::Volume::DEFAULT_SNAPSHOT_RESERVE
+                     end
+
+    grow_threshold = if ds_hash.key?('NETAPP_GROW_THRESHOLD')
+                         ds_hash['NETAPP_GROW_THRESHOLD'].to_i
+                     else
+                         TransferManager::NetApp::Volume::DEFAULT_GROW_THRESHOLD
+                     end
+
+    grow_ratio     = if ds_hash.key?('NETAPP_GROW_RATIO')
+                         ds_hash['NETAPP_GROW_RATIO'].to_f
+                     else
+                         TransferManager::NetApp::Volume::DEFAULT_GROW_RATIO
+                     end
+
+    adjusted_size = (arg_size * (1 + netapp_reserve / 100.0)).ceil
+    autosize_data = {
+        'autosize' => {
+            'grow_threshold' => grow_threshold,
+            'maximum'        => "#{adjusted_size.to_f * grow_ratio}MB",
+            'minimum'        => "#{adjusted_size}MB",
+            'mode'           => 'grow_shrink'
+        }
+    }
+
+    auth   = Base64.strict_encode64("#{user}:#{password}")
+    netapp = TransferManager::NetApp.new(auth, host, target, :action => resize)
+
+    vol_name = "one_#{arg_vmid}_disk_#{src.disk_id}#{netapp_suffix}"
+    img_vol = TransferManager::NetApp::Volume.new({ 'name' => vol_name }, netapp)
+    original_size_mb     = img_vol['size'].to_i / 1024 / 1024
+    original_lun_size_mb = img_vol.lun['size'].to_i / 1024 / 1024
+    img_lun = img_vol.lun
+
+    img_vol.resize("#{adjusted_size}M", autosize_data)
+    OpenNebula::DriverLogger.log_info "Resized volume #{img_vol.name}"
+    volume_resized = true
+    img_lun.resize("#{arg_size}M")
+    lun_resized = true
+    OpenNebula::DriverLogger.log_info "Resized LUN #{img_lun.name}"
+
+    # If this is a live VM we should update the device data outside the VM
+    img_lun.lun_map.update_size(src.host, original_lun_size_mb) if img_lun.lun_map
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Error resizing volume/LUN for #{img_vol.name}: #{e.message}"
+    img_vol.resize("#{original_size_mb}M") if volume_resized && !lun_resized
+    if lun_resized
+        OpenNebula::DriverLogger.log_error \
+            "LUN already grown, cannot shrink back to #{original_lun_size_mb}M"
+    end
+    exit 1
+end

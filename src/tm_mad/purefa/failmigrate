@@ -1,0 +1,94 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/purefa'
+
+include TransferManager
+include OpenNebula
+
+_src_host = ARGV[0]
+dst_host  = ARGV[1]
+dst_dir   = ARGV[2]
+vm_id     = ARGV[3]
+dsid      = ARGV[4]
+
+daction64 = STDIN.read
+
+failmigrate = TransferManager::Action.new(:vm_id => vm_id, :action_name => 'failmigrate')
+
+action = Base64.decode64(daction64)
+xml = REXML::Document.new(action).root
+
+hpool = HostPool.new(mv.one)
+rc = hpool.info
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+purefa_data = OpenNebula::Datastore.new_with_id(dsid, failmigrate.one)
+rc = purefa_data.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = purefa_data.to_hash['DATASTORE']['TEMPLATE']
+
+purefa_host    = ds_hash['PUREFA_HOST']
+purefa_token   = ds_hash['PUREFA_API_TOKEN']
+purefa_target  = ds_hash['PUREFA_TARGET']
+purefa_version = ds_hash.key?('PUREFA_VERSION') ? ds_hash['PUREFA_VERSION'] : PureFA::DEFAULT_API_VERSION
+purefa_suffix  = ds_hash.key?('PUREFA_SUFFIX') ? "_#{ds_hash['PUREFA_SUFFIX']}" : ''
+
+purefa = PureFA.new(
+    :host        => purefa_host,
+    :target      => purefa_target,
+    :api_token   => purefa_token,
+    :api_version => purefa_version,
+    :action      => failmigrate
+)
+
+DriverLogger.log_info "Removing VM #{vm_id} disk references from #{dst_host}"
+
+begin
+    xml.elements.each('//DISK') do |disk|
+        disk_id = disk.elements['DISK_ID'].text
+        next unless disk.elements['TM_MAD'].text rescue nil == 'purefa'
+
+        vol_name = "one_#{vm_id}_disk_#{disk_id}#{purefa_suffix}"
+
+        volume = purefa.get_volume(vol_name)
+        cxn = volume.get_connection(dst_host)
+
+        cxn.remove_connection(dst_host, :force => true)
+
+        DriverLogger.log_info "Cleaned up disk reference for VM #{vm_id}'s " \
+                              "Disk #{disk_id} from #{dst_host}"
+
+        cxn.delete
+    end
+
+    failmigrate.ssh(
+        :cmds => "rm -rf #{dst_dir}",
+        :host => dst_host,
+        :err_msg => "Error deleting #{dst_dir} on #{dst_host}"
+    )
+rescue StandardError => e
+    DriverLogger.log_error "Fatal failmigration error: #{e.message}"
+    exit 1
+end
+
+exit 0

@@ -1,0 +1,34 @@
+[Unit]
+Description=OpenNebula FabricManager Service
+After=libvirtd.service network-online.target
+Requires=libvirtd.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Group=oneadmin
+User=oneadmin
+RemainAfterExit=yes
+WorkingDirectory=/var/lib/one/
+
+# 1. Run download script (will exit early if image exists)
+ExecStartPre=/usr/lib/one/download-image.sh
+
+# 2. Check for XML template
+ExecStartPre=/usr/bin/test -f /etc/one/one-fabricmanager.xml
+
+# 3. Generate final XML (includes UEFI detection + PCI devices)
+ExecStartPre=/usr/lib/one/prepare_vm_xml.sh
+
+# 4. Define VM if it doesn't exist
+ExecStartPre=/bin/bash -c 'virsh -c qemu:///system dominfo one-fabricmanager >/dev/null 2>&1 || virsh -c qemu:///system define /var/lib/one/fabricmanager/one-fabricmanager.xml'
+
+# 5. Start VM
+ExecStart=/usr/bin/virsh -c qemu:///system start one-fabricmanager
+
+# --- STOP LOGIC ---
+ExecStop=/bin/bash -c 'virsh -c qemu:///system dominfo one-fabricmanager >/dev/null 2>&1 && virsh -c qemu:///system destroy one-fabricmanager --graceful || true'
+ExecStopPost=/bin/bash -c 'virsh -c qemu:///system dominfo one-fabricmanager >/dev/null 2>&1 && virsh -c qemu:///system undefine one-fabricmanager --nvram || true; rm -f /run/one-fabricmanager.xml'
+
+[Install]
+WantedBy=multi-user.target

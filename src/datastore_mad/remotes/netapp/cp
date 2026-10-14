@@ -1,0 +1,209 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require 'tmpdir'
+require 'fileutils'
+
+require_relative '../../tm/lib/tm_action'
+require_relative '../../tm/lib/netapp'
+
+def get_image_format(src_path)
+    info_command = "qemu-img info --output=json #{src_path}"
+    rc = TransferManager::Action.ssh(:cmds => info_command)
+    rc.code != 0 ? nil : JSON.parse(rc.stdout)['format']
+end
+
+# Fetch arguments
+daction64  = STDIN.read
+request_id = ARGV[0]
+
+begin
+    action = Base64.decode64(daction64)
+    xml = REXML::Document.new(action).root
+
+    # Extract only the fields required for the NetApp operation
+    ds_id = xml.elements['DATASTORE/ID'].text.to_i
+    base_path = xml.elements['DATASTORE/BASE_PATH'].text
+    src_path = xml.elements['IMAGE/PATH'].text
+    src_size = xml.elements['IMAGE/SIZE'].text.to_i
+    src_size = 20 if src_size < 20
+
+    os_type = xml.elements['IMAGE/OS_TYPE']
+    os_type = os_type.nil? ? 'linux' : os_type.text
+
+    netapp_host       = xml.elements['DATASTORE/TEMPLATE/NETAPP_HOST'].text
+    netapp_user       = xml.elements['DATASTORE/TEMPLATE/NETAPP_USER'].text
+    netapp_pass       = xml.elements['DATASTORE/TEMPLATE/NETAPP_PASS'].text
+    netapp_svm        = xml.elements['DATASTORE/TEMPLATE/NETAPP_SVM'].text
+    netapp_igroup     = xml.elements['DATASTORE/TEMPLATE/NETAPP_IGROUP'].text
+    netapp_target     = xml.elements['DATASTORE/TEMPLATE/NETAPP_TARGET'].text
+    netapp_aggregates = xml.elements['DATASTORE/TEMPLATE/NETAPP_AGGREGATES'].text.split(',')
+
+    netapp_suffix = xml.elements['DATASTORE/TEMPLATE/NETAPP_SUFFIX']
+    netapp_suffix = netapp_suffix.nil? ? '' : "_#{netapp_suffix.text}"
+
+    netapp_reserve = xml.elements['DATASTORE/TEMPLATE/NETAPP_RESERVE']
+    netapp_reserve = if netapp_reserve.nil?
+                         TransferManager::NetApp::Volume::DEFAULT_SNAPSHOT_RESERVE
+                     else
+                         netapp_reserve.text.to_i
+                     end
+
+    grow_threshold = xml.elements['DATASTORE/TEMPLATE/NETAPP_GROW_THRESHOLD']
+    grow_threshold = if grow_threshold.nil?
+                         TransferManager::NetApp::Volume::DEFAULT_GROW_THRESHOLD
+                     else
+                         grow_threshold.text.to_i
+                     end
+
+    grow_ratio     = xml.elements['DATASTORE/TEMPLATE/NETAPP_GROW_RATIO']
+    grow_ratio     = if grow_ratio.nil?
+                         TransferManager::NetApp::Volume::DEFAULT_GROW_RATIO
+                     else
+                         grow_ratio.text.to_f
+                     end
+
+    raise 'Missing required datastore attributes' unless ds_id && base_path && src_path
+rescue StandardError => e
+    STDERR.puts "Error parsing DS_DRIVER_ACTION_DATA: #{e.message}"
+    exit(-1)
+end
+
+cp = TransferManager::Action.new(:action_name => 'cp')
+
+netapp_auth = Base64.strict_encode64("#{netapp_user}:#{netapp_pass}")
+netapp = TransferManager::NetApp.new(netapp_auth, netapp_host, netapp_target, :action => cp)
+svm = netapp.get_svm(netapp_svm, netapp_aggregates)
+
+downloader_command = "#{File.dirname(__FILE__)}/../downloader.sh"
+
+volume_name = "one_#{ds_id}_#{request_id}#{netapp_suffix}"
+lun_name = "/vol/#{volume_name}/#{volume_name}_lun"
+volume_created = false
+
+adj_size = (src_size.to_f * (1 + netapp_reserve / 100.0)).ceil
+
+begin
+    volume = svm.create_volume({
+                                   'name'  => volume_name,
+                                   'size'  => "#{adj_size}M",
+                                   'space' => {
+                                       'snapshot' => {
+                                           'reserve_percent' => netapp_reserve
+                                       }
+                                   },
+                                   'autosize' => {
+                                       'grow_threshold' => grow_threshold,
+                                       'maximum'        => "#{(adj_size.to_f * grow_ratio).ceil}MB",
+                                       'minimum'        => "#{adj_size}MB",
+                                       'mode'           => 'grow_shrink'
+                                   }
+                               })
+
+    OpenNebula::DriverLogger.log_info "Created volume: #{volume_name}"
+    volume_created = true
+    lun = volume.create_lun({
+                                'name' => lun_name,
+                                'os_type' => os_type,
+                                'space' => { 'size' => "#{src_size}M" }
+                            })
+
+    OpenNebula::DriverLogger.log_info "Created LUN: #{lun_name}"
+rescue StandardError => e
+    volume_created && volume.delete
+    OpenNebula::DriverLogger.log_error "Failed to create LUN for #{lun_name}: #{e.message}"
+    raise
+end
+
+begin
+    lun.create_lun_map({ 'igroup' => { 'uuid' => netapp_igroup } })
+    device_path = lun.lun_map.setup_disk
+
+    OpenNebula::DriverLogger.log_info "Discovered device: #{device_path}"
+rescue StandardError => e
+    lun.lun_map.remove_connection(false, :force => true) if lun.lun_map
+    lun.delete_with_map
+    volume.delete
+    OpenNebula::DriverLogger.log_error "Failed to setup LUN and map for #{lun_name}: #{e.message}"
+    raise
+end
+
+temp_file = nil
+begin
+    lun_cleaned = false
+    Dir.mktmpdir do |tmp_dir|
+        realpath_command = "readlink -f #{device_path}"
+        rc = cp.ssh({
+                        :cmds => realpath_command,
+                        :host => false,
+                        :nostdout => false
+                    })
+        exit(rc.code) if rc.code != 0
+
+        real_device_path = rc.stdout.strip
+
+        temp_file = File.join(tmp_dir, "temp_image_#{volume.name}.qcow2")
+
+        download_command = "#{downloader_command} #{src_path} #{temp_file}"
+        rc = cp.ssh({
+                        :cmds => "DRV_ACTION='#{daction64}' #{download_command}",
+                        :host => false,
+                        :err_msg => "Failed to download #{src_path} to #{temp_file}",
+                        :nostderr => false
+                    })
+        if rc.code != 0
+            OpenNebula::DriverLogger.log_error "Downloader STDERR: #{rc.stderr}"
+            exit(rc.code)
+        end
+
+        convert_command = "qemu-img convert -O raw #{temp_file} #{real_device_path}"
+        rc = cp.ssh({
+                        :cmds => convert_command,
+                        :host => false,
+                        :err_msg => "Failed to convert #{temp_file} to #{device_path}",
+                        :nostderr => false
+                    })
+        if rc.code != 0
+            OpenNebula::DriverLogger.log_error "Converter STDERR: #{rc.stderr}"
+            exit(rc.code) if rc.code != 0
+        end
+
+        lun.lun_map.flush_device_io(false, real_device_path)
+
+        OpenNebula::DriverLogger.log_info "Copied #{src_path} to #{device_path}"
+    end
+
+    puts "#{lun_name} raw"
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Failed to setup data for LUN #{lun_name}: #{e.message}"
+    lun.lun_map.remove_connection(false, :force => true)
+    lun.delete_with_map
+    lun_cleaned = true
+    volume.delete
+    OpenNebula::DriverLogger.log_error "Cleaned up LUN and volume for #{lun_name}"
+    raise
+ensure
+    unless lun_cleaned
+        lun.lun_map.remove_connection(false, :force => true)
+        lun.lun_map.delete
+    end
+    FileUtils.rm_rf(temp_file) if temp_file
+end
+
+exit 0

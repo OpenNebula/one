@@ -1,0 +1,136 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/netapp'
+
+src_host = ARGV[0]
+dst_host = ARGV[1]
+dst_dir  = ARGV[2]
+vm_id    = ARGV[3]
+dsid     = ARGV[4]
+
+daction64 = STDIN.read
+
+premigrate = TransferManager::Action.new(:vm_id => vm_id, :action_name => 'premigrate')
+
+action = Base64.decode64(daction64)
+xml = REXML::Document.new(action).root
+
+if src_host == dst_host
+    OpenNebula::DriverLogger.log_info "Not moving VM #{vm_id} from #{src_host} to #{dst_host}" \
+                                      ', they are the same host'
+    exit 0
+end
+
+begin
+    netapp_data = OpenNebula::Datastore.new_with_id(dsid, premigrate.one)
+    rc = netapp_data.info(true)
+    raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+    ds_hash = netapp_data.to_hash['DATASTORE']['TEMPLATE']
+
+    host     = ds_hash['NETAPP_HOST']
+    user     = ds_hash['NETAPP_USER']
+    password = ds_hash['NETAPP_PASS']
+    igroup   = ds_hash['NETAPP_IGROUP']
+    target   = ds_hash['NETAPP_TARGET']
+
+    netapp_suffix = ds_hash.key?('NETAPP_SUFFIX') ? "_#{ds_hash['NETAPP_SUFFIX']}" : ''
+
+    auth = Base64.strict_encode64("#{user}:#{password}")
+    netapp = TransferManager::NetApp.new(auth, host, target, :action => premigrate)
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Unable to establish connection with NetApp: #{e.message}"
+    exit 1
+end
+
+OpenNebula::DriverLogger.log_info "Moving VM #{vm_id} from #{src_host} to #{dst_host}"
+
+# Move files over tar | ssh
+tar_ssh = <<~EOF
+    set -e -o pipefail
+
+    tar -C '#{File.dirname(dst_dir)}' \
+      --sparse \
+      -cf - '#{File.basename(dst_dir)}' |
+        ssh '#{dst_host}' '
+          rm -rf '#{dst_dir}';
+          mkdir -p '#{File.dirname(dst_dir)}';
+          tar -C #{File.dirname(dst_dir)} --sparse -xf -;
+        '
+EOF
+
+rc = premigrate.ssh(:host => src_host,
+                    :cmds => tar_ssh,
+                    :forward => true,
+                    :err_msg => 'Error copying disk directory to target host',
+                    :nostdout => false,
+                    :nostderr => false)
+
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+begin
+    # Process NetApp disks with hard failure on errors
+    xml.elements.each('//DISK') do |disk|
+        disk_id   = disk.elements['DISK_ID'].text
+        tm_mad    = disk.elements['TM_MAD'].text rescue nil
+
+        next unless tm_mad == 'netapp'
+
+        vol_name = "one_#{vm_id}_disk_#{disk_id}#{netapp_suffix}"
+
+        OpenNebula::DriverLogger.log_info "Checking disk #{disk_id} → #{vol_name}"
+
+        volume = TransferManager::NetApp::Volume.new({ 'name' => vol_name }, netapp)
+        # volume.fetch_data
+        lun = volume.lun || raise("LUN not found for #{vol_name}")
+        if !lun.lun_map
+            lun.create_lun_map({ 'igroup' => { 'uuid' => igroup } })
+        end
+
+        new_device = lun.lun_map.setup_disk(:host => dst_host)
+
+        if !new_device
+            raise "Unable to find device for #{vol_name} on #{dst_host}"
+        end
+
+        new_device_path = File.join(dst_dir, "disk.#{disk_id}")
+
+        script = <<-EOS
+            mkdir -p "$(dirname '#{new_device_path}')" && \
+            ln -sf '#{new_device}' '#{new_device_path}'
+        EOS
+
+        premigrate.ssh(
+            :cmds => script,
+            :host => dst_host,
+            :err_msg => 'creating parent directory and symbolic link'
+        )
+
+        OpenNebula::DriverLogger.log_info "Premigrated disk #{disk_id} " \
+                                          "from #{src_host} to #{dst_host}"
+    end
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Fatal premigration error: #{e.message}"
+    exit 1
+end
+
+exit 0

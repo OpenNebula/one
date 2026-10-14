@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/purefa'
+require_relative '../lib/kvm'
+
+include TransferManager
+include OpenNebula
+
+include TransferManager::KVM
+
+arg_src    = ARGV[0]
+arg_snapid = ARGV[1]
+arg_vmid   = ARGV[2]
+arg_dsid   = ARGV[3]
+
+live = __FILE__.end_with? '_live'
+snap_create = Action.new(:vm_id => arg_vmid, :action_name => 'snap_create')
+
+src = Action::Location.new(arg_src)
+
+purfa_ds = Datastore.new_with_id(arg_dsid, snap_create.one)
+rc = purfa_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = purfa_ds.to_hash['DATASTORE']['TEMPLATE']
+
+purefa_host    = ds_hash['PUREFA_HOST']
+purefa_token   = ds_hash['PUREFA_API_TOKEN']
+purefa_version = ds_hash.key?('PUREFA_VERSION') ? ds_hash['PUREFA_VERSION'] : PureFA::DEFAULT_API_VERSION
+purefa_suffix  = ds_hash.key?('PUREFA_SUFFIX') ? "_#{ds_hash['PUREFA_SUFFIX']}" : ''
+
+purefa = PureFA.new(
+    :host        => purefa_host,
+    :target      => nil,
+    :api_token   => purefa_token,
+    :api_version => purefa_version,
+    :action      => snap_create
+)
+
+begin
+    volume_name = "one_#{arg_vmid}_disk_#{src.disk_id}#{purefa_suffix}"
+    source_volume = purefa.get_volume(volume_name)
+    DriverLogger.log_info "Retrieved volume #{volume_name}"
+rescue StandardError => e
+    DriverLogger.log_info "Error retrieving volume #{volume_name}: #{e.message}"
+    exit 1
+end
+
+begin
+    freeze_cmd, thaw_cmd = live ? fsfreeze(snap_create.vm, snap_create.vm.deploy_id) : nil
+
+    if live
+        rc = snap_create.ssh(:host => src.host, :cmds => freeze_cmd)
+        raise rc.message if OpenNebula.is_error?(rc)
+    end
+
+    _snapshot = source_volume.create_snapshot(arg_snapid)
+    DriverLogger.log_info "Created snapshot #{arg_snapid} for #{volume_name}"
+rescue StandardError => e
+    DriverLogger.log_info "Error creating snapshot #{arg_snapid} " \
+    "for #{volume_name}: #{e.message}"
+    exit 1
+ensure
+    if live
+        rc = snap_create.ssh(:host => src.host, :cmds => thaw_cmd)
+        raise rc.message if OpenNebula.is_error?(rc)
+    end
+end
+
+exit 0

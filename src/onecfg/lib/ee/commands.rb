@@ -18,10 +18,8 @@
 # rubocop:disable Style/ClassAndModuleChildren
 module OneCfg::EE
 
-    # EE Commands module
+    # Commands module
     module Commands
-
-        # TODO, avoid duplicated options (ce and ee)
 
         ########################################################################
         # Global Options

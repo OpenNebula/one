@@ -1,0 +1,132 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/purefa'
+
+include TransferManager
+include OpenNebula
+
+src_host = ARGV[0]
+dst_host = ARGV[1]
+dst_dir  = ARGV[2]
+vm_id    = ARGV[3]
+dsid     = ARGV[4]
+
+daction64 = STDIN.read
+
+premigrate = Action.new(:vm_id => vm_id, :action_name => 'premigrate')
+
+action = Base64.decode64(daction64)
+xml = REXML::Document.new(action).root
+
+if src_host == dst_host
+    OpenNebula::DriverLogger.log_info "Not moving VM #{vm_id} from #{src_host} to #{dst_host}" \
+                                      ', they are the same host'
+    exit 0
+end
+
+purefa_data = OpenNebula::Datastore.new_with_id(dsid, premigrate.one)
+rc = purefa_data.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = purefa_data.to_hash['DATASTORE']['TEMPLATE']
+
+purefa_host    = ds_hash['PUREFA_HOST']
+purefa_token   = ds_hash['PUREFA_API_TOKEN']
+purefa_target  = ds_hash['PUREFA_TARGET']
+purefa_version = ds_hash.key?('PUREFA_VERSION') ? ds_hash['PUREFA_VERSION'] : PureFA::DEFAULT_API_VERSION
+purefa_suffix  = ds_hash.key?('PUREFA_SUFFIX') ? "_#{ds_hash['PUREFA_SUFFIX']}" : ''
+
+purefa = PureFA.new(
+    :host        => purefa_host,
+    :target      => purefa_target,
+    :api_token   => purefa_token,
+    :api_version => purefa_version,
+    :action      => premigrate
+)
+
+tar_ssh = <<~EOF
+    set -e -o pipefail
+
+    tar -C '#{File.dirname(dst_dir)}' \
+    --sparse \
+    -cf - '#{File.basename(dst_dir)}' |
+        ssh '#{dst_host}' '
+        rm -rf '#{dst_dir}';
+        mkdir -p '#{File.dirname(dst_dir)}';
+        tar -C #{File.dirname(dst_dir)} --sparse -xf -;
+        '
+EOF
+
+begin
+    rc = premigrate.ssh(:host => src_host,
+                        :cmds => tar_ssh,
+                        :forward => true,
+                        :err_msg => 'Error copying disk directory to target host',
+                        :nostdout => false,
+                        :nostderr => false)
+
+    raise rc.message.to_s if OpenNebula.is_error?(rc)
+rescue StandardError => e
+    DriverLogger.log_error "Error copying disk directory to target host: #{e.message}"
+    DriverLogger.log_error e.backtrace.to_s
+    exit 1
+end
+
+begin
+    xml.elements.each('//DISK') do |disk|
+        disk_id = disk.elements['DISK_ID'].text
+        tm_mad  = disk.elements['TM_MAD'].text rescue nil
+
+        next unless tm_mad == 'purefa'
+
+        vol_name = "one_#{vm_id}_disk_#{disk_id}#{purefa_suffix}"
+
+        DriverLogger.log_info "Checking disk #{disk_id} → #{vol_name}"
+
+        volume = purefa.get_volume(vol_name)
+        cxn = volume.create_connection(dst_host)
+
+        new_device = cxn.setup_disk(:host => dst_host)
+
+        new_device_path = File.join(dst_dir, "disk.#{disk_id}")
+
+        script = <<-EOS
+            mkdir -p "$(dirname '#{new_device_path}')" && \
+            ln -sf '#{new_device}' '#{new_device_path}'
+        EOS
+
+        premigrate.ssh(
+            :cmds => script,
+            :host => dst_host,
+            :err_msg => "creating symlink from #{new_device} to #{new_device_path}"
+        )
+
+        DriverLogger.log_info "Premigrated disk #{disk_id} " \
+                              "from #{src_host} to #{dst_host}"
+    end
+rescue StandardError => e
+    DriverLogger.log_error "Error premigrating disks: #{e.message}"
+    DriverLogger.log_error e.backtrace.to_s
+    exit 1
+end
+
+exit 0

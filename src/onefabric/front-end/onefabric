@@ -1,0 +1,227 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+else
+    RUBY_LIB_LOCATION = "#{ONE_LOCATION}/lib/ruby"
+    GEMS_LOCATION     = "#{ONE_LOCATION}/share/gems"
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+require 'load_opennebula_paths'
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << "#{RUBY_LIB_LOCATION}/cli"
+
+# Load onefabric helper
+require 'one_helper/onefabric_helper'
+# Load standard OpenNebula helpers
+require 'command_parser'
+require 'one_helper/onehost_helper'
+require 'one_helper/onecluster_helper'
+
+CommandParser::CmdParser.new(ARGV) do
+    usage '`onefabric` <command> [<args>] [<options>]'
+    version 'OpenNebula FabricManager CLI'
+
+    helper = OneFabricHelper.new
+
+    # Connect to OpenNebula core (oned) before running any command
+    before_proc do
+        helper.one_client(options)
+    end
+
+    # --- Global Options ---
+    # Standard OpenNebula CLI options (like --endpoint, --user, etc.)
+    cmd_options = CommandParser::OPTIONS - [CommandParser::VERBOSE]
+    set :option, cmd_options + OpenNebulaHelper::CLIENT_OPTIONS
+
+    # --- Host/Cluster Selection Options (from onehost) ---
+    HOST = {
+        :name  => 'host',
+        :short => '-H id,id...',
+        :large => '--host id,id...',
+        :description => 'Select hosts by ID or name, comma separated list',
+        :format => String
+    }
+
+    CLUSTER = OneClusterHelper::CLUSTER
+
+    # --- Formatters (from onehost) ---
+    # These help convert host/cluster names/IDs provided by the user
+    set :format, :hostid_list, OneHostHelper.list_to_id_desc do |arg|
+        OneHostHelper.new.list_to_id(arg, false, helper.client) # Pass client
+    end
+    set :format, :clusterid, OneClusterHelper.to_id_desc do |arg|
+        OneClusterHelper.new.to_id(arg, helper.client) # Pass client
+    end
+
+    # --- Fabric Manager Commands ---
+
+    # Helper function to parse host/cluster options and get IDs
+    def parse_target_options(options, helper)
+        # Resolve hosts: accept "0", "1,2", "myhost1,myhost2"
+        host_ids = []
+        if options[:host]
+            tokens = options[:host].split(',').map {|t| t.strip }.reject(&:empty?)
+
+            # Fetch pool once
+            pool = OpenNebula::HostPool.new(helper.client)
+            rc = pool.info_all
+            if OpenNebula.is_error?(rc)
+                warn "Error getting host list: #{rc.message}"
+                exit(-1)
+            end
+
+            # Build a map NAME -> ID for quick lookups
+            name_to_id = {}
+            pool.each {|h| name_to_id[h['NAME']] = h['ID'].to_i }
+
+            host_ids = tokens.map do |t|
+                if t =~ /^\d+$/
+                    t.to_i
+                else
+                    id = name_to_id[t]
+                    if id.nil?
+                        warn "Host not found: #{t}"
+                        exit(-1)
+                    end
+                    id
+                end
+            end
+        end
+
+        # Resolve cluster (IDs or names)
+        cluster_id = nil
+        if options[:cluster]
+            # Try integer first
+            if options[:cluster].to_s =~ /^\d+$/
+                cluster_id = options[:cluster].to_i
+            else
+                # Resolve via ClusterPool
+                cpool = OpenNebula::ClusterPool.new(helper.client)
+                rc = cpool.info
+                if OpenNebula.is_error?(rc)
+                    warn "Error getting cluster list: #{rc.message}"
+                    exit(-1)
+                end
+
+                match = nil
+                cpool.each do |c|
+                    if c['NAME'] == options[:cluster]
+                        match = c['ID'].to_i
+                        break
+                    end
+                end
+
+                if match.nil?
+                    warn "Cluster not found: #{options[:cluster]}"
+                    exit(-1)
+                end
+
+                cluster_id = match
+            end
+        end
+
+        [host_ids || [], cluster_id]
+    end
+
+    # Define common options for most commands
+    TARGETING_OPTIONS = [HOST, CLUSTER]
+
+    status_desc = <<-EOT.dup.unindent
+        Shows the status of the Fabric Manager service and VM on selected hosts.
+        Defaults to all hosts if none specified.
+    EOT
+    command :status, status_desc, :options => TARGETING_OPTIONS do
+        host_ids, cluster_id = parse_target_options(options, helper)
+        helper.perform_on_hosts(host_ids, cluster_id, ['--status'])
+    end
+
+    list_desc = <<-EOT.dup.unindent
+        Lists NVSwitch partitions on selected hosts using nv-partitioner.
+    EOT
+    # Define a specific CSV option for this command
+    LIST_CSV = {
+        :name => 'csv',
+      :large => '--csv',
+      :description => 'Output in CSV format'
+    }
+    command :list, list_desc, :options => TARGETING_OPTIONS + [LIST_CSV] do
+        args = ['--list']
+        args << '--csv' if options[:csv]
+        host_ids, cluster_id = parse_target_options(options, helper)
+        helper.perform_on_hosts(host_ids, cluster_id, args)
+    end
+
+    activate_desc = <<-EOT.dup.unindent
+        Activates an NVSwitch partition on selected hosts.
+    EOT
+    command :activate, activate_desc, :partition_id, :options => TARGETING_OPTIONS do
+        part_id = args[0]
+        if part_id.nil? || part_id.empty?
+            warn 'Error: Partition ID is required.'
+            exit(-1)
+        end
+        host_ids, cluster_id = parse_target_options(options, helper)
+        helper.perform_on_hosts(host_ids, cluster_id, ['--activate', part_id])
+    end
+
+    deactivate_desc = <<-EOT.dup.unindent
+        Deactivates an NVSwitch partition on selected hosts.
+    EOT
+    command :deactivate, deactivate_desc, :partition_id, :options => TARGETING_OPTIONS do
+        part_id = args[0]
+        if part_id.nil? || part_id.empty?
+            warn 'Error: Partition ID is required.'
+            exit(-1)
+        end
+        host_ids, cluster_id = parse_target_options(options, helper)
+        helper.perform_on_hosts(host_ids, cluster_id, ['--deactivate', part_id])
+    end
+
+    audit_desc = <<-EOT.dup.unindent
+        Runs nvswitch-audit inside the Fabric Manager VM on selected hosts.
+    EOT
+    command :audit, audit_desc, :options => TARGETING_OPTIONS do
+        host_ids, cluster_id = parse_target_options(options, helper)
+        helper.perform_on_hosts(host_ids, cluster_id, ['--audit'])
+    end
+
+    exec_desc = <<-EOT.dup.unindent
+        Executes an arbitrary shell command inside the Fabric Manager VM
+        on selected hosts using qemu-guest-agent.
+
+        Example: onefabric --host mykvm exec "ls -l /"
+    EOT
+    command :exec, exec_desc, :shell_command, :options => TARGETING_OPTIONS do
+        cmd_str = args[0]
+        if cmd_str.nil? || cmd_str.empty?
+            warn 'Error: Command string is required.'
+            exit(-1)
+        end
+        host_ids, cluster_id = parse_target_options(options, helper)
+        helper.perform_on_hosts(host_ids, cluster_id, ['--exec', cmd_str])
+    end
+end

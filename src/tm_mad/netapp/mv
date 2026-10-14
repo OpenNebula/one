@@ -1,0 +1,174 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/netapp'
+
+require 'socket'
+
+# This script sets up the disks for a VM on the hypervisor
+# It should be called from the hypervisor that needs to setup the disks
+
+# ARGUMENTS:
+# hostA:system_ds/disk.i|hostB:system_ds/disk.i
+# vm_id
+# ds_id
+# OR ---
+# hostA:system_ds/|hostB:system_ds/
+# vm_id
+# ds_id
+
+arg_src   = ARGV[0]
+arg_dst   = ARGV[1]
+arg_vmid  = ARGV[2]
+arg_dsid  = ARGV[3]
+
+src = TransferManager::Action::Location.new(arg_src)
+dst = TransferManager::Action::Location.new(arg_dst)
+if src.disk? && dst.disk?
+    OpenNebula::DriverLogger.log_info "Skipping single disk movement for VM #{arg_vmid}"
+    exit 0
+end
+
+s = Addrinfo.getaddrinfo(src.host, nil, :UNSPEC, :STREAM).select(&:ip?).map(&:ip_address).uniq
+d = Addrinfo.getaddrinfo(dst.host, nil, :UNSPEC, :STREAM).select(&:ip?).map(&:ip_address).uniq
+if !(s & d).empty?
+    OpenNebula::DriverLogger.log_info 'Refusing to copy to same host'
+    exit 0
+end
+
+mv = TransferManager::Action.new(:vm_id => arg_vmid, :action_name => 'mv')
+
+vm = OpenNebula::VirtualMachine.new_with_id(arg_vmid, mv.one)
+rc = vm.info
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+vm = vm.to_hash['VM']
+
+netapp_ds = OpenNebula::Datastore.new_with_id(arg_dsid, mv.one)
+rc = netapp_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = netapp_ds.to_hash['DATASTORE']['TEMPLATE']
+
+netapp_host = ds_hash['NETAPP_HOST']
+netapp_user = ds_hash['NETAPP_USER']
+netapp_pass = ds_hash['NETAPP_PASS']
+target      = ds_hash['NETAPP_TARGET']
+
+netapp_suffix = ds_hash.key?('NETAPP_SUFFIX') ? "_#{ds_hash['NETAPP_SUFFIX']}" : ''
+
+auth = Base64.strict_encode64("#{netapp_user}:#{netapp_pass}")
+netapp = TransferManager::NetApp.new(auth, netapp_host, target, :action => mv)
+
+# Move files over tar | ssh
+tar_ssh = <<~EOF
+    set -e -o pipefail
+
+    tar -C '#{src.dir}' \
+      --sparse --exclude='disk.*' \
+      -cf - '#{src.base}' |
+      ssh -T -- '#{dst.host}' bash -lc '
+          set -e -o pipefail;
+          rm -rf "#{dst.path}";
+          mkdir -p "#{dst.dir}";
+          tar -C #{dst.dir} -xf -
+      '
+EOF
+
+rc = mv.ssh(:host => src.host,
+            :cmds => tar_ssh,
+            :forward => true,
+            :err_msg => 'Error copying disk directory to target host',
+            :nostdout => false,
+            :nostderr => false)
+
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+vm_disks = vm['TEMPLATE']['DISK'].is_a?(Array) ? vm['TEMPLATE']['DISK'] : [vm['TEMPLATE']['DISK']]
+
+# Setup disks on new host
+vm_disks.each do |disk|
+    disk_id     = disk['DISK_ID']
+    link_path   = "/var/lib/one/datastores/#{arg_dsid}/#{arg_vmid}/disk.#{disk_id}"
+    volume_name = "one_#{arg_vmid}_disk_#{disk_id}#{netapp_suffix}"
+
+    volume = TransferManager::NetApp::Volume.new({ 'name' => volume_name }, netapp)
+    # volume.fetch_data
+
+    lun = volume.lun
+    # lun.fetch_data
+
+    link_exists = mv.ssh(
+        :cmds => "test -L #{link_path}",
+        :host => dst.host,
+        :silent => true
+    ).code == 0
+
+    if link_exists
+        OpenNebula::DriverLogger.log_info "Symlink on #{dst.host} already exists at #{link_path}"
+        next
+    end
+
+    disk_path = lun.lun_map.setup_disk(:host => dst.host)
+
+    link_command = <<-EOS
+        mkdir -p "$(dirname '#{link_path}')" && \
+        ln -sf '#{disk_path}' '#{link_path}'
+    EOS
+
+    mv.ssh(
+        :cmds => link_command,
+        :host => dst.host
+    )
+    OpenNebula::DriverLogger.log_info "Created symlink #{link_path} → #{disk_path}"
+end
+
+OpenNebula::DriverLogger.log_info "Setup disks on #{dst.host} for VM #{arg_vmid}"
+
+# Clean up disks on old host
+vm_disks.each do |disk|
+    disk_id     = disk['DISK_ID']
+    link_path   = "/var/lib/one/datastores/#{arg_dsid}/#{arg_vmid}/disk.#{disk_id}"
+    volume_name = "one_#{arg_vmid}_disk_#{disk_id}#{netapp_suffix}"
+
+    volume = TransferManager::NetApp::Volume.new({ 'name' => volume_name }, netapp)
+    # volume.fetch_data
+
+    lun = volume.lun
+    # lun.fetch_data
+
+    lun.lun_map.remove_connection(src.host, :force => true) if lun.lun_map
+
+    del_command = "unlink #{link_path}"
+    mv.ssh(
+        :cmds => del_command,
+        :host => src.host
+    )
+    OpenNebula::DriverLogger.log_info "Removed symlink #{link_path} on #{src.host}"
+end
+
+del_command = "rm -rf /var/lib/one/datastores/#{arg_dsid}/#{arg_vmid}"
+mv.ssh(
+    :cmds => del_command,
+    :host => src.host
+)
+OpenNebula::DriverLogger.log_info 'Removed VM directory ' \
+                                "/var/lib/one/datastores/#{arg_dsid}/#{arg_vmid} " \
+                                "for VM #{arg_vmid} on #{src.host}"

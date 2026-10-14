@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/netapp'
+
+# This script removes disks for a VM on the hypervisor
+# It should be called from the hypervisor that needs to clean the disks
+# Triggered by the Deployment script
+
+vm_id = ARGV[0].to_i
+
+cleanup_disks = TransferManager::Action.new(:vm_id => vm_id, :action_name => 'cleanup_disks')
+
+vm_obj = OpenNebula::VirtualMachine.new_with_id(vm_id, cleanup_disks.one)
+rc = vm_obj.info
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+vm = vm_obj.to_hash['VM']
+
+hist  = vm['HISTORY_RECORDS']['HISTORY']
+ds_id = hist.is_a?(Array) ? hist.last['DS_ID']    : hist['DS_ID']
+host  = hist.is_a?(Array) ? hist.last['HOSTNAME'] : hist['HOSTNAME']
+
+netapp_ds = OpenNebula::Datastore.new_with_id(ds_id, cleanup_disks.one)
+rc = netapp_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = netapp_ds.to_hash['DATASTORE']['TEMPLATE']
+
+netapp_host = ds_hash['NETAPP_HOST']
+netapp_user = ds_hash['NETAPP_USER']
+netapp_pass = ds_hash['NETAPP_PASS']
+target      = ds_hash['NETAPP_TARGET']
+
+netapp_suffix = ds_hash.key?('NETAPP_SUFFIX') ? "_#{ds_hash['NETAPP_SUFFIX']}" : ''
+
+auth = Base64.strict_encode64("#{netapp_user}:#{netapp_pass}")
+netapp = TransferManager::NetApp.new(auth, netapp_host, target, :action => cleanup_disks)
+
+vm_disks = vm['TEMPLATE']['DISK'].is_a?(Array) ? vm['TEMPLATE']['DISK'] : [vm['TEMPLATE']['DISK']]
+
+vm_disks.each do |disk|
+    disk_id = disk['DISK_ID']
+    volume_name = "one_#{vm_id}_disk_#{disk_id}#{netapp_suffix}"
+
+    volume = TransferManager::NetApp::Volume.new({ 'name' => volume_name }, netapp)
+    lun    = volume.lun
+
+    if lun.lun_map
+        lun.lun_map.remove_connection(host, :force => true)
+        lun.lun_map.delete
+    end
+
+    del_command = "rm -f /var/lib/one/datastores/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+    cleanup_disks.ssh(
+        :cmds => del_command,
+        :host => host
+    )
+    OpenNebula::DriverLogger.log_info 'Removed symlink ' \
+                                    "/var/lib/one/datastores/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+end

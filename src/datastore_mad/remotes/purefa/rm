@@ -1,0 +1,83 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../../tm/lib/tm_action'
+require_relative '../../tm/lib/purefa'
+
+include TransferManager
+include OpenNebula
+
+daction64 = STDIN.read
+image_id  = ARGV[0]
+
+begin
+    # Decode action
+    daction = Base64.decode64(daction64)
+    xml = REXML::Document.new(daction).root
+
+    img_source = xml.elements['IMAGE/SOURCE'].text
+    ds_id = xml.elements['DATASTORE/ID'].text
+
+    purefa_host    = xml.elements['DATASTORE/TEMPLATE/PUREFA_HOST'].text
+    purefa_token   = xml.elements['DATASTORE/TEMPLATE/PUREFA_API_TOKEN'].text
+    purefa_target  = xml.elements['DATASTORE/TEMPLATE/PUREFA_TARGET'].text
+    purefa_version = xml.elements['DATASTORE/TEMPLATE/PUREFA_VERSION']
+    purefa_version = purefa_version.nil? ? PureFA::DEFAULT_API_VERSION : purefa_version.text
+
+    purefa_suffix = xml.elements['DATASTORE/TEMPLATE/PUREFA_SUFFIX']
+    purefa_suffix = purefa_suffix.nil? ? '' : "_#{purefa_suffix.text}"
+
+    if img_source.empty? || img_source == '-'
+        vol_name = "one_#{ds_id}_#{image_id}#{purefa_suffix}"
+    else
+        vol_name = img_source
+    end
+rescue StandardError => e
+    STDERR.puts "Error parsing DS_DRIVER_ACTION_DATA: #{e.message}"
+    exit(-1)
+end
+
+rm = Action.new(:action_name => 'rm')
+
+purefa = PureFA.new(
+    :host        => purefa_host,
+    :target      => purefa_target,
+    :action      => rm,
+    :api_token   => purefa_token,
+    :api_version => purefa_version
+)
+
+begin
+    vol = purefa.get_volume(vol_name)
+
+    vol.destroy
+    if vol.delete
+        DriverLogger.log_info "Deleted volume #{vol_name}"
+    else
+        DriverLogger.log_error "Failed to delete volume #{vol_name}"
+        exit(-1)
+    end
+rescue Net::HTTPError => e
+    message = JSON.parse(e.response.body)['errors'].first['message']
+    raise e unless message.start_with?('Volume does not exist')
+
+    DriverLogger.log_info "Volume #{vol_name} not found"
+end
+
+exit 0

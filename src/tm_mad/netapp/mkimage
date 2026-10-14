@@ -1,0 +1,168 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/netapp'
+
+size    = [ARGV[0].to_i, 20].max
+_fmt    = ARGV[1]
+arg_dst = ARGV[2]
+vm_id   = ARGV[3]
+ds_id   = ARGV[4]
+
+mkimage   = TransferManager::Action.new(:vm_id => vm_id, :action_name => 'mkimage')
+dst       = TransferManager::Action::Location.new(arg_dst)
+netapp_ds = OpenNebula::Datastore.new_with_id(ds_id, mkimage.one)
+rc = netapp_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+TransferManager::Datastore.load_env
+
+fs = mkimage.disk_attribute(dst.disk_id, 'FS')
+
+unless fs.nil? || fs.strip.empty? || fs == '-' || ENV['SUPPORTED_FS'].split(',').include?(fs)
+    raise 'Unsupported filesystem'
+end
+
+ds_hash = netapp_ds.to_hash['DATASTORE']['TEMPLATE']
+
+host        = ds_hash['NETAPP_HOST']
+user        = ds_hash['NETAPP_USER']
+password    = ds_hash['NETAPP_PASS']
+svm_uuid    = ds_hash['NETAPP_SVM']
+igroup      = ds_hash['NETAPP_IGROUP']
+target      = ds_hash['NETAPP_TARGET']
+aggregates  = ds_hash['NETAPP_AGGREGATES']
+
+netapp_suffix = ds_hash.key?('NETAPP_SUFFIX') ? "_#{ds_hash['NETAPP_SUFFIX']}" : ''
+
+netapp_reserve = if ds_hash.key?('NETAPP_RESERVE')
+                     ds_hash['NETAPP_RESERVE'].to_i
+                 else
+                     TransferManager::NetApp::Volume::DEFAULT_SNAPSHOT_RESERVE
+                 end
+
+grow_threshold = if ds_hash.key?('NETAPP_GROW_THRESHOLD')
+                     ds_hash['NETAPP_GROW_THRESHOLD'].to_i
+                 else
+                     TransferManager::NetApp::Volume::DEFAULT_GROW_THRESHOLD
+                 end
+
+grow_ratio     = if ds_hash.key?('NETAPP_GROW_RATIO')
+                     ds_hash['NETAPP_GROW_RATIO'].to_f
+                 else
+                     TransferManager::NetApp::Volume::DEFAULT_GROW_RATIO
+                 end
+
+auth   = Base64.strict_encode64("#{user}:#{password}")
+netapp = TransferManager::NetApp.new(auth, host, target, :action => mkimage)
+
+svm = netapp.get_svm(svm_uuid, aggregates)
+
+OpenNebula::DriverLogger.log_info "Making image of #{size}M"
+
+new_volume_name = "one_#{vm_id}_disk_#{dst.disk_id}#{netapp_suffix}"
+new_lun_name    = "#{new_volume_name}_lun"
+
+os_type = mkimage.disk_attribute(dst.disk_id, 'OS_TYPE')
+os_type = 'linux' if os_type.empty?
+volume  = false
+lun     = false
+
+begin
+    adjusted_size = (size.to_f * (1 + netapp_reserve / 100.0)).ceil
+
+    volume_data = {
+        'name' => new_volume_name,
+        'size' => "#{adjusted_size}M",
+        'space' => {
+            'snapshot' => {
+                'reserve_percent' => netapp_reserve
+            }
+        },
+        'autosize' => {
+            'grow_threshold' => grow_threshold,
+            'maximum'        => "#{(adjusted_size.to_f * grow_ratio).ceil}MB",
+            'minimum'        => "#{adjusted_size}MB",
+            'mode'           => 'grow_shrink'
+        }
+    }
+
+    lun_data = {
+        'name' => "/vol/#{new_volume_name}/#{new_lun_name}",
+        'space' => {
+            'size' => "#{size}M"
+        },
+        'os_type' => os_type
+    }
+
+    volume = svm.create_volume(volume_data)
+    OpenNebula::DriverLogger.log_info "Created volume: #{volume.name}"
+
+    lun = volume.create_lun(lun_data)
+    OpenNebula::DriverLogger.log_info "Created LUN: #{lun.name}"
+
+    lun.create_lun_map({ 'igroup' => { 'uuid' => igroup } })
+    OpenNebula::DriverLogger.log_info "LUN #{lun.name} mapped to igroup #{igroup}"
+
+    device_path = lun.lun_map.setup_disk(:host => dst.host)
+
+    OpenNebula::DriverLogger.log_info "Discovered device: #{device_path}"
+
+    if !fs.nil? && fs != '-' && !fs.strip.empty?
+        fs_opts = ENV ? ENV.fetch("FS_OPTS_#{fs}", '') : ''
+
+        rc = mkimage.ssh(
+            :cmds => lun.mkfs_command(device_path, fs, fs_opts),
+            :host => dst.host,
+            :err_msg => "Creating filesystem #{fs} on #{device_path}",
+            :nostderr => false
+        )
+        if rc.code != 0
+            OpenNebula::DriverLogger.log_error 'Error making filesystem ' \
+                                               "#{fs} on #{device_path}: #{rc.stderr}"
+            raise rc
+        end
+        OpenNebula::DriverLogger.log_info "Created filesystem #{fs} on #{device_path}"
+    end
+rescue StandardError => e
+    if lun && lun.lun_map
+        lun.lun_map.remove_connection(dst.host, :force => true)
+    end
+    lun.delete_with_map if lun
+    volume.delete if volume
+    OpenNebula::DriverLogger.log_error "Error creating Volume or LUN: #{e.message}"
+    OpenNebula::DriverLogger.log_error e.backtrace.join("\n")
+    exit 1
+end
+
+# Create parent directory and symbolic link
+script = <<-EOS
+    mkdir -p "$(dirname '#{dst.path}')" && \
+    ln -sf '#{device_path}' '#{dst.path}'
+EOS
+
+mkimage.ssh(
+    :cmds => script,
+    :host => dst.host,
+    :err_msg => 'Creating parent directory and symbolic link'
+)
+
+OpenNebula::DriverLogger.log_info "Created image and symlink #{dst.path} → #{device_path}"

@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/netapp'
+
+# Fetch arguments
+daction64 = STDIN.read
+_request_id = ARGV[0]
+
+begin
+    action = Base64.decode64(daction64)
+    xml = REXML::Document.new(action).root
+
+    netapp_host = xml.elements['DATASTORE/TEMPLATE/NETAPP_HOST'].text
+    netapp_user = xml.elements['DATASTORE/TEMPLATE/NETAPP_USER'].text
+    netapp_pass = xml.elements['DATASTORE/TEMPLATE/NETAPP_PASS'].text
+    netapp_svm  = xml.elements['DATASTORE/TEMPLATE/NETAPP_SVM'].text
+rescue StandardError => e
+    STDERR.puts "Error parsing DS_DRIVER_ACTION_DATA: #{e.message}"
+    exit(-1)
+end
+
+monitor     = TransferManager::Action.new(:action_name => 'monitor')
+netapp_auth = Base64.strict_encode64("#{netapp_user}:#{netapp_pass}")
+netapp      = TransferManager::NetApp.new(netapp_auth, netapp_host, false, :action => monitor)
+svm         = TransferManager::NetApp::SVM.new({ 'uuid' => netapp_svm }, netapp, nil)
+
+svm.fetch_data({ 'fields' => ['storage'] })
+
+begin
+    used_mb      = svm['storage']['allocated'].to_i/1024/1024.round
+    available_mb = svm['storage']['available'].to_i/1024/1024.round
+    limit_mb     = svm['storage']['limit'].to_i/1024/1024.round
+
+    puts "USED_MB=#{used_mb}"
+    puts "FREE_MB=#{available_mb}"
+    puts "TOTAL_MB=#{limit_mb}"
+rescue NoMethodError
+    puts 'monitor: NetApp SVM Does not have maximum storage enabled'
+end

@@ -1,0 +1,80 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/purefa'
+
+include TransferManager
+include OpenNebula
+
+arg_src   = ARGV[0]
+arg_size  = "#{ARGV[1].to_i}M"
+arg_vmid  = ARGV[2]
+
+resize = Action.new(:vm_id => arg_vmid, :action_name => 'resize')
+src    = Action::Location.new(arg_src)
+vm     = VirtualMachine.new_with_id(arg_vmid, resize.one)
+vm.info!
+
+vm_history = vm.to_hash['VM']['HISTORY_RECORDS']['HISTORY']
+if vm_history.is_a?(Array)
+    dsid = vm_history.last['DS_ID']
+else
+    dsid = vm_history['DS_ID']
+end
+
+ds = Datastore.new_with_id(dsid, resize.one)
+rc = ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+volume_resized = false
+begin
+    ds_hash = ds.to_hash['DATASTORE']['TEMPLATE']
+
+    purefa_host    = ds_hash['PUREFA_HOST']
+    purefa_token   = ds_hash['PUREFA_API_TOKEN']
+    purefa_target  = ds_hash['PUREFA_TARGET']
+    purefa_version = ds_hash.key?('PUREFA_VERSION') ? ds_hash['PUREFA_VERSION'] : PureFA::DEFAULT_API_VERSION
+    purefa_suffix  = ds_hash.key?('PUREFA_SUFFIX') ? "_#{ds_hash['PUREFA_SUFFIX']}" : ''
+
+    purefa = PureFA.new(
+        :host        => purefa_host,
+        :target      => purefa_target,
+        :api_token   => purefa_token,
+        :api_version => purefa_version,
+        :action      => resize
+    )
+
+    vol_name = "one_#{arg_vmid}_disk_#{src.disk_id}#{purefa_suffix}"
+    volume   = purefa.get_volume(vol_name)
+    cxn      = volume.get_connection(src.host)
+    original_size_mb = volume['space']['total_provisioned'].to_i / 1024 / 1024
+
+    volume.resize(arg_size)
+    volume_resized = true
+    DriverLogger.log_info "Resized #{src.path} to #{arg_size}M"
+
+    cxn.update_size(src.host, original_size_mb)
+rescue StandardError => e
+    DriverLogger.log_error "Error resizing volume #{src.path}: #{e.message}"
+    DriverLogger.log_error e.backtrace.to_s
+    volume.resize("#{original_size_mb}M") if volume_resized
+    exit 1
+end

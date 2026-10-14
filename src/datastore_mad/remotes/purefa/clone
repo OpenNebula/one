@@ -1,0 +1,72 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require 'tmpdir'
+
+require_relative '../../tm/lib/tm_action'
+require_relative '../../tm/lib/purefa'
+require_relative '../../tm/lib/datastore'
+
+include TransferManager
+include OpenNebula
+
+# Fetch arguments
+daction64 = STDIN.read
+image_id  = ARGV[0]
+
+begin
+    # Decode action
+    daction = Base64.decode64(daction64)
+    xml = REXML::Document.new(daction).root
+
+    ds_id = xml.elements['DATASTORE/ID'].text.to_i
+    src_path = xml.elements['IMAGE/PATH'].text
+
+    purefa_ds = Datastore.new_with_id(ds_id, Client.new)
+    rc = purefa_ds.info(true)
+    raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+    ds_hash = purefa_ds.to_hash['DATASTORE']['TEMPLATE']
+
+    purefa_host    = ds_hash['PUREFA_HOST']
+    purefa_token   = ds_hash['PUREFA_API_TOKEN']
+    purefa_target  = ds_hash['PUREFA_TARGET']
+    purefa_version = ds_hash.key?('PUREFA_VERSION') ? ds_hash['PUREFA_VERSION'] : PureFA::DEFAULT_API_VERSION
+    purefa_suffix  = ds_hash.key?('PUREFA_SUFFIX') ? "_#{ds_hash['PUREFA_SUFFIX']}" : ''
+rescue StandardError => e
+    STDERR.puts "Error parsing DS_DRIVER_ACTION_DATA: #{e.message}"
+    exit(-1)
+end
+
+clone = Action.new(:action_name => 'clone')
+
+purefa = PureFA.new(
+    :host        => purefa_host,
+    :target      => purefa_target,
+    :action      => clone,
+    :api_token   => purefa_token,
+    :api_version => purefa_version
+)
+
+source_vol = purefa.get_volume(src_path)
+
+new_volume_name = "one_#{ds_id}_#{image_id}#{purefa_suffix}"
+new_vol = source_vol.clone(new_volume_name)
+
+puts new_vol.name

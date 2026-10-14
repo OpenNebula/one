@@ -1,0 +1,111 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/backup'
+require_relative '../lib/netapp'
+
+require 'rexml/document'
+require 'json'
+
+TransferManager::Datastore.load_env
+
+host_loc = ARGV[0]
+vm_id    = ARGV[1].to_i
+img_id   = ARGV[2].to_i
+inc_id   = ARGV[3].to_i
+disk_id  = ARGV[4].to_i
+
+rhost, rdir = host_loc.split(':')
+disk_ids = disk_id == -1 ? [] : [disk_id]
+
+restore = TransferManager::Action.new(:vm_id => vm_id, :action_name => 'restore')
+
+image = OpenNebula::Image.new_with_id(img_id, restore.one)
+image.info
+backup_one_ds = OpenNebula::Datastore.new_with_id(image['DATASTORE_ID'], restore.one)
+backup_tm_ds  = TransferManager::Datastore.new(:ds => backup_one_ds)
+
+restore.ssh(
+    :cmds => "mkdir -p #{rdir}/backup",
+    :host => rhost
+)
+
+begin
+    if restore.vm.has_elements?('/VM/USER_TEMPLATE/ERROR')
+        restore.vm.delete_element('/VM/USER_TEMPLATE/ERROR')
+    end
+    xml_data = <<~EOS
+        #{restore.vm.to_xml}
+        #{image.to_xml}
+    EOS
+
+    ls_cmd = (inc_id == -1 ? 'ls' : "ls -i #{inc_id}")
+    rc = backup_tm_ds.action(ls_cmd, xml_data)
+    raise "Cannot list backups: #{rc.stderr.strip}" unless rc.code == 0
+
+    OpenNebula::DriverLogger.log_info("Found backups: #{rc.stdout}")
+
+    backups = JSON.parse(rc.stdout)
+    available_ids = backups.keys.map(&:to_i)
+    disk_ids = available_ids if disk_id == -1
+
+    OpenNebula::DriverLogger.log_info("Restoring #{disk_ids.size} disk(s): #{disk_ids}")
+
+    disk_ids.each do |id|
+        unless backups.key?(id.to_s)
+            OpenNebula::DriverLogger.log_error("Disk #{id} not found in backup")
+            exit 1
+        end
+        disk_path = "#{rdir}/disk.#{id}"
+
+        url = backups[id.to_s]
+
+        rc = restore.ssh(:host => rhost, :cmds => "mkdir -p #{rdir}/backup", :nostderr => false)
+        raise "Cannot create backup directory: #{rc.stderr}" unless rc.code == 0
+
+        cmd = <<~EOS
+            #{__dir__}/../../datastore/downloader.sh --nodecomp #{url} - | \
+            ssh #{rhost} dd of=#{rdir}/backup/disk.#{id} bs=64k conv=sparse
+        EOS
+
+        rc = restore.ssh(:host => false, :cmds => cmd, :nostderr => false)
+        raise "Download failed for backup of disk #{id}" unless rc.code == 0
+
+        cmd = "qemu-img convert -m 4 -O raw #{rdir}/backup/disk.#{id} #{disk_path}"
+
+        rc = restore.ssh(:host => rhost, :cmds => cmd, :nostderr => false)
+        raise "Convert failed for backup of disk #{id}: #{rc.stderr}" unless rc.code == 0
+
+        cmd = "rm -f #{rdir}/backup/disk.#{id}"
+        rc = restore.ssh(:host => rhost, :cmds => cmd, :nostderr => false)
+        raise "Cleanup failed for backup of disk #{id}: #{rc.stderr}" unless rc.code == 0
+
+        OpenNebula::DriverLogger.log_info("Restored backup of disk #{id}")
+    end
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error(e.message)
+    restore.ssh(:host => rhost, :cmds => "rm -rf #{rdir}/backup")
+    exit 1
+end
+
+restore.ssh(:host => rhost, :cmds => "rm -rf #{rdir}/backup")
+OpenNebula::DriverLogger.log_info('Restore completed')
+exit 0

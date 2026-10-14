@@ -1,0 +1,291 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/purefa'
+require_relative '../lib/kvm'
+
+require 'json'
+require 'base64'
+require 'fileutils'
+require 'rexml/document'
+
+include TransferManager::KVM
+
+# Class to set up PureFA disks for backup
+class PureFABackup
+
+    def initialize(vm_xml, args)
+        TransferManager::Datastore.load_env
+
+        @vm_xml_raw, dir, disks, @_deploy_id, @_bjid, @vm_id, ds_id = vm_xml, *args
+
+        @ds_id          = ds_id.to_i
+        @rhost, @rdir   = dir.split ':'
+        @disk_ids       = disks.split(':').reject(&:empty?).map(&:to_i)
+        @parent_id      = -1
+
+        base            = ENV['BACKUP_BASE_PATH']
+        @bck_dir        = base ? "#{base}/#{@vm_id}/backup" : "#{@rdir}/backup"
+        @suffix         = ''
+
+        @action         = TransferManager::Action.new(:vm_id => @vm_id, :action_name => 'prebackup')
+        @active_clones  = {}
+        @disk_diffs     = {}
+        @snapshots      = []
+    end
+
+    def run
+        parse_vm_config
+        load_datastore_config
+        create_snapshots
+        trap_signals
+
+        gather_disk_diffs if incremental? && @parent_id >= 0
+        create_clones
+        create_increments
+    rescue StandardError => e
+        OpenNebula::DriverLogger.log_error "Fatal prebackup error: #{e.message}\n#{e.backtrace}"
+        cleanup_all_volumes
+        delete_snapshots
+        exit 1
+    ensure
+        cleanup_all_volumes
+        if incremental?
+            incremental_cleanup if @parent_id >= 0
+        else
+            delete_snapshots
+        end
+    end
+
+    def live?
+        __FILE__.end_with? '_live'
+    end
+
+    def incremental?
+        @mode == 'INCREMENT'
+    end
+
+    def parse_vm_config
+        vm = REXML::Document.new(@vm_xml_raw).root
+        @mode = vm.elements['BACKUPS/BACKUP_CONFIG/MODE']
+        @mode = @mode ? @mode.text : nil
+
+        @backup_id = 0
+        @parent_id = -1
+
+        if incremental?
+            last = vm.elements['BACKUPS/BACKUP_CONFIG/LAST_INCREMENT_ID']
+            @backup_id = (last ? last.text.to_i : 0) + 1
+            @parent_id = @backup_id - 1
+            incm = vm.elements['BACKUPS/BACKUP_CONFIG/INCREMENT_MODE']
+            # "CBT" is for libvirt dirty blocks tracking
+            # since we uses snapshots for this, only snapshots
+            if incm && incm.text.casecmp('cbt').zero?
+                raise 'CBT increment mode not supported, only SNAPSHOT'
+            end
+        end
+
+        create_vm_xml
+    end
+
+    def create_vm_xml
+        script = <<~BASH
+            mkdir -p #{@bck_dir}
+            echo "#{Base64.encode64(@vm_xml_raw)}" > #{@bck_dir}/vm.xml
+        BASH
+
+        rc = @action.ssh(:host => @rhost, :cmds => script)
+        raise rc.message if OpenNebula.is_error?(rc)
+    end
+
+    def load_datastore_config
+        ds = OpenNebula::Datastore.new_with_id(@ds_id, @action.one)
+        rc = ds.info(true)
+        raise rc.message if OpenNebula.is_error?(rc)
+
+        tmpl    = ds.to_hash['DATASTORE']['TEMPLATE']
+        host    = tmpl['PUREFA_HOST']
+        token   = tmpl['PUREFA_API_TOKEN']
+        target  = tmpl['PUREFA_TARGET']
+        version = tmpl.key?('PUREFA_VERSION') ? tmpl['PUREFA_VERSION'] : TransferManager::PureFA::DEFAULT_API_VERSION
+        @suffix = tmpl.key?('PUREFA_SUFFIX') ? "_#{tmpl['PUREFA_SUFFIX']}" : ''
+
+        @purefa = TransferManager::PureFA.new(
+            :host        => host,
+            :api_token   => token,
+            :target      => target,
+            :api_version => version,
+            :suffix      => @suffix,
+            :action      => @action
+        )
+    end
+
+    def create_snapshots
+        freeze_cmd, thaw_cmd = live? ? fsfreeze(@action.vm, @action.vm.deploy_id) : nil
+
+        begin
+            @action.ssh(
+                :host => @rhost,
+                :cmds => freeze_cmd,
+                :err_msg => 'Could not freeze'
+            ) if live?
+
+            @disk_ids.each do |disk_id|
+                vol_name = "one_#{@vm_id}_disk_#{disk_id}#{@suffix}"
+                vol      = @purefa.get_volume(vol_name)
+
+                snapshot = vol.create_backsnap(@backup_id)
+                OpenNebula::DriverLogger.log_info("Created snapshot #{snapshot.name}")
+
+                @snapshots << {
+                    :disk_id    => disk_id,
+                    :snapshot   => snapshot,
+                    :source_vol => vol
+                }
+            end
+        rescue StandardError => e
+            OpenNebula::DriverLogger.log_error("Error creating snapshot: #{e.message}")
+            @snapshots.each {|s| s[:snapshot].delete rescue nil }
+            raise e
+        ensure
+            @action.ssh(
+                :host => @rhost,
+                :cmds => thaw_cmd,
+                :err_msg => 'Could not thaw'
+            ) if live? && thaw_cmd
+        end
+    end
+
+    def trap_signals
+        @pipe_r, @pipe_w = IO.pipe
+        Signal.trap(:TERM) { @pipe_w.write_nonblock('X') rescue nil }
+
+        Thread.new do
+            IO.select([@pipe_r]) # unblock on TERM
+            OpenNebula::DriverLogger.log_info('Backup cancelled; cleaning up clone(s)...')
+
+            cleanup_all_volumes
+            delete_snapshots
+            exit 1
+        end
+    end
+
+    def gather_disk_diffs
+        @snapshots.each do |s|
+            disk_id  = s[:disk_id]
+            snapshot = s[:snapshot]
+            vol      = s[:source_vol]
+
+            old_snap = vol.get_backsnap(@parent_id)
+            OpenNebula::DriverLogger.log_info("Comparing #{snapshot.name} with #{old_snap.name}")
+            raise "Could not find parent snapshot for disk #{disk_id}"\
+                if old_snap.nil?
+
+            @disk_diffs[disk_id] = snapshot.diff(old_snap.name)
+            OpenNebula::DriverLogger.log_info("Gathered incremental diff for disk #{disk_id}")
+        end
+    end
+
+    def create_clones
+        @snapshots.each do |s|
+            clone_name = "#{s[:source_vol].name}_backup_#{@backup_id}"
+            @active_clones[s[:disk_id]] = s[:snapshot].clone(clone_name)
+        end
+        OpenNebula::DriverLogger.log_info('Created clone(s)')
+    end
+
+    def create_increments
+        @snapshots.each do |s|
+            disk_id = s[:disk_id]
+
+            begin
+                curvol = @active_clones[disk_id]
+                cxn = curvol.create_connection(@rhost)
+                device = cxn.setup_disk(:host => @rhost)
+                backup_file = "#{@bck_dir}/disk.#{disk_id}.#{@backup_id}"
+
+                OpenNebula::DriverLogger.log_info("Backing up disk #{disk_id} to #{backup_file}")
+                cmd = '/var/lib/one-remotes/tm/lib/backup_purefa.rb'
+                if incremental? && @parent_id >= 0
+                    cmd << ' --diffs ' << Base64.strict_encode64(JSON.dump(@disk_diffs[disk_id]))
+                end
+                cmd << ' --device ' << device
+                cmd << ' --out '    << backup_file
+                cmd << '; sync'
+
+                OpenNebula::DriverLogger.log_info(cmd)
+
+                rc = @action.ssh(:host => @rhost, :cmds => cmd, :nostdout => false)
+                unless rc.code == 0
+                    raise "Transfer failed for (disk #{s[:disk_id]}): #{rc.stderr}"
+                end
+
+                OpenNebula::DriverLogger.log_info(rc.stdout)
+                OpenNebula::DriverLogger.log_info("Backed up disk #{disk_id} to #{backup_file}")
+
+                # Let everything settle
+                sleep 1
+                cxn.remove_connection(@rhost, :force => true)
+                cxn.delete
+            rescue StandardError => e
+                OpenNebula::DriverLogger.log_error("Error backing up disk #{disk_id}: #{e.message}")
+                cleanup_all_volumes
+                delete_snapshots
+                @action.ssh(:host => @rhost, :cmds => "rm -rf #{@bck_dir}") rescue nil
+                exit 1
+            end
+        end
+    end
+
+    def cleanup_all_volumes
+        @active_clones.keys.each do |disk_id|
+            @active_clones[disk_id].destroy rescue nil
+            @active_clones[disk_id].delete  rescue nil
+            OpenNebula::DriverLogger.log_info(
+                "Destroyed clone #{@active_clones[disk_id].name} for disk #{disk_id}"
+            )
+        end
+    end
+
+    def delete_snapshots
+        @snapshots.each do |s|
+            s[:snapshot].destroy rescue nil
+            s[:snapshot].delete  rescue nil
+            OpenNebula::DriverLogger.log_info("Destroyed snapshot for disk #{s[:disk_id]}")
+        end
+    end
+
+    def incremental_cleanup
+        @snapshots.each do |s|
+            psnap = s[:source_vol].get_backsnap(@parent_id)
+            psnap.destroy
+            psnap.delete
+            OpenNebula::DriverLogger.log_info("Destroyed parent snapshot for disk #{s[:disk_id]}")
+        end
+    end
+
+end
+
+if __FILE__ == $PROGRAM_NAME
+    PureFABackup.new(STDIN.read, ARGV).run
+end
+
+exit 0

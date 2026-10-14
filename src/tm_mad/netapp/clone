@@ -1,0 +1,273 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/netapp'
+
+arg_src   = ARGV[0]
+arg_dst   = ARGV[1]
+arg_vmid  = ARGV[2]
+arg_dsid  = ARGV[3]
+
+clone = TransferManager::Action.new(:vm_id => arg_vmid, :action_name => 'clone')
+
+src = TransferManager::Action::Location.new(arg_src)
+dst = TransferManager::Action::Location.new(arg_dst)
+
+netapp_ds = OpenNebula::Datastore.new_with_id(
+    clone.disk_attribute(dst.disk_id, 'DATASTORE_ID').to_i, clone.one
+)
+rc = netapp_ds.info(true)
+raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+ds_hash = netapp_ds.to_hash['DATASTORE']['TEMPLATE']
+
+host        = ds_hash['NETAPP_HOST']
+user        = ds_hash['NETAPP_USER']
+password    = ds_hash['NETAPP_PASS']
+svm_uuid    = ds_hash['NETAPP_SVM']
+igroup      = ds_hash['NETAPP_IGROUP']
+target      = ds_hash['NETAPP_TARGET']
+aggregates  = ds_hash['NETAPP_AGGREGATES']
+
+netapp_suffix = ds_hash.key?('NETAPP_SUFFIX') ? "_#{ds_hash['NETAPP_SUFFIX']}" : ''
+
+netapp_reserve = if ds_hash.key?('NETAPP_RESERVE')
+                     ds_hash['NETAPP_RESERVE'].to_i
+                 else
+                     TransferManager::NetApp::Volume::DEFAULT_SNAPSHOT_RESERVE
+                 end
+
+grow_threshold = if ds_hash.key?('NETAPP_GROW_THRESHOLD')
+                     ds_hash['NETAPP_GROW_THRESHOLD'].to_i
+                 else
+                     TransferManager::NetApp::Volume::DEFAULT_GROW_THRESHOLD
+                 end
+
+grow_ratio     = if ds_hash.key?('NETAPP_GROW_RATIO')
+                     ds_hash['NETAPP_GROW_RATIO'].to_f
+                 else
+                     TransferManager::NetApp::Volume::DEFAULT_GROW_RATIO
+                 end
+
+auth = Base64.strict_encode64("#{user}:#{password}")
+netapp = TransferManager::NetApp.new(auth, host, target, :action => clone)
+
+image_ds = OpenNebula::Datastore.new_with_id(arg_dsid, clone.one)
+image_ds.info
+
+unless image_ds.to_hash['DATASTORE']['TEMPLATE']['NETAPP_HOST']
+    raise 'Image datastore is not a NetApp datastore'
+end
+
+OpenNebula::DriverLogger.log_info "Cloning #{src.path} to #{dst.path}"
+
+svm = netapp.get_svm(svm_uuid, aggregates)
+
+new_volume      = nil
+new_volume_name = "one_#{arg_vmid}_disk_#{dst.disk_id}#{netapp_suffix}"
+new_lun_name    = "#{new_volume_name}_lun"
+
+begin
+    source_image = OpenNebula::Image.new_with_id(
+        clone.disk_attribute(dst.disk_id, 'IMAGE_ID').to_i, clone.one
+    )
+    rc = source_image.info
+    raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+    source_vol_uuid = source_image['SOURCE'] # /vol/one-123-456/one-123-456-lun
+    source_vol_name = source_vol_uuid.split('/')[2]
+
+    source_volume = TransferManager::NetApp::Volume.new({
+                                                            'name'       => source_vol_name,
+                                                            'svm'        => svm,
+                                                            'aggregates' => aggregates
+                                                        },
+                                                        netapp).tap(&:fetch_data)
+    source_vol_snapshots  = source_volume.get_snapshots
+    source_vol_goldensnap = source_vol_snapshots.find {|s| s['name'] == TransferManager::NetApp::GOLDENSNAP_NAME }
+
+    if !source_vol_goldensnap
+        goldsnap_data = {
+            'name'    => TransferManager::NetApp::GOLDENSNAP_NAME,
+            'comment' => 'Golden Snapshot created by OpenNebula'
+        }
+
+        begin
+            # if we make two VMs at once this can fail on one
+            source_vol_goldensnap = source_volume.create_snapshot(goldsnap_data)
+            OpenNebula::DriverLogger.log_info "Created goldensnap for volume #{source_volume.uuid}"
+        rescue TransferManager::NetApp::API::Error => e
+            if e.code.to_i == TransferManager::NetApp::API::Error::SNAPSHOT_EXISTS
+                OpenNebula::DriverLogger.log_info \
+                    "Golden Snapshot already exists for volume #{source_volume.uuid}"
+                source_vol_snapshots  = source_volume.get_snapshots
+                source_vol_goldensnap = source_vol_snapshots.find {|s| s['name'] == TransferManager::NetApp::GOLDENSNAP_NAME }
+            else
+                OpenNebula::DriverLogger.log_error \
+                    "Error creating golden snapshot for volume #{source_volume.uuid}: #{e.message}"
+                raise
+            end
+        end
+
+        # source_vol_goldensnap.fetch_data
+        while source_vol_goldensnap.data.key?('state')
+            sleep 1
+            source_vol_goldensnap.fetch_data
+        end
+    end
+
+    new_volume_data= {
+        'name' => new_volume_name,
+        'clone' => {
+            'parent_volume'   => { 'uuid' => source_volume.uuid },
+            'parent_snapshot' => { 'uuid' => source_vol_goldensnap.uuid },
+            'is_flexclone'    => true
+        }
+    }
+
+    new_volume = svm.clone_volume(new_volume_data).tap(&:fetch_data)
+    new_lun    = new_volume.lun
+
+    OpenNebula::DriverLogger.log_info "FlexCloned volume #{source_volume.name} " \
+                                        "to #{new_volume.name}"
+
+    unless new_lun
+        raise "No LUN found for cloned volume #{new_volume.uuid}"
+    end
+
+    new_lun.rename(new_lun_name)
+    OpenNebula::DriverLogger.log_info "Renamed LUN to #{new_lun.name}"
+
+    disk_save  = clone.disk_attribute(dst.disk_id, 'SAVE').upcase == 'YES'
+    standalone = ds_hash.key?('NETAPP_STANDALONE') && ds_hash['NETAPP_STANDALONE'].upcase == 'YES'
+
+    if disk_save || standalone
+        new_volume.split_flexclone
+        unless new_volume.watch_flexclone_split
+            OpenNebula::DriverLogger.log_error "Unable to split flexclone volume #{new_volume.name}"
+            exit 1
+        end
+        source_vol_goldensnap.delete
+        OpenNebula::DriverLogger.log_info \
+            "Split flexclone volume #{new_volume.name} and delted golden snapshot"
+    end
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Error cloning #{src.path} to #{dst.path}: #{e.message}"
+    OpenNebula::DriverLogger.log_error e.backtrace.to_s
+    if new_volume
+        new_volume.delete
+    end
+    exit 1
+end
+
+begin
+    # resize if needed
+    (size, original_size) = clone.disk_sizes(dst.disk_id).values_at(:current, :original)
+
+    if original_size && size > original_size
+        adjusted_size = (size.to_i * (1 + netapp_reserve / 100.0)).ceil
+        autosize_data = {
+            'autosize' => {
+                'grow_threshold' => grow_threshold,
+                'maximum'        => "#{adjusted_size * grow_ratio}MB",
+                'minimum'        => "#{adjusted_size}MB",
+                'mode'           => 'grow_shrink'
+            }
+        }
+
+        new_volume.resize("#{adjusted_size}M", autosize_data)
+        new_lun.resize("#{size}M")
+
+        OpenNebula::DriverLogger.log_info "Volume resized to #{size}"
+    end
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Error resizing volume: #{e.message}, deleting volume"
+    if new_volume
+        new_volume.delete
+    end
+    exit 1
+end
+
+begin
+    lun_mapped = false
+    # Map LUN to igroup
+    unless new_lun.lun_map
+        new_lun_map_data = { 'igroup' => { 'uuid' => igroup } }
+        new_lun.create_lun_map(new_lun_map_data)
+        OpenNebula::DriverLogger.log_info "LUN #{new_lun.name} mapped to igroup #{igroup}"
+    end
+
+    OpenNebula::DriverLogger.log_info "Checking host #{dst.host} for device..."
+    rc = clone.ssh(
+        :cmds => "test -L '#{dst.path}'",
+        :host => dst.host,
+        :err_msg => "checking if #{dst.path} exists"
+    )
+
+    if rc.code != 0
+        host_device_path = new_lun.lun_map.setup_disk(:host => dst.host)
+        raise "Unable to find device on host #{dst.host}" unless host_device_path
+
+    else
+        rc = clone.ssh(
+            :cmds => "readlink -e '#{dst.path}'",
+            :host => dst.host,
+            :err_msg => "checking if #{dst.path} exists",
+            :nostdout => false
+        )
+        if rc.code != 0
+            clone.ssh(:cmds => "rm -f '#{dst.path}'", :host => dst.host)
+            host_device_path = new_lun.lun_map.setup_disk(:host => dst.host)
+        else
+            host_device_path = rc.stdout.strip
+        end
+    end
+    lun_mapped = true
+
+    # Create parent directory and symbolic link
+    script = <<-EOS
+        mkdir -p "$(dirname '#{dst.path}')" && \
+        ln -sf '#{host_device_path}' '#{dst.path}'
+    EOS
+
+    if !host_device_path
+        raise "Unable to find device #{host_device_path} on host #{dst.host}"
+    end
+
+    rc = clone.ssh(
+        :cmds => script,
+        :host => dst.host,
+        :err_msg => "creating symlink from #{host_device_path} to #{dst.path}"
+    )
+
+    raise "Failed to create symlink: #{rc.stderr}" if rc.code != 0
+
+    OpenNebula::DriverLogger.log_info "Created symlink #{dst.path} → #{host_device_path}"
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Error cloning #{src.path} to #{dst.path}: #{e.message}"
+    if lun_mapped
+        new_lun.remove_connection(dst.host)
+    end
+    if new_volume
+        new_volume.delete
+    end
+    exit 1
+end

@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2025, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+require 'tmpdir'
+
+require_relative '../../tm/lib/tm_action'
+require_relative '../../tm/lib/netapp'
+
+# Fetch arguments
+daction64  = STDIN.read
+request_id = ARGV[0]
+
+begin
+    action = Base64.decode64(daction64)
+    xml = REXML::Document.new(action).root
+
+    # Extract only the fields required for the NetApp operation
+    img_path = xml.elements['IMAGE/PATH'].text
+    if !img_path.start_with?('netapp://')
+        # call the fs based one
+        stat_cmd = "echo '#{daction64}' | #{File.dirname(__FILE__)}/../fs/stat #{request_id}"
+        fs_check = TransferManager::Action.ssh('stat', {
+                                                   :cmds => stat_cmd,
+                                                   :host => nil,
+                                                   :err_msg => 'Error getting image size',
+                                                   :nostdout => false
+                                               })
+        puts fs_check.stdout
+        exit(fs_check.code)
+    end
+
+    image_src   = xml.elements['IMAGE/SOURCE'].txt
+
+    netapp_host = xml.elements['DATASTORE/TEMPLATE/NETAPP_HOST'].text
+    netapp_user = xml.elements['DATASTORE/TEMPLATE/NETAPP_USER'].text
+    netapp_pass = xml.elements['DATASTORE/TEMPLATE/NETAPP_PASS'].text
+    netapp_svm  = xml.elements['DATASTORE/TEMPLATE/NETAPP_SVM'].text
+    netapp_aggregates = xml.elements['DATASTORE/TEMPLATE/NETAPP_AGGREGATES'].text.split(',')
+
+    raise 'Missing required datastore attributes' unless image_src
+rescue StandardError => e
+    STDERR.puts "Error parsing DS_DRIVER_ACTION_DATA: #{e.message}"
+    exit(-1)
+end
+
+stat = TransferManager::Action.new(:action_name => 'stat')
+
+netapp_auth = Base64.strict_encode64("#{netapp_user}:#{netapp_pass}")
+netapp = TransferManager::NetApp.new(netapp_auth, netapp_host, false, :action => stat)
+svm = netapp.get_svm(netapp_svm, netapp_aggregates)
+
+volume_name = img_source.split('/')[-2]
+volume = Volume.new({ 'name' => volume_name, 'svm' => { 'uuid' => svm.uuid } }, netapp)
+volume.fetch_data
+
+size_mb = volume['space']['size'].to_i/1024/1024.round
+
+puts size_mb

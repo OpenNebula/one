@@ -266,6 +266,7 @@ INSTALL_FILES=(
     TM_FILES:"$VAR_LOCATION"/remotes/tm
     TM_FS_LVM_ETC_FILES:"$VAR_LOCATION"/remotes/etc/tm/fs_lvm
     TM_SSH_ETC_FILES:"$VAR_LOCATION"/remotes/etc/tm/ssh
+    TM_SAN_ETC_FILES:"$VAR_LOCATION"/remotes/etc/tm/san
 
     DATASTORE_DRIVER_COMMON_SCRIPTS:"$VAR_LOCATION"/remotes/datastore/
     DATASTORE_DRIVER_ETC_FS_SCRIPTS:"$VAR_LOCATION"/remotes/etc/datastore/fs
@@ -323,6 +324,12 @@ INSTALL_FILES=(
     ONEPROMETHEUS_SMARTCTL_EXPORTER_FILES:"$LIB_LOCATION"/smartctl_exporter
 
     ONEBEX_FILES:"$VAR_LOCATION"/remotes/onebex
+
+    ONEFABRIC_BIN_FILES:"$BIN_LOCATION"
+    ONEFABRIC_RUBY_LIB_FILES:"$LIB_LOCATION"/ruby/cli/one_helper
+    ONEFABRIC_PROBE_FILES:"$VAR_LOCATION"/remotes/im/kvm-probes.d/host/system
+    ONEFABRIC_HOST_LIB_FILES:"$LIB_LOCATION"
+    ONEFABRIC_HOST_ETC_FILES:"$ETC_LOCATION"
 )
 
 # Subtree entries installed by do_tree, one per line:
@@ -416,6 +423,8 @@ INSTALL_TREES=(
     src/tm_mad/ceph:"$VAR_LOCATION"/remotes/tm/ceph
     src/tm_mad/dev:"$VAR_LOCATION"/remotes/tm/dev
     src/tm_mad/iscsi_libvirt:"$VAR_LOCATION"/remotes/tm/iscsi_libvirt
+    src/tm_mad/netapp:"$VAR_LOCATION"/remotes/tm/netapp
+    src/tm_mad/purefa:"$VAR_LOCATION"/remotes/tm/purefa
     src/tm_mad/dummy:"$VAR_LOCATION"/remotes/tm/dummy
     src/datastore_mad/remotes/fs:"$VAR_LOCATION"/remotes/datastore/fs:fs.conf
     src/datastore_mad/remotes/ceph:"$VAR_LOCATION"/remotes/datastore/ceph:ceph.conf
@@ -425,6 +434,8 @@ INSTALL_TREES=(
     src/datastore_mad/remotes/restic:"$VAR_LOCATION"/remotes/datastore/restic:vendor
     src/datastore_mad/remotes/virtiofs:"$VAR_LOCATION"/remotes/datastore/virtiofs
     src/datastore_mad/remotes/interactive:"$VAR_LOCATION"/remotes/datastore/interactive
+    src/datastore_mad/remotes/netapp:"$VAR_LOCATION"/remotes/datastore/netapp
+    src/datastore_mad/remotes/purefa:"$VAR_LOCATION"/remotes/datastore/purefa
     src/vnm_mad/remotes/802.1Q:"$VAR_LOCATION"/remotes/vnm/802.1Q:clean.d,post.d,pre.d
     src/vnm_mad/remotes/vxlan:"$VAR_LOCATION"/remotes/vnm/vxlan:clean.d,post.d,pre.d
     src/vnm_mad/remotes/dummy:"$VAR_LOCATION"/remotes/vnm/dummy:clean.d,post.d,pre.d
@@ -842,6 +853,8 @@ TM_FS_LVM_ETC_FILES="src/tm_mad/fs_lvm/fs_lvm.conf"
 
 TM_SSH_ETC_FILES="src/tm_mad/ssh/sshrc"
 
+TM_SAN_ETC_FILES="src/tm_mad/san/backup.conf"
+
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
 #   - Dummy Image Repository, $REMOTES_LOCATION/datastore/dummy
@@ -855,6 +868,8 @@ DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/rsync_downloader.rb \
                              src/datastore_mad/remotes/onebex_downloader.rb \
                              src/datastore_mad/remotes/onebex_writer.rb \
+                             src/datastore_mad/remotes/netapp_downloader.rb \
+                             src/datastore_mad/remotes/purefa_downloader.rb \
                              src/datastore_mad/remotes/url.rb \
                              src/datastore_mad/remotes/lvm.rb \
                              src/datastore_mad/remotes/libfs.sh"
@@ -896,6 +911,24 @@ SCHEDULER_DRIVER_ONEDRS_VENDOR="src/schedm_mad/remotes/one_drs/vendor/lib/PuLP-2
             src/schedm_mad/remotes/one_drs/vendor/lib/xsdata-24.12.dist-info/"
 
 #-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# NVIDIA Fabric Manager tool (onefabric)
+#-------------------------------------------------------------------------------
+# Front-end CLI, helper and host monitor probe
+ONEFABRIC_BIN_FILES="src/onefabric/front-end/onefabric"
+
+ONEFABRIC_RUBY_LIB_FILES="src/onefabric/front-end/onefabric_helper.rb"
+
+ONEFABRIC_PROBE_FILES="src/onefabric/host/src/im_mad/fabricmanager.rb"
+
+# Host side service, shipped in the kvm-node package
+ONEFABRIC_HOST_ETC_FILES="src/onefabric/host/etc/fabricmanager.conf \
+                          src/onefabric/host/etc/one-fabricmanager.xml"
+
+ONEFABRIC_HOST_LIB_FILES="src/onefabric/host/src/service/download-image.sh \
+                          src/onefabric/host/src/service/opennebula-fabricmanager.rb \
+                          src/onefabric/host/src/service/prepare_vm_xml.sh"
+
 # OneBEX files, to be installed under $REMOTES_LOCATION/onebex (except config)
 #-------------------------------------------------------------------------------
 

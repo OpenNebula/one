@@ -487,6 +487,13 @@
   mode: '0640'
   src: src/tm_mad/fs_lvm/fs_lvm.conf
 
+- name: /var/lib/one/remotes/etc/tm/san/backup.conf
+  class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+  src: src/tm_mad/san/backup.conf
+
 - name: /var/lib/one/remotes/etc/tm/ssh/sshrc
   class: Augeas::Shell
   owner: oneadmin
