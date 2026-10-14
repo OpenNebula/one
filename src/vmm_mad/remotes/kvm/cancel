@@ -28,15 +28,18 @@ function destroy_and_monitor
     # Get datastore path to get vm.xml
     DATASTORE="$(/usr/libexec/one/vgpu "DATASTORE" "$deploy_id")"
 
-    virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id > /dev/null 2>&1 || return 0
+    if ! DOMINFO_OUT=$(LC_ALL=C virsh --connect "$LIBVIRT_URI" --readonly dominfo "$deploy_id" 2>&1); then
+        echo "$DOMINFO_OUT" | grep -qi "Domain not found" && return 0
+        return 1
+    fi
 
     virsh --connect $LIBVIRT_URI destroy $deploy_id
 
     # Destroy vGPU (only if suported by node)
     (sudo -l | grep -q vgpu) && sudo /usr/libexec/one/vgpu "DELETE" "$DATASTORE/vm.xml"
 
-    virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id > /dev/null 2>&1
-    [ "x$?" != "x0" ]
+    DOMINFO_OUT=$(LC_ALL=C virsh --connect "$LIBVIRT_URI" --readonly dominfo "$deploy_id" 2>&1)
+    echo "$DOMINFO_OUT" | grep -qi "Domain not found"
 }
 
 retry $TIMEOUT destroy_and_monitor
