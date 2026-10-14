@@ -79,8 +79,14 @@ module ProcessList
         cpu = {}
 
         pids.each do |pid|
-            cpu[pid] = (proc_jiffies(pid) - cpu_ini[pid]) / cpu_j
-            cpu[pid] = (cpu[pid] * multiplier).round(2)
+            j_end = proc_jiffies(pid)
+
+            if cpu_j > 0 && j_end >= cpu_ini[pid]
+                cpu[pid] = (j_end - cpu_ini[pid]) / cpu_j
+                cpu[pid] = (cpu[pid] * multiplier).round(2)
+            else
+                cpu[pid] = 0.0
+            end
         end
 
         cpu
