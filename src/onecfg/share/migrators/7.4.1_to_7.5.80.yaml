@@ -2091,7 +2091,7 @@ patches:
         group: oneadmin
         mode: '0640'
         action: delete
-        content: |-
+        content: |
             - title: Kubernetes
               icon: XrayView
               routes:
@@ -2101,6 +2101,9 @@ patches:
                 - title: Kubernetes Logs
                   path: /kubernetes/create_kubernetes_logs/:id
                   Component: CreateKubernetesLogs
+                - title: Install Application
+                  path: /kubernetes/:id/applications/install
+                  Component: InstallOneKsApplication
                 - title: K8S Clusters
                   path: /kubernetes
                   icon: XrayView
@@ -2258,6 +2261,41 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: &1
+            - info-tabs
+            - sched_actions
+            - actions
+            key: sched_action_create
+            old: true
+            state: rm
+            extra: {}
+        -   path: *1
+            key: sched_action_update
+            old: true
+            state: rm
+            extra: {}
+        -   path: *1
+            key: sched_action_delete
+            old: true
+            state: rm
+            extra: {}
+        -   path: *1
+            key: sched-add
+            value: true
+            state: ins
+            extra: {}
+        -   path: *1
+            key: sched-update
+            value: true
+            state: ins
+            extra: {}
+        -   path: *1
+            key: sched-delete
+            value: true
+            state: ins
+            extra: {}
         content: "---\n# This file describes the information and actions available in the Backup Jobs tab\n\n# Resource\n\nresource_name:
             \"BACKUPJOBS\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog:
             true\n  update_dialog: true\n  delete: true\n  chown: true\n  chgrp: true\n  lock: true\n  unlock: true\n  start:
@@ -2267,8 +2305,8 @@ patches:
             \     enabled: true\n      actions:\n        chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n
             \       chown: true\n        chgrp: true\n    attributes_panel:\n      enabled: true\n      actions:\n        copy:
             true\n        add: true\n        edit: true\n        delete: true\n\n  vms:\n    enabled: true\n  sched_actions:\n
-            \   enabled: true\n    actions:\n      sched_action_create: true\n      sched_action_update: true\n      sched_action_delete:
-            true\n  \n\n# Dialogs\ndialogs:\n  create_dialog:\n    general: true\n    vms: true\n    datastores: true\n    sched_actions:
+            \   enabled: true\n    actions:\n      sched-add: true\n      sched-update: true\n      sched-delete: true\n  \n\n#
+            Dialogs\ndialogs:\n  create_dialog:\n    general: true\n    vms: true\n    datastores: true\n    sched_actions:
             true\n"
     "/etc/one/fireedge/sunstone/views/admin/cluster-tab.yaml":
         class: Yaml
@@ -2836,7 +2874,7 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        content: |-
+        content: |
             ---
             # This file describes the information and actions available in the ONEKS tab
 
@@ -2884,6 +2922,8 @@ patches:
                 actions:
                   create_dialog: true
               logs:
+                enabled: true
+              applications:
                 enabled: true
               events:
                 enabled: true
@@ -3339,12 +3379,26 @@ patches:
         action: apply
         change:
         -   path:
+            - actions
+            key: spice
+            value: true
+            state: ins
+            extra: {}
+        -   path:
             - filters
             key: cluster
             value: true
             state: ins
             extra: {}
-        -   path: &1
+        -   path:
+            - info-tabs
+            - backup
+            - actions
+            key: backup-cancel
+            value: true
+            state: ins
+            extra: {}
+        -   path: &2
             - info-tabs
             key: vm_group
             value:
@@ -3354,7 +3408,7 @@ patches:
                     vmgroup-del: true
             state: ins
             extra: {}
-        -   path: *1
+        -   path: *2
             key: exec
             value:
                 enabled: true
@@ -3402,6 +3456,7 @@ patches:
               lock: true
               unlock: true
               vnc: true
+              spice: true
               ssh: true
               rdp: true
               edit_labels: true
@@ -3507,6 +3562,7 @@ patches:
               backup:
                 enabled: true
                 actions:
+                  backup-cancel: true
                   backup-configure: true
                   backup-create: true
                   backup-restore: true
@@ -3830,6 +3886,17 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - info-tabs
+            - nics
+            key: actions
+            value:
+                nic-attach: true
+                nic-detach: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the VRouter Template tab
@@ -3887,6 +3954,9 @@ patches:
                 enabled: true
               nics:
                 enabled: true
+                actions:
+                  nic-attach: true
+                  nic-detach: true
 
               template:
                 enabled: true
@@ -4279,13 +4349,59 @@ patches:
         mode: '0640'
         action: apply
         change:
+        -   path: &3
+            - actions
+            key: migrate_live
+            old: false
+            state: rm
+            extra: {}
+        -   path: *3
+            key: live-migrate
+            value: false
+            state: ins
+            extra: {}
+        -   path: *3
+            key: spice
+            value: true
+            state: ins
+            extra: {}
         -   path:
             - filters
             key: cluster
             value: true
             state: ins
             extra: {}
-        -   path: &2
+        -   path: &4
+            - info-tabs
+            - storage
+            - actions
+            key: disk-attach
+            old:
+                enabled: true
+            state: rm
+            extra: {}
+        -   path: *4
+            key: disk_saveas
+            old:
+                enabled: true
+            state: rm
+            extra: {}
+        -   path: *4
+            key: disk-attach-image
+            value: true
+            state: ins
+            extra: {}
+        -   path: *4
+            key: disk-attach-volatile
+            value: true
+            state: ins
+            extra: {}
+        -   path: *4
+            key: disk-saveas
+            value: true
+            state: ins
+            extra: {}
+        -   path: &5
             - info-tabs
             key: vm_group
             value:
@@ -4295,7 +4411,7 @@ patches:
                     vmgroup-del: true
             state: ins
             extra: {}
-        -   path: *2
+        -   path: *5
             key: exec
             value:
                 enabled: true
@@ -4308,11 +4424,11 @@ patches:
         content: "---\n# This file describes the information and actions available in the VM tab\n\n# Resource\n\nresource_name:
             \"VM\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog: true\n
             \ create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml\n  deploy: false\n  migrate:
-            false\n  migrate_live: false\n  hold: false\n  release: false\n  suspend: false\n  resume: true\n  stop: false\n
+            false\n  live-migrate: false\n  hold: false\n  release: false\n  suspend: false\n  resume: true\n  stop: false\n
             \ recover: false\n  reboot: true\n  reboot-hard: true\n  poweroff: true\n  poweroff-hard: true\n  undeploy: false\n
             \ undeploy-hard: false\n  terminate: true\n  terminate-hard: true\n  resched: false\n  unresched: false\n  save_as_template:
-            true\n  chown: false\n  chgrp: false\n  lock: false\n  unlock: false\n  vnc: true\n  ssh: true\n  rdp: true\n
-            \ edit_labels: false\n  backup: false  \n\n# Filters - List of criteria to filter the resources\n\nfilters:\n
+            true\n  chown: false\n  chgrp: false\n  lock: false\n  unlock: false\n  vnc: true\n  spice: true\n  ssh: true\n
+            \ rdp: true\n  edit_labels: false\n  backup: false  \n\n# Filters - List of criteria to filter the resources\n\nfilters:\n
             \ state: true\n  owner: true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n  cluster:
             true\n\n\n# Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled:
             true\n    information_panel:\n      enabled: true\n      actions:\n        rename: false\n    permissions_panel:\n
@@ -4321,8 +4437,8 @@ patches:
             true\n    monitoring_panel:\n      enabled: true\n      actions:\n        copy: true\n    attributes_panel:\n
             \     enabled: false\n      actions:\n        copy: true\n        add: false\n        edit: false\n        delete:
             false\n\n  vm_group:\n    enabled: true\n    actions:\n      vmgroup-add: true\n      vmgroup-del: true\n\n  storage:\n
-            \   enabled: true\n    actions:\n      disk-attach:\n        enabled: true\n      disk-detach: true\n      disk-resize:
-            true\n      disk_saveas:\n        enabled: true\n\n  network:\n    enabled: true\n    actions:\n      nic-attach:
+            \   enabled: true\n    actions:\n      disk-attach-image: true\n      disk-attach-volatile: true\n      disk-detach:
+            true\n      disk-resize: true\n      disk-saveas: true\n\n  network:\n    enabled: true\n    actions:\n      nic-attach:
             true\n      nic-detach: true\n      nic-update: true\n      sg-attach: true\n      sg-detach: true\n\n  snapshot:\n
             \   enabled: true\n    actions:\n      snapshot-create: true\n      snapshot-revert: true\n      snapshot-delete:
             true\n\n  backup:\n    enabled: false\n\n  history:\n    enabled: false\n\n  sched_actions:\n    enabled: true\n
@@ -4580,6 +4696,21 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: &6
+            - info-tabs
+            key: VLAN Group
+            old:
+                enabled: true
+            state: rm
+            extra: {}
+        -   path: *6
+            key: vlanrules
+            value:
+                enabled: true
+            state: ins
+            extra: {}
         content: |-
             ---
             # This file describes the information and actions available in the GROUP tab
@@ -4637,7 +4768,7 @@ patches:
                 actions:
                   get_showback: true
 
-              'VLAN Group':
+              vlanrules:
                 enabled: true
     "/etc/one/fireedge/sunstone/views/groupadmin/image-tab.yaml":
         class: Yaml
@@ -5085,13 +5216,29 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: &7
+            - info-tabs
+            - info
+            - ownership_panel
+            - actions
+            key: cgrp
+            old: true
+            state: rm
+            extra: {}
+        -   path: *7
+            key: chgrp
+            value: true
+            state: ins
+            extra: {}
         content: "---\n# This file describe the information add actions available in the VM GROUP TEMPLATES tab\n\n# Resource\n\nresource_name:
             \"VM-GROUP\"\n\n# Actions - Which buttons are visible to operate over the resource\n\nactions: \n  create_dialog:
             true\n  update_dialog: true\n  enable: true\n  disable: true\n  chgrp: true\n  chown: true\n  delete: true\n\n#
             Filters -  List of criteria to filter the resource\n\nfilters: \n  state: true\n\n\n\n# Info Tabs - Which info
             tabs are used to show extended information\n\ninfo-tabs:\n  info:\n    enabled: true\n    information_panel:\n
             \     enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n      enabled: true\n      actions:\n
-            \       chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n        chown: true\n        cgrp:
+            \       chmod: true\n    ownership_panel:\n      enabled: true\n      actions:\n        chown: true\n        chgrp:
             true\n    roles_panel:\n      enabled: true\n    roles-affinity_panel:\n      enabled: true\n  vms:\n    enabled:
             true\n\n"
     "/etc/one/fireedge/sunstone/views/groupadmin/vm-tab.yaml":
@@ -5101,13 +5248,217 @@ patches:
         mode: '0640'
         action: apply
         change:
+        -   path: &8
+            - actions
+            key: migrate_live
+            old: true
+            state: rm
+            extra: {}
+        -   path: *8
+            key: live-migrate
+            value: true
+            state: ins
+            extra: {}
+        -   path: *8
+            key: spice
+            value: true
+            state: ins
+            extra: {}
         -   path:
             - filters
             key: cluster
             value: true
             state: ins
             extra: {}
-        -   path: &3
+        -   path: &9
+            - info-tabs
+            - info
+            - capacity_panel
+            - actions
+            key: resize_capacity
+            old: true
+            state: rm
+            extra: {}
+        -   path: *9
+            key: resize
+            value: true
+            state: ins
+            extra: {}
+        -   path: &10
+            - info-tabs
+            - storage
+            - actions
+            key: attach_disk
+            old:
+                enabled: true
+            state: rm
+            extra: {}
+        -   path: *10
+            key: snapshot_disk_create
+            old: true
+            state: rm
+            extra: {}
+        -   path: *10
+            key: snapshot_disk_rename
+            old: true
+            state: rm
+            extra: {}
+        -   path: *10
+            key: snapshot_disk_revert
+            old: true
+            state: rm
+            extra: {}
+        -   path: *10
+            key: snapshot_disk_delete
+            old: true
+            state: rm
+            extra: {}
+        -   path: *10
+            key: resize_disk
+            old: true
+            state: rm
+            extra: {}
+        -   path: *10
+            key: disk_saveas
+            old:
+                enabled: true
+            state: rm
+            extra: {}
+        -   path: *10
+            key: disk-attach-image
+            value: true
+            state: ins
+            extra: {}
+        -   path: *10
+            key: disk-attach-volatile
+            value: true
+            state: ins
+            extra: {}
+        -   path: *10
+            key: disk-snapshot-create
+            value: true
+            state: ins
+            extra: {}
+        -   path: *10
+            key: disk-snapshot-rename
+            value: true
+            state: ins
+            extra: {}
+        -   path: *10
+            key: disk-snapshot-revert
+            value: true
+            state: ins
+            extra: {}
+        -   path: *10
+            key: disk-snapshot-delete
+            value: true
+            state: ins
+            extra: {}
+        -   path: *10
+            key: disk-resize
+            value: true
+            state: ins
+            extra: {}
+        -   path: *10
+            key: disk-saveas
+            value: true
+            state: ins
+            extra: {}
+        -   path: &11
+            - info-tabs
+            - network
+            - actions
+            key: attach_nic
+            old: true
+            state: rm
+            extra: {}
+        -   path: *11
+            key: detach_nic
+            old: true
+            state: rm
+            extra: {}
+        -   path: *11
+            key: update_nic
+            old: true
+            state: rm
+            extra: {}
+        -   path: *11
+            key: attach_secgroup
+            old: true
+            state: rm
+            extra: {}
+        -   path: *11
+            key: detach_secgroup
+            old: true
+            state: rm
+            extra: {}
+        -   path: *11
+            key: nic-attach
+            value: true
+            state: ins
+            extra: {}
+        -   path: *11
+            key: nic-detach
+            value: true
+            state: ins
+            extra: {}
+        -   path: *11
+            key: nic-update
+            value: true
+            state: ins
+            extra: {}
+        -   path: *11
+            key: sg-attach
+            value: true
+            state: ins
+            extra: {}
+        -   path: *11
+            key: sg-detach
+            value: true
+            state: ins
+            extra: {}
+        -   path:
+            - info-tabs
+            - backup
+            key: actions
+            value:
+                backup-cancel: true
+            state: ins
+            extra: {}
+        -   path: &12
+            - info-tabs
+            - sched_actions
+            - actions
+            key: sched_action_create
+            old: true
+            state: rm
+            extra: {}
+        -   path: *12
+            key: sched_action_update
+            old: true
+            state: rm
+            extra: {}
+        -   path: *12
+            key: sched_action_delete
+            old: true
+            state: rm
+            extra: {}
+        -   path: *12
+            key: sched-add
+            value: true
+            state: ins
+            extra: {}
+        -   path: *12
+            key: sched-update
+            value: true
+            state: ins
+            extra: {}
+        -   path: *12
+            key: sched-delete
+            value: true
+            state: ins
+            extra: {}
+        -   path: &13
             - info-tabs
             key: vm_group
             value:
@@ -5117,7 +5468,7 @@ patches:
                     vmgroup-del: true
             state: ins
             extra: {}
-        -   path: *3
+        -   path: *13
             key: exec
             value:
                 enabled: true
@@ -5130,30 +5481,30 @@ patches:
         content: "---\n# This file describes the information and actions available in the VM tab\n\n# Resource\n\nresource_name:
             \"VM\"\n\n# Actions - Which buttons are visible to operate over the resources\n\nactions:\n  create_dialog: true\n
             \ create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml\n  deploy: false\n  migrate:
-            true\n  migrate_live: true\n  hold: true\n  release: true\n  suspend: true\n  resume: true\n  stop: true\n  recover:
+            true\n  live-migrate: true\n  hold: true\n  release: true\n  suspend: true\n  resume: true\n  stop: true\n  recover:
             true\n  reboot: true\n  reboot-hard: true\n  poweroff: true\n  poweroff-hard: true\n  undeploy: true\n  undeploy-hard:
             true\n  terminate: true\n  terminate-hard: true\n  resched: true\n  unresched: true\n  save_as_template: false\n
-            \ chown: false\n  chgrp: false\n  lock: true\n  unlock: true\n  vnc: true\n  ssh: true\n  rdp: true\n  edit_labels:
-            false\n  backup: true  \n\n# Filters - List of criteria to filter the resources\n\nfilters:\n  state: true\n  owner:
-            true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n  cluster: true\n\n\n# Info
-            Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled: true\n    information_panel:\n
-            \     enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n      enabled: true\n      actions:\n
-            \       chmod: false\n    ownership_panel:\n      enabled: true\n      actions:\n        chown: false\n        chgrp:
-            false\n    capacity_panel:\n      enabled: true\n      actions:\n        resize_capacity: true\n    lxc_panel:\n
-            \     enabled: true\n      actions:\n        copy: true\n        add: false\n        edit: false\n        delete:
-            false\n    monitoring_panel:\n      enabled: true\n      actions:\n        copy: true\n    attributes_panel:\n
-            \     enabled: true\n      actions:\n        copy: true\n        add: true\n        edit: false\n        delete:
-            false\n\n  vm_group:\n    enabled: true\n    actions:\n      vmgroup-add: true\n      vmgroup-del: true\n\n  storage:\n
-            \   enabled: true\n    actions:\n      attach_disk:\n        enabled: true\n      disk-detach: true\n      snapshot_disk_create:
-            true\n      snapshot_disk_rename: true\n      snapshot_disk_revert: true\n      snapshot_disk_delete: true\n      resize_disk:
-            true\n      disk_saveas:\n        enabled: true\n\n  network:\n    enabled: true\n    actions:\n      attach_nic:
-            true\n      detach_nic: true\n      update_nic: true\n      attach_secgroup: true\n      detach_secgroup: true\n\n
-            \ snapshot:\n    enabled: true\n    actions:\n      snapshot-create: true\n      snapshot-revert: true\n      snapshot-delete:
-            true\n\n  backup:\n    enabled: true\n\n  history:\n    enabled: true\n\n  sched_actions:\n    enabled: true\n
-            \   actions:\n      sched_action_create: true\n      sched_action_update: true\n      sched_action_delete: true\n
-            \     charter_create: true\n\n  configuration:\n    enabled: true\n    actions:\n      update_configuration: true\n\n
-            \ template:\n    enabled: true\n\n  exec:\n    enabled: true\n    actions:\n      exec: true\n      exec-retry:
-            true\n      exec-cancel: true\n"
+            \ chown: false\n  chgrp: false\n  lock: true\n  unlock: true\n  vnc: true\n  spice: true\n  ssh: true\n  rdp:
+            true\n  edit_labels: false\n  backup: true  \n\n# Filters - List of criteria to filter the resources\n\nfilters:\n
+            \ state: true\n  owner: true\n  group: true\n  type: true\n  locked: true\n  ips: true\n  hostname: true\n  cluster:
+            true\n\n\n# Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n  info:\n    enabled:
+            true\n    information_panel:\n      enabled: true\n      actions:\n        rename: true\n    permissions_panel:\n
+            \     enabled: true\n      actions:\n        chmod: false\n    ownership_panel:\n      enabled: true\n      actions:\n
+            \       chown: false\n        chgrp: false\n    capacity_panel:\n      enabled: true\n      actions:\n        resize:
+            true\n    lxc_panel:\n      enabled: true\n      actions:\n        copy: true\n        add: false\n        edit:
+            false\n        delete: false\n    monitoring_panel:\n      enabled: true\n      actions:\n        copy: true\n
+            \   attributes_panel:\n      enabled: true\n      actions:\n        copy: true\n        add: true\n        edit:
+            false\n        delete: false\n\n  vm_group:\n    enabled: true\n    actions:\n      vmgroup-add: true\n      vmgroup-del:
+            true\n\n  storage:\n    enabled: true\n    actions:\n      disk-attach-image: true\n      disk-attach-volatile:
+            true\n      disk-detach: true\n      disk-snapshot-create: true\n      disk-snapshot-rename: true\n      disk-snapshot-revert:
+            true\n      disk-snapshot-delete: true\n      disk-resize: true\n      disk-saveas: true\n\n  network:\n    enabled:
+            true\n    actions:\n      nic-attach: true\n      nic-detach: true\n      nic-update: true\n      sg-attach: true\n
+            \     sg-detach: true\n\n  snapshot:\n    enabled: true\n    actions:\n      snapshot-create: true\n      snapshot-revert:
+            true\n      snapshot-delete: true\n\n  backup:\n    enabled: true\n    actions:\n      backup-cancel: true\n\n
+            \ history:\n    enabled: true\n\n  sched_actions:\n    enabled: true\n    actions:\n      sched-add: true\n      sched-update:
+            true\n      sched-delete: true\n      charter_create: true\n\n  configuration:\n    enabled: true\n    actions:\n
+            \     update_configuration: true\n\n  template:\n    enabled: true\n\n  exec:\n    enabled: true\n    actions:\n
+            \     exec: true\n      exec-retry: true\n      exec-cancel: true\n"
     "/etc/one/fireedge/sunstone/views/groupadmin/vm-template-tab.yaml":
         class: Yaml
         owner: root
@@ -5424,6 +5775,17 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - info-tabs
+            - nics
+            key: actions
+            value:
+                nic-attach: true
+                nic-detach: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the VRouter Template tab
@@ -5480,6 +5842,9 @@ patches:
                 enabled: true
               nics:
                 enabled: true
+                actions:
+                  nic-attach: true
+                  nic-detach: true
 
               template:
                 enabled: true
@@ -6124,12 +6489,26 @@ patches:
         action: apply
         change:
         -   path:
+            - actions
+            key: spice
+            value: true
+            state: ins
+            extra: {}
+        -   path:
             - filters
             key: cluster
             value: true
             state: ins
             extra: {}
-        -   path: &4
+        -   path:
+            - info-tabs
+            - backup
+            key: actions
+            value:
+                backup-cancel: true
+            state: ins
+            extra: {}
+        -   path: &14
             - info-tabs
             key: vm_group
             value:
@@ -6139,7 +6518,7 @@ patches:
                     vmgroup-del: true
             state: ins
             extra: {}
-        -   path: *4
+        -   path: *14
             key: exec
             value:
                 enabled: true
@@ -6156,27 +6535,28 @@ patches:
             \ migrate: true\n  poweroff-hard: true\n  poweroff: true\n  rdp: true\n  reboot-hard: true\n  reboot: true\n  recover:
             true\n  release: true\n  resched: true\n  restore: false\n  resume: true\n  save_as_template: false\n  ssh: true\n
             \ stop: true\n  suspend: true\n  terminate-hard: true\n  terminate: true\n  undeploy-hard: true\n  undeploy: true\n
-            \ unlock: true\n  unresched: true\n  update-user-template: true\n  vnc: true\n\n# Filters - List of criteria to
-            filter the resources\n\nfilters:\n  state: true\n  owner: true\n  group: true\n  type: true\n  locked: true\n
-            \ ips: true\n  hostname: true\n  cluster: true\n\n\n# Info Tabs - Which info tabs are used to show extended information\n\ninfo-tabs:\n\n
-            \ info:\n    enabled: true\n    information_panel:\n      enabled: true\n      actions:\n        rename: true\n
-            \   permissions_panel:\n      enabled: true\n      actions:\n        chmod: false\n    ownership_panel:\n      enabled:
-            true\n      actions:\n        chown: false\n        chgrp: false\n    capacity_panel:\n      enabled: true\n      actions:\n
-            \       resize: true\n    lxc_panel:\n      enabled: true\n      actions:\n        copy: true\n        add: false\n
-            \       edit: false\n        delete: false\n    monitoring_panel:\n      enabled: true\n      actions:\n        copy:
-            true\n    attributes_panel:\n      enabled: true\n      actions:\n        copy: true\n        add: true\n        edit:
-            false\n        delete: false\n\n  vm_group:\n    enabled: true\n    actions:\n      vmgroup-add: true\n      vmgroup-del:
-            true\n\n  storage:\n    enabled: true\n    actions:\n      disk-attach-image: true\n      disk-attach-volatile:
-            true\n      disk-detach: true\n      disk-snapshot-create: true\n      disk-snapshot-delete: true\n      disk-snapshot-rename:
-            true\n      disk-snapshot-revert: true\n      disk-resize: true\n      disk-saveas: true\n\n  network:\n    enabled:
-            true\n    actions:\n      nic-attach: true\n      nic-attach-alias: true\n      nic-detach: true\n      nic-update:
-            true\n      sg-attach: true\n      sg-detach: true\n      \n  pci:\n    enabled: true\n    actions:\n      pci-attach:
-            true\n      pci-detach: true      \n\n  snapshot:\n    enabled: true\n    actions:\n      snapshot-create: true\n
-            \     snapshot-revert: true\n      snapshot-delete: true\n\n  backup:\n    enabled: true\n\n  history:\n    enabled:
-            true\n\n  sched_actions:\n    enabled: true\n    actions:\n      sched-add: true\n      sched-update: true\n      sched-delete:
-            true\n      charter_create: true\n\n  configuration:\n    enabled: true\n    actions:\n      update_configuration:
-            true\n\n  template:\n    enabled: true\n\n  exec:\n    enabled: true\n    actions:\n      exec: true\n      exec-retry:
-            true\n      exec-cancel: true\n"
+            \ unlock: true\n  unresched: true\n  update-user-template: true\n  vnc: true\n  spice: true\n\n# Filters - List
+            of criteria to filter the resources\n\nfilters:\n  state: true\n  owner: true\n  group: true\n  type: true\n  locked:
+            true\n  ips: true\n  hostname: true\n  cluster: true\n\n\n# Info Tabs - Which info tabs are used to show extended
+            information\n\ninfo-tabs:\n\n  info:\n    enabled: true\n    information_panel:\n      enabled: true\n      actions:\n
+            \       rename: true\n    permissions_panel:\n      enabled: true\n      actions:\n        chmod: false\n    ownership_panel:\n
+            \     enabled: true\n      actions:\n        chown: false\n        chgrp: false\n    capacity_panel:\n      enabled:
+            true\n      actions:\n        resize: true\n    lxc_panel:\n      enabled: true\n      actions:\n        copy:
+            true\n        add: false\n        edit: false\n        delete: false\n    monitoring_panel:\n      enabled: true\n
+            \     actions:\n        copy: true\n    attributes_panel:\n      enabled: true\n      actions:\n        copy:
+            true\n        add: true\n        edit: false\n        delete: false\n\n  vm_group:\n    enabled: true\n    actions:\n
+            \     vmgroup-add: true\n      vmgroup-del: true\n\n  storage:\n    enabled: true\n    actions:\n      disk-attach-image:
+            true\n      disk-attach-volatile: true\n      disk-detach: true\n      disk-snapshot-create: true\n      disk-snapshot-delete:
+            true\n      disk-snapshot-rename: true\n      disk-snapshot-revert: true\n      disk-resize: true\n      disk-saveas:
+            true\n\n  network:\n    enabled: true\n    actions:\n      nic-attach: true\n      nic-attach-alias: true\n      nic-detach:
+            true\n      nic-update: true\n      sg-attach: true\n      sg-detach: true\n      \n  pci:\n    enabled: true\n
+            \   actions:\n      pci-attach: true\n      pci-detach: true      \n\n  snapshot:\n    enabled: true\n    actions:\n
+            \     snapshot-create: true\n      snapshot-revert: true\n      snapshot-delete: true\n\n  backup:\n    enabled:
+            true\n    actions:\n      backup-cancel: true\n\n  history:\n    enabled: true\n\n  sched_actions:\n    enabled:
+            true\n    actions:\n      sched-add: true\n      sched-update: true\n      sched-delete: true\n      charter_create:
+            true\n\n  configuration:\n    enabled: true\n    actions:\n      update_configuration: true\n\n  template:\n    enabled:
+            true\n\n  exec:\n    enabled: true\n    actions:\n      exec: true\n      exec-retry: true\n      exec-cancel:
+            true\n"
     "/etc/one/fireedge/sunstone/views/user/vm-template-tab.yaml":
         class: Yaml
         owner: root
@@ -7011,15 +7391,15 @@ patches:
         action: apply
         change:
         -   path: []
+            key: SCRIPTS_REMOTE_DIR
+            old: "/var/tmp/one"
+            state: rm
+            extra:
+                multiple: false
+        -   path: []
             key: VM_RESTRICTED_ATTR
             old: '"PCI"'
             state: rm
-            extra:
-                multiple: true
-        -   path: []
-            key: DATASTORE_ENCRYPTED_ATTR
-            value: '"RESTIC_S3_SECRET_ACCESS_KEY"'
-            state: ins
             extra:
                 multiple: true
         -   path: []
@@ -7028,6 +7408,20 @@ patches:
             state: ins
             extra:
                 multiple: true
+        -   path: []
+            key: DATASTORE_ENCRYPTED_ATTR
+            value: '"RESTIC_S3_SECRET_ACCESS_KEY"'
+            state: ins
+            extra:
+                multiple: true
+        -   path:
+            - TM_MAD_CONF
+            - '"lvm"'
+            key: DS_MIGRATE
+            value: '"NO"'
+            old: '"YES"'
+            state: set
+            extra: {}
         -   path: []
             key: REUSE_ADDRESS
             value: '"NO"'
@@ -7051,9 +7445,6 @@ patches:
             #
             #  DS_MONITOR_VM_DISK: Number of MONITORING_INTERVAL_DATASTORE intervals to monitor
             #  VM disks. 0 to disable. Only applies to fs and fs_lvm datastores
-            #
-            #  SCRIPTS_REMOTE_DIR: Remote path to store the monitoring and VM management
-            #  scripts.
             #
             #  DB: Configuration attributes for the database backend
             #   backend : can be sqlite or mysql (default is sqlite)
@@ -7111,8 +7502,6 @@ patches:
             MONITORING_INTERVAL_MARKET    = 600
 
             #DS_MONITOR_VM_DISK = 10
-
-            SCRIPTS_REMOTE_DIR=/var/tmp/one
 
             DB = [ BACKEND = "sqlite",
                    TIMEOUT = 2500 ]
@@ -8192,7 +8581,7 @@ patches:
 
             TM_MAD_CONF = [
                 NAME = "lvm", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
-                DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "YES", DS_MIGRATE = "YES",
+                DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "YES", DS_MIGRATE = "NO",
                 DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
             ]
 
@@ -8888,6 +9277,13 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: []
+            key: :remote_hook_base_path
+            old: "/var/tmp/one/hooks"
+            state: rm
+            extra: {}
         content: |
             ################################################################################
             # OpenNebula server contact information is obtained from
@@ -8909,7 +9305,7 @@ patches:
             # :remote_hook_base_path location of hook scripts when commands not given as an
             # absolute path and REMOTE = yes is specified
             :hook_base_path: '/var/lib/one/remotes/hooks'
-            :remote_hook_base_path: '/var/tmp/one/hooks'
+            #:remote_hook_base_path: '/var/lib/one-remotes/hooks'
 
             # :subscriber_endpoint to subscribe for OpenNebula events must match those in
             # oned.conf
@@ -9320,6 +9716,48 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: &15 []
+            key: :host
+            old: 127.0.0.1
+            state: rm
+            extra: {}
+        -   path: *15
+            key: :port
+            old: 13013
+            state: rm
+            extra: {}
+        -   path: *15
+            key: :server
+            value:
+                :environment: production
+                :bind: 127.0.0.1
+                :port: 13013
+                :host_authorization:
+                    :permitted_hosts: []
+            state: ins
+            extra: {}
+        -   path: *15
+            key: :concurrency
+            value: 10
+            state: ins
+            extra: {}
+        -   path: *15
+            key: :shutdown_timeout
+            value: 30
+            state: ins
+            extra: {}
+        -   path: *15
+            key: :command_timeout
+            value: 3600
+            state: ins
+            extra: {}
+        -   path: *15
+            key: :cancel_grace
+            value: 30
+            state: ins
+            extra: {}
         content: |
             ################################################################################
             # Server Configuration
@@ -9399,11 +9837,6 @@ patches:
         mode: '0640'
         action: apply
         change:
-        -   path: []
-            key: :appliance_auto_import
-            value: true
-            state: ins
-            extra: {}
         -   path:
             - :server
             key: :bind
@@ -9411,12 +9844,17 @@ patches:
             old: 127.0.0.1
             state: set
             extra: {}
-        -   path: []
+        -   path: &16 []
+            key: :appliance_auto_import
+            value: true
+            state: ins
+            extra: {}
+        -   path: *16
             key: :monitor
             value:
-                :endpoint: 'http://169.254.16.9:10780/api/v1'
-                :chart_repo: 'https://opennebula.github.io/cluster-api-provider-opennebula/charts/'
-                :chart_version: '0.1.0'
+                :endpoint: http://169.254.16.9:10780/api/v1
+                :chart_repo: https://opennebula.github.io/cluster-api-provider-opennebula/charts/
+                :chart_version: 0.1.0
             state: ins
             extra: {}
         content: |
@@ -10257,7 +10695,7 @@ patches:
             # Default log level for the proxy process.
             # Logs are located on hypervisor hosts at /var/log/one_tproxy*.log.
             # The proxy processes can be reloaded or restarted on demand (as root):
-            # `/var/tmp/one/vnm/tproxy reload` or `/var/tmp/one/vnm/tproxy restart`.
+            # `/usr/libexec/one/tproxy reload` or `/usr/libexec/one/tproxy restart`.
             #:tproxy_debug_level: 2 # 0 = ERROR, 1 = WARNING, 2 = INFO, 3 = DEBUG
 
             # Each entry in the :tproxy array is a definition of a proxy instance:
@@ -10295,23 +10733,6 @@ patches:
             # Host and port where OneBEX server will run
             :host: 0.0.0.0
             :port: 13014
-
-            # Server shutdown timing, in seconds.
-            #
-            # shutdown_delay
-            #   Delay after the final /vms/:VM_ID/finish request before stopping
-            #   the OneBEX server.
-            #
-            # idle_timeout
-            #   Maximum time without receiving any HTTP request before the OneBEX server
-            #   stops automatically.
-            #
-            # onebex_timeout
-            #   Maximum time, in seconds, that interactive backups wait for the
-            #   OneBEX export to finish after it has started.
-            :shutdown_delay: 2
-            :idle_timeout: 300
-            :onebex_timeout: 1800
 
             ################################################################################
             # Log
@@ -10557,6 +10978,9 @@ patches:
                 - title: Create Virtual Network Template
                   path: /network-template/create
                   Component: CreateVnTemplate
+                - title: Update Virtual Network Template
+                  path: /network-template/update
+                  Component: CreateVnTemplate
                 - title: Security groups
                   path: /security-group
                   sidebar: true
@@ -10564,6 +10988,9 @@ patches:
                   Component: SecurityGroups
                 - title: Create Security Group
                   path: /security-group/create
+                  Component: CreateSecurityGroup
+                - title: Update Security Group
+                  path: /security-group/update
                   Component: CreateSecurityGroup
     "/etc/one/fireedge/sunstone/tabs/50-infrastructure-tab.yaml":
         class: Yaml
@@ -10645,6 +11072,9 @@ patches:
                 - title: Create Group
                   path: /group/create
                   Component: CreateGroup
+                - title: Update Group
+                  path: /group/update
+                  Component: CreateGroup
                 - title: Groups
                   path: /group
                   sidebar: true
@@ -10698,6 +11128,17 @@ patches:
               path: /guacamole/:id/:type
               sidebar: false
               Component: Guacamole
+    "/etc/one/fireedge/sunstone/tabs/81-spice-tab.yaml":
+        class: Yaml
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        action: create
+        content: |
+            - title: SPICE
+              path: /spice/:id
+              sidebar: false
+              Component: Spice
     "/etc/one/fireedge/sunstone/tabs/90-oneks-tab.yaml":
         class: Yaml
         owner: root
@@ -10714,6 +11155,9 @@ patches:
                 - title: Kubernetes Logs
                   path: /kubernetes/create_kubernetes_logs/:id
                   Component: CreateKubernetesLogs
+                - title: Install Application
+                  path: /kubernetes/:id/applications/install
+                  Component: InstallOneKsApplication
                 - title: K8S Clusters
                   path: /kubernetes
                   icon: XrayView
