@@ -40,6 +40,7 @@ module OpenNebula
             :snapshotdelete  => "image.snapshotdelete",
             :snapshotrevert  => "image.snapshotrevert",
             :snapshotflatten => "image.snapshotflatten",
+            :resize     => "image.resize",
             :restore    => "image.restore",
             :lock       => "image.lock",
             :unlock     => "image.unlock"
@@ -261,6 +262,15 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success or Error
         def snapshot_flatten(snap_id)
             call(IMAGE_METHODS[:snapshotflatten], @pe_id, snap_id)
+        end
+
+        # Resizes an image to a new size (only upsize supported)
+        #
+        # @param size [String] New size in MiB
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success or Error
+        def resize(size)
+            call(IMAGE_METHODS[:resize], @pe_id, size.to_s)
         end
 
         # Restore the VM backup stored by the image
