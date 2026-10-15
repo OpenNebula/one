@@ -181,6 +181,10 @@ leader)
             service_command systemctl start opennebula-form
         fi
 
+        if systemctl is-enabled opennebula-ks >/dev/null 2>&1; then
+            service_command systemctl start opennebula-ks
+        fi
+
         # opennebula.service wants opennebula-hem.service
         if is_systemd_unit_startable opennebula-hem ; then
             # this is implicit dependency of the opennebula.service...
@@ -203,6 +207,10 @@ leader)
 
         if [ -e /usr/lib/one/oneform/oneform-server.rb ]; then
             service_command service opennebula-form start
+        fi
+
+        if [ -e /usr/lib/one/oneks/oneks-server.rb ]; then
+            service_command service opennebula-ks start
         fi
 
         if [ -e /usr/lib/one/onehem/onehem-server.rb ]; then
@@ -232,6 +240,12 @@ follower)
             service_command systemctl stop opennebula-form
         fi
 
+        if systemctl is-enabled opennebula-ks >/dev/null 2>&1 ||
+           systemctl is-active  opennebula-ks >/dev/null 2>&1;
+        then
+            service_command systemctl stop opennebula-ks
+        fi
+
         if systemctl is-enabled opennebula-hem >/dev/null 2>&1 ||
            systemctl is-active  opennebula-hem >/dev/null 2>&1;
         then
@@ -254,6 +268,10 @@ follower)
 
         if [ -e /usr/lib/one/oneform/oneform-server.rb ]; then
             service_command service opennebula-form stop
+        fi
+
+        if [ -e /usr/lib/one/oneks/oneks-server.rb ]; then
+            service_command service opennebula-ks stop
         fi
 
         if [ -e /usr/lib/one/onehem/onehem-server.rb ]; then
