@@ -304,7 +304,7 @@ module TransferManager
         cmd
       else
         <<~EOF.strip
-          ssh '#{host}' '\
+          ssh -n '#{host}' '\
               script="$(mktemp)"; \
               echo "#{Base64.strict_encode64(cmd)}" | base64 -d > "$script"; \
               trap "rm $script" EXIT; \
