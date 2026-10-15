@@ -1241,6 +1241,15 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
         return -1;
     }
 
+    if ( vm->get_state() == VirtualMachine::HOLD && vm->hasHistory() )
+    {
+        err = "Cannot attach disks to a HOLD VM with history";
+
+        NebulaLog::log("DiM", Log::ERROR, err);
+
+        return -1;
+    }
+
     if ( vm->get_state()     == VirtualMachine::ACTIVE &&
          vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
@@ -1251,7 +1260,7 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::HOTPLUG_PROLOG_POWEROFF);
     }
-    else
+    else if ( vm->get_state() != VirtualMachine::HOLD )
     {
         oss << "Could not attach a new disk to VM " << vid << ", wrong state "
             << vm->state_str() << ".";
@@ -1270,7 +1279,7 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
         {
             vm->set_state(VirtualMachine::RUNNING);
         }
-        else
+        else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF )
         {
             vm->set_state(VirtualMachine::LCM_INIT);
             vm->set_state(VirtualMachine::POWEROFF);
@@ -1280,6 +1289,17 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
 
         NebulaLog::log("DiM", Log::ERROR, err);
         return -1;
+    }
+
+    if ( vm->get_state() == VirtualMachine::HOLD )
+    {
+        vm->clear_attach_disk();
+
+        vmpool->update(vm.get());
+
+        vm->log("DiM", Log::INFO, "VM Disk successfully attached.");
+
+        return 0;
     }
 
     close_cp_history(vmpool, vm.get(), VMActions::DISK_ATTACH_ACTION, ra);
@@ -1317,9 +1337,19 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
         return -1;
     }
 
+    if ( vm->get_state() == VirtualMachine::HOLD && vm->hasHistory() )
+    {
+        error_str = "Cannot detach disks from a HOLD VM with deployment history";
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
     if (( vm->get_state()     != VirtualMachine::ACTIVE ||
           vm->get_lcm_state() != VirtualMachine::RUNNING ) &&
-        vm->get_state()       != VirtualMachine::POWEROFF)
+        vm->get_state()       != VirtualMachine::POWEROFF &&
+        vm->get_state()       != VirtualMachine::HOLD)
     {
         oss << "Could not detach disk from VM " << vid << ", wrong state "
             << vm->state_str() << ".";
@@ -1338,6 +1368,15 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
     }
 
     vm->set_resched(false);
+
+    if ( vm->get_state() == VirtualMachine::HOLD )
+    {
+        vm->log("DiM", Log::INFO, "VM Disk successfully detached.");
+
+        vmpool->delete_attach_disk(std::move(vm), true);
+
+        return 0;
+    }
 
     vm->set_vm_info();
 

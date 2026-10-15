@@ -3564,7 +3564,18 @@ int VirtualMachine::set_up_attach_disk(VirtualMachineTemplate * tmpl, string& er
 
     bool is_q35 = test_machine_type({"q35", "virt"});
 
-    new_disk = disks.set_up_attach(oid, uid, get_cid(), new_vdisk, tm_mad_sys,
+    int cluster_id;
+
+    if (state == HOLD)
+    {
+        cluster_id = -1;
+    }
+    else
+    {
+        cluster_id = get_cid();
+    }
+
+    new_disk = disks.set_up_attach(oid, uid, cluster_id, new_vdisk, tm_mad_sys,
                                    is_q35, context, err);
 
     if ( new_disk == 0 )
@@ -3576,7 +3587,10 @@ int VirtualMachine::set_up_attach_disk(VirtualMachineTemplate * tmpl, string& er
     // -------------------------------------------------------------------------
     // Add new disk to template and set info in history before attaching
     // -------------------------------------------------------------------------
-    set_vm_info();
+    if ( state != HOLD )
+    {
+        set_vm_info();
+    }
 
     obj_template->set(new_disk->vector_attribute());
 

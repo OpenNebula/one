@@ -797,6 +797,22 @@ void VirtualMachineDisks::extended_info(int uid, Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool VirtualMachineDisks::has_volatile()
+{
+    for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
+    {
+        if ( (*disk)->is_volatile() )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 bool VirtualMachineDisks::volatile_info(int ds_id)
 {
     DatastorePool * ds_pool = Nebula::instance().get_dspool();
@@ -1402,7 +1418,7 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
     // -------------------------------------------------------------------------
     string disk_cluster_ids = disk->vector_value("CLUSTER_ID");
 
-    if ( !disk_cluster_ids.empty() )
+    if ( cluster_id != -1 && !disk_cluster_ids.empty() )
     {
         set<int> cluster_ids;
         one_util::split_unique(disk_cluster_ids, ',', cluster_ids);
