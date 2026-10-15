@@ -2091,7 +2091,7 @@ patches:
         group: oneadmin
         mode: '0640'
         action: delete
-        content: |
+        content: |-
             - title: Kubernetes
               icon: XrayView
               routes:
@@ -2101,9 +2101,6 @@ patches:
                 - title: Kubernetes Logs
                   path: /kubernetes/create_kubernetes_logs/:id
                   Component: CreateKubernetesLogs
-                - title: Install Application
-                  path: /kubernetes/:id/applications/install
-                  Component: InstallOneKsApplication
                 - title: K8S Clusters
                   path: /kubernetes
                   icon: XrayView
@@ -2874,6 +2871,15 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - info-tabs
+            key: applications
+            value:
+                enabled: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the ONEKS tab
@@ -10725,6 +10731,23 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: &17 []
+            key: :shutdown_delay
+            old: 2
+            state: rm
+            extra: {}
+        -   path: *17
+            key: :idle_timeout
+            old: 300
+            state: rm
+            extra: {}
+        -   path: *17
+            key: :onebex_timeout
+            old: 1800
+            state: rm
+            extra: {}
         content: |
             ################################################################################
             # Server Configuration
