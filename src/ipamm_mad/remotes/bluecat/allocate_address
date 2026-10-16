@@ -1,0 +1,255 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2026, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to get a free IP address (or set of IPs). The IP will be
+# used by OpenNebula VMs and should not be allocated to any other host in the
+# network.
+#
+# STDIN Input:
+#   - Base64 encoded XML with the AR description and the address request
+#
+# Input arguments:
+#   $1 - Request ID
+#
+# XML format
+#  <IPAM_DRIVER_ACTION_DATA>
+#  <AR>
+#    <TYPE>IP4</TYPE>
+#    <IP> First IP in the network in '.' notation
+#    <MAC> First MAC in the network in ':' notation
+#    <SIZE>Number of IPs in the network
+#    <NETWORK_ADDRESS> Base network address
+#    <NETWORK_MASK> Network mask
+#    <GATEWAY> Default gateway for the network
+#    <DNS> DNS servers, a space separated list of servers
+#    <GUEST_MTU> Sets the MTU for the NICs in this network
+#    <SEARCH_DOMAIN> for DNS client
+# <ADDRESS>
+#   <IP>
+#   <SIZE> Number of IPs to allocate
+#   <MAC> MAC is optional
+#
+# This scrit MUST output the leased IP range, if the "size" IPs cannot be
+# assgined the sript must return -1, otherwise it must exit 0. The answer to
+# OpenNebula needs to include the ADDRESS spec:
+#
+#  ADDRESS = [ IP = "10.0.0.2", SIZE=34 ]
+#
+################################################################################
+
+# ----------- Set up the environment to source common tools & conf ------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. "$LIB_LOCATION/sh/scripts_common.sh"
+
+DRIVER_PATH=$(dirname "$0")
+. "${DRIVER_PATH}/common.sh"
+
+# --------------- Get IPAM attributes from OpenNebula core --------------------
+
+ID="$1"
+DRV_ACTION=$(cat)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /IPAM_DRIVER_ACTION_DATA/AR/TYPE \
+                    /IPAM_DRIVER_ACTION_DATA/AR/MAC \
+                    /IPAM_DRIVER_ACTION_DATA/AR/IP \
+                    /IPAM_DRIVER_ACTION_DATA/AR/SIZE \
+                    /IPAM_DRIVER_ACTION_DATA/AR/NETWORK_MASK \
+                    /IPAM_DRIVER_ACTION_DATA/AR/BLUECAT_NETWORK_ID \
+                    /IPAM_DRIVER_ACTION_DATA/ADDRESS/SIZE)
+unset i
+
+AR_TYPE="${XPATH_ELEMENTS[i++]}"
+AR_MAC="${XPATH_ELEMENTS[i++]}"
+AR_IP="${XPATH_ELEMENTS[i++]}"
+AR_SIZE="${XPATH_ELEMENTS[i++]}"
+AR_NETWORK_MASK="${XPATH_ELEMENTS[i++]}"
+BLUECAT_NETWORK_ID="${XPATH_ELEMENTS[i++]}"
+ADDR_SIZE="${XPATH_ELEMENTS[i++]}"
+
+ADDR_IP=""
+IFS= read -r -d '' ADDR_IP \
+    < <($XPATH /IPAM_DRIVER_ACTION_DATA/ADDRESS/IP) || ADDR_IP=""
+
+# NOTE: Custom attributes can be get from the AR, and set when defining the
+# network in the register_address_range action
+
+#-------------------------------------------------------------------------------
+# IPAM should be contact here to check if ADDR_IP can be allocated in the
+# network. Note that several continous addresses can be requested
+#
+# Sample return a random address. Note this is just for testing address usage
+# needs to be checked
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+# BlueCat integration
+#-------------------------------------------------------------------------------
+
+bluecat_load_config
+
+bluecat_log_block "allocate_address" \
+  "Request ID: $ID" \
+  "AR_IP=$AR_IP" \
+  "AR_SIZE=$AR_SIZE" \
+  "ADDR_SIZE=$ADDR_SIZE" \
+  "BLUECAT_NETWORK_ID=$BLUECAT_NETWORK_ID" \
+  "BLUECAT_MOCK=$BLUECAT_MOCK"
+bluecat_log_decoded_action
+
+#-------------------------------------------------------------------------------
+# Mock mode
+#-------------------------------------------------------------------------------
+
+if [ "$BLUECAT_MOCK" = "yes" ]; then
+  bluecat_log "Mock mode enabled, returning AR_IP=$AR_IP SIZE=$ADDR_SIZE"
+
+  cat << EOT
+ADDRESS = [ IP = "$AR_IP", SIZE = "$ADDR_SIZE" ]
+EOT
+  exit 0
+fi
+
+#-------------------------------------------------------------------------------
+# Real BlueCat BAM REST v2 integration.
+#
+# Current implementation supports single-address allocation and explicit
+# requested-address reservation. Multi-address allocation and additional
+# metadata handling are not currently supported.
+#-------------------------------------------------------------------------------
+
+bluecat_require_real_api_config
+bluecat_create_session || \
+  bluecat_fail "Failed to create BlueCat API session"
+
+[ -n "$BLUECAT_NETWORK_ID" ] || \
+  bluecat_fail "Missing BLUECAT_NETWORK_ID, cannot allocate BlueCat address"
+
+if [ "$ADDR_SIZE" != "1" ]; then
+  bluecat_fail "BlueCat allocate_address currently supports ADDR_SIZE=1 only"
+fi
+
+ip_to_int() {
+  local a b c d
+
+  IFS=. read -r a b c d <<< "$1"
+  case "$a.$b.$c.$d" in
+    *[!0-9.]*|*..*) return 1 ;;
+  esac
+  [ -n "$a" ] && [ -n "$b" ] && [ -n "$c" ] && [ -n "$d" ] \
+    && [ "$a" -le 255 ] && [ "$b" -le 255 ] \
+    && [ "$c" -le 255 ] && [ "$d" -le 255 ] || return 1
+  printf '%u\n' "$((a * 16777216 + b * 65536 + c * 256 + d))"
+}
+
+int_to_ip() {
+  local ip="$1"
+  printf '%u.%u.%u.%u\n' \
+    "$(((ip >> 24) & 255))" "$(((ip >> 16) & 255))" \
+    "$(((ip >> 8) & 255))" "$((ip & 255))"
+}
+
+
+bluecat_find_ar_ip() {
+  local network_id="$1" ar_start="$2" ar_size="$3"
+  local requested_ip="$4"
+  local response candidate state offset
+
+  response=$(bluecat_api_get "/api/v2/networks/${network_id}/addresses") || return 1
+
+  if [ -n "$requested_ip" ]; then
+    state=$(printf '%s' "$response" | jq -r --arg address "$requested_ip" \
+      'first(.data[]? | select(.address == $address) | .state) // empty') \
+      || return 1
+
+    if [ "$state" = "UNASSIGNED" ]; then
+      printf '%s\n' "$requested_ip"
+      return 0
+    fi
+    return 2
+  fi
+
+  for ((offset = 0; offset < ar_size; offset++)); do
+    candidate=$(int_to_ip "$((ar_start + offset))")
+    state=$(printf '%s' "$response" | jq -r --arg address "$candidate" \
+      'first(.data[]? | select(.address == $address) | .state) // empty') \
+      || return 1
+
+    if [ "$state" = "UNASSIGNED" ]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+  return 2
+}
+
+
+bluecat_reserve_ip() {
+  local network_id="$1" ip="$2" payload
+
+  payload=$(jq -cn --arg address "$ip" \
+    '{type:"IPv4Address",address:$address,state:"RESERVED"}')
+  bluecat_api_post "/api/v2/networks/${network_id}/addresses" "$payload"
+}
+
+AR_START=$(ip_to_int "$AR_IP") || bluecat_fail "Invalid AR_IP: $AR_IP"
+case "$AR_SIZE" in
+  ''|*[!0-9]*|0) bluecat_fail "Invalid AR_SIZE: $AR_SIZE" ;;
+esac
+
+if [ -n "$ADDR_IP" ]; then
+  ADDR_INT=$(ip_to_int "$ADDR_IP") || bluecat_fail "Invalid ADDR_IP: $ADDR_IP"
+  AR_END=$((AR_START + AR_SIZE))
+
+  if [ "$ADDR_INT" -lt "$AR_START" ] || [ "$ADDR_INT" -ge "$AR_END" ]; then
+    bluecat_fail "Requested address $ADDR_IP is outside OpenNebula AR $AR_IP/$AR_SIZE"
+  fi
+fi
+
+IP=$(bluecat_find_ar_ip \
+  "$BLUECAT_NETWORK_ID" "$AR_START" "$AR_SIZE" "$ADDR_IP")
+RC=$?
+if [ "$RC" -eq 2 ]; then
+  if [ -n "$ADDR_IP" ]; then
+    bluecat_fail "Requested address $ADDR_IP is not UNASSIGNED"
+  fi
+  bluecat_fail "No free address is available in OpenNebula AR $AR_IP/$AR_SIZE"
+elif [ "$RC" -ne 0 ] || [ -z "$IP" ]; then
+  bluecat_fail "Failed to inspect BlueCat addresses for OpenNebula AR"
+fi
+
+RESPONSE=$(bluecat_reserve_ip "$BLUECAT_NETWORK_ID" "$IP") || \
+  bluecat_fail "BlueCat address allocation failed for $IP"
+
+cat << EOT
+ADDRESS = [ IP = "$IP", SIZE = "$ADDR_SIZE" ]
+EOT
+
+exit 0

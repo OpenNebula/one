@@ -1,0 +1,325 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2026, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to register a new IP network in the IPAM. The network may
+# be selected by a pool of free networks or if an specific network is requested
+# its availability maybe checked by the IPAM driver.
+#
+# The IPAM driver must return an OpenNebula AddressRange definition, potentially
+# augmented with network specific variables to be used by VMs (e.g. GATEWAYS,
+# MASK...)
+#
+# STDIN Input:
+#   - Base64 encoded XML with AR request
+#
+# Input arguments:
+#   $1 - Request ID
+#
+# XML format
+#  <IPAM_DRIVER_ACTION_DATA>
+#  <AR>
+#    <TYPE>IP4</TYPE>
+#    <IP> First IP in the network in '.' notation
+#    <MAC> First MAC in the network in ':' notation
+#    <SIZE>Number of IPs in the network
+#    <NETWORK_ADDRESS> Base network address
+#    <NETWORK_MASK> Network mask
+#    <GATEWAY> Default gateway for the network
+#    <DNS> DNS servers, a space separated list of servers
+#    <GUEST_MTU> Sets the MTU for the NICs in this network
+#    <SEARCH_DOMAIN> for DNS client
+#
+# The response MUST include IPAM_MAD, TYPE, IP and SIZE attributes, example:
+#   - A basic network definition
+#       AR = [
+#         IPAM_MAD = "bluecat",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.1",
+#         SIZE = "255"
+#       ]
+#
+#   - A complete network definition. Custom attributes (free form, key-value)
+#     can be added, named cannot be repeated.
+#       AR = [
+#         IPAM_MAD = "bluecat",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.2",
+#         SIZE = "200",
+#         NETWORK_ADDRESS   = "10.0.0.0",
+#         NETWORK_MASK      = "255.255.255.0",
+#         GATEWAY           = "10.0.0.1",
+#         DNS               = "10.0.0.1",
+#         IPAM_ATTR         = "10.0.0.240",
+#         OTHER_IPAM_ATTR   = ".mydoamin.com"
+#       ]
+################################################################################
+
+# ----------- Set up the environment to source common tools & conf ------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. "$LIB_LOCATION/sh/scripts_common.sh"
+
+DRIVER_PATH=$(dirname "$0")
+. "${DRIVER_PATH}/common.sh"
+
+# --------------- Get IPAM attributes from OpenNebula core --------------------
+
+ID="$1"
+DRV_ACTION=$(cat)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /IPAM_DRIVER_ACTION_DATA/AR/TYPE \
+                    /IPAM_DRIVER_ACTION_DATA/AR/MAC \
+                    /IPAM_DRIVER_ACTION_DATA/AR/IP \
+                    /IPAM_DRIVER_ACTION_DATA/AR/SIZE \
+                    /IPAM_DRIVER_ACTION_DATA/AR/NETWORK_ADDRESS \
+                    /IPAM_DRIVER_ACTION_DATA/AR/NETWORK_MASK \
+                    /IPAM_DRIVER_ACTION_DATA/AR/GATEWAY \
+                    /IPAM_DRIVER_ACTION_DATA/AR/DNS \
+                    /IPAM_DRIVER_ACTION_DATA/AR/BLUECAT_NETWORK_ID)
+
+unset i
+
+TYPE="${XPATH_ELEMENTS[i++]}"
+MAC="${XPATH_ELEMENTS[i++]}"
+IP="${XPATH_ELEMENTS[i++]}"
+SIZE="${XPATH_ELEMENTS[i++]}"
+NETWORK_ADDRESS="${XPATH_ELEMENTS[i++]}"
+NETWORK_MASK="${XPATH_ELEMENTS[i++]}"
+GATEWAY="${XPATH_ELEMENTS[i++]}"
+DNS="${XPATH_ELEMENTS[i++]}"
+BLUECAT_NETWORK_ID_AR="${XPATH_ELEMENTS[i++]}"
+
+#-------------------------------------------------------------------------------
+# IPAM should be contact here. As an example we just "echo" the IP sent by
+# OpenNebula or return a fixed sample network
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+# BlueCat integration
+#-------------------------------------------------------------------------------
+
+bluecat_load_config
+
+BLUECAT_NETWORK_ID_FINAL="${BLUECAT_NETWORK_ID_AR:-$BLUECAT_NETWORK_ID}"
+
+bluecat_log_block "register_address_range" \
+  "Request ID: $ID" \
+  "TYPE=$TYPE" \
+  "IP=$IP" \
+  "SIZE=$SIZE" \
+  "NETWORK_ADDRESS=$NETWORK_ADDRESS" \
+  "NETWORK_MASK=$NETWORK_MASK" \
+  "GATEWAY=$GATEWAY" \
+  "DNS=$DNS" \
+  "BLUECAT_NETWORK_ID=$BLUECAT_NETWORK_ID_FINAL" \
+  "BLUECAT_MOCK=$BLUECAT_MOCK"
+bluecat_log_decoded_action
+
+#-------------------------------------------------------------------------------
+# Mock mode
+#-------------------------------------------------------------------------------
+
+if [ "$BLUECAT_MOCK" = "yes" ]; then
+    AR=$(cat <<EOF
+AR = [
+  TYPE = "IP4",
+  SIZE = "$SIZE",
+  IP = "$IP",
+  NETWORK_MASK = "$NETWORK_MASK",
+  GATEWAY = "$GATEWAY",
+  DNS = "$DNS",
+  BLUECAT_NETWORK_ID = "$BLUECAT_NETWORK_ID_FINAL",
+  IPAM_MAD = "bluecat"
+]
+EOF
+)
+    echo "$AR"
+    exit 0
+fi
+
+#-------------------------------------------------------------------------------
+# Real BlueCat BAM REST v2 integration.
+#
+# Releases a single address reservation. Multi-address release and broader
+# reconciliation behavior are not currently supported.
+#-------------------------------------------------------------------------------
+
+bluecat_require_real_api_config
+bluecat_create_session || \
+  bluecat_fail "Failed to create BlueCat API session"
+
+ip_to_int() {
+  local a b c d
+
+  IFS=. read -r a b c d <<EOF
+$1
+EOF
+  echo $(( (a << 24) + (b << 16) + (c << 8) + d ))
+}
+
+int_to_ip() {
+  local ip="$1"
+
+  echo "$(( (ip >> 24) & 255 )).$(( (ip >> 16) & 255 )).$(( (ip >> 8) & 255 )).$(( ip & 255 ))"
+}
+
+mask_to_prefix() {
+  local mask="$1"
+  local octet prefix=0
+
+  case "$mask" in
+    /*) echo "${mask#/}"; return 0 ;;
+    [0-9]|[1-2][0-9]|3[0-2]) echo "$mask"; return 0 ;;
+  esac
+
+  IFS=. read -r o1 o2 o3 o4 <<EOF
+$mask
+EOF
+
+  for octet in "$o1" "$o2" "$o3" "$o4"; do
+    case "$octet" in
+      255) prefix=$((prefix + 8)) ;;
+      254) prefix=$((prefix + 7)) ;;
+      252) prefix=$((prefix + 6)) ;;
+      248) prefix=$((prefix + 5)) ;;
+      240) prefix=$((prefix + 4)) ;;
+      224) prefix=$((prefix + 3)) ;;
+      192) prefix=$((prefix + 2)) ;;
+      128) prefix=$((prefix + 1)) ;;
+      0) ;;
+      *) return 1 ;;
+    esac
+  done
+
+  echo "$prefix"
+}
+
+size_to_prefix() {
+  local size="$1"
+  local prefix=32
+
+  [ -n "$size" ] || return 1
+
+  while [ "$size" -gt 1 ] 2>/dev/null; do
+    [ $((size % 2)) -eq 0 ] || return 1
+    size=$((size / 2))
+    prefix=$((prefix - 1))
+  done
+
+  echo "$prefix"
+}
+
+bluecat_payload() {
+  local cidr="$1"
+
+  jq -cn --arg cidr "$cidr" --arg name "$BLUECAT_NETWORK_NAME" \
+    '{type: "IPv4Network", range: $cidr}
+     + (if $name == "" then {} else {name: $name} end)'
+}
+
+bluecat_create_network() {
+  local block_id="$1"
+  local cidr="$2"
+  local payload
+
+  payload=$(bluecat_payload "$cidr")
+
+  bluecat_api_post "/api/v2/blocks/${block_id}/networks" "$payload"
+}
+
+bluecat_get_network() {
+  local network_id="$1"
+
+  bluecat_api_get "/api/v2/networks/${network_id}"
+}
+
+parse_bluecat_id() {
+  jq -r '.id // empty'
+}
+
+PREFIX=$(mask_to_prefix "$NETWORK_MASK")
+if [ -z "$PREFIX" ] && [ -n "$SIZE" ]; then
+  PREFIX=$(size_to_prefix "$SIZE")
+fi
+
+if [ -z "$PREFIX" ]; then
+  bluecat_fail "Missing or invalid network mask for BlueCat network registration"
+fi
+
+NETWORK_ADDRESS="${NETWORK_ADDRESS:-$IP}"
+if [ -n "$NETWORK_MASK" ] && [ "$NETWORK_MASK" != "$PREFIX" ] && [ "${NETWORK_MASK#/}" = "$NETWORK_MASK" ]; then
+  NETWORK_ADDRESS=$(int_to_ip "$(( $(ip_to_int "$NETWORK_ADDRESS") & $(ip_to_int "$NETWORK_MASK") ))")
+fi
+
+CIDR="${NETWORK_ADDRESS}/${PREFIX}"
+BLUECAT_PARENT_BLOCK_ID="${BLUECAT_PARENT_BLOCK_ID:-$BLUECAT_BLOCK_ID}"
+
+if [ -n "$BLUECAT_PARENT_BLOCK_ID" ]; then
+  RESPONSE=$(bluecat_create_network "$BLUECAT_PARENT_BLOCK_ID" "$CIDR")
+  RC=$?
+
+  if [ "$RC" -ne 0 ]; then
+    bluecat_fail "BlueCat network create failed for $CIDR"
+  fi
+
+  BLUECAT_NETWORK_ID_FINAL=$(echo "$RESPONSE" | parse_bluecat_id)
+elif [ -n "$BLUECAT_NETWORK_ID_FINAL" ]; then
+  RESPONSE=$(bluecat_get_network "$BLUECAT_NETWORK_ID_FINAL")
+  RC=$?
+
+  if [ "$RC" -ne 0 ]; then
+    bluecat_fail "BlueCat network lookup failed for $BLUECAT_NETWORK_ID_FINAL"
+  fi
+else
+  bluecat_fail "Missing BLUECAT_PARENT_BLOCK_ID or BLUECAT_NETWORK_ID for BlueCat network registration"
+fi
+
+if [ -z "$BLUECAT_NETWORK_ID_FINAL" ] || [ "$BLUECAT_NETWORK_ID_FINAL" = "null" ]; then
+  bluecat_fail "Failed to parse BlueCat network ID"
+fi
+
+AR=$(cat <<EOF
+AR = [
+  TYPE = "IP4",
+  SIZE = "$SIZE",
+  IP = "$IP",
+  NETWORK_ADDRESS = "$NETWORK_ADDRESS",
+  NETWORK_MASK = "$NETWORK_MASK",
+  GATEWAY = "$GATEWAY",
+  DNS = "$DNS",
+  BLUECAT_NETWORK_ID = "$BLUECAT_NETWORK_ID_FINAL",
+  IPAM_MAD = "bluecat"
+]
+EOF
+)
+
+echo "$AR"
+
+exit 0
