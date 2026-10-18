@@ -325,6 +325,17 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     erase_template_attribute("BRIDGE", bridge);
 
+    if (one_util::icasecmp(bridge, "switchdev"))
+    {
+        if (vn_mad != "ovswitch")
+        {
+            error_str = "BRIDGE=switchdev requires ovswitch";
+            goto error_common;
+        }
+
+        bridge = "switchdev";
+    }
+
     parse_vlan_id("VLAN_ID", "AUTOMATIC_VLAN_ID", vlan_id, vlan_id_automatic);
 
     parse_vlan_id("OUTER_VLAN_ID", "AUTOMATIC_OUTER_VLAN_ID", outer_vlan_id,
@@ -469,6 +480,26 @@ int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
         return -1;
     }
 
+    erase_template_attribute("BRIDGE", new_bridge);
+
+    if (new_bridge.empty())
+    {
+        new_bridge = bridge;
+    }
+
+    if (one_util::icasecmp(new_bridge, "switchdev"))
+    {
+        if (new_vn_mad != "ovswitch")
+        {
+            add_template_attribute("VN_MAD", vn_mad);
+            error = "BRIDGE=switchdev requires ovswitch";
+
+            return -1;
+        }
+
+        new_bridge = "switchdev";
+    }
+
     erase_template_attribute("BRIDGE_TYPE", new_br_type);
 
     if (new_vn_mad != vn_mad)
@@ -523,12 +554,7 @@ int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
         remove_template_attribute("OUTER_VLAN_ID");
     }
 
-    erase_template_attribute("BRIDGE", new_bridge);
-
-    if (!new_bridge.empty())
-    {
-        bridge = new_bridge;
-    }
+    bridge = new_bridge;
 
     add_template_attribute("BRIDGE", bridge);
 

@@ -166,16 +166,32 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def activate_vf(vm)
         super(vm)
 
+        # Match the hot-attach filtering used by shared VF activation.
+        is_attach = false
+
+        vm.each_pci do |pci|
+            if pci[:attach] == 'YES'
+                is_attach = true
+                break
+            end
+        end
+
         lock
         begin
             @bridges = list_bridges
 
             vm.each_pci do |pci|
+                next if is_attach && pci[:attach] != 'YES'
+
                 nic_confs(pci)
 
-                next unless pci[:vf_index]
+                if pci[:bridge] == 'switchdev'
+                    resolve_switchdev_bridge(pci)
+                end
 
-                configure_vf_port(pci)
+                if pci[:vf_index]
+                    configure_vf_port(pci)
+                end
             end
         ensure
             unlock
@@ -339,11 +355,15 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             @bridges = list_bridges
 
             vm.each_pci do |pci|
-                nic_confs(pci)
-
                 next unless Integer(pci[:network_id]) == vn_id
 
+                nic_confs(pci)
                 configure_vf(pci)
+
+                if pci[:bridge] == 'switchdev'
+                    resolve_switchdev_bridge(pci)
+                end
+
                 configure_vf_port(pci)
             end
         ensure
@@ -551,6 +571,36 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     # rubocop:enable Style/FormatStringToken
 
     private
+
+    # Resolve BRIDGE=switchdev only in the OVS VF path. VF discovery
+    # has already populated phydev, tap and vf_index in configure_vf.
+    def resolve_switchdev_bridge(pci_nic)
+        pf = pci_nic[:phydev]
+
+        if pci_nic[:vf_index].nil? || pf.to_s.empty?
+            raise 'BRIDGE=switchdev requires an SR-IOV VF with a parent PF'
+        end
+
+        if pci_nic[:tap].to_s.empty? || !switchdev?(pf)
+            raise 'BRIDGE=switchdev requires a switchdev PF and a VF representor'
+        end
+
+        bridge = "#{pf}br"
+
+        if bridge.length > 15
+            raise "BRIDGE=switchdev bridge #{bridge} exceeds 15 characters kernel limit; " \
+                  'rename the PF interface to at most 13 characters'
+        end
+
+        @bridges.each do |name, ports|
+            if name != bridge && ports.include?(pf)
+                raise "PF #{pf} already belongs to bridge #{name}, " \
+                      "expected #{bridge} or no bridge"
+            end
+        end
+
+        pci_nic[:bridge] = bridge
+    end
 
     def configure_vf_port(pci_nic)
         ports = [:tap, :phydev]

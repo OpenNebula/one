@@ -313,6 +313,7 @@ int VirtualNetworkPool::nic_attribute(
 {
     int              rc;
     string           network;
+    string           bridge;
     unique_ptr<VirtualNetwork> vnet;
 
     nic->replace("NIC_ID", nic_id);
@@ -332,6 +333,15 @@ int VirtualNetworkPool::nic_attribute(
 
     if (vnet == nullptr)
     {
+        return -1;
+    }
+
+    vnet->get_template_attribute("BRIDGE", bridge, -1);
+
+    if (bridge == "switchdev" &&
+        (!nic->is_pci() || nic->vector_value("TYPE") != "NIC"))
+    {
+        error = "BRIDGE=switchdev requires a PCI device with TYPE=NIC";
         return -1;
     }
 
