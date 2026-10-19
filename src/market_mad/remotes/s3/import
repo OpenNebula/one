@@ -97,7 +97,14 @@ DEFAULT_READ_LENGTH = 32*1024*1024 # Read in chunks of 32MB
 if read_length.to_s.empty?
     read_length = DEFAULT_READ_LENGTH
 else
-    read_length = 1024*1024*read_length.to_i
+    read_length = read_length.to_i
+
+    if read_length <= 0
+        STDERR.puts('READ_LENGTH must be greater than 0 MB.')
+        exit 1
+    end
+
+    read_length = 1024*1024*read_length
 end
 
 s3 = S3.new(s3_config)
