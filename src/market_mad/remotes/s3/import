@@ -76,7 +76,8 @@ app_prefix        = xpath(xml, 'MARKETPLACE/TEMPLATE/APP_PREFIX')        || 'mar
 signature_version = xpath(xml, 'MARKETPLACE/TEMPLATE/SIGNATURE_VERSION')
 endpoint          = xpath(xml, 'MARKETPLACE/TEMPLATE/ENDPOINT')
 force_path_style  = xpath(xml, 'MARKETPLACE/TEMPLATE/FORCE_PATH_STYLE')
-read_length       = xpath(xml, 'MARKETPLACE/TEMPLATE/READx_LENGTH')
+read_length       = xpath(xml, 'MARKETPLACE/TEMPLATE/READ_LENGTH') ||
+                    xpath(xml, 'MARKETPLACE/TEMPLATE/READx_LENGTH')
 
 name   = "#{app_prefix}-#{id}"
 source = "s3://#{bucket}/#{name}"
@@ -96,7 +97,14 @@ DEFAULT_READ_LENGTH = 32*1024*1024 # Read in chunks of 32MB
 if read_length.to_s.empty?
     read_length = DEFAULT_READ_LENGTH
 else
-    read_length = 1024*1024*read_length.to_i
+    read_length = read_length.to_i
+
+    if read_length <= 0
+        STDERR.puts('READ_LENGTH must be greater than 0 MB.')
+        exit 1
+    end
+
+    read_length = 1024*1024*read_length
 end
 
 s3 = S3.new(s3_config)
