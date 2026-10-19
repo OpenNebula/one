@@ -14,4 +14,5 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/models/Host/general'
+export * from '@modules/models/Host/pci'
 export * from '@modules/models/Host/table'

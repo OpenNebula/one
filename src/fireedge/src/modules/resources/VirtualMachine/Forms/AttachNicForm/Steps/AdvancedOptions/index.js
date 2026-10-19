@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import PropTypes from 'prop-types'
 import { Box } from '@mui/material'
 
@@ -29,6 +30,26 @@ export const STEP_ID = 'advanced'
 
 const Content = (props) => {
   const sections = useMemo(() => SECTIONS(props), [])
+  const { setValue } = useFormContext()
+  const [pciType, selectionMode] = useWatch({
+    name: [`${STEP_ID}.PCI_TYPE`, `${STEP_ID}.PCI_SELECTION_MODE`],
+  })
+  const previousSelection = useRef([pciType, selectionMode])
+
+  useEffect(() => {
+    const [previousType, previousMode] = previousSelection.current
+    if (
+      previousType &&
+      previousMode &&
+      (previousType !== pciType || previousMode !== selectionMode)
+    ) {
+      setValue(`${STEP_ID}.PCI_ADDRESS`, undefined)
+      if (pciType !== 'vf' && selectionMode === 'pf_ifname') {
+        setValue(`${STEP_ID}.PCI_SELECTION_MODE`, 'automatic')
+      }
+    }
+    previousSelection.current = [pciType, selectionMode]
+  }, [pciType, selectionMode, setValue])
 
   return (
     <Box

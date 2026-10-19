@@ -83,6 +83,14 @@ void HostSharePCI::init()
 /*  Function to test PCI availability at the host                             */
 /* -------------------------------------------------------------------------- */
 
+bool HostSharePCI::is_allocatable(const PCIDevice* pci) const
+{
+    return pci->vmid == -1 &&
+           pci->attrs->vector_value("PASSTHROUGH") != "NO";
+}
+
+/* -------------------------------------------------------------------------- */
+
 bool HostSharePCI::test_by_addr(const VectorAttribute *dev, const string& short_addr) const
 {
     for (auto jt = pci_devices.begin(); jt != pci_devices.end(); jt++)
@@ -94,12 +102,72 @@ bool HostSharePCI::test_by_addr(const VectorAttribute *dev, const string& short_
             continue;
         }
 
-        if (pci->vmid != -1)
+        if (!is_allocatable(pci))
         {
             return false;
         }
 
         return true;
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool HostSharePCI::test_by_pf(const VectorAttribute *device,
+                              std::set<string>& assigned) const
+{
+    string pf_address       = device->vector_value("PF_ADDRESS");
+    const string& pf_ifname = device->vector_value("PF_IFNAME");
+
+    if (!pf_ifname.empty())
+    {
+        pf_address.clear();
+
+        for (const auto& it : pci_devices)
+        {
+            PCIDevice * pci = it.second;
+
+            if (pci->attrs->vector_value("IFNAME") == pf_ifname &&
+                pci->attrs->vector_value("SRIOV") == "pf")
+            {
+                pf_address = pci->address;
+
+                break;
+            }
+        }
+    }
+    else
+    {
+        auto it = pci_devices.find(pf_address);
+
+        if (it == pci_devices.end() ||
+            it->second->attrs->vector_value("SRIOV") != "pf")
+        {
+            return false;
+        }
+    }
+
+    if (pf_address.empty())
+    {
+        return false;
+    }
+
+    for (const auto& it : pci_devices)
+    {
+        PCIDevice * pci   = it.second;
+        string short_addr = pci->attrs->vector_value("SHORT_ADDRESS");
+
+        if (pci->attrs->vector_value("SRIOV") == "vf" &&
+            pci->attrs->vector_value("PF_ADDRESS") == pf_address &&
+            pci->vmid == -1 &&
+            assigned.find(short_addr) == assigned.end())
+        {
+            assigned.insert(short_addr);
+
+            return true;
+        }
     }
 
     return false;
@@ -129,7 +197,7 @@ bool HostSharePCI::test_by_name(const VectorAttribute *device, std::set<string>&
         if ((class_rc  == 0 || pci->class_id  == class_id)  &&
             (vendor_rc == 0 || pci->vendor_id == vendor_id) &&
             (device_rc == 0 || pci->device_id == device_id) &&
-            pci->vmid  == -1 &&
+            is_allocatable(pci) &&
             assigned.find(short_addr) == assigned.end())
         {
             assigned.insert(short_addr);
@@ -146,14 +214,22 @@ bool HostSharePCI::test_by_name(const VectorAttribute *device, std::set<string>&
 bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
 {
     std::set<string> assigned;
+
     std::set<const VectorAttribute *> tested;
     unsigned int vendor_id, device_id, class_id;
 
-    // Test for "SHORT_ADDRESS" PCI selection
-    // and pre-allocated these first
+    // Test fixed "SHORT_ADDRESS" requests before selecting any VFs by PF.
     for (const auto& device : devs)
     {
+        const string& pf_ifname  = device->vector_value("PF_IFNAME");
+        const string& pf_address = device->vector_value("PF_ADDRESS");
+
         string short_addr = device->vector_value("SHORT_ADDRESS");
+
+        if (!pf_ifname.empty() || !pf_address.empty())
+        {
+            continue;
+        }
 
         // Be aware of special case after migration, when
         // !short_addr.empty() and at least one of vendor/device/class is set
@@ -173,6 +249,28 @@ bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
         tested.insert(device);
 
         assigned.insert(short_addr);
+    }
+
+    // Test "PF_IFNAME/PF_ADDRESS" requests using the remaining free VFs.
+    for (const auto& device : devs)
+    {
+        if (tested.find(device) != tested.end())
+        {
+            continue;
+        }
+
+        if (device->vector_value("PF_IFNAME").empty() &&
+            device->vector_value("PF_ADDRESS").empty())
+        {
+            continue;
+        }
+
+        if (!test_by_pf(device, assigned))
+        {
+            return false;
+        }
+
+        tested.insert(device);
     }
 
     // Test for "VENDOR/DEVICE/CLASS" PCI selection
@@ -275,9 +373,81 @@ bool HostSharePCI::add_by_addr(VectorAttribute *device, const string& short_addr
             continue;
         }
 
-        if ( pci->vmid != -1 )
+        if (!is_allocatable(pci))
         {
             return false;
+        }
+
+        pci->vmid = sr.vmid;
+
+        pci->attrs->replace("VMID", sr.vmid);
+
+        pci_attribute(device, pci, true, sr.vgpu_profile);
+
+        if (set_pci_address(device, palloc, sr.is_q35, sr.nodes) == -1)
+        {
+            pci->attrs->replace("VMID", "-1");
+
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool HostSharePCI::add_by_pf(VectorAttribute *device,
+                             std::map<unsigned int, std::set<unsigned int>>& palloc,
+                             HostShareCapacity &sr)
+{
+    string pf_address       = device->vector_value("PF_ADDRESS");
+    const string& pf_ifname = device->vector_value("PF_IFNAME");
+
+    if (!pf_ifname.empty())
+    {
+        pf_address.clear();
+
+        for (const auto& it : pci_devices)
+        {
+            PCIDevice * pci = it.second;
+
+            if (pci->attrs->vector_value("IFNAME") == pf_ifname &&
+                pci->attrs->vector_value("SRIOV") == "pf")
+            {
+                pf_address = pci->address;
+
+                break;
+            }
+        }
+    }
+    else
+    {
+        auto it = pci_devices.find(pf_address);
+
+        if (it == pci_devices.end() ||
+            it->second->attrs->vector_value("SRIOV") != "pf")
+        {
+            return false;
+        }
+    }
+
+    if (pf_address.empty())
+    {
+        return false;
+    }
+
+    for (auto jt = pci_devices.begin(); jt != pci_devices.end(); jt++)
+    {
+        PCIDevice * pci = jt->second;
+
+        if (pci->attrs->vector_value("SRIOV") != "vf" ||
+            pci->attrs->vector_value("PF_ADDRESS") != pf_address ||
+            pci->vmid != -1)
+        {
+            continue;
         }
 
         pci->vmid = sr.vmid;
@@ -323,7 +493,7 @@ bool HostSharePCI::add_by_name(VectorAttribute *device,
         if ((class_rc  == 0 || pci->class_id  == class_id)  &&
             (vendor_rc == 0 || pci->vendor_id == vendor_id) &&
             (device_rc == 0 || pci->device_id == device_id) &&
-            pci->vmid  == -1 )
+            is_allocatable(pci))
         {
             pci->vmid = sr.vmid;
 
@@ -356,9 +526,18 @@ bool HostSharePCI::add(HostShareCapacity &sr)
 
     std::map<unsigned int, std::set<unsigned int>> palloc;
 
+    // Reserve fixed "SHORT_ADDRESS" requests before selecting any VFs by PF.
     for (auto& device : devs)
     {
+        const string& pf_ifname  = device->vector_value("PF_IFNAME");
+        const string& pf_address = device->vector_value("PF_ADDRESS");
+
         string short_addr = device->vector_value("SHORT_ADDRESS");
+
+        if (!pf_ifname.empty() || !pf_address.empty())
+        {
+            continue;
+        }
 
         if (short_addr.empty() ||
             get_pci_value("VENDOR", device, vendor_id) > 0 ||
@@ -376,6 +555,29 @@ bool HostSharePCI::add(HostShareCapacity &sr)
         added.insert(device);
     }
 
+    // Reserve "PF_IFNAME/PF_ADDRESS" requests using the remaining free VFs.
+    for (auto& device : devs)
+    {
+        if (added.find(device) != added.end())
+        {
+            continue;
+        }
+
+        if (device->vector_value("PF_IFNAME").empty() &&
+            device->vector_value("PF_ADDRESS").empty())
+        {
+            continue;
+        }
+
+        if (!add_by_pf(device, palloc, sr))
+        {
+            return false;
+        }
+
+        added.insert(device);
+    }
+
+    // Reserve "VENDOR/DEVICE/CLASS" requests using any remaining free device.
     for (auto& device : devs)
     {
         if (added.find(device) != added.end())
@@ -587,6 +789,11 @@ void HostSharePCI::set_monitorization(Template& ht, const HostShareConf& hconf)
             update_monitor_attr(pci_it->second->attrs, pci, "PROFILES");
             update_monitor_attr(pci_it->second->attrs, pci, "SRIOV");
             update_monitor_attr(pci_it->second->attrs, pci, "SRIOV_NUM", true);
+            update_monitor_attr(pci_it->second->attrs, pci, "IFNAME", true);
+            update_monitor_attr(pci_it->second->attrs, pci, "PASSTHROUGH", true);
+            update_monitor_attr(pci_it->second->attrs, pci, "ESWITCH_MODE", true);
+            update_monitor_attr(pci_it->second->attrs, pci, "PF_ADDRESS", true);
+            update_monitor_attr(pci_it->second->attrs, pci, "PF_IFNAME", true);
 
             delete pci;
             continue;

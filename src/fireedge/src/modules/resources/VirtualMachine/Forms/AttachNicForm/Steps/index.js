@@ -34,6 +34,11 @@ import SecurityGroups, {
 } from '@modules/resources/VirtualMachine/Forms/AttachNicForm/Steps/SecurityGroups'
 
 import { createSteps } from '@UtilsModule'
+import {
+  getNicPciFormValues,
+  getNicPciAttributes,
+  NIC_PCI_SELECTORS,
+} from '@ModelsModule'
 
 const Steps = createSteps(
   [
@@ -60,7 +65,7 @@ const Steps = createSteps(
         OUTBOUND_PEAK_BW,
         OUTBOUND_PEAK_KB,
         ...rest
-      } = nic ?? {}
+      } = getNicPciFormValues(nic)
 
       const castedValueQOS = schema.cast(
         {
@@ -130,23 +135,9 @@ const Steps = createSteps(
 
       const { PCI_ADDRESS, PCI_SELECTION_MODE, PCI_TYPE, ...rAdvanced } =
         advanced
+      NIC_PCI_SELECTORS.forEach((attribute) => delete rAdvanced[attribute])
       const isDummy = rAdvanced.NETWORK_MODE === 'dummy'
-
-      const pciAttrs = (() => {
-        if (isDummy || PCI_TYPE === 'emulated' || !PCI_ADDRESS) return {}
-        const [deviceClassVendor, shortAddr] = PCI_ADDRESS.split('@')
-        const [d, c, v] = deviceClassVendor.split(':')
-
-        return {
-          ...(PCI_SELECTION_MODE === 'automatic'
-            ? { DEVICE: d, CLASS: c, VENDOR: v }
-            : { SHORT_ADDRESS: shortAddr }),
-          TYPE: 'NIC',
-          PCI_TYPE,
-          PCI_ADDRESS,
-          PCI_SELECTION_MODE,
-        }
-      })()
+      const pciAttrs = getNicPciAttributes(advanced)
 
       return {
         ...(isDummy ? {} : network),
@@ -158,6 +149,7 @@ const Steps = createSteps(
         ...{
           ...rAdvanced,
           ...pciAttrs,
+          ...(pciAttrs.TYPE && { PCI_TYPE, PCI_ADDRESS, PCI_SELECTION_MODE }),
         },
         ...(isDummy ? {} : networkAuto),
         ...(isDummy ? { MAC: networkValues?.MAC } : networkValues),

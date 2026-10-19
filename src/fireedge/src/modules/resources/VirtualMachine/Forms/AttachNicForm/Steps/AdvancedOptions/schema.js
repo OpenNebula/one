@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { boolean, string, ObjectSchema } from 'yup'
 import { AlertNotification } from '@ComponentsModule'
-import { uniqWith } from 'lodash'
+import { groupBy, sumBy, uniq, uniqWith } from 'lodash'
 
 import {
   Field,
@@ -23,10 +23,12 @@ import {
   filterFieldsByHypervisor,
   filterFieldsByDriver,
   getObjectSchemaFromFields,
+  arrayToOptions,
   disableFields,
 } from '@UtilsModule'
 import { T, INPUT_TYPES, HYPERVISORS, VN_DRIVERS, Nic } from '@ConstantsModule'
 import { HostAPI } from '@FeaturesModule'
+import { getHostPciTopology } from '@ModelsModule'
 
 const filterByHypAndDriver = (fields, { hypervisor, driver }) =>
   filterFieldsByDriver(filterFieldsByHypervisor(fields, hypervisor), driver)
@@ -41,14 +43,14 @@ const getPciRowId = (row) => {
 
   return `${
     deviceClassVendor?.length < 3 ? row?.TYPE : deviceClassVendor?.join(':')
-  }@${shortAddr}`
+  }@${shortAddr}@${row?.HOST_ID ?? ''}`
 }
 
 const getFilteredPcis = (hosts = [], filterOn, hostId) => {
   const data = []
     .concat(hosts)
-    ?.filter((host) => !hostId || String(host?.ID) === String(hostId))
-    ?.map((host) => [].concat(host?.HOST_SHARE?.PCI_DEVICES?.PCI))
+    ?.filter((host) => hostId == null || String(host?.ID) === String(hostId))
+    ?.map(getHostPciTopology)
     ?.flat()
     ?.filter((device) => !filterOn || isNicPciDevice(device))
 
@@ -66,7 +68,7 @@ const getFilteredPcis = (hosts = [], filterOn, hostId) => {
                 !device?.SRIOV_NUM)) ||
             device?.SRIOV === 'no'
           : device?.SRIOV === filterType) &&
-        (!device?.VMID || device?.VMID === '-1' || device?.VMID === -1)
+        (device?.VMID === '-1' || device?.VMID === -1)
     )
 
   return filterMode === 'automatic'
@@ -469,6 +471,7 @@ const SECTIONS = ({
         ],
 
         manual: [
+          { header: T.Host, accessorKey: 'HOST_NAME' },
           {
             header: T.PciDevice,
             id: 'shortAddress',
@@ -527,6 +530,12 @@ const SECTIONS = ({
       }
     }
 
+    const pfMode = {
+      text: T.PhysicalFunction,
+      value: 'pf_ifname',
+      description: T.PhysicalFunctionConcept,
+    }
+
     return [
       {
         name: 'PCI_TYPE',
@@ -556,7 +565,7 @@ const SECTIONS = ({
         htmlType: ([pciType, networkMode] = []) =>
           (pciType === 'emulated' || networkMode === 'dummy') &&
           INPUT_TYPES.HIDDEN,
-        values: [
+        values: ([pciType] = []) => [
           {
             text: T.Automatic,
             value: 'automatic',
@@ -567,9 +576,17 @@ const SECTIONS = ({
             value: 'manual',
             description: T.ManualConcept,
           },
+          ...(pciType === 'vf' ? [pfMode] : []),
         ],
         validation: string()
           .trim()
+          .when('PCI_TYPE', (pciType, schema) =>
+            schema.oneOf([
+              'automatic',
+              'manual',
+              ...(pciType === 'vf' ? [pfMode.value] : []),
+            ])
+          )
           .nullable(false)
           .required()
           .default(() => 'automatic'),
@@ -590,12 +607,22 @@ const SECTIONS = ({
         getRowId: getPciRowId,
         singleSelect: true,
         selectOnRowClick: true,
-        htmlType: ([pciType, , networkMode] = []) =>
-          (pciType === 'emulated' || networkMode === 'dummy') &&
+        htmlType: ([pciType, selectionMode, networkMode] = []) =>
+          (pciType === 'emulated' ||
+            networkMode === 'dummy' ||
+            selectionMode === 'pf_ifname') &&
           INPUT_TYPES.HIDDEN,
         validation: string()
           .trim()
-          .notRequired()
+          .when(
+            ['PCI_TYPE', 'PCI_SELECTION_MODE', 'NETWORK_MODE'],
+            (pciType, selectionMode, networkMode, schema) =>
+              pciType !== 'emulated' &&
+              networkMode !== 'dummy' &&
+              selectionMode !== 'pf_ifname'
+                ? schema.required()
+                : schema.notRequired()
+          )
           .default(() => undefined),
         grid: { md: 12 },
         fieldProps: (deps) => ({
@@ -611,6 +638,68 @@ const SECTIONS = ({
           pageSizeOptions: [5, 10, 20],
           size: 'small',
         }),
+      },
+
+      {
+        name: 'PF_IFNAME',
+        label: T.PhysicalFunction,
+        tooltip: T.PciPhysicalFunctionConcept,
+        type: INPUT_TYPES.AUTOCOMPLETE,
+        dependOf: ['PCI_TYPE', 'PCI_SELECTION_MODE', 'NETWORK_MODE'],
+        htmlType: ([pciType, selectionMode, networkMode] = []) =>
+          (pciType !== 'vf' ||
+            selectionMode !== 'pf_ifname' ||
+            networkMode === 'dummy') &&
+          INPUT_TYPES.HIDDEN,
+        values: () => {
+          const { data: hosts = [] } = HostAPI.useGetHostsAdminQuery()
+          const pfs = hosts
+            .filter(
+              (host) => hostId == null || String(host.ID) === String(hostId)
+            )
+            .flatMap(getHostPciTopology)
+            .filter(
+              (device) =>
+                isNicPciDevice(device) && device.SRIOV === 'pf' && device.IFNAME
+            )
+
+          return arrayToOptions(Object.values(groupBy(pfs, 'IFNAME')), {
+            addEmpty: false,
+            getText: (devices) =>
+              [
+                devices[0].IFNAME,
+                devices
+                  .map((device) => device.HOST_NAME ?? device.HOST_ID)
+                  .join(', '),
+                uniq(devices.map((device) => device.ADDRESS))
+                  .filter(Boolean)
+                  .join(', '),
+                `${T.AvailableFunctions}: ${sumBy(
+                  devices,
+                  'AVAILABLE_VFS'
+                )}/${sumBy(devices, 'TOTAL_VFS')}`,
+                uniq(devices.map((device) => device.ESWITCH_MODE))
+                  .filter(Boolean)
+                  .join(', '),
+              ]
+                .filter(Boolean)
+                .join(' · '),
+            getValue: ([device]) => device.IFNAME,
+          })
+        },
+        fieldProps: { freeSolo: true },
+        validation: string()
+          .trim()
+          .when(
+            ['PCI_TYPE', 'PCI_SELECTION_MODE', 'NETWORK_MODE'],
+            (pciType, selectionMode, networkMode, schema) =>
+              pciType === 'vf' &&
+              selectionMode === 'pf_ifname' &&
+              networkMode !== 'dummy'
+                ? schema.required()
+                : schema.notRequired()
+          ),
+        grid: { md: 12 },
       },
 
       // Emulated mode fields
@@ -703,7 +792,12 @@ const SECTIONS = ({
       id: 'hardware',
       legend: T.Hardware,
       fields: disableFields(
-        filterByHypAndDriver(GET_PCI_FIELDS(), filters),
+        disableFields(
+          filterByHypAndDriver(GET_PCI_FIELDS(), filters),
+          'PCI',
+          oneConfig,
+          adminGroup
+        ),
         'NIC',
         oneConfig,
         adminGroup

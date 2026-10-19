@@ -30,6 +30,10 @@ import * as T from '@modules/constants/translates'
  * @property {string} NUMA_NODE - Numa node
  * @property {string} PROFILES - Available vGPU Profiles
  * @property {string} SHORT_ADDRESS - Short address
+ * @property {string} [SRIOV] - SR-IOV role: pf, vf or no
+ * @property {string|number} [SRIOV_NUM] - Enabled virtual functions
+ * @property {string} [PF_ADDRESS] - Parent physical function address
+ * @property {string} [ESWITCH_MODE] - Physical function eSwitch mode
  * @property {string} SLOT - Address slot
  * @property {string} [UUID] - UUID
  * @property {string} TYPE - Type

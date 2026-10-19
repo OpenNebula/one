@@ -77,9 +77,13 @@
                           <xs:element name="DEVICE" type="xs:string"/>
                           <xs:element name="DEVICE_NAME" type="xs:string"/>
                           <xs:element name="DOMAIN" type="xs:string"/>
+                          <xs:element name="ESWITCH_MODE" type="xs:string" minOccurs="0"/>
                           <xs:element name="FUNCTION" type="xs:string"/>
                           <xs:element name="IFNAME" type="xs:string"/>
                           <xs:element name="NUMA_NODE" type="xs:string"/>
+                          <xs:element name="PASSTHROUGH" type="xs:string" minOccurs="0"/>
+                          <xs:element name="PF_ADDRESS" type="xs:string" minOccurs="0"/>
+                          <xs:element name="PF_IFNAME" type="xs:string" minOccurs="0"/>
                           <xs:element name="PROFILES" type="xs:string" minOccurs="0"/>
                           <xs:element name="SHORT_ADDRESS" type="xs:string"/>
                           <xs:element name="SLOT" type="xs:string"/>

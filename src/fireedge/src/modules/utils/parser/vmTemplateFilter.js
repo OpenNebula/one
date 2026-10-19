@@ -53,6 +53,7 @@ const alwaysIncludePci = {
   DEVICE: true,
   CLASS: true,
   SHORT_ADDRESS: true,
+  PF_IFNAME: true,
 }
 
 // Attributes that will be always modify with the value of the form in the Nic section

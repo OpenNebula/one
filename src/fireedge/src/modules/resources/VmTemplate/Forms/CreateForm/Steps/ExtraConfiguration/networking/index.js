@@ -76,6 +76,7 @@ const getNicMetadata = (nic) => [
   [T.Address, formatValue(nic?.ADDRESS)],
   [T.SecurityGroups, formatValue(nic?.SECURITY_GROUPS)],
   [T.Shared, getSharedValue(nic)],
+  ...(nic?.PF_IFNAME ? [[T.PhysicalFunction, nic.PF_IFNAME]] : []),
 ]
 
 const getNicTitleTags = (nic, aliasLength) =>
@@ -386,6 +387,7 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
               DEVICE: { __delete__: true },
               CLASS: { __delete__: true },
               VENDOR: { __delete__: true },
+              PF_IFNAME: { __delete__: true },
             },
           })
         }

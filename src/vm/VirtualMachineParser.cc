@@ -489,15 +489,28 @@ int VirtualMachine::check_pci_attributes(VectorAttribute * pci, string& error_st
     }
 
     const string& saddr = pci->vector_value("SHORT_ADDRESS");
+    const string& pf_ifname = pci->vector_value("PF_IFNAME");
+    const string& pf_address = pci->vector_value("PF_ADDRESS");
 
-    if (saddr.empty() && !found)
+    if (!pf_ifname.empty() && !pf_address.empty())
     {
-        error_str = "SHORT_ADDRESS, DEVICE, VENDOR or CLASS must be defined for PCI.";
+        error_str = "PF_IFNAME and PF_ADDRESS cannot be set together";
         return -1;
     }
-    else if (!saddr.empty() && found)
+
+    int selectors = found + !saddr.empty() +
+                    (!pf_ifname.empty() || !pf_address.empty());
+
+    if (selectors == 0)
     {
-        error_str = "SHORT_ADDRESS cannot be set with DEVICE, VENDOR or CLASS";
+        error_str = "SHORT_ADDRESS, DEVICE, VENDOR, CLASS, PF_IFNAME or "
+                    "PF_ADDRESS must be defined for PCI.";
+        return -1;
+    }
+    else if (selectors > 1)
+    {
+        error_str = "Only one of SHORT_ADDRESS, DEVICE/VENDOR/CLASS or "
+                    "PF_IFNAME/PF_ADDRESS can be defined for PCI.";
         return -1;
     }
 

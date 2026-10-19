@@ -197,6 +197,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:0",
                IFNAME = "vf002",
                VMID = "-1"
        ]
@@ -217,6 +218,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:0",
                IFNAME = "vf003",
                VMID = "-1"
        ]
@@ -237,6 +239,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:0",
                IFNAME = "vf004",
                VMID = "-1"
        ]
@@ -257,6 +260,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:0",
                IFNAME = "vf005",
                VMID = "-1"
        ]
@@ -276,6 +280,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:0",
                IFNAME = "vf006",
                VMID = "-1"
        ]
@@ -295,6 +300,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:0",
                IFNAME = "vf007",
                VMID = "-1"
        ]
@@ -314,6 +320,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:0",
                IFNAME = "vf010",
                VMID = "-1"
        ]
@@ -334,6 +341,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:0",
                IFNAME = "vf011",
                VMID = "-1"
        ]
@@ -353,6 +361,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:1",
                IFNAME = "vf012",
                VMID = "-1"
        ]
@@ -373,6 +382,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:1",
                IFNAME = "vf013",
                VMID = "-1"
        ]
@@ -392,6 +402,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:1",
                IFNAME = "vf014",
                VMID = "-1"
        ]
@@ -411,6 +422,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:1",
                IFNAME = "vf015",
                VMID = "-1"
        ]
@@ -431,6 +443,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:1",
                IFNAME = "vf016",
                VMID = "-1"
        ]
@@ -450,6 +463,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:1",
                IFNAME = "vf017",
                VMID = "-1"
        ]
@@ -469,6 +483,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:1",
                IFNAME = "vf020",
                VMID = "-1"
        ]
@@ -489,6 +504,7 @@ def pci
                NUMA_NODE = "0",
                DEVICE_NAME = "MT27710 Family [ConnectX-4 Lx Virtual Function]",
                SRIOV="vf",
+               PF_ADDRESS = "0000:81:00:1",
                IFNAME = "vf021",
                VMID = "-1"
        ]

@@ -1680,10 +1680,17 @@ module.exports = {
   PciDevice: 'PCI Device',
   InterfaceName: 'Interface Name',
   AvailableFunctions: 'Available Functions',
+  SrIovRole: 'SR-IOV role',
+  PhysicalFunction: 'Physical function',
+  PhysicalFunctionConcept:
+    'The scheduler picks an available VF from the PF identified by interface name',
+  EswitchMode: 'eSwitch mode',
+  PciPhysicalFunctionConcept:
+    'The scheduler allocates an available VF from this physical function on the scheduled host. This does not pin the VM to the host shown in the list. Availability reflects monitored VFs.',
   AvailableDevices: 'Available Devices',
   IfName: 'IFNAME',
   PciAutomaticSchedulingConcept:
-    'The scheduler picks the best available function on the selected device. Addresses show the device without the function suffix (.x). Leave unselected to let the scheduler choose freely.',
+    'The scheduler picks an available function matching the selected device type.',
   PciManualSchedulingConcept:
     'Pins this NIC to a specific function on a specific device. Select a full PCI address from the list.',
 

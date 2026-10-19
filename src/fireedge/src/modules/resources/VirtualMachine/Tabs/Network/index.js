@@ -75,10 +75,23 @@ const TABLE_FORM_DIALOG_PROPS = {
   dialogContentOverflowY: 'auto',
 }
 
-const isPciNic = (nic) => Object.values(PCI_TYPES).includes(nic?.PCI_TYPE)
+const isPciNic = (nic) =>
+  nic?.TYPE === 'NIC' || Object.values(PCI_TYPES).includes(nic?.PCI_TYPE)
 
-const getNicTemplate = (nic) =>
-  jsonToXml(isPciNic(nic) ? { PCI: { ...nic, TYPE: 'NIC' } } : { NIC: nic })
+const getNicTemplate = (formData) => {
+  const { PCI_TYPE, PCI_ADDRESS, PCI_SELECTION_MODE, ...nic } = formData
+  // Allocation adds SHORT_ADDRESS to automatic requests as well.
+  const selectionMode =
+    !nic.PF_IFNAME && ['automatic', 'manual'].includes(PCI_SELECTION_MODE)
+      ? { PCI_SELECTION_MODE }
+      : {}
+
+  return jsonToXml(
+    isPciNic(formData)
+      ? { PCI: { ...nic, ...selectionMode, TYPE: 'NIC' } }
+      : { NIC: nic }
+  )
+}
 
 const getSecurityGroupIds = (nic) => [
   ...new Set(
@@ -465,6 +478,16 @@ export const Network = ({ data, config }) => {
 
   const columns = [
     ...vmnicsTable.columns(),
+    ...[
+      ['PF_IFNAME', T.PhysicalFunction],
+      ['SHORT_ADDRESS', T.ShortAddress],
+    ]
+      .filter(([attribute]) => primaryNics.some((nic) => nic[attribute]))
+      .map(([accessorKey, header]) => ({
+        header,
+        accessorKey,
+        cell: ({ getValue }) => getValue() || '-',
+      })),
     {
       header: T.SecurityGroups,
       id: 'security-groups',

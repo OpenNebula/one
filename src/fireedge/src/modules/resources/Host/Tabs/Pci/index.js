@@ -18,7 +18,7 @@ import { Component } from 'react'
 import { Box } from '@mui/material'
 
 import { HostAPI } from '@FeaturesModule'
-import { getHostPcis, getHostNvswitchPartitions } from '@ModelsModule'
+import { getHostPciTopology, getHostNvswitchPartitions } from '@ModelsModule'
 import { T } from '@ConstantsModule'
 import { Table, PciProfileSelector } from '@ComponentsModule'
 import { getStyles } from '@modules/resources/Host/Tabs/Pci/styles'
@@ -32,6 +32,27 @@ const PCI_COLUMNS = [
     grow: false,
   },
   { header: T.IfName, accessorKey: 'IFNAME' },
+  {
+    header: T.SrIovRole,
+    accessorKey: 'SRIOV',
+    cell: ({ getValue }) => getValue() || '-',
+  },
+  {
+    header: T.PhysicalFunction,
+    accessorKey: 'PF_IFNAME',
+    cell: ({ getValue }) => getValue() || '-',
+  },
+  {
+    header: T.AvailableFunctions,
+    id: 'availableFunctions',
+    accessorFn: ({ SRIOV, AVAILABLE_VFS, TOTAL_VFS }) =>
+      SRIOV === 'pf' ? `${AVAILABLE_VFS}/${TOTAL_VFS}` : '-',
+  },
+  {
+    header: T.EswitchMode,
+    accessorKey: 'ESWITCH_MODE',
+    cell: ({ getValue }) => getValue() || '-',
+  },
   { header: T.Vendor, id: 'vendor', accessorKey: 'VENDOR' },
   {
     header: T.VendorName,
@@ -86,7 +107,7 @@ export const HostPciTab = ({ data }) => {
   const [update] = HostAPI.useUpdateHostMutation()
 
   // Get PCI devices from the host
-  const pcis = getHostPcis(host)
+  const pcis = getHostPciTopology(host)
   const partitions = getHostNvswitchPartitions(host)
 
   return (
@@ -102,7 +123,15 @@ export const HostPciTab = ({ data }) => {
       </Box>
 
       <Box className="pci-tables">
-        <Table columns={PCI_COLUMNS} data={pcis} isRowsSelectable={false} />
+        <Table
+          columns={PCI_COLUMNS}
+          data={pcis}
+          dataCy="host-pcis"
+          isRowsSelectable={false}
+          isEnableSearchBar
+          isEnableSort
+          isEnableFilters
+        />
         {partitions.length > 0 && (
           <Table
             title={T.NvswitchPartitions}

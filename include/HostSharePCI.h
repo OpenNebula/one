@@ -187,6 +187,12 @@ private:
     void init();
 
     /**
+     *  Checks whether the device is free and monitoring allows passthrough.
+     *  An absent PASSTHROUGH attribute is allowed for older probes.
+     */
+    bool is_allocatable(const PCIDevice* pci) const;
+
+    /**
      *  Test if there is a suitable PCI device for the VM request. The test
      *  is done using the VENDOR/DEVICE/CLASS attributes
      *
@@ -199,14 +205,22 @@ private:
 
     /**
      *  Test if there is a suitable PCI device for the VM request. The test
-     *  is done using the a specific address
+     *  is done using the specific address
      *
-     *  @param device VM attribute that represents the decive request
+     *  @param device VM attribute that represents the device request
      *  @param addr the requested address
      *
-     *  @return PCI_ID of the tested device or -1 if no PCI found
+     *  @return true if a free matching PCI device is found
      */
-    bool test_by_addr(const VectorAttribute *dev, const std::string& addr) const;
+    bool test_by_addr(const VectorAttribute *device, const std::string& addr) const;
+
+    /**
+     *  Test if a VF of the requested physical function is available
+     *
+     *  @param device VM attribute with PF_IFNAME or PF_ADDRESS
+     *  @param addrs PCI addresses that should be considered in use
+     */
+    bool test_by_pf(const VectorAttribute *dev, std::set<std::string>& addrs) const;
 
     /**
      *  Allocates the given VM device using the VENDOR/DEVICE/CLASS attributes
@@ -218,12 +232,19 @@ private:
 
     /**
      *  Allocates the given VM device using the SHORT_ADDRESS attribute
-     *  @param device VM attribute that represents the decive request
+     *  @param device VM attribute that represents the device request
      */
     bool add_by_addr(VectorAttribute *device,
                      const std::string& addr,
                      std::map<unsigned int, std::set<unsigned int>>& palloc,
                      HostShareCapacity &sr);
+
+    /**
+     *  Allocates a VF of the requested physical function
+     */
+    bool add_by_pf(VectorAttribute *device,
+                   std::map<unsigned int, std::set<unsigned int>>& palloc,
+                   HostShareCapacity &sr);
 
     /**
      *  Adds PCI attributes of the selected PCI to the VM PCI device

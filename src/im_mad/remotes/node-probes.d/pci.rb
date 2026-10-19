@@ -18,6 +18,8 @@
 
 require 'shellwords'
 require 'yaml'
+require 'json'
+require 'open3'
 
 def extract_pci_interfaces(file_path)
     return {} unless File.exist?(file_path)
@@ -226,6 +228,39 @@ def virtfn?(device)
     device_attr?(device, 'physfn')
 end
 
+def nic?(device)
+    device[:class].start_with?('02')
+end
+
+def parent_pf(device)
+    path = File.join(pci_bus_path(device), 'physfn')
+    address = File.basename(File.realpath(path))
+    domain, bus, slot, function = address.split(/[:.]/)
+
+    {
+        :domain => domain,
+        :bus => bus,
+        :slot => slot,
+        :function => function,
+        :address => "#{domain}:#{bus}:#{slot}:#{function}"
+    }
+rescue StandardError
+    nil
+end
+
+def eswitch_mode(device)
+    output, _error, status = Open3.capture3(
+        'sudo', '-n', 'devlink', '-j', 'dev', 'eswitch', 'show',
+        "pci/#{pci_address(device)}"
+    )
+
+    return unless status.success?
+
+    JSON.parse(output).dig('dev', "pci/#{pci_address(device)}", 'mode')
+rescue StandardError
+    nil
+end
+
 def sriov_pf?(device)
     device_attr?(device, 'sriov_numvfs') ||
         device_attr?(device, 'sriov_totalvfs')
@@ -278,6 +313,8 @@ def pval(name, value)
     %( #{name} = "#{value}" )
 end
 
+pf_names = {}
+
 devices.each do |dev|
     next if !CONF[:short_address].empty? &&
         !CONF[:short_address].include?(dev[:short_address])
@@ -296,8 +333,14 @@ devices.each do |dev|
     sriov = sriov_role(dev)
     sriov_num = sriov_numvfs(dev)
 
-    # Skip PFs with enabled virtual functions
-    next if sriov == 'pf' && sriov_num.to_i > 0
+    # PFs with enabled virtual functions cannot be passed through.
+    passthrough = sriov == 'pf' && sriov_num.to_i > 0 ? 'NO' : 'YES'
+
+    ifname = if sriov == 'pf' && nic?(dev)
+                 pf_names[pci_address(dev)] ||= get_interface_name(dev)
+             else
+                 get_interface_name(dev)
+             end
 
     puts 'PCI = ['
     values = [
@@ -314,11 +357,30 @@ devices.each do |dev|
         pval('SLOT', dev[:slot]),
         pval('FUNCTION', dev[:function]),
         pval('NUMA_NODE', dev[:numa_node]),
-        pval('IFNAME', get_interface_name(dev)),
-        pval('SRIOV', sriov)
+        pval('IFNAME', ifname),
+        pval('SRIOV', sriov),
+        pval('PASSTHROUGH', passthrough)
     ]
 
     values << pval('SRIOV_NUM', sriov_num) if sriov == 'pf'
+
+    if sriov == 'pf' && nic?(dev)
+        mode = eswitch_mode(dev)
+        values << pval('ESWITCH_MODE', mode) if mode && !mode.empty?
+    end
+
+    if sriov == 'vf'
+        pf = parent_pf(dev)
+
+        if pf
+            values << pval('PF_ADDRESS', pf[:address])
+
+            if nic?(dev)
+                pf_ifname = pf_names[pci_address(pf)] ||= get_interface_name(pf)
+                values << pval('PF_IFNAME', pf_ifname)
+            end
+        end
+    end
 
     # NVIDIA GPU device
     if CONF[:nvidia_vendors].include?(dev[:vendor])

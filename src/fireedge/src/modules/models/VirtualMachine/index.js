@@ -14,4 +14,5 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/models/VirtualMachine/general'
+export * from '@modules/models/VirtualMachine/pci'
 export * from '@modules/models/VirtualMachine/table'
