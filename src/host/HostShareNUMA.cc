@@ -709,7 +709,10 @@ void HostShareNode::ls_cpus(bool inc_reserved, std::string &cpu_s)
 
     cpu_s = oss.str();
 
-    cpu_s.pop_back(); //remove last ','
+    if (!cpu_s.empty())
+    {
+        cpu_s.pop_back(); //remove last ','
+    }
 }
 
 /* ************************************************************************** */
@@ -779,18 +782,22 @@ int HostShareNUMA::from_xml_node(const vector<xmlNodePtr> &ns, unsigned int vt)
         nodes.insert(make_pair(n->node_id, n));
     }
 
-    if ( nodes.empty() )
+    // Get threads per core from the first core with CPU information, assuming
+    // a homogeneous architecture. NUMA nodes may report only memory/hugepages.
+    threads_core = 1;
+
+    for (const auto& node : nodes)
     {
-        return 0;
+        for (const auto& core : node.second->cores)
+        {
+            if (!core.second.cpus.empty())
+            {
+                threads_core = core.second.cpus.size();
+
+                return 0;
+            }
+        }
     }
-
-    // Get threads per core from the first NUMA node, assumes an homogenous
-    // architecture
-    auto numa_node = nodes.begin()->second;
-    auto core      = numa_node->cores.begin();
-    auto cpus      = core->second.cpus;
-
-    threads_core = cpus.size();
 
     return 0;
 }
