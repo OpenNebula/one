@@ -135,14 +135,7 @@ public:
      *  Returns the version of oned
      *    @return the version
      */
-    static std::string version()
-    {
-        std::ostringstream os;
-        os << "OpenNebula " << code_version();
-        os << " (" << GITVERSION << ")";
-
-        return os.str();
-    };
+    static std::string version();
 
     /**
      *  Returns the version of oned

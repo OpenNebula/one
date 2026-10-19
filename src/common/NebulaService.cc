@@ -16,9 +16,20 @@
 
 #include "NebulaService.h"
 
+#include <sstream>
+
 using std::string;
 
 NebulaService* NebulaService::nebula_service = nullptr;
+
+string NebulaService::version()
+{
+    std::ostringstream os;
+    os << "OpenNebula " << code_version();
+    os << " (" << GITVERSION << ")";
+
+    return os.str();
+}
 
 Log::MessageType NebulaService::get_debug_level(Log::MessageType default_) const
 {

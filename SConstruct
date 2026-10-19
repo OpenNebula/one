@@ -43,7 +43,7 @@ cwd = os.getcwd()
 main_env = Environment()
 main_env['ENV']['PATH'] = os.environ['PATH']
 
-main_env['CXXFLAGS'] = " -DGITVERSION=\'\"" + git_version + "\"\'"
+main_env['GITVERSION'] = git_version
 
 # snippet borrowed from http://dev.gentoo.org/~vapier/scons-blows.txt
 # makes scons aware of build related environment variables
