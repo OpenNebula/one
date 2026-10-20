@@ -1,0 +1,21 @@
+sinatra:
+  port: 5554
+  logging: true
+  bind: "0.0.0.0"
+
+# Replace "nil" with the actual values for the ovirt api server configuration
+app:
+  one_xmlrpc: "localhost"
+  endpoint_port: 2633
+  cert_path: "/etc/one/ovirtapi-ssl.crt"
+  public_ip: "nil"
+  onebex_port: 13014
+  onebex_port_ssl: 13015
+  finalize_marker_timeout: 300
+  image_unlock_timeout: 25
+  tmp_images_path: "/var/tmp/one_ovirt_wrapper"
+  debug: "false"
+  backup_freeze: "NONE"
+  port_min: 3500
+  port_max: 4500
+  ports_path: "/var/lib/one"

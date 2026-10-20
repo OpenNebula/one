@@ -103,6 +103,7 @@ if [ -z "$ROOT" ] ; then
     ONEHEM_LOCATION="$LIB_LOCATION/onehem"
     ONEKS_LOCATION="$LIB_LOCATION/oneks"
     ONEKS_SPECS_LOCATION="$VAR_LOCATION/oneks"
+    OVIRTAPI_LOCATION="$LIB_LOCATION/ovirtapi-server"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     RUN_LOCATION="/var/run/one"
@@ -130,7 +131,7 @@ if [ -z "$ROOT" ] ; then
                $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $ONEFORM_LOCATION \
                $ONEHEM_LOCATION $ONEPROMETHEUS_DIRS $ODS_LOCATION $ANS_LOCATION \
                $ONEFORM_PROVIDERS_LOCATION $ONEFORM_EXTERNAL_PROVIDERS_LOCATION \
-               $ONEFORM_PROVIDERS_STATES_LOCATION"
+               $ONEFORM_PROVIDERS_STATES_LOCATION $OVIRTAPI_LOCATION"
 
     DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                  $RUN_LOCATION"
@@ -153,6 +154,7 @@ else
     ONEHEM_LOCATION="$LIB_LOCATION/onehem"
     ONEKS_LOCATION="$LIB_LOCATION/oneks"
     ONEKS_SPECS_LOCATION="$VAR_LOCATION/oneks"
+    OVIRTAPI_LOCATION="$LIB_LOCATION/ovirtapi-server"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     SHARE_LOCATION="$ROOT/share"
@@ -178,7 +180,7 @@ else
                $ONEHEM_LOCATION $LOCK_LOCATION $RUN_LOCATION \
                $ONEPROMETHEUS_DIRS $ODS_LOCATION $ANS_LOCATION \
                $ONEFORM_PROVIDERS_LOCATION $ONEFORM_EXTERNAL_PROVIDERS_LOCATION \
-               $ONEFORM_PROVIDERS_STATES_LOCATION"
+               $ONEFORM_PROVIDERS_STATES_LOCATION $OVIRTAPI_LOCATION"
 
     DELETE_DIRS="$MAKE_DIRS"
 
@@ -330,6 +332,10 @@ INSTALL_FILES=(
     ONEFABRIC_PROBE_FILES:"$VAR_LOCATION"/remotes/im/kvm-probes.d/host/system
     ONEFABRIC_HOST_LIB_FILES:"$LIB_LOCATION"
     ONEFABRIC_HOST_ETC_FILES:"$ETC_LOCATION"
+
+    OVIRTAPI_FILES:"$OVIRTAPI_LOCATION"
+    OVIRTAPI_CONTROLLER_FILES:"$OVIRTAPI_LOCATION"/controllers
+    OVIRTAPI_SCRIPT_FILES:"$OVIRTAPI_LOCATION"/scripts
 )
 
 # Subtree entries installed by do_tree, one per line:
@@ -601,6 +607,7 @@ INSTALL_ETC_FILES=(
     VMM_EXEC_ETC_FILES:"$ETC_LOCATION"/vmm_exec
     HM_ETC_FILES:"$ETC_LOCATION"/hm
     AUTH_ETC_FILES:"$ETC_LOCATION"/auth
+    OVIRTAPI_ETC_FILES:"$ETC_LOCATION"
 )
 
 # Etc subtrees installed by do_tree, see INSTALL_TREES for the entry format
@@ -928,6 +935,30 @@ ONEFABRIC_HOST_ETC_FILES="src/onefabric/host/etc/fabricmanager.conf \
 ONEFABRIC_HOST_LIB_FILES="src/onefabric/host/src/service/download-image.sh \
                           src/onefabric/host/src/service/opennebula-fabricmanager.rb \
                           src/onefabric/host/src/service/prepare_vm_xml.sh"
+
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# oVirt API server (ovirtapi), to be installed under $OVIRTAPI_LOCATION
+#-------------------------------------------------------------------------------
+OVIRTAPI_FILES="src/ovirtapi/app.rb \
+                src/ovirtapi/config.ru"
+
+OVIRTAPI_CONTROLLER_FILES="src/ovirtapi/controllers/backup_controller.rb \
+                           src/ovirtapi/controllers/cluster_controller.rb \
+                           src/ovirtapi/controllers/disk_controller.rb \
+                           src/ovirtapi/controllers/helper_functions.rb \
+                           src/ovirtapi/controllers/host_controller.rb \
+                           src/ovirtapi/controllers/imagetransfer_controller.rb \
+                           src/ovirtapi/controllers/jobs_controller.rb \
+                           src/ovirtapi/controllers/network_controller.rb \
+                           src/ovirtapi/controllers/storage_controller.rb \
+                           src/ovirtapi/controllers/tag_controller.rb \
+                           src/ovirtapi/controllers/user_controller.rb \
+                           src/ovirtapi/controllers/vm_controller.rb"
+
+OVIRTAPI_SCRIPT_FILES="src/ovirtapi/scripts/init_clean.rb"
+
+OVIRTAPI_ETC_FILES="src/ovirtapi/config/ovirtapi-server.yml"
 
 # OneBEX files, to be installed under $REMOTES_LOCATION/onebex (except config)
 #-------------------------------------------------------------------------------
