@@ -237,6 +237,13 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Select PCI device by its class ID'
     }
 
+    PF = {
+        :name => 'pf',
+        :large => '--pf interface',
+        :format => String,
+        :description => 'Select a virtual function by its parent PF interface name'
+    }
+
     RESET_BACKUP = {
         :name => 'reset',
         :large => '--reset',
@@ -867,6 +874,8 @@ CommandParser::CmdParser.new(ARGV) do
         To hotplug a PCI device and use it as a NIC interface in the VM select
         it with --pci (short_address) or --pci_device (device ID),
         --pci_class (class ID) and/or --pci_vendor (vendor ID).
+        Use --pf (interface name) to select a virtual function from a physical
+        function. Specify the virtual network with --network.
 
         States: RUNNING, POWEROFF
     EOT
@@ -881,7 +890,8 @@ CommandParser::CmdParser.new(ARGV) do
                 PCI,
                 PCI_CLASS,
                 PCI_VENDOR,
-                PCI_DEVICE
+                PCI_DEVICE,
+                PF
             ] do
         if options[:file]
             template = File.read(options[:file])
@@ -893,7 +903,7 @@ CommandParser::CmdParser.new(ARGV) do
             nic_alias  = options[:alias]
             nic_name   = options[:nic_name]
 
-            is_pci = [:pci, :pci_device, :pci_vendor, :pci_class].any? do |o|
+            is_pci = [:pci, :pci_device, :pci_vendor, :pci_class, :pf].any? do |o|
                 !options[o].nil?
             end
 
@@ -902,6 +912,7 @@ CommandParser::CmdParser.new(ARGV) do
                 pcid = options[:pci_device]
                 pcic = options[:pci_class]
                 pciv = options[:pci_vendor]
+                pf   = options[:pf]
 
                 template  = 'PCI = [ TYPE = NIC'
                 template << ", NETWORK_ID    = #{network_id}"
@@ -909,6 +920,7 @@ CommandParser::CmdParser.new(ARGV) do
                 template << ", DEVICE        = \"#{pcid}\"" if pcid
                 template << ", CLASS         = \"#{pcic}\"" if pcic
                 template << ", VENDOR        = \"#{pciv}\"" if pciv
+                template << ", PF_IFNAME     = \"#{pf}\""   if pf
             elsif nic_alias
                 template  = "NIC_ALIAS = [ PARENT = #{nic_alias}"
                 template << ", NETWORK_ID = #{network_id}"

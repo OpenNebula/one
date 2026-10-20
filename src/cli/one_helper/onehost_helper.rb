@@ -693,6 +693,33 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     end
 
     def print_pcis(pcis)
+        total_vfs = Hash.new(0)
+        available_vfs = Hash.new(0)
+
+        pcis.each do |pci|
+            next unless pci['SRIOV'] == 'vf' && pci['PF_ADDRESS']
+
+            total_vfs[pci['PF_ADDRESS']]     += 1
+            available_vfs[pci['PF_ADDRESS']] += 1 if pci['VMID'] == '-1'
+        end
+
+        pcis = pcis.map do |pci|
+            next pci unless pci['SRIOV'] == 'pf'
+
+            total     = total_vfs[pci['ADDRESS']]
+            available = available_vfs[pci['ADDRESS']]
+
+            pci.merge('VFS' => "#{available}/#{total}")
+        end
+
+        extra_columns = {
+            :IFNAME       => 'Network interface',
+            :SRIOV        => 'SR-IOV role',
+            :PF_IFNAME    => 'Parent PF interface',
+            :VFS          => 'Available/total virtual functions',
+            :ESWITCH_MODE => 'Embedded switch mode'
+        }.select {|name, _| pcis.any? {|pci| pci.key?(name.to_s) } }
+
         puts
         CLIHelper.print_header('PCI DEVICES', false)
         puts
@@ -726,7 +753,14 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 d['VENDOR_NAME']
             end
 
-            default :VM, :ADDR, :TYPE, :NAME
+            extra_columns.each do |name, description|
+                column name, description, :size => name.to_s.length,
+                       :left => true, :adjust => true do |d|
+                    d[name.to_s] || '-'
+                end
+            end
+
+            default :VM, :ADDR, :TYPE, :NAME, *extra_columns.keys
         end
 
         table.show(pcis)
