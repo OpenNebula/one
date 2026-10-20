@@ -61,6 +61,7 @@ export const DESCRIPTION = {
 export const HYPERVISOR_FIELD = (isUpdate) => ({
   name: 'HYPERVISOR',
   type: INPUT_TYPES.TOGGLE,
+  notNull: true,
   values: arrayToOptions(Object.values(HYPERVISORS), {
     addEmpty: false,
     getText: (hypervisor) => hypervisor.toUpperCase(),

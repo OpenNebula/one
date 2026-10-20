@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+export * from '@modules/components/primitives/Buttons/Card'
 export * from '@modules/components/primitives/Buttons/Checkbox'
 export * from '@modules/components/primitives/Buttons/Default'
 export * from '@modules/components/primitives/Buttons/Group'

@@ -16,17 +16,10 @@
 import { memo, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
-import {
-  styled,
-  FormControl,
-  ToggleButtonGroup,
-  ToggleButton,
-  FormHelperText,
-  Box,
-  alpha,
-} from '@mui/material'
+import { styled, FormControl, FormHelperText, Box } from '@mui/material'
 import { useController } from 'react-hook-form'
 import { Text } from '@modules/components/primitives/Text'
+import { CardButton } from '@modules/components/primitives/Buttons/Card'
 import { ErrorHelper } from '@modules/components/composed/Forms/FormControl/ErrorHelper'
 import { AdornmentWithTooltip as Tooltip } from '@modules/components/composed/Forms/FormControl/Tooltip'
 import { generateKey } from '@UtilsModule'
@@ -65,14 +58,23 @@ export const ToggleController = memo(
 
     useEffect(() => {
       if (optionSelected) {
-        const exists = values?.find((option) => option.value === optionSelected)
+        const selectedValues = Array.isArray(optionSelected)
+          ? optionSelected
+          : [optionSelected]
+        const exists = selectedValues.every((selectedValue) =>
+          values?.some((option) => option.value === selectedValue)
+        )
         !exists && onChange()
       }
     }, [])
     const handleChange = useCallback(
-      (_, newValues) => {
+      (newValues) => {
         onBlur()
-        if (!readOnly && (!notNull || newValues)) {
+        const hasSelection = Array.isArray(newValues)
+          ? newValues.length > 0
+          : newValues !== null && newValues !== undefined
+
+        if (!readOnly && (!notNull || hasSelection)) {
           onChange(newValues)
           if (typeof onConditionChange === 'function') {
             onConditionChange(newValues)
@@ -80,6 +82,29 @@ export const ToggleController = memo(
         }
       },
       [onChange, onConditionChange, readOnly, notNull]
+    )
+
+    const handleCardChange = useCallback(
+      (optionValue) => {
+        const selectedValues = Array.isArray(optionSelected)
+          ? optionSelected
+          : []
+
+        const isSelected = multiple
+          ? selectedValues.includes(optionValue)
+          : optionSelected === optionValue
+
+        const newValues = multiple
+          ? isSelected
+            ? selectedValues.filter((value) => value !== optionValue)
+            : [...selectedValues, optionValue]
+          : isSelected
+          ? null
+          : optionValue
+
+        handleChange(newValues)
+      },
+      [handleChange, multiple, optionSelected]
     )
 
     // Safe loading of default value
@@ -106,52 +131,41 @@ export const ToggleController = memo(
             {tooltip && <Tooltip title={tooltip} />}
           </Label>
         )}
-        <ToggleButtonGroup
-          fullWidth
-          ref={ref}
+        <Box
           id={cy}
-          onChange={handleChange}
-          value={optionSelected}
-          exclusive={!multiple}
+          role="group"
           data-cy={cy}
-          {...fieldProps}
+          sx={(theme) => ({
+            display: 'flex',
+            gap: `${theme.scale[500]}px`,
+          })}
         >
-          {values?.map(({ text, value = '', description }) => (
-            <ToggleButton
-              key={`${name}-${value}`}
-              value={value}
-              sx={(theme) => ({
-                p: 1,
-                '&.Mui-selected': {
-                  borderColor: theme.palette.primary.main,
-                  backgroundColor: alpha(theme.palette.primary.main, 0.18),
-                  boxShadow: `inset 0 0 0 1px ${theme.palette.primary.main}`,
-                  color: theme.palette.primary.main,
-                },
-                '&.Mui-selected:hover': {
-                  backgroundColor: alpha(theme.palette.primary.main, 0.26),
-                },
-              })}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Text
-                  value={text}
-                  variant={TEXT_VARIANTS.BODY_SMALL}
-                  weight={TEXT_WEIGHTS.REGULAR}
-                />
-
-                {description && (
-                  <Text
-                    component="span"
-                    value={description}
-                    variant={TEXT_VARIANTS.CAPTION}
-                    weight={TEXT_WEIGHTS.REGULAR}
-                  />
-                )}
-              </Box>
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
+          {values?.map(
+            (
+              { text, value = '', description, startIcon, isDisabled = false },
+              index
+            ) => (
+              <CardButton
+                key={`${name}-${value}`}
+                ref={index === 0 ? ref : undefined}
+                value={value}
+                text={text}
+                description={description}
+                startIcon={startIcon}
+                startIconSize="small"
+                isSelected={
+                  multiple
+                    ? Array.isArray(optionSelected) &&
+                      optionSelected.includes(value)
+                    : optionSelected === value
+                }
+                isDisabled={fieldProps.disabled || isDisabled || readOnly}
+                onBlur={onBlur}
+                onClick={() => handleCardChange(value)}
+              />
+            )
+          )}
+        </Box>
         {Boolean(message) && (
           <FormHelperText data-cy={`${cy}-error`}>
             <ErrorHelper label={message} />
@@ -159,11 +173,7 @@ export const ToggleController = memo(
         )}
       </FormControl>
     )
-  },
-  (prevProps, nextProps) =>
-    prevProps.values.length === nextProps.values.length &&
-    prevProps.label === nextProps.label &&
-    prevProps.tooltip === nextProps.tooltip
+  }
 )
 
 ToggleController.propTypes = {
