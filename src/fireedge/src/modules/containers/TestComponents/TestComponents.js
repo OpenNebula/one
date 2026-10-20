@@ -41,6 +41,52 @@ export const TestComponents = () => {
   }, [])
   const options = ['All-Iconoir-Icons'].concat(Object.keys(module ?? {})).flat()
 
+  const treeItems = [
+    {
+      id: 'infrastructure',
+      label: 'Infrastructure',
+      count: 0,
+      icon: <iconoir.Folder />,
+      children: [
+        {
+          id: 'compute',
+          label: 'Compute',
+          count: 3,
+          icon: <iconoir.Folder />,
+          children: [
+            {
+              id: 'hosts',
+              label: 'Hosts',
+              count: 2,
+              icon: <iconoir.Server />,
+            },
+            {
+              id: 'virtual-machines',
+              label: 'Virtual machines',
+              count: 1,
+            },
+          ],
+        },
+        {
+          id: 'storage',
+          label: 'Storage',
+          count: 2,
+          icon: <iconoir.Folder />,
+        },
+        {
+          id: 'disabled-item',
+          label: 'Disabled item',
+          disabled: true,
+        },
+      ],
+    },
+    {
+      id: 'item-without-icon',
+      label: 'Item without icon',
+      count: 2,
+    },
+  ]
+
   const tableData = [
     {
       id: '1',
@@ -280,6 +326,18 @@ export const TestComponents = () => {
                     data: tableData,
                     columns: tableColumns,
                   })
+                } else if (value === 'Tree') {
+                  setProps({
+                    items: treeItems,
+                    defaultExpandedIds: ['infrastructure', 'compute'],
+                    selectedId: 'hosts',
+                    onSelectedChange: (_event, nodeId) =>
+                      setProps((prev) => ({
+                        ...prev,
+                        selectedId: nodeId,
+                      })),
+                    'aria-label': 'Tree component preview',
+                  })
                 } else {
                   setProps(null)
                 }
@@ -299,9 +357,21 @@ export const TestComponents = () => {
           </Box>
           {[]
             .concat(Object.entries(module?.[selected]?.propTypes ?? {}))
-            ?.filter(([name]) => !/^on[A-Z]/.test(name)) // Remove handler functions
+            ?.filter(
+              ([name]) =>
+                !/^on[A-Z]/.test(name) && // Remove handler functions
+                !(
+                  selected === 'Tree' &&
+                  ['items', 'defaultExpandedIds', 'defaultSelectedId'].includes(
+                    name
+                  )
+                )
+            )
             ?.map(([name]) => {
               const getOptionType = () => {
+                if (selected === 'Tree' && name === 'showCount')
+                  return 'boolean'
+
                 const match = name.match(
                   /(?<icon>icon|startIcon|endIcon|iconOnly)|^(?<boolean>is[A-Z].*)$|^(?<size>size)$|^(?<status>status|variant)$|^(?<type>type)$|^(?<compoptions>options|children)$|^(?<direction>direction)$/i
                 )
