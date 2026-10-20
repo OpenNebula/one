@@ -16,10 +16,12 @@
 const { defaults } = require('server/utils/constants')
 const { defaultEmptyFunction } = defaults
 const { spawn } = require('child_process')
-const { createServer } = require('net')
+const { createServer, isIP } = require('net')
 
-let PID = null
 const internalHost = '127.0.0.1'
+const tunnelStartDelay = 1000
+const hostnamePattern =
+  /^(?=.{1,253}\.?$)(?:[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?\.)*[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?\.?$/i
 
 /**
  * Check if a port is available.
@@ -73,8 +75,31 @@ const deleteTunnel = (pid) => {
   try {
     process.kill(pid)
   } catch (err) {
-    console.log(err)
+    err.code !== 'ESRCH' && console.log(err)
   }
+}
+
+/**
+ * Normalizes and validates a SSH forwarding destination.
+ *
+ * @param {string} address - Destination hostname or IP address
+ * @returns {string} Destination suitable for an OpenSSH -L specification
+ * @throws {Error} If the destination is not a valid hostname or IP address
+ */
+const normalizeTargetAddress = (address) => {
+  const target = String(address ?? '').trim()
+  const unwrappedTarget =
+    target.startsWith('[') && target.endsWith(']')
+      ? target.slice(1, -1)
+      : target
+  const ipVersion = isIP(unwrappedTarget)
+
+  if (ipVersion === 6) return '[' + unwrappedTarget + ']'
+  if (ipVersion === 4 || hostnamePattern.test(unwrappedTarget)) {
+    return unwrappedTarget
+  }
+
+  throw new Error('Invalid SSH tunnel target address')
 }
 
 /**
@@ -85,38 +110,40 @@ const deleteTunnel = (pid) => {
  * @param {string} vmParams.dstPort - external port
  * @param {string} vmParams.host - external host
  * @param {string} vmParams.targetAddr - destination address from the external host
- * @returns {string} command
+ * @returns {{command: string, args: string[]}} Command and arguments
  */
 const createCommand = ({ srcPort, dstPort, host, targetAddr }) => {
-  const command = 'bash'
-  const commandArg = ['-c']
-
-  const commandSSH = 'ssh'
+  const destination = normalizeTargetAddress(targetAddr)
   const args = [
+    '-o',
+    'BatchMode=yes',
+    '-o',
+    'StrictHostKeyChecking=no',
+    '-o',
+    'UserKnownHostsFile=/dev/null',
+    '-o',
+    'GlobalKnownHostsFile=/dev/null',
+    '-o',
+    'LogLevel=ERROR',
+    '-o',
+    'ExitOnForwardFailure=yes',
+    '-o',
+    'ConnectTimeout=10',
     '-N',
     '-L',
-    `${srcPort}:${targetAddr}:${dstPort}`,
-    `${host}`,
-    '& echo $!',
+    `${srcPort}:${destination}:${dstPort}`,
+    host,
   ]
 
-  return { command, args: [...commandArg, [commandSSH, ...args].join(' ')] }
+  return { command: 'ssh', args }
 }
-
-/**
- * Time to wait for the tunnel to be finished creating.
- *
- * @param {number} ms - time to wait
- * @returns {Promise} promise
- */
-const sleep = (ms = 1000) => new Promise((resolve) => setTimeout(resolve, ms))
 
 /**
  * Creates the tunnel SSH.
  *
  * @param {object} params - params
  * @param {string} params.command - command for tunnel
- * @param {string} params.args - args for tunnel
+ * @param {string[]} params.args - args for tunnel
  * @returns {Promise} promise
  */
 const startSSHTunnel = async ({ command, args }) =>
@@ -124,25 +151,39 @@ const startSSHTunnel = async ({ command, args }) =>
     const sshProcess = spawn(command, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
     })
+    let startupTimer
+    let stderr = ''
+    let settled = false
 
-    sshProcess.stdout.on('data', (data) => {
-      const cleanOutput = data.toString().trim()
-      PID = parseInt(cleanOutput, 10)
-      resolve(PID)
+    const rejectStartup = (error) => {
+      if (settled) return
+
+      settled = true
+      clearTimeout(startupTimer)
+      reject(error)
+    }
+
+    sshProcess.once('spawn', () => {
+      startupTimer = setTimeout(() => {
+        settled = true
+        resolve(sshProcess.pid)
+      }, tunnelStartDelay)
     })
 
     sshProcess.stderr.on('data', (data) => {
-      if (data.toString().includes('already in use')) {
-        deleteTunnel(PID)
-        reject(new Error('The port is already in use.'))
-      }
+      stderr += data.toString()
     })
 
-    sshProcess.on('close', (code) => {
-      if (code !== 0 && PID) {
-        deleteTunnel(PID)
-        reject(new Error(`The SSH process ended with code: ${code}`))
-      }
+    sshProcess.once('error', rejectStartup)
+
+    sshProcess.once('close', (code) => {
+      const errorMessage = stderr.trim()
+      rejectStartup(
+        new Error(
+          errorMessage ||
+            `The SSH process ended with code: ${code ?? 'unknown'}`
+        )
+      )
     })
   })
 
@@ -181,7 +222,6 @@ const create = async (
     try {
       const command = createCommand(paramsCommands)
       const pid = await startSSHTunnel(command)
-      await sleep()
       connect(pid)
     } catch (err) {
       error(err)

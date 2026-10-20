@@ -63,6 +63,7 @@ const functionsRoutes = ({
               const { user, password, id } = req.auth ?? {}
               const { rpc } = zoneData
               writeInLoggerInvalidRPC(rpc)
+              req.zoneData = zoneData
               req.serverDataSource = {
                 [resource]: req.params,
                 [query]: req.query,

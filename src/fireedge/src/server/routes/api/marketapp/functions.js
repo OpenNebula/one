@@ -25,7 +25,11 @@ const {
 const {
   Actions: ActionsMarket,
 } = require('server/utils/constants/commands/market')
-const { httpResponse, executeCommand } = require('server/utils/server')
+const {
+  httpResponse,
+  executeCommand,
+  getCliConnectionArguments,
+} = require('server/utils/server')
 const { getSunstoneConfig } = require('server/utils/yml')
 const { writeInLogger } = require('server/utils/logger')
 
@@ -71,18 +75,22 @@ const responseHttp = (res = {}, next = defaultEmptyFunction, httpCode) => {
  * @param {string} [params.template] - app template
  * @param {string} [params.vmname] - app vm name
  * @param {object} userData - user of http request
+ * @param {Function} _oneConnection - function of xmlrpc
+ * @param {object} req - Request object
  */
 const exportApp = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
-  userData = {}
+  userData = {},
+  _oneConnection = defaultEmptyFunction,
+  req = {}
 ) => {
   let rtn = httpBadRequest
   const { id, name, datastore, file, associated, tag, template, vmname } =
     params
   const { user, password } = userData
-  if ((id && name && datastore && user, password)) {
+  if (id && name && datastore && user && password) {
     let message = ''
     const paramsCommand = [
       'export',
@@ -97,8 +105,7 @@ const exportApp = (
     tag && paramsCommand.push('--tag', tag)
     template && paramsCommand.push('--template', template)
     vmname && paramsCommand.push('--vmname', vmname)
-    user && paramsCommand.push('--user', user)
-    password && paramsCommand.push('--password', password)
+    paramsCommand.push(...getCliConnectionArguments(userData, req))
 
     const executedCommand = executeCommand(
       defaultCommandMarketApp,
@@ -202,8 +209,18 @@ const downloadApp = (
  * @param {number} [params.marketId] - market id
  * @param {string} [params.associated=''] - associated resource
  * @param {number} [params.vmname] - vm name
+ * @param {object} userData - user of http request
+ * @param {Function} _oneConnection - function of xmlrpc
+ * @param {object} req - Request object
  */
-const importMarket = (res = {}, next = defaultEmptyFunction, params = {}) => {
+const importMarket = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  _oneConnection = defaultEmptyFunction,
+  req = {}
+) => {
   let rtn = httpBadRequest
   const { resource, id, marketId, associated, vmname } = params
 
@@ -214,6 +231,7 @@ const importMarket = (res = {}, next = defaultEmptyFunction, params = {}) => {
     paramsCommand.push(associated === 'true' ? '--yes' : '--no')
     marketId && paramsCommand.push('--market', marketId)
     vmname && paramsCommand.push('--vmname', vmname)
+    paramsCommand.push(...getCliConnectionArguments(userData, req))
 
     const executedCommand = executeCommand(
       defaultCommandMarketApp,

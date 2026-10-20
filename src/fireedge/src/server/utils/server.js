@@ -933,6 +933,25 @@ const executeCommand = (
 
   return rtn
 }
+
+/**
+ * Returns the CLI connection arguments for the selected federation zone.
+ *
+ * @param {object} userData - Authenticated user data
+ * @param {object} req - HTTP request
+ * @returns {string[]} CLI connection arguments
+ */
+const getCliConnectionArguments = (userData = {}, req = {}) => {
+  const { user, password } = userData
+  const { rpc } = req.zoneData ?? {}
+
+  return [
+    ...(rpc ? ['--endpoint', rpc] : []),
+    ...(user ? ['--user', user] : []),
+    ...(password ? ['--password', password] : []),
+  ]
+}
+
 /**
  * Check app name.
  *
@@ -1103,6 +1122,7 @@ module.exports = {
   getFiles,
   getFilesbyEXT,
   executeCommand,
+  getCliConnectionArguments,
   executeCommandAsync,
   checkValidApp,
   removeFile,
