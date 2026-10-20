@@ -6,12 +6,14 @@ StartLimitInterval=60
 StartLimitBurst=3
 
 [Service]
-User=root
+User=oneadmin
+Group=oneadmin
 Type=simple
 Restart=on-failure
 RestartSec=5
 
-ExecStart=/usr/bin/lvm_exporter
+# Override the lvm command using sudo instead of running the whole exporter as root.
+ExecStart=/usr/bin/lvm_exporter --command "sudo -n --preserve-env=LVM_SUPPRESS_SYSLOG /usr/sbin/lvm"
 
 [Install]
 WantedBy=multi-user.target

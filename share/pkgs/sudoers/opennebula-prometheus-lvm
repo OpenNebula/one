@@ -1,0 +1,1 @@
+oneadmin ALL=(root) NOPASSWD:SETENV: /usr/sbin/lvm fullreport *

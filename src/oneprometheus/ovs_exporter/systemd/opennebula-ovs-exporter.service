@@ -12,6 +12,9 @@ Type=simple
 Restart=on-failure
 RestartSec=5
 
+# Put the sudo wrappers for ovs-vsctl/ovs-appctl first in PATH, the OVS sockets are root-only.
+Environment=PATH=/usr/lib/one/ovs_exporter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 ExecStart=/usr/bin/ovs_exporter
 
 [Install]
