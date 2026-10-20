@@ -15,6 +15,8 @@
  * ------------------------------------------------------------------------- */
 
 const GuacamoleOpennebula = require('opennebula-guacamole')
+const { createDecipheriv } = require('crypto')
+const { URL } = require('url')
 const { getFireedgeConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
 const { genFireedgeKey, genPathResources } = require('server/utils/server')
@@ -29,6 +31,8 @@ genPathResources()
 genFireedgeKey()
 
 const formatError = 'Error: %s'
+const allowedConnectionTypes = new Set(['vnc', 'ssh', 'rdp', 'telnet'])
+const maxTokenLength = 64 * 1024
 /**
  * Object console error log.
  *
@@ -74,6 +78,72 @@ const clientOptions = {
   },
 }
 
+/**
+ * Validate a Guacamole token before opennebula-guacamole creates its client.
+ *
+ * The dependency assumes the token and its connection record are valid while
+ * handling early failures. Rejecting malformed handshakes here prevents those
+ * failures from escaping its WebSocket connection handler and terminating
+ * FireEdge.
+ *
+ * @param {object} info - WebSocket client information.
+ * @param {object} info.req - HTTP upgrade request.
+ * @returns {boolean} - True when the token can be safely processed.
+ */
+const verifyGuacamoleClient = ({ req } = {}) => {
+  try {
+    const token = new URL(req?.url ?? '', 'http://localhost').searchParams.get(
+      'token'
+    )
+
+    if (typeof token !== 'string' || token.length > maxTokenLength) return false
+
+    const envelope = JSON.parse(Buffer.from(token, 'base64').toString('ascii'))
+    if (
+      typeof envelope?.iv !== 'string' ||
+      typeof envelope?.value !== 'string'
+    ) {
+      return false
+    }
+
+    const iv = Buffer.from(envelope.iv, 'base64')
+    const encrypted = Buffer.from(envelope.value, 'base64')
+    if (iv.length !== 16 || !encrypted.length || encrypted.length % 16 !== 0) {
+      return false
+    }
+
+    const decipher = createDecipheriv(
+      clientOptions.crypt.cypher,
+      clientOptions.crypt.key,
+      iv
+    )
+    let decrypted = decipher.update(encrypted, undefined, 'ascii')
+    decrypted += decipher.final('ascii')
+
+    const settings = JSON.parse(decrypted)
+    const connectionType = settings?.connection?.type
+    const connectionSettings = settings?.connection?.settings
+
+    if (!allowedConnectionTypes.has(connectionType)) return false
+    if (
+      !connectionSettings ||
+      typeof connectionSettings !== 'object' ||
+      Array.isArray(connectionSettings)
+    ) {
+      return false
+    }
+
+    if (settings.expiration !== undefined) {
+      const expiration = Number(settings.expiration)
+      if (!Number.isFinite(expiration) || expiration < Date.now()) return false
+    }
+
+    return true
+  } catch {
+    return false
+  }
+}
+
 const clientCallbacks = {
   processConnectionSettings: async (
     settings,
@@ -84,60 +154,51 @@ const clientCallbacks = {
       return callback(new Error('Token expired'))
     }
 
-    let rangePorts = [5900, 65536]
+    let rangePorts = [5900, 65535]
     if (settings?.connection?.rangeports) {
       rangePorts = settings?.connection?.rangeports.split(':').map(Number)
 
-      await create(
-        {
+      try {
+        const pidTunnel = await create({
           vmPort: settings?.connection?.port,
           hostAddr: settings?.connection?.hostname,
           targetAddr: settings?.tunnel?.host,
           settings,
           rangePorts,
-        },
-        {
-          connect: (pidTunnel) => {
-            if (connections && id) {
-              const dataConnection = connections?.get?.(id)
-              dataConnection
-                ? (dataConnection.pidTunnel = pidTunnel)
-                : connections.set(id, { pidTunnel })
+        })
+        const dataConnection = connections?.get?.(id)
 
-              writeInLogger([pidTunnel, id], {
-                format:
-                  'Tunnel SSH created with PID: %1$s to connection: %2$s ',
-                level: 2,
-              })
-            }
-          },
-          error: (err) => {
-            writeInLogger(err, {
-              format: formatError,
-            })
-          },
+        if (!dataConnection) {
+          deleteTunnel(pidTunnel)
+
+          return callback(new Error('Guacamole connection was closed'))
         }
-      )
+
+        dataConnection.pidTunnel = pidTunnel
+        writeInLogger([pidTunnel, id], {
+          format: 'Tunnel SSH created with PID: %1$s to connection: %2$s ',
+          level: 2,
+        })
+      } catch (err) {
+        writeInLogger(err, {
+          format: formatError,
+        })
+
+        return callback(err)
+      }
     }
 
     return callback(null, settings)
   },
 
-  processConnectionClose: (err, { connections, id }) => {
+  processConnectionClose: (err, { id }) => {
     if (id) {
       writeInLogger(id, {
         format: 'Closing unused ssh connection: %s',
         level: 2,
       })
 
-      if (connections?.length) {
-        const others = [...connections.values()].some(
-          (value) => value.pidTunnel === id
-        )
-        !others && deleteTunnel(id)
-      } else {
-        deleteTunnel(id)
-      }
+      deleteTunnel(id)
     }
 
     writeInLogger(err, {
@@ -160,7 +221,11 @@ const guacdHost = guacd.host || 'localhost'
 const guacamole = (appServer) => {
   if (appServer?.constructor?.name === 'Server') {
     const guacamoleServer = new GuacamoleOpennebula(
-      { server: appServer, path: endpointGuacamole },
+      {
+        server: appServer,
+        path: endpointGuacamole,
+        verifyClient: verifyGuacamoleClient,
+      },
       { host: guacdHost, port: guacdPort },
       clientOptions,
       clientCallbacks

@@ -64,9 +64,13 @@ const GuacamoleClient = ({
   const { oneConfig } = useSystemData()
   let rangeports
   if (oneConfig?.VNC_PORTS && type === 'vnc') {
-    const lastPort = oneConfig.VNC_PORTS.RESERVED
-      ? oneConfig.VNC_PORTS.RESERVED.split(':')[1]
-      : '65535'
+    const maxTcpPort = 65535
+    const configuredLastPort = oneConfig.VNC_PORTS.RESERVED
+      ? Number(oneConfig.VNC_PORTS.RESERVED.split(':')[1])
+      : maxTcpPort
+    const lastPort = Number.isInteger(configuredLastPort)
+      ? Math.min(configuredLastPort, maxTcpPort)
+      : maxTcpPort
     const startPort = oneConfig.VNC_PORTS.START
       ? oneConfig.VNC_PORTS.START
       : '5900'
