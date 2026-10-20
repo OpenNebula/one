@@ -15,3 +15,4 @@
  * ------------------------------------------------------------------------- */
 export * from '@modules/containers/Services/Detail'
 export * from '@modules/containers/Services/Services'
+export * from '@modules/containers/Services/Create'

@@ -27,7 +27,7 @@
       Component: Services
     - title: Instantiate Service Template
       path: /service/instantiate/
-      Component: InstantiateServiceTemplate
+      Component: CreateService
     - title: Service
       path: /service/:id
       Component: ServiceDetail

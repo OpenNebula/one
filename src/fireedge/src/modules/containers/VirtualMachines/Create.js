@@ -14,13 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { Dialog, DialogContent, DialogTitle, Stack } from '@mui/material'
-import { Cancel } from 'iconoir-react'
 import { ReactElement, useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 
-import { Button, Table, Text } from '@ComponentsModule'
-import { PATH, T, TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
+import { TemplateSelectorDialog } from '@ComponentsModule'
+import { PATH, T } from '@ConstantsModule'
 import { vmtemplateTable } from '@ModelsModule'
 import { VirtualMachines } from '@modules/containers/VirtualMachines/VirtualMachines'
 
@@ -62,70 +60,15 @@ export function CreateVm() {
   return (
     <>
       <VirtualMachines />
-      <Dialog
-        open
-        fullWidth
-        maxWidth="lg"
+      <TemplateSelectorDialog
+        title={T.SelectVmTemplate}
+        table={vmtemplateTable}
+        data={templates}
+        isRefreshing={isRefreshing}
+        onRefresh={refresh}
         onClose={handleClose}
-        PaperProps={{
-          sx: {
-            width: 'min(1120px, calc(100vw - 64px))',
-            maxWidth: 'none',
-            minHeight: '620px',
-            overflow: 'hidden',
-          },
-        }}
-      >
-        <DialogTitle>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            gap={2}
-          >
-            <Text
-              value={T.SelectVmTemplate}
-              variant={TEXT_VARIANTS.H6}
-              weight={TEXT_WEIGHTS.SEMIBOLD}
-            />
-            <Button
-              iconOnly={<Cancel />}
-              type="secondary"
-              title={T.Close}
-              onClick={handleClose}
-            />
-          </Stack>
-        </DialogTitle>
-        <DialogContent
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: 0,
-            pb: 3,
-          }}
-        >
-          <Table
-            columns={vmtemplateTable.columns()}
-            data={templates}
-            dataCy={vmtemplateTable.dataCy}
-            isLoading={isRefreshing}
-            isRowsSelectable
-            isMultiRowSelection={false}
-            getRowId={(row) => row.ID}
-            onRowClick={redirectToInstantiate}
-            onRefresh={refresh}
-            isRefreshing={isRefreshing}
-            isEnableSearchBar
-            isEnableSort
-            isEnableFilters
-            searchPlaceholder={T.SearchTemplates}
-            defaultPageSize={5}
-            pageSizeOptions={[5, 10, 25, 50, 100]}
-            skeletonRows={4}
-            size="medium"
-          />
-        </DialogContent>
-      </Dialog>
+        onSelect={redirectToInstantiate}
+      />
     </>
   )
 }
