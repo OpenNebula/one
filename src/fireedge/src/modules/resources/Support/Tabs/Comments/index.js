@@ -150,7 +150,9 @@ const BubbleMessage = ({ comment = {} }) => {
       </Box>
       <Box
         className="comment-body"
-        dangerouslySetInnerHTML={{ __html: body }}
+        dangerouslySetInnerHTML={{
+          __html: sanitize`${body ?? ''}`,
+        }}
       />
       <AttachmentList attachments={attachments} />
       <Text
