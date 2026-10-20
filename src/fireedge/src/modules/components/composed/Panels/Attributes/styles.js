@@ -116,6 +116,63 @@ export const VALUE_TEXT_STYLES = {
   minWidth: 0,
 }
 
+export const COLLAPSIBLE_VALUE_TEXT_STYLES = {
+  ...VALUE_TEXT_STYLES,
+  display: 'block',
+  whiteSpace: 'pre-wrap',
+  overflowWrap: 'anywhere',
+}
+
+/**
+ * @param {object} theme - Current theme
+ * @returns {object} - Collapsible attribute container styles
+ */
+export const COLLAPSIBLE_CONTAINER_STYLES = (theme) => ({
+  ...VALUE_CONTAINER_STYLES,
+  alignItems: 'flex-start',
+  boxSizing: 'border-box',
+  gap: `${theme.scale[200]}px`,
+  minWidth: 0,
+})
+
+/**
+ * @param {object} theme - Current theme
+ * @returns {object} Collapsible attribute text container styles
+ */
+export const COLLAPSIBLE_TEXT_CONTAINER_STYLES = (theme) => ({
+  flex: '1 1 0',
+  minWidth: 0,
+  py: {
+    xs: `max(0px, calc((${theme.scale[700]}px - ${theme.lineHeight.body.sm.mobile}) / 2))`,
+    sm: `max(0px, calc((${theme.scale[700]}px - ${theme.lineHeight.body.sm.tablet}) / 2))`,
+    md: `max(0px, calc((${theme.scale[700]}px - ${theme.lineHeight.body.sm.desktop}) / 2))`,
+  },
+})
+
+export const COLLAPSED_VALUE_TEXT_STYLES = {
+  display: '-webkit-box',
+  WebkitLineClamp: 1,
+  WebkitBoxOrient: 'vertical',
+}
+
+/**
+ * @param {object} theme - Current theme
+ * @returns {object} - Collapsible attribute controls styles
+ */
+export const COLLAPSIBLE_CONTROLS_STYLES = (theme) => ({
+  display: 'flex',
+  alignItems: 'center',
+  flexShrink: 0,
+  gap: `${theme.scale[200]}px`,
+})
+
+export const COLLAPSIBLE_BUTTON_STYLES = {
+  '&:hover': {
+    bgcolor: 'transparent',
+    borderColor: 'transparent',
+  },
+}
+
 /**
  * @param {object} theme - Current theme
  * @returns {object} - Attribute row action group styles
@@ -134,6 +191,18 @@ export const ACTION_GROUP_STYLES = (theme) => ({
 export const HIDDEN_ACTION_GROUP_STYLES = (theme) => ({
   ...ACTION_GROUP_STYLES(theme),
   display: 'none',
+})
+
+/**
+ * @param {object} theme - Current theme
+ * @returns {object} Collapsible attribute row action group styles
+ */
+export const COLLAPSIBLE_ACTION_GROUP_STYLES = (theme) => ({
+  ...HIDDEN_ACTION_GROUP_STYLES(theme),
+  flex: '0 0 auto',
+  alignSelf: 'center',
+  borderRadius: 0,
+  pl: `${theme.scale[200]}px`,
 })
 
 export const ACTION_STYLES = {

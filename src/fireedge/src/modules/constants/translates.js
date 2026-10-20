@@ -780,6 +780,8 @@ module.exports = {
   Language: 'Language',
   StuckSidebar: 'Pin Sidebar',
   View: 'View',
+  ViewMore: 'View more',
+  ViewLess: 'View less',
   ViewSnapshots: 'View snapshots',
   DefaultZoneEndpoint: 'Default Endpoint',
   Endpoint: 'Endpoint',

@@ -15,11 +15,29 @@
  * ------------------------------------------------------------------------- */
 
 import PropTypes from 'prop-types'
-import { forwardRef, Component, isValidElement, useMemo, useState } from 'react'
+import {
+  forwardRef,
+  Component,
+  isValidElement,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { T } from '@ConstantsModule'
 import { Table } from '@modules/components/primitives/Tables/Default'
-import { Box } from '@mui/material'
-import { Cancel, Check, Copy, EditPencil, Trash, Plus } from 'iconoir-react'
+import { Box, Collapse } from '@mui/material'
+import {
+  Cancel,
+  Check,
+  Copy,
+  EditPencil,
+  NavArrowDown,
+  NavArrowUp,
+  Trash,
+  Plus,
+} from 'iconoir-react'
 import { Button } from '@modules/components/primitives/Buttons/Default'
 import { Tooltip } from '@modules/components/primitives/Tooltip/Default'
 import { ToggleGroup } from '@modules/components/primitives/Buttons/Toggle/Group'
@@ -28,6 +46,13 @@ import {
   ACTION_GROUP_STYLES,
   ACTION_STYLES,
   ADD_BUTTON_STYLES,
+  COLLAPSED_VALUE_TEXT_STYLES,
+  COLLAPSIBLE_ACTION_GROUP_STYLES,
+  COLLAPSIBLE_BUTTON_STYLES,
+  COLLAPSIBLE_CONTAINER_STYLES,
+  COLLAPSIBLE_CONTROLS_STYLES,
+  COLLAPSIBLE_TEXT_CONTAINER_STYLES,
+  COLLAPSIBLE_VALUE_TEXT_STYLES,
   CONFIRM_ACTION_STYLES,
   DESTRUCTIVE_ACTION_STYLES,
   EDIT_CONTAINER_STYLES,
@@ -35,9 +60,6 @@ import {
   getFooterStyles,
   getKeyStyles,
   getTableStyles,
-  HIDDEN_ACTION_GROUP_STYLES,
-  VALUE_CONTAINER_STYLES,
-  VALUE_TEXT_STYLES,
 } from '@modules/components/composed/Panels/Attributes/styles'
 import { useClipboard } from '@HooksModule'
 import { useModalsApi } from '@FeaturesModule'
@@ -180,6 +202,109 @@ EditableValueCell.propTypes = {
   attribute: PropTypes.object,
   onAccept: PropTypes.func,
   onCancel: PropTypes.func,
+}
+
+/**
+ * Displays an attribute value with an expandable single-line preview.
+ *
+ * @param {object} props - Props
+ * @param {string} props.value - Attribute value
+ * @param {Component} props.actions - Attribute row actions
+ * @returns {Component} Collapsible attribute value cell
+ */
+const CollapsibleValueCell = ({ value, actions }) => {
+  const valueRef = useRef(null)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [collapsedHeight, setCollapsedHeight] = useState(0)
+  const [isCollapsed, setIsCollapsed] = useState(true)
+  const [hasOverflow, setHasOverflow] = useState(false)
+
+  useEffect(() => setIsExpanded(false), [value])
+
+  useLayoutEffect(() => {
+    const element = valueRef.current
+
+    if (!element || !isCollapsed) return
+
+    const updateOverflow = () => {
+      setCollapsedHeight(window.getComputedStyle(element).lineHeight)
+      setHasOverflow(
+        element.scrollHeight > element.clientHeight ||
+          element.scrollWidth > element.clientWidth
+      )
+    }
+
+    updateOverflow()
+
+    const observer = new ResizeObserver(updateOverflow)
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [value, isCollapsed])
+
+  return (
+    <Box sx={COLLAPSIBLE_CONTAINER_STYLES}>
+      <Box
+        sx={[
+          COLLAPSIBLE_TEXT_CONTAINER_STYLES,
+          !hasOverflow && { py: { xs: 0, sm: 0, md: 0 } },
+        ]}
+      >
+        <Collapse
+          in={isExpanded}
+          collapsedSize={collapsedHeight}
+          timeout="auto"
+          onExited={() => setIsCollapsed(true)}
+        >
+          <Tooltip
+            title={
+              <Box component="span" sx={COLLAPSIBLE_VALUE_TEXT_STYLES}>
+                {value}
+              </Box>
+            }
+            followCursor
+          >
+            <Box
+              ref={valueRef}
+              component="span"
+              sx={[
+                COLLAPSIBLE_VALUE_TEXT_STYLES,
+                isCollapsed && COLLAPSED_VALUE_TEXT_STYLES,
+              ]}
+            >
+              {value}
+            </Box>
+          </Tooltip>
+        </Collapse>
+      </Box>
+      {(actions || hasOverflow) && (
+        <Box sx={COLLAPSIBLE_CONTROLS_STYLES}>
+          {actions}
+          {hasOverflow && (
+            <Button
+              type="transparent"
+              htmlType="button"
+              size="small"
+              iconOnly={isExpanded ? <NavArrowUp /> : <NavArrowDown />}
+              aria-label={isExpanded ? T.ViewLess : T.ViewMore}
+              aria-expanded={isExpanded}
+              sx={COLLAPSIBLE_BUTTON_STYLES}
+              onClick={(event) => {
+                event.stopPropagation()
+                setIsCollapsed(false)
+                setIsExpanded((expanded) => !expanded)
+              }}
+            />
+          )}
+        </Box>
+      )}
+    </Box>
+  )
+}
+
+CollapsibleValueCell.propTypes = {
+  value: PropTypes.string,
+  actions: PropTypes.node,
 }
 
 /**
@@ -329,24 +454,21 @@ export const AttributesPanel = forwardRef(
             }
 
             const actionOptions = getActionOptions(attribute)
+            const actionGroup = actionOptions?.length > 0 && (
+              <ToggleGroup
+                size="small"
+                isOutlined={false}
+                isSelectable={false}
+                sx={COLLAPSIBLE_ACTION_GROUP_STYLES}
+                options={[actionOptions]}
+              />
+            )
 
             return (
-              <Box sx={VALUE_CONTAINER_STYLES}>
-                <Tooltip title={attribute?.displayValue} followCursor>
-                  <Box component="span" sx={VALUE_TEXT_STYLES}>
-                    {attribute?.displayValue}
-                  </Box>
-                </Tooltip>
-                {actionOptions?.length > 0 && (
-                  <ToggleGroup
-                    size="small"
-                    isOutlined={false}
-                    isSelectable={false}
-                    sx={HIDDEN_ACTION_GROUP_STYLES}
-                    options={[actionOptions]}
-                  />
-                )}
-              </Box>
+              <CollapsibleValueCell
+                value={attribute?.displayValue}
+                actions={actionGroup}
+              />
             )
           },
         },
