@@ -32,7 +32,18 @@ export const Tabs = forwardRef(
   ({ type = 'default', options = [], defaultSelect = null, onChange }, ref) => {
     const { translateText } = useTranslation()
     const [selected, setSelected] = useState(defaultSelect)
+    const [indicatorMoving, setIndicatorMoving] = useState(false)
+
+    const handleIndicatorTransitionEnd = (event) => {
+      const indicatorFinishedMoving =
+        event.target === event.currentTarget &&
+        ['left', 'right', 'top'].includes(event.propertyName)
+
+      indicatorFinishedMoving && setIndicatorMoving(false)
+    }
+
     const handleChange = (_, newValue) => {
+      type === 'line' && setIndicatorMoving(true)
       setSelected(newValue)
       onChange?.(newValue)
       const tab = options.find((t, i) => (t.value ?? i) === newValue)
@@ -40,7 +51,13 @@ export const Tabs = forwardRef(
     }
 
     return (
-      <Box ref={ref} sx={(theme) => ({ ...getStyles({ theme, type }) })}>
+      <Box
+        ref={ref}
+        className="base-modifiers"
+        sx={(theme) => ({
+          ...getStyles({ theme, type, indicatorMoving }),
+        })}
+      >
         <MUITabs
           value={selected}
           variant="scrollable"
@@ -48,6 +65,13 @@ export const Tabs = forwardRef(
           allowScrollButtonsMobile
           className="tabbar"
           onChange={handleChange}
+          TabIndicatorProps={{
+            onTransitionEnd: handleIndicatorTransitionEnd,
+          }}
+          TabScrollButtonProps={{
+            disableRipple: true,
+            disableFocusRipple: true,
+          }}
         >
           {options?.map(
             (
@@ -94,7 +118,7 @@ export const Tabs = forwardRef(
                         renderIcon(endIcon, { className: 'tab-endicon' })}
                     </Box>
                   }
-                  className={`tab${error ? ' tab-error' : ''}`}
+                  className={`tab-modifiers tab${error ? ' tab-error' : ''}`}
                 />
               )
             }

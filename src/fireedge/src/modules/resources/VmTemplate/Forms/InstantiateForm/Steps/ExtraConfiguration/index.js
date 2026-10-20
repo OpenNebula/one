@@ -61,10 +61,10 @@ const TABS_CONTAINER_SX = {
   width: '100%',
 }
 
-const TABS_BREAKOUT_SX = {
-  flex: '0 0 auto',
-  maxWidth: 'none',
-  width: 'max-content',
+const TABS_WRAPPER_SX = {
+  flex: '1 1 auto',
+  minWidth: 0,
+  width: '100%',
 }
 
 const TAB_CONTENT_SX = {
@@ -130,7 +130,7 @@ const Content = ({
   return (
     <Box sx={{ height: 'auto', overflow: 'visible' }}>
       <Box sx={TABS_CONTAINER_SX}>
-        <Box sx={TABS_BREAKOUT_SX}>
+        <Box sx={TABS_WRAPPER_SX}>
           <Tabs
             type="line"
             defaultSelect={0}
