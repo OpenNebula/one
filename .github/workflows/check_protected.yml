@@ -123,9 +123,19 @@ jobs:
             const missingApprovals = approvalTeam.filter(u => !usersApproved.includes(u) && u !== pr_author)
             const teamApprovals = approvalTeam.filter(u => usersApproved.includes(u) && u !== pr_author)
 
+            // A single approval from any member of the approval team is enough
+            const isApproved = teamApprovals.length > 0
+
+            if (isApproved) {
+              core.info(`Required approval is present!\nApproved by: ${teamApprovals.join(', ')}`)
+
+              return
+            }
+
+            // Not approved yet: ask the remaining team members for a review
             const reviewersToRequest = missingApprovals.filter(u => !usersRequested.includes(u))
 
-            if (reviewersToRequest?.length > 0) {
+            if (reviewersToRequest.length > 0) {
               await github.rest.pulls.requestReviewers({
                 owner,
                 repo,
@@ -134,14 +144,4 @@ jobs:
               })
             }
 
-            const isApproved = approvalTeam.some(u => usersApproved.includes(u))
-
-            if (isApproved) {
-              core.info(`Required approvals are present!\nApproved by: ${teamApprovals?.join(', ')}`)
-
-              return
-            } else {
-              core.setFailed(`Some protected files have been changed but not all required approvals are present. Missing approvals from one of: ${missingApprovals
-              ?.filter(u => !usersApproved?.includes(u))
-              ?.join(', ')}`)
-            }
+            core.setFailed(`Some protected files have been changed but no approval from the approval team is present. Approval required from one of: ${missingApprovals.join(', ')}`)
