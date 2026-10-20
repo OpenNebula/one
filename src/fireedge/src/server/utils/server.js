@@ -617,6 +617,9 @@ const genPathResources = () => {
     if (!global.paths.FIREEDGE_CONFIG) {
       global.paths.FIREEDGE_CONFIG = `${ETC_LOCATION}/${defaultConfigFile}`
     }
+    if (!global.paths.LDAP_AUTH_CONFIG) {
+      global.paths.LDAP_AUTH_CONFIG = `${ETC_LOCATION}/auth/ldap_auth.conf`
+    }
     if (!global.paths.FIREEDGE_LOG) {
       global.paths.FIREEDGE_LOG = `${LOG_LOCATION}/${defaultLogFilename}`
     }

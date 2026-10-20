@@ -31,7 +31,8 @@ const { Actions: ActionZones } = require('server/utils/constants/commands/zone')
 const { defaults, httpCodes } = require('server/utils/constants')
 const { getFireedgeConfig, getSunstoneConfig } = require('server/utils/yml')
 const { createJWT, validate2FA } = require('server/utils/jwt')
-const { ok, internalServerError, unauthorized, accepted } = httpCodes
+const { ok, internalServerError, unauthorized, accepted, serviceUnavailable } =
+  httpCodes
 const {
   httpResponse,
   encrypt,
@@ -42,6 +43,7 @@ const {
   generateNewResourceTemplate,
   getDefaultParamsOfOpennebulaCommand,
 } = require('server/utils/opennebula')
+const { getUnavailableLdapEndpoints } = require('server/routes/api/auth/ldap')
 
 const {
   httpMethod,
@@ -466,6 +468,25 @@ const fetchUserPool = async ({ connect }) =>
     )
     .flat()
 
+const formatLdapEndpoint = ({ host, port }) =>
+  `${host.includes(':') ? `[${host}]` : host}:${port}`
+
+const getLdapUnavailableMessage = async ({ user, connect }) => {
+  try {
+    const endpoints = await getUnavailableLdapEndpoints(user)
+    if (!endpoints.length) return
+
+    const userPool = await fetchUserPool({ connect })
+    const authUser = userPool.find(({ NAME }) => NAME === user)
+
+    if (authUser?.AUTH_DRIVER !== 'ldap') return
+
+    const endpointList = endpoints.map(formatLdapEndpoint).join(', ')
+
+    return `Can't contact LDAP server at ${endpointList}. Couldn't authenticate user ${user}`
+  } catch {}
+}
+
 /**
  * @param {object} params - Params
  * @param {Function} params.connect - OpenNebula connector callback
@@ -567,6 +588,11 @@ const verifyUserExists = async ({ user, token, connect, protocol }) => {
     case AUTH_TYPES.CORE: {
       const userData = await fetchUserInfo({ connect: connect(user, token) })
       if (!userData?.USER) {
+        const ldapError = await getLdapUnavailableMessage({ user, connect })
+        if (ldapError) {
+          throw httpResponse(serviceUnavailable, '', ldapError)
+        }
+
         throw httpResponse(unauthorized, '', 'core user not found')
       }
 
