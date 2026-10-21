@@ -958,7 +958,8 @@ OVIRTAPI_CONTROLLER_FILES="src/ovirtapi/controllers/backup_controller.rb \
 
 OVIRTAPI_SCRIPT_FILES="src/ovirtapi/scripts/init_clean.rb"
 
-OVIRTAPI_ETC_FILES="src/ovirtapi/config/ovirtapi-server.yml"
+OVIRTAPI_ETC_FILES="src/ovirtapi/etc/ovirtapi-server.yml \
+                    src/ovirtapi/etc/ovirtapi-puma.rb"
 
 # OneBEX files, to be installed under $REMOTES_LOCATION/onebex (except config)
 #-------------------------------------------------------------------------------

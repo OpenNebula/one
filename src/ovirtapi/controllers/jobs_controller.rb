@@ -26,7 +26,7 @@ class JobsController
 
     def self.start
         db_path = File.join(TMP_IMAGES_PATH, 'jobs.pstore')
-        @db = PStore.new(db_path)
+        @db = PStore.new(db_path, true)
         LOGGER.info "Jobs db initialized at: #{db_path}"
     end
 
