@@ -3404,6 +3404,8 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
   DeleteNodeGroup: 'Delete Node Group',
   ResizeNodeGroup: 'Resize Node Group',
   EditNodeGroup: 'Edit Node Group',
+  OneKsRecoverConfirmation:
+    'Choose a recovery action for the following resources.',
   RecoverNodeGroup: 'Recover Node Group',
   VmIds: 'VM IDs',
   NoNodeGroups: 'No Node Groups',

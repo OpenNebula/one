@@ -18,7 +18,6 @@ import {
   DetailsDrawer,
   getLabelMenuButtonProps,
   InfoSlot,
-  ResourceActionConfirmation,
   SummarySlot,
   StatusTag,
   Tag,
@@ -38,7 +37,7 @@ import {
 import { ONEKS_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
 import { createActions, getPermissionOctet } from '@UtilsModule'
 import { getLabelTags, getVirtualOneKsState } from '@ModelsModule'
-import { OneKsAPI, useModalsApi } from '@FeaturesModule'
+import { OneKsAPI } from '@FeaturesModule'
 import { OneKs as OneKsResource } from '@ResourcesModule'
 
 const getDocument = (data) => data?.DOCUMENT ?? data ?? {}
@@ -82,7 +81,7 @@ export const SingleView = ({
   availableActions = {},
 }) => {
   const { palette } = useTheme()
-  const { showModal } = useModalsApi()
+  const openRecoverForm = OneKsResource.Forms.useRecoverKsFormModal()
   const openUpgradeKsClusterForm =
     OneKsResource.Forms.useUpgradeKsClusterFormModal()
   const openDeleteKsClusterConfirmation =
@@ -146,23 +145,12 @@ export const SingleView = ({
   }
 
   const handleRecover = () =>
-    showModal({
-      isConfirmDialog: true,
-      dialogProps: {
-        title: T.Recover,
-        dataCy: 'modal-recover-oneks',
-        description: (
-          <ResourceActionConfirmation
-            description={T['resource.recover.confirmation']}
-            resources={data}
-            resourceType={T.KubernetesClusters}
-          />
-        ),
-        confirmLabel: T.Recover,
-      },
-      onSubmit: async () => {
-        await recover({ id: ID })
-        await refreshCurrentData()
+    openRecoverForm({
+      resources: data,
+      onSubmit: async (action) => {
+        await recover({ id: ID, action }).unwrap()
+        if (action === 'delete-db') handleClose()
+        else await refreshCurrentData()
       },
     })
 

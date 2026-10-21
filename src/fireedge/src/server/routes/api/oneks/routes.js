@@ -329,6 +329,9 @@ const Commands = {
       id: {
         from: resource,
       },
+      action: {
+        from: postBody,
+      },
     },
   },
   [Actions.RECOVER_NODEGROUP]: {
@@ -342,6 +345,9 @@ const Commands = {
       },
       nodegroup_id: {
         from: resource,
+      },
+      action: {
+        from: postBody,
       },
     },
   },

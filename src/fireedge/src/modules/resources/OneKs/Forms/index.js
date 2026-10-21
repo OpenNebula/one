@@ -69,3 +69,5 @@ export {
 
 export { useDeleteKsClusterConfirmation } from './DeleteKsClusterForm'
 export { useUpgradeKsClusterFormModal } from './UpgradeKsClusterForm'
+
+export { useRecoverKsFormModal } from './RecoverKsForm'

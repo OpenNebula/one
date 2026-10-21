@@ -24,6 +24,7 @@ import { OneKsAPI, useGeneralApi, useModalsApi } from '@FeaturesModule'
 import {
   EditOneKsNodeGroupForm,
   ScaleKsGroupForm,
+  useRecoverKsFormModal,
 } from '@modules/resources/OneKs/Forms'
 import { DIALOG_SIZE_PROPS } from '@modules/resources/OneKs/Tabs/NodeGroups/styles'
 
@@ -37,6 +38,7 @@ import { DIALOG_SIZE_PROPS } from '@modules/resources/OneKs/Tabs/NodeGroups/styl
  */
 const NodeGroupActions = memo(({ node, id }) => {
   const history = useHistory()
+  const openRecoverForm = useRecoverKsFormModal()
   const { showModal } = useModalsApi()
   const { enqueueSuccess, enqueueError } = useGeneralApi()
   const [deleteNodeGroup] = OneKsAPI.useDeleteNodeGroupMutation()
@@ -67,15 +69,16 @@ const NodeGroupActions = memo(({ node, id }) => {
     }
   }
 
-  const handleRecover = async () => {
+  const handleRecover = async (action) => {
     try {
-      await recoverNodeGroup({ id, nodegroup_id: nodeId }).unwrap()
+      await recoverNodeGroup({ id, nodegroup_id: nodeId, action }).unwrap()
       history.push(generatePath(PATH.ONEKS.CREATE_CLOUD_LOGS, { id }), {
         operation: ONEKS_OPERATIONS.SCALING.name,
       })
       enqueueSuccess(T.SuccessNodeGroupRecovered)
-    } catch {
+    } catch (error) {
       enqueueError(T.ErrorNodeGroupRecovery)
+      throw error
     }
   }
 
@@ -116,20 +119,10 @@ const NodeGroupActions = memo(({ node, id }) => {
     })
 
   const handleOpenRecoverForm = () =>
-    showModal({
-      isConfirmDialog: true,
-      dialogProps: {
-        title: T.RecoverNodeGroup,
-        dataCy: 'modal-recover-node',
-        description: (
-          <ResourceActionConfirmation
-            description={T['resource.recover.confirmation']}
-            resources={{ ID: nodeId, NAME: node?.name }}
-            resourceType={T.NodeGroups}
-          />
-        ),
-        confirmLabel: T.Recover,
-      },
+    openRecoverForm({
+      title: T.RecoverNodeGroup,
+      resources: { ID: nodeId, NAME: node?.name },
+      isNodeGroup: true,
       onSubmit: handleRecover,
     })
 

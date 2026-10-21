@@ -540,8 +540,9 @@ const oneKsApi = oneApi.injectEndpoints({
        * Recover oneks cluster.
        *
        * @param {object} params - Request params
-       * @param {number} params.id - Provision id
-       * @returns {object} Provider logs
+       * @param {number} params.id - Cluster id
+       * @param {'retry'|'success'|'failure'|'delete-db'} [params.action='retry'] - Recovery action
+       * @returns {object} Recovery response
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
@@ -557,8 +558,10 @@ const oneKsApi = oneApi.injectEndpoints({
        * Recover oneks a node group.
        *
        * @param {object} params - Request params
-       * @param {number} params.id - Provision id
-       * @returns {object} Provider logs
+       * @param {number} params.id - Cluster id
+       * @param {number} params.nodegroup_id - Node group id
+       * @param {'retry'|'success'|'failure'} [params.action='retry'] - Recovery action
+       * @returns {object} Recovery response
        * @throws Fails when response isn't code 200
        */
       query: (params) => {

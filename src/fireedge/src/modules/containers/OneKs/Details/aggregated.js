@@ -19,12 +19,11 @@ import {
   DetailsDrawer,
   InfoSlot,
   LabelButton,
-  ResourceActionConfirmation,
   SummarySlot,
   TabSlot,
 } from '@ComponentsModule'
 
-import { OneKsAPI, useModalsApi } from '@FeaturesModule'
+import { OneKsAPI } from '@FeaturesModule'
 import { Component, useMemo } from 'react'
 
 import { createActions, getCommonValue, getPermissionOctet } from '@UtilsModule'
@@ -58,7 +57,7 @@ export const AggregatedView = ({
   handleDeselect,
   availableActions = {},
 }) => {
-  const { showModal } = useModalsApi()
+  const openRecoverForm = OneKsResource.Forms.useRecoverKsFormModal()
   const openDeleteKsClusterConfirmation =
     OneKsResource.Forms.useDeleteKsClusterConfirmation()
 
@@ -101,23 +100,15 @@ export const AggregatedView = ({
     await Promise.all(selectedData.map(({ ID }) => refresh({ id: ID })))
 
   const handleOpenRecoverForm = () =>
-    showModal({
-      isConfirmDialog: true,
-      dialogProps: {
-        title: T.RecoverSeveralOneKsClusters,
-        dataCy: 'modal-recover-oneks',
-        description: (
-          <ResourceActionConfirmation
-            description={T['resource.recover.confirmation']}
-            resources={selectedData}
-            resourceType={T.KubernetesClusters}
-          />
-        ),
-        confirmLabel: T.Recover,
-      },
-      onSubmit: async () => {
-        await Promise.all(selectedData.map(({ ID }) => recover({ id: ID })))
-        await handleRefresh()
+    openRecoverForm({
+      title: T.RecoverSeveralOneKsClusters,
+      resources: selectedData,
+      onSubmit: async (action) => {
+        await Promise.all(
+          selectedData.map(({ ID }) => recover({ id: ID, action }).unwrap())
+        )
+        if (action === 'delete-db') handleClose()
+        else await handleRefresh()
       },
     })
 

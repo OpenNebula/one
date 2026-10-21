@@ -501,7 +501,9 @@ const cluster = (
     request: params.id,
   }
 
-  if (params.expand !== undefined) config.query = { expand: params.expand }
+  if (params.expand != null && params.expand !== '') {
+    config.query = { expand: params.expand }
+  }
 
   oneKsConnection(
     config,
@@ -1241,7 +1243,7 @@ const scaleNodeGroup = (
  * @param {Function} next - express stepper
  * @param {object} params - params
  * @param {object} userData - user data
- * @returns {object} - A node group scaling response
+ * @returns {object} - A recovery response
  */
 const recover = (
   res = {},
@@ -1268,6 +1270,7 @@ const recover = (
     user,
     password,
     request: [params.id],
+    post: { action: params.action === undefined ? 'retry' : params.action },
   }
 
   oneKsConnection(
@@ -1284,7 +1287,7 @@ const recover = (
  * @param {Function} next - express stepper
  * @param {object} params - params
  * @param {object} userData - user data
- * @returns {object} - A node group scaling response
+ * @returns {object} - A recovery response
  */
 const recoverNodeGroup = (
   res = {},
@@ -1311,6 +1314,7 @@ const recoverNodeGroup = (
     user,
     password,
     request: [params.id, params.nodegroup_id],
+    post: { action: params.action === undefined ? 'retry' : params.action },
   }
 
   oneKsConnection(
