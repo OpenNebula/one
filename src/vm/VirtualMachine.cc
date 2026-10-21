@@ -3281,6 +3281,21 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     }
     else if ( context_bck != 0 && context_new != 0 )
     {
+        bool network_context;
+
+        // In append mode an omitted NETWORK retains its current value.
+        if (append && context_new->value().count("NETWORK") == 0)
+        {
+            context_bck->vector_value("NETWORK", network_context);
+        }
+        else
+        {
+            context_new->vector_value("NETWORK", network_context);
+        }
+
+        // ETH* values are user-managed when network context is disabled.
+        allow_eth_updates = allow_eth_updates || !network_context;
+
         context_new = context_new->clone();
 
         // Remove equal values from the new context

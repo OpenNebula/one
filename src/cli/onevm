@@ -1460,7 +1460,7 @@ CommandParser::CmdParser.new(ARGV) do
         RAW       = ["DATA", "TYPE", "VALIDATE"]
         CPU_MODEL = ["MODEL", "FEATURES"]
         BACKUP_CONFIG = ["FS_FREEZE", "KEEP_LAST", "BACKUP_VOLATILE", "MODE", "INCREMENT_MODE", "INTERACTIVE"]
-        CONTEXT (any value, ETH* if CONTEXT_ALLOW_ETH_UPDATES set in oned.conf, **variable substitution will be made**)
+        CONTEXT (any value, ETH* if NETWORK is not YES or CONTEXT_ALLOW_ETH_UPDATES set in oned.conf, **variable substitution will be made**)
     EOT
 
     command :updateconf, updateconf_desc, :vmid, [:file, nil],

@@ -888,11 +888,24 @@ static void clear_context_network(const std::vector<ContextVariable>& cvars,
 
 /* -------------------------------------------------------------------------- */
 
+// The ETHx_* variables are only generated (and so only owned) by OpenNebula when
+// NETWORK=YES. Otherwise they are defined by the user and must not be removed.
+static bool network_context_enabled(const VectorAttribute * context)
+{
+    bool net_context;
+
+    context->vector_value("NETWORK", net_context);
+
+    return net_context;
+}
+
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::clear_nic_context(int nicid)
 {
     VectorAttribute * context = obj_template->get("CONTEXT");
 
-    if (context == 0)
+    if (context == 0 || !network_context_enabled(context))
     {
         return;
     }
@@ -926,7 +939,7 @@ void VirtualMachine::clear_nic_alias_context(int nicid, int aliasidx)
 {
     VectorAttribute * context = obj_template->get("CONTEXT");
 
-    if (context == 0)
+    if (context == 0 || !network_context_enabled(context))
     {
         return;
     }
