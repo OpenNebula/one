@@ -331,12 +331,19 @@ export const FormWithSchema = ({
     const fieldPathOverrides = {}
 
     ensuredFields.forEach((field) => {
-      const value = get(fieldsToMerge, `${id}.${field.name}`)
+      const fieldName = `${id}.${field.name}`
+      const value = get(fieldsToMerge, fieldName)
       if (value) {
+        const fieldValue = formContext.getValues(fieldName)
+        const modification =
+          fieldValue === undefined || fieldValue === null || fieldValue === ''
+            ? { __delete__: true }
+            : value
+
         if (field?.fieldPath) {
-          set(fieldPathOverrides, field.fieldPath, value)
+          set(fieldPathOverrides, field.fieldPath, modification)
         } else {
-          set(fieldsToMergeinSchema, `${id}.${field.name}`, value)
+          set(fieldsToMergeinSchema, fieldName, modification)
         }
       }
     })

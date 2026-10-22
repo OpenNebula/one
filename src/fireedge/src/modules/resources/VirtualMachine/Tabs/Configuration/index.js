@@ -72,7 +72,11 @@ export const Configuration = ({ data, config }) => {
 
       if (!isSupported || !hasValue) return
 
-      options.push([prefix ? `${prefix}.${key}` : key, value])
+      options.push([
+        prefix ? `${prefix}.${key}` : key,
+        value,
+        `${section}-${key}`.toLowerCase(),
+      ])
     }
 
     const walk = (attrs = {}, prefix) => {

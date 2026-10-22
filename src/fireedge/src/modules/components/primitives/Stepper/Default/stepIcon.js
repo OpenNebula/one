@@ -43,9 +43,11 @@ const getStepIconClassName = ({ stepStatus, stepIcon }) =>
  * @param {string} props.stepStatus - Status of the step
  * @param {number} props.stepIdx - Index of the step
  * @param {Function} props.onClick - Step click handler
+ * @param {string} props.dataCy - Cypress selector
  * @returns {Component} The component to use as step icon
  */
 export const OpenNebulaStepIcon = ({
+  dataCy,
   icon,
   stepIdx,
   stepIcon,
@@ -53,6 +55,7 @@ export const OpenNebulaStepIcon = ({
   stepStatus,
 }) => (
   <Box
+    data-cy={dataCy}
     onClick={() => stepStatus !== STEP_STATUS.PENDING && onClick(stepIdx)}
     className={clsx(
       'stepper-icon',
@@ -67,6 +70,7 @@ export const OpenNebulaStepIcon = ({
 )
 
 OpenNebulaStepIcon.propTypes = {
+  dataCy: PropTypes.string,
   icon: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,

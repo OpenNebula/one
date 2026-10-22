@@ -604,8 +604,15 @@ const handleStorage = (formData, correctionMap, newExtra, section, types) => {
             {}
           )
 
+          const diskFields = new Set(Object.keys(disk))
+          Object.entries(diskModifications).forEach(([key, modification]) => {
+            if (typeof modification === 'object' && modification?.__delete__) {
+              diskFields.add(key)
+            }
+          })
+
           // Iterate over each field of the item and, if it is one of the field that was modified, add the modification to the new data
-          return Object.keys(disk).reduce((acc, key) => {
+          return [...diskFields].reduce((acc, key) => {
             if (
               typeof diskModifications[key] === 'boolean' &&
               diskModifications[key]

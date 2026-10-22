@@ -143,6 +143,7 @@ export const Stepper = forwardRef(
                     StepIconComponent={(props) => (
                       <OpenNebulaStepIcon
                         {...props}
+                        dataCy={`step-${id}`}
                         stepIcon={stepIcon}
                         onClick={onClick}
                         stepIdx={stepIdx}
