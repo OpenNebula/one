@@ -81,7 +81,7 @@ export LC_ALL=C
 # install/remove essential packages
 if command -v dpkg >/dev/null; then
     apt-get update -qq
-    apt-get install -y ruby >/dev/null
+    apt-get install -y ruby libffi-dev >/dev/null
     dpkg -r ruby-bundler
 
 elif command -v zypper >/dev/null; then
@@ -90,7 +90,7 @@ elif command -v zypper >/dev/null; then
     fi
 
     zypper -n refresh
-    zypper -n install ruby rubygems findutils openssl
+    zypper -n install ruby rubygems findutils openssl libffi-devel
     rpm -e --nodeps rubygem-bundler ||:
 
 elif command -v rpm >/dev/null; then
@@ -112,7 +112,7 @@ elif command -v rpm >/dev/null; then
         dnf config-manager --set-enabled crb        ||: # alma9
     fi
 
-    yum -q -y install rubygems findutils openssl
+    yum -q -y install rubygems findutils openssl libffi-devel
     yum -q -y remove  rubygem-bundler
 fi
 

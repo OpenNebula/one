@@ -38,10 +38,10 @@ GEM
     base64 (0.3.0)
     bigdecimal (4.0.1)
     builder (3.3.0)
-    concurrent-ruby (1.3.7)
+    concurrent-ruby (1.3.8)
     console (1.15.3)
       fiber-local
-    curb (1.3.6)
+    curb (1.4.1)
     daemons (1.4.1)
     deep_merge (1.2.2)
     dry-configurable (0.12.1)
@@ -110,6 +110,7 @@ GEM
     ffi-rzmq-core (1.0.7)
       ffi
     fiber-local (1.0.0)
+    fiddle (1.1.8)
     git (1.19.1)
       addressable (~> 2.8)
       rchardet (~> 1.8)
@@ -146,16 +147,16 @@ GEM
     ox (2.14.14)
     parse-cron (0.1.4)
     polyglot (0.3.5)
-    prometheus-client (4.2.5)
+    prometheus-client (5.0.0)
       base64
     public_suffix (4.0.7)
     racc (1.8.1)
-    rack (2.2.23)
+    rack (2.2.24)
     rack-protection (2.2.4)
       rack
-    rbvmomi2 (3.10.0)
+    rbvmomi2 (3.11.0)
       builder (~> 3.2)
-      json (~> 2.3)
+      json (>= 2.3, < 4.0)
       nokogiri (~> 1.12, >= 1.12.5)
       optimist (~> 3.0)
     rchardet (1.8.0)
@@ -167,7 +168,7 @@ GEM
       nokogiri (>= 1.10.5)
       rexml
     ruby2_keywords (0.0.5)
-    sequel (5.106.0)
+    sequel (5.109.0)
       bigdecimal
     sinatra (2.2.4)
       mustermann (~> 2.0)
@@ -187,7 +188,7 @@ GEM
       eventmachine (~> 1.0, >= 1.0.4)
       rack (>= 1, < 3)
     thread_safe (0.3.6)
-    tilt (2.8.0)
+    tilt (2.9.0)
     timers (4.3.5)
     treetop (1.6.18)
       polyglot (~> 0.3)
@@ -216,6 +217,7 @@ DEPENDENCIES
   faraday_middleware (~> 1.2.0)
   ffi (< 1.17.0)
   ffi-rzmq (~> 2.0.7)
+  fiddle
   git (~> 1.5)
   gnuplot
   grpc

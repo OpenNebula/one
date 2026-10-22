@@ -18,7 +18,7 @@
 # Defaults
 ################################################################################
 
-ruby '>=2.0.0', '<4'
+ruby '>=2.0.0', '<5'
 source 'https://rubygems.org'
 ruby_version = Gem::Version.new(RUBY_VERSION)
 rubygems_version = Gem::Version.new(`gem -v`)
@@ -101,6 +101,7 @@ gem 'aws-sdk-ec2', '>=1.151'
 gem 'aws-sdk-s3'
 gem 'grpc'
 gem 'ruby-saml'
+gem 'fiddle'
 
 # Since Ruby 3.4 some common libraries were dropped
 if ruby_version >= Gem::Version.new('3.4.0')
