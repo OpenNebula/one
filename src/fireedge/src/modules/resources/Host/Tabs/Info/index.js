@@ -77,12 +77,12 @@ const CapacityValue = ({
   const minValue = +min
   const maxValue = +max
 
-  const normalizeValue = (value) => {
+  const normalizeValue = (value, maximum = Infinity) => {
     const numberValue = Number(value)
 
     if (!Number.isFinite(numberValue)) return minValue
 
-    return Math.min(maxValue, Math.max(minValue, numberValue))
+    return Math.min(maximum, Math.max(minValue, numberValue))
   }
 
   const handleAccept = async () => {
@@ -98,7 +98,9 @@ const CapacityValue = ({
   const formatMarkLabel = (value) => (unitParser ? prettyBytes(value) : value)
   const formatValueLabel = (value) =>
     unitParser ? prettyBytes(value) : `${value}${unit ? ` ${unit}` : ''}`
-  const handleEditValueChange = (value) => setEditValue(normalizeValue(value))
+  const handleSliderValueChange = (value) =>
+    setEditValue(normalizeValue(value, maxValue))
+  const handleInputValueChange = (value) => setEditValue(normalizeValue(value))
 
   if (isEditing) {
     return (
@@ -106,7 +108,7 @@ const CapacityValue = ({
         <Box className="capacity-slider">
           <Slider
             value={editValue}
-            onChange={(_, value) => handleEditValueChange(value)}
+            onChange={(_, value) => handleSliderValueChange(value)}
             min={minValue}
             max={maxValue}
             marks={[
@@ -129,11 +131,10 @@ const CapacityValue = ({
           <TextField
             type="number"
             value={`${editValue}`}
-            onChange={handleEditValueChange}
+            onChange={handleInputValueChange}
             postTab={unit ?? ''}
             inputProps={{
               min: minValue,
-              max: maxValue,
               step: 1,
               'aria-label': name,
               'data-cy': dataCy && `text-${dataCy}`,
