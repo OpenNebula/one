@@ -31,6 +31,7 @@ import {
   disableFields,
   getObjectSchemaFromFields,
 } from '@UtilsModule'
+import { CUSTOM_VN_MAD } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/constants'
 
 const {
   bridge,
@@ -39,9 +40,34 @@ const {
   vxlan,
   ovswitch,
   ovswitch_vxlan: openVSwitchVXLAN,
+  dummy,
+  custom,
 } = VN_DRIVERS
 
-const drivers = Object.keys(VN_DRIVERS_STR)
+const supportedDrivers = Object.keys(VN_DRIVERS_STR)
+
+/**
+ * Returns the drivers supported by the form and enabled in oned.conf,
+ * plus the generic custom driver.
+ *
+ * @param {object} oneConfig - OpenNebula configuration
+ * @returns {string[]} Configured driver names
+ */
+const getConfiguredDrivers = (oneConfig = {}) => {
+  const configuredDrivers = [oneConfig?.VN_MAD_CONF ?? []]
+    .flat()
+    .map(({ NAME } = {}) => NAME)
+    .filter(Boolean)
+
+  return supportedDrivers.filter(
+    (driver) => driver === custom || configuredDrivers.includes(driver)
+  )
+}
+
+const REQUIRED_PHYDEV_DRIVERS = [dot1Q, vxlan, openVSwitchVXLAN]
+const OPTIONAL_PHYDEV_DRIVERS = [bridge, fw, ovswitch]
+const PHYDEV_DRIVERS = [...REQUIRED_PHYDEV_DRIVERS, ...OPTIONAL_PHYDEV_DRIVERS]
+const SPOOFING_FILTER_DRIVERS = [fw, vxlan, ovswitch, openVSwitchVXLAN, custom]
 
 const VLAN_TAGGED_ID_RANGE_REGEXP = /^\d+(?:-\d+)?$/
 
@@ -95,22 +121,47 @@ const normalizeVlanTaggedIds = (value, originalValue) => {
  */
 
 /** @type {Field} Driver field */
-const DRIVER_FIELD = (isInstantiate = false) => ({
-  name: 'VN_MAD',
-  type: INPUT_TYPES.TOGGLE,
-  values: () =>
-    arrayToOptions(drivers, {
-      addEmpty: false,
-      getText: (key) => VN_DRIVERS_STR[key],
-      sorter: OPTION_SORTERS.unsort,
-    }),
+const DRIVER_FIELD = (oneConfig, isInstantiate = false) => {
+  const drivers = getConfiguredDrivers(oneConfig)
+
+  return {
+    name: 'VN_MAD',
+    type: INPUT_TYPES.TOGGLE,
+    values: () =>
+      arrayToOptions(drivers, {
+        addEmpty: false,
+        getText: (key) => VN_DRIVERS_STR[key],
+        sorter: OPTION_SORTERS.unsort,
+      }),
+    validation: string()
+      .trim()
+      .required()
+      .default(() =>
+        drivers.includes(VN_DRIVERS.bridge) ? VN_DRIVERS.bridge : drivers[0]
+      ),
+    grid: { md: 12 },
+    fieldProps: { disabled: isInstantiate },
+    notNull: true,
+  }
+}
+
+/** @type {Field} Actual virtual network driver used by the custom option */
+const CUSTOM_DRIVER_FIELD = (isInstantiate = false) => ({
+  name: CUSTOM_VN_MAD,
+  label: T.CustomVNMAD,
+  dependOf: DRIVER_FIELD().name,
+  htmlType: (driver) => driver !== custom && INPUT_TYPES.HIDDEN,
+  type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
-    .required()
-    .default(() => drivers[0]),
-  grid: { md: 12 },
+    .default(() => undefined)
+    .when(DRIVER_FIELD().name, {
+      is: (driver) => driver === custom,
+      then: (schema) => schema.required(),
+      otherwise: (schema) => schema.strip(),
+    }),
+  grid: { md: 6 },
   fieldProps: { disabled: isInstantiate },
-  notNull: true,
 })
 
 /** @type {Field} Bridge switch linux field */
@@ -118,8 +169,15 @@ const BRIDGE_SWITCH = {
   name: 'BRIDGE_SWITCH',
   label: T.BridgeSwitch,
   tooltip: T.BridgeSwitchConcept,
+  dependOf: DRIVER_FIELD().name,
+  htmlType: (driver) => driver === dummy && INPUT_TYPES.HIDDEN,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().default(() => false),
+  validation: boolean()
+    .default(() => false)
+    .when(DRIVER_FIELD().name, {
+      is: (driver) => driver === dummy,
+      then: (schema) => schema.strip(),
+    }),
   grid: { md: 12 },
 }
 
@@ -128,18 +186,25 @@ const BRIDGE_FIELD = {
   name: 'BRIDGE',
   label: T.Bridge,
   tooltip: T.BridgeConcept,
-  dependOf: BRIDGE_SWITCH.name,
-  htmlType: (bridgeSwitch) => !bridgeSwitch && INPUT_TYPES.HIDDEN,
+  dependOf: [DRIVER_FIELD().name, BRIDGE_SWITCH.name],
+  htmlType: ([driver, bridgeSwitch] = []) =>
+    driver !== dummy && !bridgeSwitch && INPUT_TYPES.HIDDEN,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
+    .transform((value) => value || undefined)
     .notRequired()
     .default(() => undefined)
-    .when(BRIDGE_SWITCH.name, {
-      is: (bridgeSwitch) => bridgeSwitch,
-      then: (schema) => schema.required(),
-      otherwise: (schema) => schema.strip(),
-    }),
+    .when(
+      [DRIVER_FIELD().name, BRIDGE_SWITCH.name],
+      (driver, bridgeSwitch, schema) => {
+        if (driver === dummy || (driver !== custom && bridgeSwitch)) {
+          return schema.required()
+        }
+
+        return driver === custom && bridgeSwitch ? schema : schema.strip()
+      }
+    ),
   grid: { md: 6 },
 }
 
@@ -150,7 +215,7 @@ const PHYDEV_SWITCH = {
   tooltip: T.PhysicalDeviceSwitchConcept,
   dependOf: DRIVER_FIELD().name,
   htmlType: (driver) =>
-    [dot1Q, vxlan, openVSwitchVXLAN].includes(driver) && INPUT_TYPES.HIDDEN,
+    !OPTIONAL_PHYDEV_DRIVERS.includes(driver) && INPUT_TYPES.HIDDEN,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().default(() => false),
   grid: { md: 12 },
@@ -163,8 +228,8 @@ const PHYDEV_FIELD = {
   tooltip: T.PhysicalDeviceConcept,
   dependOf: [PHYDEV_SWITCH.name, DRIVER_FIELD().name],
   htmlType: ([phyDevSwitch, driver] = []) =>
-    phyDevSwitch &&
-    [bridge, fw, ovswitch].includes(driver) &&
+    (!PHYDEV_DRIVERS.includes(driver) ||
+      (OPTIONAL_PHYDEV_DRIVERS.includes(driver) && phyDevSwitch)) &&
     INPUT_TYPES.HIDDEN,
   type: INPUT_TYPES.TEXT,
   validation: string()
@@ -172,7 +237,8 @@ const PHYDEV_FIELD = {
     .default(() => undefined)
     .when([DRIVER_FIELD().name, PHYDEV_SWITCH.name], {
       is: (driver, phyDevSwitch) =>
-        [dot1Q, vxlan, openVSwitchVXLAN].includes(driver) || !phyDevSwitch,
+        REQUIRED_PHYDEV_DRIVERS.includes(driver) ||
+        (OPTIONAL_PHYDEV_DRIVERS.includes(driver) && !phyDevSwitch),
       then: (schema) => schema.required(),
       otherwise: (schema) => schema.strip(),
     }),
@@ -245,12 +311,11 @@ const FILTER_MAC_SPOOFING_FIELD = {
   type: INPUT_TYPES.SWITCH,
   dependOf: DRIVER_FIELD().name,
   htmlType: (driver) =>
-    ![fw, vxlan, ovswitch, openVSwitchVXLAN].includes(driver) &&
-    INPUT_TYPES.HIDDEN,
+    !SPOOFING_FILTER_DRIVERS.includes(driver) && INPUT_TYPES.HIDDEN,
   validation: boolean()
     .yesOrNo()
     .afterSubmit((value, { context }) =>
-      [fw, vxlan, ovswitch, openVSwitchVXLAN].includes(context?.extra?.VN_MAD)
+      SPOOFING_FILTER_DRIVERS.includes(context?.extra?.VN_MAD)
         ? value
           ? 'YES'
           : 'NO'
@@ -266,12 +331,11 @@ const FILTER_IP_SPOOFING_FIELD = {
   type: INPUT_TYPES.SWITCH,
   dependOf: DRIVER_FIELD().name,
   htmlType: (driver) =>
-    ![fw, vxlan, ovswitch, openVSwitchVXLAN].includes(driver) &&
-    INPUT_TYPES.HIDDEN,
+    !SPOOFING_FILTER_DRIVERS.includes(driver) && INPUT_TYPES.HIDDEN,
   validation: boolean()
     .yesOrNo()
     .afterSubmit((value, { context }) =>
-      [fw, vxlan, ovswitch, openVSwitchVXLAN].includes(context?.extra?.VN_MAD)
+      SPOOFING_FILTER_DRIVERS.includes(context?.extra?.VN_MAD)
         ? value
           ? 'YES'
           : 'NO'
@@ -598,7 +662,8 @@ const IP_LINK_CONF_FIELD = {
 const FIELDS = (oneConfig, adminGroup, isUpdate, isInstantiate, isVnet) =>
   disableFields(
     [
-      DRIVER_FIELD(),
+      DRIVER_FIELD(oneConfig),
+      CUSTOM_DRIVER_FIELD(),
 
       PHYDEV_SWITCH,
       PHYDEV_FIELD,
@@ -648,7 +713,8 @@ const FIELDS = (oneConfig, adminGroup, isUpdate, isInstantiate, isVnet) =>
 const FIELDS_INSTANTIATE = (oneConfig, adminGroup, isInstantiate, isVnet) =>
   disableFields(
     [
-      DRIVER_FIELD(isInstantiate),
+      DRIVER_FIELD(oneConfig, isInstantiate),
+      CUSTOM_DRIVER_FIELD(isInstantiate),
 
       AUTOMATIC_VLAN_FIELD(),
       VLAN_ID_FIELD({ isInstantiate, isVnet }),

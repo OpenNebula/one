@@ -21,8 +21,10 @@ import General, {
 import { VN_DRIVERS } from '@ConstantsModule'
 import { jsonToXml, createSteps } from '@UtilsModule'
 import {
+  getVnMadFormValues,
   getUnknownVars,
   normalizeAttributeList,
+  resolveVnMad,
 } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/utils'
 
 const Steps = createSteps([General, Configuration], {
@@ -45,6 +47,7 @@ const Steps = createSteps([General, Configuration], {
           ...TEMPLATE,
           AR,
           ...vnet,
+          ...getVnMadFormValues(TEMPLATE.VN_MAD),
           SECURITY_GROUPS: normalizeAttributeList(TEMPLATE.SECURITY_GROUPS),
           PHYDEV_SWITCH: phyDevSwitch,
           BRIDGE_SWITCH: bridgeSwitch,
@@ -104,7 +107,7 @@ const Steps = createSteps([General, Configuration], {
     ![VN_DRIVERS.ovswitch].includes(formData?.extra?.VN_MAD) &&
       delete extra?.BRIDGE_TYPE
 
-    return jsonToXml({ ...extra, ...general })
+    return jsonToXml({ ...resolveVnMad(extra), ...general })
   },
 })
 

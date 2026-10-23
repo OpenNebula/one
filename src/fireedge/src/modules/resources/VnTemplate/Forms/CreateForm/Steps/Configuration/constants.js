@@ -15,3 +15,5 @@
  * ------------------------------------------------------------------------- */
 
 export const STEP_ID = 'extra'
+
+export const CUSTOM_VN_MAD = 'CUSTOM_VN_MAD'

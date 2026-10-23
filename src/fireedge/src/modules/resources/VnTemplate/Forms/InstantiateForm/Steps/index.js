@@ -21,8 +21,10 @@ import General, {
 import { jsonToXml, createSteps } from '@UtilsModule'
 import { VN_DRIVERS } from '@ConstantsModule'
 import {
+  getVnMadFormValues,
   ORIGINAL_ADDRESS_RANGE,
   normalizeAttributeList,
+  resolveVnMad,
 } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/utils'
 
 const INSTANTIATE_CONFIGURATION_TABS = [
@@ -67,6 +69,7 @@ const Steps = createSteps(() => [General, InstantiateConfiguration], {
         [EXTRA_ID]: {
           ...TEMPLATE,
           ...vnTemplate,
+          ...getVnMadFormValues(TEMPLATE.VN_MAD),
           AR: markOriginalAddressRanges(getAddressRanges(TEMPLATE)),
           SECURITY_GROUPS: normalizeAttributeList(TEMPLATE.SECURITY_GROUPS),
           PHYDEV_SWITCH: phyDevSwitch,
@@ -128,7 +131,7 @@ const Steps = createSteps(() => [General, InstantiateConfiguration], {
       delete extraTemplate?.OUTER_VLAN_ID
 
     const templateXML = jsonToXml({
-      ...extraTemplate,
+      ...resolveVnMad(extraTemplate),
       DESCRIPTION,
     })
 

@@ -2459,6 +2459,7 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
   Resource: 'Resource',
   /* Virtual Network schema - driver configuration */
   NetworkMode: 'Network mode',
+  CustomVNMAD: 'Network driver (VN_MAD)',
   Bridge: 'Bridge',
   BridgeType: 'Bridge type',
   BridgeConcept:

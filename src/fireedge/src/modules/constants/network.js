@@ -215,6 +215,8 @@ export const VN_DRIVERS = {
   vxlan: 'vxlan',
   ovswitch: 'ovswitch',
   ovswitch_vxlan: 'ovswitch_vxlan',
+  dummy: 'dummy',
+  custom: 'custom',
   elastic: 'elastic',
   nodeport: 'nodeport',
 }
@@ -241,6 +243,8 @@ export const VN_DRIVERS_STR = {
   [VN_DRIVERS.vxlan]: 'VXLAN',
   [VN_DRIVERS.ovswitch]: 'Open vSwitch',
   [VN_DRIVERS.ovswitch_vxlan]: 'Open vSwitch - VXLAN',
+  [VN_DRIVERS.dummy]: 'Dummy Bridged',
+  [VN_DRIVERS.custom]: 'Custom',
 }
 
 /**

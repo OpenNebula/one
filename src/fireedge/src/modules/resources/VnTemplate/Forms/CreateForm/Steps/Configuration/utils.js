@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { reach } from 'yup'
+import { VN_DRIVERS, VN_DRIVERS_STR } from '@ConstantsModule'
+import { CUSTOM_VN_MAD } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/constants'
 
 const DEFAULT_GENERAL_ID = 'general'
 const DEFAULT_CONFIGURATION_ID = 'extra'
@@ -27,6 +29,7 @@ export const MANAGED_FORM_ATTRIBUTES = [
   'CLUSTER_IDS',
   'SECURITY_GROUPS',
   'VN_MAD',
+  CUSTOM_VN_MAD,
   'PHYDEV',
   'PHYDEV_SWITCH',
   'BRIDGE',
@@ -65,6 +68,41 @@ export const MANAGED_FORM_ATTRIBUTES = [
   'OUTBOUND_PEAK_BW',
   'OUTBOUND_PEAK_KB',
 ]
+
+/**
+ * Converts an actual custom driver name to the values used by the form.
+ *
+ * @param {string} vnMad - Virtual network driver
+ * @returns {object} VN_MAD form values
+ */
+export const getVnMadFormValues = (vnMad) => {
+  if (!vnMad) return {}
+
+  if (!Object.prototype.hasOwnProperty.call(VN_DRIVERS_STR, vnMad)) {
+    return { VN_MAD: VN_DRIVERS.custom, [CUSTOM_VN_MAD]: vnMad }
+  }
+
+  return {
+    VN_MAD: vnMad,
+    ...(vnMad === VN_DRIVERS.custom && { [CUSTOM_VN_MAD]: vnMad }),
+  }
+}
+
+/**
+ * Replaces the custom form option with the actual driver name.
+ *
+ * @param {object} attributes - Virtual network template attributes
+ * @returns {object} Template attributes ready to send to OpenNebula
+ */
+export const resolveVnMad = (attributes = {}) => {
+  const { [CUSTOM_VN_MAD]: customVnMad, ...template } = attributes
+
+  return {
+    ...template,
+    VN_MAD:
+      template.VN_MAD === VN_DRIVERS.custom ? customVnMad : template.VN_MAD,
+  }
+}
 
 /**
  * @param {string} key - Attribute path
