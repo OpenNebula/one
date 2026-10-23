@@ -18,8 +18,13 @@ import PropTypes from 'prop-types'
 import { Box, Stack } from '@mui/material'
 import { EmptyContent, List, SkeletonLoading, Table } from '@ComponentsModule'
 import { T, RESOURCE_NAMES } from '@ConstantsModule'
-import { OneKsAPI } from '@FeaturesModule'
-import { getVirtualOneKsState, showDataByState, vmsTable } from '@ModelsModule'
+import { ClusterAPI, OneKsAPI } from '@FeaturesModule'
+import {
+  getVmClusterId,
+  getVirtualOneKsState,
+  showDataByState,
+  vmsTable,
+} from '@ModelsModule'
 import {
   AddNodeGroupAction,
   useAddNodeGroupAction,
@@ -67,9 +72,25 @@ const NodeGroups = ({ data }) => {
     [selectedNodeGroup]
   )
   const { data: vms = [], isFetching: isFetchingVms } = vmsTable.useData()
+  const { data: clusters = [] } = ClusterAPI.useGetClustersQuery()
+  const clusterNamesById = useMemo(
+    () =>
+      new Map(
+        clusters
+          .map(({ ID, NAME }) => [String(ID), NAME])
+          .filter(([clusterId]) => clusterId)
+      ),
+    [clusters]
+  )
   const selectedVms = useMemo(
-    () => vms.filter(({ ID }) => selectedVmIds.includes(String(ID))),
-    [selectedVmIds, vms]
+    () =>
+      vms
+        .filter(({ ID }) => selectedVmIds.includes(String(ID)))
+        .map((vm) => ({
+          ...vm,
+          CLUSTER_NAME: clusterNamesById.get(String(getVmClusterId(vm))),
+        })),
+    [clusterNamesById, selectedVmIds, vms]
   )
   const vmColumns = useMemo(
     () =>
