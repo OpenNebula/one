@@ -57,7 +57,7 @@ const DESCRIPTION_FIELD = {
 }
 
 /** @type {Field} Cluster field */
-const CLUSTER_FIELD = {
+export const CLUSTER_FIELD = {
   name: 'CLUSTER',
   label: T.Cluster,
   type: INPUT_TYPES.AUTOCOMPLETE,
@@ -84,12 +84,15 @@ const CLUSTER_FIELD = {
 
 /**
  * @param {boolean} isUpdate - If `true`, the form is being updated
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {Field[]} List of information fields
  */
-const FIELDS = (isUpdate) =>
-  [NAME_FIELD(isUpdate), !isUpdate && CLUSTER_FIELD, DESCRIPTION_FIELD].filter(
-    Boolean
-  )
+const FIELDS = (isUpdate, adminGroup) =>
+  [
+    NAME_FIELD(isUpdate),
+    !isUpdate && adminGroup && CLUSTER_FIELD,
+    DESCRIPTION_FIELD,
+  ].filter(Boolean)
 
 /**
  * @param {boolean} [isUpdate] - If `true`, the form is being updated
@@ -102,7 +105,7 @@ const SECTIONS = (isUpdate, oneConfig, adminGroup) => [
     id: 'information',
     legend: T.Information,
     fields: disableFields(
-      FIELDS(isUpdate),
+      FIELDS(isUpdate, adminGroup),
       '',
       oneConfig,
       adminGroup,

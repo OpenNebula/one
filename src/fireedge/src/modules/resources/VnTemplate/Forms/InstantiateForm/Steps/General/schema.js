@@ -15,8 +15,14 @@
  * ------------------------------------------------------------------------- */
 import { BaseSchema, string } from 'yup'
 
-import { INPUT_TYPES, T } from '@ConstantsModule'
-import { Field, Section, getObjectSchemaFromFields } from '@UtilsModule'
+import { INPUT_TYPES, T, RESTRICTED_ATTRIBUTES_TYPE } from '@ConstantsModule'
+import {
+  Field,
+  Section,
+  getObjectSchemaFromFields,
+  disableFields,
+} from '@UtilsModule'
+import { CLUSTER_FIELD } from '@modules/resources/VirtualNetwork/Forms/CreateForm/Steps/General/schema'
 
 /**
  * @param {object} vnTemplate - VN Template
@@ -30,7 +36,6 @@ const NAME = (vnTemplate = {}) => ({
   validation: string()
     .trim()
     .default(() => undefined),
-  grid: { md: 12 },
   fieldProps: {
     placeholder: vnTemplate?.NAME ? `${vnTemplate.NAME}-<vnid>` : undefined,
   },
@@ -51,29 +56,49 @@ const DESCRIPTION = {
 
 /**
  * @param {object} vnTemplate - VN Template
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {Field[]} List of information fields
  */
-const FIELDS = (vnTemplate) => [NAME(vnTemplate), DESCRIPTION]
+const FIELDS = (vnTemplate, adminGroup) =>
+  [
+    NAME(vnTemplate),
+    adminGroup && {
+      ...CLUSTER_FIELD,
+      name: 'CLUSTER_IDS',
+      validation: CLUSTER_FIELD.validation.nullable(),
+    },
+    DESCRIPTION,
+  ].filter(Boolean)
 
 /**
  * @param {object} vnTemplate - VN Template
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {Section[]} Sections
  */
-const SECTIONS = (vnTemplate) => [
+const SECTIONS = (vnTemplate, oneConfig, adminGroup) => [
   {
     id: 'information',
     legend: T.Information,
-    fields: FIELDS(vnTemplate),
+    fields: disableFields(
+      FIELDS(vnTemplate, adminGroup),
+      '',
+      oneConfig,
+      adminGroup,
+      RESTRICTED_ATTRIBUTES_TYPE.VNET
+    ),
   },
 ]
 
 /**
  * @param {object} vnTemplate - VN Template
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {BaseSchema} Step schema
  */
-const SCHEMA = (vnTemplate) =>
+const SCHEMA = (vnTemplate, oneConfig, adminGroup) =>
   getObjectSchemaFromFields(
-    SECTIONS(vnTemplate)
+    SECTIONS(vnTemplate, oneConfig, adminGroup)
       .map(({ fields }) => fields)
       .flat()
   )

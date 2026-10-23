@@ -25,22 +25,33 @@ import { T } from '@ConstantsModule'
 
 export const STEP_ID = 'general'
 
-const Content = ({ vnTemplate }) => {
-  const sections = useMemo(() => SECTIONS(vnTemplate), [vnTemplate])
+const Content = ({ vnTemplate, oneConfig, adminGroup }) => {
+  const sections = useMemo(
+    () => SECTIONS(vnTemplate, oneConfig, adminGroup),
+    [vnTemplate, oneConfig, adminGroup]
+  )
 
   return (
     <>
-      {sections.map(({ fields, id, ...section }) => (
+      {sections.map(({ id, ...section }) => (
         <FormWithSchema
           key={id}
           id={STEP_ID}
           cy={`${STEP_ID}-${id}`}
-          fields={fields}
-          columns={[[], fields, []]}
-          gridContainerSx={{
-            gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-          }}
           {...section}
+          {...(!adminGroup && {
+            columns: [section.fields],
+            rootProps: {
+              sx: {
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
+                columnGap: (theme) => `${theme.scale[600]}px`,
+                '& > *': {
+                  gridColumn: { xs: '1', md: '2' },
+                },
+              },
+            },
+          })}
         />
       ))}
     </>
@@ -49,6 +60,8 @@ const Content = ({ vnTemplate }) => {
 
 Content.propTypes = {
   vnTemplate: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 /**
@@ -56,18 +69,28 @@ Content.propTypes = {
  *
  * @param {object} root0 - Props
  * @param {object} root0.data - VN Template
+ * @param {object} root0.oneConfig - Open Nebula configuration
+ * @param {boolean} root0.adminGroup - If the user belongs to oneadmin group
  * @returns {object} Basic configuration step
  */
-const General = ({ data: vnTemplate }) => ({
+const General = ({ data: vnTemplate, oneConfig, adminGroup }) => ({
   id: STEP_ID,
   label: T.Configuration,
-  resolver: () => SCHEMA(vnTemplate),
+  resolver: () => SCHEMA(vnTemplate, oneConfig, adminGroup),
   optionsValidate: { abortEarly: false },
-  content: () => <Content vnTemplate={vnTemplate} />,
+  content: () => (
+    <Content
+      vnTemplate={vnTemplate}
+      oneConfig={oneConfig}
+      adminGroup={adminGroup}
+    />
+  ),
 })
 
 General.propTypes = {
   data: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default General

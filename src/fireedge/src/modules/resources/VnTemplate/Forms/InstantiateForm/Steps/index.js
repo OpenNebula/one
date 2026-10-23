@@ -89,7 +89,7 @@ const Steps = createSteps(() => [General, InstantiateConfiguration], {
   },
   transformBeforeSubmit: (formData, vnTemplate) => {
     const {
-      [GENERAL_ID]: { name, DESCRIPTION } = {},
+      [GENERAL_ID]: { name, DESCRIPTION, CLUSTER_IDS } = {},
       [EXTRA_ID]: extraTemplate = {},
     } = formData ?? {}
 
@@ -133,6 +133,7 @@ const Steps = createSteps(() => [General, InstantiateConfiguration], {
     const templateXML = jsonToXml({
       ...resolveVnMad(extraTemplate),
       DESCRIPTION,
+      ...(CLUSTER_IDS && { CLUSTER_IDS }),
     })
 
     const templates = {
