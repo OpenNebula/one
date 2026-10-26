@@ -806,6 +806,24 @@ _onevm() {
             backup-cancel pci-attach pci-detach ssh port-forward vnc restore
             vmgroup-add vmgroup-del"
     cmd=onevm
+    if [ "$COMP_CWORD" -gt 1 ]; then
+        case "${COMP_WORDS[1]}" in
+        hold|release|terminate|undeploy|poweroff|reboot|stop|suspend|resume| \
+        snapshot-create|snapshot-revert|snapshot-delete|disk-snapshot-create| \
+        disk-snapshot-revert|disk-snapshot-delete|backup)
+            case "$prev" in
+            --schedule|--weekly|--monthly|--yearly|--hourly|--end)
+                return 0
+            ;;
+            esac
+            if [[ "$cur" == -* ]]; then
+                COMPREPLY=( $(compgen -W "--schedule --weekly --monthly
+                    --yearly --hourly --end" -- "${cur}") )
+                return 0
+            fi
+        ;;
+        esac
+    fi
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
         return 0
@@ -849,6 +867,12 @@ _onevm() {
         ;;
         esac
         _one_owner_update "$pprev"
+    elif [ "$COMP_CWORD" == 4 ]; then
+        case "${COMP_WORDS[1]}" in
+        sched-update|update-chart)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+        ;;
+        esac
     fi
 }
 
