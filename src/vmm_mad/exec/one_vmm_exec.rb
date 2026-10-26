@@ -629,7 +629,16 @@ class ExecDriver < VirtualMachineDriver
             steps << {
                 :driver      => :vnm,
                 :action      => :pre,
-                :destination => true
+                :destination => true,
+                :fail_actions => [
+                    {
+                        :driver     => :tm,
+                        :action     => :tm_failmigrate,
+                        :parameters => failed.split,
+                        :stdin      => action.data[:vm],
+                        :no_fail    => true
+                    }
+                ]
             }
         end
 

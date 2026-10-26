@@ -943,6 +943,53 @@ module MAD
             end.join
         end
 
+        # Flush through each thin LV so its pool commits pending metadata too.
+        def sync_disks_sh
+            disks.filter_map do |disk|
+                "sync -- '#{disk.lv.dev}'\n" if disk.is_a? MAD::LVMDisk
+            end.join
+        end
+
+        def suspend_vm_sh(virsh)
+            deploy_id = xml_text('DEPLOY_ID', true)
+
+            <<~EOF
+                state=$(LC_ALL=C #{virsh} domstate '#{deploy_id}')
+
+                case "$state" in
+                    running)
+                        #{virsh} suspend '#{deploy_id}'
+                        ;;
+                    paused)
+                        ;;
+                    *)
+                        echo "Cannot suspend #{deploy_id}: domain is $state" >&2
+                        exit 1
+                        ;;
+                esac
+            EOF
+        end
+
+        def resume_vm_sh(virsh)
+            deploy_id = xml_text('DEPLOY_ID', true)
+
+            <<~EOF
+                state=$(LC_ALL=C #{virsh} domstate '#{deploy_id}')
+
+                case "$state" in
+                    paused)
+                        #{virsh} resume '#{deploy_id}'
+                        ;;
+                    running)
+                        ;;
+                    *)
+                        echo "Cannot resume #{deploy_id}: domain is $state" >&2
+                        exit 1
+                        ;;
+                esac
+            EOF
+        end
+
         def setup_vmdir_sh(activate)
             hostfile = "#{@path}/.host"
             <<~EOF

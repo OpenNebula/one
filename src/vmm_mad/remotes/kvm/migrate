@@ -121,6 +121,11 @@ def qcow2_and_snap?(kvm_vm)
     false
 end
 
+# Check whether a libvirt disk path targets an OpenNebula LVM device.
+def lvm_disk?(path)
+    path.symlink? && path.readlink.to_s.match(%r{^/dev/vg-one})
+end
+
 # Analyzes the VM's disks and prepares them for migration.
 #
 # It creates placeholder disks on the destination for local storage migrations
@@ -185,7 +190,7 @@ def prepare_disks(kvm_vm, type)
             end
         elsif path.to_s.match(%r{disk.[0-9]*.snap/}) # qcow2-symlink
             disks << disk
-        elsif path.readlink.to_s.match(%r{^/dev/vg-one}) # LVM disk
+        elsif lvm_disk?(path)
             disks << disk
             # else
             # network-disk, other symlinks are assumed to be network disks
@@ -211,7 +216,7 @@ def prepare_disks(kvm_vm, type)
             target = path.readlink
             lname  = path
 
-            if target.to_s.match(%r{^/dev/vg-one})
+            if lvm_disk?(path)
                 # LVM disks
                 target = "/dev/vg-one-#{@dst_vm_dir.dirname.basename}/#{target.basename}"
                 lname  = @dst_vm_dir + lname.relative_path_from(@src_vm_dir)
@@ -325,6 +330,12 @@ begin
         migrate_opts = build_migrate_opts(action_xml)
 
         if @shared
+            # Only the thin-LVM TM driver resumes the destination in postmigrate.
+            has_thin_lvm = action_xml[
+                '/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[TM_MAD="lvm"]/TM_MAD'
+            ] == 'lvm'
+            migrate_opts = "#{migrate_opts} --suspend" if has_thin_lvm
+
             rc, _out, err = kvm_vm.live_migrate(@dst_host, migrate_opts)
 
             cleanup_host(kvm_vm, err, :host) if rc != 0

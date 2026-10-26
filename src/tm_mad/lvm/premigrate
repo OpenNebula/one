@@ -37,7 +37,10 @@ require 'load_opennebula_paths'
 ###############################################################################
 
 require_relative '../../datastore/lvm'
+require_relative '../lib/kvm'
 require_relative '../lib/tm_action'
+
+MAD::LVMVM.include TransferManager::KVM
 
 arg_srchost = ARGV[0]
 arg_dsthost = ARGV[1]
@@ -56,6 +59,20 @@ end
 
 # Build script to activate all LVM disks DST host
 lvmvm = MAD::LVMVM.new(delm)
+
+# Thin LVM metadata must not be used by both hosts while the guest is writing.
+# Keep the VM paused from before destination activation until postmigrate has
+# deactivated the source volumes.
+if lvmvm.lcm_state_str == 'MIGRATE'
+    MAD.run(arg_srchost, lvmvm.suspend_vm_sh(lvmvm.virsh),
+            "Error suspending VM in #{arg_srchost}")
+
+    # Complete source writes and thin-pool metadata commits before the
+    # destination opens the same volumes. A failed flush must abort migration.
+    MAD.run(arg_srchost, lvmvm.sync_disks_sh,
+            "Error syncing LVM disks in #{arg_srchost}")
+end
+
 MAD::LVMWrapper.with_lvm_lock(lvmvm.pool.vgname) do
     MAD.run(arg_dsthost, MAD::LVMWrapper.lvmsync(lvmvm.activate_disks_sh),
             "Error activating LVM disks in #{arg_dsthost}")

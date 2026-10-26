@@ -37,8 +37,11 @@ require 'load_opennebula_paths'
 ###############################################################################
 
 require_relative '../../datastore/lvm'
+require_relative '../lib/kvm'
 
-_arg_srchost = ARGV[0]
+MAD::LVMVM.include TransferManager::KVM
+
+arg_srchost = ARGV[0]
 arg_dsthost = ARGV[1]
 _arg_sysdir = ARGV[2]
 _arg_vmid = ARGV[3]
@@ -49,8 +52,16 @@ daction = Base64.decode64 daction64
 delm = REXML::Document.new(daction).root
 
 lvmvm = MAD::LVMVM.new(delm)
+cleanup = lvmvm.activate_disks_sh(false)
+cleanup << "rm -rf '#{lvmvm.path}'\n"
 
-MAD.run(arg_dsthost, <<~EOF, "Error running failmigrate in #{arg_dsthost}")
-    #{lvmvm.activate_disks_sh(false)}
-    rm -rf '#{lvmvm.path}'
-EOF
+MAD::LVMWrapper.with_lvm_lock(lvmvm.pool.vgname) do
+    MAD.run(arg_dsthost, MAD::LVMWrapper.lvmsync(cleanup),
+            "Error running failmigrate in #{arg_dsthost}")
+end
+
+# The source is safe to run again only after destination cleanup succeeded.
+if lvmvm.lcm_state_str == 'MIGRATE'
+    MAD.run(arg_srchost, lvmvm.resume_vm_sh(lvmvm.virsh),
+            "Error resuming VM in #{arg_srchost}")
+end
