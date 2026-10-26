@@ -3219,6 +3219,17 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     }
 
     // -------------------------------------------------------------------------
+    // Graphics cannot be detached from a running domain. Keep its port reserved
+    // until the VM has been powered off and the section can be removed safely.
+    // -------------------------------------------------------------------------
+    if (!append && state == ACTIVE && obj_template->get("GRAPHICS") != nullptr &&
+        tmpl->get("GRAPHICS") == nullptr)
+    {
+        err = "Power off or undeploy the VM before removing GRAPHICS";
+        return -1;
+    }
+
+    // -------------------------------------------------------------------------
     // Validates RAW data section
     // -------------------------------------------------------------------------
     if (Nebula::instance().get_vmm()->validate_raw(tmpl, err) != 0)

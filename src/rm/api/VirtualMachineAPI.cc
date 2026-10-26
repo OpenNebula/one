@@ -3192,12 +3192,28 @@ Request::ErrorCode VirtualMachineAPI::update_conf(int vid,
         }
     }
 
+    // Save the reservation before updateconf removes GRAPHICS. Release it only
+    // after the complete configuration has been validated successfully.
+    unsigned int previous_port;
+    const VectorAttribute * previous_graphics = vm->get_template_attribute("GRAPHICS");
+
+    bool release_port = update_type == 0 && 
+                        uc_tmpl->get("GRAPHICS") == nullptr &&
+                        vm->hasHistory() && 
+                        previous_graphics != nullptr &&
+                        previous_graphics->vector_value("PORT", previous_port) == 0;
+
     rc = vm->updateconf(uc_tmpl.get(), att.resp_msg, update_type == 1);
 
     // rc = -1 (error), 0 (context changed), 1 (no context change)
     if ( rc == -1 )
     {
         return Request::INTERNAL;
+    }
+
+    if (release_port)
+    {
+        Nebula::instance().get_clpool()->release_vnc_port(vm->get_cid(), previous_port);
     }
 
     /* ---------------------------------------------------------------------- */
