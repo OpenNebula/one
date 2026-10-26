@@ -308,7 +308,12 @@ module TransferManager
                 "Calling tm/#{tmmad}/#{operation} (from #{current_tmmad})"
             cmdargs = ["#{driver_path}/../#{tmmad}/#{operation}", ARGV, current_tmmad].flatten
 
-            Open3.popen2(*cmdargs) {|i, _o, _t| i.puts opts[:stdin] if opts[:stdin] }
+            Open3.popen2(*cmdargs) do |input, output, thread|
+                input.puts opts[:stdin] if opts[:stdin]
+                input.close
+                output.each_line {|line| $stdout.print line }
+                thread.value
+            end
         end
 
         # Triggers the current migrate operation on all TM_MADs listed in the VM
@@ -317,17 +322,21 @@ module TransferManager
         # @param [String] template64 base64-encoded VM template XML
         # @return [void]
         def migrate_other(template64)
+            return if ARGV[5]
+
             template_xml = REXML::Document.new(Base64.decode64(template64))
             (driver_path, operation) = File.split($PROGRAM_NAME)
 
-            tmmads        = template_xml.elements['/VM/TEMPLATE/DISK/TM_MAD'].text.split
+            tmmads        = template_xml.get_elements('/VM/TEMPLATE/DISK/TM_MAD').map(&:text).uniq
             current_tmmad = File.basename(driver_path)
             processed_tms = []
 
             tmmads.each do |tmmad|
                 next if tmmad == current_tmmad || processed_tms.include?(tmmad)
 
-                tm_call(tmmad, operation, :stdin => template64)
+                status = tm_call(tmmad, operation, :stdin => template64)
+
+                raise "Error running #{tmmad}/#{operation}: #{status.exitstatus}" unless status.success?
 
                 processed_tms << tmmad
             end

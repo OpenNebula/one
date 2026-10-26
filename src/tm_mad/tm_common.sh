@@ -162,7 +162,7 @@ function migrate_other
             # call the other TM_MADs with same arguments
             # but mark that it is not SYSTEM_DS
             log "Call $TM/${0##*/}"
-            echo $TEMPLATE_64 | "${DRIVER_PATH}/../$TM/${0##*/}" "$@" "$MAD"
+            echo $TEMPLATE_64 | "${DRIVER_PATH}/../$TM/${0##*/}" "$@" "$MAD" || return $?
             PROCESSED+=" $TM "
         fi
     done

@@ -46,6 +46,16 @@ source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
 
 . $TMCOMMON
 
+source "${DRIVER_PATH}/migrate_common.sh"
+
+fs_lvm_migration_init
+
+if $FS_LVM_LIVE_MIGRATION; then
+    ssh_exec_and_log "$SRC_HOST" "$(fs_lvm_domain_sh suspend running paused)" \
+        'Error suspending VM before fs_lvm_ssh migration'
+    fs_lvm_flush
+fi
+
 #--------------------------------------------------------------------------------
 # Remove target path to prevent overwrite errors
 ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH' && mkdir -p '$DST_PATH'" \
@@ -153,4 +163,4 @@ fi
 
 ssh_forward ssh_exec_and_log "$SRC_HOST" "$PRE_CMD" "Error running fs_lvm premigrate"
 
-migrate_other "$@"
+migrate_other "$@" || exit $?

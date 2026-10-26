@@ -46,6 +46,10 @@ source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
 
 . $TMCOMMON
 
+source "${DRIVER_PATH}/migrate_common.sh"
+
+fs_lvm_migration_init
+
 POOL_NAME="lv-one-$VMID-pool"
 VG_NAME="vg-one-$DSID"
 
@@ -61,7 +65,11 @@ done < <(onevm show -x $VMID| $XPATH \
 ORIG_DS_ID="${XPATH_ELEMENTS[j++]}"
 #--------------------------------------------------------------------------------
 
-if [ "$ORIG_DS_ID" != "$DSID" ]; then
+if $FS_LVM_LIVE_MIGRATION; then
+    fs_lvm_deactivate "$SRC_HOST"
+
+    CMD="rm -rf -- $FS_LVM_PATH"
+elif [ "$ORIG_DS_ID" != "$DSID" ]; then
     SRC_PATH="${DS_DIR}/${ORIG_DS_ID}/${VMID}"
 
     CMD=$(cat <<EOF
@@ -139,4 +147,9 @@ ssh_exec_and_log "${DST_HOST}" \
     "hostname -f >\"${DST_PATH}/.host\" || :" \
     "Error modifying .host after fs_lvm postmigrate"
 
-migrate_other "$@"
+migrate_other "$@" || exit $?
+
+if $FS_LVM_LIVE_MIGRATION; then
+    ssh_exec_and_log "$DST_HOST" "$(fs_lvm_domain_sh resume paused running)" \
+        'Error resuming VM after fs_lvm_ssh migration'
+fi

@@ -330,10 +330,15 @@ begin
         migrate_opts = build_migrate_opts(action_xml)
 
         if @shared
-            # Only the thin-LVM TM driver resumes the destination in postmigrate.
-            has_thin_lvm = action_xml[
-                '/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[TM_MAD="lvm"]/TM_MAD'
-            ] == 'lvm'
+            # Thin-volume drivers resume only after source storage cleanup.
+            disks = action_xml.elements('/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK')
+
+            has_thin_lvm = disks.any? do |disk|
+                disk['TM_MAD'] == 'lvm' ||
+                    (src_path == dst_path && disk['TM_MAD'] == 'fs_lvm_ssh' &&
+                     disk['LVM_THIN_ENABLE'].to_s.casecmp('YES').zero?)
+            end
+
             migrate_opts = "#{migrate_opts} --suspend" if has_thin_lvm
 
             rc, _out, err = kvm_vm.live_migrate(@dst_host, migrate_opts)

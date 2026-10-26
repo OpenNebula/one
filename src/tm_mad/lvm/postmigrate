@@ -65,7 +65,7 @@ end
 MAD.run(arg_dsthost, MAD::LVMWrapper.lvmsync(lvmvm.setup_vmdir_sh(true)),
         "Error preparing VM directory in #{arg_dsthost}")
 
-# Resume only after every source LV has been deactivated.  --suspend in the
+# Resume only after every source LV has been deactivated. --suspend in the
 # KVM migration command guarantees that the destination cannot write earlier.
 if lvmvm.lcm_state_str == 'MIGRATE'
     MAD.run(arg_dsthost, lvmvm.resume_vm_sh(lvmvm.virsh),
