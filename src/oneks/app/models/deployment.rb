@@ -79,13 +79,13 @@ module OneKS
                 )
             end
 
-            # Resolves the appliance VM template in a datastore available to the
+            # Resolves the appliance image and VM template in a datastore available to the
             # target OpenNebula cluster
             # @param client [OpenNebula::Client] OpenNebula client
             # @param deployment [Hash] Deployment placement section
             # @param appliance_id [String] OneKS appliance ID
-            # @return [OpenNebula::Template, OpenNebula::Error] appliance template
-            def appliance_template(client, deployment, appliance_id)
+            # @return [Hash, OpenNebula::Error] appliance image and template
+            def appliance(client, deployment, appliance_id)
                 cluster_id = deployment.dig(:cluster, :id)
                 cluster    = OneHelper::Cluster.get(client, cluster_id)
                 return cluster if OpenNebula.is_error?(cluster)
@@ -95,7 +95,7 @@ module OneKS
                 )
             rescue StandardError => e
                 OpenNebula::Error.new(
-                    "Error resolving deployment appliance template: #{e.message}",
+                    "Error resolving deployment appliance: #{e.message}",
                     OpenNebula::Error::EACTION
                 )
             end

@@ -111,16 +111,16 @@ module OneKS
             appliance = oneks_appliance
             return appliance if OpenNebula.is_error?(appliance)
 
-            template = ClusterDeployment.appliance_template(@client, @deployment, appliance[:id])
-            return template if OpenNebula.is_error?(template)
+            appliance = ClusterDeployment.appliance(@client, @deployment, appliance[:id])
+            return appliance if OpenNebula.is_error?(appliance)
 
             return OpenNebula::Error.new(
                 "Cannot find #{appliance[:name]} template (ID=#{appliance[:id]}) " \
                 "for OpenNebula cluster #{@one_cluster}",
                 OpenNebula::Error::EACTION
-            ) if template.nil?
+            ) if appliance.nil?
 
-            vm_id = template.instantiate(
+            vm_id = appliance[:template].instantiate(
                 "oneks-readiness-check-#{Time.now.to_i}",
                 false,
                 Hash.to_raw(

@@ -49,6 +49,19 @@ module OneKS
             deployment = cluster.deployment_info
             return deployment if OpenNebula.is_error?(deployment)
 
+            family_spec = self.class.family_by_name(family)
+            definition  = ClusterDeployment.appliances_for(family_spec).find do |item|
+                item[:type].to_s == 'seed_vm'
+            end
+
+            return OpenNebula::Error.new(
+                "Cannot resolve image datastore: family #{family} has no seed_vm appliance",
+                OpenNebula::Error::EACTION
+            ) unless definition
+
+            appliance = ClusterDeployment.appliance(@client, cluster.deployment, definition[:id])
+            return appliance if OpenNebula.is_error?(appliance)
+
             cluster_values = cluster.plain_body.merge(
                 {
                     :uuid       => cluster.uuid,
@@ -59,6 +72,7 @@ module OneKS
 
             group_values = plain_body.merge(
                 {
+                    :image_datastore_id   => appliance[:image]['DATASTORE_ID'].to_i,
                     :group_image_name     => base_shared_name('node'),
                     :group_template_name  => base_group_name('node'),
                     :router_image_name    => base_shared_name('router'),

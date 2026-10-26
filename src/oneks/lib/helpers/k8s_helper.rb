@@ -69,7 +69,7 @@ module OneKS
                 ) if leader.nil? || spec.nil? || spec.strip.empty?
 
                 cmd = "#{KUBECTL_PATH} --kubeconfig #{KUBECONFIG_PATH} apply -f -"
-                rc  = OneHelper::VirtualMachine.exec(
+                rc  = exec(
                     client, leader, cmd,
                     :stdin   => Base64.strict_encode64(spec),
                     :timeout => K8S_TIMEOUT
@@ -114,10 +114,7 @@ module OneKS
 
                 cmd = "#{KUBECTL_PATH} --kubeconfig #{KUBECONFIG_PATH} " \
                       "delete --ignore-not-found=true --wait=false #{resource}"
-                rc  = OneHelper::VirtualMachine.exec(
-                    client, leader, cmd,
-                    :timeout => K8S_TIMEOUT
-                )
+                rc  = exec(client, leader, cmd, :timeout => K8S_TIMEOUT)
 
                 return rc if OpenNebula.is_error?(rc)
 
@@ -141,10 +138,7 @@ module OneKS
 
                 cmd = "#{KUBECTL_PATH} --kubeconfig #{KUBECONFIG_PATH} " \
                       "scale machinedeployment #{group_uuid} --replicas=#{target}"
-                rc  = OneHelper::VirtualMachine.exec(
-                    client, leader, cmd,
-                    :timeout => K8S_TIMEOUT
-                )
+                rc  = exec(client, leader, cmd, :timeout => K8S_TIMEOUT)
 
                 return rc if OpenNebula.is_error?(rc)
 
@@ -210,10 +204,7 @@ module OneKS
                 ) if leader.nil?
 
                 cmd = "/usr/bin/base64 #{KUBECONFIG_PATH}"
-                rc  = OneHelper::VirtualMachine.exec(
-                    client, leader, cmd,
-                    :timeout => K8S_TIMEOUT
-                )
+                rc  = exec(client, leader, cmd, :timeout => K8S_TIMEOUT)
                 return rc if OpenNebula.is_error?(rc)
 
                 return OpenNebula::Error.new(
@@ -273,7 +264,7 @@ module OneKS
                     ['/bin/sh', '-s', '--', KUBECTL_PATH, KUBECONFIG_PATH]
                 )
 
-                rc = OneHelper::VirtualMachine.exec(
+                rc = exec(
                     client, leader, command,
                     :stdin => Base64.strict_encode64(script),
                     :wait => false
@@ -295,12 +286,33 @@ module OneKS
                         '--ignore-not-found', '-o', 'name'
                     ]
                 )
-                rc = OneHelper::VirtualMachine.exec(
-                    client, leader, command, :timeout => K8S_TIMEOUT
-                )
+                rc = exec(client, leader, command, :timeout => K8S_TIMEOUT)
                 return rc if OpenNebula.is_error?(rc)
 
                 !rc[:stdout].to_s.empty?
+            end
+
+            # Retry only submissions rejected because the leader is still running
+            # an earlier asynchronous application plan. The guest command has not
+            # started in this case, so retrying cannot execute it twice.
+            def exec(client, leader, command, opts = {})
+                deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + K8S_TIMEOUT
+                busy = "Command failed on VM #{leader}: [one.vm.exec] Could not execute command, " \
+                       'a command is already being executed'
+
+                loop do
+                    rc = OneHelper::VirtualMachine.exec(client, leader, command, opts)
+                    return rc unless OpenNebula.is_error?(rc) && rc.message == busy
+
+                    remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
+                    return OpenNebula::Error.new(
+                        "Timeout waiting for VM #{leader} to accept a command: #{rc.message}",
+                        OpenNebula::Error::EACTION
+                    ) if remaining <= 0
+
+                    sleep [1, remaining].min
+                end
             end
 
             def load_manifest(spec)

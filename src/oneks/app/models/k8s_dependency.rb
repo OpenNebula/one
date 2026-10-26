@@ -171,7 +171,7 @@ module OneKS
         end
 
         def to_json(*args)
-            to_h.merge(JSON.create_id => self.class.name).to_json(*args)
+            to_h.merge(:json_class => self.class.name).to_json(*args)
         end
 
         def self.json_create(hash)

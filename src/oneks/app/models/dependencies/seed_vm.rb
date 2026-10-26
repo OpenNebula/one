@@ -62,15 +62,13 @@ module OneKS
             cluster = group.parent_cluster
             return cluster if OpenNebula.is_error?(cluster)
 
-            template = ClusterDeployment.appliance_template(
-                group.client, cluster.deployment, @appliance_id
-            )
-            return template if OpenNebula.is_error?(template)
+            appliance = ClusterDeployment.appliance(group.client, cluster.deployment, @appliance_id)
+            return appliance if OpenNebula.is_error?(appliance)
 
             return OpenNebula::Error.new(
                 "Cannot find #{@appliance_name} template (ID=#{@appliance_id})",
                 OpenNebula::Error::EACTION
-            ) if template.nil?
+            ) if appliance.nil?
 
             vm_name = "#{group.uuid}-seed"
 
@@ -86,7 +84,7 @@ module OneKS
                 :NIC => [{ :NETWORK_ID => cluster.public_network_id }]
             }
 
-            seed_id = template.instantiate(vm_name, false, Hash.to_raw(extra_template))
+            seed_id = appliance[:template].instantiate(vm_name, false, Hash.to_raw(extra_template))
 
             return OpenNebula::Error.new(
                 seed_id.message, OpenNebula::Error::EACTION

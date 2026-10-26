@@ -71,7 +71,7 @@ module OneKS
         # OneKS appliance VM Template discovery
         module Template
 
-            # Finds the VM Template using the image for a Marketplace or
+            # Finds the image and VM Template for a Marketplace or
             # manually imported OneKS appliance.
             def find_by_appliance_id(client, appliance_id, datastore_ids)
                 images = ::OneHelper::Image.find_all_by_appliance_id(
@@ -100,7 +100,7 @@ module OneKS
                         )
                     end
 
-                    return template
+                    return { :image => image, :template => template }
                 end
 
                 OpenNebula::Error.new(

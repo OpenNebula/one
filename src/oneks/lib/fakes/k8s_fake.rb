@@ -285,8 +285,9 @@ module OneKS
 
         def create_images(client, images)
             images.each do |image|
-                name    = image['imageName']
-                content = image['imageContent']
+                name         = image['imageName']
+                content      = image['imageContent']
+                datastore_id = image.fetch('imageDatastoreId', DEFAULT_DS)
                 next if name.nil? || name.strip.empty?
 
                 return OpenNebula::Error.new(
@@ -299,7 +300,7 @@ module OneKS
                 next if image
 
                 content = Hash.to_raw(content) if content.is_a?(Hash)
-                rc      = OneHelper::Image.create(client, append_name(content, name), DEFAULT_DS)
+                rc      = OneHelper::Image.create(client, append_name(content, name), datastore_id)
                 return rc if OpenNebula.is_error?(rc)
             end
 
@@ -340,22 +341,17 @@ module OneKS
 
         def create_vrouter_dep(client, vrouter, public_net, private_net)
             template_name = vrouter['templateName']
-            public_name   = OneHelper::VirtualNetwork.name(client, public_net)
-            return public_name if OpenNebula.is_error?(public_name)
-
-            private_name = OneHelper::VirtualNetwork.name(client, private_net)
-            return private_name if OpenNebula.is_error?(private_name)
 
             template = {
                 'NAME' => vrouter['templateName'],
                 'NIC'  => [
                     {
-                        'NETWORK' => public_name,
+                        'NETWORK_ID'    => public_net,
                         'FLOATING_IP'   => 'YES',
                         'FLOATING_ONLY' => 'YES'
                     },
                     {
-                        'NETWORK' => private_name,
+                        'NETWORK_ID'    => private_net,
                         'FLOATING_IP'   => 'YES',
                         'FLOATING_ONLY' => 'NO'
                     }
