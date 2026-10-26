@@ -375,6 +375,7 @@ class LibvirtCollector < Prometheus::Middleware::Collector
     #   - opennebula_libvirt_vcpu_state
     #   - opennebula_libvirt_vcpu_time_seconds_total
     #   - opennebula_libvirt_vcpu_wait_seconds_total
+    #   - opennebula_libvirt_vcpu_delay_seconds_total
     # --------------------------------------------------------------------------
     VCPU_METRICS = {
         'vcpu.current' => {
@@ -410,6 +411,14 @@ class LibvirtCollector < Prometheus::Middleware::Collector
             :docstr => 'Time the vCPU wants to run, but the host scheduler' \
                        ' has something else running ahead of it',
             :render => ->(v) { Integer(v) / 10**9 },
+            :labels => LIBVIRT_LABELS + [:vcpu],
+            :render_labels => ->(i, _stat) { { :vcpu => i } }
+        },
+        'vcpu.delay' => {
+            :name   => 'vcpu_delay_seconds_total',
+            :type   => :gauge,
+            :docstr => 'Cumulative time the vCPU thread waited in the host runqueue, in seconds',
+            :render => ->(v) { Integer(v).fdiv(10**9) },
             :labels => LIBVIRT_LABELS + [:vcpu],
             :render_labels => ->(i, _stat) { { :vcpu => i } }
         }
