@@ -32,6 +32,14 @@ _complete() {
     compopt -o filenames
 }
 
+# Complete file paths matching the prefix in $1. Read one candidate per line
+# to preserve spaces and avoid glob expansion. Tell Readline to quote filenames
+# and append a slash to directories so completion can continue inside them.
+_one_complete_files() {
+    mapfile -t COMPREPLY < <(compgen -A file -- "$1")
+    compopt -o filenames
+}
+
 _one_list() {
     if [ -z "$2" ]; then
         col="$COL_NAME"
@@ -66,7 +74,7 @@ _one_owner_update() {
         _complete oneuser
     ;;
     update)
-        COMPREPLY=( $(compgen -A file -- "${cur}") )
+        _one_complete_files "$cur"
         return 0
     ;;
     esac
@@ -89,7 +97,7 @@ _one_template() {
             _complete "$cmd"
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -177,7 +185,7 @@ _onebackupjob() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -219,7 +227,7 @@ _onecluster() {
             _complete onevnet
         ;;
         update)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -245,7 +253,7 @@ _onedatastore() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -269,7 +277,7 @@ _onedb() {
     elif [ "$COMP_CWORD" == 2 ]; then
         case "$prev" in
         restore|patch)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -300,7 +308,7 @@ _oneflow() {
     elif [ "$COMP_CWORD" == 3 ]; then
         case "$pprev" in
         add-role)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         *)
@@ -329,7 +337,7 @@ _oneflow_template() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -358,7 +366,7 @@ _onegroup() {
             _complete $cmd
         ;;
         defaultquota)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -368,7 +376,7 @@ _onegroup() {
             _complete oneuser
         ;;
         update|quota|batchquota|vlan)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -394,14 +402,14 @@ _onehook() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
     elif [ "$COMP_CWORD" == 3 ]; then
         case "$pprev" in
         update)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -437,7 +445,7 @@ _onehost() {
     elif [ "$COMP_CWORD" == 3 ]; then
         case "$pprev" in
         update)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -475,7 +483,7 @@ _oneimage() {
             _complete $cmd $COL_NAME "type=BK"
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -503,7 +511,7 @@ _onemarket() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -532,7 +540,7 @@ _onemarketapp() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         enable)
@@ -651,7 +659,7 @@ _oneks()
     elif [ "$COMP_CWORD" == 3 ]; then
         case "$pprev" in
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         *)
@@ -679,7 +687,7 @@ _onesecgroup() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -723,7 +731,7 @@ _oneuser() {
             _complete $cmd
         ;;
         defaultquota)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -733,7 +741,7 @@ _oneuser() {
             _complete onegroup
         ;;
         update|quota|batchquota)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -779,7 +787,7 @@ _onevdc() {
             _complete onevnet
         ;;
         update)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -850,7 +858,7 @@ _onevm() {
             _complete $cmd $COL_NAME "stat=poff"
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -870,7 +878,7 @@ _onevm() {
     elif [ "$COMP_CWORD" == 4 ]; then
         case "${COMP_WORDS[1]}" in
         sched-update|update-chart)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
         ;;
         esac
     fi
@@ -897,14 +905,14 @@ _onevmgroup() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
     elif [ "$COMP_CWORD" == 3 ]; then
         case "$pprev" in
         role-add)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         *)
@@ -935,14 +943,14 @@ _onevnet() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
     elif [ "$COMP_CWORD" == 3 ]; then
         case "$pprev" in
         addar|update)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         reserve)
@@ -982,7 +990,7 @@ _onevrouter() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
@@ -1012,14 +1020,14 @@ _onezone() {
             _complete $cmd
         ;;
         create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
     elif [ "$COMP_CWORD" == 3 ]; then
         case "$pprev" in
         update)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            _one_complete_files "$cur"
             return 0
         ;;
         esac
