@@ -36,9 +36,9 @@ class OpenNebulaServerCollector
         },
         'scheduler_state' => {
             :type   => :gauge,
-            :docstr => 'OpenNebula scheduler service state 0:down 1:up',
+            :docstr => 'OpenNebula scheduler driver state 0:down 1:up',
             :labels => LABELS,
-            :systemd => 'opennebula-scheduler.service'
+            :process => 'one_sched.rb'
         },
         'flow_state' => {
             :type   => :gauge,
@@ -80,8 +80,10 @@ class OpenNebulaServerCollector
 
     def collect
         SERVER_METRICS.each do |name, conf|
+            state = conf[:systemd] ? is_active(conf[:systemd]) : is_running(conf[:process])
+
             @metrics[name].set(
-                is_active(conf[:systemd]),
+                state,
                 :labels => { :one_server_fqdn => FQDN }
             )
         end
@@ -95,6 +97,14 @@ class OpenNebulaServerCollector
         else
             0
         end
+    rescue
+        0
+    end
+
+    # The scheduler is a driver spawned by oned, not a systemd service. No shell
+    # here, its command line would contain the pattern and always match.
+    def is_running(process)
+        system('pgrep', '-f', process, :out => File::NULL, :err => File::NULL) ? 1 : 0
     rescue
         0
     end
