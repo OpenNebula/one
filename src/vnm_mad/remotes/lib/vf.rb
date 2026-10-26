@@ -255,7 +255,7 @@ module VNMMAD::VirtualFunction
     # Raise the shared PF MTU without lowering it for other VFs.
     # Serialize the read and write across concurrent VM operations.
     def set_pf_mtu(pf, mtu)
-        File.open("/tmp/onevnm-pf-#{pf}-mtu-lock", 'w') do |lock|
+        File.open("/var/lock/one/onevnm-pf-#{pf}-mtu-lock", 'w') do |lock|
             lock.flock(File::LOCK_EX)
 
             current = Integer(File.read("/sys/class/net/#{pf}/mtu").strip)

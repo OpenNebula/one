@@ -22,7 +22,7 @@ require_relative '../lib/command'
 # locking capabilites using flock
 module Command
 
-    LOCK_FILE = '/tmp/onelxc-lock'
+    LOCK_FILE = '/var/lock/one/onelxc-lock'
 
     def self.container_cmd(name, cmd)
         return true if execute_rc_log(cmd)
