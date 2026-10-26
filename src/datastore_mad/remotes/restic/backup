@@ -116,6 +116,7 @@ Thread.new do
     EOS
 
     rc = TransferManager::Action.ssh 'remove_stale_locks',
+                                     :err_msg  => 'Error removing restic stale locks',
                                      :host     => vm_host,
                                      :forward  => true,
                                      :cmds     => script,
@@ -168,6 +169,7 @@ script = <<~EOS
 EOS
 
 rc = TransferManager::Action.ssh 'backup',
+                                 :err_msg  => 'Restic backup failed',
                                  :host     => vm_host,
                                  :forward  => true,
                                  :cmds     => script,

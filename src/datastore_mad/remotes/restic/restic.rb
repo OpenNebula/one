@@ -360,6 +360,7 @@ class Restic
                        rhost
                    end
             TransferManager::Action.ssh name,
+                                        :err_msg  => 'Restic action failed',
                                         :host     => host,
                                         :forward  => true,
                                         :cmds     => script,
@@ -652,6 +653,7 @@ class Restic
 
         def repo_command(name, script, opts = {})
             TransferManager::Action.ssh name,
+                                        :err_msg  => 'Restic repository command failed',
                                         :host     => "#{@user}@#{@sftp}",
                                         :forward  => true,
                                         :cmds     => script,
