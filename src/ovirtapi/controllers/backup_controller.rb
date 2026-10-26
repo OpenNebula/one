@@ -139,7 +139,8 @@ class BackupController
                 'vm_id' => vm_id,
                 'backup_id' => '',
                 'increment_src' => '',
-                'finalized' => false
+                'finalized' => false,
+                'invalid' => false
             }
             File.write(mapping_path, JSON.pretty_generate(mapping))
         end
@@ -215,8 +216,25 @@ class BackupController
 
             mapping = JSON.parse(File.read(mapping_path))
             if mapping[uuid]
-                mapping[uuid]['backup_id'] = backup_id
-                mapping[uuid]['increment_src'] = increment_src
+                entry = mapping[uuid]
+                incoming_identity = !backup_id.to_s.empty? || !increment_src.to_s.empty?
+                existing_identity = !entry['backup_id'].to_s.empty? ||
+                                    !entry['increment_src'].to_s.empty?
+
+                if incoming_identity && existing_identity &&
+                   (entry['backup_id'].to_s != backup_id.to_s ||
+                    entry['increment_src'].to_s != increment_src.to_s)
+                    LOGGER.warn "Refusing to remap backup UUID #{uuid} from " \
+                        "backup_id=#{entry['backup_id']} increment_src=#{entry['increment_src']} " \
+                        "to backup_id=#{backup_id} increment_src=#{increment_src}"
+                    return false
+                end
+
+                if incoming_identity
+                    entry['backup_id'] = backup_id
+                    entry['increment_src'] = increment_src
+                end
+
                 mapping[uuid]['finalized'] ||= false
                 current_checkpoint = mapping[uuid]['checkpoint'].to_s
 
@@ -243,16 +261,7 @@ class BackupController
                 return uuid
             end
         end
-        # If not found, find latest entry with matching vm_id and empty backup_id and increment_src
-        latest_uuid = nil
-        mapping.each do |uuid, details|
-            next unless details['vm_id'] == vm_id &&
-                details['backup_id'] == '' &&
-                details['increment_src'] == ''
-
-            latest_uuid = uuid
-        end
-        latest_uuid
+        nil
     end
 
     def self.decrypt_backup_uuid(client, uuid)
@@ -469,7 +478,7 @@ class BackupController
 
     # High-level helper to return oVirt-style backups for a VM.
     # Returns [status_code, json_string]
-    def self.get_ovirt_backups_for_vm(client, vm_id)
+    def self.get_ovirt_backups_for_vm(client, vm_id, include_invalid = false)
         vm = VmController.get_one_vms(client, :vm_id => vm_id)
 
         vm_hash = vm.to_hash
@@ -496,6 +505,18 @@ class BackupController
 
             entries = backup_image_to_ovirt_backups(client, full_backup)
             ovirt_backups.concat(entries) if entries.is_a?(Array)
+        end
+
+        unless include_invalid
+            invalid_checkpoints = invalid_checkpoint_ids(client, vm_id)
+            ovirt_backups.reject! do |backup|
+                checkpoint_id = backup['to_checkpoint_id'] || backup['id']
+                invalid = invalid_checkpoints.include?(checkpoint_id.to_s)
+                if invalid
+                    LOGGER.info "Omitting invalid checkpoint #{checkpoint_id} from backup list"
+                end
+                invalid
+            end
         end
 
         return 200, { :backup => ovirt_backups }.to_json
@@ -555,27 +576,34 @@ class BackupController
 
         old_state = vm.status
 
-        if checkpoint_id.nil?
-            is_incremental = false
-        else
-            is_incremental = true
-            # If an incremental backup was requested, ensure the checkpoint exists
-            rc, body = get_ovirt_checkpoints(client, vm_id)
+        is_incremental = !checkpoint_id.nil?
+
+        if is_incremental
+            # Keep invalid entries internally so validation uses OpenNebula's
+            # real chain head rather than the last checkpoint visible to Veeam.
+            rc, body = get_ovirt_backups_for_vm(client, vm_id, true)
             if rc != 200
-                LOGGER.error "Error retrieving checkpoints for VM #{vm_id}."
-                return 500, Helper.fault_response("Error retrieving checkpoints for VM #{vm_id}.")
+                LOGGER.error "Error retrieving backups for VM #{vm_id}."
+                return 500, Helper.fault_response("Error retrieving backups for VM #{vm_id}.")
             end
 
-            parsed = JSON.parse(body) rescue { 'checkpoint' => [] }
-            checkpoints = parsed['checkpoint'] || []
+            parsed = JSON.parse(body) rescue { 'backup' => [] }
+            backups = parsed['backup'] || []
+            checkpoint_ids = backups.each_with_object([]) do |backup, ids|
+                next unless backup.is_a?(Hash)
 
-            found = checkpoints.any? do |c|
-                # Each checkpoint should be a hash with an 'id' field
-                c.is_a?(Hash) && c['id'].to_s == checkpoint_id.to_s
+                checkpoint = backup['to_checkpoint_id'] || backup['id']
+                ids << checkpoint.to_s unless checkpoint.nil?
             end
+            latest_checkpoint = checkpoint_ids.last || Helper.int_to_uuid(0)
+            invalid_checkpoint = checkpoint_invalid?(client, vm_id, checkpoint_id)
+            checkpoint_available = checkpoint_id.to_s == Helper.int_to_uuid(0) ||
+                                   checkpoint_ids.include?(checkpoint_id.to_s)
 
-            unless found
-                LOGGER.error "Requested checkpoint #{checkpoint_id} not found for VM #{vm_id}."
+            if invalid_checkpoint || !checkpoint_available ||
+               checkpoint_id.to_s != latest_checkpoint
+                LOGGER.warn "Requested checkpoint #{checkpoint_id} is invalid for VM #{vm_id}. " \
+                    "Latest checkpoint: #{latest_checkpoint}."
                 fault = {
                     :fault => {
                         :reason => 'Operation Failed',
@@ -653,8 +681,6 @@ class BackupController
         if old_state == 'back'
             LOGGER.info "VM #{vm_id} already in backup state."
         else
-            # If the backup is not incremental, the chain should
-            # be reset => reset[bool] = ! is_incremental[bool]
             LOGGER.info "Initiating backup for VM #{vm_id} with " \
                 "datastore #{ds_id}, reset=#{!is_incremental}"
             rc = vm.backup(ds_id, !is_incremental)
@@ -677,6 +703,47 @@ class BackupController
             ' returning pending backup data'
         return 201, onebackup_to_ovirtbackup_pending(client, vm_id, full_backup_id,
                                                      increment_source, veeam_description)
+    end
+
+    def self.mark_checkpoint_invalid(client, vm_id, checkpoint_id)
+        mapping_path = get_mapping_file_path(client)
+        if mapping_path.nil? || !File.exist?(mapping_path)
+            return 404, Helper.fault_response('Backup mapping not found.').to_json
+        end
+
+        marked = with_mapping_lock(mapping_path) do
+            next false unless File.exist?(mapping_path)
+
+            mapping = JSON.parse(File.read(mapping_path))
+            entry = mapping[checkpoint_id]
+            next false unless entry && entry['vm_id'].to_i == vm_id.to_i
+
+            entry['invalid'] = true
+            File.write(mapping_path, JSON.pretty_generate(mapping))
+            LOGGER.info "Marked checkpoint #{checkpoint_id} invalid for VM #{vm_id}: " \
+                "backup_id=#{entry['backup_id']} increment_src=#{entry['increment_src']}"
+            true
+        end
+
+        return 200, { :status => 'completed' }.to_json if marked
+
+        LOGGER.warn "Checkpoint #{checkpoint_id} was not found for VM #{vm_id}"
+        return 404, Helper.fault_response('Checkpoint not found.').to_json
+    end
+
+    def self.invalid_checkpoint_ids(client, vm_id)
+        mapping_path = get_mapping_file_path(client)
+        return [] unless mapping_path && File.exist?(mapping_path)
+
+        mapping = read_backup_mapping(mapping_path)
+        mapping.each_with_object([]) do |(checkpoint_id, entry), invalid_ids|
+            invalid = entry['invalid'] == true || entry['invalid'].to_s.downcase == 'true'
+            invalid_ids << checkpoint_id if invalid && entry['vm_id'].to_i == vm_id.to_i
+        end
+    end
+
+    def self.checkpoint_invalid?(client, vm_id, checkpoint_id)
+        invalid_checkpoint_ids(client, vm_id).include?(checkpoint_id.to_s)
     end
 
     def self.save_last_backup_description(vm, veeam_description, backup_identifier)
@@ -753,7 +820,6 @@ class BackupController
         backups = parsed['backup'] || []
 
         # Prepare base zero checkpoint
-        zero_id = '00000000-0000-0000-0000-000000000000'
         checkpoints = []
         checkpoints << {
             :creation_date => Time.now.to_i,
@@ -764,8 +830,9 @@ class BackupController
             },
             :description => '{"type":"veeam","job_uuid":"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"' \
                 ',"session_id":"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"}',
-            :href => "/ovirt-engine/api/vms/#{Helper.int_to_uuid(vm_id)}/checkpoints/#{zero_id}",
-            :id => zero_id
+            :href => "/ovirt-engine/api/vms/#{Helper.int_to_uuid(vm_id)}/checkpoints/" \
+                "#{Helper.int_to_uuid(0)}",
+            :id => Helper.int_to_uuid(0)
         }
 
         backups.each do |b|
@@ -782,7 +849,7 @@ class BackupController
 
             checkpoints << {
                 :creation_date => creation_ms,
-                :parent_id => b['from_checkpoint_id'] || zero_id,
+                :parent_id => b['from_checkpoint_id'] || Helper.int_to_uuid(0),
                 :state => 'created',
                 :vm => {
                     :href => "/ovirt-engine/api/vms/#{Helper.int_to_uuid(vm_id)}",

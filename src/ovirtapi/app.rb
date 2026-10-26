@@ -625,7 +625,9 @@ get "#{API_PREFIX}/vms/:id/backups/:backup_id" do
         end
 
         phase = BackupController.pending_backup_phase(vm, entry, status_response)
-        if phase == 'succeeded'
+        mapping_pending = entry &&
+                          (entry['backup_id'].to_s.empty? || entry['increment_src'].to_s.empty?)
+        if phase == 'succeeded' && mapping_pending
             BackupController.update_vm_backup(client, vm, params[:backup_id], params[:id])
         end
 
@@ -887,8 +889,10 @@ end
 
 # Reference: http://ovirt.github.io/ovirt-engine-api-model/master/#services/vm_checkpoint/methods/remove
 delete "#{API_PREFIX}/vms/:vm_id/checkpoints/:id" do
-    _client = get_client(request.env['HTTP_AUTHORIZATION'].split(' ').last)
-    return { :status => 'completed' }.to_json
+    client = get_client(request.env['HTTP_AUTHORIZATION'].split(' ').last)
+    vm_id = Helper.uuid_to_int(params[:vm_id])
+    rc, data = BackupController.mark_checkpoint_invalid(client, vm_id.to_i, params[:id])
+    halt rc, data
 end
 
 # Reference: http://ovirt.github.io/ovirt-engine-api-model/master/#services/snapshots/methods/list
