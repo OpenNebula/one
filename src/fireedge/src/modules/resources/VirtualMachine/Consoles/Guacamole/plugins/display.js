@@ -156,6 +156,7 @@ const GuacamoleDisplay = (session) => {
     displayElement: (
       <Viewport ref={viewportRef}>
         <Display
+          data-cy="guacamole-console"
           tabIndex="0"
           ref={displayRef}
           sx={isSSH ? { width: '100%', height: '100%' } : {}}

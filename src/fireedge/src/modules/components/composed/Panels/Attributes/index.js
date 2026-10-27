@@ -152,9 +152,10 @@ const getAttributeRows = (attributes = []) => {
  * @param {object} props.attribute - Attribute row
  * @param {Function} props.onAccept - Called with the edited value
  * @param {Function} props.onCancel - Called to exit edit mode
+ * @param {string} props.dataCy - Base data-cy for the editable value
  * @returns {Component} Editable cell
  */
-const EditableValueCell = ({ attribute, onAccept, onCancel }) => {
+const EditableValueCell = ({ attribute, onAccept, onCancel, dataCy }) => {
   const [value, setValue] = useState(() => formatEditValue(attribute?.value))
 
   return (
@@ -163,7 +164,10 @@ const EditableValueCell = ({ attribute, onAccept, onCancel }) => {
         <InputField
           value={value}
           onChange={setValue}
-          inputProps={{ 'aria-label': attribute?.path }}
+          inputProps={{
+            'aria-label': attribute?.path,
+            'data-cy': dataCy && `${dataCy}-value`,
+          }}
           onKeyDown={(event) => {
             if (event.key === 'Enter') onAccept(value)
             if (event.key === 'Escape') onCancel()
@@ -182,6 +186,7 @@ const EditableValueCell = ({ attribute, onAccept, onCancel }) => {
               onClick: () => onAccept(value),
               tooltip: T.Accept,
               value: 'accept',
+              dataCy: dataCy && `${dataCy}-accept`,
               sx: CONFIRM_ACTION_STYLES,
             },
             {
@@ -189,6 +194,7 @@ const EditableValueCell = ({ attribute, onAccept, onCancel }) => {
               onClick: onCancel,
               tooltip: T.Cancel,
               value: 'cancel',
+              dataCy: dataCy && `${dataCy}-cancel`,
               sx: CONFIRM_ACTION_STYLES,
             },
           ],
@@ -202,6 +208,7 @@ EditableValueCell.propTypes = {
   attribute: PropTypes.object,
   onAccept: PropTypes.func,
   onCancel: PropTypes.func,
+  dataCy: PropTypes.string,
 }
 
 /**
@@ -404,6 +411,7 @@ export const AttributesPanel = forwardRef(
           startIcon: <Copy width="16px" height="16px" />,
           onClick: () => copy(copyValue),
           value: 'copy',
+          dataCy: dataCy && `${dataCy}-${attribute?.path?.toUpperCase()}-copy`,
           tooltip: !isCopied(copyValue) ? T.Copy : T.Copied,
           sx: ACTION_STYLES,
         },
@@ -412,6 +420,7 @@ export const AttributesPanel = forwardRef(
           onClick: () => setEditingPath(attribute?.path),
           tooltip: T.Edit,
           value: 'edit',
+          dataCy: dataCy && `${dataCy}-${attribute?.path?.toUpperCase()}-edit`,
           sx: ACTION_STYLES,
         },
         {
@@ -419,6 +428,8 @@ export const AttributesPanel = forwardRef(
           onClick: () => handleOpenDeleteForm(attribute),
           tooltip: T.Delete,
           value: 'delete',
+          dataCy:
+            dataCy && `${dataCy}-${attribute?.path?.toUpperCase()}-delete`,
           sx: DESTRUCTIVE_ACTION_STYLES,
         },
       ].filter(({ value }) => canUseAction(attribute, value))
@@ -449,6 +460,9 @@ export const AttributesPanel = forwardRef(
                   attribute={attribute}
                   onAccept={(value) => handleAcceptEdit(attribute, value)}
                   onCancel={() => setEditingPath('')}
+                  dataCy={
+                    dataCy && `${dataCy}-${attribute?.path?.toUpperCase()}`
+                  }
                 />
               )
             }
@@ -473,7 +487,7 @@ export const AttributesPanel = forwardRef(
           },
         },
       ],
-      [editingPath, handleEdit, handleDelete, actions, enableEdit]
+      [editingPath, handleEdit, handleDelete, actions, enableEdit, dataCy]
     )
 
     return (

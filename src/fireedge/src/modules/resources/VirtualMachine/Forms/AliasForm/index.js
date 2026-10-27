@@ -72,7 +72,7 @@ const getAliasTags = (nic) =>
     nic?.ADDRESS && [`${T.Address}: ${nic.ADDRESS}`, 'miscellaneous1'],
   ].filter(Boolean)
 
-const AliasCard = ({ actions, alias }) => {
+const AliasCard = ({ actions, alias, dataCy }) => {
   const tags = getAliasTags(alias)
   const slots = [
     [TitleSlot, { title: getAliasCardName(alias) }],
@@ -83,6 +83,7 @@ const AliasCard = ({ actions, alias }) => {
   return (
     <CardBlock
       actions={actions}
+      dataCy={dataCy}
       isSelectable={false}
       slots={slots}
       sx={{
@@ -95,6 +96,7 @@ const AliasCard = ({ actions, alias }) => {
 AliasCard.propTypes = {
   actions: PropTypes.array,
   alias: PropTypes.object,
+  dataCy: PropTypes.string,
 }
 
 const Content = ({ parent, methods, vmId }) => {
@@ -278,17 +280,20 @@ const Content = ({ parent, methods, vmId }) => {
                   title: T.Edit,
                   tooltip: T.Edit,
                   startIcon: <Edit />,
+                  dataCy: `edit-${indexNicAlias}`,
                   onClick: () => openAttachAliasForm(item, index),
                 },
                 {
                   title: T.Detach,
                   tooltip: T.Detach,
                   startIcon: <Trash />,
+                  dataCy: `detach-alias-${indexNicAlias}-action`,
                   onClick: () =>
                     openDetachAliasForm(item, index, indexNicAlias),
                 },
               ].filter(Boolean)}
               alias={item}
+              dataCy={`alias-${indexNicAlias}`}
               key={id ?? item?.NAME ?? `${parent}-${index}`}
             />
           ))

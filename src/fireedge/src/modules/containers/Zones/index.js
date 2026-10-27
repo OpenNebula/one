@@ -92,6 +92,7 @@ export function Zones() {
 
   return (
     <ResourceContainer
+      dataCy={zoneTable.dataCy}
       resourceName={T.Zones}
       onRefresh={refreshZones}
       isRefreshing={isRefreshing}
@@ -107,6 +108,7 @@ export function Zones() {
           case TABLE_VIEW_MODE.LIST:
             return (
               <Table
+                dataCy={zoneTable.dataCy}
                 columns={zoneTable.columns()}
                 data={items}
                 isRowsSelectable
@@ -130,6 +132,7 @@ export function Zones() {
                   return (
                     <Zone.Card
                       key={id}
+                      dataCy={`${zoneTable.dataCy}-${id}`}
                       zone={zone}
                       isRemoveCheckbox
                       onCheck={() =>

@@ -285,6 +285,7 @@ const HeaderVmInfo = ({
               </Box>
               {connectionState && (
                 <Tag
+                  dataCy="state"
                   status={connectionStatus}
                   title={connectionState}
                   startIcon={<Badge status={connectionStatus} type="dot" />}

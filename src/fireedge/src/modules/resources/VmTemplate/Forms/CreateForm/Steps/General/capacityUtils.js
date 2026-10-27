@@ -85,7 +85,7 @@ const modificationTypeInput = (fieldName, { type: typeId }) => ({
   validation: lazy((_, { context }) =>
     string()
       .default(() => {
-        const capacityUserInput = context.extra?.USER_INPUTS?.[fieldName]
+        const capacityUserInput = context?.extra?.USER_INPUTS?.[fieldName]
         const { type } = getUserInputParams(capacityUserInput)
 
         return type
@@ -130,7 +130,7 @@ const modificationRangeInputs = (fieldName, { type, min, max }) => {
           otherwise: (schema) => schema.optional().nullable(),
         })
         .default(() => {
-          const capacityUserInput = context.extra?.USER_INPUTS?.[fieldName]
+          const capacityUserInput = context?.extra?.USER_INPUTS?.[fieldName]
           const params = getUserInputParams(capacityUserInput)
 
           return params[rangeParam]
@@ -181,7 +181,7 @@ const modificationOptionsInput = (fieldName, { type, options: optionsId }) => ({
         otherwise: (schema) => schema.notRequired().nullable(),
       })
       .default(() => {
-        const capacityUserInput = context.extra?.USER_INPUTS?.[fieldName]
+        const capacityUserInput = context?.extra?.USER_INPUTS?.[fieldName]
         const { options = [] } = getUserInputParams(capacityUserInput)
         const numberOpts = options?.filter((opt) => opt !== ' ' && !isNaN(+opt))
 
@@ -287,7 +287,7 @@ export const generateCostCapacityInput = ({ validation, grid, ...field }) => ({
   htmlType: 'number',
   validation:
     typeof validation === 'function'
-      ? lazy((_, { context }) => validation(context.extra))
+      ? lazy((_, { context }) => validation(context?.extra))
       : validation,
   grid: { md: 4 },
 })

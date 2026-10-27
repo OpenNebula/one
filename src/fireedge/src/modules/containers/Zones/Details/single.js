@@ -74,6 +74,7 @@ export const SingleView = ({
         [
           InfoSlot,
           {
+            dataCy: 'zone-info',
             isTitleEditable: true,
             onTitleChange: handleRename,
             isTitleEditDisabled: isRenaming,

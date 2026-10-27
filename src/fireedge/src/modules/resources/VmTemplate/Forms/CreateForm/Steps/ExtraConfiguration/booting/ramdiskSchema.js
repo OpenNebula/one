@@ -111,11 +111,14 @@ export const RAMDISK_DS = {
     (enabled, schema) => (enabled ? schema.strip() : schema)
   ),
   value: (_, form) => {
+    const kernelDs = form?.getValues(`extra.${KERNEL_DS_NAME}`)
+    const kernelPath = form?.getValues(`extra.${KERNEL_NAME}`)
+    const ramdiskPathEnabled = form?.getValues(
+      `extra.${RAMDISK_PATH_ENABLED_NAME}`
+    )
+
     if (
-      (form?.getValues(`extra.${RAMDISK_PATH_ENABLED_NAME}`) ||
-        !form?.getValues(`extra.${KERNEL_PATH_ENABLED_NAME}`) ||
-        !form?.getValues(`extra.${KERNEL_NAME}`) ||
-        !form?.getValues(`extra.${KERNEL_DS_NAME}`)) &&
+      (ramdiskPathEnabled || !(kernelDs || kernelPath)) &&
       form?.getValues(`extra.${RAMDISK_DS_NAME}`) !== undefined &&
       form?.setValue
     ) {

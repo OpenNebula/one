@@ -351,6 +351,7 @@ export const SingleView = ({
                 })}
               >
                 <MenuButton
+                  dataCy="action-vm-console"
                   placeholder={T.Console}
                   options={[consoleOptions]}
                   compactable
@@ -427,6 +428,7 @@ export const SingleView = ({
                         startIcon: <RefreshDouble width="16px" height="16px" />,
                         onClick: handleRefresh,
                         value: 'refresh',
+                        dataCy: 'action-refresh',
                         tooltip: T.Refresh,
                         isDisabled: isActionsDisabled,
                         compactable: true,

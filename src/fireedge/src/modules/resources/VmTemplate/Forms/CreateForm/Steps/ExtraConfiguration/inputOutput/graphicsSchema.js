@@ -112,14 +112,16 @@ export const TYPE = (isUpdate) => ({
   label: T.Type,
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
   values: arrayToOptions(Object.values(GRAPHICS_TYPES), {
-    addEmpty: false,
+    addEmpty: true,
     sorter: OPTION_SORTERS.unsort,
   }),
   validation: string()
     .trim()
     .nullable()
     .notRequired()
-    .transform((value) => normalizeGraphicsType(value) ?? value)
+    .transform((value) =>
+      value === '' ? undefined : normalizeGraphicsType(value) ?? value
+    )
     .oneOf(Object.values(GRAPHICS_TYPES))
     .default(() => (isUpdate ? undefined : GRAPHICS_TYPES.VNC)),
 

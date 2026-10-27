@@ -127,7 +127,14 @@ const VmTemplatePciCard = ({ actions, pci }) => {
     tags.length > 0 && [LabelSlot, { labels: tags }],
   ].filter(Boolean)
 
-  return <CardBlock actions={actions} isSelectable={false} slots={slots} />
+  return (
+    <CardBlock
+      actions={actions}
+      dataCy={`pci-${pci?.indexPci}`}
+      isSelectable={false}
+      slots={slots}
+    />
+  )
 }
 
 VmTemplatePciCard.propTypes = {
@@ -326,11 +333,13 @@ const PciDevices = ({ oneConfig, adminGroup }) => {
       {
         title: T.Edit,
         tooltip: T.Edit,
+        dataCy: `pci-edit-${pci?.indexPci}`,
         onClick: () => openEditPciForm(pci),
       },
       {
         title: T.Detach,
         tooltip: disableDetach ? T.DetachRestricted : T.Detach,
+        dataCy: `pci-detach-${pci?.indexPci}`,
         isDisabled: disableDetach,
         onClick: () => openDetachPciConfirm(pci),
       },

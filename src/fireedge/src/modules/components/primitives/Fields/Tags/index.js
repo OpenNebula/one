@@ -234,6 +234,11 @@ export const TagsInput = forwardRef(
               className: 'autocomplete-menu-paper',
               sx: (theme) => getMenuStyles({ theme }),
             },
+            ...(dataCy && {
+              clearIndicator: {
+                'data-cy': `${dataCy}-clear`,
+              },
+            }),
           }}
           renderTags={(tags, getTagProps) =>
             tags.map((tag, index) => {

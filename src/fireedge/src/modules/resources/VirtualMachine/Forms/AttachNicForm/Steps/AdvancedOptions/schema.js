@@ -164,37 +164,36 @@ const GENERAL_FIELDS = ({
       validation: boolean().yesOrNo(),
       grid: { sm: 6 },
     },
-    !isAlias &&
-      !hasAlias &&
-      networkModes.length > 1 && {
-        name: 'NETWORK_MODE',
-        label: T.NetworkMode,
-        type: INPUT_TYPES.RADIO,
-        optionsOnly: true,
-        notNull: true,
-        values: networkModes,
-        validation: string()
-          .trim()
-          .oneOf(networkModes.map(({ value }) => value))
-          .required()
-          .default(() => 'network')
-          .afterSubmit((value) => (value === 'network' ? undefined : value)),
-        grid: { md: 12 },
-        stepControl: [
-          {
-            condition: (value) => value !== 'network',
-            steps: ['network'],
-          },
-          {
-            condition: (value) => value !== 'auto',
-            steps: ['network-auto'],
-          },
-          {
-            condition: (value) => value === 'dummy',
-            steps: ['qos', 'security-groups'],
-          },
-        ],
-      },
+    networkModes.length > 1 && {
+      name: 'NETWORK_MODE',
+      label: T.NetworkMode,
+      type: INPUT_TYPES.RADIO,
+      htmlType: (isAlias || hasAlias) && INPUT_TYPES.HIDDEN,
+      optionsOnly: true,
+      notNull: true,
+      values: networkModes,
+      validation: string()
+        .trim()
+        .oneOf(networkModes.map(({ value }) => value))
+        .required()
+        .default(() => 'network')
+        .afterSubmit((value) => (value === 'network' ? undefined : value)),
+      grid: { md: 12 },
+      stepControl: [
+        {
+          condition: (value) => value !== 'network',
+          steps: ['network'],
+        },
+        {
+          condition: (value) => value !== 'auto',
+          steps: ['network-auto'],
+        },
+        {
+          condition: (value) => value === 'dummy',
+          steps: ['qos', 'security-groups'],
+        },
+      ],
+    },
   ].filter(Boolean)
 }
 

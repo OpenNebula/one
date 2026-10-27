@@ -181,6 +181,7 @@ export const RadioController = memo(
           {values.map(({ text, value, svg, description }) => (
             <Box
               key={`${name}-${value}`}
+              data-cy={`${cy}-${value}`}
               data-value={value}
               onClick={handleChange}
               className={

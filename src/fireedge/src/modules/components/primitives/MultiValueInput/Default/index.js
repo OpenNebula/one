@@ -135,9 +135,10 @@ export const MultiValueInput = forwardRef(
 
     const inputControl =
       mode === MODES.SELECT ? (
-        <Box data-cy={dataCy}>
+        <Box>
           <Dropdown
             key={selectKey}
+            dataCy={dataCy}
             label={label}
             placeholder={placeholder}
             hint={hint}

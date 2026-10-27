@@ -57,6 +57,28 @@ const { array: _array, fixed: _fixed, ...userInputTypes } = USER_INPUT_TYPES
 /** @type {UserInputType[]} User inputs types */
 const valuesOfUITypes = Object.values(userInputTypes)
 
+/**
+ * Creates a sibling reference that does not make an incomplete range fail
+ * against `undefined` while its fields are being filled in.
+ *
+ * The referenced field keeps its own required validation, so the fallback is
+ * only used by the cross-field comparison.
+ *
+ * @param {string} name - Sibling field name
+ * @param {number} fallback - Value used until the sibling has a numeric value
+ * @returns {*} Numeric sibling reference
+ */
+const rangeBoundaryRef = (name, fallback) =>
+  ref(name, {
+    map: (value) => {
+      const numericValue = Number(value)
+
+      return value != null && value !== '' && Number.isFinite(numericValue)
+        ? numericValue
+        : fallback
+    },
+  })
+
 /** @type {Field} Name field */
 const NAME = {
   name: 'name',
@@ -177,7 +199,9 @@ const { MIN, MAX } = (() => {
     htmlType: (type) =>
       [uiRange, uiRangeFloat].includes(type) ? 'number' : INPUT_TYPES.HIDDEN,
     grid: { sm: 6, md: 4 },
-    fieldProps: (type) => ({ step: type === uiRangeFloat ? 0.01 : 1 }),
+    fieldProps: (type) => ({
+      inputProps: { step: type === uiRangeFloat ? 0.01 : 1 },
+    }),
   }
 
   return {
@@ -185,13 +209,13 @@ const { MIN, MAX } = (() => {
       ...common,
       name: 'min',
       label: T.Min,
-      validation: validation.lessThan(ref('max')),
+      validation: validation.lessThan(rangeBoundaryRef('max', Infinity)),
     },
     MAX: {
       ...common,
       name: 'max',
       label: T.Max,
-      validation: validation.moreThan(ref('min')),
+      validation: validation.moreThan(rangeBoundaryRef('min', -Infinity)),
     },
   }
 })()
@@ -210,6 +234,8 @@ const DEFAULT_VALUE = {
     ({
       [uiNumber]: 'number',
       [uiNumberFloat]: 'number',
+      [uiRange]: 'number',
+      [uiRangeFloat]: 'number',
       [uiPassword]: INPUT_TYPES.HIDDEN,
     }[type]),
   multiple: ([type] = []) => type === uiListMultiple,
@@ -217,6 +243,14 @@ const DEFAULT_VALUE = {
     type === uiBoolean
       ? arrayToOptions(['NO', 'YES'])
       : arrayToOptions(options),
+  fieldProps: ([type] = []) =>
+    [uiNumber, uiNumberFloat, uiRange, uiRangeFloat].includes(type)
+      ? {
+          inputProps: {
+            step: [uiNumberFloat, uiRangeFloat].includes(type) ? 0.01 : 1,
+          },
+        }
+      : {},
   validation: mixed()
     .default(() => undefined)
     .when(
@@ -224,8 +258,13 @@ const DEFAULT_VALUE = {
       (type, options = [], schema) =>
         ({
           [uiList]: schema.oneOf(options).notRequired(),
-          [uiRange]: number().min(ref(MIN.name)).max(ref(MAX.name)).integer(),
-          [uiRangeFloat]: number().min(ref(MIN.name)).max(ref(MAX.name)),
+          [uiRange]: number()
+            .min(rangeBoundaryRef(MIN.name, -Infinity))
+            .max(rangeBoundaryRef(MAX.name, Infinity))
+            .integer(),
+          [uiRangeFloat]: number()
+            .min(rangeBoundaryRef(MIN.name, -Infinity))
+            .max(rangeBoundaryRef(MAX.name, Infinity)),
           [uiPassword]: schema.strip().notRequired(),
         }[type] ?? schema)
     ),

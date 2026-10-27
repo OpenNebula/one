@@ -148,6 +148,7 @@ export const ToggleController = memo(
               <CardButton
                 key={`${name}-${value}`}
                 ref={index === 0 ? ref : undefined}
+                dataCy={`${cy}-${value}`}
                 value={value}
                 text={text}
                 description={description}

@@ -25,6 +25,7 @@ import { Card, LabelSlot, TitleSlot, MetadataSlot } from '@ComponentsModule'
  *
  * @param {object} params - Input parameters
  * @param {boolean} params.zone - Zone data
+ * @param {string} params.dataCy - Data-cy attribute
  * @param {boolean} params.isSelected - Whether card is selected
  * @param {Function} params.onCheck - Check handler
  * @param {Function} params.onClick - Click handler
@@ -32,7 +33,7 @@ import { Card, LabelSlot, TitleSlot, MetadataSlot } from '@ComponentsModule'
  * @returns {Component} HostCard component
  */
 export const ZoneCard = forwardRef(
-  ({ zone, isSelected, onCheck, onClick }, ref) => {
+  ({ zone, dataCy, isSelected, onCheck, onClick }, ref) => {
     // Get the data from the host to display the card
     const { ID, NAME, TEMPLATE: { ENDPOINT, ENDPOINT_GRPC } = {} } = zone
     const { name: stateName, color: stateColor } = getZoneState(zone) ?? {}
@@ -41,6 +42,7 @@ export const ZoneCard = forwardRef(
     return (
       <Card
         ref={ref}
+        dataCy={dataCy}
         onCheck={onCheck}
         onClick={onClick}
         isSelected={isSelected}
@@ -77,6 +79,7 @@ export const ZoneCard = forwardRef(
 
 ZoneCard.propTypes = {
   zone: PropTypes.object,
+  dataCy: PropTypes.string,
   isSelected: PropTypes.bool,
   onCheck: PropTypes.func,
   onClick: PropTypes.func,
