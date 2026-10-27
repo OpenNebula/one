@@ -152,13 +152,7 @@ class DiskController
             end
         end
 
-        # If image has OG_ID in its template, use that as the disk id in responses
-        og_id_val = disk_hash.dig('IMAGE', 'TEMPLATE', 'OG_ID')
-        if og_id_val && og_id_val.to_s != ''
-            disk_id = generate_disk_uuid(0, 0, og_id_val.to_i)
-        else
-            disk_id = generate_disk_uuid(0, 0, onedisk.id.to_i)
-        end
+        disk_id = generate_disk_uuid(0, 0, onedisk.id.to_i)
 
         return {
             :name => onedisk.name,
@@ -188,16 +182,6 @@ class DiskController
           :actual_size => disk_hash['IMAGE']['SIZE'].to_i * 1024 * 1024, # MB to bytes
           :status => status
         }
-    end
-
-    def self.rewrite_disk_response_uuid(disk_response, disk_uuid)
-        return disk_response if disk_response.nil?
-
-        disk_response[:id] = disk_uuid
-        disk_response[:href] = "/ovirt-engine/api/disks/#{disk_uuid}"
-        disk_response[:image_id] = disk_uuid if disk_response.key?(:image_id)
-
-        disk_response
     end
 
     def self.nonpersistentdisk_to_ovirtdisk(client, disk_hash, uuid, vm_id)
@@ -447,31 +431,14 @@ class DiskController
         LOGGER.info("Disk info: #{disk_info}")
 
         if disk_info[:type] == 0
-            # First try to find an image whose TEMPLATE.OG_ID matches the requested id
-            images = get_onedisks(client)
-            if images.nil?
-                return 500, Helper.fault_response('Unable to obtain OpenNebula disks')
-            end
-
-            onedisk = images.find do |img|
-                begin
-                    img.to_hash.dig('IMAGE', 'TEMPLATE', 'OG_ID').to_i == disk_info[:disk_id].to_i
-                rescue StandardError
-                    false
-                end
-            end
-
-            # Fallback to direct image id lookup
-            onedisk ||= get_onedisks(client, disk_info[:disk_id])
+            onedisk = get_onedisks(client, disk_info[:disk_id])
 
             if onedisk.nil?
                 LOGGER.error('Unable to obtain OpenNebula disk')
                 return 404, Helper.fault_response('Disk not found')
             end
 
-            disk_response = persistentdisk_to_ovirtdisk(client, onedisk)
-
-            return 200, rewrite_disk_response_uuid(disk_response, uuid)
+            return 200, persistentdisk_to_ovirtdisk(client, onedisk)
         else
             vm = VmController.get_one_vms(client, :vm_id => disk_info[:vm_id])
             disks = vm.to_hash['VM']['TEMPLATE']['DISK']
@@ -592,12 +559,9 @@ class DiskController
             # LOGGER.info("Image ID: #{image_id}")
             case type
             when 'PERSISTENT'
-                response['disk'] = rewrite_disk_response_uuid(
-                    persistentdisk_to_ovirtdisk(
-                        client,
-                        get_onedisks(client, disk['IMAGE_ID'].to_i)
-                    ),
-                    disk_uuid
+                response['disk'] = persistentdisk_to_ovirtdisk(
+                    client,
+                    get_onedisks(client, disk['IMAGE_ID'].to_i)
                 )
             when 'NONPERSISTENT'
                 response['disk'] = nonpersistentdisk_to_ovirtdisk(client, disk, disk_uuid, vm_id)
@@ -645,16 +609,7 @@ class DiskController
         attachments = []
         disks.each do |disk|
             if disk['PERSISTENT'] == 'YES'
-                # Use OG_ID for the disk id/uuid if the referenced image contains it
-                begin
-                    oneimg = get_onedisks(client, disk['IMAGE_ID'].to_i)
-                    image_hash = oneimg && Helper.resource_hash(client, oneimg)
-                    og_val = image_hash&.dig('IMAGE', 'TEMPLATE', 'OG_ID')
-                rescue StandardError
-                    og_val = nil
-                end
-                disk_id_for_uuid = og_val && og_val.to_s != '' ? og_val.to_i : disk['IMAGE_ID'].to_i
-                disk_uuid = generate_disk_uuid(0, 0, disk_id_for_uuid)
+                disk_uuid = generate_disk_uuid(0, 0, disk['IMAGE_ID'].to_i)
                 attachments << format_diskattachment(client, disk, disk_uuid, vm_id, 'PERSISTENT',
                                                      :disk_follow => disk_follow)
             elsif disk.key?('IMAGE_ID') && disk['PERSISTENT'] != 'YES'
@@ -686,17 +641,7 @@ class DiskController
 
         case disk_info[:type]
         when 0
-            # First try to find a disk whose referenced image has OG_ID equal to requested id
-            disk = disks.find do |d|
-                begin
-                    img = get_onedisks(client, d['IMAGE_ID'].to_i)
-                    img.to_hash.dig('IMAGE', 'TEMPLATE', 'OG_ID').to_i == disk_info[:disk_id].to_i
-                rescue StandardError
-                    false
-                end
-            end
-            # Fallback to matching by actual IMAGE_ID
-            disk ||= disks.find {|d| d['IMAGE_ID'].to_i == disk_info[:disk_id].to_i }
+            disk = disks.find {|d| d['IMAGE_ID'].to_i == disk_info[:disk_id].to_i }
             return format_diskattachment(client, disk, disk_uuid, vm_id, 'PERSISTENT',
                                          :disk_follow => nil)
         when 1
@@ -718,6 +663,23 @@ class DiskController
         LOGGER.info("Attaching image #{image_id} to VM #{vm_id}")
         vm = VmController.get_one_vms(client, :vm_id => vm_id)
 
+        image = get_onedisks(client, image_id.to_i)
+        unless image
+            LOGGER.error "Requested image #{image_id} not found"
+            return 404, Helper.fault_response('Requested image not found')
+        end
+        real_image_id = image.id.to_i
+
+        diskless = vm.to_hash.dig('VM', 'TEMPLATE', 'DISK').nil?
+        if diskless && [2, 9].include?(vm.to_hash['VM']['STATE'].to_i)
+            error = prepare_diskless_vm_for_disk(client, vm, image)
+            return error if error
+        elsif vm.to_hash.dig('VM', 'USER_TEMPLATE', 'OVIRTAPI_FIRST_DISK_SETUP') == 'YES' &&
+              diskless
+            error = finish_first_disk_setup(vm)
+            return error if error
+        end
+
         # If the VM user template has DISK_DEV_PREFIXES, we need to
         # add the DEV_PREFIX to the disk_template
         disk_dev_prefixes_str = vm.to_hash['VM']['USER_TEMPLATE']['DISK_DEV_PREFIXES']
@@ -734,66 +696,12 @@ class DiskController
             end
 
             dev_prefix = disk_dev_prefixes[n_disks % disk_dev_prefixes.size]
-            # Resolve requested image_id which may be OG_ID
-            requested_id = image_id.to_i
-            real_image_id = nil
-            begin
-                img_direct = get_onedisks(client, requested_id)
-                real_image_id = img_direct.id.to_i if img_direct
-            rescue StandardError
-                real_image_id = nil
-            end
-
-            if real_image_id.nil?
-                images = get_onedisks(client)
-                found = images.find do |img|
-                    begin
-                        img.to_hash.dig('IMAGE', 'TEMPLATE', 'OG_ID').to_i == requested_id
-                    rescue StandardError
-                        false
-                    end
-                end
-                real_image_id = found.id.to_i if found
-            end
-
-            unless real_image_id
-                LOGGER.error "Requested image #{image_id} not found (as id or OG_ID)"
-                return 404, Helper.fault_response('Requested image not found')
-            end
-
             disk_template = "
                 DISK = [
                 IMAGE_ID = \"#{real_image_id}\",
                 DEV_PREFIX = \"#{dev_prefix}\"
             ]"
         else
-            # Resolve requested image_id which may be OG_ID
-            requested_id = image_id.to_i
-            real_image_id = nil
-            begin
-                img_direct = get_onedisks(client, requested_id)
-                real_image_id = img_direct.id.to_i if img_direct
-            rescue StandardError
-                real_image_id = nil
-            end
-
-            if real_image_id.nil?
-                images = get_onedisks(client)
-                found = images.find do |img|
-                    begin
-                        img.to_hash.dig('IMAGE', 'TEMPLATE', 'OG_ID').to_i == requested_id
-                    rescue StandardError
-                        false
-                    end
-                end
-                real_image_id = found.id.to_i if found
-            end
-
-            unless real_image_id
-                LOGGER.error "Requested image #{image_id} not found (as id or OG_ID)"
-                return 404, Helper.fault_response('Requested image not found')
-            end
-
             disk_template = "
                 DISK = [
                 IMAGE_ID = \"#{real_image_id}\"
@@ -836,9 +744,95 @@ class DiskController
             return 500, Helper.fault_response('Attached disk not found on requested VM')
         end
 
-        # For response use the originally requested id (OG_ID or actual id)
-        disk_uuid = generate_disk_uuid(0, 0, requested_id)
+        disk_uuid = generate_disk_uuid(0, 0, real_image_id)
         return 201, format_diskattachment(client, disk, disk_uuid, vm_id, 'PERSISTENT')
+    end
+
+    def self.prepare_diskless_vm_for_disk(client, vm, image)
+        vm_hash = vm.to_hash['VM']
+        requirements = vm_hash.dig('USER_TEMPLATE', 'SCHED_REQUIREMENTS').to_s
+        requirements = vm_hash.dig('TEMPLATE', 'SCHED_REQUIREMENTS').to_s if requirements.empty?
+        cluster_id = requirements[/CLUSTER_ID\s*=\s*"?(\d+)/, 1]&.to_i
+        return 500, Helper.fault_response('VM has no requested cluster') unless cluster_id
+
+        image_ds_id = image.to_hash.dig('IMAGE', 'DATASTORE_ID').to_i
+        datastores = StorageController.get_one_datastores(client)
+        return 500, Helper.fault_response('Unable to retrieve datastores') unless datastores
+
+        image_ds = datastores.find {|ds| ds.id.to_i == image_ds_id }
+        return 500, Helper.fault_response('Image datastore not found') unless image_ds
+
+        image_data = image_ds.to_hash['DATASTORE']
+        image_clusters = Array(image_data.dig('CLUSTERS', 'ID')).map(&:to_i)
+        if !image_clusters.empty? && !image_clusters.include?(cluster_id)
+            return 409, Helper.fault_response('Image datastore is not available in the VM cluster')
+        end
+
+        tm_mad = image_data['TM_MAD']
+        return 500, Helper.fault_response('Image datastore has no TM_MAD') if tm_mad.to_s.empty?
+
+        compatible_system_ds = datastores.any? do |ds|
+            data = ds.to_hash['DATASTORE']
+            next unless data['TYPE'].to_i == 1 && data['STATE'].to_s == '0'
+            next unless data['TM_MAD'] == tm_mad
+
+            clusters = Array(data.dig('CLUSTERS', 'ID')).map(&:to_i)
+            clusters.empty? || clusters.include?(cluster_id)
+        end
+        unless compatible_system_ds
+            return 409, Helper.fault_response('No compatible system datastore in the VM cluster')
+        end
+
+        ds_requirements = "TM_MAD = \\\"#{tm_mad}\\\""
+        update = "SCHED_DS_REQUIREMENTS = \"#{ds_requirements}\"\n" \
+                 'OVIRTAPI_FIRST_DISK_SETUP = "YES"'
+        rc = vm.update(update, true)
+        return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
+
+        rc = vm.info
+        return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
+
+        actual_requirement = vm.to_hash.dig('VM', 'USER_TEMPLATE', 'SCHED_DS_REQUIREMENTS')
+        expected_requirement = "TM_MAD = \"#{tm_mad}\""
+        if actual_requirement != expected_requirement
+            return 500, Helper.fault_response('Unable to replace VM datastore requirement')
+        end
+
+        finish_first_disk_setup(vm)
+    end
+
+    def self.finish_first_disk_setup(vm)
+        state = vm.to_hash['VM']['STATE'].to_i
+        return nil if state == 8
+
+        if [2, 9].include?(state)
+            rc = state == 2 ? vm.release : vm.resume
+            return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
+        end
+
+        deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 210
+        poweroff_requested = false
+        loop do
+            rc = vm.info
+            return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
+
+            data = vm.to_hash['VM']
+            return nil if data['STATE'].to_i == 8
+            if [6, 11].include?(data['STATE'].to_i)
+                return 500, Helper.fault_response("VM entered state #{data['STATE']} during disk setup")
+            end
+            if data['STATE'].to_i == 3 && data['LCM_STATE'].to_i == 3 && !poweroff_requested
+                rc = vm.poweroff(true)
+                return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
+
+                poweroff_requested = true
+                next
+            end
+            return 500, Helper.fault_response('Timed out waiting for VM during disk setup') if
+                Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
+
+            sleep 3
+        end
     end
 
     # Detach a disk from a VM (disk attachment removal)

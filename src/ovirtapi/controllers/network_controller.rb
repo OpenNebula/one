@@ -383,6 +383,11 @@ class NetworkController
             template = "NIC = [ NETWORK_ID = \"#{nic_id}\" ]"
         end
 
+        diskless = vm_hash.dig('VM', 'TEMPLATE', 'DISK').nil?
+        staged = diskless && ([2, 9].include?(vm_hash['VM']['STATE'].to_i) ||
+            vm_hash.dig('VM', 'USER_TEMPLATE', 'OVIRTAPI_NIC_SETUP') == 'YES')
+        return attach_staged_nic(vm, vm_id, nic_id, template, nics) if staged
+
         (1..360).each do |attempt|
             rc = vm.nic_attach(template)
             if !OpenNebula.is_error?(rc)
@@ -399,6 +404,139 @@ class NetworkController
             end
             LOGGER.info("NIC attach: attempt #{attempt}/360 failed...")
             sleep 5
+        end
+        return 500, Helper.fault_response("Unable to attach NIC #{nic_id} to VM #{vm_id}")
+    end
+
+    def self.attach_staged_nic(vm, vm_id, nic_id, template, nics)
+        user_template = vm.to_hash.dig('VM', 'USER_TEMPLATE') || {}
+        if user_template['OVIRTAPI_NIC_SETUP'] == 'YES'
+            if user_template['OVIRTAPI_NIC_SETUP_NETWORK_ID'].to_i != nic_id.to_i
+                return 409, Helper.fault_response('Another NIC attachment is in progress')
+            end
+            original_ids = user_template['OVIRTAPI_NIC_SETUP_NIC_IDS'].to_s.split(',').map(&:to_i)
+        else
+            original_ids = nics.map {|nic| nic['NIC_ID'].to_i }
+            update = "OVIRTAPI_NIC_SETUP = \"YES\"\n" \
+                     "OVIRTAPI_NIC_SETUP_NETWORK_ID = \"#{nic_id}\"\n" \
+                     "OVIRTAPI_NIC_SETUP_NIC_IDS = \"#{original_ids.join(',')}\""
+            rc = vm.update(update, true)
+            return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
+        end
+
+        state = vm.to_hash['VM']['STATE'].to_i
+        attached_nic = find_staged_nic(vm, nic_id, original_ids)
+        if state == 9 && attached_nic
+            clear_staged_nic_marker(vm, vm_id)
+            return one_nic_to_ovirt_nic(attached_nic, vm_id)
+        end
+        if [2, 8, 9].include?(state)
+            rc = state == 2 ? vm.release : vm.resume
+            return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
+        end
+
+        error = wait_for_staged_nic_state(vm, 3, 150, :running => true)
+        if error
+            cleanup_error = return_staged_vm_to_undeployed(vm) if vm.to_hash['VM']['STATE'].to_i == 3
+            if cleanup_error
+                return 500, Helper.fault_response(
+                    "#{error[1][:fault][:detail]}; unable to undeploy VM #{vm_id}: " \
+                    "#{cleanup_error[1][:fault][:detail]}")
+            end
+
+            return error
+        end
+
+        attached_nic ||= find_staged_nic(vm, nic_id, original_ids)
+        failure = nil
+        unless attached_nic
+            rc = vm.nic_attach(template)
+            if OpenNebula.is_error?(rc)
+                failure = [500, Helper.fault_response(rc.message)]
+            else
+                attached_nic, failure = wait_for_staged_nic_attachment(vm, nic_id, original_ids)
+            end
+        end
+
+        cleanup_error = return_staged_vm_to_undeployed(vm)
+        if cleanup_error
+            if failure
+                detail = failure[1][:fault][:detail]
+                return 500, Helper.fault_response(
+                    "#{detail}; unable to undeploy VM #{vm_id}: " \
+                    "#{cleanup_error[1][:fault][:detail]}")
+            end
+
+            return cleanup_error
+        end
+        return failure if failure
+
+        clear_staged_nic_marker(vm, vm_id)
+        one_nic_to_ovirt_nic(attached_nic, vm_id)
+    end
+
+    def self.clear_staged_nic_marker(vm, vm_id)
+        rc = vm.update('OVIRTAPI_NIC_SETUP = "NO"', true)
+        LOGGER.warn("Unable to clear NIC setup marker for VM #{vm_id}: #{rc.message}") if
+            OpenNebula.is_error?(rc)
+    end
+
+    def self.find_staged_nic(vm, nic_id, original_ids)
+        nic_data = vm.to_hash.dig('VM', 'TEMPLATE', 'NIC')
+        attached_nics = nic_data.is_a?(Array) ? nic_data : [nic_data].compact
+        attached_nics.reverse.find do |nic|
+            nic['NETWORK_ID'].to_i == nic_id.to_i && !original_ids.include?(nic['NIC_ID'].to_i)
+        end
+    end
+
+    def self.wait_for_staged_nic_attachment(vm, nic_id, original_ids)
+        deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 90
+        loop do
+            rc = vm.info
+            return nil, [500, Helper.fault_response(rc.message)] if OpenNebula.is_error?(rc)
+
+            data = vm.to_hash['VM']
+            nic = find_staged_nic(vm, nic_id, original_ids)
+            return nic, nil if nic && data['STATE'].to_i == 3 && data['LCM_STATE'].to_i == 3
+            if [6, 11].include?(data['STATE'].to_i)
+                return nil, [500, Helper.fault_response('VM failed during NIC attachment')]
+            end
+            if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
+                return nil, [500, Helper.fault_response('Timed out waiting for NIC attachment')]
+            end
+
+            sleep 3
+        end
+    end
+
+    def self.return_staged_vm_to_undeployed(vm)
+        return nil if vm.to_hash['VM']['STATE'].to_i == 9
+
+        error = wait_for_staged_nic_state(vm, 3, 90, :running => true)
+        return error if error
+
+        rc = vm.undeploy(true)
+        return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
+
+        wait_for_staged_nic_state(vm, 9, 90)
+    end
+
+    def self.wait_for_staged_nic_state(vm, expected_state, timeout, running: false)
+        deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+        loop do
+            rc = vm.info
+            return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
+
+            state = vm.to_hash['VM']
+            return nil if state['STATE'].to_i == expected_state &&
+                (!running || state['LCM_STATE'].to_i == 3)
+            if [6, 11].include?(state['STATE'].to_i)
+                return 500, Helper.fault_response("VM entered state #{state['STATE']} during NIC setup")
+            end
+            return 500, Helper.fault_response('Timed out waiting for VM during NIC setup') if
+                Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
+
+            sleep 3
         end
     end
 

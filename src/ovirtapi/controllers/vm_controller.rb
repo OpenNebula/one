@@ -92,7 +92,7 @@ class VmController
         state_translations = {
             0 => 'powering_up',
           1 => 'wait_for_launch',
-          2 => 'wait_for_launch',
+          2 => 'down',
           4 => 'paused',
           5 => 'suspended',
           6 => 'unknown',
@@ -117,7 +117,7 @@ class VmController
     def self.onevm_to_ovirtvm(client, onevm, nics: nil, disks: nil, tags: nil)
         one_hash = Helper.resource_hash(client, onevm)
 
-        history = one_hash['VM']['HISTORY_RECORDS']['HISTORY']
+        history = one_hash.dig('VM', 'HISTORY_RECORDS', 'HISTORY')
 
         # check if not nil
         if !history.nil?
@@ -125,7 +125,9 @@ class VmController
             cluster_id = history.is_a?(Array) ? history.last['CID'] : history['CID']
         else
             host_id = nil
-            cluster_id = nil
+            requirements = one_hash.dig('VM', 'USER_TEMPLATE', 'SCHED_REQUIREMENTS').to_s
+            requirements = one_hash.dig('VM', 'TEMPLATE', 'SCHED_REQUIREMENTS').to_s if requirements.empty?
+            cluster_id = requirements[/CLUSTER_ID\s*=\s*"?(\d+)/, 1]
         end
 
         vm_template = '<VM>' + onevm.template_xml + '</VM>'
@@ -457,6 +459,9 @@ class VmController
             # Get VM info
             vm = get_one_vms(client, :vm_id => vm_id)
             one_hash = vm.to_hash
+            if one_hash['VM']['STATE'].to_i == 2
+                return 409, Helper.fault_response('VM is on hold awaiting its first disk').to_json
+            end
             status = get_vm_status(one_hash['VM']['STATE'].to_i, one_hash['VM']['LCM_STATE'].to_i)
 
             LOGGER.info("VM status: #{status}, STATE: #{one_hash['VM']['STATE'].to_i}," \
@@ -723,25 +728,10 @@ class VmController
 
         # Create vm
         vm = OpenNebula::VirtualMachine.new(OpenNebula::VirtualMachine.build_xml, client)
-        rc = vm.allocate(xml_element.template_str)
+        rc = vm.allocate(xml_element.template_str, true)
         if OpenNebula.is_error?(rc)
             LOGGER.error("Error: #{rc.message}")
             return 500, Helper.fault_response("Error: #{rc.message}")
-        end
-
-        (1..12).each do |_|
-            sleep 5
-            begin
-                rc = vm.info
-                if OpenNebula.is_error?(rc)
-                    LOGGER.error "Error retrieving VM: #{rc.message}"
-                    return 500, Helper.fault_response("Error retrieving VM: #{rc.message}")
-                end
-                vm_hash = vm.to_hash
-                break if get_vm_status(vm_hash['VM']['STATE'].to_i,
-                                       vm_hash['VM']['LCM_STATE'].to_i) == 'up'
-            rescue StandardError
-            end
         end
 
         # Change owner of the VM
@@ -754,11 +744,13 @@ class VmController
         end
 
         if uid && gid
-            vm.chown(uid.to_i, gid.to_i)
-            rc = vm.info
-            if OpenNebula.is_error?(rc)
-                LOGGER.error "Error retrieving VM: #{rc.message}"
-                return 500, Helper.fault_response("Error retrieving VM: #{rc.message}")
+            begin
+                rc = vm.chown(uid.to_i, gid.to_i)
+                if OpenNebula.is_error?(rc)
+                    LOGGER.warn("Unable to change VM #{vm.id} owner: #{rc.message}")
+                end
+            rescue StandardError => e
+                LOGGER.warn("Unable to change VM #{vm.id} owner: #{e.message}")
             end
         end
 
@@ -767,15 +759,16 @@ class VmController
             new_template = <<-EOT
             DISK_DEV_PREFIXES = "#{disk_dev_prefixes.join(',')}"
             EOT
-            vm.update(new_template, true)
+            rc = vm.update(new_template, true)
+            if OpenNebula.is_error?(rc)
+                return 500, Helper.fault_response("Error updating disk prefixes: #{rc.message}")
+            end
             rc = vm.info
             if OpenNebula.is_error?(rc)
                 LOGGER.error "Error retrieving VM: #{rc.message}"
                 return 500, Helper.fault_response("Error retrieving VM: #{rc.message}")
             end
         end
-
-        stop_vm(client, vm.id)
 
         return onevm_to_ovirtvm(client, vm)
     end
@@ -863,41 +856,27 @@ class VmController
 
     def self.create_vm_from_text_template(client, text_template_str, disk_prefix)
         vm = OpenNebula::VirtualMachine.new(OpenNebula::VirtualMachine.build_xml, client)
-        rc = vm.allocate(text_template_str)
+        rc = vm.allocate(text_template_str, true)
 
         if OpenNebula.is_error?(rc)
             LOGGER.error("Error allocating OVF VM: #{rc.message}")
             return 500, Helper.fault_response("Error: #{rc.message}")
         end
 
-        (1..12).each do |_|
-            sleep 5
-            begin
-                rc = vm.info
-                if OpenNebula.is_error?(rc)
-                    LOGGER.error "Error retrieving VM: #{rc.message}"
-                    return 500, Helper.fault_response("Error retrieving VM: #{rc.message}")
-                end
-                vm_hash = vm.to_hash
-                break if get_vm_status(vm_hash['VM']['STATE'].to_i,
-                                       vm_hash['VM']['LCM_STATE'].to_i) == 'up'
-            rescue StandardError
-            end
-        end
-
         # --- Apply DISK_DEV_PREFIXES to the VM ---
         new_user_template = <<-EOT
             DISK_DEV_PREFIXES = "#{disk_prefix}"
         EOT
-        vm.update(new_user_template, true)
+        rc = vm.update(new_user_template, true)
+        if OpenNebula.is_error?(rc)
+            return 500, Helper.fault_response("Error updating disk prefixes: #{rc.message}")
+        end
 
         rc = vm.info
         if OpenNebula.is_error?(rc)
             LOGGER.error "Error retrieving VM after updating prefix: #{rc.message}"
             return 500, Helper.fault_response("Error retrieving VM: #{rc.message}")
         end
-
-        stop_vm(client, vm.id)
 
         return onevm_to_ovirtvm(client, vm)
     end
@@ -972,25 +951,11 @@ class VmController
         one_template = create_template(body)
 
         vm = OpenNebula::VirtualMachine.new(OpenNebula::VirtualMachine.build_xml, client)
-        rc = vm.allocate(one_template)
+        rc = vm.allocate(one_template, true)
         if OpenNebula.is_error?(rc)
             LOGGER.error("Error: #{rc.message}")
-            return {}
+            return 500, Helper.fault_response("Error: #{rc.message}")
         end
-        sleep 5
-        (1..12).each do |_|
-            begin
-                vm.info
-                vm_hash = vm.to_hash
-                break if get_vm_status(vm_hash['VM']['STATE'].to_i,
-                                       vm_hash['VM']['LCM_STATE'].to_i) == 'up'
-
-                sleep 5
-            rescue StandardError
-                sleep 5
-            end
-        end
-
         # Add DISK_DEV_PREFIXES to the VM user template with sd value
         os_type = body.dig('os', 'type')
 
@@ -1004,14 +969,15 @@ class VmController
         new_template = <<-EOT
             DISK_DEV_PREFIXES = "#{disk_prefix}"
         EOT
-        vm.update(new_template, true)
+        rc = vm.update(new_template, true)
+        if OpenNebula.is_error?(rc)
+            return 500, Helper.fault_response("Error updating disk prefixes: #{rc.message}")
+        end
         rc = vm.info
         if OpenNebula.is_error?(rc)
             LOGGER.error "Error retrieving VM: #{rc.message}"
             return 500, Helper.fault_response("Error retrieving VM: #{rc.message}")
         end
-
-        stop_vm(client, vm.id)
 
         return onevm_to_ovirtvm(client, vm)
     end

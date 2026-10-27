@@ -115,22 +115,6 @@ class ImageTransferController
                     d['IMAGE_ID'].to_i == pimage_id
             end
 
-            vm_disk ||= vm_disks.find do |d|
-                next false unless d['PERSISTENT'] == 'YES' && d['IMAGE_ID']
-
-                img = OpenNebula::Image.new(
-                    OpenNebula::Image.build_xml(d['IMAGE_ID'].to_i),
-                    client
-                )
-
-                rc = img.info
-                next false if OpenNebula.is_error?(rc)
-
-                img['TEMPLATE/OG_ID'].to_i == pimage_id
-            rescue StandardError
-                false
-            end
-
             disk_id = vm_disk['DISK_ID'].to_i if vm_disk
         end
 
@@ -340,7 +324,7 @@ class ImageTransferController
             )
         end
 
-        image_id = transfer[:og_id].to_i
+        image_id = transfer[:image_id].to_i
 
         # If the transfer was cancelled, delete the image
         if cancel == true
@@ -607,7 +591,7 @@ class ImageTransferController
             :phase => 'transferring',
             :created_at => Time.now, # Add timestamp for debugging
             :updated_at => Time.now.to_i, # Adds last update timestamp to detect old transfers
-            :og_id => image_id.to_s, # Original requested image id (stored for template OG_ID)
+            :image_id => image_id.to_s,
             :onebex_url => onebex_url,
             :port => port,
             :vm_id => vm_id # only for backup transfers

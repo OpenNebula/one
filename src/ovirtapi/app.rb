@@ -876,7 +876,10 @@ post "#{API_PREFIX}/vms/:id/nics" do
     body = JSON.parse(request.body.read)
     vm_id = Helper.uuid_to_int(params[:id])
     vnet_id = Helper.uuid_to_int(body['vnic_profile']['id'])
-    NetworkController.attach_ovirt_nic(client, vm_id.to_i, vnet_id.to_i).to_json
+    result = NetworkController.attach_ovirt_nic(client, vm_id.to_i, vnet_id.to_i)
+    halt result[0], result[1].to_json if result.is_a?(Array)
+
+    result.to_json
 end
 
 # Reference: http://ovirt.github.io/ovirt-engine-api-model/master/#services/vm_checkpoints/methods/list
@@ -939,19 +942,20 @@ post "#{API_PREFIX}/vms" do
                                                                                       cluster_id)
 
                 # Pass the disk_prefix into the method
-                halt 201,
-                     VmController.create_vm_from_text_template(client, one_template_str,
-                                                               disk_prefix).to_json
+                result = VmController.create_vm_from_text_template(client, one_template_str,
+                                                                   disk_prefix)
             else
                 LOGGER.info('Detected standard OpenNebula XML format.')
                 # Proceed with your original XML manipulation method
-                halt 201,
-                     VmController.create_vm_from_template(client, vm_template, cluster_id,
-                                                          name).to_json
+                result = VmController.create_vm_from_template(client, vm_template, cluster_id,
+                                                              name)
             end
         else
-            halt 201, VmController.create_vm(client, body).to_json
+            result = VmController.create_vm(client, body)
         end
+        halt result[0], result[1].to_json if result.is_a?(Array)
+
+        halt 201, result.to_json
     rescue Helper::LookupError
         raise
     rescue StandardError => e
