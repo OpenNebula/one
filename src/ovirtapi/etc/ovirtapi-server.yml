@@ -12,7 +12,6 @@ app:
   onebex_port: 13014
   onebex_port_ssl: 13015
   finalize_marker_timeout: 300
-  image_unlock_timeout: 25
   tmp_images_path: "/var/tmp/one_ovirt_wrapper"
   debug: "false"
   backup_freeze: "NONE"

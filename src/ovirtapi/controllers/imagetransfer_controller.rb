@@ -30,6 +30,9 @@ require_relative 'helper_functions'
 # Controller for managing image transfers
 class ImageTransferController
 
+    TRANSFER_RETENTION = 60 * 60
+    SLOW_FINALIZE_WARNING = 5 * 60
+
     @db = nil
 
     def self.start
@@ -330,54 +333,58 @@ class ImageTransferController
             )
         end
 
+        # FINISH closes the OneBEX writer socket. Conversion may continue for a
+        # long time, but it no longer needs the reserved listening port.
+        begin
+            DiskController.release_port(port)
+        rescue StandardError => e
+            LOGGER.warn "Could not release writer port #{port}: #{e.message}"
+        end
+
         image_id = transfer[:image_id].to_i
 
         # If the transfer was cancelled, delete the image
         if cancel == true
-            begin
-                disk = OpenNebula::Image.new(OpenNebula::Image.build_xml(image_id), client)
+            disk = OpenNebula::Image.new(OpenNebula::Image.build_xml(image_id), client)
 
-                rc = disk.info
-                if OpenNebula.is_error?(rc)
-                    LOGGER.error "Failed to retrieve disk info. Image ID: #{image_id}"
-                    return 500, Helper.fault_response(
-                        "Failed to retrieve disk info. Image ID: #{image_id}"
-                    )
-                end
-
-                rc = disk.delete
-
-                phase = nil
-
-                if OpenNebula.is_error?(rc)
-                    phase = 'finished_failure'
-                    LOGGER.error "Failed to delete image #{image_id}: #{rc.message}"
-                else
-                    phase = 'finished_cleanup'
-                    LOGGER.info "Deleted image #{image_id} after cancelling " \
-                                "transfer #{transfer_uuid}."
-                end
-
-                @db.transaction do
-                    transfers = @db.fetch(:transfers, [])
-                    t_to_update = transfers.find {|t| t[:uuid] == transfer_uuid }
-
-                    if t_to_update
-                        t_to_update[:phase] = phase
-                        t_to_update[:updated_at] = Time.now.to_i
-                        t_to_update[:sync_error] = nil
-                        t_to_update[:proxy_url] = nil
-
-                        @db[:transfers] = transfers
-                    end
-                end
-
-                LOGGER.info("Successfully cancelled transfer #{transfer_uuid}.")
-
-                return 200, { :status => 'complete' }
-            ensure
-                DiskController.release_port(port)
+            rc = disk.info
+            if OpenNebula.is_error?(rc)
+                LOGGER.error "Failed to retrieve disk info. Image ID: #{image_id}"
+                return 500, Helper.fault_response(
+                    "Failed to retrieve disk info. Image ID: #{image_id}"
+                )
             end
+
+            rc = disk.delete
+
+            phase = nil
+
+            if OpenNebula.is_error?(rc)
+                phase = 'finished_failure'
+                LOGGER.error "Failed to delete image #{image_id}: #{rc.message}"
+            else
+                phase = 'finished_cleanup'
+                LOGGER.info "Deleted image #{image_id} after cancelling " \
+                            "transfer #{transfer_uuid}."
+            end
+
+            @db.transaction do
+                transfers = @db.fetch(:transfers, [])
+                t_to_update = transfers.find {|t| t[:uuid] == transfer_uuid }
+
+                if t_to_update
+                    t_to_update[:phase] = phase
+                    t_to_update[:updated_at] = Time.now.to_i
+                    t_to_update[:sync_error] = nil
+                    t_to_update[:proxy_url] = nil
+
+                    @db[:transfers] = transfers
+                end
+            end
+
+            LOGGER.info("Successfully cancelled transfer #{transfer_uuid}.")
+
+            return 200, { :status => 'complete' }
         end
 
         # Finalize the transfer
@@ -394,87 +401,82 @@ class ImageTransferController
             end
         end
 
-        Thread.new do
-            begin
-                sleep 5
-
-                deadline = Time.now + IMAGE_UNLOCK_TIMEOUT
-                phase = nil
-
-                while Time.now < deadline
-                    disk = OpenNebula::Image.new(OpenNebula::Image.build_xml(image_id), client)
-
-                    rc = disk.info
-                    if OpenNebula.is_error?(rc)
-                        LOGGER.error "Failed to retrieve disk #{image_id} info: #{rc.message}"
-                        phase = 'finished_failure'
-                        break
-                    end
-
-                    state = disk.state.to_i
-
-                    if state != 4
-                        if state == 1
-                            phase = 'finished_success'
-                            LOGGER.info "Image #{image_id} is READY. " \
-                                        "Transfer #{transfer_uuid} finished successfully."
-                        else
-                            phase = 'finished_failure'
-                            LOGGER.error "Image #{image_id} is not READY. Current state: #{state}"
-                        end
-
-                        break
-                    end
-
-                    sleep 1
-                end
-
-                phase ||= 'finished_failure'
-
-                if phase == 'finished_failure'
-                    LOGGER.error "Image #{image_id} did not leave LOCKED state before timeout. "\
-                                 "Transfer #{transfer_uuid} failed."
-                end
-
-                @db.transaction do
-                    transfers = @db.fetch(:transfers, [])
-                    t_to_update = transfers.find {|t| t[:uuid] == transfer_uuid }
-
-                    if t_to_update
-                        t_to_update[:phase] = phase
-                        t_to_update[:updated_at] = Time.now.to_i
-                        t_to_update[:sync_error] = nil
-                        t_to_update[:proxy_url] = nil
-
-                        @db[:transfers] = transfers
-                    end
-                end
-            rescue StandardError => e
-                LOGGER.error 'Interactive restore finalize thread failed ' \
-                             "for #{transfer_uuid}: #{e.message}"
-                LOGGER.error(e.backtrace.join("\n")) if e.backtrace
-
-                @db.transaction do
-                    transfers = @db.fetch(:transfers, [])
-                    t_to_update = transfers.find {|t| t[:uuid] == transfer_uuid }
-
-                    if t_to_update
-                        t_to_update[:phase] = 'finished_failure'
-                        t_to_update[:updated_at] = Time.now.to_i
-                        t_to_update[:sync_error] = e.message
-                        t_to_update[:proxy_url] = nil
-
-                        @db[:transfers] = transfers
-                    end
-                end
-            ensure
-                DiskController.release_port(port)
-            end
-        end
+        Thread.new { monitor_upload_finalize(client, transfer_uuid, image_id) }
 
         LOGGER.info("Transfer #{transfer_uuid} is finalizing asynchronously.")
 
         return 200, { :status => 'complete' }
+    end
+
+    def self.monitor_upload_finalize(client, transfer_uuid, image_id)
+        sleep 5
+        next_warning = Process.clock_gettime(Process::CLOCK_MONOTONIC) + SLOW_FINALIZE_WARNING
+
+        loop do
+            begin
+                transfer = active_transfers.find {|t| t[:uuid] == transfer_uuid }
+                break unless transfer && transfer[:phase] == 'finalizing_success'
+
+                disk = OpenNebula::Image.new(OpenNebula::Image.build_xml(image_id), client)
+                rc = disk.info
+
+                if OpenNebula.is_error?(rc)
+                    if rc.errno == OpenNebula::Error::ENO_EXISTS
+                        if store_upload_result(transfer_uuid, 'finished_failure', rc.message)
+                            LOGGER.error "Image #{image_id} no longer exists. " \
+                                         "Transfer #{transfer_uuid} failed."
+                        end
+                        break
+                    end
+
+                    LOGGER.warn "Could not retrieve image #{image_id} during finalize: #{rc.message}"
+                else
+                    phase = case disk.state.to_i
+                            when 1 then 'finished_success'
+                            when 5 then 'finished_failure'
+                            end
+
+                    if phase
+                        if store_upload_result(transfer_uuid, phase)
+                            if phase == 'finished_success'
+                                LOGGER.info "Image #{image_id} is READY. " \
+                                            "Transfer #{transfer_uuid} finished successfully."
+                            else
+                                LOGGER.error "Image #{image_id} entered ERROR state. " \
+                                             "Transfer #{transfer_uuid} failed."
+                            end
+                        end
+                        break
+                    end
+                end
+            rescue StandardError => e
+                LOGGER.warn "Could not check image #{image_id} during finalize: #{e.message}"
+            end
+
+            now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+            if now >= next_warning
+                LOGGER.warn "Image #{image_id} is still finalizing for transfer #{transfer_uuid}."
+                next_warning = now + SLOW_FINALIZE_WARNING
+            end
+            sleep 1
+        end
+    end
+
+    def self.store_upload_result(transfer_uuid, phase, error = nil)
+        stored = false
+        @db.transaction do
+            transfers = @db.fetch(:transfers, [])
+            transfer = transfers.find {|t| t[:uuid] == transfer_uuid }
+            if transfer && transfer[:phase] == 'finalizing_success'
+                transfer[:phase] = phase
+                transfer[:updated_at] = Time.now.to_i
+                transfer[:sync_error] = error
+                transfer[:proxy_url] = nil
+                @db[:transfers] = transfers
+                stored = true
+            end
+        end
+        stored
     end
 
     def self.finalize_backup(client, vm_id)
@@ -536,10 +538,9 @@ class ImageTransferController
     end
 
     def self.get_transfer(transfer_uuid)
-        # Find the transfer in active transfers
-        transfer = active_transfers.find {|t| t[:uuid] == transfer_uuid }
         update_transfer_timestamp(transfer_uuid)
         clean_expired_transfers
+        transfer = active_transfers.find {|t| t[:uuid] == transfer_uuid }
 
         if transfer.nil?
             return 404, { :error => 'Transfer not found' }
@@ -618,13 +619,13 @@ class ImageTransferController
             transfers = @db.fetch(:transfers, [])
             transfer = transfers.find {|t| t[:uuid].to_s == uuid.to_s }
 
-            if transfer
+            if transfer && transfer[:phase] == 'transferring'
                 transfer[:updated_at] = Time.now.to_i
                 @db[:transfers] = transfers
-                updated_transfer = transfer
-            else
+            elsif transfer.nil?
                 LOGGER.warn "Warning: Transfer with UUID #{uuid} not found."
             end
+            updated_transfer = transfer
         end
         updated_transfer
     end
@@ -757,37 +758,31 @@ class ImageTransferController
     end
 
     def self.clean_expired_transfers
-        sixty_minutes_ago = Time.now.to_i - (60 * 60)
-
-        expired_transfers = active_transfers.select do |transfer|
-            transfer[:updated_at] < sixty_minutes_ago
-        end
-
-        cleaned_uuids = []
-
-        expired_transfers.each do |transfer|
-            LOGGER.info('Found expired ImageTransfer.')
-            LOGGER.info("Transfer ID: #{transfer[:uuid]}")
-
-            cleaned_uuids << transfer[:uuid]
-            LOGGER.info("Expired transer #{transfer[:uuid]} cleaned successfully.")
-        end
-
-        return unless cleaned_uuids.any?
-
+        now = Time.now.to_i
+        expired_uuids = []
+        removed_uuids = []
         @db.transaction do
             transfers = @db.fetch(:transfers, [])
-            transfers.each do |transfer|
-                next unless cleaned_uuids.include?(transfer[:uuid])
-
-                # Remove unnecessary data from active transfers
-                transfer[:proxy_url] = nil
-
-                # Change transfer phase to finished_failure
-                transfer[:phase] = 'finished_failure'
+            transfers.reject! do |transfer|
+                age = now - transfer[:updated_at].to_i
+                if transfer[:phase].to_s.start_with?('finished_')
+                    if age >= TRANSFER_RETENTION
+                        removed_uuids << transfer[:uuid]
+                        next true
+                    end
+                elsif transfer[:phase] != 'finalizing_success' && age >= TRANSFER_RETENTION
+                    transfer[:phase] = 'finished_failure'
+                    transfer[:updated_at] = now
+                    transfer[:proxy_url] = nil
+                    expired_uuids << transfer[:uuid]
+                end
+                false
             end
-            @db[:transfers] = transfers
+            @db[:transfers] = transfers unless expired_uuids.empty? && removed_uuids.empty?
         end
+
+        expired_uuids.each {|uuid| LOGGER.info "Expired ImageTransfer #{uuid} marked failed." }
+        removed_uuids.each {|uuid| LOGGER.info "Removed finished ImageTransfer #{uuid}." }
     end
 
     def self.backup_includes_disk?(backup, disk)

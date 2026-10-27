@@ -91,8 +91,6 @@ end
 finalize_marker_timeout = 300 if finalize_marker_timeout <= 0
 FINALIZE_MARKER_TIMEOUT = finalize_marker_timeout
 
-IMAGE_UNLOCK_TIMEOUT = CONFIG['app'].fetch('image_unlock_timeout', 25)
-
 # Validate required config values
 [
     ['one_xmlrpc', ONE_XMLRPC],
@@ -151,7 +149,9 @@ LOGGER.info("PUBLIC_IP: #{PUBLIC_IP}")
 LOGGER.info("ONEBEX_PORT: #{ONEBEX_PORT}")
 LOGGER.info("ONEBEX_PORT_SSL: #{ONEBEX_PORT_SSL || 'Not configured (using HTTP)'}")
 LOGGER.info("FINALIZE_MARKER_TIMEOUT: #{FINALIZE_MARKER_TIMEOUT}")
-LOGGER.info("IMAGE_UNLOCK_TIMEOUT: #{IMAGE_UNLOCK_TIMEOUT}")
+if CONFIG['app'].key?('image_unlock_timeout')
+    LOGGER.warn('app.image_unlock_timeout is ignored; LOCKED images remain finalizing.')
+end
 LOGGER.info("TMP_IMAGES_PATH: #{TMP_IMAGES_PATH}")
 LOGGER.info("INSTANCE_ID: #{INSTANCE_ID}")
 LOGGER.info("DEBUG: #{DEBUG}")

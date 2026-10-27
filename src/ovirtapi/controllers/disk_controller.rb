@@ -559,14 +559,14 @@ class DiskController
             # LOGGER.info("Image ID: #{image_id}")
             case type
             when 'PERSISTENT'
-                response['disk'] = persistentdisk_to_ovirtdisk(
+                response[:disk] = persistentdisk_to_ovirtdisk(
                     client,
                     get_onedisks(client, disk['IMAGE_ID'].to_i)
                 )
             when 'NONPERSISTENT'
-                response['disk'] = nonpersistentdisk_to_ovirtdisk(client, disk, disk_uuid, vm_id)
+                response[:disk] = nonpersistentdisk_to_ovirtdisk(client, disk, disk_uuid, vm_id)
             when 'VOLATILE'
-                response['disk'] = volatiledisk_to_ovirtdisk(client, disk, disk_uuid, vm_id)
+                response[:disk] = volatiledisk_to_ovirtdisk(client, disk, disk_uuid, vm_id)
             else
                 LOGGER.error("Unknown disk type: #{type}")
                 return 500, Helper.fault_response("Unknown disk type: #{type}")
