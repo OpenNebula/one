@@ -31,7 +31,7 @@ genPathResources()
 genFireedgeKey()
 
 const formatError = 'Error: %s'
-const allowedConnectionTypes = new Set(['vnc', 'ssh', 'rdp', 'telnet'])
+const allowedConnectionTypes = new Set(['vnc', 'ssh', 'rdp'])
 const maxTokenLength = 64 * 1024
 /**
  * Object console error log.
@@ -55,15 +55,6 @@ const clientOptions = {
     rdp: ['width', 'height', 'dpi', 'rangeports'],
     vnc: ['width', 'height', 'dpi', 'rangeports'],
     ssh: [
-      'color-scheme',
-      'font-name',
-      'font-size',
-      'width',
-      'height',
-      'dpi',
-      'rangeports',
-    ],
-    telnet: [
       'color-scheme',
       'font-name',
       'font-size',
@@ -125,6 +116,7 @@ const verifyGuacamoleClient = ({ req } = {}) => {
     const connectionSettings = settings?.connection?.settings
 
     if (!allowedConnectionTypes.has(connectionType)) return false
+    if (settings.protocol !== connectionType) return false
     if (
       !connectionSettings ||
       typeof connectionSettings !== 'object' ||
@@ -153,6 +145,29 @@ const clientCallbacks = {
     if (settings?.expiration < Date.now()) {
       return callback(new Error('Token expired'))
     }
+
+    if (!allowedConnectionTypes.has(settings?.protocol)) {
+      return callback(new Error('Invalid Guacamole protocol'))
+    }
+
+    // Apply current server policy after the bridge merges token/query values.
+    const enforced = getFireedgeConfig().guacamole?.enforced
+    settings.connection = {
+      ...settings.connection,
+      ...enforced?.common,
+      ...enforced?.[settings.protocol],
+    }
+
+    // The bridge treats false/0 as absent. Send scalar values as Guacamole
+    // strings so explicit YAML booleans and numeric values survive unchanged.
+    settings.connection = Object.fromEntries(
+      Object.entries(settings.connection).map(([key, value]) => [
+        key,
+        typeof value === 'boolean' || typeof value === 'number'
+          ? String(value)
+          : value,
+      ])
+    )
 
     let rangePorts = [5900, 65535]
     if (settings?.connection?.rangeports) {
@@ -230,6 +245,12 @@ const guacamole = (appServer) => {
       clientOptions,
       clientCallbacks
     )
+    // Replace the dependency's hardcoded port/display defaults. "args" is
+    // the Guacamole handshake opcode, not a configurable connection parameter.
+    guacamoleServer.clientOptions.connectionDefaultSettings =
+      Object.fromEntries(
+        [...allowedConnectionTypes].map((type) => [type, { args: 'connect' }])
+      )
     guacamoleServer.on('error', (_, error) => {
       writeInLogger(error, {
         format: formatError,

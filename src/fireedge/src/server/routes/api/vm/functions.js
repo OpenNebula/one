@@ -26,7 +26,7 @@ const {
   executeCommand,
   getSunstoneAuth,
 } = require('server/utils/server')
-const { getSunstoneConfig } = require('server/utils/yml')
+const { getSunstoneConfig, getFireedgeConfig } = require('server/utils/yml')
 const { Actions: userActions } = require('server/utils/constants/commands/user')
 const { Actions: vmActions } = require('server/utils/constants/commands/vm')
 const { createTokenServerAdmin } = require('server/routes/api/auth/utils')
@@ -174,16 +174,22 @@ const generateGuacamoleSession = (
           }
         : undefined
 
+    const guacamoleConfig = getFireedgeConfig().guacamole
     const connection = {
+      // Keep the protocol outside connection settings: the bridge flattens
+      // that object before the server applies its enforced parameters.
+      protocol: ensuredType,
       ...(tunnelHost && { tunnel: tunnelHost }),
       connection: {
         type: ensuredType,
         settings: {
-          security: 'any',
-          'ignore-cert': 'true',
-          'enable-drive': 'true',
-          'create-drive-path': 'true',
-          ...settings,
+          ...guacamoleConfig?.common,
+          ...guacamoleConfig?.[ensuredType],
+          ...Object.fromEntries(
+            Object.entries(settings).filter(([, value]) => value !== undefined)
+          ),
+          ...guacamoleConfig?.enforced?.common,
+          ...guacamoleConfig?.enforced?.[ensuredType],
         },
       },
     }
@@ -259,9 +265,13 @@ const getVncSettings = (vmInfo) => {
 
   const data = [].concat(...[vmInfo.HISTORY_RECORDS?.HISTORY ?? []])
   const lastRecord = data[data.length - 1]
-  config.hostname = lastRecord?.HOSTNAME ?? 'localhost'
+  config.hostname = lastRecord?.HOSTNAME
 
-  config.port = vmInfo.TEMPLATE?.GRAPHICS?.PORT ?? '5900'
+  if (!config.hostname) {
+    return { error: 'Wrong configuration. Cannot find the VNC host' }
+  }
+
+  config.port = vmInfo.TEMPLATE?.GRAPHICS?.PORT
   config.password = vmInfo.TEMPLATE?.GRAPHICS?.PASSWD ?? null
 
   return config
@@ -297,7 +307,7 @@ const getSshSettings = (vmInfo, authUser) => {
     return { error: 'Wrong configuration. Cannot find a NIC with SSH' }
   }
 
-  config.port ??= vmInfo.TEMPLATE?.CONTEXT?.SSH_PORT ?? '22'
+  config.port ??= vmInfo.TEMPLATE?.CONTEXT?.SSH_PORT
 
   if (vmInfo.TEMPLATE?.CONTEXT?.SSH_PUBLIC_KEY) {
     config['private-key'] = authUser?.TEMPLATE?.SSH_PRIVATE_KEY
@@ -323,34 +333,30 @@ const getRdpSettings = (vmInfo) => {
   if (!config.hostname) {
     return { error: 'Wrong configuration. Cannot find a NIC with RDP' }
   }
-  config.security = vmInfo.TEMPLATE?.CONTEXT?.RDP_SECURITY ?? 'rdp'
-  config.port = vmInfo.TEMPLATE?.CONTEXT?.RDP_PORT ?? '3389'
+  config.security = vmInfo.TEMPLATE?.CONTEXT?.RDP_SECURITY
+  config.port = vmInfo.TEMPLATE?.CONTEXT?.RDP_PORT
   config.username = vmInfo.TEMPLATE?.CONTEXT?.USERNAME
   config.password = vmInfo.TEMPLATE?.CONTEXT?.PASSWORD
   config['server-layout'] = nicWithRdp?.RDP_SERVER_LAYOUT
-  config['resize-method'] = nicWithRdp?.RDP_RESIZE_METHOD ?? 'display-update'
-  config['disable-audio'] =
-    nicWithRdp?.RDP_DISABLE_AUDIO?.toLowerCase() === 'yes'
-  config['enable-audio-input'] =
-    nicWithRdp?.RDP_ENABLE_AUDIO_INPUT?.toLowerCase() === 'yes'
-  config['enable-wallpaper'] =
-    nicWithRdp?.RDP_ENABLE_WALLPAPER?.toLowerCase() === 'yes'
-  config['enable-theming'] =
-    nicWithRdp?.RDP_ENABLE_THEMING?.toLowerCase() === 'yes'
-  config['enable-font-smoothing'] =
-    nicWithRdp?.RDP_ENABLE_FONT_SMOOTHING?.toLowerCase() === 'yes'
-  config['enable-full-window-drag'] =
-    nicWithRdp?.RDP_ENABLE_FULL_WINDOW_DRAG?.toLowerCase() === 'yes'
-  config['enable-desktop-composition'] =
-    nicWithRdp?.RDP_ENABLE_DESKTOP_COMPOSITION?.toLowerCase() === 'yes'
-  config['enable-menu-animations'] =
-    nicWithRdp?.RDP_ENABLE_MENU_ANIMATIONS?.toLowerCase() === 'yes'
-  config['disable-bitmap-caching'] =
-    nicWithRdp?.RDP_DISABLE_BITMAP_CACHING?.toLowerCase() === 'yes'
-  config['disable-offscreen-caching'] =
-    nicWithRdp?.RDP_DISABLE_OFFSCREEN_CACHING?.toLowerCase() === 'yes'
-  config['disable-glyph-caching'] =
-    nicWithRdp?.RDP_DISABLE_GLYPH_CACHING?.toLowerCase() === 'yes'
+  config['resize-method'] = nicWithRdp?.RDP_RESIZE_METHOD
+  const flags = [
+    'disable-audio',
+    'enable-audio-input',
+    'enable-wallpaper',
+    'enable-theming',
+    'enable-font-smoothing',
+    'enable-full-window-drag',
+    'enable-desktop-composition',
+    'enable-menu-animations',
+    'disable-bitmap-caching',
+    'disable-offscreen-caching',
+    'disable-glyph-caching',
+  ]
+
+  flags.forEach((flag) => {
+    const value = nicWithRdp?.[`RDP_${flag.toUpperCase().replace(/-/g, '_')}`]
+    if (value !== undefined) config[flag] = value.toLowerCase() === 'yes'
+  })
 
   return config
 }
