@@ -45,7 +45,6 @@ class ImageTransferController
     end
 
     def self.create_transfer_download(client, image_id, disk, transfer_format)
-        clean_expired_transfers
         # veeam_ds = BackupController.find_backup_ds(client)
         # return 401, 'Unauthenticated' if veeam_ds == 401
 
@@ -121,7 +120,14 @@ class ImageTransferController
         return 500, Helper.fault_response('Unable to determine VM ID') if vm_id.nil?
         return 500, Helper.fault_response('Unable to determine VM disk ID') if disk_id.nil?
 
-        vm = VmController.get_one_vms(client, :vm_id => vm_id)
+        vm ||= VmController.get_one_vms(client, :vm_id => vm_id)
+
+        if (fault = BackupController.raw_disk_backup_fault(vm))
+            LOGGER.error "Download transfer rejected for VM #{vm_id}: #{fault[:fault][:detail]}"
+            return 409, fault
+        end
+
+        clean_expired_transfers
         vm_hash = vm.to_hash
 
         hist = vm_hash['VM']['HISTORY_RECORDS']['HISTORY']

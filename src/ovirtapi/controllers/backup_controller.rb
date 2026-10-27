@@ -553,6 +553,21 @@ class BackupController
         return true
     end
 
+    def self.raw_disk_backup_fault(vm)
+        disks = vm.to_hash.dig('VM', 'TEMPLATE', 'DISK')
+        disks = [disks] if disks.is_a?(Hash)
+        return if disks.nil?
+
+        raw_disk = disks.find do |disk|
+            disk['FORMAT'].to_s.casecmp('raw').zero?
+        end
+        return if raw_disk.nil?
+
+        name = raw_disk['IMAGE'].to_s.strip
+        name = raw_disk['DISK_ID'].to_s if name.empty?
+        Helper.fault_response("Backup of RAW disk #{name} is not supported")
+    end
+
     def self.perform_backup(client, vm_id, checkpoint_id, veeam_description = '')
         unless veeam_description.is_a?(String) && !veeam_description.strip.empty?
             return 400, Helper.fault_response('A JSON backup description is required.').to_json
@@ -573,6 +588,11 @@ class BackupController
             " #{checkpoint_id}, description present: #{!veeam_description.empty?}"
         # Retrieve the VM object
         vm = VmController.get_one_vms(client, :vm_id => vm_id)
+
+        if (fault = raw_disk_backup_fault(vm))
+            LOGGER.error "Backup rejected for VM #{vm_id}: #{fault[:fault][:detail]}"
+            return 409, fault.to_json
+        end
 
         old_state = vm.status
 
