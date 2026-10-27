@@ -30,7 +30,6 @@ import {
   ScheduleAction,
   Snapshot,
   VM,
-  VM_ACTIONS,
   VM_ACTIONS_BY_STATE,
   VM_LCM_STATES,
   VM_STATES,
@@ -396,18 +395,6 @@ export const isVmAvailableAction = (action, vms = []) =>
     const hypervisor = getHypervisor(vm)
     const state = VM_STATES[vm.STATE]?.name
     const lcmState = VM_LCM_STATES[vm.LCM_STATE]?.name
-
-    if (
-      state === STATES.HOLD &&
-      [
-        VM_ACTIONS.ATTACH_DISK_IMAGE,
-        VM_ACTIONS.ATTACH_DISK_VOLATILE,
-        VM_ACTIONS.DETACH_DISK,
-      ].includes(action) &&
-      getHistoryRecords(vm).length > 0
-    ) {
-      return false
-    }
 
     if (VM_ACTIONS_BY_STATE[hypervisor]?.[action]?.length === 0) return true
 

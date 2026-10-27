@@ -981,23 +981,14 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm,
         backups.del_disk_id(disk_id);
     }
 
-    int uid = vm->get_uid();
-    int gid = vm->get_gid();
-    int oid = vm->get_oid();
+    int uid  = vm->get_uid();
+    int gid  = vm->get_gid();
+    int oid  = vm->get_oid();
+    int cid  = vm->get_cid();
 
-    bool has_history = vm->get_state() != VirtualMachine::HOLD &&
-                       vm->hasHistory();
+    vm->set_vm_info();
 
-    int cid;
-
-    if (has_history)
-    {
-        cid = vm->get_cid();
-
-        vm->set_vm_info();
-
-        vm->update_history(db);
-    }
+    vm->update_history(db);
 
     update(vm.get());
 
@@ -1028,11 +1019,7 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm,
 
     Template tmpl;
 
-    if (has_history)
-    {
-        tmpl.add("CLUSTER_ID", cid);
-    }
-
+    tmpl.add("CLUSTER_ID", cid);
     tmpl.set(disk->vector_attribute());
 
     if (disk->is_volatile())

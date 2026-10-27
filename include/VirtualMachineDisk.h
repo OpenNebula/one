@@ -540,11 +540,6 @@ public:
                                 std::vector<std::unique_ptr<Template>>& ds_quotas);
 
     /**
-     *  @return true if any of the disks is volatile
-     */
-    bool has_volatile();
-
-    /**
      *  Sets Datastore information on volatile disks
      */
     bool volatile_info(int ds_id);
@@ -663,7 +658,7 @@ public:
      *  disk set. It checks target assigment and cluster compatibility.
      *     @param vmid id of virtual machine
      *     @param uid of VM owner
-     *     @param cluster_id where the VM is running, -1 if not assigned
+     *     @param cluster_id where the VM is running
      *     @param vdisk VectorAttribute for the new disk
      *     @param tsys tm_mad_sys mode to deploy the disks
      *     @param is_q35 Q35/virt guest

@@ -1918,14 +1918,7 @@ Request::ErrorCode VirtualMachineAPI::disk_attach(int vid,
     // -------------------------------------------------------------------------
     if ( auto vm = vmpool->get_ro(vid) )
     {
-        if ( vm->get_state() == VirtualMachine::HOLD && vm->hasHistory() )
-        {
-            att.resp_msg = "Cannot attach disks to a HOLD VM with deployment history";
-
-            return Request::ACTION;
-        }
-
-        if ( !vm->hasHistory() && vm->get_state() != VirtualMachine::HOLD )
+        if ( !vm->hasHistory() )
         {
             att.resp_msg = "VM is not running in any host";
 
@@ -1974,16 +1967,10 @@ Request::ErrorCode VirtualMachineAPI::disk_attach(int vid,
     {
         vm->get_permissions(vm_perms);
 
-        if (vm->get_state() == VirtualMachine::HOLD)
-        {
-            VirtualMachineDisks disks(&tmpl, false);
+        volatile_disk = set_volatile_disk_info(vm->get_ds_id(), tmpl);
 
-            volatile_disk = disks.has_volatile();
-        }
-        else
+        if (vm->hasHistory())
         {
-            volatile_disk = set_volatile_disk_info(vm->get_ds_id(), tmpl);
-
             deltas.add("CLUSTER_ID", vm->get_cid());
         }
     }
@@ -2102,13 +2089,6 @@ Request::ErrorCode VirtualMachineAPI::disk_detach(int vid,
 
     if ( auto vm = vmpool->get_ro(vid) )
     {
-        if ( vm->get_state() == VirtualMachine::HOLD && vm->hasHistory() )
-        {
-            att.resp_msg = "Cannot detach disks from a HOLD VM with history";
-
-            return Request::ACTION;
-        }
-
         if (vm->is_vrouter())
         {
             att.resp_msg = "Action is not supported for virtual router VMs";
