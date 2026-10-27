@@ -429,6 +429,15 @@ class ImageTransferController
                         break
                     end
 
+                    if [OpenNebula::Error::EAUTHENTICATION,
+                        OpenNebula::Error::EAUTHORIZATION].include?(rc.errno)
+                        if store_upload_result(transfer_uuid, 'finished_failure', rc.message)
+                            LOGGER.error "Failed to retrieve image #{image_id} during finalize: " \
+                                         "#{rc.message}. Transfer #{transfer_uuid} failed."
+                        end
+                        break
+                    end
+
                     LOGGER.warn "Could not retrieve image #{image_id} during finalize: #{rc.message}"
                 else
                     phase = case disk.state.to_i

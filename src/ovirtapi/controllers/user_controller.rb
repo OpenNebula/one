@@ -25,6 +25,7 @@ require_relative 'helper_functions'
 class UserController
 
     TOKEN_LIFETIME = 86400
+    TOKEN_RENEWAL_THRESHOLD = TOKEN_LIFETIME / 2
 
     def self.start
         state_path = ENV['ONE_LOCATION'] ? "#{ENV['ONE_LOCATION']}/var" : '/var/lib/one'
@@ -70,7 +71,7 @@ class UserController
             token = @db.fetch(key, nil)
             expires_at = token_expiration(user, token)
 
-            unless expires_at && expires_at > Time.now.to_i
+            unless expires_at && expires_at - Time.now.to_i > TOKEN_RENEWAL_THRESHOLD
                 token = user.login(username, '', TOKEN_LIFETIME)
                 if OpenNebula.is_error?(token) || !token.is_a?(String) || token.empty?
                     LOGGER.error('Unable to create an OpenNebula login token.')

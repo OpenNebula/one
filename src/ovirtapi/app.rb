@@ -973,10 +973,7 @@ end
 
 post "#{API_PREFIX}/imagetransfers" do
     begin
-        auth_token = request.env['HTTP_AUTHORIZATION']&.split(' ')&.last
-        halt 401, { :error => 'Unauthorized' }.to_json unless auth_token
-
-        client = OpenNebula::Client.new(auth_token, ENDPOINT)
+        client = get_client(request.env['HTTP_AUTHORIZATION']&.split(' ')&.last)
 
         request_body = JSON.parse(request.body.read) rescue halt(
             400,
@@ -1024,10 +1021,7 @@ end
 
 get "#{API_PREFIX}/imagetransfers/:uuid" do
     begin
-        auth_token = request.env['HTTP_AUTHORIZATION']&.split(' ')&.last
-        halt 401, { :error => 'Unauthorized' }.to_json unless auth_token
-
-        _client = OpenNebula::Client.new(auth_token, ENDPOINT)
+        get_client(request.env['HTTP_AUTHORIZATION']&.split(' ')&.last)
 
         status_code, response = ImageTransferController.get_transfer(params[:uuid])
 
@@ -1062,10 +1056,7 @@ end
 
 post "#{API_PREFIX}/imagetransfers/:uuid/finalize" do
     begin
-        auth_token = request.env['HTTP_AUTHORIZATION']&.split(' ')&.last
-        halt 401, { :error => 'Unauthorized' }.to_json unless auth_token
-
-        client = OpenNebula::Client.new(auth_token, ENDPOINT)
+        client = get_client(request.env['HTTP_AUTHORIZATION']&.split(' ')&.last)
 
         status_code, response = ImageTransferController.finalize_transfer(client, params[:uuid])
 
@@ -1083,10 +1074,7 @@ end
 
 post "#{API_PREFIX}/imagetransfers/:uuid/cancel" do
     begin
-        auth_token = request.env['HTTP_AUTHORIZATION']&.split(' ')&.last
-        halt 401, { :error => 'Unauthorized' }.to_json unless auth_token
-
-        client = OpenNebula::Client.new(auth_token, ENDPOINT)
+        client = get_client(request.env['HTTP_AUTHORIZATION']&.split(' ')&.last)
 
         status, response = ImageTransferController.finalize_transfer(
             client, params[:uuid], :cancel => true
@@ -1104,6 +1092,8 @@ end
 
 put '/images/:transfer_id' do
     begin
+        get_client(request.env['HTTP_AUTHORIZATION']&.split(' ')&.last)
+
         # Extract image_id from URL params
         transfer_id = params[:transfer_id]
 
@@ -1154,6 +1144,8 @@ put '/images/:transfer_id' do
 end
 
 patch '/images/:transfer_id' do
+    get_client(request.env['HTTP_AUTHORIZATION']&.split(' ')&.last)
+
     # Extract image_id from URL params
     transfer_id = params[:transfer_id]
 
