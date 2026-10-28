@@ -21,6 +21,14 @@ require_relative '../lib/tm_action'
 require_relative '../lib/datastore'
 require_relative '../lib/netapp'
 
+# Runs one step of the failure cleanup, logging instead of raising so that the
+# steps after it (renaming a persistent image back) still run
+def cleanup_step(step)
+    yield
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error "Cleanup failed #{step}: #{e.message}"
+end
+
 arg_src   = ARGV[0]
 arg_dst   = ARGV[1]
 arg_vmid  = ARGV[2]
@@ -80,7 +88,12 @@ begin
     save     = ln.disk_attribute(dst.disk_id, 'SAVE').upcase == 'YES'
     clone    = ln.disk_attribute(dst.disk_id, 'CLONE').upcase == 'YES'
     readonly = ln.disk_attribute(dst.disk_id, 'READONLY').upcase == 'YES'
-    if !save && !clone && readonly
+
+    # A read-only, non-persistent disk gets a volume of its own; any other
+    # disk is the image's volume itself, renamed for the VM
+    cloned = !save && !clone && readonly
+
+    if cloned
         # clone the volume instead
         source_golden = source_volume.get_snapshots.find {|s| s['name'] == TransferManager::NetApp::GOLDENSNAP_NAME }
         goldsnap_data = {
@@ -90,19 +103,28 @@ begin
         source_golden.delete if source_golden
         source_golden = source_volume.create_snapshot(goldsnap_data)
 
-        new_volume = svm.clone_volume({
-                                          'name' => new_volume_name,
-                                          'clone' => {
-                                              'parent_volume'   => { 'uuid' => source_volume.uuid },
-                                              'parent_snapshot' => { 'uuid' => source_golden.uuid },
-                                              'is_flexclone'    => true
-                                          }
-                                      }).tap(&:fetch_data)
-        new_volume.split_flexclone
+        always_copy = ds_hash.key?('NETAPP_ALWAYS_COPY') &&
+                      ds_hash['NETAPP_ALWAYS_COPY'].upcase == 'YES'
+        mode = always_copy ? :copy : :independent
+        new_volume = svm.provision_disk_volume(
+            source_golden, new_volume_name, new_lun_name, :mode => mode
+        )
         source_golden.delete
         OpenNebula::DriverLogger.log_info "Cloned volume #{source_volume.name} " \
                                           "to #{new_volume_name}"
     else
+        # While the VM has it the volume carries the VM's disk name; keep the
+        # image's own name in its comment so the datastore rm can still find
+        # it if the VM never hands it back
+        begin
+            unless source_volume['comment'] == source_vol_name
+                source_volume.update({ 'comment' => source_vol_name })
+            end
+        rescue StandardError => e
+            OpenNebula::DriverLogger.log_warning \
+                "Could not record image name #{source_vol_name} on its volume: #{e.message}"
+        end
+
         source_volume.rename(new_volume_name)
 
         new_volume = TransferManager::NetApp::Volume.new({ 'uuid' => source_volume.uuid }, netapp)
@@ -121,7 +143,7 @@ begin
 
     end
 rescue StandardError => e
-    if !save && !clone && readonly
+    if cloned
         OpenNebula::DriverLogger.log_error "Error cloning from #{source_vol_name} to " \
                                            "#{new_volume_name}: #{e.message}"
     else
@@ -201,19 +223,32 @@ begin
 rescue StandardError => e
     OpenNebula::DriverLogger.log_error "Error moving #{src.path} to #{dst.path}: #{e.message}"
     OpenNebula::DriverLogger.log_error e.backtrace.to_s
-    if !new_lun.nil?
-        if new_lun.lun_map
-            if lun_mapped
-                new_lun.lun_map.remove_connection(dst.host, :force => true) rescue nil
+
+    if new_lun
+        cleanup_step('unmapping LUN') do
+            if new_lun.lun_map
+                if lun_mapped
+                    new_lun.lun_map.remove_connection(dst.host, :force => true) rescue nil
+                end
+                new_lun.delete_lun_map
             end
-            new_lun.delete_lun_map
         end
-        new_lun.delete
     end
-    if new_volume
-        new_volume.rename(source_vol_name)
+
+    if cloned
+        # The volume was provisioned for this disk alone
+        cleanup_step("deleting volume #{new_volume_name}") { new_volume.delete }
+    else
+        # The volume is the persistent image itself: give it its name back and
+        # keep its data
+        cleanup_step("renaming volume back to #{source_vol_name}") do
+            new_volume.rename(source_vol_name)
+        end
+
         if new_lun
-            new_lun.rename(source_lun_name)
+            cleanup_step("renaming LUN back to #{source_lun_name}") do
+                new_lun.rename(source_lun_name)
+            end
         end
     end
     exit 1

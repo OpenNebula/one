@@ -49,7 +49,17 @@ begin
     auth   = Base64.strict_encode64("#{netapp_user}:#{netapp_pass}")
     netapp = TransferManager::NetApp.new(auth, netapp_host, netapp_target, :action => rm)
 
-    img_vol = TransferManager::NetApp::Volume.new({ 'name' => vol_name }, netapp)
+    begin
+        img_vol = TransferManager::NetApp::Volume.new({ 'name' => vol_name }, netapp)
+    rescue TransferManager::NetApp::Volume::VolumeMissing
+        # A persistent image whose VM never handed it back still carries that
+        # VM's disk name; ln records the image's own name in the comment
+        img_vol = TransferManager::NetApp::Volume.find_by_comment(netapp, vol_name)
+        raise unless img_vol
+
+        OpenNebula::DriverLogger.log_info \
+            "Volume #{vol_name} for image ID #{image_id} found as #{img_vol.name}"
+    end
 
     begin
         img_lun = img_vol.lun

@@ -40,7 +40,7 @@ end
 monitor     = TransferManager::Action.new(:action_name => 'monitor')
 netapp_auth = Base64.strict_encode64("#{netapp_user}:#{netapp_pass}")
 netapp      = TransferManager::NetApp.new(netapp_auth, netapp_host, false, :action => monitor)
-svm         = TransferManager::NetApp::SVM.new({ 'uuid' => netapp_svm }, netapp, nil)
+svm         = TransferManager::NetApp::SVM.new({"uuid" => netapp_svm}, netapp, nil)
 
 svm.fetch_data({ 'fields' => ['storage'] })
 

@@ -29,6 +29,36 @@ def get_image_format(src_path)
     rc.code != 0 ? nil : JSON.parse(rc.stdout)['format']
 end
 
+# Types downloader.sh would decompress or unarchive on the way to the temporary
+# file. Anything else is written out with a plain cat.
+DOWNLOADER_TYPES = [
+    'application/x-gzip',
+    'application/gzip',
+    'application/x-bzip2',
+    'application/x-xz',
+    'application/x-tar',
+    'application/zip'
+].freeze
+
+# True when the image is a local file qemu-img can read as it is, so the copy
+# into the temporary directory buys nothing. Transport schemes (http, ssh, s3,
+# netapp, ...) and anything the downloader would decompress still need it.
+def local_image?(action, path)
+    return false if path.nil? || path.empty?
+    return false if path =~ %r{\A[a-zA-Z][a-zA-Z0-9+.-]*://}
+    return false unless File.file?(path) && File.readable?(path)
+
+    rc = action.ssh({
+                        :cmds     => "file -b --mime-type #{path}",
+                        :host     => false,
+                        :nostdout => false,
+                        :silent   => true
+                    })
+    return false if rc.code != 0
+
+    !DOWNLOADER_TYPES.include?(rc.stdout.strip)
+end
+
 # Fetch arguments
 daction64  = STDIN.read
 request_id = ARGV[0]
@@ -137,10 +167,17 @@ begin
 
     OpenNebula::DriverLogger.log_info "Discovered device: #{device_path}"
 rescue StandardError => e
-    lun.lun_map.remove_connection(false, :force => true) if lun.lun_map
+    OpenNebula::DriverLogger.log_error "Failed to setup LUN and map for #{lun_name}: #{e.message}"
+
+    begin
+        lun.lun_map.remove_connection(false, :force => true) if lun.lun_map
+    rescue StandardError => ce
+        OpenNebula::DriverLogger.log_error \
+            "Failed to remove connection for #{lun_name}: #{ce.message}"
+    end
+
     lun.delete_with_map
     volume.delete
-    OpenNebula::DriverLogger.log_error "Failed to setup LUN and map for #{lun_name}: #{e.message}"
     raise
 end
 
@@ -158,25 +195,63 @@ begin
 
         real_device_path = rc.stdout.strip
 
-        temp_file = File.join(tmp_dir, "temp_image_#{volume.name}.qcow2")
+        if local_image?(cp, src_path)
+            image_file = src_path
 
-        download_command = "#{downloader_command} #{src_path} #{temp_file}"
-        rc = cp.ssh({
-                        :cmds => "DRV_ACTION='#{daction64}' #{download_command}",
-                        :host => false,
-                        :err_msg => "Failed to download #{src_path} to #{temp_file}",
-                        :nostderr => false
-                    })
-        if rc.code != 0
-            OpenNebula::DriverLogger.log_error "Downloader STDERR: #{rc.stderr}"
-            exit(rc.code)
+            OpenNebula::DriverLogger.log_info \
+                "Converting local image #{src_path} in place"
+        else
+            temp_file  = File.join(tmp_dir, "temp_image_#{volume.name}.qcow2")
+            image_file = temp_file
+
+            download_command = "#{downloader_command} #{src_path} #{temp_file}"
+            rc = cp.ssh({
+                            :cmds => "DRV_ACTION='#{daction64}' #{download_command}",
+                            :host => false,
+                            :err_msg => "Failed to download #{src_path} to #{temp_file}",
+                            :nostderr => false
+                        })
+            if rc.code != 0
+                OpenNebula::DriverLogger.log_error "Downloader STDERR: #{rc.stderr}"
+                exit(rc.code)
+            end
         end
 
-        convert_command = "qemu-img convert -O raw #{temp_file} #{real_device_path}"
+        # qemu-img only reports "Cannot grow device files" when the device is
+        # smaller than the image it has to hold. That can be a stale capacity
+        # for a LUN id the kernel has seen before, so refresh it before giving
+        # up, and report the actual numbers when it is still too small.
+        info_command = "qemu-img info --output=json #{image_file}"
+        rc = cp.ssh({
+                        :cmds     => info_command,
+                        :host     => false,
+                        :err_msg  => "Failed to get image info for #{image_file}",
+                        :nostdout => false
+                    })
+        exit(rc.code) if rc.code != 0
+
+        img_size = JSON.parse(rc.stdout)['virtual-size'].to_i
+        dev_size = lun.lun_map.device_size_b(false, real_device_path)
+
+        if dev_size < img_size
+            OpenNebula::DriverLogger.log_info \
+                "Device #{device_path} reports #{dev_size}B for a #{img_size}B " \
+                'image, refreshing its capacity'
+
+            dev_size = lun.lun_map.refresh_size(false, device_path)
+        end
+
+        if dev_size < img_size
+            raise "Device #{device_path} is too small for #{src_path}: " \
+                  "#{dev_size} bytes on the device, #{img_size} bytes of image " \
+                  "(LUN #{lun_name} was created with #{src_size}M from IMAGE/SIZE)"
+        end
+
+        convert_command = "qemu-img convert -O raw #{image_file} #{real_device_path}"
         rc = cp.ssh({
                         :cmds => convert_command,
                         :host => false,
-                        :err_msg => "Failed to convert #{temp_file} to #{device_path}",
+                        :err_msg => "Failed to convert #{image_file} to #{device_path}",
                         :nostderr => false
                     })
         if rc.code != 0
@@ -192,7 +267,14 @@ begin
     puts "#{lun_name} raw"
 rescue StandardError => e
     OpenNebula::DriverLogger.log_error "Failed to setup data for LUN #{lun_name}: #{e.message}"
-    lun.lun_map.remove_connection(false, :force => true)
+
+    begin
+        lun.lun_map.remove_connection(false, :force => true)
+    rescue StandardError => ce
+        OpenNebula::DriverLogger.log_error \
+            "Failed to remove connection for #{lun_name}: #{ce.message}"
+    end
+
     lun.delete_with_map
     lun_cleaned = true
     volume.delete
@@ -200,7 +282,15 @@ rescue StandardError => e
     raise
 ensure
     unless lun_cleaned
-        lun.lun_map.remove_connection(false, :force => true)
+        # A failed detach must not skip the unmap: leaving the LUN mapped
+        # leaks the volume and burns a LUN ID in the igroup
+        begin
+            lun.lun_map.remove_connection(false, :force => true)
+        rescue StandardError => e
+            OpenNebula::DriverLogger.log_error \
+                "Failed to remove connection for #{lun_name}: #{e.message}"
+        end
+
         lun.lun_map.delete
     end
     FileUtils.rm_rf(temp_file) if temp_file

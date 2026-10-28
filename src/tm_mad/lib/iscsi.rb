@@ -70,6 +70,12 @@ end
 # for taking backups or other actions.
 module Iscsi
 
+    # A NetApp-style WWN ends with the LUN serial number in hex, which is how a
+    # discovered device can be tied back to the LUN that should be behind it.
+    def self.serial_to_wwn_tail(serial)
+        serial.to_s.each_byte.map {|b| format('%02x', b) }.join
+    end
+
     WWN_TYPES = { 't10.' => '1', 'eui.' => '2', 'naa.' => '3' }
 
     SCSI_SCAN_COMMAND = "echo '%s %s %s' | sudo tee " \
@@ -91,8 +97,20 @@ module Iscsi
         sessions_data = portal_sessions(host, @provider.target)
 
         sessions_data.each do |session|
-            current_path   = format(path_base, session[:portal], @provider.target, id)
-            current_device = sd_from_path(host, current_path)
+            current_path = format(path_base, session[:portal], @provider.target, id)
+
+            # A session with no path to this LUN is legitimate (selective LUN
+            # map, a down/half-open session). Skip it instead of handing the
+            # by-path string downstream as if it were a device.
+            begin
+                current_device = sd_from_path(host, current_path, :retries => 0)
+            rescue StandardError => e
+                OpenNebula::DriverLogger.log_warning \
+                    "No device for LUN #{id} on portal #{session[:portal]}, " \
+                    "skipping path: #{e.message}"
+                next
+            end
+
             @by_path_devices << current_device if current_device
         end
 
@@ -111,15 +129,17 @@ module Iscsi
         raise "Failed to access the device #{path} on host #{host}"
     end
 
-    def sd_from_path(host, path)
+    def sd_from_path(host, path, retries: 60)
         @__sd_cache ||= {}
         key = [host, path].join('|')
         return @__sd_cache[key] if @__sd_cache.key?(key)
 
         dev = nil
-        with_retry(:retries => 60, :delay => 0.50) do
+        with_retry(:retries => retries, :delay => 0.50) do
+            # -e (not -f) so a path whose target does not exist fails here
+            # instead of echoing the path back as if it were a device
             rc = @provider.action.ssh(
-                :cmds => "readlink -f #{path}",
+                :cmds => "readlink -e #{path}",
                 :host => host,
                 :nostdout => false,
                 :silent => true
@@ -137,7 +157,10 @@ module Iscsi
 
     def remove_scsi_device(host, device, flush: true)
         device = sd_from_path(host, device) unless device.start_with?('/dev/sd')
-        path = format('/sys/block/%s/device/delete', device.gsub('/dev/', ''))
+        return unless device.start_with?('/dev/sd')
+
+        name = device.delete_prefix('/dev/')
+        path = "/sys/block/#{name}/device/delete"
 
         begin
             flush_device_io(host, device) if flush
@@ -146,14 +169,30 @@ module Iscsi
         end
 
         with_retry do
+            break unless scsi_device_present?(host, name)
+
             rc = @provider.action.ssh(
                 :cmds => "echo 1 | sudo tee #{path} >/dev/null",
                 :host => host,
                 :nostderr => false,
                 :silent => true
             )
-            raise "Could not remove SCSI device #{device}" if rc.code != 0
+
+            break if rc.code == 0 && !scsi_device_present?(host, name)
+
+            raise "Could not remove SCSI device #{device} " \
+                  "(rc=#{rc.code}): #{rc.stderr.strip}"
         end
+    end
+
+    def scsi_device_present?(host, name)
+        rc = @provider.action.ssh(
+            :cmds => "test -e /sys/block/#{name}",
+            :host => host,
+            :nostderr => true,
+            :silent => true
+        )
+        rc.code == 0
     end
 
     def wait_for_device_removal(host, devices)
@@ -656,9 +695,11 @@ module Iscsi
                 :nostdout => false,
                 :silent => true
             )
-            return if rc.code != 0
 
-            paths = rc.stdout.to_s.split("\n").compact
+            # A session that vanished between listing and lookup has no
+            # entry; fall through to the raise rather than returning nil,
+            # which callers would index
+            paths = rc.code == 0 ? rc.stdout.to_s.split("\n").compact : []
         end
 
         if paths.empty?
@@ -733,7 +774,7 @@ module Iscsi
 
         return unless mdev_exists
 
-        devices = lines[3..-1].each_with_object([]) do |line, arr|
+        devices = Array(lines[3..-1]).each_with_object([]) do |line, arr|
             next if line.include?('policy') || line.strip.empty?
 
             # Skip lines with tree characters (like "|-", "`-", etc.)
@@ -789,6 +830,34 @@ module Iscsi
         rc.stdout
     end
 
+    def refresh_size(host, device_path)
+        by_path_devices(host).each do |sd_path|
+            device    = device_info(host, sd_path)
+            device_id = "#{device[:host]}:#{device[:channel]}:#{device[:id]}:#{id}"
+
+            @provider.action.ssh(
+                :cmds     => "echo '1' | sudo tee " \
+                             "/sys/bus/scsi/drivers/sd/#{device_id}/rescan >/dev/null",
+                :host     => host,
+                :nostderr => false
+            )
+        end
+
+        if multipath_running?(host)
+            map = device_path
+            map = File.basename(map) if map.start_with?('/dev/mapper/')
+
+            begin
+                multipath_resize_map(host, map)
+            rescue StandardError => e
+                OpenNebula::DriverLogger.log_warning \
+                    "Could not resize multipath map #{map}: #{e.message}"
+            end
+        end
+
+        device_size_b(host, device_path)
+    end
+
     def update_size(host, original_size, multipath: true)
         device_paths = by_path_devices(host)
 
@@ -835,6 +904,123 @@ module Iscsi
         end
 
         new_size
+    end
+
+    # Removes devices that sit at this LUN id on the target's sessions but
+    # report another LUN, left behind when that LUN was unmapped or deleted
+    # without the host being cleaned up. The kernel does not re-probe an id
+    # that still has a device, so until it is gone the LUN just mapped never
+    # shows up there.
+    #
+    # Only devices that are provably dead are removed: not held by any
+    # device-mapper map, and the provider confirms (stale_lun_released?) that
+    # the LUN they report is gone from the array or mapped nowhere. Anything
+    # else is left in place for foreign_device? to report. Runs before the
+    # scan, so a by-path link shared by several sessions to one portal cannot
+    # keep resolving to a stale device on one of them.
+    def clear_stale_devices(host, sessions, lun_id)
+        return unless respond_to?(:expected_wwn) && respond_to?(:stale_lun_released?)
+
+        expected = expected_wwn
+        return if expected.nil? || expected.empty?
+
+        globs = sessions.map do |s|
+            "/sys/class/iscsi_session/session#{s[:session]}/device/target*/*:#{lun_id}/block/*"
+        end
+
+        script = <<~BASH
+            for b in #{globs.join(' ')}; do
+                [ -e "$b" ] || continue
+                n=$(basename "$b")
+                h=$(ls "/sys/block/$n/holders" 2>/dev/null | wc -l)
+                w=$(cat "/sys/block/$n/device/wwid" 2>/dev/null)
+                echo "$n $h $w"
+            done
+        BASH
+
+        rc = @provider.action.ssh(
+            :cmds => script,
+            :host => host,
+            :nostdout => false,
+            :silent => true
+        )
+        return if rc.code != 0
+
+        released = Hash.new {|h, wwid| h[wwid] = stale_lun_released?(wwid) }
+        stale    = []
+
+        rc.stdout.to_s.split("\n").each do |line|
+            name, holders, wwid = line.split(' ', 3)
+            next if wwid.nil? || wwid.empty?
+            next if wwid.downcase.end_with?(expected.downcase)
+
+            if holders.to_i > 0
+                OpenNebula::DriverLogger.log_warning \
+                    "Stale device /dev/#{name} at LUN #{lun_id} reports #{wwid} but is " \
+                    'held by a device-mapper map; leaving it in place'
+                next
+            end
+
+            stale << name if released[wwid]
+        end
+
+        return if stale.empty?
+
+        cmd = stale.map do |name|
+            "echo 1 | sudo tee /sys/block/#{name}/device/delete >/dev/null"
+        end.join(' ; ')
+
+        @provider.action.ssh(
+            :cmds => cmd,
+            :host => host,
+            :err_msg => "Could not remove stale devices #{stale.join(', ')}"
+        )
+        wait_for_device_removal(host, stale)
+
+        @__sd_cache&.delete_if {|_, dev| stale.include?(File.basename(dev.to_s)) }
+
+        OpenNebula::DriverLogger.log_warning \
+            "Removed stale devices #{stale.join(', ')} at LUN #{lun_id}: the LUN " \
+            'they reported is no longer mapped on the array'
+    rescue StandardError => e
+        OpenNebula::DriverLogger.log_warning \
+            "Could not clear stale devices at LUN #{lun_id}: #{e.message}"
+    end
+
+    # True when the device at our by-path is not the LUN we mapped, because a
+    # LUN that held this id earlier was unmapped without the host being cleaned
+    # up. Reports and skips the path. Devices that are provably dead have
+    # already been removed by clear_stale_devices; one that is still here could
+    # not be shown dead (it is held by a map, or its LUN still has a mapping,
+    # possibly through an id that is not ours), so it is left alone.
+    def foreign_device?(host, dev)
+        return false unless respond_to?(:expected_wwn)
+
+        expected = expected_wwn
+        return false if expected.nil? || expected.empty?
+
+        actual = sysfs_wwid(host, [dev]).to_s
+        return false if actual.empty?
+        return false if actual.downcase.end_with?(expected.downcase)
+
+        OpenNebula::DriverLogger.log_warning \
+            "Device #{dev} at LUN #{id} reports #{actual}, which is not the LUN " \
+            'just mapped. Skipping it as stale; the host needs a SCSI rescan ' \
+            'to clear it.'
+
+        true
+    end
+
+    def verify_wwn(wwn, devices)
+        return unless respond_to?(:expected_wwn)
+
+        expected = expected_wwn
+        return if expected.nil? || expected.empty?
+        return if wwn.to_s.downcase.end_with?(expected.downcase)
+
+        raise "Device #{devices} for LUN #{id} reports WWN #{wwn}, which does " \
+              "not match the expected serial (#{expected}). Likely " \
+              'a stale device from a LUN that previously held this id.'
     end
 
     def multipath_add_wwid(host, wwid)
@@ -955,6 +1141,7 @@ module Iscsi
 
     def setup_disk(host: false)
         device_path = '/dev/disk/by-path/ip-%s-iscsi-%s-lun-%s'
+        warned      = {}
 
         with_retry(RuntimeError, :retries => 3, :delay => 1) do
             sessions_data = portal_sessions(host, @provider.target)
@@ -964,6 +1151,8 @@ module Iscsi
             errors  = []
             mutex   = Mutex.new
             lun_id  = id
+
+            clear_stale_devices(host, sessions_data, lun_id)
 
             threads = sessions_data.map do |session|
                 Thread.new do
@@ -975,28 +1164,75 @@ module Iscsi
                         wait_for_path(host, path)
 
                         dev = sd_from_path(host, path)
+
+                        if foreign_device?(host, dev)
+                            raise "#{path} holds a stale device for another LUN"
+                        end
+
                         mutex.synchronize { devices << dev }
                     rescue StandardError => e
-                        mutex.synchronize { errors << e }
+                        mutex.synchronize do
+                            errors << "portal #{session[:portal]}: #{e.message}"
+                        end
                     end
                 end
             end
 
             threads.each(&:join)
+
+            # Surface paths that never showed up even when others did: the
+            # copy will succeed on the remaining paths and the failure would
+            # otherwise only appear at teardown.
+            errors.each do |error|
+                next if warned[error]
+
+                warned[error] = true
+                OpenNebula::DriverLogger.log_warning \
+                    "No path to LUN #{lun_id} via #{error}"
+            end
+
             if devices.empty?
-                raise(errors.last || \
-                    "No devices discovered for #{sessions_data.map {|s| s[:portal] }.join(', ')}")
+                mapping = respond_to?(:describe) ? describe : "LUN #{lun_id}"
+                portals = sessions_data.map {|s| s[:portal] }.join(', ')
+                reason  = errors.empty? ? '' : ": #{errors.last}"
+
+                raise "No device for #{mapping} on any portal (#{portals})#{reason}"
             end
 
             devices.each {|dev| multipath_add_path(host, dev) }
 
             mpath = find_multipath_device(host, devices.first)
+
+            if mpath.nil? && devices.size == 1
+                # With find_multipaths enabled multipathd will not build a map
+                # for a device with a single path unless its WWID is already
+                # known, and a LUN that only some of the portals report
+                # legitimately has one path. Register it rather than failing the
+                # deployment over a working, if degraded, device.
+                wwid = scsi_wwn(host, devices.first)
+
+                if wwid && !wwid.empty?
+                    OpenNebula::DriverLogger.log_warning \
+                        "LUN #{lun_id} was found on a single path " \
+                        "(#{devices.first}): registering WWID #{wwid} so " \
+                        'multipath can map it'
+
+                    multipath_add_wwid(host, wwid)
+                    multipath_reconfigure(host)
+                    multipath_add_path(host, devices.first)
+
+                    mpath = find_multipath_device(host, devices.first)
+                end
+            end
+
             raise "Could not find multipath device for #{devices}" if mpath.nil?
 
             wait_for_mpath_device(host, mpath)
             # return sd_from_path(host, "/dev/mapper/#{sysfs_wwn(host, devices, mpath)}")
             wwn = sysfs_wwn(host, devices, mpath)
             raise "Could not get WWN for multipath device #{mpath}" if wwn.nil?
+
+            verify_wwn(wwn, devices)
 
             wwn_path = "/dev/mapper/#{wwn}"
             wait_for_rw(host, wwn, wwn_path)

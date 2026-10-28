@@ -67,6 +67,10 @@ begin
                      else
                          TransferManager::NetApp::Volume::DEFAULT_GROW_RATIO
                      end
+    always_copy    = ds_hash.key?('NETAPP_ALWAYS_COPY') &&
+                     ds_hash['NETAPP_ALWAYS_COPY'].upcase == 'YES'
+
+    mode = always_copy ? :copy : :independent
 
     raise 'Missing required datastore attributes' unless ds_id && base_path && src_path
 rescue StandardError => e
@@ -104,13 +108,7 @@ begin
     end
 
     adjusted_size = (source_volume['size'].to_i * (1 + netapp_reserve / 100.0)).ceil
-    new_volume_data= {
-        'name' => new_volume_name,
-        'clone' => {
-            'parent_volume'   => { 'uuid' => source_volume.uuid },
-            'parent_snapshot' => { 'uuid' => source_vol_goldensnap.uuid },
-            'is_flexclone'    => true
-        },
+    extra_payload = {
         'autosize' => {
             'grow_threshold' => grow_threshold,
             'maximum'        => "#{adjusted_size * grow_ratio}MB",
@@ -119,8 +117,10 @@ begin
         }
     }
 
-    new_volume = svm.clone_volume(new_volume_data).tap(&:fetch_data)
-    new_volume.split_flexclone
+    new_volume = svm.provision_disk_volume(
+        source_vol_goldensnap, new_volume_name, new_lun_name,
+        :mode => mode, :extra_payload => extra_payload
+    )
     new_lun = new_volume.lun
 
     OpenNebula::DriverLogger.log_info "Cloned volume #{source_volume.name} to #{new_volume.name}"
@@ -130,8 +130,7 @@ begin
         exit 1
     end
 
-    new_lun.rename(new_lun_name)
-    OpenNebula::DriverLogger.log_info "Renamed LUN to #{new_lun.name}"
+    OpenNebula::DriverLogger.log_info "LUN ready at #{new_lun.name}"
 
     puts new_lun.name
 rescue StandardError => e

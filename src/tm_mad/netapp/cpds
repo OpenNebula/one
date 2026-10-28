@@ -51,6 +51,9 @@ aggregates  = ds_hash['NETAPP_AGGREGATES']
 
 netapp_suffix = ds_hash.key?('NETAPP_SUFFIX') ? "_#{ds_hash['NETAPP_SUFFIX']}" : ''
 
+always_copy = ds_hash.key?('NETAPP_ALWAYS_COPY') &&
+              ds_hash['NETAPP_ALWAYS_COPY'].upcase == 'YES'
+mode = always_copy ? :copy : :independent
 auth   = Base64.strict_encode64("#{user}:#{password}")
 netapp = TransferManager::NetApp.new(auth, host, target, :action => cpds)
 
@@ -80,7 +83,7 @@ begin
         snap_name = "one_snap_#{arg_snapid}"
         source_snap = source_volume.get_snapshots.find {|s| s['name'] == snap_name }
     else
-        check_snap = source_volume.get_snapshots.find {|s| s['name'] == snap_name }
+        check_snap  = source_volume.get_snapshots.find {|s| s['name'] == snap_name }
         if check_snap
             check_snap.delete
             OpenNebula::DriverLogger.log_info 'Deleted existing temporary snapshot for ' \
@@ -93,32 +96,13 @@ begin
     end
     raise 'Unable to find or create source snapshot' unless source_snap
 
-    new_volume_data= {
-        'name' => dst_volume,
-        'clone' => {
-            'parent_volume'   => { 'uuid' => source_volume.uuid },
-            'parent_snapshot' => { 'uuid' => source_snap.uuid },
-            'is_flexclone'    => true
-        }
-    }
-    new_volume = svm.clone_volume(new_volume_data).tap(&:fetch_data)
-    new_lun    = new_volume.lun
-    OpenNebula::DriverLogger.log_info "Cloned volume #{source_volume.name} " \
+    new_volume = svm.provision_disk_volume(
+        source_snap, dst_volume, dst_lun, :mode => mode
+    )
+    new_lun = new_volume.lun
+    OpenNebula::DriverLogger.log_info "Provisioned volume #{source_volume.name} " \
                                         "to #{new_volume.name}"
-
-    unless new_lun
-        OpenNebula::DriverLogger.log_error "No LUN found for cloned volume #{new_volume.uuid}"
-        exit 1
-    end
-
-    new_lun.rename(dst_lun)
-    OpenNebula::DriverLogger.log_info "Renamed LUN to #{new_lun.name}"
-
-    new_volume.split_flexclone
-    unless new_volume.watch_flexclone_split
-        OpenNebula::DriverLogger.log_error "Unable to split flexclone volume #{new_volume.name}"
-        exit 1
-    end
+    OpenNebula::DriverLogger.log_info "LUN ready at #{new_lun.name}"
 
     if snap_name == 'one_tmp_copy_snap'
         source_snap.delete

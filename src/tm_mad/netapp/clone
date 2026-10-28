@@ -66,6 +66,17 @@ grow_ratio     = if ds_hash.key?('NETAPP_GROW_RATIO')
                  else
                      TransferManager::NetApp::Volume::DEFAULT_GROW_RATIO
                  end
+disk_save   = clone.disk_attribute(dst.disk_id, 'SAVE').upcase == 'YES'
+standalone  = ds_hash.key?('NETAPP_STANDALONE') && ds_hash['NETAPP_STANDALONE'].upcase == 'YES'
+always_copy = ds_hash.key?('NETAPP_ALWAYS_COPY') &&
+              ds_hash['NETAPP_ALWAYS_COPY'].upcase == 'YES'
+independent = disk_save || standalone
+
+mode = if independent
+           always_copy ? :copy : :independent
+       else
+           :thin
+       end
 
 auth = Base64.strict_encode64("#{user}:#{password}")
 netapp = TransferManager::NetApp.new(auth, host, target, :action => clone)
@@ -134,40 +145,19 @@ begin
         end
     end
 
-    new_volume_data= {
-        'name' => new_volume_name,
-        'clone' => {
-            'parent_volume'   => { 'uuid' => source_volume.uuid },
-            'parent_snapshot' => { 'uuid' => source_vol_goldensnap.uuid },
-            'is_flexclone'    => true
-        }
-    }
+    new_volume = svm.provision_disk_volume(
+        source_vol_goldensnap, new_volume_name, new_lun_name, :mode => mode
+    )
+    new_lun = new_volume.lun
 
-    new_volume = svm.clone_volume(new_volume_data).tap(&:fetch_data)
-    new_lun    = new_volume.lun
-
-    OpenNebula::DriverLogger.log_info "FlexCloned volume #{source_volume.name} " \
+    OpenNebula::DriverLogger.log_info "Provisioned volume #{source_volume.name} " \
                                         "to #{new_volume.name}"
+    OpenNebula::DriverLogger.log_info "LUN ready at #{new_lun.name}"
 
-    unless new_lun
-        raise "No LUN found for cloned volume #{new_volume.uuid}"
-    end
-
-    new_lun.rename(new_lun_name)
-    OpenNebula::DriverLogger.log_info "Renamed LUN to #{new_lun.name}"
-
-    disk_save  = clone.disk_attribute(dst.disk_id, 'SAVE').upcase == 'YES'
-    standalone = ds_hash.key?('NETAPP_STANDALONE') && ds_hash['NETAPP_STANDALONE'].upcase == 'YES'
-
-    if disk_save || standalone
-        new_volume.split_flexclone
-        unless new_volume.watch_flexclone_split
-            OpenNebula::DriverLogger.log_error "Unable to split flexclone volume #{new_volume.name}"
-            exit 1
-        end
+    if independent
         source_vol_goldensnap.delete
         OpenNebula::DriverLogger.log_info \
-            "Split flexclone volume #{new_volume.name} and delted golden snapshot"
+            "Provisioned independent volume #{new_volume.name} and deleted golden snapshot"
     end
 rescue StandardError => e
     OpenNebula::DriverLogger.log_error "Error cloning #{src.path} to #{dst.path}: #{e.message}"
@@ -264,7 +254,7 @@ begin
 rescue StandardError => e
     OpenNebula::DriverLogger.log_error "Error cloning #{src.path} to #{dst.path}: #{e.message}"
     if lun_mapped
-        new_lun.remove_connection(dst.host)
+        new_lun.lun_map.remove_connection(dst.host, :force => true) rescue nil
     end
     if new_volume
         new_volume.delete
