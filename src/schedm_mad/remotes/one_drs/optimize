@@ -23,6 +23,7 @@ sys.path.insert(
     "/usr/lib/one/python/",
 )
 import base64
+from datetime import datetime
 import time
 
 from lib import OptimizerParser, OptimizerSerializer
@@ -37,28 +38,75 @@ def main():
     parser = OptimizerParser(stdin_data=decoded_data, mode="optimize")
     if parser.check_vm_states():
         sys.exit(1)
-    optimizer = parser.build_optimizer()
+    debug = parser.debug
+    cluster_id = parser.cluster_id
+    msg = f"Optimization of cluster {cluster_id}: parsing --"
+    try:
+        optimizer = parser.build_optimizer()
+        if debug:
+            sys.stderr.write(f"INFO: {msg} SUCCESS\n")
+    except Exception as exc:
+        sys.stderr.write(f"ERROR: {msg} {exc}\n")
+        sys.exit(1)
 
     # Execute Optimizer
+    msg = f"Optimization of cluster {cluster_id}: mapping --"
     start_time = time.time()
-    optimizer.map()
-    elapsed = time.time() - start_time
-    placement = optimizer._opt_placement
+    elapsed = -1
+    try:
+        optimizer.map()
+        elapsed = time.time() - start_time
+        placement = optimizer._opt_placement
+        if debug:
+            sys.stderr.write(f"INFO: {msg} SUCCESS\n")
+    except Exception as exc:
+        sys.stderr.write(f"ERROR: {msg} {exc}\n")
+        sys.exit(1)
+    if debug:
+        try:
+            # Write the optimizer report.
+            with open("/tmp/onedrs_report.txt", mode="w") as file:
+                out = optimizer.report()
+                file.write(f"{datetime.now()}\n\n{out}\n")
+        except Exception as exc:
+            sys.stderr.write(f"ERROR: Writing onedrs_report.txt -- {exc}\n")
+        try:
+            # Write the allocations.
+            with open("/tmp/onedrs_allocs.txt", mode="w") as file:
+                out = "\n".join(str(val) for val in placement.values())
+                file.write(f"{datetime.now()}\n\n{out}\n")
+        except Exception as exc:
+            sys.stderr.write(f"ERROR: Writing onedrs_allocs.txt -- {exc}\n")
 
     # Serialize Optimizer response
-    serializer = OptimizerSerializer(parser.plan_id)
-    scheduler_output, logs = serializer.build_optimizer_output(
-        curr_placement=optimizer._curr_placement,
-        opt_placement=placement
-    )
-    xml_output = serializer.render(scheduler_output)
-    sys.stdout.write(xml_output)
+    msg = f"Optimization of cluster {cluster_id}: serializing --"
+    try:
+        serializer = OptimizerSerializer(parser.plan_id)
+        scheduler_output, logs = serializer.build_optimizer_output(
+            curr_placement=optimizer._curr_placement,
+            opt_placement=placement
+        )
+        xml_output = serializer.render(scheduler_output)
+        sys.stdout.write(xml_output)
+        if debug:
+            sys.stderr.write(f"INFO: {msg} SUCCESS\n")
+    except Exception as exc:
+        sys.stderr.write(f"ERROR: {msg} {exc}\n")
+        sys.exit(1)
+    if debug:
+        try:
+            # Write the output.
+            with open("/tmp/onedrs_output.txt", mode="w") as file:
+                file.write(f"{datetime.now()}\n\nOutput:\n\n{xml_output}\n")
+        except Exception as exc:
+            sys.stderr.write(f"ERROR: Writing onedrs_output.txt -- {exc}\n")
 
     # VM log messages
     for vm_id, level, message in logs:
         parser.log_vm(level, vm_id, message)
 
     # General log message
+    # TODO: Take the optimizer status from its model.
     status = optimizer.report().splitlines()[1].strip().upper()
     if status == "ERROR" or status == "INFEASIBLE":
         parser.log_general("ERROR", "Unable to find optimal solution")

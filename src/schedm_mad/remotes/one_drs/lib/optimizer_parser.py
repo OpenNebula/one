@@ -82,13 +82,16 @@ class OptimizerParser:
         "PREDICTIVE": 0,
         "MEMORY_SYSTEM_DS_SCALE": 0,
         "DIFFERENT_VNETS": True,
+        "DEBUG": False,
     }
 
     __slots__ = (
         "parser",
         "scheduler_driver_action",
         "config",
+        "debug",
         "mode",
+        "cluster_id",
         "_plan_id",
         "_system_local_dstore_hosts",
         "_system_local_dstore_attrs",
@@ -106,16 +109,20 @@ class OptimizerParser:
             io.BytesIO(stdin_data), SchedulerDriverAction
         )
         self.config = self._load_config(mode)
+        self.debug = self.config["DEBUG"]
         self.mode = mode
+        self.cluster_id = -1
         self._plan_id = -1
+        action = self.scheduler_driver_action
 
         # Remove `STOPPED` and `UNDEPLOYED` VMs.
         if self.mode.upper() == "OPTIMIZE":
+            self.cluster_id = int(action.cluster_pool.cluster[0].id)
             skipped_states = {4, 9}
-            vms = self.scheduler_driver_action.vm_pool.vm
+            vms = action.vm_pool.vm
             vms[:] = [vm for vm in vms if vm.state not in skipped_states]
             vm_ids = [vm.id for vm in vms]
-            vm_reqs = self.scheduler_driver_action.requirements.vm
+            vm_reqs = action.requirements.vm
             vm_reqs[:] = [vm_req for vm_req in vm_reqs if vm_req.id in vm_ids]
 
         # The required attributes of the datastores.
@@ -125,7 +132,7 @@ class OptimizerParser:
         shared_dstore_attrs: dict[int, dict[str, Any]] = {}
         # Dict {dstore id: dstore attrs} for image datastores.
         image_dstore_attrs: dict[int, dict[str, Any]] = {}
-        for data in self.scheduler_driver_action.datastore_pool.datastore:
+        for data in action.datastore_pool.datastore:
             type_ = self.DATASTORE_TYPE[data.type_value]
             tm_mad = data.tm_mad.upper()
             attrs: dict[str, Any] = {"TYPE": type_, "TM_MAD": tm_mad}
@@ -156,7 +163,7 @@ class OptimizerParser:
         # The hosts assiciated to the system local datastores.
         # Dict {dstore id: host ids} for system local datastores.
         local_dstore_hosts: defaultdict[int, set[int]] = defaultdict(set)
-        for host_data in self.scheduler_driver_action.host_pool.host:
+        for host_data in action.host_pool.host:
             host_id = host_data.id
             for dstore_data in host_data.host_share.datastores.ds:
                 if dstore_data.id in local_dstore_attrs:
@@ -167,7 +174,7 @@ class OptimizerParser:
         curr_alloc: dict[int, int] = {}
         used_local_dstores: dict[int, int] = {}
         used_shared_dstores: dict[int, int] = {}
-        for data in self.scheduler_driver_action.vm_pool.vm:
+        for data in action.vm_pool.vm:
             if vm_hist := data.history_records.history:
                 vm_id = int(data.id)
                 last_rec = max(vm_hist, key=lambda item: int(item.seq))
@@ -224,7 +231,8 @@ class OptimizerParser:
             state = f"state {vm.state}"
             if vm.state == 3:
                 state = f"{state} and LCM state {vm.lcm_state}"
-            msg = f"Optimization skipped: VM {vm.id} in the {state}"
+            state = f"VM {vm.id} in the {state}"
+            msg = f"Optimization of cluster {self.cluster_id} skipped: {state}"
             self.log_general("ERROR", msg)
         return unsupported
 
@@ -284,6 +292,13 @@ class OptimizerParser:
         sched_config["PREDICTIVE"] = config_data.get(
             "PREDICTIVE", cls.DEFAULT_CONFIG["PREDICTIVE"]
         )
+        if "DEBUG" in config_data:
+            debug = config_data["DEBUG"]
+            sched_config["DEBUG"] = (
+                debug is True or str(debug).upper() == "YES"
+            )
+        else:
+            sched_config["DEBUG"] = cls.DEFAULT_CONFIG["DEBUG"]
 
         return {
             "MODE": mode_config,
@@ -333,7 +348,7 @@ class OptimizerParser:
                 if policy.upper() == "BALANCE"
                 else policy.lower()
             )
-            self._plan_id = self.scheduler_driver_action.cluster_pool.cluster[0].id
+            self._plan_id = self.cluster_id
         vmg, affined_hosts, anti_affined_hosts = self._parse_vm_groups()
         vm_reqs_dict = self._parse_vm_requirements()
         for vm_req in self.scheduler_driver_action.requirements.vm:
