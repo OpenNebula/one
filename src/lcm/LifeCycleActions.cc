@@ -1320,7 +1320,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
                 vm->set_epilog_etime(the_time);
 
                 tm->trigger_driver_cancel(vid);
-                tm->trigger_epilog_delete(vm);
+                vmm->trigger_cleanup(vid, false);
                 break;
 
             case VirtualMachine::LCM_INIT:
