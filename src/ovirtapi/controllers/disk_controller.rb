@@ -98,7 +98,7 @@ class DiskController
     end
 
     # Struct Reference: http://ovirt.github.io/ovirt-engine-api-model/master/#types/disk
-    def self.persistentdisk_to_ovirtdisk(client, onedisk)
+    def self.persistentdisk_to_ovirtdisk(client, onedisk, vm_disk: nil)
         disk_hash = Helper.resource_hash(client, onedisk)
 
         path = disk_hash.dig('IMAGE', 'PATH').to_s
@@ -153,6 +153,11 @@ class DiskController
         end
 
         disk_id = generate_disk_uuid(0, 0, onedisk.id.to_i)
+        size = disk_hash['IMAGE']['SIZE'].to_i
+        if vm_disk && vm_disk['PERSISTENT'] == 'YES' &&
+                vm_disk['IMAGE_ID'].to_i == onedisk.id.to_i && vm_disk['SIZE']
+            size = vm_disk['SIZE'].to_i
+        end
 
         return {
             :name => onedisk.name,
@@ -178,8 +183,8 @@ class DiskController
                   }
               ]
           },
-          :provisioned_size => disk_hash['IMAGE']['SIZE'].to_i * 1024 * 1024, # MB to bytes
-          :actual_size => disk_hash['IMAGE']['SIZE'].to_i * 1024 * 1024, # MB to bytes
+          :provisioned_size => size * 1024 * 1024, # MB to bytes
+          :actual_size => size * 1024 * 1024, # MB to bytes
           :status => status
         }
     end
@@ -361,6 +366,15 @@ class DiskController
         id ? images.find {|image| image.id.to_i == id.to_i } : images
     end
 
+    def self.persistent_vm_disk(vm, image_id, client)
+        disks = Helper.resource_hash(client, vm).dig('VM', 'TEMPLATE', 'DISK')
+        disks = [disks] if disks.is_a?(Hash)
+        Array(disks).find do |disk|
+            disk['PERSISTENT'] == 'YES' && disk['IMAGE_ID'] &&
+                disk['IMAGE_ID'].to_i == image_id.to_i
+        end
+    end
+
     # Return list of formatted oVirt Disks
     def self.get_ovirt_disks(client, max: nil, search: nil)
         client = Helper::Inventory.wrap(client)
@@ -382,17 +396,9 @@ class DiskController
             return 500, Helper.fault_response('Unable to obtain OpenNebula VMs')
         end
 
-        images.each do |image|
-            if image['PERSISTENT'] == '1'
-                disks << persistentdisk_to_ovirtdisk(client, image)
-            end
-        rescue VmController::LookupError => e
-            raise unless [401, 404].include?(e.status)
-
-            LOGGER.info("Skipping image #{image.id}: #{e.message}")
-        end
-
-        # Get non-persistent images and volatile disks
+        # Build the attached disk index from the same VM snapshot used below.
+        persistent_disks = {}
+        vm_disks_formatted = []
         vms.each do |pool_vm|
             vm = VmController.get_one_vms(client, :vm_id => pool_vm.id)
             vm_hash = Helper.resource_hash(client, vm)
@@ -403,9 +409,10 @@ class DiskController
             if vm_disks.is_a?(Hash)
                 vm_disks = [vm_disks]
             end
-            vm_disks_formatted = []
             vm_disks.each do |disk|
-                if disk.key?('IMAGE_ID') && disk['PERSISTENT'] != 'YES'
+                if disk['PERSISTENT'] == 'YES' && disk.key?('IMAGE_ID')
+                    persistent_disks[disk['IMAGE_ID'].to_i] = disk
+                elsif disk.key?('IMAGE_ID')
                     # Non-persistent disks
                     uuid = generate_disk_uuid(1, vm.id, disk['DISK_ID'].to_i)
                     vm_disks_formatted << nonpersistentdisk_to_ovirtdisk(client, disk, uuid, vm.id)
@@ -415,12 +422,24 @@ class DiskController
                     vm_disks_formatted << volatiledisk_to_ovirtdisk(client, disk, uuid, vm.id)
                 end
             end
-            disks.concat(vm_disks_formatted)
         rescue VmController::LookupError => e
             raise unless [401, 404].include?(e.status)
 
             LOGGER.info("Skipping unavailable VM #{pool_vm.id}: #{e.message}")
         end
+
+        images.each do |image|
+            if image['PERSISTENT'] == '1'
+                disks << persistentdisk_to_ovirtdisk(client, image,
+                                                     :vm_disk => persistent_disks[image.id.to_i])
+            end
+        rescue VmController::LookupError => e
+            raise unless [401, 404].include?(e.status)
+
+            LOGGER.info("Skipping image #{image.id}: #{e.message}")
+        end
+
+        disks.concat(vm_disks_formatted)
         return 200, { :disk => pagination.apply(disks) }
     end
 
@@ -438,7 +457,25 @@ class DiskController
                 return 404, Helper.fault_response('Disk not found')
             end
 
-            return 200, persistentdisk_to_ovirtdisk(client, onedisk)
+            vm_disk = nil
+            image_hash = Helper.resource_hash(client, onedisk)['IMAGE']
+            vms = image_hash['VMS']
+            vm_ids = vms.is_a?(Hash) ? Array(vms['ID']) : []
+            vm_ids << image_hash['VM_ID'] if image_hash['VM_ID']
+
+            vm_ids.map(&:to_i).uniq.each do |vm_id|
+                next unless vm_id > 0
+
+                begin
+                    vm = VmController.get_one_vms(client, :vm_id => vm_id)
+                    vm_disk = persistent_vm_disk(vm, onedisk.id, client)
+                    break if vm_disk
+                rescue VmController::LookupError => e
+                    raise unless e.status == 404
+                end
+            end
+
+            return 200, persistentdisk_to_ovirtdisk(client, onedisk, :vm_disk => vm_disk)
         else
             vm = VmController.get_one_vms(client, :vm_id => disk_info[:vm_id])
             disks = vm.to_hash['VM']['TEMPLATE']['DISK']
@@ -561,7 +598,8 @@ class DiskController
             when 'PERSISTENT'
                 response[:disk] = persistentdisk_to_ovirtdisk(
                     client,
-                    get_onedisks(client, disk['IMAGE_ID'].to_i)
+                    get_onedisks(client, disk['IMAGE_ID'].to_i),
+                    :vm_disk => disk
                 )
             when 'NONPERSISTENT'
                 response[:disk] = nonpersistentdisk_to_ovirtdisk(client, disk, disk_uuid, vm_id)
