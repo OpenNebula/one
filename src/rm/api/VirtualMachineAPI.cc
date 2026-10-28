@@ -1206,6 +1206,7 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
         {
             Quotas::vm_add(vm_perms.uid, vm_perms.gid, &quota_tmpl);
 
+            quota_tmpl.replace("CLUSTER_ID", cluster_id);
             Quotas::vm_del(vm_perms.uid, vm_perms.gid, &quota_tmpl);
         }
 
@@ -1235,6 +1236,7 @@ Request::ErrorCode VirtualMachineAPI::migrate(int vid,
         {
             Quotas::vm_add(vm_perms.uid, vm_perms.gid, &quota_tmpl);
 
+            quota_tmpl.replace("CLUSTER_ID", cluster_id);
             Quotas::vm_del(vm_perms.uid, vm_perms.gid, &quota_tmpl);
         }
 
