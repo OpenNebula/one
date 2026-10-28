@@ -121,6 +121,19 @@ module TransferManager
                 "/dev/#{@vgname}/#{lv}"
             end
 
+            def remove_increment_snapshots_sh(keep_increment_id = nil)
+                snapshot_prefix = "#{@lvname}_#{INC_SNAP_PREFIX}"
+                snapshot_name_to_keep = "#{snapshot_prefix}#{keep_increment_id}" \
+                    if keep_increment_id
+
+                thin_volume = MAD::ThinLV.new(@vgname, @lvname, @pool)
+
+                thin_volume.snaps_delete_sh(
+                    :name_prefix => snapshot_prefix,
+                    :keep_lvname => snapshot_name_to_keep
+                )
+            end
+
             # @param backup_dir [String]
             # @param ds [TransferManager::Datastore]
             # @param live [Boolean]
@@ -130,6 +143,7 @@ module TransferManager
                 snap_cmd    = ''
                 expo_cmd    = ''
                 snap_clup   = ''
+                snap_abort  = ''
                 backup_util = '/var/lib/one-remotes/tm/lib/backup_lvmthin.rb'
 
                 if @interactive
@@ -151,10 +165,12 @@ module TransferManager
                             snapshot = "#{@lvname}_one_backup"
                             orig = path(snapshot)
 
-                            snap_cmd << lvm_lock_sh(
-                                "sudo lvcreate -s -n #{snapshot} #{qual(@lvname)}"
-                            )
+                            snap_cmd << lvm_lock_sh(<<~EOF)
+                                sudo lvremove -y #{qual(snapshot)} || true
+                                sudo lvcreate -s -n #{snapshot} #{qual(@lvname)}
+                            EOF
                             snap_clup << lvm_lock_sh("sudo lvremove -y #{qual(snapshot)}")
+                            snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snapshot)}")
                         else
                             # Full, live, non-thin: UNSUPPORTED
                             return
@@ -168,6 +184,8 @@ module TransferManager
                         #{lvm_lock_sh("sudo lvchange -K -ay #{orig}").strip}
                         qemu-img convert -m 4 -O qcow2 #{orig} #{ddst}
                     EOF
+
+                    snap_clup << lvm_lock_sh(remove_increment_snapshots_sh) if @is_thin
                 elsif @vm_backup_config[:last_increment] == -1
                     # First incremental backup (initial full backup)
                     return unless @is_thin
@@ -178,7 +196,7 @@ module TransferManager
                     snap_path = path(snap_curr)
 
                     snap_cmd << lvm_lock_sh(<<~EOF)
-                        sudo lvremove -y #{qual(snap_curr)} || true
+                        #{remove_increment_snapshots_sh}
                         sudo lvcreate -s -n #{snap_curr} #{qual(@lvname)}
                         #{@pool.adjust_sh if @pool}
                     EOF
@@ -189,6 +207,7 @@ module TransferManager
                     EOF
 
                     snap_clup << lvm_lock_sh("sudo lvchange -K -an #{snap_path}")
+                    snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snap_curr)}")
                 else
                     # Incremental backup
                     return unless @is_thin
@@ -200,7 +219,7 @@ module TransferManager
 
                     snap_cmd << lvm_lock_sh(<<~EOF)
                         sudo lvchange --refresh #{qual(@poolname)}
-                        sudo lvremove -y #{qual(snap_curr)} || true
+                        #{remove_increment_snapshots_sh(@vm_backup_config[:last_increment])}
                         sudo lvcreate -s -n #{snap_curr} #{qual(@lvname)}
                         #{@pool.adjust_sh if @pool}
                     EOF
@@ -212,6 +231,7 @@ module TransferManager
                     )
 
                     snap_clup << lvm_lock_sh("sudo lvremove -y #{qual(snap_prev)}")
+                    snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snap_curr)}")
                 end
 
                 {
@@ -219,6 +239,7 @@ module TransferManager
                     :export        => expo_cmd,
                     :snapshot_clup => snap_clup,
                     :export_clup   => '',
+                    :snapshot_abort => snap_abort,
                     :cleanup       => snap_clup
                 }
             end
@@ -227,6 +248,7 @@ module TransferManager
                 snap_cmd  = ''
                 expo_cmd  = ''
                 snap_clup = ''
+                snap_abort = ''
 
                 # Supported configurations
                 # Legend: (T)hin, (F)at
@@ -245,10 +267,12 @@ module TransferManager
                         snapshot = "#{@lvname}_one_backup"
                         orig = path(snapshot)
 
-                        snap_cmd << lvm_lock_sh(
-                            "sudo lvcreate -s -n #{snapshot} #{qual(@lvname)}"
-                        )
+                        snap_cmd << lvm_lock_sh(<<~EOF)
+                            sudo lvremove -y #{qual(snapshot)} || true
+                            sudo lvcreate -s -n #{snapshot} #{qual(@lvname)}
+                        EOF
                         snap_clup << lvm_lock_sh("sudo lvremove -y #{qual(snapshot)}")
+                        snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snapshot)}")
                     else
                         orig = path(@lvname)
                     end
@@ -266,6 +290,8 @@ module TransferManager
                             :size     => @size
                         )}
                     EOF
+
+                    snap_clup << lvm_lock_sh(remove_increment_snapshots_sh) if @is_thin
                 elsif @vm_backup_config[:last_increment] == -1
                     # First interactive incremental backup (initial full backup)
                     return unless @is_thin
@@ -276,7 +302,7 @@ module TransferManager
                     snap_path = path(snap_curr)
 
                     snap_cmd << lvm_lock_sh(<<~EOF)
-                        sudo lvremove -y #{qual(snap_curr)} || true
+                        #{remove_increment_snapshots_sh}
                         sudo lvcreate -s -n #{snap_curr} #{qual(@lvname)}
                         #{@pool.adjust_sh if @pool}
                     EOF
@@ -296,6 +322,7 @@ module TransferManager
                     EOF
 
                     snap_clup << lvm_lock_sh("sudo lvchange -K -an #{snap_path}")
+                    snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snap_curr)}")
                 else
                     # Interactive incremental backup
                     return unless @is_thin
@@ -309,7 +336,7 @@ module TransferManager
 
                     snap_cmd << lvm_lock_sh(<<~EOF)
                         sudo lvchange --refresh #{qual(@poolname)}
-                        sudo lvremove -y #{qual(snap_curr)} || true
+                        #{remove_increment_snapshots_sh(@vm_backup_config[:last_increment])}
                         sudo lvcreate -s -n #{snap_curr} #{qual(@lvname)}
                         #{@pool.adjust_sh if @pool}
                     EOF
@@ -323,6 +350,7 @@ module TransferManager
 
                     snap_clup << lvm_lock_sh("sudo lvchange -K -an #{snap_path}")
                     snap_clup << lvm_lock_sh("sudo lvremove -y #{qual(snap_prev)}")
+                    snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snap_curr)}")
                 end
 
                 {
@@ -330,6 +358,7 @@ module TransferManager
                     :export        => expo_cmd,
                     :snapshot_clup => snap_clup,
                     :export_clup   => '',
+                    :snapshot_abort => snap_abort,
                     :cleanup       => snap_clup,
                     :start_onebex  => true
                 }

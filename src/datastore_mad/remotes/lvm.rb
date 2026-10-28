@@ -443,11 +443,14 @@ module MAD
         end
 
         def snaps_delete_sh(opts = {})
-            flags = ' -q' if opts[:quiet]
+            flags       = ' -q' if opts[:quiet]
+            name_prefix = opts.fetch(:name_prefix, @one_prefix)
+            keep_lvname = opts[:keep_lvname]
 
             <<~EOF
                 for lv in $(sudo lvs --noheading -o lv_name -S \
-                            'vg_name = #{@vgname} && pool_lv = #{@pool.lvname} && lv_name =~ "#{@one_prefix}"'); do
+                            'vg_name = #{@vgname} && pool_lv = #{@pool.lvname} && lv_name =~ "#{name_prefix}"'); do
+                    #{"[ \"$lv\" = \"#{keep_lvname}\" ] && continue" if keep_lvname}
                     sudo lvremove#{flags} -y "#{@vgname}/$lv"
                 done
             EOF
