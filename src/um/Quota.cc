@@ -73,7 +73,7 @@ int Quota::get_quota(
 void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, float num)
 {
     istringstream iss;
-    float         total;
+    float         total = 0;
 
     iss.str(attr->vector_value(va_name));
 
@@ -153,8 +153,8 @@ bool Quota::check_quota(const string& qid,
     VectorAttribute * default_q;
 
     bool check;
-    float limit;
-    float usage;
+    float limit = DEFAULT;
+    float usage = 0;
 
     if ( get_quota(qid, &q) == -1 )
     {
@@ -210,14 +210,14 @@ bool Quota::check_quota(const string& qid,
             continue;
         }
 
-        q->vector_value(metric, limit);
-        q->vector_value(metrics_used, usage);
+        q->vector_value(metric, limit, static_cast<float>(DEFAULT));
+        q->vector_value(metrics_used, usage, 0.0f);
 
         if ( limit == DEFAULT )
         {
             if ( default_q != 0 )
             {
-                default_q->vector_value(metric, limit);
+                default_q->vector_value(metric, limit, static_cast<float>(UNLIMITED));
             }
             else
             {
@@ -341,7 +341,9 @@ void Quota::cleanup_quota(const string& qid)
     VectorAttribute * q;
     map<string, Attribute *>::iterator q_it;
 
-    float usage, limit, implicit_limit;
+    float usage = 0;
+    float limit = 0;
+    float implicit_limit;
 
     if ( get_quota(qid, &q, q_it) == -1)
     {
@@ -388,8 +390,8 @@ void Quota::cleanup_quota(const string& qid)
     {
         string metrics_used = metric + "_USED";
 
-        q->vector_value(metric, limit);
-        q->vector_value(metrics_used, usage);
+        q->vector_value(metric, limit, implicit_limit);
+        q->vector_value(metrics_used, usage, 0.0f);
 
         if ( (!is_cluster && usage != 0) || limit != implicit_limit )
         {
