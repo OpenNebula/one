@@ -17,7 +17,6 @@ import { prettyBytes } from '@UtilsModule'
 
 import {
   CUSTOM_HOST_HYPERVISOR,
-  DEFAULT_CPU_MODELS,
   HOST_STATES,
   HYPERVISORS,
   Host,
@@ -186,12 +185,12 @@ export const getKvmCpuFeatures = (hosts = []) => {
  */
 export const getKvmMachines = (hosts = []) => {
   const machineTypes = hosts
-    .filter((host) => host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm)
-    .map((host) => host.TEMPLATE?.KVM_MACHINES.split(' '))
+    .filter((host) => host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm || host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.dummy)
+    .map((host) => host.TEMPLATE?.KVM_MACHINES?.split(' ') ?? [])
     .flat()
 
   // Removes the repeated
-  return [...new Set([DEFAULT_CPU_MODELS, ...machineTypes])]
+  return [...new Set(machineTypes)]
 }
 
 /**
