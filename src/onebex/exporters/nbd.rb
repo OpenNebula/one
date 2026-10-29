@@ -233,14 +233,14 @@ module OneBEX
 
             # Converts an nbdinfo extent hash to the API block format.
             def block(extent)
-                description = extent['description'].to_s.downcase
+                flags = extent['description'].to_s.downcase.split(',')
 
                 {
                     :start  => extent['offset'].to_i,
                     :length => extent['length'].to_i,
-                    :dirty  => description == 'dirty',
-                    :zero   => description == 'zero',
-                    :hole   => description == 'hole'
+                    :dirty  => flags.include?('dirty'),
+                    :zero   => flags.include?('zero'),
+                    :hole   => flags.include?('hole')
                 }
             end
 

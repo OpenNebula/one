@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'fileutils'
+require 'json'
 require 'open3'
 require 'timeout'
 
@@ -128,15 +129,7 @@ module OneBEX
             def blocks(xfr)
                 case xfr[:mode]
                 when 'full'
-                    [
-                        {
-                            :start  => 0,
-                            :length => size_bytes(xfr),
-                            :dirty  => true,
-                            :zero   => false,
-                            :hole   => false
-                        }
-                    ]
+                    extents(xfr[:uri]).map {|extent| block(extent) }
                 when 'incremental'
                     diff_parser(xfr).records
                 else
@@ -221,6 +214,32 @@ module OneBEX
             # ----------------------------------------------------------------
 
             private
+
+            # Queries nbdinfo for allocation extents.
+            def extents(uri)
+                stdout, stderr, status = Open3.capture3(
+                    'nbdinfo', uri, '--json', '--map'
+                )
+
+                unless status.success?
+                    raise "nbdinfo failed for #{uri}: #{stderr}"
+                end
+
+                JSON.parse(stdout).compact
+            end
+
+            # Converts an nbdinfo extent hash to the API block format.
+            def block(extent)
+                flags = extent['description'].to_s.downcase.split(',')
+
+                {
+                    :start  => extent['offset'].to_i,
+                    :length => extent['length'].to_i,
+                    :dirty  => true,
+                    :zero   => flags.include?('zero'),
+                    :hole   => flags.include?('hole')
+                }
+            end
 
             # Parses and caches the RBD diff file.
             def diff_parser(xfr)
