@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-const upcast = require('upcast')
+const { getCommandParams } = require('server/utils/xmlrpc')
 const {
   defaults,
   httpCodes,
@@ -66,8 +66,8 @@ const executeWorker = ({
     return
   }
   const worker = useWorker()
-  worker.onmessage = function (result) {
-    worker.terminate()
+  worker.once('message', function (result) {
+    worker.kill('SIGINT')
     const err = result && result.data && result.data.err
     const value = result && result.data && result.data.value
     writeInLogger(
@@ -86,9 +86,9 @@ const executeWorker = ({
       res.locals.httpCode = parseReturnWorker(value)
     }
     next()
-  }
+  })
 
-  worker.postMessage({
+  worker.send({
     type: 'xmlrpc',
     config: {
       globalState: (global && global.paths) || {},
@@ -98,45 +98,6 @@ const executeWorker = ({
       command,
       paramsCommand,
     },
-  })
-}
-
-/**
- * Get commands for command.
- *
- * @param {object} config - config for get params for command
- * @param {object} config.params - params command
- * @param {object} config.serverDataSource - server data source
- * @returns {any[]} - params for command
- */
-const getCommandParams = (config) => {
-  const { params, serverDataSource } = config
-  if (!(params && serverDataSource)) {
-    return
-  }
-
-  return Object.entries(params).map(([key, value]) => {
-    if (!(key && value && value.from && typeof value.default !== 'undefined')) {
-      return ''
-    }
-    // `value == null` checks against undefined and null
-    if (
-      serverDataSource[value.from] &&
-      serverDataSource[value.from][key] != null
-    ) {
-      const upcastedData = upcast.to(
-        serverDataSource[value.from][key],
-        upcast.type(value.default)
-      )
-
-      return value.arrayDefault !== undefined && Array.isArray(upcastedData)
-        ? upcastedData.map((internalValue) =>
-            upcast.to(internalValue, upcast.type(value.arrayDefault))
-          )
-        : upcastedData
-    } else {
-      return value.default
-    }
   })
 }
 

@@ -46,7 +46,7 @@ const getTabManifest = async () => {
             file.isFile() &&
             yamlExtNames.includes(path.extname(file.name).toLowerCase())
         )
-        ?.map((file) => path.join(file.path, file.name))
+        ?.map((file) => path.join(file.parentPath, file.name))
         ?.sort()
     } catch (err) {
       if (err.code !== 'ENOENT') throw err

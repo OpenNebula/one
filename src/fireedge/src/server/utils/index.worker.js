@@ -16,9 +16,7 @@
 
 const { opennebulaConnect } = require('../../../src/server/utils/opennebula')
 
-// eslint-disable-next-line no-undef
-onmessage = function (ev = {}) {
-  const { data } = ev
+process.on('message', (data = {}) => {
   let pass = true
 
   /**
@@ -28,8 +26,7 @@ onmessage = function (ev = {}) {
    */
   const returnDataWorker = (rtnData = '') => {
     if (pass) {
-      // eslint-disable-next-line no-undef
-      postMessage(rtnData)
+      process.send({ data: rtnData })
     }
   }
 
@@ -67,4 +64,6 @@ onmessage = function (ev = {}) {
     type === 'xmlrpc' && xmlrpc(config)
   }
   returnDataWorker()
-}
+})
+
+process.once('disconnect', () => process.exit(0))

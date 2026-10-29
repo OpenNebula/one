@@ -52,17 +52,18 @@ const images = {
   ],
 }
 
-const worker = {
-  test: /\.worker\.js$/,
-  loader: 'worker-loader',
-  options: {
-    filename: '[name].js',
-  },
-}
-
 module.exports = {
   mode,
-  entry: path.resolve(__dirname, 'src', 'server'),
+  entry: {
+    index: path.resolve(__dirname, 'src', 'server'),
+    'index.worker': path.resolve(
+      __dirname,
+      'src',
+      'server',
+      'utils',
+      'index.worker.js'
+    ),
+  },
   target: 'node',
   node: {
     __dirname: false,
@@ -70,7 +71,7 @@ module.exports = {
   externals: [nodeExternals()],
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'index.js',
+    filename: '[name].js',
   },
   stats: {
     warnings: false,
@@ -93,6 +94,6 @@ module.exports = {
     minimizer: [new TerserPlugin({ extractComments: false })],
   },
   module: {
-    rules: [js, worker, css, images],
+    rules: [js, css, images],
   },
 }

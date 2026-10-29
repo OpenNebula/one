@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const Worker = require('tiny-worker')
+const { fork } = require('child_process')
 const { resolve } = require('path')
 const { httpResponse } = require('server/utils/server')
 const { httpCodes } = require('server/utils/constants')
@@ -22,16 +22,17 @@ const { httpCodes } = require('server/utils/constants')
 const { internalServerError, ok, noContent, notFound } = httpCodes
 
 /**
- * Use Tiny worker.
+ * Fork the XML-RPC worker.
  *
- * @returns {object} - Worker
+ * @returns {object} - Child process
  */
-const useWorker = () => {
-  const workerPath = [__dirname]
-  require('server/utils/index.worker')
-
-  return new Worker(resolve(...workerPath, 'index.worker.js'))
-}
+const useWorker = () =>
+  fork(resolve(__dirname, 'index.worker.js'), [], {
+    execArgv:
+      process.env.NODE_ENV === 'development'
+        ? [...process.execArgv, '-r', require.resolve('@babel/register')]
+        : process.execArgv,
+  })
 
 /**
  * Parse Return http worker.
