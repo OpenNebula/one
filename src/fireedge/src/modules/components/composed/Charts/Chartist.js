@@ -245,7 +245,10 @@ const Chartist = ({
     () => {
       if (chartRef.current) {
         requestAnimationFrame(() => {
-          const { width, height } = chartRef.current.getBoundingClientRect()
+          const chart = chartRef.current
+          if (!chart) return
+
+          const { width, height } = chart.getBoundingClientRect()
           setChartDimensions({
             width: Math.max(width - 16, 50), // Clamping
             height: Math.max(height - 32, 50), // Clamping
