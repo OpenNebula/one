@@ -629,6 +629,7 @@ module OpenNebula
             # Creates or reuses a child operation under only the child owner lock.
             def request_child(child, parent:, actor:)
                 result = nil
+                mismatched_op_id = nil
 
                 rc = pool.get(child.owner_id, actor) do |resource|
                     context = resource.active_job
@@ -636,6 +637,7 @@ module OpenNebula
                     if context
                         if child.operation_id.nil? &&
                            (context.step != child.step || context.args != child.args)
+                            mismatched_op_id = context.id
                             result = ExecResult.error(
                                 OpenNebula::Error.new(
                                     "Child #{id} #{child.owner_id} has incompatible " \
@@ -685,6 +687,30 @@ module OpenNebula
                         if missing_resource?(rc)
 
                     return ExecResult.retry(rc)
+                end
+
+                if mismatched_op_id
+                    # Another coordinator may have confirmed and advanced this child
+                    # after our intent was read. Reload the parent without holding
+                    # the child lock and reconnect only to its confirmed operation.
+                    confirmed = nil
+                    workflow  = scheduler.workflow_for_id(parent.workflow)
+
+                    rc = workflow.pool.get(parent.owner_id, actor) do |resource|
+                        context = resource.active_job
+                        next unless context&.id == parent.operation_id
+
+                        confirmed = context.children.find do |current|
+                            current.identity == child.identity &&
+                                current.operation_id == mismatched_op_id
+                        end
+                    end
+
+                    return ExecResult.retry(rc) if OpenNebula.is_error?(rc)
+
+                    return request_child(
+                        confirmed, :parent => parent, :actor => actor
+                    ) if confirmed
                 end
 
                 result

@@ -29,9 +29,7 @@ module OneKS
         READINESS_STATES = [
             :PROVISIONING,
             :SCALING,
-            :UPGRADING,
-            :RUNNING,
-            :WARNING
+            :UPGRADING
         ]
 
         CONTROL_PLANE_PODS = [
@@ -200,7 +198,7 @@ module OneKS
                 if action == :event
                     begin
                         rc = publish_node_ready(**event)
-                        remember_ready_report(event) unless OpenNebula.is_error?(rc)
+                        remember_ready_report(event) if rc && !OpenNebula.is_error?(rc)
                     rescue StandardError => e
                         log_error(
                             "Could not publish readiness for VM #{event[:vm_id]}: " \
@@ -430,6 +428,15 @@ module OneKS
 
         def publish_node_ready(cluster_id:, group_id:, vm_id:, cluster: nil)
             return true if stopped?
+
+            group = @group_pool.get(group_id)
+
+            if OpenNebula.is_error?(group)
+                log_error("Could not load Group #{group_id}: #{group.message}", cluster_id)
+                return group
+            end
+
+            return false unless READINESS_STATES.include?(group.state.to_sym)
 
             cluster ||= @cluster_pool.get(cluster_id)
 

@@ -16,7 +16,7 @@
 
 ONEKS_SPEC_DIR    = File.join(VAR_LOCATION, 'oneks')
 TPROXY_PATH       = File.join(VAR_LOCATION, 'remotes', 'etc', 'vnm', 'OpenNebulaNetwork.conf')
-SKIP_DEPENDENCIES = ENV['RACK_ENV'] == 'development'
+SKIP_DEPENDENCIES = SERVER_CONF[:server][:environment] == 'development'
 
 # -------------------------------------------------------------------------- #
 # Required classes

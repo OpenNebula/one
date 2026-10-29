@@ -588,6 +588,71 @@ RSpec.describe ODS::JobWorkflow, 'parent-child composition' do
         expect(result.value.message).to include('incompatible step or arguments')
     end
 
+    context 'when another coordinator confirms and advances a child' do
+        let(:child_workflow_class) do
+            klass = super()
+            klass.step :finish,
+                       :handler => :perform,
+                       :state => :RUNNING,
+                       :success => ODS::Job.complete(:DONE),
+                       :failure => :RUNNING_FAILURE
+            klass
+        end
+
+        it 'reconnects a stale request to the confirmed operation and completes the parent' do
+            parent = persist_parent_intent
+            job    = parent_workflow.build_job(parent_owner)
+            advanced = false
+
+            allow(child_workflow).to(
+                receive(:request_child).and_wrap_original do |method, child, **opts|
+                    if child.owner_id == 11 && !advanced
+                        advanced = true
+                        created = method.call(child, **opts)
+                        expect(created).to be_ok
+                        confirmed = child.with(
+                            :status => :active,
+                            :operation_id => created.value[:operation_id]
+                        )
+
+                        # Interleave a second coordinator's confirmation and the child's
+                        # next step before the first coordinator uses its stale intent.
+                        parent_pool.get(parent_owner.id) do |owner|
+                            children = owner.active_job.children.map do |current|
+                                current.identity == child.identity ? confirmed : current
+                            end
+                            owner.update_job_children!(job, children)
+                        end
+                        child_pool.get(child.owner_id) do |owner|
+                            child_job = child_workflow.build_job(owner)
+                            owner.transition_job!(
+                                child_job,
+                                ODS::Job.next(:finish, :args => child.args.merge(:phase => :next))
+                            )
+                        end
+                    end
+
+                    method.call(child, **opts)
+                end
+            )
+
+            expect(parent_workflow.resume_children(parent_owner)).to be_a(String)
+            expect(parent_owner.active_job.pending_failure).to be_nil
+            confirmed = parent_owner.active_job.children.last
+            expect(confirmed.operation_id).to eq(child_owners.last.active_job.id)
+            expect(child_owners.last.active_job.step).to eq(:finish)
+            expect(child_owners.last.active_job.parent).to eq(parent)
+
+            controls[10] = :ready
+            controls[11] = :ready
+            scheduler.start
+            wait_until { parent_owner.state == :DONE }
+
+            expect(child_workflow.calls).to eq(10 => 1, 11 => 1)
+            expect(parent_owner.active_job).to be_nil
+        end
+    end
+
     context 'with a missing child accepted by the domain predicate' do
         let(:descriptors) do
             [{

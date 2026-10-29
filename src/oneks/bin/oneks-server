@@ -94,13 +94,29 @@ stop()
         exit 1
     fi
 
-    # Kill the oneks-server daemon
+    ONEKSPID=$(cat "$ONEKS_PID")
+    case "$ONEKSPID" in
+        ''|*[!0-9]*|0|1)
+            echo "Invalid OneKS server PID: $ONEKSPID"
+            exit 1
+            ;;
+    esac
 
-    kill -INT `cat $ONEKS_PID` > /dev/null 2>&1
+    kill -INT "$ONEKSPID" > /dev/null 2>&1
 
-    # Remove pid files
-    rm -f $ONEKS_PID > /dev/null 2>&1
-    rm -f $ONEKS_LOCK_FILE &> /dev/null
+    # Keep the PID and lock until the daemon has finished shutting down
+    STOP_TIMEOUT=60
+    while ps -p "$ONEKSPID" -o stat= 2>/dev/null | grep -qv '^[[:space:]]*Z'; do
+        if [ "$STOP_TIMEOUT" -eq 0 ]; then
+            echo "Timed out waiting for OneKS server to stop (PID:$ONEKSPID)."
+            exit 1
+        fi
+
+        sleep 1
+        STOP_TIMEOUT=$((STOP_TIMEOUT - 1))
+    done
+
+    rm -f "$ONEKS_PID" "$ONEKS_LOCK_FILE"
 
     echo "oneks-server stopped"
 }
