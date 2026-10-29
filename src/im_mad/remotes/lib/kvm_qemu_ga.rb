@@ -173,19 +173,39 @@ module VirshWrapper
                 path = "/var/run/one/one-#{vm[:id]}"
                 next unless File.exist?(path)
 
-                pid_str = File.read(path).strip
-                next if pid_str.empty?
+                pid = nil
 
-                pid = pid_str.to_i
-                status_hash = guest_exec_status("one-#{vm[:id]}", pid)
-                next unless status_hash.is_a?(Hash) && status_hash['exited']
+                begin
+                    pid_str = File.read(path).strip
+                    raise 'Empty QEMU guest agent PID file' if pid_str.empty?
 
-                rc = status_hash['exitcode'].to_s
-                out_b64 = (status_hash['out-data'] || '').to_s
-                err_b64 = (status_hash['err-data'] || '').to_s
+                    pid = pid_str.to_i
+                    status_hash = guest_exec_status("one-#{vm[:id]}", pid)
+                    next unless status_hash.is_a?(Hash) && status_hash['exited']
 
-                qemu_exec_str << vm_to_exec(vm[:id].to_s, pid, 'DONE', rc, out_b64, err_b64)
-                File.delete(path)
+                    rc = status_hash['exitcode'].to_s
+                    out_b64 = (status_hash['out-data'] || '').to_s
+                    err_b64 = (status_hash['err-data'] || '').to_s
+
+                    File.delete(path)
+                    qemu_exec_str << vm_to_exec(
+                        vm[:id].to_s, pid, 'DONE', rc, out_b64, err_b64
+                    )
+                rescue StandardError => e
+                    STDERR.puts "qemu_ga_reaper error for VM #{vm[:id]}: #{e.message}"
+
+                    err_b64 = Base64.strict_encode64(e.message)
+                    qemu_exec_str << vm_to_exec(
+                        vm[:id].to_s, pid, 'ERROR', '-1', '', err_b64
+                    )
+
+                    begin
+                        File.delete(path) if File.exist?(path)
+                    rescue StandardError => cleanup_error
+                        STDERR.puts "qemu_ga_reaper cleanup error for VM #{vm[:id]}: " \
+                                    "#{cleanup_error.message}"
+                    end
+                end
             end
         end
 
