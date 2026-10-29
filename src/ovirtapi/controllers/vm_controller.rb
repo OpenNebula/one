@@ -126,7 +126,8 @@ class VmController
         else
             host_id = nil
             requirements = one_hash.dig('VM', 'USER_TEMPLATE', 'SCHED_REQUIREMENTS').to_s
-            requirements = one_hash.dig('VM', 'TEMPLATE', 'SCHED_REQUIREMENTS').to_s if requirements.empty?
+            requirements = one_hash.dig('VM', 'TEMPLATE',
+                                        'SCHED_REQUIREMENTS').to_s if requirements.empty?
             cluster_id = requirements[/CLUSTER_ID\s*=\s*"?(\d+)/, 1]
         end
 
@@ -462,6 +463,7 @@ class VmController
             if one_hash['VM']['STATE'].to_i == 2
                 return 409, Helper.fault_response('VM is on hold awaiting its first disk').to_json
             end
+
             status = get_vm_status(one_hash['VM']['STATE'].to_i, one_hash['VM']['LCM_STATE'].to_i)
 
             LOGGER.info("VM status: #{status}, STATE: #{one_hash['VM']['STATE'].to_i}," \
@@ -763,6 +765,7 @@ class VmController
             if OpenNebula.is_error?(rc)
                 return 500, Helper.fault_response("Error updating disk prefixes: #{rc.message}")
             end
+
             rc = vm.info
             if OpenNebula.is_error?(rc)
                 LOGGER.error "Error retrieving VM: #{rc.message}"
@@ -973,6 +976,7 @@ class VmController
         if OpenNebula.is_error?(rc)
             return 500, Helper.fault_response("Error updating disk prefixes: #{rc.message}")
         end
+
         rc = vm.info
         if OpenNebula.is_error?(rc)
             LOGGER.error "Error retrieving VM: #{rc.message}"

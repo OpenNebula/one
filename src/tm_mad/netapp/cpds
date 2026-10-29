@@ -83,7 +83,7 @@ begin
         snap_name = "one_snap_#{arg_snapid}"
         source_snap = source_volume.get_snapshots.find {|s| s['name'] == snap_name }
     else
-        check_snap  = source_volume.get_snapshots.find {|s| s['name'] == snap_name }
+        check_snap = source_volume.get_snapshots.find {|s| s['name'] == snap_name }
         if check_snap
             check_snap.delete
             OpenNebula::DriverLogger.log_info 'Deleted existing temporary snapshot for ' \

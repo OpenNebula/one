@@ -841,7 +841,7 @@ class DiskController
 
     def self.finish_first_disk_setup(vm)
         state = vm.to_hash['VM']['STATE'].to_i
-        return nil if state == 8
+        return if state == 8
 
         if [2, 9].include?(state)
             rc = state == 2 ? vm.release : vm.resume
@@ -855,10 +855,13 @@ class DiskController
             return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
 
             data = vm.to_hash['VM']
-            return nil if data['STATE'].to_i == 8
+            return if data['STATE'].to_i == 8
             if [6, 11].include?(data['STATE'].to_i)
-                return 500, Helper.fault_response("VM entered state #{data['STATE']} during disk setup")
+                return 500, Helper.fault_response(
+                    "VM entered state #{data['STATE']} during disk setup"
+                )
             end
+
             if data['STATE'].to_i == 3 && data['LCM_STATE'].to_i == 3 && !poweroff_requested
                 rc = vm.poweroff(true)
                 return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)

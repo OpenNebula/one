@@ -414,6 +414,7 @@ class NetworkController
             if user_template['OVIRTAPI_NIC_SETUP_NETWORK_ID'].to_i != nic_id.to_i
                 return 409, Helper.fault_response('Another NIC attachment is in progress')
             end
+
             original_ids = user_template['OVIRTAPI_NIC_SETUP_NIC_IDS'].to_s.split(',').map(&:to_i)
         else
             original_ids = nics.map {|nic| nic['NIC_ID'].to_i }
@@ -437,11 +438,13 @@ class NetworkController
 
         error = wait_for_staged_nic_state(vm, 3, 150, :running => true)
         if error
-            cleanup_error = return_staged_vm_to_undeployed(vm) if vm.to_hash['VM']['STATE'].to_i == 3
+            cleanup_error = return_staged_vm_to_undeployed(vm) \
+                if vm.to_hash['VM']['STATE'].to_i == 3
             if cleanup_error
                 return 500, Helper.fault_response(
                     "#{error[1][:fault][:detail]}; unable to undeploy VM #{vm_id}: " \
-                    "#{cleanup_error[1][:fault][:detail]}")
+                    "#{cleanup_error[1][:fault][:detail]}"
+                )
             end
 
             return error
@@ -464,7 +467,8 @@ class NetworkController
                 detail = failure[1][:fault][:detail]
                 return 500, Helper.fault_response(
                     "#{detail}; unable to undeploy VM #{vm_id}: " \
-                    "#{cleanup_error[1][:fault][:detail]}")
+                    "#{cleanup_error[1][:fault][:detail]}"
+                )
             end
 
             return cleanup_error
@@ -510,7 +514,7 @@ class NetworkController
     end
 
     def self.return_staged_vm_to_undeployed(vm)
-        return nil if vm.to_hash['VM']['STATE'].to_i == 9
+        return if vm.to_hash['VM']['STATE'].to_i == 9
 
         error = wait_for_staged_nic_state(vm, 3, 90, :running => true)
         return error if error
@@ -528,10 +532,12 @@ class NetworkController
             return 500, Helper.fault_response(rc.message) if OpenNebula.is_error?(rc)
 
             state = vm.to_hash['VM']
-            return nil if state['STATE'].to_i == expected_state &&
+            return if state['STATE'].to_i == expected_state &&
                 (!running || state['LCM_STATE'].to_i == 3)
             if [6, 11].include?(state['STATE'].to_i)
-                return 500, Helper.fault_response("VM entered state #{state['STATE']} during NIC setup")
+                return 500, Helper.fault_response(
+                    "VM entered state #{state['STATE']} during NIC setup"
+                )
             end
             return 500, Helper.fault_response('Timed out waiting for VM during NIC setup') if
                 Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline

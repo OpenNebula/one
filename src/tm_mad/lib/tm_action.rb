@@ -336,7 +336,8 @@ module TransferManager
 
                 status = tm_call(tmmad, operation, :stdin => template64)
 
-                raise "Error running #{tmmad}/#{operation}: #{status.exitstatus}" unless status.success?
+                raise "Error running #{tmmad}/#{operation}: #{status.exitstatus}" \
+                    unless status.success?
 
                 processed_tms << tmmad
             end

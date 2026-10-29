@@ -438,7 +438,8 @@ class ImageTransferController
                         break
                     end
 
-                    LOGGER.warn "Could not retrieve image #{image_id} during finalize: #{rc.message}"
+                    LOGGER.warn \
+                        "Could not retrieve image #{image_id} during finalize: #{rc.message}"
                 else
                     phase = case disk.state.to_i
                             when 1 then 'finished_success'

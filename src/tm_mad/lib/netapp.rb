@@ -607,11 +607,11 @@ module TransferManager
                     # A job response carries only the uuid, so without this the
                     # volume has no name and every log line about it is blank.
                     Volume.new({
-                                   'uuid' => response['uuid'],
+                        'uuid' => response['uuid'],
                                    'name' => name,
                                    'svm' => { 'uuid' => @uuid },
                                    'aggregates' => @aggregates
-                               }.compact, @netapp)
+                    }.compact, @netapp)
                 else
                     Volume.new(response, @netapp)
                 end
