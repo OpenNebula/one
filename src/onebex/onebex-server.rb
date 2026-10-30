@@ -95,6 +95,12 @@ if __FILE__ == $PROGRAM_NAME
         bex.logger.info 'Starting OneBEX server'
         bex.logger.info "OneBEX Puma config: bind=#{bex.conf[:host]}:" \
                  "#{bex.conf[:port]}, threads=#{min_threads}:#{max_threads}"
+        bex.logger.info 'OneBEX exporters: ' \
+                 "#{OneBEX::Exporters.registry.names.join(', ')}"
+
+        OneBEX::Exporters.load_errors.each do |file, error|
+            bex.logger.error "Error loading OneBEX exporter #{file}: #{error}"
+        end
 
         bex.puma.run
     rescue StandardError => e

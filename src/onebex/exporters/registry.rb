@@ -16,7 +16,36 @@
 
 module OneBEX
 
+    # OneBEX exporters. Every exporter file in this directory registers its
+    # implementation when loaded, e.g.:
+    #
+    #   OneBEX::Exporters.register('nbd', OneBEX::Exporters::NBD)
     module Exporters
+
+        def self.registry
+            @registry ||= Registry.new
+        end
+
+        def self.register(name, exporter)
+            registry.register(name, exporter)
+        end
+
+        # Exporter files that failed to load, file name => error message
+        def self.load_errors
+            @load_errors ||= {}
+        end
+
+        # Loads all the exporters in the given directory. An exporter that fails
+        # to load is skipped, so it does not prevent the others from working.
+        def self.load_all(dir = __dir__)
+            Dir[File.join(dir, '*.rb')].sort.each do |file|
+                begin
+                    require file
+                rescue StandardError, ScriptError => e
+                    load_errors[File.basename(file)] = e.message
+                end
+            end
+        end
 
         # Registry of available OneBEX exporter implementations.
         class Registry

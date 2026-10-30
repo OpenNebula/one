@@ -151,7 +151,9 @@ public:
     std::string get_tm_mad_system() const;
 
     /**
-     *  Check if the disk supports interactive backups
+     *  Check if the disk supports interactive backups, as set by the
+     *  INTERACTIVE_BACKUP and INTERACTIVE_BACKUP_FORMATS attributes of the
+     *  TM_MAD_CONF of the disk's TM_MAD
      */
     bool support_interactive() const;
 
