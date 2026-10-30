@@ -199,6 +199,32 @@ bool VirtualMachineDisk::support_interactive() const
     string tm_mad = vector_value("TM_MAD");
     string format = vector_value("FORMAT");
 
+    const VectorAttribute* tm_conf = nullptr;
+    bool interactive;
+
+    if ( Nebula::instance().get_tm_conf_attribute(tm_mad, tm_conf) == 0 &&
+         tm_conf->vector_value("INTERACTIVE_BACKUP", interactive) == 0 )
+    {
+        string formats = tm_conf->vector_value("INTERACTIVE_BACKUP_FORMATS");
+
+        if ( !interactive || formats.empty() )
+        {
+            return interactive;
+        }
+
+        for (const auto& fmt : one_util::split(formats, ',', true))
+        {
+            if ( one_util::icasecmp(one_util::trim(fmt), format) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // TM_MAD_CONF without INTERACTIVE_BACKUP (e.g. oned.conf of a previous
+    // release), fall back to the drivers known to support interactive backups
     one_util::toupper(tm_mad);
     one_util::toupper(format);
 
