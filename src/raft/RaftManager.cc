@@ -221,7 +221,29 @@ int RaftManager::get_leader_endpoint(string& endpoint, bool grpc)
 {
     int rc;
 
-    std::lock_guard<mutex> lock(raft_mutex);
+    std::unique_lock<mutex> lock(raft_mutex);
+
+    if ( state == FOLLOWER && leader_id != -1 && servers.find(leader_id) == servers.end() )
+    {
+        int _leader_id     = leader_id;
+        unsigned int _term = term;
+
+        map<int, pair<string, string>> _servers;
+
+        // Catch-up can apply the leader's server entry after follower() refreshed
+        // the cache. Read the zone without holding raft_mutex (zone -> raft order).
+        lock.unlock();
+        unsigned int _num_servers = get_zone_servers(_servers);
+        lock.lock();
+
+        if ( state == FOLLOWER && term == _term && leader_id == _leader_id &&
+             servers.find(leader_id) == servers.end() &&
+             _servers.find(leader_id) != _servers.end() )
+        {
+            servers     = std::move(_servers);
+            num_servers = _num_servers;
+        }
+    }
 
     if ( leader_id == -1 )
     {
@@ -345,15 +367,12 @@ void RaftManager::leader()
 
     uint64_t index, _applied, _next_index;
 
-    std::map<int, std::string> _servers;
-
     std::ostringstream oss;
 
     logdb->setup_index(_applied, index);
 
     {
         std::lock_guard<mutex> lock(raft_mutex);
-
 
         if ( state != CANDIDATE )
         {
@@ -464,6 +483,14 @@ void RaftManager::follower(unsigned int _term)
 
     std::string raft_state_xml;
 
+    std::map<int, std::pair<std::string, std::string>> _servers;
+
+    // Refresh the zone servers (as candidates do). A follower only learns
+    // about servers added after it started when it runs for leader, so a
+    // server added later could become the leader without this follower being
+    // able to resolve its endpoint ("Cannot process request, no leader found")
+    unsigned int _num_servers = get_zone_servers(_servers);
+
     logdb->setup_index(lapplied, lindex);
 
     {
@@ -476,6 +503,9 @@ void RaftManager::follower(unsigned int _term)
 
         replica_manager.stop_replica_threads();
         heartbeat_manager.stop_replica_threads();
+
+        servers     = _servers;
+        num_servers = _num_servers;
 
         state = FOLLOWER;
 
