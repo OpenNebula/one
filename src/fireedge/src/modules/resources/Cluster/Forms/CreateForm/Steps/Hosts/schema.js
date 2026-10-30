@@ -49,15 +49,19 @@ const EVC_MODE = {
       }
     }
   },
+  // IDs
   values: (selectedHosts = []) => {
     let options = []
-    const { data: hosts = [] } = HostAPI.useGetHostsQuery()
+    const { data: hosts = [] } = HostAPI.useGetHostsQuery(undefined, {
+      selectFromResult: (result) => ({
+        ...result,
+        data: []
+          .concat(result?.data)
+          ?.filter((host) => selectedHosts?.includes(host?.ID)),
+      }),
+    })
 
-    if (selectedHosts.length) {
-      const selectedHostsSet = new Set(selectedHosts)
-      const dataHosts = hosts.filter((host) => selectedHostsSet.has(host?.ID))
-      options = getKvmCpuModels(dataHosts, true)
-    }
+    options = getKvmCpuModels(hosts, true)
 
     return arrayToOptions(options, {
       addEmpty: true,

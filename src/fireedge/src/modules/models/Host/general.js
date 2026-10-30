@@ -25,8 +25,6 @@ import {
   STATES,
 } from '@ConstantsModule'
 
-import { uniq } from 'lodash'
-
 /**
  * Returns information about the host state.
  *
@@ -128,32 +126,48 @@ export const getPciDevices = (host) =>
  * Returns list of KVM CPU Models available from the host pool.
  *
  * @param {Host[]} hosts - Hosts
- * @param {boolean} common - If true, returns only common models
+ * @param {boolean} common - If true, returns the intersecting models between the set of hosts
  * @returns {Array} List of KVM CPU Models from the pool
  */
 export const getKvmCpuModels = (hosts = [], common = false) => {
-  const hostData = hosts
-    .filter(
-      (host) =>
-        host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm ||
-        host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.dummy
-    )
-    .map((host) => host.TEMPLATE?.KVM_CPU_MODELS?.split(' '))
-    .flat()
-    .filter(Boolean)
+  const cpuModels = hosts
+    .filter((host) => {
+      const t = host?.TEMPLATE
+
+      return (
+        t?.HYPERVISOR === HYPERVISORS.kvm || t?.HYPERVISOR === HYPERVISORS.dummy
+      )
+    })
+    .map((host) => {
+      let models = host?.TEMPLATE?.KVM_CPU_MODELS
+
+      if (models == null || typeof models !== 'string') {
+        models = ''
+      }
+
+      return models?.split(' ')
+    })
 
   if (common) {
-    const hostDataFiltered = hostData.filter(Boolean)
-    if (!hostDataFiltered.length || hosts.length > hostDataFiltered.length)
-      return []
+    let shortest = []
+    for (const list of cpuModels) {
+      if (list.length && (!shortest.length || list.length < shortest.length)) {
+        shortest = list
+      }
+    }
 
-    return uniq(hostDataFiltered)
+    const modelSets = cpuModels.map((l) => new Set(l))
+
+    const modelIntersection = shortest.filter((cpuModel) =>
+      modelSets.every((s) => s.has(cpuModel))
+    )
+
+    return modelIntersection
   }
 
-  const hostDataFlatted = hostData.flat()
+  const allCpuModels = cpuModels.flat()
 
-  // Removes the repeated
-  return [...new Set(hostDataFlatted)]
+  return [...new Set(allCpuModels)]
 }
 
 /**
@@ -185,7 +199,11 @@ export const getKvmCpuFeatures = (hosts = []) => {
  */
 export const getKvmMachines = (hosts = []) => {
   const machineTypes = hosts
-    .filter((host) => host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm || host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.dummy)
+    .filter(
+      (host) =>
+        host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm ||
+        host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.dummy
+    )
     .map((host) => host.TEMPLATE?.KVM_MACHINES?.split(' ') ?? [])
     .flat()
 
