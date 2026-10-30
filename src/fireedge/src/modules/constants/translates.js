@@ -27,6 +27,12 @@ module.exports = {
     'This application cannot be installed in the selected cluster.',
   ApplicationCatalogueUnavailable:
     'The application catalogue is currently unavailable.',
+  ApplicationMonitoringUnavailable:
+    'Application monitoring is disabled or unavailable',
+  ApplicationMonitoringUnavailableConcept:
+    'Enable the monitoring feature on this cluster to view installed applications.',
+  ApplicationInstallationRequiresMonitoring:
+    'Enable the monitoring feature on this cluster to install applications.',
   ReleaseName: 'Release name',
   Dependencies: 'Dependencies',
   Uninstall: 'Uninstall',

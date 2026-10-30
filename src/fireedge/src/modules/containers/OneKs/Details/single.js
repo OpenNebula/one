@@ -369,6 +369,7 @@ export const SingleView = ({
             tabs: OneKsResource.Tabs.Single,
             resourceId: OneKsResource.RID,
             tabProps: {
+              clusterFeatures: data?.TEMPLATE?.CLUSTER_BODY?.features ?? {},
               selected: data,
               handleChangeOwnership,
               handleChangePermission,

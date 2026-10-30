@@ -15,13 +15,15 @@
  * ------------------------------------------------------------------------- */
 import { AlertNotification, Button, Image, TablePanel } from '@ComponentsModule'
 import { Box, Typography } from '@mui/material'
-import { Plus } from 'iconoir-react'
+import { ArrowTrSquare, Plus } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { Component } from 'react'
 import { generatePath, useHistory } from 'react-router-dom'
 
 import { PATH, RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useResourceSingleViewContext } from '@ProvidersModule'
+import { SystemAPI } from '@FeaturesModule'
+import { useResourceSingleViewContext, useTranslation } from '@ProvidersModule'
+import { generateDocLink } from '@UtilsModule'
 import { scale } from '@StylesModule'
 import {
   getApplicationDescription,
@@ -31,6 +33,9 @@ import {
 } from '@ModelsModule'
 import { ApplicationImagePlaceholder } from '@modules/resources/OneKs/ApplicationImagePlaceholder'
 import { getStyles } from '@modules/resources/OneKs/Tabs/Applications/styles'
+
+const MONITORING_DOC_PATH =
+  'platform_services/oneks/management/configuration/#monitor-configuration'
 
 const columns = oneksApplicationTable.columns().map((column) =>
   column.id === 'application'
@@ -83,10 +88,17 @@ const columns = oneksApplicationTable.columns().map((column) =>
  * Render applications tab.
  *
  * @param {object} root0 - Params
- * @param {object} root0.data - Tab data
+ * @param {object} root0.data - Tab data, including cluster feature flags
  * @returns {Component} Applications tab
  */
 const Applications = ({ data }) => {
+  const { translate } = useTranslation()
+  const { data: version } = SystemAPI.useGetOneVersionQuery()
+  const monitoringDocLink = generateDocLink(version, MONITORING_DOC_PATH)
+  const { clusterFeatures = {} } = data
+  const isMonitoringEnabled =
+    typeof clusterFeatures === 'object' && clusterFeatures?.monitor === true
+
   const history = useHistory()
   const { closeResourceSingleView, openResourceSingleView, stack } =
     useResourceSingleViewContext()
@@ -102,7 +114,10 @@ const Applications = ({ data }) => {
     data: applications = [],
     isFetching,
     isError,
-  } = oneksApplicationTable.useData({ id }, { skip: !id })
+  } = oneksApplicationTable.useData(
+    { id },
+    { skip: !id || !isMonitoringEnabled }
+  )
   const openApplication = (application) => {
     const releaseName = application?.release_name
     if (!id || !releaseName) return
@@ -142,6 +157,10 @@ const Applications = ({ data }) => {
   }
   const openInstallForm = () =>
     history.push(generatePath(PATH.ONEKS.INSTALL_APPLICATION, { id }))
+  const handleOpenMonitoringDocumentation = () => {
+    monitoringDocLink &&
+      window.open(monitoringDocLink, '_blank', 'noopener,noreferrer')
+  }
 
   return (
     <Box sx={(theme) => getStyles({ theme })}>
@@ -151,12 +170,22 @@ const Applications = ({ data }) => {
           startIcon={<Plus />}
           title={T.InstallApplication}
           type="secondary"
-          isDisabled={!id}
+          isDisabled={!id || !isMonitoringEnabled}
+          tooltip={
+            !isMonitoringEnabled
+              ? T.ApplicationInstallationRequiresMonitoring
+              : undefined
+          }
+          tooltipLink={
+            !isMonitoringEnabled && monitoringDocLink
+              ? { text: translate(T.LearnMore), link: monitoringDocLink }
+              : undefined
+          }
           onClick={openInstallForm}
         />
       </Box>
       <Box className="applications-table">
-        {isError && (
+        {isMonitoringEnabled && isError && (
           <AlertNotification
             type="primary"
             status="error"
@@ -167,8 +196,8 @@ const Applications = ({ data }) => {
         <TablePanel
           dataCy={oneksApplicationTable.dataCy}
           columns={columns}
-          data={applications}
-          isLoading={isFetching}
+          data={isMonitoringEnabled ? applications : []}
+          isLoading={isMonitoringEnabled && isFetching}
           getRowId={(row) =>
             row.release_name ?? `missing-${applications.indexOf(row)}`
           }
@@ -177,7 +206,23 @@ const Applications = ({ data }) => {
           rowSelection={selectedRelease ? { [selectedRelease]: true } : {}}
           onRowSelectionChange={() => undefined}
           isCopyColumn={false}
-          emptyContentProps={{ title: T.NoDataAvailable }}
+          emptyContentProps={
+            isMonitoringEnabled
+              ? { title: T.NoDataAvailable }
+              : {
+                  title: T.ApplicationMonitoringUnavailable,
+                  subtitle: T.ApplicationMonitoringUnavailableConcept,
+                  action: monitoringDocLink
+                    ? handleOpenMonitoringDocumentation
+                    : undefined,
+                  actionTitle: translate(T.LearnMore),
+                  actionProps: {
+                    type: 'outline',
+                    startIcon: null,
+                    endIcon: <ArrowTrSquare />,
+                  },
+                }
+          }
           isFullHeight
           isEnableSearchBar
           isEnableFilters
