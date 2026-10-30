@@ -333,3 +333,5 @@ module OneBEX
     end
 
 end
+
+OneBEX::Exporters.register('lvm', OneBEX::Exporters::LVM)

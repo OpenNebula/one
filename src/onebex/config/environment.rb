@@ -63,6 +63,5 @@ require_relative '../app/helpers'
 require_relative '../app/routes'
 
 require_relative '../exporters/registry'
-require_relative '../exporters/nbd'
-require_relative '../exporters/lvm'
-require_relative '../exporters/rbd'
+
+OneBEX::Exporters.load_all
