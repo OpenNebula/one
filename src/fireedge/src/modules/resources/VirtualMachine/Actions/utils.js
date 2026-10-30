@@ -135,7 +135,10 @@ const generateOption = ({
           ...confirmDialogProps,
           ...(isFormDialog && {
             steps: actionForm,
-            stepProps: { vm: formContext ?? vm },
+            stepProps: {
+              vm: formContext ?? vm,
+              isLiveMigration: actionType === VM_ACTIONS.MIGRATE_LIVE,
+            },
           }),
           ...dialogProps,
         },

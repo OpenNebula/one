@@ -16,10 +16,16 @@
 import { boolean, object, string } from 'yup'
 
 import { DATASTORE_TYPES, INPUT_TYPES, T } from '@ConstantsModule'
-import { datastoreTable } from '@ModelsModule'
+import { datastoreTable, getLastHistory } from '@ModelsModule'
 import { Field, getValidationFromFields } from '@UtilsModule'
 
-const systemDatastoreTable = {
+/**
+ *
+ * @param {object|object[]} vm - Selected virtual machines
+ * @param {boolean} isLiveMigration - Wether this is a Live Migration
+ * @returns {object} Datastore table model
+ */
+const systemDatastoreTable = (vm, isLiveMigration) => ({
   columns: () =>
     datastoreTable
       .columns()
@@ -27,14 +33,28 @@ const systemDatastoreTable = {
   dataCy: datastoreTable.dataCy,
   useData: () =>
     datastoreTable.useData(undefined, {
-      selectFromResult: (result) => ({
-        ...result,
-        data: result?.data?.filter(
-          (datastore) => +datastore?.TYPE === DATASTORE_TYPES.SYSTEM.id
-        ),
-      }),
+      selectFromResult: (result) => {
+        const datastores = result.data ?? []
+        const sourceDrivers = [vm]
+          .flat()
+          .filter(Boolean)
+          .map((machine) => getLastHistory(machine).TM_MAD)
+
+        return {
+          ...result,
+          data: datastores.filter(
+            (datastore) =>
+              +datastore.TYPE === DATASTORE_TYPES.SYSTEM.id &&
+              (!isLiveMigration ||
+                (sourceDrivers.length > 0 &&
+                  sourceDrivers.every(
+                    (driver) => Boolean(driver) && datastore.TM_MAD === driver
+                  )))
+          ),
+        }
+      },
     }),
-}
+})
 
 /** @type {Field} Enforce field */
 const ENFORCE = {
@@ -46,12 +66,16 @@ const ENFORCE = {
   grid: { md: 12 },
 }
 
-/** @type {Field} Datastore field */
-const DATASTORE = {
+/**
+ * @param {object|object[]} vm - Selected virtual machines
+ * @param {boolean} isLiveMigration - Whether this is a live migration
+ * @returns {Field} Datastore field
+ */
+const DATASTORE = (vm, isLiveMigration) => ({
   name: 'datastore',
   label: T.SelectTheNewDatastore,
   type: INPUT_TYPES.TABLE,
-  model: systemDatastoreTable,
+  model: systemDatastoreTable(vm, isLiveMigration),
   singleSelect: true,
   selectOnRowClick: true,
   getRowId: (row) => String(row?.ID),
@@ -73,8 +97,16 @@ const DATASTORE = {
     .notRequired()
     .default(() => undefined),
   grid: { md: 12 },
-}
+})
 
-export const FIELDS = [ENFORCE, DATASTORE]
+/**
+ * @param {object|object[]} vm - Selected virtual machines
+ * @param {boolean} isLiveMigration - Whether this is a live migration
+ * @returns {Field[]} Migration fields
+ */
+export const FIELDS = (vm, isLiveMigration = false) => [
+  ENFORCE,
+  DATASTORE(vm, isLiveMigration),
+]
 
-export const SCHEMA = object(getValidationFromFields(FIELDS))
+export const SCHEMA = object(getValidationFromFields(FIELDS()))

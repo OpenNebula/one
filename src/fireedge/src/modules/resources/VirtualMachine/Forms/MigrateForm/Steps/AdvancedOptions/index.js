@@ -27,23 +27,30 @@ import { T } from '@ConstantsModule'
 
 export const STEP_ID = 'advanced'
 
-const Content = ({ vm }) => (
+const Content = ({ vm, isLiveMigration }) => (
   <>
     <CurrentLocation vm={vm} />
-    <FormWithSchema cy="migrate-vm-advanced" id={STEP_ID} fields={FIELDS} />
+    <FormWithSchema
+      cy="migrate-vm-advanced"
+      id={STEP_ID}
+      fields={FIELDS(vm, isLiveMigration)}
+    />
   </>
 )
 
-const AdvancedOptions = ({ vm } = {}) => ({
+const AdvancedOptions = ({ vm, isLiveMigration = false } = {}) => ({
   id: STEP_ID,
   label: T.AdvancedOptions,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: (props) => <Content {...props} vm={vm} />,
+  content: (props) => (
+    <Content {...props} vm={vm} isLiveMigration={isLiveMigration} />
+  ),
 })
 
 Content.propTypes = {
   vm: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  isLiveMigration: PropTypes.bool,
 }
 
 export default AdvancedOptions
