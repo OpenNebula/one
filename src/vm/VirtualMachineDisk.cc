@@ -223,20 +223,7 @@ bool VirtualMachineDisk::support_interactive() const
         return false;
     }
 
-    // TM_MAD_CONF without INTERACTIVE_BACKUP (e.g. oned.conf of a previous
-    // release), fall back to the drivers known to support interactive backups
-    one_util::toupper(tm_mad);
-    one_util::toupper(format);
-
-    if ( tm_mad == "LVM" || tm_mad == "FS_LVM" || tm_mad == "FS_LVM_SSH" ||
-         tm_mad == "CEPH" )
-    {
-        return true;
-    }
-
-    return (tm_mad == "LOCAL" || tm_mad == "SSH" ||
-            tm_mad == "SHARED" || tm_mad == "QCOW2") &&
-            format == "QCOW2";
+    return false;
 }
 
 /* -------------------------------------------------------------------------- */

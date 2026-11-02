@@ -70,22 +70,23 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     # vmfs
     # ceph
     # dev
-    #   name, ln_target, clone_target, shared, ds_migrate, ds_migrate_snap, driver
+    #   name, ln_target, clone_target, shared, ds_migrate, ds_live_migrate,
+    #   ds_migrate_snap, driver, interactive_backup, interactive_backup_formats
     # *******************************************************************************
     */
     set_conf_tm("dummy", "NONE", "SYSTEM", "YES", "YES", "YES", "YES", "");
 
-    set_conf_tm("lvm", "NONE",   "SELF",   "YES", "YES", "NO", "NO", "");
-    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "YES", "NO", "NO", "raw");
-    set_conf_tm("fs_lvm_ssh", "SYSTEM", "SYSTEM", "YES", "YES", "YES", "NO", "raw");
+    set_conf_tm("lvm", "NONE",   "SELF",   "YES", "YES", "NO", "NO", "", "YES");
+    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "YES", "NO", "NO", "raw", "YES");
+    set_conf_tm("fs_lvm_ssh", "SYSTEM", "SYSTEM", "YES", "YES", "YES", "NO", "raw", "YES");
 
-    set_conf_tm("shared", "NONE", "SYSTEM", "YES", "YES", "YES", "YES", "");
-    set_conf_tm("qcow2", "NONE", "SYSTEM", "YES", "YES", "YES", "YES", "qcow2");
+    set_conf_tm("shared", "NONE", "SYSTEM", "YES", "YES", "YES", "YES", "", "YES", "qcow2");
+    set_conf_tm("qcow2", "NONE", "SYSTEM", "YES", "YES", "YES", "YES", "qcow2", "YES", "qcow2");
 
-    set_conf_tm("ssh", "SYSTEM", "SYSTEM", "NO", "YES", "YES", "YES", "");
-    set_conf_tm("local", "SYSTEM", "SYSTEM", "NO", "YES", "YES", "YES", "");
+    set_conf_tm("ssh", "SYSTEM", "SYSTEM", "NO", "YES", "YES", "YES", "", "YES", "qcow2");
+    set_conf_tm("local", "SYSTEM", "SYSTEM", "NO", "YES", "YES", "YES", "", "YES", "qcow2");
 
-    set_conf_tm("ceph", "NONE", "SELF", "YES", "NO", "NO", "NO", "raw");
+    set_conf_tm("ceph", "NONE", "SELF", "YES", "NO", "NO", "NO", "raw", "YES");
     set_conf_tm("dev", "NONE", "NONE", "YES", "NO",  "NO", "NO", "");
 
 
@@ -199,8 +200,8 @@ void OpenNebulaTemplate::register_multiple_conf_default(
 
     std::map<std::string, Attribute *>::iterator i, prev;
 
-    std::vector<const VectorAttribute*>::const_iterator j;
-    std::vector<const VectorAttribute*> attrs;
+    std::vector<VectorAttribute*>::const_iterator j;
+    std::vector<VectorAttribute*> attrs;
 
     get(conf_section, attrs);
 
@@ -221,8 +222,22 @@ void OpenNebulaTemplate::register_multiple_conf_default(
 
             for (j = attrs.begin(); j != attrs.end(); ++j)
             {
-                if ( (*j)->vector_value("NAME") == d_name )
+                if ( one_util::icasecmp((*j)->vector_value("NAME"), d_name) )
                 {
+                    if (conf_section == "TM_MAD_CONF" &&
+                        (*j)->vector_value("INTERACTIVE_BACKUP").empty())
+                    {
+                        auto tm = *j;
+                        tm->replace("INTERACTIVE_BACKUP",
+                                d_attr->vector_value("INTERACTIVE_BACKUP"));
+
+                        if (tm->vector_value("INTERACTIVE_BACKUP_FORMATS").empty())
+                        {
+                            tm->replace("INTERACTIVE_BACKUP_FORMATS",
+                                    d_attr->vector_value("INTERACTIVE_BACKUP_FORMATS"));
+                        }
+                    }
+
                     found = true;
                     break;
                 }
@@ -276,7 +291,9 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
                                      const std::string& ds_migrate,
                                      const std::string& ds_live_migrate,
                                      const std::string& ds_migrate_snap,
-                                     const std::string& driver)
+                                     const std::string& driver,
+                                     const std::string& interactive_backup,
+                                     const std::string& interactive_backup_formats)
 {
     VectorAttribute *   vattribute;
     std::map<std::string, std::string>  vvalue;
@@ -289,6 +306,8 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
     vvalue.insert(make_pair("DS_LIVE_MIGRATE", ds_live_migrate));
     vvalue.insert(make_pair("DS_MIGRATE_SNAP", ds_migrate_snap));
     vvalue.insert(make_pair("DRIVER", driver));
+    vvalue.insert(make_pair("INTERACTIVE_BACKUP", interactive_backup));
+    vvalue.insert(make_pair("INTERACTIVE_BACKUP_FORMATS", interactive_backup_formats));
 
     vattribute = new VectorAttribute("TM_MAD_CONF", vvalue);
     conf_default.insert(make_pair(vattribute->name(), vattribute));

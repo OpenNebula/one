@@ -114,7 +114,9 @@ private:
                      const std::string& ds_migrate,
                      const std::string& ds_live_migrate,
                      const std::string& ds_migrate_snap,
-                     const std::string& driver);
+                     const std::string& driver,
+                     const std::string& interactive_backup = "NO",
+                     const std::string& interactive_backup_formats = "");
 
     /**
      *  Sets a the defaults for a Market
