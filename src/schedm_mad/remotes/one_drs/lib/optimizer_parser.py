@@ -16,11 +16,13 @@
 # -------------------------------------------------------------------------- #
 
 from collections import defaultdict
+from decimal import Decimal
 import io
 import platform
 import sys
 from dataclasses import replace
-from typing import Any
+from math import isinf as _is_inf, isnan as _is_nan, nan as _nan
+from typing import Any, Optional, Union
 
 import yaml
 from pulp import COIN_CMD, COINMP_DLL, GLPK_CMD
@@ -41,6 +43,10 @@ from lib.mapper.model import (
     VNetCapacity,
 )
 from lib.models.scheduler_driver_action import SchedulerDriverAction
+
+
+class _MissingValueError(ValueError):
+    pass
 
 
 class OptimizerParser:
@@ -83,6 +89,7 @@ class OptimizerParser:
         "MEMORY_SYSTEM_DS_SCALE": 0,
         "DIFFERENT_VNETS": True,
         "DEBUG": False,
+        "ON_MISSING_VALUE": "ZERO"
     }
 
     __slots__ = (
@@ -90,6 +97,7 @@ class OptimizerParser:
         "scheduler_driver_action",
         "config",
         "debug",
+        "_on_missing_value",
         "mode",
         "cluster_id",
         "_plan_id",
@@ -110,6 +118,7 @@ class OptimizerParser:
         )
         self.config = self._load_config(mode)
         self.debug = self.config["DEBUG"]
+        self._on_missing_value = self.config["ON_MISSING_VALUE"]
         self.mode = mode
         self.cluster_id = -1
         self._plan_id = -1
@@ -236,6 +245,29 @@ class OptimizerParser:
             self.log_general("ERROR", msg)
         return unsupported
 
+    def _fix_vm_monitoring_value(
+        self, value: Optional[Union[float, Decimal]], var_name: str, vm_id: int
+    ) -> float:
+        if isinstance(value, Decimal):
+            value = _nan if value.is_snan() else float(value)
+
+        if self.mode.upper() == "PLACE":
+            return float(value) if value is not None else 0.0
+
+        if not (value is None or _is_nan(value) or _is_inf(value)):
+            return float(value)
+
+        if self._on_missing_value.upper() == "ZERO":
+            msg = (
+                f"Optimization: VM {vm_id} {var_name.upper()} is {value}; "
+                "replaced with 0"
+            )
+            self.log_general("INFO", msg)
+            return 0.0
+
+        msg = f"Optimization error: VM {vm_id} {var_name.upper()} is {value}"
+        raise _MissingValueError(msg)
+
     @classmethod
     def _load_config(cls, mode: str) -> dict:
         try:
@@ -299,6 +331,10 @@ class OptimizerParser:
             )
         else:
             sched_config["DEBUG"] = cls.DEFAULT_CONFIG["DEBUG"]
+
+        sched_config["ON_MISSING_VALUE"] = config_data.get(
+            "ON_MISSING_VALUE", cls.DEFAULT_CONFIG["ON_MISSING_VALUE"]
+        )
 
         return {
             "MODE": mode_config,
@@ -412,23 +448,62 @@ class OptimizerParser:
         vm_pool = {
             vm.id: vm for vm in self.scheduler_driver_action.vm_pool.vm
         }
+        predictive = self.config.get("PREDICTIVE", 0)
         for vm_req in self.scheduler_driver_action.requirements.vm:
             if vm := vm_pool.get(vm_req.id):
+                vm_id = int(vm_req.id)
                 sys_storage, img_storage = self._build_vm_storage(vm, vm_req)
-                cpu_current = float(vm.monitoring.cpu or 0)
-                cpu_forecast = float(vm.monitoring.cpu_forecast or 0)
-                net_current = float(vm.monitoring.nettx_bw or 0) + float(
-                    vm.monitoring.netrx_bw or 0
+                cpu_current = self._fix_vm_monitoring_value(
+                    vm.monitoring.cpu, "CPU", vm_id
                 )
-                net_forecast = float(vm.monitoring.nettx_bw_forecast or 0) + float(
-                    vm.monitoring.netrx_bw_forecast or 0
+                net_current = (
+                    self._fix_vm_monitoring_value(
+                        vm.monitoring.nettx_bw, "NETWORK TX", vm_id
+                    )
+                    + self._fix_vm_monitoring_value(
+                        vm.monitoring.netrx_bw, "NETWORK RX", vm_id
+                    )
                 )
-                disk_current = float(vm.monitoring.diskrdbytes_bw or 0) + float(
-                    vm.monitoring.diskwrbytes_bw or 0
+                disk_current = (
+                    self._fix_vm_monitoring_value(
+                        vm.monitoring.diskrdbytes_bw, "DISK RD", vm_id
+                    )
+                    + self._fix_vm_monitoring_value(
+                        vm.monitoring.diskwrbytes_bw, "DISK WR", vm_id
+                    )
                 )
-                disk_forecast = float(
-                    vm.monitoring.diskrdbytes_bw_forecast or 0
-                ) + float(vm.monitoring.diskwrbytes_bw_forecast or 0)
+
+                if predictive > 0:
+                    cpu_forecast = self._fix_vm_monitoring_value(
+                        vm.monitoring.cpu_forecast, "CPU FORECAST", vm_id
+                    )
+                    net_forecast = (
+                        self._fix_vm_monitoring_value(
+                            vm.monitoring.nettx_bw_forecast,
+                            "NETWORK TX FORECAST",
+                            vm_id
+                        )
+                        + self._fix_vm_monitoring_value(
+                            vm.monitoring.netrx_bw_forecast,
+                            "NETWORK RX FORECAST",
+                            vm_id
+                        )
+                    )
+                    disk_forecast = (
+                        self._fix_vm_monitoring_value(
+                            vm.monitoring.diskrdbytes_bw_forecast,
+                            "DISK RD FORECAST",
+                            vm_id
+                        )
+                        + self._fix_vm_monitoring_value(
+                            vm.monitoring.diskwrbytes_bw_forecast,
+                            "DISK WR FORECAST",
+                            vm_id
+                        )
+                    )
+                else:
+                    cpu_forecast = net_forecast = disk_forecast = 0.0
+
                 # Predictive factor only for 'optimize'
                 cpu_usage = (
                     self._apply_predictive_adjustment(cpu_current, cpu_forecast)
@@ -460,8 +535,8 @@ class OptimizerParser:
                             host_ids &= {curr_host_id}
                             break
 
-                vm_requirements[int(vm_req.id)] = VMRequirements(
-                    id=int(vm_req.id),
+                vm_requirements[vm_id] = VMRequirements(
+                    id=vm_id,
                     state=self._map_vm_state(vm.state, vm.lcm_state),
                     memory=int(vm.template.memory),
                     cpu_ratio=float(vm.template.cpu),
@@ -1093,8 +1168,12 @@ class OptimizerParser:
             return 0.0
 
         disk_io = sum(
-            float(vm.monitoring.diskrdbytes_bw or 0)
-            + float(vm.monitoring.diskwrbytes_bw or 0)
+            self._fix_vm_monitoring_value(
+                vm.monitoring.diskrdbytes_bw, "DISK RD", int(vm.id)
+            )
+            + self._fix_vm_monitoring_value(
+                vm.monitoring.diskwrbytes_bw, "DISK_WR", int(vm.id)
+            )
             for vm in self.scheduler_driver_action.vm_pool.vm
             if str(vm.id) in map(str, cluster_placement[host.cluster_id])
         )
@@ -1106,7 +1185,12 @@ class OptimizerParser:
             return 0.0
 
         net = sum(
-            float(vm.monitoring.nettx_bw or 0) + float(vm.monitoring.netrx_bw or 0)
+            self._fix_vm_monitoring_value(
+                vm.monitoring.nettx_bw, "NETWORK TX", int(vm.id)
+            )
+            + self._fix_vm_monitoring_value(
+                vm.monitoring.netrx_bw, "NETWORK RX", int(vm.id)
+            )
             for vm in self.scheduler_driver_action.vm_pool.vm
             if str(vm.id) in map(str, cluster_placement[host.cluster_id])
         )
