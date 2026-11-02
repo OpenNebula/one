@@ -73,6 +73,7 @@ class CloudAuth
             @expire_margin = EXPIRE_MARGI
         end
 
+        @server_tokens = {}
         @token_expiration_time = Time.now.to_i + @expire_delta
         @upool_expiration_time = 0
 
@@ -110,17 +111,17 @@ class CloudAuth
     # username:: _String_ Name of the User
     # [return] _Client_
     def client(username=nil, endpoint=nil)
-        expiration_time = @lock.synchronize {
+        token = @lock.synchronize {
             time_now = Time.now.to_i
 
             if time_now > @token_expiration_time - @expire_margin
                 @token_expiration_time = time_now + @expire_delta
+                @server_tokens.clear
             end
 
-            @token_expiration_time
+            @server_tokens[username] ||=
+                @server_auth.login_token(@token_expiration_time, username)
         }
-
-        token = @server_auth.login_token(expiration_time, username)
 
         options = { :subscriber_endpoint => @conf[:subscriber_endpoint] }
 

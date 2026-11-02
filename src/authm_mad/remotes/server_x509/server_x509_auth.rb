@@ -85,17 +85,22 @@ class OpenNebula::ServerX509Auth < OpenNebula::X509Auth
     ###########################################################################
 
     # auth method for auth_mad
-    def authenticate(server_user, server_pass, signed_text)
+    def authenticate(server_user, server_pass, signed_text, target_user)
         begin
             token_array = decrypt(signed_text).split(':')
 
-            s_user  = token_array[0]
-            expires = token_array[-1]
+            return 'Invalid login token' if target_user.nil? || target_user.empty? ||
+                                            ![3, 4].include?(token_array.length)
+
+            s_user = token_array.shift
+            expires = token_array.pop
+            s_target = token_array.join(':')
 
             return "Server password missmatch" if server_pass != password
 
-            return "User name missmatch" if ( s_user != server_user ||
-                                              s_user != @options[:srv_user] )
+            return 'User name mismatch' if s_user != server_user ||
+                                           s_user != @options[:srv_user] ||
+                                           s_target != target_user
 
             return "login token expired" if Time.now.to_i >= expires.to_i
 

@@ -937,6 +937,7 @@ bool UserPool::authenticate_server(unique_ptr<User> user,
 
     string target_username;
     string second_token;
+    string auth_token;
     string egid;
 
     istringstream iss;
@@ -1002,7 +1003,9 @@ bool UserPool::authenticate_server(unique_ptr<User> user,
     uname  = user->name;
     gname  = user->gname;
 
-    result = user->session->is_valid(second_token);
+    // Include the target and EGID in the cache key so a token cannot be
+    // reused with a different effective group.
+    result = user->session->is_valid(token);
 
     umask  = user->get_umask();
 
@@ -1028,11 +1031,19 @@ bool UserPool::authenticate_server(unique_ptr<User> user,
         goto auth_failure_nodriver;
     }
 
-    //Initialize authentication request and call the driver
+    // Built-in server drivers must compare the requested target with the
+    // target inside the authenticated token.
+    auth_token = second_token;
+
+    if (auth_driver == "server_cipher" || auth_driver == "server_x509")
+    {
+        auth_token = token;
+    }
+
     ar.add_authenticate(auth_driver,
                         server_username,
                         server_password,
-                        second_token);
+                        auth_token);
 
     authm->trigger_authenticate(ar);
     ar.wait();
@@ -1046,7 +1057,7 @@ bool UserPool::authenticate_server(unique_ptr<User> user,
 
     if (user != 0)
     {
-        user->session->set(second_token, _session_expiration_time);
+        user->session->set(token, _session_expiration_time);
     }
 
     return true;

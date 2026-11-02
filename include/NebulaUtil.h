@@ -87,8 +87,9 @@ namespace one_util
     std::string * aes256cbc_decrypt(const std::string& in, const std::string& password);
 
     /**
-     *  Creates a random number, using time(0) as seed, and performs an sha1 hash
-     *    @return a new random password
+     *  Creates a cryptographically secure 256-bit random password.
+     *    @return a lowercase hexadecimal password (64 characters)
+     *    @throws std::runtime_error if the random generator fails
      */
     std::string random_password();
 

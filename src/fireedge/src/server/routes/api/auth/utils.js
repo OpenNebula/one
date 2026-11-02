@@ -23,6 +23,7 @@ const speakeasy = require('speakeasy')
 const { Actions } = require('server/utils/constants/commands/user')
 const qrcode = require('qrcode')
 const { DateTime } = require('luxon')
+const { createCipheriv, randomBytes } = require('crypto')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const { global, Array } = require('window-or-global')
@@ -35,7 +36,6 @@ const { ok, internalServerError, unauthorized, accepted, serviceUnavailable } =
   httpCodes
 const {
   httpResponse,
-  encrypt,
   getSunstoneAuth,
 } = require('server/utils/server')
 const {
@@ -337,21 +337,31 @@ const setZones = ({ connect, next }) => {
  * @param {object} config - config create  token serveradmin
  * @param {string} config.username - user name
  * @param {string} config.key - serverAdmin key
- * @param {string} config.iv - serverAdmin iv
  * @param {string} config.serverAdmin - serverAdmin username
  * @param {object} params - Drilled props
  * @returns {object|undefined} data encrypted serveradmin
  */
 const createTokenServerAdmin = (
-  { username, key, iv, serverAdmin = username },
+  { username, key, serverAdmin = username },
   params
 ) => {
-  if (username && key && iv) {
+  if (username && key) {
     const { expireTime } = getDates(params)
     const expire = parseInt(expireTime, 10)
+    const nonce = randomBytes(12)
+    const cipher = createCipheriv('aes-256-gcm', Buffer.from(key), nonce)
+    const ciphertext = Buffer.concat([
+      cipher.update(`${serverAdmin}:${username}:${expire}`, 'utf8'),
+      cipher.final(),
+    ])
+    const token = Buffer.concat([
+      nonce,
+      ciphertext,
+      cipher.getAuthTag(),
+    ]).toString('base64')
 
     return {
-      token: encrypt(`${serverAdmin}:${username}:${expire}`, key, iv),
+      token,
       time: expire,
     }
   }

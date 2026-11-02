@@ -46,7 +46,7 @@ begin
 
     user   = xml['/AUTHN/USERNAME'] # username as registered in OpenNebula
     pass   = xml['/AUTHN/PASSWORD'] # password for this user
-    secret = xml['/AUTHN/SECRET']   # Base64 encoded secret as obtained from login_token
+    secret = xml['/AUTHN/SECRET']   # Requested target and Base64 encoded token
 rescue
     STDERR.puts "Invalid XML input"
     exit(-1)
@@ -56,9 +56,10 @@ end
 
 begin
     server_auth = OpenNebula::ServerX509Auth.new
-    dsecret     = Base64::decode64(secret)
+    target_user, _separator, signed_text = secret.rpartition(':')
+    dsecret = Base64.decode64(signed_text)
 
-    rc = server_auth.authenticate(user, pass, dsecret)
+    rc = server_auth.authenticate(user, pass, dsecret, target_user)
 rescue => e
     OpenNebula::DriverLogger.report e.message
     exit -1

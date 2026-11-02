@@ -20,8 +20,11 @@
 #include <openssl/sha.h>
 #include <openssl/evp.h>
 #include <openssl/aes.h>
+#include <openssl/rand.h>
 
+#include <array>
 #include <string>
+#include <stdexcept>
 #include <sstream>
 #include <cstring>
 #include <iomanip>
@@ -265,7 +268,24 @@ string * one_util::aes256cbc_decrypt(const string& in, const string& password)
 
 string one_util::random_password()
 {
-    return sha256_digest(std::to_string(random<int>()));
+    array<unsigned char, 32> bytes;
+
+    if (RAND_bytes(bytes.data(), static_cast<int>(bytes.size())) != 1)
+    {
+        throw runtime_error("Could not generate a random password");
+    }
+
+    constexpr char hex[] = "0123456789abcdef";
+    string password;
+    password.reserve(bytes.size() * 2);
+
+    for (const auto byte : bytes)
+    {
+        password += hex[byte >> 4];
+        password += hex[byte & 0x0f];
+    }
+
+    return password;
 }
 
 /* -------------------------------------------------------------------------- */

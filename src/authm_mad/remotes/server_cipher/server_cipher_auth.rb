@@ -30,7 +30,10 @@ class OpenNebula::ServerCipherAuth
     #Constants with paths to relevant files and defaults
     ###########################################################################
 
-    CIPHER = "aes-256-cbc"
+    CIPHER = 'aes-256-gcm'
+    NONCE_SIZE = 12
+    TAG_SIZE = 16
+    # Token payload: Base64(nonce || ciphertext || authentication tag).
 
     ###########################################################################
 
@@ -41,13 +44,9 @@ class OpenNebula::ServerCipherAuth
         if !srv_passwd.empty?
             # truncate token to 32-bytes for Ruby >= 2.4
             @key = Digest::SHA256.hexdigest(@srv_passwd)[0..31]
-            @iv = @key[0..15]
-          else
+        else
             @key = ""
-            @iv = ""
         end
-
-        @cipher = OpenSSL::Cipher.new(CIPHER)
     end
 
     ###########################################################################
@@ -89,10 +88,7 @@ class OpenNebula::ServerCipherAuth
         target_user ||= @srv_user
         token_txt   =   "#{@srv_user}:#{target_user}:#{expire}"
 
-        token   = encrypt(token_txt)
-        token64 = Base64::encode64(token).strip.delete("\n")
-
-        return "#{@srv_user}:#{target_user}:#{token64}"
+        return "#{@srv_user}:#{target_user}:#{encrypt(token_txt)}"
     end
 
     # Returns a valid password string to create a user using this auth driver
@@ -110,47 +106,60 @@ class OpenNebula::ServerCipherAuth
     end
 
     # auth method for auth_mad
-    def authenticate(srv_user, srv_pass, signed_text)
+    def authenticate(srv_user, srv_pass, signed_text, target_user)
         begin
             # truncate token to 32-bytes for Ruby >= 2.4
             @key = srv_pass[0..31]
-            @iv = srv_pass[0..15]
 
             token_array = decrypt(signed_text).split(':')
 
-            s_user  = token_array[0]
-            expires = token_array[-1]
+            return 'Invalid login token' if target_user.nil? || target_user.empty? ||
+                                            ![3, 4].include?(token_array.length)
 
-            return "User name missmatch" if s_user != srv_user
+            s_user = token_array.shift
+            expires = token_array.pop
+            s_target = token_array.join(':')
+
+            return 'User name mismatch' if s_user != srv_user || s_target != target_user
 
             return "login token expired" if Time.now.to_i >= expires.to_i
 
             return true
-        rescue => e
-            return e.message
+        rescue StandardError
+            return 'Invalid login token'
         end
     end
 
     private
 
     def encrypt(data)
-        @cipher.encrypt
-        @cipher.key = @key
-        @cipher.iv = @iv
-        rc = @cipher.update(data)
-        rc << @cipher.final
+        cipher = OpenSSL::Cipher.new(CIPHER)
+        cipher.encrypt
+        cipher.key = @key
+        nonce = OpenSSL::Random.random_bytes(NONCE_SIZE)
+        cipher.iv = nonce
+        cipher.auth_data = ''
+        ciphertext = cipher.update(data) + cipher.final
 
-        return rc
+        Base64.strict_encode64(nonce + ciphertext + cipher.auth_tag(TAG_SIZE))
     end
 
     def decrypt(data)
-        @cipher.decrypt
-        @cipher.key = @key
-        @cipher.iv = @iv
-        rc = @cipher.update(Base64::decode64(data))
-        rc << @cipher.final
+        raw = Base64.strict_decode64(data)
+        raise ArgumentError if raw.bytesize <= NONCE_SIZE + TAG_SIZE
 
-        return rc
+        nonce = raw[0, NONCE_SIZE]
+        ciphertext = raw[NONCE_SIZE...-TAG_SIZE]
+        tag = raw[-TAG_SIZE, TAG_SIZE]
+
+        cipher = OpenSSL::Cipher.new(CIPHER)
+        cipher.decrypt
+        cipher.key = @key
+        cipher.iv = nonce
+        cipher.auth_tag = tag
+        cipher.auth_data = ''
+        plaintext = cipher.update(ciphertext)
+        plaintext << cipher.final
+        plaintext
     end
 end
-
