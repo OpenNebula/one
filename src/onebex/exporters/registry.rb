@@ -40,7 +40,7 @@ module OneBEX
         def self.load_all(dir = __dir__)
             Dir[File.join(dir, '*.rb')].sort.each do |file|
                 begin
-                    require file
+                    registry.transaction { require file }
                 rescue StandardError, ScriptError => e
                     load_errors[File.basename(file)] = e.message
                 end
@@ -55,7 +55,22 @@ module OneBEX
             end
 
             def register(name, exporter)
-                @exporters[name.to_s.downcase] = exporter
+                name = name.to_s.downcase
+
+                if @exporters.key?(name)
+                    raise ArgumentError, "Exporter already registered: #{name}"
+                end
+
+                @exporters[name] = exporter
+            end
+
+            # Removes failed exporters from the registry.
+            def transaction
+                previous = @exporters.dup
+                yield
+            rescue StandardError, ScriptError
+                @exporters = previous
+                raise
             end
 
             def find(name)
