@@ -96,6 +96,7 @@ export const Dropdown = forwardRef(
       isReadOnly = false,
       isSearchable = false,
       isDisableEnter = false,
+      disableClearable = false,
       disableCloseOnSelect = false,
       label,
       menuTitle,
@@ -147,14 +148,20 @@ export const Dropdown = forwardRef(
 
     const handleClear = useCallback(
       (event) => {
-        if (isDisabled || isReadOnly) return
+        if (disableClearable || isDisabled || isReadOnly) return
 
         event.preventDefault()
         event.stopPropagation()
         setSelected(isMultipleSelectable ? [] : null)
         setOpen(false)
       },
-      [isDisabled, isReadOnly, isMultipleSelectable, setSelected]
+      [
+        disableClearable,
+        isDisabled,
+        isReadOnly,
+        isMultipleSelectable,
+        setSelected,
+      ]
     )
 
     const preventClearMouseDown = useCallback((event) => {
@@ -220,6 +227,7 @@ export const Dropdown = forwardRef(
     return (
       <Autocomplete
         disabled={isDisabled}
+        disableClearable={disableClearable}
         disableCloseOnSelect={disableCloseOnSelect}
         open={open}
         onClose={() => setOpen(false)}
@@ -285,7 +293,10 @@ export const Dropdown = forwardRef(
             endIcon={() =>
               endIcon ? (
                 renderIcon(endIcon)
-              ) : hasSelectedValue && !isDisabled && !isReadOnly ? (
+              ) : hasSelectedValue &&
+                !disableClearable &&
+                !isDisabled &&
+                !isReadOnly ? (
                 <CloseIcon
                   width="16px"
                   height="16px"
@@ -378,6 +389,7 @@ Dropdown.propTypes = {
   isReadOnly: PropTypes.bool,
   isSearchable: PropTypes.bool,
   isDisableEnter: PropTypes.bool,
+  disableClearable: PropTypes.bool,
   disableCloseOnSelect: PropTypes.bool,
   freeSolo: PropTypes.bool,
   onInputChange: PropTypes.func,

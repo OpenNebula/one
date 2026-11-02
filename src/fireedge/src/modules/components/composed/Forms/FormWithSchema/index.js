@@ -46,6 +46,7 @@ import { FileController } from '@modules/components/composed/Forms/FormControl/F
 import { TimeController } from '@modules/components/composed/Forms/FormControl/TimeController'
 import { TableController } from '@modules/components/composed/Forms/FormControl/TableController'
 import { ToggleController } from '@modules/components/composed/Forms/FormControl/ToggleController'
+import { ButtonGroupController } from '@modules/components/composed/Forms/FormControl/ButtonGroupController'
 import { DockerfileController } from '@modules/components/composed/Forms/FormControl/DockerfileController'
 import { InformationUnitController } from '@modules/components/composed/Forms/FormControl/InformationUnitController'
 import { InformationUnitControllerKB } from '@modules/components/composed/Forms/FormControl/InformationUnitControllerKB'
@@ -166,6 +167,7 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.TIME]: TimeController,
   [INPUT_TYPES.TABLE]: TableController,
   [INPUT_TYPES.TOGGLE]: ToggleController,
+  [INPUT_TYPES.BUTTON_GROUP]: ButtonGroupController,
   [INPUT_TYPES.DOCKERFILE]: DockerfileController,
   [INPUT_TYPES.UNITS]: InformationUnitController,
   [INPUT_TYPES.UNITSKB]: InformationUnitControllerKB,

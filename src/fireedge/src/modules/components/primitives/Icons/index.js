@@ -14,4 +14,5 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+export * from '@modules/components/primitives/Icons/Default'
 export * from '@modules/components/primitives/Icons/OpenNebulaIcon'

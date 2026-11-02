@@ -13,8 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { User, Group, Community } from 'iconoir-react'
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { Field, getObjectSchemaFromFields, arrayToOptions } from '@UtilsModule'
+import {
+  OPTION_SORTERS,
+  Field,
+  getObjectSchemaFromFields,
+  arrayToOptions,
+} from '@UtilsModule'
 import { string } from 'yup'
 import {
   GROUP_LIST_COLUMNS,
@@ -23,10 +29,16 @@ import {
   userTable,
 } from '@ModelsModule'
 
+const USER_TYPE_ICONS = {
+  INDIVIDUAL: User,
+  GROUP: Group,
+  ALL: Community,
+}
+
 const ACL_TYPE_ID_USER_TRANSLATIONS = {
-  INDIVIDUAL: { value: 'INDIVIDUAL', text: T.User },
-  GROUP: { value: 'GROUP', text: T.Group },
-  ALL: { value: 'ALL', text: T.All },
+  INDIVIDUAL: { value: 'INDIVIDUAL', text: T.AUser },
+  GROUP: { value: 'GROUP', text: T.AGroup },
+  ALL: { value: 'ALL', text: T.AllUsers },
 }
 
 const userSelectorTable = {
@@ -44,13 +56,18 @@ const groupSelectorTable = {
 /** @type {Field} Type field */
 export const TYPE = {
   name: 'TYPE',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.ApplyRuleTo,
+  type: INPUT_TYPES.BUTTON_GROUP,
   values: () =>
     arrayToOptions(Object.keys(ACL_TYPE_ID_USER_TRANSLATIONS), {
       addEmpty: false,
+      sorter: OPTION_SORTERS.unsort,
       getText: (key) => ACL_TYPE_ID_USER_TRANSLATIONS[key].text,
       getValue: (key) => ACL_TYPE_ID_USER_TRANSLATIONS[key].value,
-    }),
+    }).map((option) => ({
+      ...option,
+      startIcon: USER_TYPE_ICONS[option.value],
+    })),
   validation: string()
     .trim()
     .required()

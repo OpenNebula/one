@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Calendar, RefreshDouble, Timer } from 'iconoir-react'
 import { DateTime } from 'luxon'
 import { array, date, mixed, number, ref, string } from 'yup'
 
@@ -50,6 +51,12 @@ import {
   timeFromMilliseconds,
   dateToMilliseconds,
 } from '@UtilsModule'
+
+const SCHEDULE_TYPE_ICONS = {
+  [SCHEDULE_TYPE.ONETIME]: Calendar,
+  [SCHEDULE_TYPE.PERIODIC]: RefreshDouble,
+  [SCHEDULE_TYPE.RELATIVE]: Timer,
+}
 
 // --------------------------------------------------------
 // Constants
@@ -247,7 +254,7 @@ const ARGS_SNAPSHOT_ID_FIELD = (vm) => ({
 const PERIODIC_FIELD = (isVM = false) => ({
   name: PERIODIC_FIELD_NAME,
   label: T.ScheduleActionType,
-  type: INPUT_TYPES.TOGGLE,
+  type: INPUT_TYPES.BUTTON_GROUP,
   values: () => {
     const periodicValues = isVM
       ? VM_SCHEDULE_TYPE_STRING
@@ -259,7 +266,10 @@ const PERIODIC_FIELD = (isVM = false) => ({
       getValue: (key) => key,
     })
 
-    return periodicTypes
+    return periodicTypes.map((option) => ({
+      ...option,
+      startIcon: SCHEDULE_TYPE_ICONS[option.value],
+    }))
   },
   validation: string()
     .trim()

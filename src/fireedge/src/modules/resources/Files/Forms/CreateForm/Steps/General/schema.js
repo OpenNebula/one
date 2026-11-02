@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Link, Upload } from 'iconoir-react'
 import { string, object, ObjectSchema, mixed } from 'yup'
 import {
+  OPTION_SORTERS,
   Field,
   arrayToOptions,
   getValidationFromFields,
@@ -26,6 +28,11 @@ import {
   IMAGE_TYPES_STR,
   IMAGE_TYPES_FOR_FILES,
 } from '@ConstantsModule'
+
+const LOCATION_ICONS = {
+  path: Link,
+  upload: Upload,
+}
 
 export const IMAGE_LOCATION_TYPES = {
   PATH: 'path',
@@ -95,12 +102,14 @@ export const TYPE = {
 /** @type {Field} Toggle select type image */
 export const IMAGE_LOCATION_FIELD = {
   name: 'IMAGE_LOCATION',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.Location,
+  type: INPUT_TYPES.BUTTON_GROUP,
   values: arrayToOptions(Object.entries(IMAGE_LOCATION), {
     addEmpty: false,
+    sorter: OPTION_SORTERS.unsort,
     getText: ([_, name]) => name,
     getValue: ([image]) => image,
-  }),
+  }).map((option) => ({ ...option, startIcon: LOCATION_ICONS[option.value] })),
   validation: string()
     .trim()
     .required()

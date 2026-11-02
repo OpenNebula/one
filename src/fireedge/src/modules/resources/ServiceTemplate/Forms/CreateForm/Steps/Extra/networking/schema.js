@@ -13,10 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Plus, BookmarkEmpty, NetworkAlt } from 'iconoir-react'
 import { lazy, string, object, number } from 'yup'
-import { getObjectSchemaFromFields, arrayToOptions } from '@UtilsModule'
-import { INPUT_TYPES } from '@ConstantsModule'
+import {
+  OPTION_SORTERS,
+  getObjectSchemaFromFields,
+  arrayToOptions,
+} from '@UtilsModule'
+import { INPUT_TYPES, T } from '@ConstantsModule'
 import { vnTable, vntemplateTable } from '@ModelsModule'
+
+const NETWORK_TYPE_ICONS = {
+  template_id: Plus,
+  reserve_from: BookmarkEmpty,
+  id: NetworkAlt,
+}
 
 const getSelectionTable = (table) => ({
   ...table,
@@ -43,13 +54,18 @@ export const NETWORK_TYPES = {
 // Network Type Field
 const NETWORK_TYPE = (required = false) => ({
   name: 'type',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.Type,
+  type: INPUT_TYPES.BUTTON_GROUP,
   optionsOnly: true,
   values: arrayToOptions(Object.keys(NETWORK_TYPES), {
     addEmpty: false,
+    sorter: OPTION_SORTERS.unsort,
     getText: (key) => NETWORK_TYPES?.[key],
     getValue: (key) => key,
-  }),
+  }).map((option) => ({
+    ...option,
+    startIcon: NETWORK_TYPE_ICONS[option.value],
+  })),
   validation: string()
     .trim()
     .nullable(true)

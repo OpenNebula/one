@@ -33,6 +33,15 @@ import {
 } from '@UtilsModule'
 import { CUSTOM_VN_MAD } from '@modules/resources/VnTemplate/Forms/CreateForm/Steps/Configuration/constants'
 
+const DRIVER_DESCRIPTIONS = {
+  [VN_DRIVERS.bridge]: T.BridgedDriverConcept,
+  [VN_DRIVERS.fw]: T.SecurityGroupsDriverConcept,
+  [VN_DRIVERS.dot1Q]: T.Dot1QDriverConcept,
+  [VN_DRIVERS.vxlan]: T.VxlanDriverConcept,
+  [VN_DRIVERS.ovswitch]: T.OpenVSwitchDriverConcept,
+  [VN_DRIVERS.ovswitch_vxlan]: T.OpenVSwitchVxlanDriverConcept,
+}
+
 const {
   bridge,
   fw,
@@ -126,13 +135,18 @@ const DRIVER_FIELD = (oneConfig, isInstantiate = false) => {
 
   return {
     name: 'VN_MAD',
-    type: INPUT_TYPES.TOGGLE,
+    label: T.Driver,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: () =>
       arrayToOptions(drivers, {
         addEmpty: false,
         getText: (key) => VN_DRIVERS_STR[key],
         sorter: OPTION_SORTERS.unsort,
-      }),
+      }).map((option) => ({
+        ...option,
+        description: DRIVER_DESCRIPTIONS[option.value],
+      })),
     validation: string()
       .trim()
       .required()

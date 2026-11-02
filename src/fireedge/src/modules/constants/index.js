@@ -200,6 +200,7 @@ export const INPUT_TYPES = {
   TEXT: 'text',
   TABLE: 'table',
   TOGGLE: 'toggle',
+  BUTTON_GROUP: 'button-group',
   DOCKERFILE: 'dockerfile',
   UNITS: 'units',
   UNITSKB: 'units-kb',

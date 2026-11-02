@@ -119,6 +119,10 @@ export const getStyles = ({ theme }) => {
         borderRadius: 0,
         padding: `${theme.scale[150]}px ${theme.scale[400]}px`,
       },
+
+      '&:has(> .buttongroup-button) .buttongroup-button-icon': {
+        paddingRight: 0,
+      },
     },
   }
 

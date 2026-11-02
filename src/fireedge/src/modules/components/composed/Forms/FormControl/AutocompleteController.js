@@ -38,6 +38,7 @@ export const AutocompleteController = memo(
     fieldProps = {},
     readOnly = false,
     optionsOnly = false,
+    notNull = false,
     clearInvalid = false,
     onConditionChange,
     watcher,
@@ -63,6 +64,7 @@ export const AutocompleteController = memo(
       hint ??
       (multiple ? translate(T.PressKeysToAddAValue, ['ENTER']) : undefined)
     const resolvedFreeSolo = freeSolo ?? !optionsOnly
+    const isDisabled = fieldProps.disabled || fieldProps.isDisabled
 
     const {
       field: { value: renderValue, onBlur, onChange },
@@ -87,12 +89,15 @@ export const AutocompleteController = memo(
 
     const handleChange = useCallback(
       (nextValue) => {
+        if (readOnly || isDisabled) return
+
         const valueToChange = multiple
           ? nextValue ?? []
           : nextValue == null
           ? null
           : getOptionValue(nextValue)
 
+        onBlur()
         onChange(valueToChange)
         clearErrors(name)
 
@@ -100,7 +105,16 @@ export const AutocompleteController = memo(
           onConditionChange(valueToChange)
         }
       },
-      [clearErrors, multiple, name, onChange, onConditionChange]
+      [
+        clearErrors,
+        isDisabled,
+        multiple,
+        name,
+        onBlur,
+        onChange,
+        onConditionChange,
+        readOnly,
+      ]
     )
 
     const handleInputChange = useCallback(
@@ -218,7 +232,7 @@ export const AutocompleteController = memo(
         initialValue={resolvedValue}
         onChange={handleChange}
         label={trLabel}
-        hint={trHint}
+        hint={trHint ?? (errorText ? undefined : resolvedValue?.description)}
         tooltip={tooltip}
         placeholder={resolvedPlaceholder}
         menuTitle={menuTitle}
@@ -226,6 +240,8 @@ export const AutocompleteController = memo(
         rowsDisplayed={rowsDisplayed}
         error={errorText}
         freeSolo={resolvedFreeSolo}
+        disableClearable={notNull}
+        isDisabled={isDisabled}
         isSearchable
         isReadOnly={readOnly}
         isDisableEnter={disableEnter}
@@ -250,6 +266,7 @@ AutocompleteController.propTypes = {
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
   optionsOnly: PropTypes.bool,
+  notNull: PropTypes.bool,
   clearInvalid: PropTypes.bool,
   onConditionChange: PropTypes.func,
   watcher: PropTypes.func,

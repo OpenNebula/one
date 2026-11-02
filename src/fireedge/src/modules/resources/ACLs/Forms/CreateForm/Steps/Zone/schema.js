@@ -13,10 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Globe, MinusPinAlt } from 'iconoir-react'
 import { FEDERATION_TYPE, INPUT_TYPES, T } from '@ConstantsModule'
 import { zoneTable } from '@ModelsModule'
-import { Field, arrayToOptions, getObjectSchemaFromFields } from '@UtilsModule'
+import {
+  OPTION_SORTERS,
+  Field,
+  arrayToOptions,
+  getObjectSchemaFromFields,
+} from '@UtilsModule'
 import { string } from 'yup'
+
+const ZONE_TYPE_ICONS = {
+  ALL: Globe,
+  INDIVIDUAL: MinusPinAlt,
+}
 
 const ACL_TYPE_ZONE_TRANSLATIONS = {
   ALL: { value: 'ALL', text: T.All },
@@ -26,13 +37,18 @@ const ACL_TYPE_ZONE_TRANSLATIONS = {
 /** @type {Field} Type field */
 export const TYPE = (oneConfig) => ({
   name: 'TYPE',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.Zone,
+  type: INPUT_TYPES.BUTTON_GROUP,
   values: () =>
     arrayToOptions(Object.keys(ACL_TYPE_ZONE_TRANSLATIONS), {
       addEmpty: false,
+      sorter: OPTION_SORTERS.unsort,
       getText: (key) => ACL_TYPE_ZONE_TRANSLATIONS[key].text,
       getValue: (key) => ACL_TYPE_ZONE_TRANSLATIONS[key].value,
-    }),
+    }).map((option) => ({
+      ...option,
+      startIcon: ZONE_TYPE_ICONS[option.value],
+    })),
   validation:
     oneConfig.FEDERATION.MODE === FEDERATION_TYPE.STANDALONE
       ? string()

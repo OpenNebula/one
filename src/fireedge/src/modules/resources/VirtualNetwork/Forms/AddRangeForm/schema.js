@@ -27,6 +27,14 @@ import {
 } from '@UtilsModule'
 import { T, INPUT_TYPES, RESTRICTED_ATTRIBUTES_TYPE } from '@ConstantsModule'
 
+const AR_TYPE_DESCRIPTIONS = {
+  IP4: T.AddressRangeIPv4Concept,
+  IP4_6: T.AddressRangeDualStackConcept,
+  IP6: T.AddressRangeIPv6Concept,
+  IP6_STATIC: T.AddressRangeIPv6StaticConcept,
+  ETHER: T.AddressRangeEthernetConcept,
+}
+
 const AR_TYPES = {
   IP4: 'IP4',
   IP4_6: 'IP4_6',
@@ -46,13 +54,18 @@ const AR_TYPES_STR = {
 /** @type {Field} Type field */
 const TYPE_FIELD = {
   name: 'TYPE',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.AddressRangeType,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () =>
     arrayToOptions(Object.keys(AR_TYPES), {
       addEmpty: false,
       getText: (type) => AR_TYPES_STR[type],
       sorter: OPTION_SORTERS.unsort,
-    }),
+    }).map((option) => ({
+      ...option,
+      description: AR_TYPE_DESCRIPTIONS[option.value],
+    })),
   validation: string()
     .trim()
     .required()

@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Link, Upload, HardDrive } from 'iconoir-react'
 import { string, boolean, number, object, ObjectSchema, mixed, lazy } from 'yup'
 import {
+  OPTION_SORTERS,
   Field,
   arrayToOptions,
   getValidationFromFields,
@@ -29,6 +31,12 @@ import {
   RESTRICTED_ATTRIBUTES_TYPE,
 } from '@ConstantsModule'
 
+const LOCATION_ICONS = {
+  path: Link,
+  upload: Upload,
+  empty: HardDrive,
+}
+
 export const IMAGE_LOCATION_TYPES = {
   PATH: 'path',
   UPLOAD: 'upload',
@@ -36,9 +44,9 @@ export const IMAGE_LOCATION_TYPES = {
 }
 
 const IMAGE_LOCATION = {
+  [IMAGE_LOCATION_TYPES.EMPTY]: T.EmptyDisk,
   [IMAGE_LOCATION_TYPES.PATH]: T.Path,
   [IMAGE_LOCATION_TYPES.UPLOAD]: T.Upload,
-  [IMAGE_LOCATION_TYPES.EMPTY]: T.EmptyDisk,
 }
 
 /**
@@ -135,7 +143,8 @@ export const PERSISTENT = {
 /** @type {Field} Toggle select type image */
 export const IMAGE_LOCATION_FIELD = {
   name: 'IMAGE_LOCATION',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.Location,
+  type: INPUT_TYPES.BUTTON_GROUP,
   dependOf: TYPE.name,
   htmlType: htmlType([
     IMAGE_TYPES_STR.OS,
@@ -144,9 +153,10 @@ export const IMAGE_LOCATION_FIELD = {
   ]),
   values: arrayToOptions(Object.entries(IMAGE_LOCATION), {
     addEmpty: false,
+    sorter: OPTION_SORTERS.unsort,
     getText: ([_, name]) => name,
     getValue: ([image]) => image,
-  }),
+  }).map((option) => ({ ...option, startIcon: LOCATION_ICONS[option.value] })),
   validation: lazy((value, { context }) =>
     string()
       .trim()

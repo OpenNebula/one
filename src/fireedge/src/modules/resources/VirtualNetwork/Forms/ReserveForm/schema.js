@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Plus, BookmarkEmpty } from 'iconoir-react'
 import { BaseSchema, string, number } from 'yup'
 
 import { VnAPI } from '@FeaturesModule'
@@ -25,6 +26,11 @@ import {
   REG_ADDR,
 } from '@UtilsModule'
 import { T, INPUT_TYPES, VirtualNetwork, AddressRange } from '@ConstantsModule'
+
+const RESERVATION_ICONS = {
+  vnet: Plus,
+  ar: BookmarkEmpty,
+}
 
 const SWITCH_TYPES = { newVnet: 'vnet', fromAr: 'ar' }
 
@@ -49,13 +55,18 @@ const SIZE_FIELD = {
 /** @type {Field} Switcher for vnet OR existing reservation */
 const SWITCH_FIELD = {
   name: '__SWITCH__',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.ReservationTarget,
+  type: INPUT_TYPES.BUTTON_GROUP,
   values: () =>
     arrayToOptions(Object.entries(SWITCH_STR), {
       addEmpty: false,
+      sorter: OPTION_SORTERS.unsort,
       getText: ([, text]) => text,
       getValue: ([value]) => value,
-    }),
+    }).map((option) => ({
+      ...option,
+      startIcon: RESERVATION_ICONS[option.value],
+    })),
   validation: string()
     .trim()
     .required()

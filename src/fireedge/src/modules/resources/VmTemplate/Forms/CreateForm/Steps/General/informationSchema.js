@@ -15,9 +15,9 @@
  * ------------------------------------------------------------------------- */
 import { string, boolean } from 'yup'
 
-import { Image } from '@ComponentsModule'
+import { Icon, Image, OpenNebulaIcon } from '@ComponentsModule'
 import { SystemAPI, LogoAPI } from '@FeaturesModule'
-import { Field, arrayToOptions } from '@UtilsModule'
+import { Field, arrayToOptions, OPTION_SORTERS } from '@UtilsModule'
 import {
   T,
   STATIC_FILES_URL,
@@ -25,6 +25,29 @@ import {
   HYPERVISORS,
   DEFAULT_TEMPLATE_LOGO,
 } from '@ConstantsModule'
+
+const HYPERVISOR_OPTIONS = {
+  [HYPERVISORS.kvm]: {
+    text: 'KVM',
+    startIcon: <Icon name="kvm" />,
+    description: T.KvmHypervisorConcept,
+  },
+  [HYPERVISORS.qemu]: {
+    text: 'QEMU',
+    startIcon: <Icon name="qemu" />,
+    description: T.QemuHypervisorConcept,
+  },
+  [HYPERVISORS.lxc]: {
+    text: 'LXC',
+    startIcon: <Icon name="lxc" />,
+    description: T.LxcHypervisorConcept,
+  },
+  [HYPERVISORS.dummy]: {
+    text: T.Dummy,
+    startIcon: <OpenNebulaIcon color="inherit" />,
+    description: T.DummyHypervisorConcept,
+  },
+}
 
 /**
  * @param {boolean} isUpdate - If `true`, the form is being updated
@@ -61,11 +84,13 @@ export const DESCRIPTION = {
 export const HYPERVISOR_FIELD = (isUpdate) => ({
   name: 'HYPERVISOR',
   type: INPUT_TYPES.TOGGLE,
+  startIconSize: 'big',
   notNull: true,
-  values: arrayToOptions(Object.values(HYPERVISORS), {
+  values: arrayToOptions(Object.keys(HYPERVISOR_OPTIONS), {
     addEmpty: false,
-    getText: (hypervisor) => hypervisor.toUpperCase(),
-  }),
+    sorter: OPTION_SORTERS.unsort,
+    getText: (hypervisor) => HYPERVISOR_OPTIONS[hypervisor].text,
+  }).map((option) => ({ ...option, ...HYPERVISOR_OPTIONS[option.value] })),
   validation: string()
     .trim()
     .required()

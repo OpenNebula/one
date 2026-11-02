@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/components/composed/Forms/FormControl/AutocompleteController'
+export * from '@modules/components/composed/Forms/FormControl/ButtonGroupController'
 export * from '@modules/components/composed/Forms/FormControl/CheckboxController'
 export * from '@modules/components/composed/Forms/FormControl/FileController'
 export * from '@modules/components/composed/Forms/FormControl/InformationUnitController'

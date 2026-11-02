@@ -21,6 +21,7 @@
  */
 export const getStyles = ({ theme }) => {
   const icon = {
+    display: 'flex',
     color: theme.palette.icon.primary,
 
     '& svg': {

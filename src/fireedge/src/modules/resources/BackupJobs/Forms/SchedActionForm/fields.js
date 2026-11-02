@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Calendar, RefreshDouble } from 'iconoir-react'
 import { DateTime } from 'luxon'
 import { array, date, lazy, mixed, number, ref, string } from 'yup'
 
@@ -35,6 +36,11 @@ import {
   OPTION_SORTERS,
   timeFromMilliseconds,
 } from '@UtilsModule'
+
+const SCHEDULE_TYPE_ICONS = {
+  [SCHEDULE_TYPE.ONETIME]: Calendar,
+  [SCHEDULE_TYPE.PERIODIC]: RefreshDouble,
+}
 
 export const PERIODIC_FIELD_NAME = 'PERIODIC'
 
@@ -81,13 +87,17 @@ const parseDateString = (_, originalValue) => {
 export const PERIODIC_FIELD = {
   name: PERIODIC_FIELD_NAME,
   label: T.ScheduleActionType,
-  type: INPUT_TYPES.TOGGLE,
+  type: INPUT_TYPES.BUTTON_GROUP,
   values: () =>
     arrayToOptions(Object.keys(VM_SCHEDULE_TYPE_STRING), {
       addEmpty: false,
+      sorter: OPTION_SORTERS.unsort,
       getText: (key) => VM_SCHEDULE_TYPE_STRING[key],
       getValue: (key) => key,
-    }),
+    }).map((option) => ({
+      ...option,
+      startIcon: SCHEDULE_TYPE_ICONS[option.value],
+    })),
   validation: string()
     .trim()
     .required()

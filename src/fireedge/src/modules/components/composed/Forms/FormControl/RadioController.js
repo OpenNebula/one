@@ -47,7 +47,7 @@ const styles = ({ palette, typography }) => ({
     transition: 'border 0.3s ease',
     maxWidth: `calc(33.333% - ${typography.pxToRem(16)})`,
     minWidth: `calc(33.333% - ${typography.pxToRem(16)})`,
-    '@media (maxWidth: 600px)': {
+    '@media (max-width: 600px)': {
       maxWidth: `calc(50% - ${typography.pxToRem(16)})`,
     },
   }),
@@ -147,13 +147,15 @@ export const RadioController = memo(
 
     const handleChange = useCallback(
       (evt) => {
+        if (readOnly || fieldProps.disabled) return
+
         onBlur()
-        onChange(evt.currentTarget.getAttribute('data-value'))
+        onChange(evt.target.value)
         if (typeof onConditionChange === 'function') {
-          onConditionChange(evt.currentTarget.getAttribute('data-value'))
+          onConditionChange(evt.target.value)
         }
       },
-      [onChange, onConditionChange]
+      [fieldProps.disabled, onBlur, onChange, onConditionChange, readOnly]
     )
 
     return (
@@ -173,17 +175,19 @@ export const RadioController = memo(
         )}
         <RadioGroup
           {...inputProps}
-          value={optionSelected}
+          value={optionSelected ?? ''}
+          onChange={handleChange}
+          onBlur={onBlur}
           row
           className={classes.root}
           data-cy={cy}
         >
           {values.map(({ text, value, svg, description }) => (
             <Box
+              component="label"
               key={`${name}-${value}`}
               data-cy={`${cy}-${value}`}
               data-value={value}
-              onClick={handleChange}
               className={
                 optionSelected === value
                   ? clsx(classes.rootItem, classes.itemSelected)
@@ -195,7 +199,8 @@ export const RadioController = memo(
                   <Box className={classes.cell}>
                     <Radio
                       inputRef={ref}
-                      disabled={readOnly}
+                      value={value}
+                      disabled={readOnly || fieldProps.disabled}
                       checked={optionSelected === value}
                       className={classes.radio}
                       inputProps={{ 'data-value': value }}
@@ -248,6 +253,7 @@ export const RadioController = memo(
     prev.values.length === next.values.length &&
     prev.label === next.label &&
     prev.tooltip === next.tooltip &&
+    prev.fieldProps?.disabled === next.fieldProps?.disabled &&
     prev.readOnly === next.readOnly
 )
 

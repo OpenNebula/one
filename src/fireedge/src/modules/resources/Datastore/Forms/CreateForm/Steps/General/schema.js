@@ -18,6 +18,7 @@ import {
   DATASTORE_TYPES,
   DS_STORAGE_BACKENDS,
   INPUT_TYPES,
+  RESOURCE_NAMES,
   T,
   TRANSFER_OPTIONS,
 } from '@ConstantsModule'
@@ -26,11 +27,31 @@ import {
   Field,
   getValidationFromFields,
   OPTION_SORTERS,
+  getResourceIcon,
 } from '@UtilsModule'
 import { object, ObjectSchema, string } from 'yup'
 
 const getStorageBackendsFromDStype = (type) =>
   Object.values(DATASTORE_TYPES)?.find(({ value }) => value === type)
+
+const DATASTORE_TYPE_OPTIONS = {
+  [DATASTORE_TYPES.IMAGE.value]: {
+    startIcon: getResourceIcon(RESOURCE_NAMES.IMAGE),
+    description: T.ImageDatastoreConcept,
+  },
+  [DATASTORE_TYPES.SYSTEM.value]: {
+    startIcon: getResourceIcon(RESOURCE_NAMES.DATASTORE),
+    description: T.SystemDatastoreConcept,
+  },
+  [DATASTORE_TYPES.FILE.value]: {
+    startIcon: getResourceIcon(RESOURCE_NAMES.FILE),
+    description: T.FileDatastoreConcept,
+  },
+  [DATASTORE_TYPES.BACKUP.value]: {
+    startIcon: getResourceIcon(RESOURCE_NAMES.BACKUP),
+    description: T.BackupDatastoreConcept,
+  },
+}
 
 /** @type {Field} Toggle select type image */
 const TYPE = {
@@ -39,9 +60,10 @@ const TYPE = {
   type: INPUT_TYPES.TOGGLE,
   values: arrayToOptions(Object.values(DATASTORE_TYPES), {
     addEmpty: false,
-    getText: ({ name }) => name.toUpperCase(),
+    sorter: OPTION_SORTERS.unsort,
+    getText: ({ name }) => name,
     getValue: ({ value }) => value,
-  }),
+  }).map((option) => ({ ...option, ...DATASTORE_TYPE_OPTIONS[option.value] })),
   validation: string()
     .trim()
     .required()

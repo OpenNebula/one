@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Flash, EditPencil, NetworkAlt } from 'iconoir-react'
 import { boolean, string, ObjectSchema } from 'yup'
 import { AlertNotification } from '@ComponentsModule'
 import { groupBy, sumBy, uniq, uniqWith } from 'lodash'
@@ -29,6 +30,12 @@ import {
 import { T, INPUT_TYPES, HYPERVISORS, VN_DRIVERS, Nic } from '@ConstantsModule'
 import { HostAPI } from '@FeaturesModule'
 import { getHostPciTopology } from '@ModelsModule'
+
+const PCI_SELECTION_ICONS = {
+  automatic: Flash,
+  manual: EditPencil,
+  pf_ifname: NetworkAlt,
+}
 
 const filterByHypAndDriver = (fields, { hypervisor, driver }) =>
   filterFieldsByDriver(filterFieldsByHypervisor(fields, hypervisor), driver)
@@ -557,26 +564,30 @@ const SECTIONS = ({
       {
         name: 'PCI_SELECTION_MODE',
         label: T.SchedulingMode,
-        type: INPUT_TYPES.TOGGLE,
+        type: INPUT_TYPES.BUTTON_GROUP,
         optionsOnly: true,
         notNull: true,
         dependOf: ['PCI_TYPE', 'NETWORK_MODE'],
         htmlType: ([pciType, networkMode] = []) =>
           (pciType === 'emulated' || networkMode === 'dummy') &&
           INPUT_TYPES.HIDDEN,
-        values: ([pciType] = []) => [
-          {
-            text: T.Automatic,
-            value: 'automatic',
-            description: T.AutomaticConcept,
-          },
-          {
-            text: T.Manual,
-            value: 'manual',
-            description: T.ManualConcept,
-          },
-          ...(pciType === 'vf' ? [pfMode] : []),
-        ],
+        values: ([pciType] = []) =>
+          [
+            {
+              text: T.Automatic,
+              value: 'automatic',
+              description: T.AutomaticConcept,
+            },
+            {
+              text: T.Manual,
+              value: 'manual',
+              description: T.ManualConcept,
+            },
+            ...(pciType === 'vf' ? [pfMode] : []),
+          ].map((option) => ({
+            ...option,
+            startIcon: PCI_SELECTION_ICONS[option.value],
+          })),
         validation: string()
           .trim()
           .when('PCI_TYPE', (pciType, schema) =>

@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Label, Group, Globe, Server } from 'iconoir-react'
 import { INPUT_TYPES, T } from '@ConstantsModule'
 import {
+  OPTION_SORTERS,
   Field,
   arrayToOptions,
   getObjectSchemaFromFields,
@@ -22,6 +24,13 @@ import {
 } from '@UtilsModule'
 import { string } from 'yup'
 import { clusterTable, GROUP_LIST_COLUMNS, groupTable } from '@ModelsModule'
+
+const RESOURCE_TYPE_ICONS = {
+  INDIVIDUAL: Label,
+  GROUP: Group,
+  ALL: Globe,
+  CLUSTER: Server,
+}
 
 // Types of id definition
 export const ACL_TYPE_ID_TRANSLATIONS = {
@@ -69,13 +78,18 @@ const clusterSelectorTable = {
 /** @type {Field} Type field */
 export const TYPE = {
   name: 'TYPE',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.Scope,
+  type: INPUT_TYPES.BUTTON_GROUP,
   values: () =>
     arrayToOptions(Object.keys(ACL_TYPE_ID_TRANSLATIONS), {
       addEmpty: false,
+      sorter: OPTION_SORTERS.unsort,
       getText: (key) => ACL_TYPE_ID_TRANSLATIONS[key].text,
       getValue: (key) => ACL_TYPE_ID_TRANSLATIONS[key].value,
-    }),
+    }).map((option) => ({
+      ...option,
+      startIcon: RESOURCE_TYPE_ICONS[option.value],
+    })),
   validation: string()
     .trim()
     .required()

@@ -755,6 +755,51 @@ module.exports = {
 
   ConfigureConnection: 'Configure connection',
   Location: 'Location',
+  ApplyRuleTo: 'Apply this rule to',
+  AUser: 'A user',
+  AGroup: 'A group',
+  AllUsers: 'All users',
+  ReservationTarget: 'Reservation target',
+  CreateAppFrom: 'Create the app from',
+  AddressRangeType: 'Address range type',
+  HostPolicy: 'Host policy',
+  DatastorePolicy: 'Datastore policy',
+  HostPolicyPackingConcept:
+    'Prefer hosts with more running VMs to consolidate workloads.',
+  HostPolicyStripingConcept:
+    'Prefer hosts with fewer running VMs to spread workloads.',
+  HostPolicyLoadAwareConcept: 'Prefer hosts with more free CPU capacity.',
+  DatastorePolicyPackingConcept:
+    'Prefer datastores with less free space to consolidate disk images.',
+  DatastorePolicyStripingConcept:
+    'Prefer datastores with more free space to spread disk images.',
+  AddressRangeIPv4Concept:
+    'A range of IPv4 addresses, each with a MAC address.',
+  AddressRangeDualStackConcept: 'A range with both IPv4 and IPv6 addresses.',
+  AddressRangeIPv6Concept: 'A range of IPv6 addresses.',
+  AddressRangeIPv6StaticConcept: 'A range of IPv6 addresses without SLAAC.',
+  AddressRangeEthernetConcept:
+    'A range of MAC addresses for Ethernet or DHCP networking.',
+  BridgedDriverConcept: 'Connect virtual machines through a Linux bridge.',
+  SecurityGroupsDriverConcept:
+    'Use a Linux bridge with security group filtering.',
+  Dot1QDriverConcept: 'Isolate virtual networks using 802.1Q VLANs.',
+  VxlanDriverConcept: 'Create an overlay network using VXLAN.',
+  OpenVSwitchDriverConcept: 'Connect virtual machines through Open vSwitch.',
+  OpenVSwitchVxlanDriverConcept: 'Create a VXLAN overlay using Open vSwitch.',
+  KvmHypervisorConcept: 'Kernel-based virtual machines',
+  QemuHypervisorConcept: 'Software emulation through QEMU.',
+  LxcHypervisorConcept: 'Linux system containers',
+  DummyHypervisorConcept: 'Dummy hypervisor for development purposes',
+  CustomHypervisorConcept: 'Use custom virtualization and monitoring drivers.',
+  ImageDatastoreConcept: 'Stores virtual disk images',
+  SystemDatastoreConcept: 'Stores virtual machine disks',
+  FileDatastoreConcept: 'Stores files and kernels',
+  BackupDatastoreConcept: 'Stores virtual machine backups.',
+  MarketplaceImageSourceConcept: 'Choose an image to create an appliance',
+  MarketplaceVmSourceConcept: 'Choose a virtual machine to create an appliance',
+  MarketplaceVmTemplateSourceConcept:
+    'Choose a VM template to create an appliance',
   ConfigureInputs: 'Configure inputs',
   UserInputs: 'User inputs',
   UserInputAlphanumeric: 'Must only contain alphanumeric characters and "_"',

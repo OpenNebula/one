@@ -102,6 +102,8 @@ export const SelectController = memo(
 
     const handleChange = useCallback(
       (evt) => {
+        if (readOnly || fieldProps.disabled) return
+
         onBlur()
         if (!multiple) {
           onChange(evt)
@@ -124,7 +126,14 @@ export const SelectController = memo(
           }
         }
       },
-      [onChange, onConditionChange, multiple]
+      [
+        fieldProps.disabled,
+        onBlur,
+        onChange,
+        onConditionChange,
+        multiple,
+        readOnly,
+      ]
     )
 
     return (
@@ -133,9 +142,9 @@ export const SelectController = memo(
         inputRef={ref}
         value={optionSelected}
         onChange={handleChange}
+        onBlur={onBlur}
         select
         fullWidth
-        disabled={readOnly}
         SelectProps={{ native: true, multiple }}
         label={isTranslationInput(label) ? translate(label) : label}
         InputLabelProps={{ shrink: needShrink }}
@@ -147,9 +156,19 @@ export const SelectController = memo(
         }}
         inputProps={{ 'data-cy': cy }}
         error={Boolean(error)}
-        helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
+        helperText={
+          error ? (
+            <ErrorHelper label={error.message} />
+          ) : (
+            translate(
+              values.find(({ value }) => value === optionSelected)
+                ?.description ?? ''
+            )
+          )
+        }
         FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
         {...fieldProps}
+        disabled={readOnly || fieldProps.disabled}
       >
         {values?.map(({ text, value = '' }) => (
           <option key={`${name}-${value}`} value={value}>
@@ -165,6 +184,7 @@ export const SelectController = memo(
     prev.label === next.label &&
     prev.tooltip === next.tooltip &&
     prev.multiple === next.multiple &&
+    prev.fieldProps?.disabled === next.fieldProps?.disabled &&
     prev.readOnly === next.readOnly
 )
 

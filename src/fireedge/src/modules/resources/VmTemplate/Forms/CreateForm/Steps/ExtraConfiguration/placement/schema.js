@@ -13,15 +13,38 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Server, HardDrive } from 'iconoir-react'
 import { string, array, boolean } from 'yup'
 
-import { Field, Section, arrayToOptions, disableFields } from '@UtilsModule'
+import {
+  OPTION_SORTERS,
+  Field,
+  Section,
+  arrayToOptions,
+  disableFields,
+} from '@UtilsModule'
 import {
   clusterTable as clTable,
   hostSelectionTable as hsTable,
   datastoreTable as dsTable,
 } from '@ModelsModule'
 import { T, INPUT_TYPES } from '@ConstantsModule'
+
+const DS_POLICY_DESCRIPTIONS = {
+  '-FREE_MB': T.DatastorePolicyPackingConcept,
+  FREE_MB: T.DatastorePolicyStripingConcept,
+}
+
+const HOST_POLICY_DESCRIPTIONS = {
+  RUNNING_VMS: T.HostPolicyPackingConcept,
+  '-RUNNING_VMS': T.HostPolicyStripingConcept,
+  FREE_CPU: T.HostPolicyLoadAwareConcept,
+}
+
+const PLACEMENT_TYPE_ICONS = {
+  [T.SelectCluster]: Server,
+  [T.SelectHost]: HardDrive,
+}
 
 const datastoreSelectionTable = {
   ...dsTable,
@@ -187,14 +210,20 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
 /** @type {Field} Host policy type field */
 const HOST_POLICY_TYPE_FIELD = {
   name: 'HOST_POLICY_TYPE',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.HostPolicy,
+  type: INPUT_TYPES.RADIO,
+  defaultValueProp: '',
   values: () =>
     arrayToOptions([T.Packing, T.Stripping, T.LoadAware], {
       addEmpty: false,
+      sorter: OPTION_SORTERS.unsort,
       getText: (opt) => opt,
       getValue: (_opt, idx) =>
         ['RUNNING_VMS', '-RUNNING_VMS', 'FREE_CPU']?.[idx] ?? '',
-    }),
+    }).map((option) => ({
+      ...option,
+      description: HOST_POLICY_DESCRIPTIONS[option.value],
+    })),
   validation: string().trim().notRequired(),
   grid: { xs: 12, md: 12 },
 }
@@ -202,13 +231,19 @@ const HOST_POLICY_TYPE_FIELD = {
 /** @type {Field} DS policy type field */
 const DS_POLICY_TYPE_FIELD = {
   name: 'DS_POLICY_TYPE',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.DatastorePolicy,
+  type: INPUT_TYPES.RADIO,
+  defaultValueProp: '',
   values: () =>
-    arrayToOptions(['Packing', 'Stripping'], {
+    arrayToOptions([T.Packing, T.Stripping], {
       addEmpty: false,
+      sorter: OPTION_SORTERS.unsort,
       getText: (opt) => opt,
       getValue: (_opt, idx) => ['-FREE_MB', 'FREE_MB']?.[idx] ?? '',
-    }),
+    }).map((option) => ({
+      ...option,
+      description: DS_POLICY_DESCRIPTIONS[option.value],
+    })),
   validation: string().trim().notRequired(),
   grid: { xs: 12, md: 12 },
 }
@@ -252,10 +287,15 @@ const DS_RANK_FIELD = {
 /** @type {Field} Type field */
 const TABLE_TYPE = {
   name: 'CLUSTER_HOST_TYPE',
-  type: INPUT_TYPES.TOGGLE,
+  label: T.Scope,
+  type: INPUT_TYPES.BUTTON_GROUP,
   values: arrayToOptions([T.SelectCluster, T.SelectHost], {
     addEmpty: false,
-  }),
+    sorter: OPTION_SORTERS.unsort,
+  }).map((option) => ({
+    ...option,
+    startIcon: PLACEMENT_TYPE_ICONS[option.value],
+  })),
   validation: string()
     .trim()
     .required()

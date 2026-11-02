@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ObjectSchema, string } from 'yup'
+import { ViewStructureDown } from 'iconoir-react'
 
 import { DatastoreAPI, SystemAPI } from '@FeaturesModule'
 import { StatusTag } from '@ComponentsModule'
@@ -22,7 +23,8 @@ import {
   arrayToOptions,
   encodeBase64,
   getObjectSchemaFromFields,
-  sentenceCase,
+  OPTION_SORTERS,
+  getResourceIcon,
 } from '@UtilsModule'
 import {
   getImageState,
@@ -37,6 +39,24 @@ export const TYPES = {
   IMAGE: RESOURCE_NAMES.IMAGE.toUpperCase(),
   VM: RESOURCE_NAMES.VM.toUpperCase(),
   VM_TEMPLATE: RESOURCE_NAMES.VM_TEMPLATE.toUpperCase(),
+}
+
+const SOURCE_OPTIONS = {
+  [TYPES.IMAGE]: {
+    text: T.Image,
+    startIcon: getResourceIcon(RESOURCE_NAMES.IMAGE),
+    description: T.MarketplaceImageSourceConcept,
+  },
+  [TYPES.VM]: {
+    text: T.VM,
+    startIcon: getResourceIcon(RESOURCE_NAMES.VM),
+    description: T.MarketplaceVmSourceConcept,
+  },
+  [TYPES.VM_TEMPLATE]: {
+    text: T.VMTemplate,
+    startIcon: ViewStructureDown,
+    description: T.MarketplaceVmTemplateSourceConcept,
+  },
 }
 
 const RESOURCE_TABLES = {
@@ -127,11 +147,13 @@ const getResourceModel = (type) => ({
 /** @type {Field} Type field */
 const TYPE = {
   name: 'type',
+  label: T.CreateAppFrom,
   type: INPUT_TYPES.TOGGLE,
   values: arrayToOptions(Object.values(TYPES), {
     addEmpty: false,
-    getText: (type) => sentenceCase(type).toUpperCase(),
-  }),
+    sorter: OPTION_SORTERS.unsort,
+    getText: (type) => SOURCE_OPTIONS[type].text,
+  }).map((option) => ({ ...option, ...SOURCE_OPTIONS[option.value] })),
   validation: string()
     .trim()
     .required()

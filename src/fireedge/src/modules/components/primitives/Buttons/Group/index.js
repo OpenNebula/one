@@ -101,7 +101,11 @@ const ButtonGroupItem = ({ button = {}, isSelected = false, onToggle }) => {
         )}
 
         {title && (
-          <Button type={htmlType} className={'buttongroup-button'}>
+          <Button
+            type={htmlType}
+            className={'buttongroup-button'}
+            disabled={isDisabled}
+          >
             {translate(title)}
           </Button>
         )}
@@ -134,6 +138,7 @@ export const ButtonGroup = forwardRef(
       isMultipleSelectable,
       onSelectionChange,
       dataCy,
+      ...opts
     },
     ref
   ) => {
@@ -193,6 +198,7 @@ export const ButtonGroup = forwardRef(
         data-cy={dataCy}
         sx={(theme) => getStyles({ theme })}
         ref={ref}
+        {...opts}
       >
         {hasChildren
           ? children

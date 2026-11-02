@@ -50,6 +50,7 @@ export const ToggleController = memo(
     readOnly = false,
     onConditionChange,
     defaultValue,
+    startIconSize = 'small',
   }) => {
     const {
       field: { ref, value: optionSelected, onChange, onBlur },
@@ -117,8 +118,19 @@ export const ToggleController = memo(
       }
     }, [])
 
+    const selectedDescription = values.find(
+      ({ value }) => value === optionSelected
+    )?.description
+
     return (
-      <FormControl fullWidth margin="dense">
+      <FormControl
+        fullWidth
+        margin="dense"
+        sx={(theme) => ({
+          gap: `${theme.scale[200]}px`,
+          '& > .MuiFormHelperText-root': { margin: 0 },
+        })}
+      >
         {label && (
           <Label htmlFor={cy} error={message}>
             <Text
@@ -138,6 +150,10 @@ export const ToggleController = memo(
           sx={(theme) => ({
             display: 'flex',
             gap: `${theme.scale[500]}px`,
+            '& > span': {
+              flex: 1,
+              '& > .card-button-container': { width: '100%' },
+            },
           })}
         >
           {values?.map(
@@ -153,7 +169,7 @@ export const ToggleController = memo(
                 text={text}
                 description={description}
                 startIcon={startIcon}
-                startIconSize="small"
+                startIconSize={startIconSize}
                 isSelected={
                   multiple
                     ? Array.isArray(optionSelected) &&
@@ -167,6 +183,15 @@ export const ToggleController = memo(
             )
           )}
         </Box>
+        {!message && selectedDescription && (
+          <FormHelperText>
+            <Text
+              component="span"
+              variant={TEXT_VARIANTS.CAPTION}
+              value={selectedDescription}
+            />
+          </FormHelperText>
+        )}
         {Boolean(message) && (
           <FormHelperText data-cy={`${cy}-error`}>
             <ErrorHelper label={message} />
@@ -191,6 +216,7 @@ ToggleController.propTypes = {
   readOnly: PropTypes.bool,
   onConditionChange: PropTypes.func,
   defaultValue: PropTypes.any,
+  startIconSize: PropTypes.oneOf(['small', 'big']),
 }
 
 ToggleController.displayName = 'ToggleController'

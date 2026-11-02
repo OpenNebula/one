@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { BaseSchema, string } from 'yup'
+import { Settings } from 'iconoir-react'
+import { Icon } from '@ComponentsModule'
 import { SystemAPI } from '@FeaturesModule'
 
 import { T, INPUT_TYPES, CUSTOM_HOST_HYPERVISOR } from '@ConstantsModule'
@@ -26,6 +28,20 @@ import {
 } from '@UtilsModule'
 
 import { getHostHypervisors } from '@ModelsModule'
+
+const HYPERVISOR_ICONS = {
+  kvm: <Icon name="kvm" />,
+  qemu: <Icon name="qemu" />,
+  lxc: <Icon name="lxc" />,
+  [CUSTOM_HOST_HYPERVISOR.NAME]: <Settings />,
+}
+
+const HYPERVISOR_DESCRIPTIONS = {
+  kvm: T.KvmHypervisorConcept,
+  qemu: T.QemuHypervisorConcept,
+  lxc: T.LxcHypervisorConcept,
+  [CUSTOM_HOST_HYPERVISOR.NAME]: T.CustomHypervisorConcept,
+}
 
 /** @type {Field} Hypervisor field */
 const HYPERVISOR_FIELD = {
@@ -43,7 +59,11 @@ const HYPERVISOR_FIELD = {
         getValue: (hypervisor) => hypervisor.driverName,
         sorter: OPTION_SORTERS.unsort,
       }
-    )
+    ).map((option) => ({
+      ...option,
+      startIcon: HYPERVISOR_ICONS[option.value] ?? Settings,
+      description: HYPERVISOR_DESCRIPTIONS[option.value],
+    }))
   },
   validation: string()
     .trim()
