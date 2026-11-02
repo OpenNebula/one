@@ -313,3 +313,5 @@ module OneBEX
     end
 
 end
+
+OneBEX::Exporters.register('rbd', OneBEX::Exporters::RBD)

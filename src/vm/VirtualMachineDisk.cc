@@ -199,18 +199,31 @@ bool VirtualMachineDisk::support_interactive() const
     string tm_mad = vector_value("TM_MAD");
     string format = vector_value("FORMAT");
 
-    one_util::toupper(tm_mad);
-    one_util::toupper(format);
+    const VectorAttribute* tm_conf = nullptr;
+    bool interactive;
 
-    if ( tm_mad == "LVM" || tm_mad == "FS_LVM" || tm_mad == "FS_LVM_SSH" ||
-         tm_mad == "CEPH" )
+    if ( Nebula::instance().get_tm_conf_attribute(tm_mad, tm_conf) == 0 &&
+         tm_conf->vector_value("INTERACTIVE_BACKUP", interactive) == 0 )
     {
-        return true;
+        string formats = tm_conf->vector_value("INTERACTIVE_BACKUP_FORMATS");
+
+        if ( !interactive || formats.empty() )
+        {
+            return interactive;
+        }
+
+        for (const auto& fmt : one_util::split(formats, ',', true))
+        {
+            if ( one_util::icasecmp(one_util::trim(fmt), format) )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    return (tm_mad == "LOCAL" || tm_mad == "SSH" ||
-            tm_mad == "SHARED" || tm_mad == "QCOW2") &&
-            format == "QCOW2";
+    return false;
 }
 
 /* -------------------------------------------------------------------------- */

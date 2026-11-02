@@ -306,3 +306,5 @@ module OneBEX
     end
 
 end
+
+OneBEX::Exporters.register('nbd', OneBEX::Exporters::NBD)
