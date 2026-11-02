@@ -805,6 +805,13 @@ private:
     int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
+     *  Extracts, validates and restores nonempty MD5 and SHA1 strings.
+     *    @param error Returns the error reason, if any
+     *    @return 0 on success, -1 on invalid checksums
+     */
+    int validate_checksums(std::string& error);
+
+    /**
      *  Bootstraps the database table(s) associated to the Image
      *    @return 0 on success
      */
@@ -847,6 +854,14 @@ protected:
      *    @return 0 on success
      */
     int update(SqlDB *db) override;
+
+    /**
+     *  Validates checksums after replacing or appending the template.
+     *    @param error Returns the error reason, if any
+     *    @param _old_tmpl Previous template
+     *    @return 0 on success, -1 on invalid checksums
+     */
+    int post_update_template(std::string& error, Template *_old_tmpl) override;
 };
 
 #endif /*IMAGE_H_*/

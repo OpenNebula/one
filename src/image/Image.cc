@@ -28,6 +28,7 @@
 #include <sstream>
 #include <openssl/evp.h>
 #include <iomanip>
+#include <regex>
 
 using namespace std;
 
@@ -152,6 +153,11 @@ int Image::insert(SqlDB *db, string& error_str)
             persistent_img = one_util::icasecmp(persistent_attr, "YES");
             erase_template_attribute("DEV_PREFIX", dev_prefix);
             break;
+    }
+
+    if (validate_checksums(error_str) != 0)
+    {
+        goto error_common;
     }
 
     // ------------ SIZE --------------------
@@ -284,6 +290,47 @@ int Image::update(SqlDB *db)
 {
     string error_str;
     return insert_replace(db, true, error_str);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Image::validate_checksums(string& error)
+{
+    static const regex md5("[0-9a-fA-F]{32}");
+    static const regex sha1("[0-9a-fA-F]{40}");
+
+    for (const string name : {"MD5", "SHA1"})
+    {
+        string checksum;
+
+        erase_template_attribute(name, checksum);
+
+        if (checksum.empty())
+        {
+            continue;
+        }
+
+        const auto& pattern = name == "MD5" ? md5 : sha1;
+
+        if (!regex_match(checksum, pattern))
+        {
+            error = "Invalid checksum string.";
+            return -1;
+        }
+
+        replace_template_attribute(name, checksum);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Image::post_update_template(string& error, Template *_old_tmpl)
+{
+    return validate_checksums(error);
 }
 
 /* ------------------------------------------------------------------------ */
