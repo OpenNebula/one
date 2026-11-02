@@ -564,7 +564,8 @@ post "#{API_PREFIX}/vms/:id/backups" do
         vm_id = Helper.uuid_to_int(params[:id])
 
         status_code, message = BackupController.perform_backup(client, vm_id, from_checkpoint_id,
-                                                               veeam_description)
+                                                               veeam_description,
+                                                               request_body['disks'])
 
         halt status_code, message
     rescue Helper::LookupError

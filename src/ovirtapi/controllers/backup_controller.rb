@@ -522,7 +522,7 @@ class BackupController
         return 200, { :backup => ovirt_backups }.to_json
     end
 
-    def self.increment_available?(_client, vm)
+    def self.increment_available?(_client, vm, selected_disk_ids = nil)
         # Check if the VM has any RAW disks that are NOT in a ceph or lvm_thin
         # environment. If a raw disk lives on LVM_THIN or CEPH (RBD),
         # incremental backups are available.
@@ -532,6 +532,9 @@ class BackupController
 
         if disks.is_a?(Hash)
             disks = [disks]
+        end
+        unless selected_disk_ids.nil?
+            disks = disks.select {|disk| selected_disk_ids.include?(disk['DISK_ID'].to_i) }
         end
 
         disks.each do |disk|
@@ -553,13 +556,20 @@ class BackupController
         return true
     end
 
-    def self.raw_disk_backup_fault(vm)
+    def self.raw_disk_backup_fault(vm, selected_disk_ids = nil)
         disks = vm.to_hash.dig('VM', 'TEMPLATE', 'DISK')
         disks = [disks] if disks.is_a?(Hash)
         return if disks.nil?
 
+        unless selected_disk_ids.nil?
+            disks = disks.select {|disk| selected_disk_ids.include?(disk['DISK_ID'].to_i) }
+        end
+
         raw_disk = disks.find do |disk|
-            disk['FORMAT'].to_s.casecmp('raw').zero?
+            next false unless disk['FORMAT'].to_s.casecmp('raw').zero?
+
+            tm_mad = disk['TM_MAD'].to_s.upcase
+            !['LVM', 'FS_LVM', 'FS_LVM_SSH', 'CEPH'].include?(tm_mad)
         end
         return if raw_disk.nil?
 
@@ -568,7 +578,46 @@ class BackupController
         Helper.fault_response("Backup of RAW disk #{name} is not supported")
     end
 
-    def self.perform_backup(client, vm_id, checkpoint_id, veeam_description = '')
+    def self.resolve_backup_disk_ids(vm, requested_disks)
+        disk_entries = requested_disks.is_a?(Hash) ? requested_disks['disk'] : requested_disks
+        disk_entries = [disk_entries] if disk_entries.is_a?(Hash)
+
+        unless disk_entries.is_a?(Array) && !disk_entries.empty?
+            fault = Helper.fault_response('Backup disks must contain at least one disk.')
+            return nil, fault.to_json
+        end
+
+        vm_hash = vm.to_hash
+        vm_disks = vm_hash.dig('VM', 'TEMPLATE', 'DISK')
+        vm_disks = [vm_disks] if vm_disks.is_a?(Hash)
+        backup_volatiles = vm_hash.dig('VM', 'BACKUPS', 'BACKUP_CONFIG', 'BACKUP_VOLATILE')
+        available_disks = (vm_disks || []).each_with_object({}) do |disk, result|
+            disk_id = disk['DISK_ID'].to_i
+            uuid = if disk['PERSISTENT'] == 'YES'
+                       DiskController.generate_disk_uuid(0, 0, disk['IMAGE_ID'].to_i)
+                   elsif disk.key?('IMAGE_ID')
+                       DiskController.generate_disk_uuid(1, vm.id, disk_id)
+                   elsif backup_volatiles == 'YES'
+                       DiskController.generate_disk_uuid(2, vm.id, disk_id)
+                   end
+            result[uuid] = disk_id unless uuid.nil?
+        end
+
+        selected_disk_ids = disk_entries.map do |disk|
+            uuid = disk['id'] if disk.is_a?(Hash)
+            unless available_disks.key?(uuid)
+                detail = "Invalid backup disk #{uuid.inspect} for VM #{vm.id}."
+                return nil, Helper.fault_response(detail).to_json
+            end
+
+            available_disks[uuid]
+        end
+
+        [selected_disk_ids.uniq, nil]
+    end
+
+    def self.perform_backup(client, vm_id, checkpoint_id, veeam_description = '',
+                            requested_disks = nil)
         unless veeam_description.is_a?(String) && !veeam_description.strip.empty?
             return 400, Helper.fault_response('A JSON backup description is required.').to_json
         end
@@ -589,7 +638,13 @@ class BackupController
         # Retrieve the VM object
         vm = VmController.get_one_vms(client, :vm_id => vm_id)
 
-        if (fault = raw_disk_backup_fault(vm))
+        selected_disk_ids = nil
+        unless requested_disks.nil?
+            selected_disk_ids, disk_error = resolve_backup_disk_ids(vm, requested_disks)
+            return 400, disk_error unless disk_error.nil?
+        end
+
+        if (fault = raw_disk_backup_fault(vm, selected_disk_ids))
             LOGGER.error "Backup rejected for VM #{vm_id}: #{fault[:fault][:detail]}"
             return 409, fault.to_json
         end
@@ -635,7 +690,7 @@ class BackupController
             end
         end
 
-        increment_available = increment_available?(client, vm)
+        increment_available = increment_available?(client, vm, selected_disk_ids)
         LOGGER.info "Incremental backup available for VM #{vm_id}:" \
             " #{increment_available}, is_incremental: #{is_incremental}"
 
@@ -657,24 +712,26 @@ class BackupController
         end
         LOGGER.info 'Requested backup for VM ' + vm_id.to_s
         LOGGER.info "Modifying VM #{vm_id} backup configuration..."
+
+        disk_selection = ", DISK_IDS=\"#{selected_disk_ids&.join(',')}\""
         if increment_available
             if backup_volatiles == 'YES'
                 rc = vm.updateconf('BACKUP_CONFIG = ["MODE"="INCREMENT", "KEEP_LAST"="0",' \
-                    ' "INTERACTIVE"="YES",' \
-                    " \"BACKUP_VOLATILE\"=\"YES\", \"FS_FREEZE\"=\"#{BACKUP_FREEZE}\"]", true)
+                    ' "INTERACTIVE"="YES", "BACKUP_VOLATILE"="YES",' \
+                    " \"FS_FREEZE\"=\"#{BACKUP_FREEZE}\"#{disk_selection}]", true)
             else
                 rc = vm.updateconf('BACKUP_CONFIG = ["MODE"="INCREMENT", "KEEP_LAST"="0",' \
                     ' "INTERACTIVE"="YES",' \
-                    " \"FS_FREEZE\"=\"#{BACKUP_FREEZE}\"]", true)
+                    " \"FS_FREEZE\"=\"#{BACKUP_FREEZE}\"#{disk_selection}]", true)
             end
         else
             if backup_volatiles == 'YES'
                 rc = vm.updateconf('BACKUP_CONFIG = ["BACKUP_VOLATILE"="YES",' \
                     ' "INTERACTIVE"="YES",' \
-                    " \"FS_FREEZE\"=\"#{BACKUP_FREEZE}\"]", true)
+                    " \"FS_FREEZE\"=\"#{BACKUP_FREEZE}\"#{disk_selection}]", true)
             else
                 rc = vm.updateconf('BACKUP_CONFIG = ["INTERACTIVE"="YES",' \
-                    " \"FS_FREEZE\"=\"#{BACKUP_FREEZE}\"]", true)
+                    " \"FS_FREEZE\"=\"#{BACKUP_FREEZE}\"#{disk_selection}]", true)
             end
         end
 
