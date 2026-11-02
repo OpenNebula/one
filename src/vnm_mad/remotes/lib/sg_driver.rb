@@ -90,56 +90,58 @@ module VNMMAD
         # Activate the rules, bootstrap iptables chains and set filter rules for
         # each VM NIC
         def activate(do_all = false)
-            deactivate(do_all)
             lock
 
-            # Global Bootstrap
-            SGIPTables.global_bootstrap(@bridged)
+            begin
+                deactivate_nics(do_all)
 
-            unless do_all
-                attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
-                attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
-            end
+                # Global Bootstrap
+                SGIPTables.global_bootstrap(@bridged)
 
-            # Process the rules for each NIC
-            process do |nic|
-                begin
+                unless do_all
+                    attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+                    attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+                end
+
+                # Process the rules for each NIC
+                process do |nic|
+                    begin
+                        next if attach_nic_id && attach_nic_id != nic[:nic_id]
+
+                        # SG not supported for NIC_ALIAS
+                        if nic[:security_groups].nil?
+                            nic[:security_groups] = '0'
+                            @security_group_rules = EMPTY_RULES
+                        end
+
+                        SGIPTables.nic_pre(@bridged, @vm, nic)
+
+                        sg_ids = nic[:security_groups].split(',')
+
+                        sg_ids.each do |sg_id|
+                            rules = @security_group_rules[sg_id]
+                            sg    = SGIPTables::SecurityGroupIPTables.new(@vm, nic, sg_id, rules)
+
+                            sg.process_rules
+                            sg.run!
+                        end
+
+                        SGIPTables.nic_post(@vm, nic)
+                    rescue StandardError => e
+                        deactivate_nics(do_all)
+                        raise e
+                    end
+                end
+
+                # Process the rules for each NIC_ALIAS
+                process_alias do |nic|
                     next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
-                    # SG not supported for NIC_ALIAS
-                    if nic[:security_groups].nil?
-                        nic[:security_groups] = '0'
-                        @security_group_rules = EMPTY_RULES
-                    end
-
-                    SGIPTables.nic_pre(@bridged, @vm, nic)
-
-                    sg_ids = nic[:security_groups].split(',')
-
-                    sg_ids.each do |sg_id|
-                        rules = @security_group_rules[sg_id]
-                        sg    = SGIPTables::SecurityGroupIPTables.new(@vm, nic, sg_id, rules)
-
-                        sg.process_rules
-                        sg.run!
-                    end
-
-                    SGIPTables.nic_post(@vm, nic)
-                rescue StandardError => e
-                    unlock
-                    deactivate(do_all)
-                    raise e
+                    SGIPTables.nic_alias_activate(@vm, nic)
                 end
+            ensure
+                unlock
             end
-
-            # Process the rules for each NIC_ALIAS
-            process_alias do |nic|
-                next if attach_nic_id && attach_nic_id != nic[:nic_id]
-
-                SGIPTables.nic_alias_activate(@vm, nic)
-            end
-
-            unlock
 
             0
         end
@@ -149,22 +151,7 @@ module VNMMAD
             lock
 
             begin
-                unless do_all
-                    attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
-                    attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
-                end
-
-                process_alias do |nic|
-                    next if attach_nic_id && attach_nic_id != nic[:nic_id]
-
-                    SGIPTables.nic_alias_deactivate(@vm, nic)
-                end
-
-                process do |nic|
-                    next if attach_nic_id && attach_nic_id != nic[:nic_id]
-
-                    SGIPTables.nic_deactivate(@vm, nic)
-                end
+                deactivate_nics(do_all)
             ensure
                 unlock
             end
@@ -196,6 +183,28 @@ module VNMMAD
             end
 
             0
+        end
+
+        private
+
+        # Removes NIC and NIC_ALIAS rules while the caller holds the driver lock.
+        def deactivate_nics(do_all)
+            unless do_all
+                attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+                attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+            end
+
+            process_alias do |nic|
+                next if attach_nic_id && attach_nic_id != nic[:nic_id]
+
+                SGIPTables.nic_alias_deactivate(@vm, nic)
+            end
+
+            process do |nic|
+                next if attach_nic_id && attach_nic_id != nic[:nic_id]
+
+                SGIPTables.nic_deactivate(@vm, nic)
+            end
         end
 
     end
