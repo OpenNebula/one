@@ -257,6 +257,7 @@ export const ChartRenderer = ({
                       coordinateType,
                       theme
                     )}
+                    key={`${metric.key}-${dataset.id}`}
                     onClick={onElementClick}
                   />
                 ) : null

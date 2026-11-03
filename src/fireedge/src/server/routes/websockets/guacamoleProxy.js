@@ -65,14 +65,17 @@ const setHeaders = (proxyReq, req) => {
   externalURL && proxyReq.setHeader('Origin', externalURL)
 }
 
-const guacamoleProxy = createProxyMiddleware(endpointExternalGuacamole, {
+const guacamoleProxy = createProxyMiddleware({
+  pathFilter: endpointExternalGuacamole,
   target: url,
   changeOrigin: true,
   ws: true,
   secure: /^(https):\/\/[^ "]+$/.test(url),
   pathRewrite: (path) => path.replace('/external-guacamole', '/guacamole'),
-  onProxyReqWs: setHeaders,
-  onProxyReq: setHeaders,
+  on: {
+    proxyReqWs: setHeaders,
+    proxyReq: setHeaders,
+  },
   router: (req) => getZoneUrl(req),
 })
 

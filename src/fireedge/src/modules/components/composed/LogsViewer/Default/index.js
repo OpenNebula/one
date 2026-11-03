@@ -217,10 +217,9 @@ const LogsViewer = ({
         columnIndex={0}
         rowIndex={index}
       >
-        {({ registerChild, measure }) => (
+        {({ registerChild }) => (
           <div
             ref={registerChild}
-            onLoad={measure}
             style={{
               ...style,
               padding: '4px 8px',

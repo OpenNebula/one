@@ -44,6 +44,11 @@ const WrapperToLoadMode = ({ children, mode }) => {
   return loading ? null : children
 }
 
+WrapperToLoadMode.propTypes = {
+  children: PropTypes.node.isRequired,
+  mode: PropTypes.string.isRequired,
+}
+
 export const InputCode = ({ code, mode, ...props }) => (
   <Ace>
     {({ default: Editor }) => (

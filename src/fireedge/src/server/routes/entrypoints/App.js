@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-// eslint-disable-next-line node/no-deprecated-api
-const { parse } = require('url')
+const { URL } = require('node:url')
 const { Router } = require('express')
+
 // server
 const { getSunstoneConfig, getFireedgeConfig } = require('server/utils/yml')
 const { tryRemoteAuth } = require('server/routes/entrypoints/remoteAuth')
@@ -68,8 +68,8 @@ router.get('*', async (req, res) => {
     ...(['remote', 'x509'].includes(appConfig?.auth) && { remote: true }),
   }
 
-  const appName = parse(req.url)
-    .pathname.split(/\//gi)
+  const appName = new URL(req.url, 'http://localhost').pathname
+    .split(/\//gi)
     .filter((sub) => sub?.length > 0)
     .find((resource) => APP_NAMES.includes(resource))
 

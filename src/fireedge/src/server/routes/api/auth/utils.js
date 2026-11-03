@@ -34,10 +34,7 @@ const { getFireedgeConfig, getSunstoneConfig } = require('server/utils/yml')
 const { createJWT, validate2FA } = require('server/utils/jwt')
 const { ok, internalServerError, unauthorized, accepted, serviceUnavailable } =
   httpCodes
-const {
-  httpResponse,
-  getSunstoneAuth,
-} = require('server/utils/server')
+const { httpResponse, getSunstoneAuth } = require('server/utils/server')
 const {
   responseOpennebula,
   generateNewResourceTemplate,

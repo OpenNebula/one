@@ -245,6 +245,13 @@ const guacamole = (appServer) => {
       clientOptions,
       clientCallbacks
     )
+    // The bridge reads the upgrade request from the pre-v3 ws API.
+    guacamoleServer.webSocketServer.prependListener(
+      'connection',
+      (socket, req) => {
+        socket.upgradeReq = req
+      }
+    )
     // Replace the dependency's hardcoded port/display defaults. "args" is
     // the Guacamole handshake opcode, not a configurable connection parameter.
     guacamoleServer.clientOptions.connectionDefaultSettings =

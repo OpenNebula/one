@@ -23,7 +23,7 @@ const TerserPlugin = require('terser-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const TimeFixPlugin = require('time-fix-plugin')
-const ExternalRemotesPlugin = require('external-remotes-plugin')
+const promiseRemote = require('./webpack/promiseRemote')
 const {
   defaultApps,
   defaultFileStats,
@@ -47,9 +47,7 @@ const parsedConfig = yamlToJson(remotesConfigContent)
 const configuredRemotes = Object.entries(parsedConfig)
   .filter(([_, { name }]) => name !== moduleName)
   .reduce((acc, [module, { name }]) => {
-    acc[
-      `@${module}`
-    ] = `${name}@[window.__REMOTES_MODULE_CONFIG__.${module}.entry]`
+    acc[`@${module}`] = promiseRemote(module, name)
 
     return acc
   }, {})
@@ -95,7 +93,6 @@ const bundle = ({ assets = false, name = 'sunstone' }) => {
       remotes: configuredRemotes,
       shared: sharedDeps({ eager: true }),
     }),
-    new ExternalRemotesPlugin(),
   ]
   if (assets) {
     plugins.push(

@@ -20,7 +20,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const { ModuleFederationPlugin } = require('webpack').container
 const sharedDeps = require('../sharedDeps')
-const ExternalRemotesPlugin = require('external-remotes-plugin')
+const promiseRemote = require('../../../webpack/promiseRemote')
 const ONE_LOCATION = process.env.ONE_LOCATION
 const ETC_LOCATION = ONE_LOCATION ? `${ONE_LOCATION}/etc` : '/etc'
 const mode = process.env.NODE_ENV || 'production'
@@ -45,9 +45,7 @@ const parsedConfig = yamlToJson(remotesConfigContent)
 const configuredRemotes = Object.entries(parsedConfig)
   .filter(([_, { name }]) => name !== moduleName)
   .reduce((acc, [module, { name }]) => {
-    acc[
-      `@${module}`
-    ] = `${name}@[window.__REMOTES_MODULE_CONFIG__.${module}.entry]`
+    acc[`@${module}`] = promiseRemote(module, name)
 
     return acc
   }, {})
@@ -72,7 +70,6 @@ module.exports = {
       remotes: configuredRemotes,
       shared: sharedDeps(),
     }),
-    new ExternalRemotesPlugin(),
   ],
 
   optimization: {
