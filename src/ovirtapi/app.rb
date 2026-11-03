@@ -1093,8 +1093,6 @@ end
 
 put '/images/:transfer_id' do
     begin
-        get_client(request.env['HTTP_AUTHORIZATION']&.split(' ')&.last)
-
         # Extract image_id from URL params
         transfer_id = params[:transfer_id]
 
@@ -1145,8 +1143,6 @@ put '/images/:transfer_id' do
 end
 
 patch '/images/:transfer_id' do
-    get_client(request.env['HTTP_AUTHORIZATION']&.split(' ')&.last)
-
     # Extract image_id from URL params
     transfer_id = params[:transfer_id]
 
