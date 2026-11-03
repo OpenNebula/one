@@ -44,6 +44,10 @@ For production environments, follow the installation guides and deployment recom
 * [Upgrade Guide](https://docs.opennebula.io/stable/software/upgrade_process/)
 * [Architecture and Design Documentation](https://docs.opennebula.io/stable/getting_started/understand_opennebula/cloud_architecture_and_design/)
 
+## One-Click Deploy
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/OpenNebula/)
+
 ## Documentation & Resources
 
 Learn more about OpenNebula on through our website, white-papers, and official documentation site:
