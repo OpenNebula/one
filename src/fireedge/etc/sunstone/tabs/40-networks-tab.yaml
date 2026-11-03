@@ -15,6 +15,12 @@
     - title: Update Virtual Network
       path: /virtual-network/update
       Component: CreateVirtualNetwork
+    - title: Create mirror
+      path: /virtual-network/:id/mirror/create
+      Component: CreateVirtualNetworkMirror
+    - title: Edit mirror
+      path: /virtual-network/:id/mirror/:mirrorId/update
+      Component: CreateVirtualNetworkMirror
     - title: Virtual networks
       path: /virtual-network/:id
       Component: VirtualNetworkDetail

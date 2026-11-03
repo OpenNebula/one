@@ -104,6 +104,41 @@ grpc::Status VirtualNetworkService::UpdateAR(grpc::ServerContext* context,
     return VirtualNetworkUpdateARGRPC().execute(context, request, response);
 }
 
+grpc::Status VirtualNetworkService::MirrorCreate(
+        grpc::ServerContext* context, const one::vn::MirrorCreateRequest* request,
+        one::ResponseID* response)
+{
+    return VirtualNetworkMirrorCreateGRPC().execute(context, request, response);
+}
+
+grpc::Status VirtualNetworkService::MirrorUpdate(
+        grpc::ServerContext* context, const one::vn::MirrorUpdateRequest* request,
+        one::ResponseID* response)
+{
+    return VirtualNetworkMirrorUpdateGRPC().execute(context, request, response);
+}
+
+grpc::Status VirtualNetworkService::MirrorAddPort(
+        grpc::ServerContext* context, const one::vn::MirrorPortRequest* request,
+        one::ResponseID* response)
+{
+    return VirtualNetworkMirrorAddPortGRPC().execute(context, request, response);
+}
+
+grpc::Status VirtualNetworkService::MirrorDelPort(
+        grpc::ServerContext* context, const one::vn::MirrorPortRequest* request,
+        one::ResponseID* response)
+{
+    return VirtualNetworkMirrorDelPortGRPC().execute(context, request, response);
+}
+
+grpc::Status VirtualNetworkService::MirrorDelete(
+        grpc::ServerContext* context, const one::vn::MirrorDeleteRequest* request,
+        one::ResponseID* response)
+{
+    return VirtualNetworkMirrorDeleteGRPC().execute(context, request, response);
+}
+
 grpc::Status VirtualNetworkService::Reserve(grpc::ServerContext* context,
                                             const one::vn::ReserveRequest* request,
                                             one::ResponseID* response)
@@ -360,6 +395,75 @@ void VirtualNetworkUpdateARGRPC::request_execute(const google::protobuf::Message
                         att);
 
     response(ec, oid, att);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkMirrorCreateGRPC::request_execute(
+        const google::protobuf::Message* _request,
+        google::protobuf::Message* _response, RequestAttributesGRPC& att)
+{
+    auto request = static_cast<const one::vn::MirrorCreateRequest*>(_request);
+    int mirror_id = -1;
+
+    auto ec = mirror_create(request->oid(), request->template_(), mirror_id, att);
+
+    response(ec, mirror_id, att);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkMirrorUpdateGRPC::request_execute(
+        const google::protobuf::Message* _request,
+        google::protobuf::Message* _response, RequestAttributesGRPC& att)
+{
+    auto request = static_cast<const one::vn::MirrorUpdateRequest*>(_request);
+
+    auto ec = mirror_update(request->oid(), request->mirror_id(),
+                            request->template_(), request->append(), att);
+
+    response(ec, request->mirror_id(), att);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkMirrorAddPortGRPC::request_execute(
+        const google::protobuf::Message* _request,
+        google::protobuf::Message* _response, RequestAttributesGRPC& att)
+{
+    auto request = static_cast<const one::vn::MirrorPortRequest*>(_request);
+
+    auto ec = mirror_update_ports(request->oid(), request->mirror_id(),
+                                  request->ports(), true, att);
+
+    response(ec, request->mirror_id(), att);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkMirrorDelPortGRPC::request_execute(
+        const google::protobuf::Message* _request,
+        google::protobuf::Message* _response, RequestAttributesGRPC& att)
+{
+    auto request = static_cast<const one::vn::MirrorPortRequest*>(_request);
+
+    auto ec = mirror_update_ports(request->oid(), request->mirror_id(),
+                                  request->ports(), false, att);
+
+    response(ec, request->mirror_id(), att);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkMirrorDeleteGRPC::request_execute(
+        const google::protobuf::Message* _request,
+        google::protobuf::Message* _response, RequestAttributesGRPC& att)
+{
+    auto request = static_cast<const one::vn::MirrorDeleteRequest*>(_request);
+
+    auto ec = mirror_delete(request->oid(), request->mirror_id(), att);
+
+    response(ec, request->mirror_id(), att);
 }
 
 /* ------------------------------------------------------------------------- */

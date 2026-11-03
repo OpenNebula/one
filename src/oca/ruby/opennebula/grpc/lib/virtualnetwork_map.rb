@@ -125,6 +125,60 @@ module GRPCMappings
             stub.update_ar(req, options)
         end,
 
+        'vn.mirror_create' => lambda do |one_auth, endpoint, *args, options|
+            stub = One::Vn::VirtualNetworkService::Stub.new(endpoint, :this_channel_is_insecure)
+            req  = One::Vn::MirrorCreateRequest.new(
+                :session_id => one_auth,
+                :oid        => args[0],
+                :template   => args[1]
+            )
+            stub.mirror_create(req, options)
+        end,
+
+        'vn.mirror_update' => lambda do |one_auth, endpoint, *args, options|
+            stub = One::Vn::VirtualNetworkService::Stub.new(endpoint, :this_channel_is_insecure)
+            req  = One::Vn::MirrorUpdateRequest.new(
+                :session_id => one_auth,
+                :oid        => args[0],
+                :mirror_id  => args[1],
+                :template   => args[2],
+                :append     => args[3]
+            )
+            stub.mirror_update(req, options)
+        end,
+
+        'vn.mirror_addport' => lambda do |one_auth, endpoint, *args, options|
+            stub = One::Vn::VirtualNetworkService::Stub.new(endpoint, :this_channel_is_insecure)
+            req  = One::Vn::MirrorPortRequest.new(
+                :session_id => one_auth,
+                :oid        => args[0],
+                :mirror_id  => args[1],
+                :ports      => args[2]
+            )
+            stub.mirror_add_port(req, options)
+        end,
+
+        'vn.mirror_delport' => lambda do |one_auth, endpoint, *args, options|
+            stub = One::Vn::VirtualNetworkService::Stub.new(endpoint, :this_channel_is_insecure)
+            req  = One::Vn::MirrorPortRequest.new(
+                :session_id => one_auth,
+                :oid        => args[0],
+                :mirror_id  => args[1],
+                :ports      => args[2]
+            )
+            stub.mirror_del_port(req, options)
+        end,
+
+        'vn.mirror_delete' => lambda do |one_auth, endpoint, *args, options|
+            stub = One::Vn::VirtualNetworkService::Stub.new(endpoint, :this_channel_is_insecure)
+            req  = One::Vn::MirrorDeleteRequest.new(
+                :session_id => one_auth,
+                :oid        => args[0],
+                :mirror_id  => args[1]
+            )
+            stub.mirror_delete(req, options)
+        end,
+
         'vn.reserve' => lambda do |one_auth, endpoint, *args, options|
             stub = One::Vn::VirtualNetworkService::Stub.new(endpoint, :this_channel_is_insecure)
             req  = One::Vn::ReserveRequest.new(:session_id => one_auth,

@@ -25,6 +25,45 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static Request::ErrorCode reject_mirror(const Template * tmpl,
+                                        RequestAttributes& att)
+{
+    vector<const VectorAttribute *> mirrors;
+
+    if (tmpl->get("MIRROR", mirrors) == 0)
+    {
+        return Request::SUCCESS;
+    }
+
+    att.resp_msg = "MIRROR definitions cannot be authored in Virtual Network "
+                   "templates; use the one.vn.mirror_* API on an instantiated "
+                   "Virtual Network";
+    return Request::ACTION;
+}
+
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VNTemplateAPI::update(int oid, const string& tmpl,
+                                         int update_type, RequestAttributes& att)
+{
+    VirtualNetworkTemplate parsed;
+
+    if (parsed.parse_str_or_xml(tmpl, att.resp_msg) != 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    if (auto ec = reject_mirror(&parsed, att); ec != Request::SUCCESS)
+    {
+        return ec;
+    }
+
+    return SharedAPI::update(oid, tmpl, update_type, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 Request::ErrorCode VNTemplateAPI::instantiate(int oid,
                                               const string& name,
                                               const string& str_tmpl,
@@ -70,6 +109,11 @@ Request::ErrorCode VNTemplateAPI::instantiate(int oid,
     if (!str_tmpl.empty() && extended_tmpl.parse_str_or_xml(str_tmpl, att.resp_msg) != 0)
     {
         return Request::INTERNAL;
+    }
+
+    if (auto ec = reject_mirror(tmpl.get(), att); ec != Request::SUCCESS)
+    {
+        return ec;
     }
 
     Request::ErrorCode ec = merge(tmpl.get(), str_tmpl, att);
@@ -175,6 +219,10 @@ Request::ErrorCode VNTemplateAPI::merge(Template* tmpl,
     {
         return Request::SUCCESS;
     }
+    else if (auto ec = reject_mirror(&uattrs, att); ec != Request::SUCCESS)
+    {
+        return ec;
+    }
 
     vector<unique_ptr<VectorAttribute>> user_ars;
     uattrs.remove("AR", user_ars);
@@ -218,6 +266,11 @@ Request::ErrorCode VNTemplateAPI::pool_allocate(unique_ptr<Template> tmpl,
                                                 int& id,
                                                 RequestAttributes& att)
 {
+    if (auto ec = reject_mirror(tmpl.get(), att); ec != Request::SUCCESS)
+    {
+        return ec;
+    }
+
     unique_ptr<VirtualNetworkTemplate> ttmpl(
             static_cast<VirtualNetworkTemplate *>(tmpl.release()));
 

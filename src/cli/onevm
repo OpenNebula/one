@@ -958,7 +958,13 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     nic_update_desc = <<-EOT.unindent
-        Updates a NIC for a VM. In case the VM is running, trigger NIC update on the host.
+        Updates the QoS attributes of a VM NIC. If the VM is running, also updates the NIC
+        on the host.
+
+        Only the following attributes can be updated:
+        INBOUND_AVG_BW, INBOUND_PEAK_BW, INBOUND_PEAK_KB,
+        OUTBOUND_AVG_BW, OUTBOUND_PEAK_BW, OUTBOUND_PEAK_KB.
+        Other NIC attributes are ignored.
 
         States: Almost all, except BOOT*, MIGRATE and HOTPLUG-NIC
     EOT

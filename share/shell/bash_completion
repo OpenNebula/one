@@ -931,7 +931,9 @@ _onevnet() {
         pprev="${COMP_WORDS[COMP_CWORD-2]}"
     fi
     opts="create delete addar rmar free hold release reserve chgrp chown chmod
-            list show update updatear rename lock unlock orphans recover"
+            list show update updatear rename lock unlock orphans recover
+            mirror-create mirror-update mirror-addport mirror-delport
+            mirror-delete"
     cmd=onevnet
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -939,7 +941,8 @@ _onevnet() {
     elif [ "$COMP_CWORD" == 2 ]; then
         case "$prev" in
         delete|addar|rmar|free|hold|release|reserve|recover|chgrp| \
-        chown|chmod|show|update|updatear|rename|lock|unlock)
+        chown|chmod|show|update|updatear|rename|lock|unlock|mirror-create| \
+        mirror-update|mirror-addport|mirror-delport|mirror-delete)
             _complete $cmd
         ;;
         create)
@@ -949,7 +952,7 @@ _onevnet() {
         esac
     elif [ "$COMP_CWORD" == 3 ]; then
         case "$pprev" in
-        addar|update)
+        addar|update|mirror-create)
             _one_complete_files "$cur"
             return 0
         ;;
@@ -958,6 +961,13 @@ _onevnet() {
         ;;
         esac
         _one_owner_update "$pprev"
+    elif [ "$COMP_CWORD" == 4 ]; then
+        case "${COMP_WORDS[1]}" in
+        mirror-update)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
     fi
 }
 

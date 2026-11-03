@@ -2688,6 +2688,72 @@ func (c *GRPCClient) VNetRecover(ctx context.Context, id, operation int) (*Respo
 	return &Response{status: true, bodyInt: int(res.Oid)}, nil
 }
 
+func (c *GRPCClient) VNetMirrorCreate(ctx context.Context, id int, tmpl string) (*Response, error) {
+	client := vn.NewVirtualNetworkServiceClient(c.conn)
+	req := &vn.MirrorCreateRequest{SessionId: c.token, Oid: int32(id), Template: tmpl}
+	res, err := client.MirrorCreate(ctx, req)
+	if err != nil {
+		return MakeErrorResponse(err)
+	}
+	return &Response{status: true, bodyInt: int(res.Oid)}, nil
+}
+
+func (c *GRPCClient) VNetMirrorUpdate(ctx context.Context, id, mirrorID int, tmpl string, updateType int) (*Response, error) {
+	client := vn.NewVirtualNetworkServiceClient(c.conn)
+	req := &vn.MirrorUpdateRequest{
+		SessionId: c.token,
+		Oid:       int32(id),
+		MirrorId:  int32(mirrorID),
+		Template:  tmpl,
+		Append:    int32(updateType),
+	}
+	res, err := client.MirrorUpdate(ctx, req)
+	if err != nil {
+		return MakeErrorResponse(err)
+	}
+	return &Response{status: true, bodyInt: int(res.Oid)}, nil
+}
+
+func (c *GRPCClient) VNetMirrorAddPort(ctx context.Context, id, mirrorID int, ports string) (*Response, error) {
+	client := vn.NewVirtualNetworkServiceClient(c.conn)
+	req := &vn.MirrorPortRequest{
+		SessionId: c.token,
+		Oid:       int32(id),
+		MirrorId:  int32(mirrorID),
+		Ports:     ports,
+	}
+	res, err := client.MirrorAddPort(ctx, req)
+	if err != nil {
+		return MakeErrorResponse(err)
+	}
+	return &Response{status: true, bodyInt: int(res.Oid)}, nil
+}
+
+func (c *GRPCClient) VNetMirrorDelPort(ctx context.Context, id, mirrorID int, ports string) (*Response, error) {
+	client := vn.NewVirtualNetworkServiceClient(c.conn)
+	req := &vn.MirrorPortRequest{
+		SessionId: c.token,
+		Oid:       int32(id),
+		MirrorId:  int32(mirrorID),
+		Ports:     ports,
+	}
+	res, err := client.MirrorDelPort(ctx, req)
+	if err != nil {
+		return MakeErrorResponse(err)
+	}
+	return &Response{status: true, bodyInt: int(res.Oid)}, nil
+}
+
+func (c *GRPCClient) VNetMirrorDelete(ctx context.Context, id, mirrorID int) (*Response, error) {
+	client := vn.NewVirtualNetworkServiceClient(c.conn)
+	req := &vn.MirrorDeleteRequest{SessionId: c.token, Oid: int32(id), MirrorId: int32(mirrorID)}
+	res, err := client.MirrorDelete(ctx, req)
+	if err != nil {
+		return MakeErrorResponse(err)
+	}
+	return &Response{status: true, bodyInt: int(res.Oid)}, nil
+}
+
 func (c *GRPCClient) VNetPoolInfo(ctx context.Context, filter, start, end int) (*Response, error) {
 	client := vn.NewVirtualNetworkServiceClient(c.conn)
 	req := &vn.PoolInfoRequest{SessionId: c.token, FilterFlag: int32(filter), Start: int32(start), End: int32(end)}

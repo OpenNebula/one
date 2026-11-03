@@ -35,6 +35,7 @@ export { useResourceSingleView }
 export const ResourceSingleViewHost = ({ children }) => {
   const {
     ResourceSingleView,
+    resourceSingleViewProps,
     clearResourceSingleViewBase,
     closeResourceSingleView,
     goBackResourceSingleView,
@@ -73,7 +74,7 @@ export const ResourceSingleViewHost = ({ children }) => {
   return (
     <ResourceSingleViewContextProvider value={value}>
       {children}
-      <ResourceSingleView />
+      <ResourceSingleView {...resourceSingleViewProps} />
     </ResourceSingleViewContextProvider>
   )
 }
@@ -97,12 +98,12 @@ export const withResourceSingleView = (Component) => {
    */
   const WithResourceSingleView = (props) => {
     const resourceSingleView = useResourceSingleView()
-    const { ResourceSingleView } = resourceSingleView
+    const { ResourceSingleView, resourceSingleViewProps } = resourceSingleView
 
     return (
       <>
         <Component {...props} {...resourceSingleView} />
-        <ResourceSingleView />
+        <ResourceSingleView {...resourceSingleViewProps} />
       </>
     )
   }

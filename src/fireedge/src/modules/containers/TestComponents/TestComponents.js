@@ -32,7 +32,11 @@ export const TestComponents = () => {
   const [module, setModule] = useState(null)
   const [selected, setSelected] = useState(null)
   const [props, setProps] = useState(null)
-  const { ResourceSingleView, openResourceSingleView } = useResourceSingleView()
+  const {
+    ResourceSingleView,
+    resourceSingleViewProps,
+    openResourceSingleView,
+  } = useResourceSingleView()
 
   useEffect(() => {
     import('@ComponentsModule').then((mod) => {
@@ -519,7 +523,7 @@ export const TestComponents = () => {
           )}
         </Box>
       </Box>
-      <ResourceSingleView />
+      <ResourceSingleView {...resourceSingleViewProps} />
     </Box>
   )
 }

@@ -46,6 +46,11 @@ protected:
                                    int& net_id,
                                    RequestAttributes& att);
 
+    Request::ErrorCode update(int oid,
+                              const std::string& tmpl,
+                              int update_type,
+                              RequestAttributes& att) override;
+
     /* Helpers */
     std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) override
     {

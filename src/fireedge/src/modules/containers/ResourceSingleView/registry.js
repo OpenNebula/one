@@ -199,6 +199,13 @@ export const RESOURCE_SINGLE_VIEW = Object.freeze({
     'getVNetwork',
     actions
   ),
+  [RESOURCE_NAMES.VNET_MIRROR]: drawer(
+    () => import('@modules/containers/VirtualNetworks/Details/Mirror'),
+    'selectedData',
+    'getVNetwork',
+    undefined,
+    { hydrate: false }
+  ),
   [RESOURCE_NAMES.VROUTER]: drawer(
     () => import('@modules/containers/VirtualRouters/Details'),
     'selectedResources',

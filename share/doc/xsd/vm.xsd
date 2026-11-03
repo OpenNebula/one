@@ -124,6 +124,7 @@
               <xs:element name="MEMORY_MAX" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="MEMORY_SLOTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="MEMORY_RESIZE_MODE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="MIRROR" minOccurs="0" maxOccurs="unbounded"/>
               <xs:element name="NIC" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
@@ -193,6 +194,7 @@
               <xs:element name="VCPU_MAX" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VMGROUP" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VMID" type="xs:string"/>
+              <xs:element name="VNET_UPDATE" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VROUTER_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VROUTER_KEEPALIVED_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VROUTER_KEEPALIVED_PASSWORD" type="xs:string" minOccurs="0" maxOccurs="1"/>

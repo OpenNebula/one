@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import PropTypes from 'prop-types'
-import { Component, forwardRef, useState } from 'react'
+import { Component, forwardRef, useEffect, useState } from 'react'
 import { Box } from '@mui/material'
 import { getStyles } from '@modules/components/composed/DetailsDrawer/Default/slots/tabs/styles'
 import { Tabs } from '@modules/components/primitives/Tabs/Default'
@@ -32,7 +32,7 @@ const getTabs = (tabs) =>
  * @returns {Component} - TabSlot component
  */
 export const TabSlot = forwardRef(
-  ({ tabs = [], tabProps = {}, resourceId }, ref) => {
+  ({ tabs = [], tabProps = {}, resourceId, defaultTab }, ref) => {
     const { getResourceView } = useViews()
     const { openResourceSingleView } = useResourceSingleViewContext()
     const viewConfig = getResourceView(resourceId)?.['info-tabs']
@@ -40,7 +40,15 @@ export const TabSlot = forwardRef(
       (Tab) => Tab?.id && viewConfig?.[Tab.id]?.enabled === true
     )
 
-    const [selected, setSelected] = useState(0)
+    const defaultIndex = Math.max(
+      0,
+      enabledTabs.findIndex(({ id }) => id === defaultTab)
+    )
+    const [selected, setSelected] = useState(defaultIndex)
+
+    useEffect(() => {
+      setSelected(defaultIndex)
+    }, [defaultIndex])
 
     const ActiveTab = enabledTabs?.[selected]
     const hasSelectedResources = Array.isArray(tabProps.selected)
@@ -72,8 +80,9 @@ export const TabSlot = forwardRef(
     return (
       <Box sx={(theme) => getStyles({ theme })} ref={ref}>
         <Tabs
+          key={defaultIndex}
           type="line"
-          defaultSelect={0}
+          defaultSelect={defaultIndex}
           options={enabledTabs.map(({ id, title }) => ({ id, title }))}
           onChange={(idx) => setSelected(idx)}
         />
@@ -94,6 +103,7 @@ TabSlot.propTypes = {
   tabs: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   tabProps: PropTypes.object,
   resourceId: PropTypes.string,
+  defaultTab: PropTypes.string,
 }
 
 TabSlot.displayName = 'TabSlot'

@@ -16,9 +16,22 @@
 
 import { PATH, RESOURCE_NAMES } from '@ConstantsModule'
 import { createResourceDetailRoute } from '@modules/containers/ResourceSingleView/route'
+import { VirtualNetworks } from '@modules/containers/VirtualNetworks/VirtualNetworks'
 
-export const VirtualNetworkDetail = createResourceDetailRoute(
+const VirtualNetworkDetailRoute = createResourceDetailRoute(
   RESOURCE_NAMES.VNET,
   PATH.NETWORK.VNETS.LIST,
-  'VirtualNetworkDetail'
+  'VirtualNetworkDetailRoute'
+)
+
+/**
+ * Displays the network list beneath the resource details drawers.
+ *
+ * @returns {object} Virtual Networks list and detail route
+ */
+export const VirtualNetworkDetail = () => (
+  <>
+    <VirtualNetworks />
+    <VirtualNetworkDetailRoute />
+  </>
 )

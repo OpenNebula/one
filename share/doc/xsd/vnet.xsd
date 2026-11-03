@@ -2,6 +2,108 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
   targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
   <xs:include schemaLocation="shared.xsd"/>
+  <xs:element name="MIRROR">
+    <xs:annotation>
+      <xs:documentation>
+        Canonical Virtual Network mirror definition. RSPAN requires OUTPUT_VLAN;
+        GRE and ERSPAN require
+        REMOTE_IP. ERSPAN requires ERSPAN_TYPE and ERSPAN_KEY, with ERSPAN_INDEX
+        for type II or ERSPAN_HWID for type III. These conditional requirements
+        and restrictions are enforced by the mirror API.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="MIRROR_ID" type="xs:nonNegativeInteger"/>
+        <xs:element name="NAME">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="1"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="TYPE">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="RSPAN"/>
+              <xs:enumeration value="GRE"/>
+              <xs:enumeration value="ERSPAN"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="DIRECTION">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="IN"/>
+              <xs:enumeration value="OUT"/>
+              <xs:enumeration value="BOTH"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="PORTS" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Comma-separated regular VM NIC references as VM_ID:NIC_ID pairs, or empty for an inactive mirror.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="VLANS" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Optional filter on selected ports: comma-separated VLAN IDs from 0 to 4094, or empty. Does not enable VLAN-only capture.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="DESCRIPTION" type="xs:string" minOccurs="0"/>
+        <xs:element name="OUTPUT_VLAN" minOccurs="0">
+          <xs:simpleType>
+            <xs:restriction base="xs:integer">
+              <xs:minInclusive value="1"/>
+              <xs:maxInclusive value="4094"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="REMOTE_IP" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Collector IPv4 address for GRE or ERSPAN.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="LOCAL_IP" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Source IPv4 address or interface:name reference.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="ERSPAN_TYPE" minOccurs="0">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="II"/>
+              <xs:enumeration value="III"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="ERSPAN_KEY" minOccurs="0">
+          <xs:simpleType>
+            <xs:restriction base="xs:integer">
+              <xs:minInclusive value="0"/>
+              <xs:maxInclusive value="1023"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="ERSPAN_INDEX" minOccurs="0">
+          <xs:simpleType>
+            <xs:restriction base="xs:integer">
+              <xs:minInclusive value="0"/>
+              <xs:maxInclusive value="1048575"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="ERSPAN_HWID" minOccurs="0">
+          <xs:simpleType>
+            <xs:restriction base="xs:integer">
+              <xs:minInclusive value="0"/>
+              <xs:maxInclusive value="63"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="VNET">
     <xs:complexType>
       <xs:sequence>

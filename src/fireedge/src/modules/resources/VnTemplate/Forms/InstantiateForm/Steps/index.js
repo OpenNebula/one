@@ -130,6 +130,8 @@ const Steps = createSteps(() => [General, InstantiateConfiguration], {
     ![VN_DRIVERS.ovswitch_vxlan].includes(formData?.[EXTRA_ID]?.VN_MAD) &&
       delete extraTemplate?.OUTER_VLAN_ID
 
+    delete extraTemplate.MIRROR
+
     const templateXML = jsonToXml({
       ...resolveVnMad(extraTemplate),
       DESCRIPTION,

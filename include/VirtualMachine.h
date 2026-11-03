@@ -1285,6 +1285,9 @@ public:
      */
     int nic_update(int vnid);
 
+    /** Rebuild shared mirror definitions and NIC references from their networks. */
+    void update_mirrors();
+
     /**
      * Update nic with values user template
      *   @param vnid ID of the network with updated attributes

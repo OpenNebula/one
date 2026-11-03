@@ -387,6 +387,38 @@ public:
     }
 
     // *************************************************************************
+    // Port mirror management interface
+    // *************************************************************************
+
+    /** Create and validate a MIRROR definition. */
+    int mirror_create(VirtualNetworkTemplate * mirror_tmpl, int& mirror_id,
+                      std::string& error_msg);
+
+    /** Update mirror configuration, preserving PORTS. */
+    int mirror_update(int mirror_id, VirtualNetworkTemplate * mirror_tmpl,
+                      int update_type, std::string& error_msg);
+
+    /** Add or remove VM_ID:NIC_ID entries and return VMs with changed membership. */
+    int mirror_update_ports(int mirror_id, const std::string& ports, bool add,
+                            std::set<int>& affected_vms,
+                            std::string& error_msg);
+
+    /** Delete a mirror definition. */
+    int mirror_delete(int mirror_id, std::string& error_msg);
+
+    /** Remove a released VM NIC from all mirror source lists. */
+    void mirror_release_port(int vm_id, int nic_id);
+
+    /** Set mirror ID references on a VM NIC. */
+    void mirror_set_nic(VectorAttribute * nic, int vm_id) const;
+
+    /** Return a mirror by its VNet-scoped identifier. */
+    const VectorAttribute * get_mirror(int mirror_id) const;
+
+    /** Mark selected VMs for mirror reconciliation; an empty set selects all VMs. */
+    void mirror_commit(const std::set<int>& vm_ids = {});
+
+    // *************************************************************************
     // Address hold/release interface
     // *************************************************************************
 
@@ -466,10 +498,13 @@ public:
 
     /**
      *  Update NIC attributes from updated Virtual Network attributes
-     *   @param nic todo
+     *   @param nic NIC to update
+     *   @param vm_id ID of the VM that owns the NIC
+     *   @param uattr updated Virtual Network attributes
      *   @return the number of updated attributes
      */
-    int nic_update(VirtualMachineNic *nic, std::unique_ptr<VectorAttribute>& uattr) const;
+    int nic_update(VirtualMachineNic *nic, int vm_id,
+                   std::unique_ptr<VectorAttribute>& uattr) const;
 
     /**
      * Modifies the given nic attribute adding the following attributes:

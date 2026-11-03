@@ -17,12 +17,14 @@
 package goca
 
 import (
+	"fmt"
+
 	. "gopkg.in/check.v1"
 
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 	vn "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork/keys"
-	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
-	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 )
 
 type VNSuite struct {
@@ -185,6 +187,65 @@ func (s *VNSuite) TestAR(c *C) {
 	// Delete reservation Virtual Network
 	err = vnr1C.Delete()
 	c.Assert(err, IsNil)
+}
+
+func (s *VNSuite) TestMirror(c *C) {
+	vnTpl := fmt.Sprintf(`
+		NAME = %s
+		BRIDGE = mirrorbr
+		VN_MAD = ovswitch
+		AR = [ TYPE = IP4, IP = 198.51.100.1, SIZE = 4 ]`, GenName("VNSuite-mirror"))
+
+	vnID, err := testCtrl.VirtualNetworks().Create(vnTpl, -1)
+	c.Assert(err, IsNil)
+
+	vnC := testCtrl.VirtualNetwork(vnID)
+	defer vnC.Delete()
+
+	WaitState(c, vnC, "READY")
+
+	mirrorTpl := `MIRROR = [
+		NAME = "go-mirror",
+		TYPE = GRE,
+		REMOTE_IP = "192.0.2.50" ]`
+
+	mirrorID, err := vnC.MirrorCreate(mirrorTpl)
+	c.Assert(err, IsNil)
+	c.Assert(mirrorID, Equals, 0)
+
+	mirrorID, err = vnC.MirrorUpdate(
+		mirrorID,
+		`MIRROR = [ DESCRIPTION = "updated from Go" ]`,
+		parameters.Merge,
+	)
+	c.Assert(err, IsNil)
+	c.Assert(mirrorID, Equals, 0)
+
+	vmTpl := fmt.Sprintf(`
+		NAME = %s
+		CPU = 1
+		MEMORY = 128
+		NIC = [ NETWORK_ID = %d ]`, GenName("VNSuite-mirror-source"), vnID)
+
+	vmID, err := testCtrl.VMs().Create(vmTpl, true)
+	c.Assert(err, IsNil)
+
+	vmC := testCtrl.VM(vmID)
+	defer vmC.RecoverDelete()
+
+	port := fmt.Sprintf("%d:0", vmID)
+
+	mirrorID, err = vnC.MirrorAddPort(mirrorID, port)
+	c.Assert(err, IsNil)
+	c.Assert(mirrorID, Equals, 0)
+
+	mirrorID, err = vnC.MirrorDelPort(mirrorID, port)
+	c.Assert(err, IsNil)
+	c.Assert(mirrorID, Equals, 0)
+
+	mirrorID, err = vnC.MirrorDelete(mirrorID)
+	c.Assert(err, IsNil)
+	c.Assert(mirrorID, Equals, 0)
 }
 
 func (s *VNSuite) TestRecover(c *C) {

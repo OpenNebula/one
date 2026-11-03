@@ -44,6 +44,26 @@ AddressRangePool::~AddressRangePool()
     }
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool AddressRangePool::has_vm(int vm_id) const
+{
+    set<int> ids;
+
+    for (const auto& range : ar_pool)
+    {
+        range.second->get_ids(ids, PoolObjectSQL::VM);
+
+        if (ids.count(vm_id) != 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int AddressRangePool::from_vattr(VectorAttribute* va, string& error_msg)
 {
     AddressRange * ar = allocate_ar(va->vector_value("IPAM_MAD"));

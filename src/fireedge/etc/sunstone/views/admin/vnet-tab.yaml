@@ -83,6 +83,15 @@ info-tabs:
   cluster:
     enabled: true
 
+  port_mirroring:
+    enabled: true
+    actions:
+      mirror_create: true
+      mirror_update: true
+      mirror_addport: true
+      mirror_delport: true
+      mirror_delete: true
+
 create-tabs:
   address:
     enabled: true

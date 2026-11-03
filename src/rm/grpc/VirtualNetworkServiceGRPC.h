@@ -78,6 +78,26 @@ class VirtualNetworkService final : public one::vn::VirtualNetworkService::Servi
                           const one::vn::UpdateARRequest* request,
                           one::ResponseID* response) override;
 
+    grpc::Status MirrorCreate(grpc::ServerContext* context,
+                              const one::vn::MirrorCreateRequest* request,
+                              one::ResponseID* response) override;
+
+    grpc::Status MirrorUpdate(grpc::ServerContext* context,
+                              const one::vn::MirrorUpdateRequest* request,
+                              one::ResponseID* response) override;
+
+    grpc::Status MirrorAddPort(grpc::ServerContext* context,
+                               const one::vn::MirrorPortRequest* request,
+                               one::ResponseID* response) override;
+
+    grpc::Status MirrorDelPort(grpc::ServerContext* context,
+                               const one::vn::MirrorPortRequest* request,
+                               one::ResponseID* response) override;
+
+    grpc::Status MirrorDelete(grpc::ServerContext* context,
+                              const one::vn::MirrorDeleteRequest* request,
+                              one::ResponseID* response) override;
+
     grpc::Status Reserve(grpc::ServerContext* context,
                          const one::vn::ReserveRequest* request,
                          one::ResponseID* response) override;
@@ -281,6 +301,81 @@ public:
 
     void request_execute(const google::protobuf::Message* _request,
                          google::protobuf::Message*       _response,
+                         RequestAttributesGRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkMirrorCreateGRPC : public RequestGRPC, public VirtualNetworkAPI
+{
+public:
+    VirtualNetworkMirrorCreateGRPC() :
+        RequestGRPC("one.vn.mirror_create", "/one.vn.VirtualNetworkService/MirrorCreate"),
+        VirtualNetworkAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(const google::protobuf::Message* _request,
+                         google::protobuf::Message* _response,
+                         RequestAttributesGRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkMirrorUpdateGRPC : public RequestGRPC, public VirtualNetworkAPI
+{
+public:
+    VirtualNetworkMirrorUpdateGRPC() :
+        RequestGRPC("one.vn.mirror_update", "/one.vn.VirtualNetworkService/MirrorUpdate"),
+        VirtualNetworkAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(const google::protobuf::Message* _request,
+                         google::protobuf::Message* _response,
+                         RequestAttributesGRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkMirrorAddPortGRPC : public RequestGRPC, public VirtualNetworkAPI
+{
+public:
+    VirtualNetworkMirrorAddPortGRPC() :
+        RequestGRPC("one.vn.mirror_addport", "/one.vn.VirtualNetworkService/MirrorAddPort"),
+        VirtualNetworkAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(const google::protobuf::Message* _request,
+                         google::protobuf::Message* _response,
+                         RequestAttributesGRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkMirrorDelPortGRPC : public RequestGRPC, public VirtualNetworkAPI
+{
+public:
+    VirtualNetworkMirrorDelPortGRPC() :
+        RequestGRPC("one.vn.mirror_delport", "/one.vn.VirtualNetworkService/MirrorDelPort"),
+        VirtualNetworkAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(const google::protobuf::Message* _request,
+                         google::protobuf::Message* _response,
+                         RequestAttributesGRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkMirrorDeleteGRPC : public RequestGRPC, public VirtualNetworkAPI
+{
+public:
+    VirtualNetworkMirrorDeleteGRPC() :
+        RequestGRPC("one.vn.mirror_delete", "/one.vn.VirtualNetworkService/MirrorDelete"),
+        VirtualNetworkAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(const google::protobuf::Message* _request,
+                         google::protobuf::Message* _response,
                          RequestAttributesGRPC& att) override;
 };
 

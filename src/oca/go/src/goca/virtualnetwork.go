@@ -377,3 +377,78 @@ func (vc *VirtualNetworkController) RecoverSuccess() error {
 func (vc *VirtualNetworkController) RecoverDelete() error {
 	return vc.Recover(2)
 }
+
+// MirrorCreate creates a traffic mirror and returns its VNet-scoped ID.
+func (vc *VirtualNetworkController) MirrorCreate(tpl string) (int, error) {
+	return vc.MirrorCreateContext(context.Background(), tpl)
+}
+
+// MirrorCreateContext creates a traffic mirror and returns its VNet-scoped ID.
+func (vc *VirtualNetworkController) MirrorCreateContext(ctx context.Context, tpl string) (int, error) {
+	response, err := vc.c.Client.VNetMirrorCreate(ctx, vc.ID, tpl)
+	if err != nil {
+		return -1, err
+	}
+
+	return response.BodyInt(), nil
+}
+
+// MirrorUpdate updates traffic mirror configuration and returns its ID.
+func (vc *VirtualNetworkController) MirrorUpdate(mirrorID int, tpl string, uType parameters.UpdateType) (int, error) {
+	return vc.MirrorUpdateContext(context.Background(), mirrorID, tpl, uType)
+}
+
+// MirrorUpdateContext updates traffic mirror configuration and returns its ID.
+func (vc *VirtualNetworkController) MirrorUpdateContext(ctx context.Context, mirrorID int, tpl string, uType parameters.UpdateType) (int, error) {
+	response, err := vc.c.Client.VNetMirrorUpdate(ctx, vc.ID, mirrorID, tpl, int(uType))
+	if err != nil {
+		return -1, err
+	}
+
+	return response.BodyInt(), nil
+}
+
+// MirrorAddPort adds VM_ID:NIC_ID entries to a traffic mirror and returns its ID.
+func (vc *VirtualNetworkController) MirrorAddPort(mirrorID int, ports string) (int, error) {
+	return vc.MirrorAddPortContext(context.Background(), mirrorID, ports)
+}
+
+// MirrorAddPortContext adds VM_ID:NIC_ID entries to a traffic mirror and returns its ID.
+func (vc *VirtualNetworkController) MirrorAddPortContext(ctx context.Context, mirrorID int, ports string) (int, error) {
+	response, err := vc.c.Client.VNetMirrorAddPort(ctx, vc.ID, mirrorID, ports)
+	if err != nil {
+		return -1, err
+	}
+
+	return response.BodyInt(), nil
+}
+
+// MirrorDelPort removes VM_ID:NIC_ID entries from a traffic mirror and returns its ID.
+func (vc *VirtualNetworkController) MirrorDelPort(mirrorID int, ports string) (int, error) {
+	return vc.MirrorDelPortContext(context.Background(), mirrorID, ports)
+}
+
+// MirrorDelPortContext removes VM_ID:NIC_ID entries from a traffic mirror and returns its ID.
+func (vc *VirtualNetworkController) MirrorDelPortContext(ctx context.Context, mirrorID int, ports string) (int, error) {
+	response, err := vc.c.Client.VNetMirrorDelPort(ctx, vc.ID, mirrorID, ports)
+	if err != nil {
+		return -1, err
+	}
+
+	return response.BodyInt(), nil
+}
+
+// MirrorDelete deletes a traffic mirror and returns its ID.
+func (vc *VirtualNetworkController) MirrorDelete(mirrorID int) (int, error) {
+	return vc.MirrorDeleteContext(context.Background(), mirrorID)
+}
+
+// MirrorDeleteContext deletes a traffic mirror and returns its ID.
+func (vc *VirtualNetworkController) MirrorDeleteContext(ctx context.Context, mirrorID int) (int, error) {
+	response, err := vc.c.Client.VNetMirrorDelete(ctx, vc.ID, mirrorID)
+	if err != nil {
+		return -1, err
+	}
+
+	return response.BodyInt(), nil
+}

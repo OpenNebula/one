@@ -100,6 +100,51 @@ static Request::ErrorCode ar_restricted_authorization(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+static bool same_mirrors(const vector<VectorAttribute *>& left,
+                         const vector<const VectorAttribute *>& right)
+{
+    if (left.size() != right.size())
+    {
+        return false;
+    }
+
+    map<int, const VectorAttribute *> indexed;
+
+    for (const auto mirror : right)
+    {
+        int mirror_id;
+
+        if (mirror->vector_value("MIRROR_ID", mirror_id) != 0)
+        {
+            return false;
+        }
+
+        indexed[mirror_id] = mirror;
+    }
+
+    for (const auto mirror : left)
+    {
+        int mirror_id;
+
+        if (mirror->vector_value("MIRROR_ID", mirror_id) != 0)
+        {
+            return false;
+        }
+
+        auto found = indexed.find(mirror_id);
+
+        if (found == indexed.end() || mirror->value() != found->second->value())
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 Request::ErrorCode VirtualNetworkAPI::add_ar(int oid,
                                              const std::string& str_tmpl,
                                              RequestAttributes& att)
@@ -317,6 +362,33 @@ Request::ErrorCode VirtualNetworkAPI::update(int oid,
 
     auto current_tmpl = object->clone_template();
 
+    vector<VectorAttribute *>       new_mirrors;
+    vector<const VectorAttribute *> mirrors;
+
+    vtmpl.get("MIRROR", new_mirrors);
+    current_tmpl->get("MIRROR", mirrors);
+
+    if (!new_mirrors.empty() && !same_mirrors(new_mirrors, mirrors))
+    {
+        att.resp_msg = "MIRROR definitions can only be changed with the "
+                       "one.vn.mirror_* API";
+        return Request::ACTION;
+    }
+
+    vtmpl.erase("MIRROR");
+
+    if (update_type == 0)
+    {
+        for (const auto mirror : mirrors)
+        {
+            vtmpl.set(mirror->clone());
+        }
+    }
+
+    string safe_tmpl;
+
+    vtmpl.to_xml(safe_tmpl);
+
     if ( auto ec = SharedAPI::validate_vlan_auth(&vtmpl,
                                                  object->get_template_id(),
                                                  att,
@@ -328,11 +400,11 @@ Request::ErrorCode VirtualNetworkAPI::update(int oid,
 
     if (update_type == 0)
     {
-        rc = object->replace_template(tmpl, !att.is_admin(), att.resp_msg);
+        rc = object->replace_template(safe_tmpl, !att.is_admin(), att.resp_msg);
     }
     else //if (update_type == 1)
     {
-        rc = object->append_template(tmpl, !att.is_admin(), att.resp_msg);
+        rc = object->append_template(safe_tmpl, !att.is_admin(), att.resp_msg);
     }
 
     if ( rc != 0 )
@@ -400,6 +472,250 @@ Request::ErrorCode VirtualNetworkAPI::update_ar(int oid,
     if (rc < 0)
     {
         return Request::INTERNAL;
+    }
+
+    vnpool->update(vn.get());
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualNetworkAPI::authorize_mirror(
+        int oid, const string& ports, RequestAttributes& att) const
+{
+    set<pair<int, int>> selected;
+
+    for (const auto& raw : one_util::split(ports, ',', true))
+    {
+        const string entry   = one_util::trim(raw);
+        const auto separator = entry.find(':');
+
+        if (separator == string::npos)
+        {
+            att.resp_msg = "Invalid MIRROR/PORTS entry " + entry;
+            return Request::ACTION;
+        }
+
+        int vm_id;
+        int nic_id;
+
+        if (!one_util::str_cast(entry.substr(0, separator), vm_id) ||
+            !one_util::str_cast(entry.substr(separator + 1), nic_id))
+        {
+            att.resp_msg = "Invalid MIRROR/PORTS entry " + entry;
+            return Request::ACTION;
+        }
+
+        selected.emplace(vm_id, nic_id);
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    auto vmpool = Nebula::instance().get_vmpool();
+
+    for (const auto& selected_port : selected)
+    {
+        PoolObjectAuth permissions;
+        int network_id;
+
+        auto vm = vmpool->get_ro(selected_port.first);
+
+        if (vm == nullptr || vm->get_state() == VirtualMachine::DONE)
+        {
+            att.resp_msg = "Mirror VM " + to_string(selected_port.first) + " does not exist";
+            return Request::ACTION;
+        }
+
+        auto nic = vm->get_nic(selected_port.second);
+
+        if (!nic || nic->is_alias() || nic->is_pci() ||
+            nic->vector_value("NETWORK_ID", network_id) != 0 ||
+            network_id != oid)
+        {
+            att.resp_msg = "Invalid mirror source port " +
+                           to_string(selected_port.first) + ':' +
+                           to_string(selected_port.second);
+            return Request::ACTION;
+        }
+
+        vm->get_permissions(permissions);
+
+        ar.add_auth(AuthRequest::ADMIN, permissions);
+    }
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        return Request::AUTHORIZATION;
+    }
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualNetworkAPI::mirror_create(
+        int oid, const string& str_tmpl, int& mirror_id, RequestAttributes& att)
+{
+    VirtualNetworkTemplate tmpl;
+
+    unique_ptr<VirtualNetwork> vn;
+
+    att.auth_op = AuthRequest::ADMIN;
+
+    auto ec = authorize(oid, str_tmpl, tmpl, vn, att);
+
+    if (ec != Request::SUCCESS)
+    {
+        return ec;
+    }
+
+    string vn_mad;
+
+    vn->get_template_attribute("VN_MAD", vn_mad, -1);
+
+    if (vn_mad != "ovswitch" && vn_mad != "ovswitch_vxlan")
+    {
+        att.resp_msg = "Port mirroring is only supported by the ovswitch drivers";
+        return Request::ACTION;
+    }
+
+    if (vn->mirror_create(&tmpl, mirror_id, att.resp_msg) != 0)
+    {
+        return Request::ACTION;
+    }
+
+    ec = authorize_mirror(oid, vn->get_mirror(mirror_id)->vector_value("PORTS"), att);
+
+    if (ec != Request::SUCCESS)
+    {
+        return ec;
+    }
+
+    vn->mirror_commit();
+
+    vnpool->update(vn.get());
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualNetworkAPI::mirror_update(
+        int oid, int mirror_id, const string& str_tmpl, int update_type,
+        RequestAttributes& att)
+{
+    VirtualNetworkTemplate tmpl;
+
+    unique_ptr<VirtualNetwork> vn;
+
+    att.auth_op = AuthRequest::ADMIN;
+
+    auto ec = authorize(oid, str_tmpl, tmpl, vn, att);
+
+    if (ec != Request::SUCCESS)
+    {
+        return ec;
+    }
+
+    if (vn->mirror_update(mirror_id, &tmpl, update_type, att.resp_msg) != 0)
+    {
+        return Request::ACTION;
+    }
+
+    if (auto ec = authorize_mirror(oid, vn->get_mirror(mirror_id)->vector_value("PORTS"), att);
+        ec != Request::SUCCESS)
+    {
+        return ec;
+    }
+
+    vn->mirror_commit();
+
+    vnpool->update(vn.get());
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualNetworkAPI::mirror_update_ports(
+        int oid, int mirror_id, const string& ports, bool add,
+        RequestAttributes& att)
+{
+    att.auth_op = AuthRequest::ADMIN;
+
+    auto ec = basic_authorization(oid, att);
+
+    if (ec != Request::SUCCESS)
+    {
+        return ec;
+    }
+
+    auto vn = vnpool->get(oid);
+
+    if (vn == nullptr)
+    {
+        att.resp_id = oid;
+        return Request::NO_EXISTS;
+    }
+
+    if (vn->get_state() != VirtualNetwork::READY &&
+        vn->get_state() != VirtualNetwork::UPDATE_FAILURE)
+    {
+        att.resp_msg = "Virtual Network is in wrong state: " +
+                       vn->state_to_str(vn->get_state());
+        return Request::ACTION;
+    }
+
+    ec = authorize_mirror(oid, ports, att);
+
+    if (ec != Request::SUCCESS)
+    {
+        return ec;
+    }
+
+    set<int> vms;
+
+    if (vn->mirror_update_ports(mirror_id, ports, add, vms, att.resp_msg) != 0)
+    {
+        return Request::ACTION;
+    }
+
+    if (!vms.empty())
+    {
+        vn->mirror_commit(vms);
+    }
+
+    vnpool->update(vn.get());
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualNetworkAPI::mirror_delete(
+        int oid, int mirror_id, RequestAttributes& att)
+{
+    att.auth_op = AuthRequest::ADMIN;
+
+    if (auto ec = basic_authorization(oid, att); ec != Request::SUCCESS)
+    {
+        return ec;
+    }
+
+    auto vn = vnpool->get(oid);
+
+    if (vn == nullptr)
+    {
+        att.resp_id = oid;
+        return Request::NO_EXISTS;
+    }
+
+    if (vn->mirror_delete(mirror_id, att.resp_msg) != 0)
+    {
+        return Request::ACTION;
     }
 
     vnpool->update(vn.get());
@@ -566,6 +882,9 @@ Request::ErrorCode VirtualNetworkAPI::reserve(int oid,
         {
             vtmpl       = vn->clone_template();
             cluster_ids = vn->get_cluster_ids();
+
+            vtmpl->erase("MIRROR");
+            vtmpl->erase("VNET_UPDATE");
         }
     }
     else
@@ -1175,14 +1494,24 @@ Request::ErrorCode VirtualNetworkAllocateAPI::allocate_authorization(
         RequestAttributes&  att,
         PoolObjectAuth *cluster_perms)
 {
-    if ( auto ec = SharedAPI::allocate_authorization(obj_template, att, cluster_perms);
-         ec != Request::SUCCESS )
+    vector<const VectorAttribute *> mirrors;
+
+    if (obj_template->get("MIRROR", mirrors) != 0)
+    {
+        att.resp_msg = "MIRROR definitions are not allowed during Virtual Network allocation";
+        return Request::ACTION;
+    }
+
+    auto ec = SharedAPI::allocate_authorization(obj_template, att, cluster_perms);
+
+    if (ec != Request::SUCCESS)
     {
         return ec;
     }
 
-    if ( auto ec = SharedAPI::validate_vlan_auth(obj_template, -1, att);
-         ec != Request::SUCCESS )
+    ec = SharedAPI::validate_vlan_auth(obj_template, -1, att);
+
+    if (ec != Request::SUCCESS)
     {
         return ec;
     }

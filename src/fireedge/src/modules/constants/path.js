@@ -104,6 +104,8 @@ export const PATH = {
       DETAIL: `/${RESOURCE_NAMES.VNET}/:id`,
       CREATE: `/${RESOURCE_NAMES.VNET}/create`,
       UPDATE: `/${RESOURCE_NAMES.VNET}/update`,
+      MIRROR_CREATE: `/${RESOURCE_NAMES.VNET}/:id/mirror/create`,
+      MIRROR_UPDATE: `/${RESOURCE_NAMES.VNET}/:id/mirror/:mirrorId/update`,
     },
     VN_TEMPLATES: {
       LIST: `/${RESOURCE_NAMES.VN_TEMPLATE}`,

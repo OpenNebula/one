@@ -52,7 +52,18 @@ const ReserveForm = createAsyncForm(() =>
   import('@modules/resources/VirtualNetwork/Forms/ReserveForm')
 )
 
-export { CreateForm, AddRangeForm, HoldIPForm, ReserveForm }
+/**
+ * @param {object} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded mirror form
+ */
+const MirrorForm = createAsyncForm(() =>
+  import('@modules/resources/VirtualNetwork/Forms/MirrorForm')
+)
+
+export { CreateForm, AddRangeForm, HoldIPForm, ReserveForm, MirrorForm }
 export { useAddressRangeFormModal } from './AddRangeForm'
 export { useHoldIPFormModal } from './HoldIPForm'
 export { useReserveFormModal } from './ReserveForm'
+export { SourceSelector } from './MirrorForm/SourceSelector'
+export { mirrorList, networkNics } from './MirrorForm/helpers'
+export { TRAFFIC_SCHEMA, MIRROR_TYPES } from './MirrorForm/schema'

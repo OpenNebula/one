@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { useCallback, useMemo, useRef, useState } from 'react'
+import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
 import { DetailsDrawerStackProvider } from '@ComponentsModule'
 import { SystemAPI, useViews } from '@FeaturesModule'
@@ -41,6 +42,69 @@ import {
 } from '@modules/containers/ResourceSingleView/stack'
 
 const EMPTY_STACK = { entries: [], activeIndex: -1 }
+
+/**
+ * Renders the current stack without remounting its existing drawers.
+ *
+ * @param {object} props - Stack renderer props
+ * @param {object[]} props.entries - Resource stack entries
+ * @param {number} props.activeIndex - Active drawer index
+ * @param {boolean} props.hasBase - Route-owned parent drawer is present
+ * @param {Function} props.getResourceView - Resource view configuration lookup
+ * @param {Function} props.handleClose - Close the resource stack
+ * @param {Function} props.goBack - Activate the previous drawer
+ * @param {Function} props.goForward - Activate the next drawer
+ * @param {Function} props.goTo - Activate a drawer by index
+ * @returns {object[]} Resource details drawers
+ */
+const ResourceSingleView = ({
+  entries = [],
+  activeIndex = -1,
+  hasBase = false,
+  getResourceView,
+  handleClose,
+  goBack,
+  goForward,
+  goTo,
+  ...props
+}) =>
+  entries.slice(hasBase ? 1 : 0, activeIndex + 1).map((entry, childIndex) => {
+    const index = hasBase ? childIndex + 1 : childIndex
+
+    return (
+      <DetailsDrawerStackProvider
+        key={entry.key}
+        value={{
+          entries,
+          activeIndex,
+          index,
+          isActive: index === activeIndex,
+          breadcrumbs: entry.breadcrumbs,
+          goBack,
+          goForward,
+          goTo,
+        }}
+      >
+        <ResourceSingleViewDrawer
+          {...props}
+          view={entry}
+          getResourceView={getResourceView}
+          handleClose={handleClose}
+        />
+      </DetailsDrawerStackProvider>
+    )
+  })
+
+ResourceSingleView.propTypes = {
+  entries: PropTypes.array,
+  activeIndex: PropTypes.number,
+  hasBase: PropTypes.bool,
+  getResourceView: PropTypes.func,
+  handleClose: PropTypes.func,
+  goBack: PropTypes.func,
+  goForward: PropTypes.func,
+  goTo: PropTypes.func,
+}
 
 /**
  * Opens any registered resource single view from the current component.
@@ -218,52 +282,22 @@ export const useResourceSingleView = () => {
     [baseEntry, hydrateResourceSingleView]
   )
 
-  const ResourceSingleView = useCallback(
-    (props) =>
-      entries
-        .slice(baseEntry ? 1 : 0, activeIndex + 1)
-        .map((entry, childIndex) => {
-          const index = baseEntry ? childIndex + 1 : childIndex
-
-          return (
-            <DetailsDrawerStackProvider
-              key={entry.key}
-              value={{
-                entries,
-                activeIndex,
-                index,
-                isActive: index === activeIndex,
-                breadcrumbs: entry.breadcrumbs,
-                goBack: goBackResourceSingleView,
-                goForward: goForwardResourceSingleView,
-                goTo: goToResourceSingleView,
-              }}
-            >
-              <ResourceSingleViewDrawer
-                {...props}
-                view={entry}
-                getResourceView={getResourceView}
-                handleClose={closeResourceSingleView}
-              />
-            </DetailsDrawerStackProvider>
-          )
-        }),
-    [
-      activeIndex,
-      baseEntry,
-      closeResourceSingleView,
-      entries,
-      getResourceView,
-      goBackResourceSingleView,
-      goForwardResourceSingleView,
-      goToResourceSingleView,
-    ]
-  )
+  const resourceSingleViewProps = {
+    entries,
+    activeIndex,
+    hasBase: Boolean(baseEntry),
+    getResourceView,
+    handleClose: closeResourceSingleView,
+    goBack: goBackResourceSingleView,
+    goForward: goForwardResourceSingleView,
+    goTo: goToResourceSingleView,
+  }
 
   return {
     view: entries[activeIndex],
     stack: currentStack,
     ResourceSingleView,
+    resourceSingleViewProps,
     clearResourceSingleViewBase,
     openResourceSingleView,
     closeResourceSingleView,

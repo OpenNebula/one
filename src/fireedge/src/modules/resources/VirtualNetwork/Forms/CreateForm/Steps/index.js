@@ -96,7 +96,7 @@ const Steps = createSteps(
 
       return initialValue
     },
-    transformBeforeSubmit: (formData) => {
+    transformBeforeSubmit: (formData, vnet) => {
       const { [GENERAL_ID]: general = {}, [EXTRA_ID]: extra = {} } =
         formData ?? {}
 
@@ -136,8 +136,16 @@ const Steps = createSteps(
       ![VN_DRIVERS.ovswitch].includes(formData?.extra?.VN_MAD) &&
         delete extra?.BRIDGE_TYPE
 
+      const template = { ...resolveVnMad(extra), ...general }
+
+      delete template.MIRROR
+
+      if (vnet?.ID !== undefined && vnet?.TEMPLATE?.MIRROR) {
+        template.MIRROR = vnet.TEMPLATE.MIRROR
+      }
+
       return {
-        template: jsonToXml({ ...resolveVnMad(extra), ...general }),
+        template: jsonToXml(template),
         cluster,
       }
     },

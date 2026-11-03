@@ -133,3 +133,72 @@ export const getStyles = ({ theme, size, direction }) => {
     ...overrides,
   }
 }
+
+/**
+ * Native radio group styles, enabled by the plain variant.
+ *
+ * @param {object} params - Style parameters
+ * @param {object} params.theme - Current theme
+ * @param {string} params.size - Circle size
+ * @param {string} params.direction - Flex direction
+ * @returns {object} Plain radio group styles
+ */
+export const getPlainStyles = ({ theme, size, direction }) => {
+  const baseStyles = getStyles({ theme, size, direction })
+
+  return {
+    ...baseStyles,
+    flexWrap: 'wrap',
+    gap: `${theme.scale[600]}px`,
+
+    '& .radiogroup-container': {
+      ...baseStyles['& .radiogroup-container'],
+      margin: 0,
+    },
+
+    '& .radiocircle': {
+      ...baseStyles['& .radiocircle'],
+      boxSizing: 'border-box',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
+    '& .selected': {
+      bgcolor: 'surface.primary',
+      borderRadius: '50%',
+      border: `${theme.borderWidth.sm}px solid ${theme.palette.border.action}`,
+
+      '&::after': {
+        content: '""',
+        width: '50%',
+        height: '50%',
+        borderRadius: '50%',
+        bgcolor: 'surface.action',
+      },
+
+      '&:hover': {
+        bgcolor: 'surface.onAction2',
+        borderRadius: '50%',
+        borderColor: 'border.actionHover',
+      },
+    },
+
+    '& .MuiRadio-root': {
+      padding: 0,
+
+      '&:hover': {
+        bgcolor: 'transparent',
+      },
+
+      '&.Mui-focusVisible': {
+        outline: `${theme.borderWidth.md}px solid ${theme.palette.border.action}`,
+        outlineOffset: '2px',
+      },
+
+      '&.Mui-disabled': {
+        opacity: 0.5,
+      },
+    },
+  }
+}

@@ -1167,6 +1167,8 @@ void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
 
     vm->delete_attach_alias(nic);
 
+    vm->update_mirrors();
+
     update(vm.get());
 
     vm.reset();

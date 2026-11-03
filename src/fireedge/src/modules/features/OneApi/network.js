@@ -149,6 +149,95 @@ const vNetworkApi = oneApi.injectEndpoints({
         return { params, command }
       },
     }),
+    createVNetMirror: builder.mutation({
+      /**
+       * Creates one mirror on an existing virtual network.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual network ID
+       * @param {string} params.template - XML template containing one MIRROR vector
+       * @returns {number} Backend-generated mirror ID
+       */
+      query: (params) => {
+        const name = Actions.VN_MIRROR_CREATE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+    }),
+    updateVNetMirror: builder.mutation({
+      /**
+       * Updates mirror settings, preserving its selected source ports.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual network ID
+       * @param {string|number} params.mirrorId - Mirror ID
+       * @param {string} params.template - XML template containing one MIRROR vector
+       * @param {number} [params.replace] - 0 replaces settings, 1 merges settings
+       * @returns {number} Mirror ID
+       */
+      query: (params) => {
+        const name = Actions.VN_MIRROR_UPDATE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+    }),
+    addVNetMirrorPorts: builder.mutation({
+      /**
+       * Adds VM/NIC sources to a mirror.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual network ID
+       * @param {string|number} params.mirrorId - Mirror ID
+       * @param {string} params.ports - Comma-separated VM_ID:NIC_ID pairs
+       * @returns {number} Mirror ID
+       */
+      query: (params) => {
+        const name = Actions.VN_MIRROR_ADDPORT
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+    }),
+    removeVNetMirrorPorts: builder.mutation({
+      /**
+       * Removes VM/NIC sources from a mirror.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual network ID
+       * @param {string|number} params.mirrorId - Mirror ID
+       * @param {string} params.ports - Comma-separated VM_ID:NIC_ID pairs
+       * @returns {number} Mirror ID
+       */
+      query: (params) => {
+        const name = Actions.VN_MIRROR_DELPORT
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+    }),
+    removeVNetMirror: builder.mutation({
+      /**
+       * Deletes a mirror.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual network ID
+       * @param {string|number} params.mirrorId - Mirror ID
+       * @returns {number} Mirror ID
+       */
+      query: (params) => {
+        const name = Actions.VN_MIRROR_DELETE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+    }),
     removeVNet: builder.mutation({
       /**
        * Deletes the given virtual network from the pool.
@@ -597,6 +686,11 @@ export const networkQueries = (({
   useLockVNetMutation,
   useUnlockVNetMutation,
   useRecoverVNetMutation,
+  useCreateVNetMirrorMutation,
+  useUpdateVNetMirrorMutation,
+  useAddVNetMirrorPortsMutation,
+  useRemoveVNetMirrorPortsMutation,
+  useRemoveVNetMirrorMutation,
 }) => ({
   // Queries
   useGetVNetworksQuery,
@@ -621,6 +715,11 @@ export const networkQueries = (({
   useLockVNetMutation,
   useUnlockVNetMutation,
   useRecoverVNetMutation,
+  useCreateVNetMirrorMutation,
+  useUpdateVNetMirrorMutation,
+  useAddVNetMirrorPortsMutation,
+  useRemoveVNetMirrorPortsMutation,
+  useRemoveVNetMirrorMutation,
 }))(vNetworkApi)
 
 export default networkQueries

@@ -2986,6 +2986,83 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
   NotSnapshotCurrently:
     'There are currently no snapshots associated with this image',
 
+  /* Virtual Network port mirroring */
+  PortMirroring: 'Port Mirroring',
+  MirrorOnNetwork: 'Port mirror on %1$s #%2$s',
+  MirrorVMSearch: 'Search by name or ID',
+  MirrorVMSearchInterface: 'Choose an interface',
+  MirrorChooseVMFirst: 'Choose a virtual machine first',
+  MirrorCreate: 'Create mirror',
+  MirrorEdit: 'Edit mirror',
+  MirrorDelete: 'Delete mirror',
+  MirrorTrafficSource: 'Traffic source',
+  MirrorReview: 'Review',
+  MirrorDestination: 'Destination',
+  MirrorChooseDestinationType: 'Choose a type to set its destination.',
+  MirrorDestinationKey: 'key %s',
+  MirrorDirection: 'Direction',
+  MirrorDirectionDescription: 'Which direction of traffic to copy.',
+  MirrorDirectionIn: 'In',
+  MirrorDirectionOut: 'Out',
+  MirrorDirectionBoth: 'Both',
+  MirrorUnsupportedDriver:
+    'Port mirroring requires an Open vSwitch or Open vSwitch VXLAN network',
+  MirrorOutputVLAN: 'Output VLAN',
+  MirrorOutputVLANHint:
+    'A VLAN ID from 1 to 4094 that carries the copied traffic.',
+  MirrorRemoteIP: 'Remote IP',
+  MirrorRemoteIPHint: 'IPv4 address that receives the copied traffic.',
+  MirrorLocalIP: 'Local IP',
+  MirrorNotSet: 'Not set',
+  MirrorLocalIPHint: 'IPv4 address or interface reference, e.g. interface:eth0',
+  MirrorInvalidLocalIP:
+    'Enter an IPv4 address or an interface reference such as interface:eth0',
+  MirrorERSPANType: 'ERSPAN type',
+  MirrorERSPANTypeConcept:
+    'ERSPAN packet format supported by the collector. Type II includes a source index; Type III includes a hardware ID. Select the format expected by your collector.',
+  MirrorERSPANKey: 'ERSPAN key',
+  MirrorERSPANKeyConcept:
+    "Session identifier carried in the ERSPAN packets, allowing the collector to distinguish mirroring sessions. Enter a decimal whole number from 0 to 1023, matching the collector's configuration where required.",
+  MirrorERSPANKeyHint: 'A whole number from 0 to 1023.',
+  MirrorERSPANIndex: 'ERSPAN index',
+  MirrorERSPANIndexConcept:
+    'Source identifier carried in Type II packets, allowing the collector to distinguish mirrored sources. Enter a decimal whole number from 0 to 1048575. Defaults to 0 if omitted.',
+  MirrorERSPANHWID: 'ERSPAN hardware ID',
+  MirrorERSPANHWIDConcept:
+    'Hardware identifier carried in Type III packets, allowing the collector to distinguish originating devices. This is a configured identifier, not a value discovered from the host hardware. Enter a decimal whole number from 0 to 63. Defaults to 0 if omitted.',
+  MirrorSourceInterfaces: 'Source interfaces',
+  MirrorSourceInterfacesDescription:
+    'Each row is one interface of a virtual machine on %s. Only virtual machines with an interface on this network are listed.',
+  MirrorSourceVLANs: 'Source VLAN IDs',
+  MirrorSourceVLANsTitle: 'Source VLANs',
+  MirrorNoSourceInterfaces: 'No source interfaces selected.',
+  MirrorNoIPAddress: 'No IP address',
+  MirrorVM: 'Virtual machine',
+  MirrorInterface: 'Interface',
+  MirrorAddSource: 'Add source',
+  MirrorRemoveSource: 'Remove source',
+  MirrorAutoSelectedInterface:
+    "Selected automatically. It's the only interface on this network",
+  MirrorInterfacesOnNetwork: '%1$s interfaces on this network',
+  MirrorSourceUnavailable:
+    'This interface is no longer available on the current network',
+  MirrorSourceLoadError:
+    'Could not load virtual machines. Refresh to try again.',
+  MirrorNoSourceVMs:
+    'No visible virtual machines have an interface on this network',
+  MirrorDuplicateSource: 'Each VM/interface pair can only be selected once',
+  MirrorInvalidVLAN: 'Enter a whole VLAN ID between 0 and 4094',
+  MirrorDuplicateVLAN: 'Each source VLAN ID can only be added once',
+  MirrorVLANHint:
+    'VLAN IDs from 0 to 4094. Separate IDs with Enter, a space or a comma',
+  MirrorEditSourcesHint:
+    'Add or remove source interfaces from the mirror details',
+  MirrorInvalidConfiguration: 'Check the configuration and traffic sources',
+  MirrorGone: 'This mirror no longer exists. Refresh the network.',
+  MirrorCreated: 'Mirror created',
+  MirrorUpdated: 'Mirror updated',
+  MirrorDeleted: 'Mirror deleted',
+
   /* Validation */
   /* Validation - mixed */
   'validation.mixed.default': 'Is invalid',

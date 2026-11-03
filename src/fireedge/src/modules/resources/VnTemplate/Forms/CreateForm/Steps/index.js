@@ -107,7 +107,11 @@ const Steps = createSteps([General, Configuration], {
     ![VN_DRIVERS.ovswitch].includes(formData?.extra?.VN_MAD) &&
       delete extra?.BRIDGE_TYPE
 
-    return jsonToXml({ ...resolveVnMad(extra), ...general })
+    const template = { ...resolveVnMad(extra), ...general }
+
+    delete template.MIRROR
+
+    return jsonToXml(template)
   },
 })
 

@@ -571,6 +571,11 @@ void RequestManagerXRPC::register_xml_methods()
     xmlrpc_c::methodPtr vn_hold(new VirtualNetworkHoldXRPC());
     xmlrpc_c::methodPtr vn_release(new VirtualNetworkReleaseXRPC());
     xmlrpc_c::methodPtr vn_recover(new VirtualNetworkRecoverXRPC());
+    xmlrpc_c::methodPtr vn_mirror_create(new VirtualNetworkMirrorCreateXRPC());
+    xmlrpc_c::methodPtr vn_mirror_update(new VirtualNetworkMirrorUpdateXRPC());
+    xmlrpc_c::methodPtr vn_mirror_addport(new VirtualNetworkMirrorAddPortXRPC());
+    xmlrpc_c::methodPtr vn_mirror_delport(new VirtualNetworkMirrorDelPortXRPC());
+    xmlrpc_c::methodPtr vn_mirror_delete(new VirtualNetworkMirrorDeleteXRPC());
 
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfoXRPC());
 
@@ -586,6 +591,11 @@ void RequestManagerXRPC::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vn.add_ar", vn_add_ar);
     RequestManagerRegistry.addMethod("one.vn.rm_ar", vn_rm_ar);
     RequestManagerRegistry.addMethod("one.vn.update_ar", vn_update_ar);
+    RequestManagerRegistry.addMethod("one.vn.mirror_create", vn_mirror_create);
+    RequestManagerRegistry.addMethod("one.vn.mirror_update", vn_mirror_update);
+    RequestManagerRegistry.addMethod("one.vn.mirror_addport", vn_mirror_addport);
+    RequestManagerRegistry.addMethod("one.vn.mirror_delport", vn_mirror_delport);
+    RequestManagerRegistry.addMethod("one.vn.mirror_delete", vn_mirror_delete);
     RequestManagerRegistry.addMethod("one.vn.reserve", vn_reserve);
     RequestManagerRegistry.addMethod("one.vn.free_ar", vn_free_ar);
     RequestManagerRegistry.addMethod("one.vn.hold", vn_hold);

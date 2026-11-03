@@ -26,7 +26,112 @@
 #include "NebulaUtil.h"
 #include "Nebula.h"
 
+#include <arpa/inet.h>
+#include <algorithm>
+#include <regex>
+
 using namespace std;
+
+namespace
+{
+const set<string> MIRROR_ATTRIBUTES = {
+    "MIRROR_ID",
+    "NAME",
+    "PORTS",
+    "VLANS",
+    "DIRECTION",
+    "TYPE",
+    "DESCRIPTION",
+    "OUTPUT_VLAN",
+    "REMOTE_IP",
+    "LOCAL_IP",
+    "ERSPAN_TYPE",
+    "ERSPAN_KEY",
+    "ERSPAN_INDEX",
+    "ERSPAN_HWID"
+};
+
+int parse_mirror_list(const string& value, int minimum, int maximum,
+                      set<int>& result, string& error)
+{
+    result.clear();
+
+    if (value.empty())
+    {
+        return 0;
+    }
+
+    for (const auto& raw : one_util::split(value, ',', false))
+    {
+        const string item = one_util::trim(raw);
+        int number;
+
+        if (!one_util::str_cast(item, number) ||
+            number < minimum || number > maximum)
+        {
+            error = "Invalid list member '" + item + "'";
+            return -1;
+        }
+
+        result.insert(number);
+    }
+
+    return 0;
+}
+
+int parse_mirror_ports(const string& value, set<pair<int, int>>& result,
+                       string& error)
+{
+    result.clear();
+
+    if (value.empty())
+    {
+        return 0;
+    }
+
+    for (const auto& raw : one_util::split(value, ',', false))
+    {
+        int vm_id;
+        int nic_id;
+
+        const string item    = one_util::trim(raw);
+        const auto separator = item.find(':');
+
+        if (separator == string::npos ||
+            !one_util::str_cast(item.substr(0, separator), vm_id) ||
+            !one_util::str_cast(item.substr(separator + 1), nic_id) ||
+            vm_id < 0 || nic_id < 0)
+        {
+            error = "Invalid mirror port '" + item + "', expected VM_ID:NIC_ID";
+            return -1;
+        }
+
+        result.emplace(vm_id, nic_id);
+    }
+
+    return 0;
+}
+
+string join_mirror_ports(const set<pair<int, int>>& ports)
+{
+    ostringstream oss;
+    const char * separator = "";
+
+    for (const auto& port : ports)
+    {
+        oss << separator << port.first << ':' << port.second;
+        separator = ",";
+    }
+
+    return oss.str();
+}
+
+bool valid_ipv4(const string& address)
+{
+    in_addr parsed;
+    return inet_pton(AF_INET, address.c_str(), &parsed) == 1;
+}
+}
 
 /* ************************************************************************** */
 /* Virtual Network :: Constructor/Destructor                                  */
@@ -612,6 +717,14 @@ void VirtualNetwork::set_updated_attributes(Template* new_tmpl, bool removed)
     // form attribute_name=attribute_old_value
     VectorAttribute* update_attr = new VectorAttribute("VNET_UPDATE");
 
+    // Preserve pending mirror reconciliation across generic template updates.
+    const auto pending = obj_template->get("VNET_UPDATE");
+
+    if (pending && pending->vector_value("MIRRORS") == "YES")
+    {
+        update_attr->replace("MIRRORS", "YES");
+    }
+
     // Detect new and modified attributes
     new_tmpl->each_attribute([&](const Attribute* att)
     {
@@ -1026,7 +1139,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::nic_update(VirtualMachineNic *nic,
+int VirtualNetwork::nic_update(VirtualMachineNic *nic, int vm_id,
                                unique_ptr<VectorAttribute>& update_attr) const
 {
     //--------------------------------------------------------------------------
@@ -1055,6 +1168,13 @@ int VirtualNetwork::nic_update(VirtualMachineNic *nic,
 
     for (auto update : update_attr->value())
     {
+        if (update.first == "MIRRORS")
+        {
+            mirror_set_nic(nic->vector_attribute(), vm_id);
+            ++num_updated;
+            continue;
+        }
+
         string nic_value;
 
         if (nic->vector_value(update.first, nic_value) < 0
@@ -1077,6 +1197,52 @@ int VirtualNetwork::nic_update(VirtualMachineNic *nic,
     }
 
     return num_updated;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::mirror_set_nic(VectorAttribute * nic, int vm_id) const
+{
+    nic->remove("MIRROR_IDS");
+
+    vector<const VectorAttribute *> mirrors;
+    obj_template->get("MIRROR", mirrors);
+
+    set<int> ids;
+    int nic_id = -1;
+
+    nic->vector_value("NIC_ID", nic_id);
+
+    for (const auto mirror : mirrors)
+    {
+        int mirror_id;
+
+        if (mirror->vector_value("MIRROR_ID", mirror_id) != 0)
+        {
+            continue;
+        }
+
+        set<pair<int, int>> ports;
+        string error_msg;
+
+        if (parse_mirror_ports(mirror->vector_value("PORTS"), ports, error_msg) != 0)
+        {
+            continue;
+        }
+
+        if (ports.count({vm_id, nic_id}) == 0)
+        {
+            continue;
+        }
+
+        ids.insert(mirror_id);
+    }
+
+    if (!ids.empty())
+    {
+        nic->replace("MIRROR_IDS", one_util::join(ids, ','));
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1236,6 +1402,8 @@ int VirtualNetwork::nic_attribute(
 
     nic->replace("SECURITY_GROUPS",
                  one_util::join(nic_sgs.begin(), nic_sgs.end(), ','));
+
+    mirror_set_nic(nic->vector_attribute(), vid);
 
     updated.add(vid);
 
@@ -1411,6 +1579,509 @@ int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static int mirror_validate(VectorAttribute * mirror, string& error_msg)
+{
+    for (const auto& value : mirror->value())
+    {
+        if (MIRROR_ATTRIBUTES.count(value.first) == 0)
+        {
+            error_msg = "Unknown MIRROR attribute " + value.first;
+            return -1;
+        }
+    }
+
+    string name = one_util::trim(mirror->vector_value("NAME"));
+    string type = one_util::trim(mirror->vector_value("TYPE"));
+
+    string direction = one_util::trim(mirror->vector_value("DIRECTION"));
+
+    one_util::toupper(type);
+    one_util::toupper(direction);
+
+    if (name.empty())
+    {
+        error_msg = "MIRROR/NAME attribute is missing";
+        return -1;
+    }
+
+    if (type != "RSPAN" && type != "GRE" && type != "ERSPAN")
+    {
+        error_msg = "MIRROR/TYPE must be RSPAN, GRE or ERSPAN";
+        return -1;
+    }
+
+    if (direction.empty())
+    {
+        direction = "BOTH";
+    }
+    else if (direction != "IN" && direction != "OUT" && direction != "BOTH")
+    {
+        error_msg = "MIRROR/DIRECTION must be IN, OUT or BOTH";
+        return -1;
+    }
+
+    set<pair<int, int>> ports;
+    set<int> vlans;
+
+    if (parse_mirror_ports(one_util::trim(mirror->vector_value("PORTS")),
+                           ports, error_msg) != 0)
+    {
+        return -1;
+    }
+
+    if (parse_mirror_list(one_util::trim(mirror->vector_value("VLANS")),
+                          0, 4094, vlans, error_msg) != 0)
+    {
+        error_msg = "Invalid MIRROR/VLANS: " + error_msg;
+        return -1;
+    }
+
+    mirror->replace("NAME", name);
+    mirror->replace("TYPE", type);
+    mirror->replace("DIRECTION", direction);
+    mirror->replace("PORTS", join_mirror_ports(ports));
+    mirror->replace("VLANS", one_util::join(vlans, ','));
+
+    const string remote_ip = one_util::trim(mirror->vector_value("REMOTE_IP"));
+    const string local_ip  = one_util::trim(mirror->vector_value("LOCAL_IP"));
+
+    auto forbidden = [&](initializer_list<const char *> fields)
+    {
+        for (const auto field : fields)
+        {
+            if (!mirror->vector_value(field).empty())
+            {
+                error_msg = "MIRROR/" + string(field) + " is not valid for " + type;
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    if (type == "RSPAN")
+    {
+        int output_vlan;
+
+        if (mirror->vector_value("OUTPUT_VLAN", output_vlan) != 0 ||
+            output_vlan < 1 || output_vlan > 4094)
+        {
+            error_msg = "RSPAN requires OUTPUT_VLAN in the range 1-4094";
+            return -1;
+        }
+
+        mirror->replace("OUTPUT_VLAN", to_string(output_vlan));
+
+        if (forbidden({"REMOTE_IP",
+                       "LOCAL_IP",
+                       "ERSPAN_TYPE",
+                       "ERSPAN_KEY",
+                       "ERSPAN_INDEX",
+                       "ERSPAN_HWID"}))
+        {
+            return -1;
+        }
+    }
+    else if (type == "GRE")
+    {
+        if (!valid_ipv4(remote_ip))
+        {
+            error_msg = "GRE requires REMOTE_IP to be an IPv4 literal";
+            return -1;
+        }
+
+        if (forbidden({"OUTPUT_VLAN",
+                       "ERSPAN_TYPE",
+                       "ERSPAN_KEY",
+                       "ERSPAN_INDEX",
+                       "ERSPAN_HWID"}))
+        {
+            return -1;
+        }
+
+        mirror->replace("REMOTE_IP", remote_ip);
+    }
+    else //ERSPAN
+    {
+        string erspan_type = one_util::trim(mirror->vector_value("ERSPAN_TYPE"));
+        int key;
+
+        one_util::toupper(erspan_type);
+
+        if (!valid_ipv4(remote_ip))
+        {
+            error_msg = "ERSPAN requires REMOTE_IP to be an IPv4 literal";
+            return -1;
+        }
+
+        mirror->replace("REMOTE_IP", remote_ip);
+
+        if (erspan_type != "II" && erspan_type != "III")
+        {
+            error_msg = "MIRROR/ERSPAN_TYPE must be II or III";
+            return -1;
+        }
+
+        if (mirror->vector_value("ERSPAN_KEY", key) != 0 || key < 0 || key > 1023)
+        {
+            error_msg = "MIRROR/ERSPAN_KEY must be in the range 0-1023";
+            return -1;
+        }
+
+        mirror->replace("ERSPAN_TYPE", erspan_type);
+        mirror->replace("ERSPAN_KEY", to_string(key));
+
+        if (erspan_type == "II")
+        {
+            int index = 0;
+
+            if (!mirror->vector_value("ERSPAN_HWID").empty())
+            {
+                error_msg = "MIRROR/ERSPAN_HWID is not valid for ERSPAN type II";
+                return -1;
+            }
+
+            if (!mirror->vector_value("ERSPAN_INDEX").empty() &&
+                (mirror->vector_value("ERSPAN_INDEX", index) != 0 ||
+                 index < 0 || index > 1048575))
+            {
+                error_msg = "MIRROR/ERSPAN_INDEX must be in the range 0-1048575";
+                return -1;
+            }
+
+            mirror->replace("ERSPAN_INDEX", to_string(index));
+        }
+        else
+        {
+            int hwid = 0;
+
+            if (!mirror->vector_value("ERSPAN_INDEX").empty())
+            {
+                error_msg = "MIRROR/ERSPAN_INDEX is not valid for ERSPAN type III";
+                return -1;
+            }
+
+            if (!mirror->vector_value("ERSPAN_HWID").empty() &&
+                (mirror->vector_value("ERSPAN_HWID", hwid) != 0 ||
+                 hwid < 0 || hwid > 63))
+            {
+                error_msg = "MIRROR/ERSPAN_HWID must be in the range 0-63";
+                return -1;
+            }
+
+            mirror->replace("ERSPAN_HWID", to_string(hwid));
+        }
+
+        if (forbidden({"OUTPUT_VLAN"}))
+        {
+            return -1;
+        }
+    }
+
+    if (!local_ip.empty())
+    {
+        static const regex interface_name("^[A-Za-z0-9_.:-]{1,15}$");
+
+        if (local_ip.rfind("interface:", 0) == 0)
+        {
+            const string interface = local_ip.substr(10);
+
+            if (!regex_match(interface, interface_name))
+            {
+                error_msg = "MIRROR/LOCAL_IP contains an invalid interface reference";
+                return -1;
+            }
+        }
+        else if (!valid_ipv4(local_ip))
+        {
+            error_msg = "MIRROR/LOCAL_IP must be an IPv4 literal or interface reference";
+            return -1;
+        }
+
+        mirror->replace("LOCAL_IP", local_ip);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+const VectorAttribute * VirtualNetwork::get_mirror(int mirror_id) const
+{
+    vector<const VectorAttribute *> mirrors;
+    obj_template->get("MIRROR", mirrors);
+
+    for (const auto mirror : mirrors)
+    {
+        int current_id;
+
+        if (mirror->vector_value("MIRROR_ID", current_id) == 0 &&
+            current_id == mirror_id)
+        {
+            return mirror;
+        }
+    }
+
+    return nullptr;
+}
+
+/* -------------------------------------------------------------------------- */
+
+static VectorAttribute * mirror_get(VirtualNetwork& vn, int mirror_id)
+{
+    return const_cast<VectorAttribute *>(vn.get_mirror(mirror_id));
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::mirror_create(VirtualNetworkTemplate * mirror_tmpl,
+                                  int& mirror_id, string& error_msg)
+{
+    vector<VectorAttribute *> mirrors;
+
+    if (mirror_tmpl->get("MIRROR", mirrors) != 1)
+    {
+        error_msg = "Exactly one MIRROR vector is required";
+        return -1;
+    }
+
+    unique_ptr<VectorAttribute> mirror(mirrors[0]->clone());
+
+    vector<const VectorAttribute *> current;
+    obj_template->get("MIRROR", current);
+
+    mirror_id = 0;
+
+    for (const auto item : current)
+    {
+        int current_id;
+
+        if (item->vector_value("MIRROR_ID", current_id) == 0)
+        {
+            mirror_id = max(mirror_id, current_id + 1);
+        }
+    }
+
+    mirror->replace("MIRROR_ID", to_string(mirror_id));
+
+    if (mirror_validate(mirror.get(), error_msg) != 0)
+    {
+        return -1;
+    }
+
+    obj_template->set(mirror.release());
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::mirror_update(int mirror_id,
+                                  VirtualNetworkTemplate * mirror_tmpl,
+                                  int update_type, string& error_msg)
+{
+    vector<VectorAttribute *> requested;
+
+    if (update_type < 0 || update_type > 1)
+    {
+        error_msg = "Wrong update type";
+        return -1;
+    }
+
+    if (mirror_tmpl->get("MIRROR", requested) != 1)
+    {
+        error_msg = "Exactly one MIRROR vector is required";
+        return -1;
+    }
+
+    auto mirror = mirror_get(*this, mirror_id);
+
+    if (mirror == nullptr)
+    {
+        error_msg = "MIRROR_ID " + to_string(mirror_id) + " does not exist";
+        return -1;
+    }
+
+    requested[0]->remove("PORTS");
+
+    unique_ptr<VectorAttribute> replacement;
+
+    if (update_type == 0)
+    {
+        replacement.reset(requested[0]->clone());
+        replacement->replace("PORTS", mirror->vector_value("PORTS"));
+    }
+    else
+    {
+        replacement.reset(mirror->clone());
+        replacement->merge(requested[0], true);
+    }
+
+    replacement->replace("MIRROR_ID", to_string(mirror_id));
+
+    if (mirror_validate(replacement.get(), error_msg) != 0)
+    {
+        return -1;
+    }
+
+    delete obj_template->remove(mirror);
+
+    obj_template->set(replacement.release());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::mirror_update_ports(int mirror_id, const string& value,
+                                        bool add, set<int>& affected_vms,
+                                        string& error_msg)
+{
+    set<pair<int, int>> requested;
+
+    affected_vms.clear();
+
+    if (value.empty() || parse_mirror_ports(value, requested, error_msg) != 0)
+    {
+        if (value.empty())
+        {
+            error_msg = "Mirror port list cannot be empty";
+        }
+
+        return -1;
+    }
+
+    auto mirror = mirror_get(*this, mirror_id);
+
+    if (mirror == nullptr)
+    {
+        error_msg = "MIRROR_ID " + to_string(mirror_id) + " does not exist";
+        return -1;
+    }
+
+    set<pair<int, int>> ports;
+
+    if (parse_mirror_ports(mirror->vector_value("PORTS"), ports, error_msg) != 0)
+    {
+        return -1;
+    }
+
+    if (add)
+    {
+        for (const auto& port : requested)
+        {
+            if (ports.insert(port).second)
+            {
+                affected_vms.insert(port.first);
+            }
+        }
+    }
+    else
+    {
+        for (const auto& port : requested)
+        {
+            if (ports.erase(port) == 0)
+            {
+                affected_vms.clear();
+
+                error_msg = "Mirror port " + to_string(port.first) + ':' +
+                            to_string(port.second) + " is not selected";
+                return -1;
+            }
+
+            affected_vms.insert(port.first);
+        }
+    }
+
+    mirror->replace("PORTS", join_mirror_ports(ports));
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::mirror_delete(int mirror_id, string& error_msg)
+{
+    auto mirror = mirror_get(*this, mirror_id);
+
+    if (mirror == nullptr)
+    {
+        error_msg = "MIRROR_ID " + to_string(mirror_id) + " does not exist";
+        return -1;
+    }
+
+    if (!mirror->vector_value("PORTS").empty())
+    {
+        error_msg = "Remove all mirror ports with mirror_delport before "
+                    "deleting the mirror";
+        return -1;
+    }
+
+    delete obj_template->remove(mirror);
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::mirror_release_port(int vm_id, int nic_id)
+{
+    vector<VectorAttribute *> mirrors;
+    obj_template->get("MIRROR", mirrors);
+
+    bool changed = false;
+
+    for (auto mirror : mirrors)
+    {
+        set<pair<int, int>> ports;
+        string error_msg;
+
+        if (parse_mirror_ports(mirror->vector_value("PORTS"), ports, error_msg) == 0 &&
+            ports.erase({vm_id, nic_id}) != 0)
+        {
+            mirror->replace("PORTS", join_mirror_ports(ports));
+            changed = true;
+        }
+    }
+
+    if (changed)
+    {
+        mirror_commit();
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::mirror_commit(const set<int>& vm_ids)
+{
+    auto update = obj_template->get("VNET_UPDATE");
+
+    if (update == nullptr)
+    {
+        update = new VectorAttribute("VNET_UPDATE");
+        obj_template->set(update);
+    }
+
+    update->replace("MIRRORS", "YES");
+
+    if (vm_ids.empty())
+    {
+        commit(false);
+    }
+    else
+    {
+        commit(vm_ids);
+    }
+
+    if (state == VirtualNetwork::UPDATE_FAILURE && error.size() == 0)
+    {
+        set_state(VirtualNetwork::READY);
+    }
+
+    Nebula::instance().get_lcm()->trigger_updatevnet(get_oid());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1665,7 +2336,7 @@ void VirtualNetwork::free_addr(unsigned int arid,
     {
         vrouters.del(oid);
     }
-    else if (ot == PoolObjectSQL::VM)
+    else if (ot == PoolObjectSQL::VM && !ar_pool.has_vm(oid))
     {
         clear_update_vm(oid);
     }
@@ -1718,7 +2389,7 @@ void VirtualNetwork::free_addr(PoolObjectSQL::ObjectType ot,
     {
         vrouters.del(oid);
     }
-    else if (ot == PoolObjectSQL::VM)
+    else if (ot == PoolObjectSQL::VM && !ar_pool.has_vm(oid))
     {
         clear_update_vm(oid);
     }

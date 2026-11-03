@@ -158,6 +158,37 @@ message PoolInfoRequest
   sint32 end         = 4;
 }
 
+message MirrorCreateRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  string template   = 3;
+}
+
+message MirrorUpdateRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 mirror_id   = 3;
+  string template   = 4;
+  int32 append      = 5;
+}
+
+message MirrorPortRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 mirror_id   = 3;
+  string ports      = 4;
+}
+
+message MirrorDeleteRequest
+{
+  string session_id = 1;
+  int32 oid         = 2;
+  int32 mirror_id   = 3;
+}
+
 service VirtualNetworkService
 {
   rpc Allocate (one.vn.AllocateRequest) returns (one.ResponseID);
@@ -193,6 +224,16 @@ service VirtualNetworkService
   rpc Release (one.vn.ReleaseRequest) returns (one.ResponseID);
 
   rpc Recover (one.vn.RecoverRequest) returns (one.ResponseID);
+
+  rpc MirrorCreate (one.vn.MirrorCreateRequest) returns (one.ResponseID);
+
+  rpc MirrorUpdate (one.vn.MirrorUpdateRequest) returns (one.ResponseID);
+
+  rpc MirrorAddPort (one.vn.MirrorPortRequest) returns (one.ResponseID);
+
+  rpc MirrorDelPort (one.vn.MirrorPortRequest) returns (one.ResponseID);
+
+  rpc MirrorDelete (one.vn.MirrorDeleteRequest) returns (one.ResponseID);
 
   rpc PoolInfo (one.vn.PoolInfoRequest) returns (one.ResponseXML);
 }

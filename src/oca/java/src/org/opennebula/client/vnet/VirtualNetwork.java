@@ -45,6 +45,11 @@ public class VirtualNetwork extends PoolElement{
     private static final String LOCK            = METHOD_PREFIX + "lock";
     private static final String UNLOCK          = METHOD_PREFIX + "unlock";
     private static final String RECOVER         = METHOD_PREFIX + "recover";
+    private static final String MIRRORCREATE    = METHOD_PREFIX + "mirror_create";
+    private static final String MIRRORUPDATE    = METHOD_PREFIX + "mirror_update";
+    private static final String MIRRORADDPORT   = METHOD_PREFIX + "mirror_addport";
+    private static final String MIRRORDELPORT   = METHOD_PREFIX + "mirror_delport";
+    private static final String MIRRORDELETE    = METHOD_PREFIX + "mirror_delete";
 
     private static final String[] VN_STATES =
         {"INIT", "READY", "LOCK_CREATE", "LOCK_DELETE", "DONE", "ERROR", "UPDATE_FAILURE"};
@@ -424,6 +429,39 @@ public class VirtualNetwork extends PoolElement{
         return client.call(RECOVER, id, operation);
     }
 
+    /** Creates a traffic mirror and returns its VNet-scoped identifier. */
+    public static OneResponse mirrorCreate(Client client, int id, String template)
+    {
+        return client.call(MIRRORCREATE, id, template);
+    }
+
+    /** Updates traffic mirror configuration, preserving its selected ports. */
+    public static OneResponse mirrorUpdate(Client client, int id, int mirrorId,
+                                           String template, boolean append)
+    {
+        return client.call(MIRRORUPDATE, id, mirrorId, template, append ? 1 : 0);
+    }
+
+    /** Adds a comma-separated VM_ID:NIC_ID list to a traffic mirror. */
+    public static OneResponse mirrorAddPort(Client client, int id, int mirrorId,
+                                            String ports)
+    {
+        return client.call(MIRRORADDPORT, id, mirrorId, ports);
+    }
+
+    /** Removes a comma-separated VM_ID:NIC_ID list from a traffic mirror. */
+    public static OneResponse mirrorDelPort(Client client, int id, int mirrorId,
+                                            String ports)
+    {
+        return client.call(MIRRORDELPORT, id, mirrorId, ports);
+    }
+
+    /** Deletes a traffic mirror. */
+    public static OneResponse mirrorDelete(Client client, int id, int mirrorId)
+    {
+        return client.call(MIRRORDELETE, id, mirrorId);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -772,6 +810,31 @@ public class VirtualNetwork extends PoolElement{
     public OneResponse recover(int operation)
     {
         return recover(client, id, operation);
+    }
+
+    public OneResponse mirrorCreate(String template)
+    {
+        return mirrorCreate(client, id, template);
+    }
+
+    public OneResponse mirrorUpdate(int mirrorId, String template, boolean append)
+    {
+        return mirrorUpdate(client, id, mirrorId, template, append);
+    }
+
+    public OneResponse mirrorAddPort(int mirrorId, String ports)
+    {
+        return mirrorAddPort(client, id, mirrorId, ports);
+    }
+
+    public OneResponse mirrorDelPort(int mirrorId, String ports)
+    {
+        return mirrorDelPort(client, id, mirrorId, ports);
+    }
+
+    public OneResponse mirrorDelete(int mirrorId)
+    {
+        return mirrorDelete(client, id, mirrorId);
     }
 
     // =================================

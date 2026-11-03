@@ -21,6 +21,7 @@ import { Leases } from '@modules/resources/VirtualNetwork/Tabs/Leases'
 import { Selection } from '@modules/resources/VirtualNetwork/Tabs/Selection'
 import { Security } from '@modules/resources/VirtualNetwork/Tabs/Security'
 import { VirtualRouters } from '@modules/resources/VirtualNetwork/Tabs/VirtualRouters'
+import { PortMirroring } from '@modules/resources/VirtualNetwork/Tabs/PortMirroring'
 
 export {
   AddressRanges,
@@ -30,6 +31,7 @@ export {
   Selection,
   Security,
   VirtualRouters,
+  PortMirroring,
 }
 
 export const Single = [
@@ -39,6 +41,7 @@ export const Single = [
   Security,
   VirtualRouters,
   Clusters,
+  PortMirroring,
 ]
 
 export const Aggregated = [Selection, Info]

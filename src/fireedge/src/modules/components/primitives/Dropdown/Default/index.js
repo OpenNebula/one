@@ -90,6 +90,7 @@ export const Dropdown = forwardRef(
       tooltip,
       initialValue,
       isOutlined = true,
+      isRequired = false,
       isDefaultOpen = false,
       isMultipleSelectable = false,
       isDisabled = false,
@@ -287,6 +288,7 @@ export const Dropdown = forwardRef(
             placeholder={placeholder || T.Placeholder}
             isDisabled={isDisabled}
             isOutlined={isOutlined}
+            isRequired={isRequired}
             hint={hint}
             tooltip={tooltip}
             error={error}
@@ -385,6 +387,7 @@ Dropdown.propTypes = {
   menuTitle: PropTypes.string,
   isDefaultOpen: PropTypes.bool,
   isOutlined: PropTypes.bool,
+  isRequired: PropTypes.bool,
   isDisabled: PropTypes.bool,
   isReadOnly: PropTypes.bool,
   isSearchable: PropTypes.bool,

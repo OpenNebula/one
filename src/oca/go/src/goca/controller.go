@@ -300,6 +300,11 @@ type RPCCaller interface {
 	VNetHold(ctx context.Context, id int, tmpl string) (*Response, error)
 	VNetRelease(ctx context.Context, id int, tmpl string) (*Response, error)
 	VNetRecover(ctx context.Context, id, operation int) (*Response, error)
+	VNetMirrorCreate(ctx context.Context, id int, tmpl string) (*Response, error)
+	VNetMirrorUpdate(ctx context.Context, id, mirrorID int, tmpl string, updateType int) (*Response, error)
+	VNetMirrorAddPort(ctx context.Context, id, mirrorID int, ports string) (*Response, error)
+	VNetMirrorDelPort(ctx context.Context, id, mirrorID int, ports string) (*Response, error)
+	VNetMirrorDelete(ctx context.Context, id, mirrorID int) (*Response, error)
 	VNetPoolInfo(ctx context.Context, filter, start, end int) (*Response, error)
 
 	VNTemplateAllocate(ctx context.Context, tmpl string) (*Response, error)

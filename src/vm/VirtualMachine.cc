@@ -2352,6 +2352,67 @@ static int parse_memory_mode(string& mem_mode, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachine::update_mirrors()
+{
+    auto vnpool = Nebula::instance().get_vnpool();
+
+    map<int, unique_ptr<VirtualNetwork>> networks;
+    set<pair<int, int>> copied;
+
+    obj_template->erase("MIRROR");
+
+    for (auto nic : nics)
+    {
+        int vnid;
+
+        if (nic->vector_value("NETWORK_ID", vnid) != 0)
+        {
+            continue;
+        }
+
+        auto inserted = networks.try_emplace(vnid);
+
+        if (inserted.second)
+        {
+            inserted.first->second = vnpool->get_ro(vnid);
+        }
+
+        const auto& vn = inserted.first->second;
+
+        if (!vn)
+        {
+            continue;
+        }
+
+        vn->mirror_set_nic(nic->vector_attribute(), oid);
+
+        set<int> ids;
+        one_util::split_unique(nic->vector_value("MIRROR_IDS"), ',', ids);
+
+        for (int mirror_id : ids)
+        {
+            if (!copied.emplace(vnid, mirror_id).second)
+            {
+                continue;
+            }
+
+            const auto mirror = vn->get_mirror(mirror_id);
+
+            if (mirror)
+            {
+                auto definition = mirror->clone();
+
+                definition->replace("NETWORK_ID", vnid);
+
+                obj_template->set(definition);
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::nic_update(int vnid)
 {
     auto vnpool = Nebula::instance().get_vnpool();
@@ -2375,7 +2436,7 @@ int VirtualMachine::nic_update(int vnid)
 
         if (nic->vector_value("NETWORK_ID", nic_vnid) == 0 && vnid == nic_vnid)
         {
-            int rc = vn->nic_update(nic, updating);
+            int rc = vn->nic_update(nic, oid, updating);
 
             if (rc < 0)
             {
@@ -2383,6 +2444,8 @@ int VirtualMachine::nic_update(int vnid)
             }
         }
     }
+
+    update_mirrors();
 
     auto vnet_update = obj_template->get("VNET_UPDATE");
 
@@ -3756,6 +3819,8 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
 
     obj_template->set(sgs);
 
+    update_mirrors();
+
     /* ---------------------------------------------------------------------- */
     /* Generate the CONTEXT for NICs in auto mode                             */
     /* ---------------------------------------------------------------------- */
@@ -3822,6 +3887,8 @@ int VirtualMachine::get_network_leases(string& estr)
     /* ---------------------------------------------------------------------- */
 
     obj_template->set(sgs);
+
+    update_mirrors();
 
     return 0;
 }
@@ -3969,6 +4036,8 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
     {
         obj_template->set(vattr);
     }
+
+    update_mirrors();
 
     return 0;
 }

@@ -175,6 +175,13 @@ export const VN_ACTIONS = {
   // SECURITY GROUPS
   ADD_SECGROUP: 'add_secgroup',
   DELETE_SECGROUP: 'delete_secgroup',
+
+  // PORT MIRRORING
+  MIRROR_CREATE: 'mirror_create',
+  MIRROR_UPDATE: 'mirror_update',
+  MIRROR_ADDPORT: 'mirror_addport',
+  MIRROR_DELPORT: 'mirror_delport',
+  MIRROR_DELETE: 'mirror_delete',
 }
 
 /** @enum {string} Virtual network actions by state */

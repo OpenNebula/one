@@ -35,6 +35,11 @@ type VirtualNetworkServiceClient interface {
 	Hold(ctx context.Context, in *HoldRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
 	Release(ctx context.Context, in *ReleaseRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
 	Recover(ctx context.Context, in *RecoverRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
+	MirrorCreate(ctx context.Context, in *MirrorCreateRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
+	MirrorUpdate(ctx context.Context, in *MirrorUpdateRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
+	MirrorAddPort(ctx context.Context, in *MirrorPortRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
+	MirrorDelPort(ctx context.Context, in *MirrorPortRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
+	MirrorDelete(ctx context.Context, in *MirrorDeleteRequest, opts ...grpc.CallOption) (*shared.ResponseID, error)
 	PoolInfo(ctx context.Context, in *PoolInfoRequest, opts ...grpc.CallOption) (*shared.ResponseXML, error)
 }
 
@@ -199,6 +204,51 @@ func (c *virtualNetworkServiceClient) Recover(ctx context.Context, in *RecoverRe
 	return out, nil
 }
 
+func (c *virtualNetworkServiceClient) MirrorCreate(ctx context.Context, in *MirrorCreateRequest, opts ...grpc.CallOption) (*shared.ResponseID, error) {
+	out := new(shared.ResponseID)
+	err := c.cc.Invoke(ctx, "/one.vn.VirtualNetworkService/MirrorCreate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *virtualNetworkServiceClient) MirrorUpdate(ctx context.Context, in *MirrorUpdateRequest, opts ...grpc.CallOption) (*shared.ResponseID, error) {
+	out := new(shared.ResponseID)
+	err := c.cc.Invoke(ctx, "/one.vn.VirtualNetworkService/MirrorUpdate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *virtualNetworkServiceClient) MirrorAddPort(ctx context.Context, in *MirrorPortRequest, opts ...grpc.CallOption) (*shared.ResponseID, error) {
+	out := new(shared.ResponseID)
+	err := c.cc.Invoke(ctx, "/one.vn.VirtualNetworkService/MirrorAddPort", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *virtualNetworkServiceClient) MirrorDelPort(ctx context.Context, in *MirrorPortRequest, opts ...grpc.CallOption) (*shared.ResponseID, error) {
+	out := new(shared.ResponseID)
+	err := c.cc.Invoke(ctx, "/one.vn.VirtualNetworkService/MirrorDelPort", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *virtualNetworkServiceClient) MirrorDelete(ctx context.Context, in *MirrorDeleteRequest, opts ...grpc.CallOption) (*shared.ResponseID, error) {
+	out := new(shared.ResponseID)
+	err := c.cc.Invoke(ctx, "/one.vn.VirtualNetworkService/MirrorDelete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *virtualNetworkServiceClient) PoolInfo(ctx context.Context, in *PoolInfoRequest, opts ...grpc.CallOption) (*shared.ResponseXML, error) {
 	out := new(shared.ResponseXML)
 	err := c.cc.Invoke(ctx, "/one.vn.VirtualNetworkService/PoolInfo", in, out, opts...)
@@ -229,6 +279,11 @@ type VirtualNetworkServiceServer interface {
 	Hold(context.Context, *HoldRequest) (*shared.ResponseID, error)
 	Release(context.Context, *ReleaseRequest) (*shared.ResponseID, error)
 	Recover(context.Context, *RecoverRequest) (*shared.ResponseID, error)
+	MirrorCreate(context.Context, *MirrorCreateRequest) (*shared.ResponseID, error)
+	MirrorUpdate(context.Context, *MirrorUpdateRequest) (*shared.ResponseID, error)
+	MirrorAddPort(context.Context, *MirrorPortRequest) (*shared.ResponseID, error)
+	MirrorDelPort(context.Context, *MirrorPortRequest) (*shared.ResponseID, error)
+	MirrorDelete(context.Context, *MirrorDeleteRequest) (*shared.ResponseID, error)
 	PoolInfo(context.Context, *PoolInfoRequest) (*shared.ResponseXML, error)
 	mustEmbedUnimplementedVirtualNetworkServiceServer()
 }
@@ -287,6 +342,21 @@ func (UnimplementedVirtualNetworkServiceServer) Release(context.Context, *Releas
 }
 func (UnimplementedVirtualNetworkServiceServer) Recover(context.Context, *RecoverRequest) (*shared.ResponseID, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Recover not implemented")
+}
+func (UnimplementedVirtualNetworkServiceServer) MirrorCreate(context.Context, *MirrorCreateRequest) (*shared.ResponseID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MirrorCreate not implemented")
+}
+func (UnimplementedVirtualNetworkServiceServer) MirrorUpdate(context.Context, *MirrorUpdateRequest) (*shared.ResponseID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MirrorUpdate not implemented")
+}
+func (UnimplementedVirtualNetworkServiceServer) MirrorAddPort(context.Context, *MirrorPortRequest) (*shared.ResponseID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MirrorAddPort not implemented")
+}
+func (UnimplementedVirtualNetworkServiceServer) MirrorDelPort(context.Context, *MirrorPortRequest) (*shared.ResponseID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MirrorDelPort not implemented")
+}
+func (UnimplementedVirtualNetworkServiceServer) MirrorDelete(context.Context, *MirrorDeleteRequest) (*shared.ResponseID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MirrorDelete not implemented")
 }
 func (UnimplementedVirtualNetworkServiceServer) PoolInfo(context.Context, *PoolInfoRequest) (*shared.ResponseXML, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PoolInfo not implemented")
@@ -610,6 +680,96 @@ func _VirtualNetworkService_Recover_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VirtualNetworkService_MirrorCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MirrorCreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VirtualNetworkServiceServer).MirrorCreate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/one.vn.VirtualNetworkService/MirrorCreate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VirtualNetworkServiceServer).MirrorCreate(ctx, req.(*MirrorCreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VirtualNetworkService_MirrorUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MirrorUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VirtualNetworkServiceServer).MirrorUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/one.vn.VirtualNetworkService/MirrorUpdate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VirtualNetworkServiceServer).MirrorUpdate(ctx, req.(*MirrorUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VirtualNetworkService_MirrorAddPort_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MirrorPortRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VirtualNetworkServiceServer).MirrorAddPort(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/one.vn.VirtualNetworkService/MirrorAddPort",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VirtualNetworkServiceServer).MirrorAddPort(ctx, req.(*MirrorPortRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VirtualNetworkService_MirrorDelPort_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MirrorPortRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VirtualNetworkServiceServer).MirrorDelPort(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/one.vn.VirtualNetworkService/MirrorDelPort",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VirtualNetworkServiceServer).MirrorDelPort(ctx, req.(*MirrorPortRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VirtualNetworkService_MirrorDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MirrorDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VirtualNetworkServiceServer).MirrorDelete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/one.vn.VirtualNetworkService/MirrorDelete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VirtualNetworkServiceServer).MirrorDelete(ctx, req.(*MirrorDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _VirtualNetworkService_PoolInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PoolInfoRequest)
 	if err := dec(in); err != nil {
@@ -699,6 +859,26 @@ var _VirtualNetworkService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Recover",
 			Handler:    _VirtualNetworkService_Recover_Handler,
+		},
+		{
+			MethodName: "MirrorCreate",
+			Handler:    _VirtualNetworkService_MirrorCreate_Handler,
+		},
+		{
+			MethodName: "MirrorUpdate",
+			Handler:    _VirtualNetworkService_MirrorUpdate_Handler,
+		},
+		{
+			MethodName: "MirrorAddPort",
+			Handler:    _VirtualNetworkService_MirrorAddPort_Handler,
+		},
+		{
+			MethodName: "MirrorDelPort",
+			Handler:    _VirtualNetworkService_MirrorDelPort_Handler,
+		},
+		{
+			MethodName: "MirrorDelete",
+			Handler:    _VirtualNetworkService_MirrorDelete_Handler,
 		},
 		{
 			MethodName: "PoolInfo",

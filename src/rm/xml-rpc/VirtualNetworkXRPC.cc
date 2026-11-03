@@ -289,6 +289,76 @@ void VirtualNetworkRecoverXRPC::request_execute(xmlrpc_c::paramList const& param
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualNetworkMirrorCreateXRPC::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributesXRPC& att)
+{
+    int mirror_id = -1;
+
+    auto ec = mirror_create(paramList.getInt(1),
+                            paramList.getString(2),
+                            mirror_id,
+                            att);
+
+    response(ec, mirror_id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetworkMirrorUpdateXRPC::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributesXRPC& att)
+{
+    int mirror_id = paramList.getInt(2);
+
+    auto ec = mirror_update(paramList.getInt(1),
+                            mirror_id,
+                            paramList.getString(3),
+                            paramList.size() > 4 ? paramList.getInt(4) : 0,
+                            att);
+
+    response(ec, mirror_id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetworkMirrorAddPortXRPC::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributesXRPC& att)
+{
+    int mirror_id = paramList.getInt(2);
+
+    auto ec = mirror_update_ports(paramList.getInt(1), mirror_id,
+                                  paramList.getString(3), true, att);
+
+    response(ec, mirror_id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetworkMirrorDelPortXRPC::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributesXRPC& att)
+{
+    int mirror_id = paramList.getInt(2);
+
+    auto ec = mirror_update_ports(paramList.getInt(1), mirror_id,
+                                  paramList.getString(3), false, att);
+
+    response(ec, mirror_id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetworkMirrorDeleteXRPC::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributesXRPC& att)
+{
+    int mirror_id = paramList.getInt(2);
+
+    auto ec = mirror_delete(paramList.getInt(1), mirror_id, att);
+
+    response(ec, mirror_id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualNetworkPoolInfoXRPC::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributesXRPC&      att)

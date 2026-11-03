@@ -133,6 +133,10 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         VLAN_ID
     ]
 
+    MIRROR_COLUMNS = [
+        'MIRROR_ID', 'NAME', 'TYPE', 'DIRECTION', 'VLANS', 'PORTS'
+    ].freeze
+
     def self.rname
         'VNET'
     end
@@ -349,6 +353,10 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
     def format_resource(vn, options = {})
         vn_hash = vn.to_hash
+        mirrors = [vn_hash['VNET']['TEMPLATE']['MIRROR']].flatten.compact
+        mirror_xpath = '/VNET/TEMPLATE/MIRROR'
+
+        vn.delete_element(mirror_xpath) while vn.has_elements?(mirror_xpath)
 
         str_h1='%-80s'
         CLIHelper.print_header(format(str_h1,
@@ -397,6 +405,46 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                                false)
 
         puts vn.template_str(false)
+
+        unless mirrors.empty?
+            puts
+            CLIHelper.print_header(format(str_h1, 'MIRRORS'), false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+                column :ID, '', :adjust, :size => 3 do |d|
+                    d['MIRROR_ID']
+                end
+
+                column :NAME, '', :left, :adjust, :size => 12 do |d|
+                    d['NAME']
+                end
+
+                column :TYPE, '', :left, :size => 7 do |d|
+                    d['TYPE']
+                end
+
+                column :DIRECTION, '', :left, :size => 9 do |d|
+                    d['DIRECTION']
+                end
+
+                column :VLANS, '', :left, :adjust, :size => 8 do |d|
+                    d['VLANS']
+                end
+
+                column :PORTS, '', :left, :adjust, :size => 12 do |d|
+                    d['PORTS']
+                end
+
+                column :OPTIONS, '', :left, :adjust, :size => 15 do |d|
+                    d.reject {|key, _value| MIRROR_COLUMNS.include?(key) }
+                     .sort
+                     .map {|key, value| "#{key}=#{value}" }
+                     .join(',')
+                end
+
+                default :ID, :NAME, :TYPE, :DIRECTION, :VLANS, :PORTS, :OPTIONS
+            end.show(mirrors, {})
+        end
 
         puts
 

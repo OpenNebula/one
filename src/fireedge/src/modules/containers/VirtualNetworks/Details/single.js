@@ -49,10 +49,10 @@ import {
 } from '@ModelsModule'
 import { getActionsAvailable, jsonToXml } from '@UtilsModule'
 import { VirtualNetwork } from '@ResourcesModule'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 
 const HIDDEN_ATTRIBUTES_REG = new RegExp(
-  '^(ERROR|SECURITY_GROUPS|CLUSTER|PARENT_NETWORK_ID|' +
+  '^(MIRROR|ERROR|SECURITY_GROUPS|CLUSTER|PARENT_NETWORK_ID|' +
     'VN_MAD|PHYDEV|BRIDGE|BRIDGE_TYPE|' +
     'VLAN_ID|VLAN_ID_AUTOMATIC|OUTER_VLAN_ID|OUTER_VLAN_ID_AUTOMATIC|' +
     'INBOUND_AVG_BW|INBOUND_PEAK_BW|INBOUND_PEAK_KB|' +
@@ -87,6 +87,9 @@ export const SingleView = ({
   const { showModal } = useModalsApi()
   const openReserveForm = VirtualNetwork.Forms.useReserveFormModal()
   const history = useHistory()
+  const { state } = useLocation()
+  const mirrorReturn =
+    String(state?.ID) === String(selectedVNet?.ID) ? state : undefined
 
   // API
   const { data: fetchedVNet = {}, isFetching: isLoadingVNet } =
@@ -439,8 +442,11 @@ export const SingleView = ({
           {
             tabs: VirtualNetwork.Tabs.Single,
             resourceId: VirtualNetwork.RID,
+            defaultTab: mirrorReturn?.tab,
             tabProps: {
               vnet,
+              mirrorId: mirrorReturn?.mirrorId,
+              handleClose,
               attributes,
               handleChangePermission,
               handleChangeOwnership,

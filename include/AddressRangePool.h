@@ -345,6 +345,9 @@ public:
      */
     void get_all_security_groups(std::set<int>& sgs) const;
 
+    /** Whether a VM still owns a lease in any address range. */
+    bool has_vm(int vm_id) const;
+
     /**
      *  Generate a XML representation of the Address Range Pool
      *    @param sstream where the ARPool is written

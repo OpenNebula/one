@@ -474,4 +474,99 @@ CommandParser::CmdParser.new(ARGV) do
             vn.recover(result)
         end
     end
+
+    mirror_create_desc = <<-EOT.unindent
+        Creates a traffic mirror on the Virtual Network
+    EOT
+
+    command :'mirror-create', mirror_create_desc, :vnetid, [:file, nil] do
+        helper.perform_action(args[0], options, 'mirror created') do |vn|
+            template = args[1] ? File.read(args[1]) : OpenNebulaHelper.read_stdin
+
+            if template.empty?
+                STDERR.puts 'A mirror template must be provided as a file or on stdin'
+                exit(-1)
+            end
+
+            mirror_id = vn.mirror_create(template)
+
+            puts "Mirror ID: #{mirror_id}" unless OpenNebula.is_error?(mirror_id)
+
+            mirror_id
+        end
+    end
+
+    mirror_update_desc = <<-EOT.unindent
+        Updates traffic mirror configuration. Use mirror-addport and
+        mirror-delport to change selected VM NICs. If a path is not provided,
+        the editor will be launched with the current mirror configuration.
+    EOT
+
+    command :'mirror-update', mirror_update_desc, :vnetid, :mirror_id,
+            [:file, nil], :options => OpenNebulaHelper::APPEND do
+        begin
+            mirror_id = Integer(args[1], 10)
+        rescue ArgumentError, TypeError
+            STDERR.puts "Invalid mirror ID: #{args[1]}"
+            exit(-1)
+        end
+
+        helper.perform_action(args[0], options, 'mirror updated') do |vn|
+            if args[2]
+                template = File.read(args[2])
+            elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+                template = stdin
+            else
+                rc = vn.info
+
+                if OpenNebula.is_error?(rc)
+                    STDERR.puts rc.message
+                    exit(-1)
+                end
+
+                template = vn.template_like_str(
+                    'TEMPLATE', true, "MIRROR[MIRROR_ID=#{mirror_id}]"
+                )
+
+                if template.empty?
+                    STDERR.puts "MIRROR_ID #{mirror_id} does not exist"
+                    exit(-1)
+                end
+
+                template = OpenNebulaHelper.editor_input(template)
+            end
+
+            vn.mirror_update(mirror_id, template, options[:append])
+        end
+    end
+
+    mirror_addport_desc = <<-EOT.unindent
+        Adds a comma-separated VM_ID:NIC_ID list to a traffic mirror
+    EOT
+
+    command :'mirror-addport', mirror_addport_desc, :vnetid, :mirror_id, :ports do
+        helper.perform_action(args[0], options, 'mirror ports added') do |vn|
+            vn.mirror_addport(args[1], args[2])
+        end
+    end
+
+    mirror_delport_desc = <<-EOT.unindent
+        Removes a comma-separated VM_ID:NIC_ID list from a traffic mirror
+    EOT
+
+    command :'mirror-delport', mirror_delport_desc, :vnetid, :mirror_id, :ports do
+        helper.perform_action(args[0], options, 'mirror ports removed') do |vn|
+            vn.mirror_delport(args[1], args[2])
+        end
+    end
+
+    mirror_delete_desc = <<-EOT.unindent
+        Deletes a traffic mirror from the Virtual Network
+    EOT
+
+    command :'mirror-delete', mirror_delete_desc, :vnetid, :mirror_id do
+        helper.perform_action(args[0], options, 'mirror deleted') do |vn|
+            vn.mirror_delete(args[1])
+        end
+    end
 end

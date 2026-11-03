@@ -37,6 +37,11 @@ const VN_LOCK = 'vn.lock'
 const VN_UNLOCK = 'vn.unlock'
 const VN_RECOVER = 'vn.recover'
 const VN_POOL_INFO = 'vnpool.info'
+const VN_MIRROR_CREATE = 'vn.mirror_create'
+const VN_MIRROR_UPDATE = 'vn.mirror_update'
+const VN_MIRROR_ADDPORT = 'vn.mirror_addport'
+const VN_MIRROR_DELPORT = 'vn.mirror_delport'
+const VN_MIRROR_DELETE = 'vn.mirror_delete'
 
 const Actions = {
   VN_ALLOCATE,
@@ -57,6 +62,11 @@ const Actions = {
   VN_UNLOCK,
   VN_RECOVER,
   VN_POOL_INFO,
+  VN_MIRROR_CREATE,
+  VN_MIRROR_UPDATE,
+  VN_MIRROR_ADDPORT,
+  VN_MIRROR_DELPORT,
+  VN_MIRROR_DELETE,
 }
 
 module.exports = {
@@ -355,6 +365,87 @@ module.exports = {
         zone: {
           from: query,
           default: 0,
+        },
+      },
+    },
+    [VN_MIRROR_CREATE]: {
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
+        },
+        template: {
+          from: postBody,
+          default: '',
+        },
+      },
+    },
+    [VN_MIRROR_UPDATE]: {
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
+        },
+        mirrorId: {
+          from: postBody,
+          default: -1,
+        },
+        template: {
+          from: postBody,
+          default: '',
+        },
+        replace: {
+          from: postBody,
+          default: 0,
+        },
+      },
+    },
+    [VN_MIRROR_ADDPORT]: {
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
+        },
+        mirrorId: {
+          from: postBody,
+          default: -1,
+        },
+        ports: {
+          from: postBody,
+          default: '',
+        },
+      },
+    },
+    [VN_MIRROR_DELPORT]: {
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
+        },
+        mirrorId: {
+          from: postBody,
+          default: -1,
+        },
+        ports: {
+          from: postBody,
+          default: '',
+        },
+      },
+    },
+    [VN_MIRROR_DELETE]: {
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
+        },
+        mirrorId: {
+          from: postBody,
+          default: -1,
         },
       },
     },

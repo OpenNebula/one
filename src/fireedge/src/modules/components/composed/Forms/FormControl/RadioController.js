@@ -17,6 +17,7 @@ import { css } from '@emotion/css'
 import { AdornmentWithTooltip as Tooltip } from '@modules/components/composed/Forms/FormControl/Tooltip'
 import { findClosestValue, generateKey } from '@UtilsModule'
 import { Text } from '@modules/components/primitives/Text'
+import { RadioButton } from '@modules/components/primitives/Buttons/Radio'
 import { TEXT_VARIANTS, TEXT_WEIGHTS } from '@ConstantsModule'
 
 import {
@@ -96,6 +97,7 @@ export const RadioController = memo(
     cy = `radio-${generateKey()}`,
     name = '',
     label = '',
+    variant = 'cards',
     values = [],
     tooltip,
     watcher,
@@ -146,13 +148,13 @@ export const RadioController = memo(
     }, [watch, watcher, dependencies])
 
     const handleChange = useCallback(
-      (evt) => {
+      (value) => {
         if (readOnly || fieldProps.disabled) return
 
         onBlur()
-        onChange(evt.target.value)
+        onChange(value)
         if (typeof onConditionChange === 'function') {
-          onConditionChange(evt.target.value)
+          onConditionChange(value)
         }
       },
       [fieldProps.disabled, onBlur, onChange, onConditionChange, readOnly]
@@ -173,76 +175,91 @@ export const RadioController = memo(
             weight={TEXT_WEIGHTS.MEDIUM}
           />
         )}
-        <RadioGroup
-          {...inputProps}
-          value={optionSelected ?? ''}
-          onChange={handleChange}
-          onBlur={onBlur}
-          row
-          className={classes.root}
-          data-cy={cy}
-        >
-          {values.map(({ text, value, svg, description }) => (
-            <Box
-              component="label"
-              key={`${name}-${value}`}
-              data-cy={`${cy}-${value}`}
-              data-value={value}
-              className={
-                optionSelected === value
-                  ? clsx(classes.rootItem, classes.itemSelected)
-                  : classes.rootItem
-              }
-            >
-              <Box className={svg ? classes.paddingSvg : classes.padding}>
-                <Box className={classes.row}>
-                  <Box className={classes.cell}>
-                    <Radio
-                      inputRef={ref}
-                      value={value}
-                      disabled={readOnly || fieldProps.disabled}
-                      checked={optionSelected === value}
-                      className={classes.radio}
-                      inputProps={{ 'data-value': value }}
-                    />
-                  </Box>
-                  <Box className={clsx(classes.cell, classes.cellFull)}>
-                    <Text
-                      component="span"
-                      value={text}
-                      variant={TEXT_VARIANTS.BODY_MEDIUM}
-                      weight={TEXT_WEIGHTS.MEDIUM}
-                    />
-                    {description && (
-                      <Text
-                        component="span"
-                        value={description}
-                        variant={TEXT_VARIANTS.CAPTION}
-                        weight={TEXT_WEIGHTS.REGULAR}
-                        sx={{
-                          display: 'block',
-                          m: 0,
-                          mt: 0.5,
-                        }}
-                      />
-                    )}
-                  </Box>
-                </Box>
-                {svg && (
+        {variant === 'plain' ? (
+          <RadioButton
+            {...inputProps}
+            variant="plain"
+            inputRef={ref}
+            options={values}
+            value={optionSelected ?? ''}
+            onChange={handleChange}
+            onBlur={onBlur}
+            isDisabled={readOnly || fieldProps.disabled}
+            dataCy={cy}
+            aria-label={label || name}
+          />
+        ) : (
+          <RadioGroup
+            {...inputProps}
+            value={optionSelected ?? ''}
+            onChange={(event) => handleChange(event.target.value)}
+            onBlur={onBlur}
+            row
+            className={classes.root}
+            data-cy={cy}
+          >
+            {values.map(({ text, value, svg, description }) => (
+              <Box
+                component="label"
+                key={`${name}-${value}`}
+                data-cy={`${cy}-${value}`}
+                data-value={value}
+                className={
+                  optionSelected === value
+                    ? clsx(classes.rootItem, classes.itemSelected)
+                    : classes.rootItem
+                }
+              >
+                <Box className={svg ? classes.paddingSvg : classes.padding}>
                   <Box className={classes.row}>
-                    <Box className={classes.cell} />
-                    <Box className={clsx(classes.cell, classes.cellFull)}>
-                      <div
-                        className={classes.svg}
-                        dangerouslySetInnerHTML={{ __html: svg }}
+                    <Box className={classes.cell}>
+                      <Radio
+                        inputRef={ref}
+                        value={value}
+                        disabled={readOnly || fieldProps.disabled}
+                        checked={optionSelected === value}
+                        className={classes.radio}
+                        inputProps={{ 'data-value': value }}
                       />
                     </Box>
+                    <Box className={clsx(classes.cell, classes.cellFull)}>
+                      <Text
+                        component="span"
+                        value={text}
+                        variant={TEXT_VARIANTS.BODY_MEDIUM}
+                        weight={TEXT_WEIGHTS.MEDIUM}
+                      />
+                      {description && (
+                        <Text
+                          component="span"
+                          value={description}
+                          variant={TEXT_VARIANTS.CAPTION}
+                          weight={TEXT_WEIGHTS.REGULAR}
+                          sx={{
+                            display: 'block',
+                            m: 0,
+                            mt: 0.5,
+                          }}
+                        />
+                      )}
+                    </Box>
                   </Box>
-                )}
+                  {svg && (
+                    <Box className={classes.row}>
+                      <Box className={classes.cell} />
+                      <Box className={clsx(classes.cell, classes.cellFull)}>
+                        <div
+                          className={classes.svg}
+                          dangerouslySetInnerHTML={{ __html: svg }}
+                        />
+                      </Box>
+                    </Box>
+                  )}
+                </Box>
               </Box>
-            </Box>
-          ))}
-        </RadioGroup>
+            ))}
+          </RadioGroup>
+        )}
         {tooltip && <Tooltip title={tooltip} position="start" />}
         {error && <FormHelperText>{error?.message}</FormHelperText>}
       </FormControl>
@@ -252,6 +269,7 @@ export const RadioController = memo(
     prev.error === next.error &&
     prev.values.length === next.values.length &&
     prev.label === next.label &&
+    prev.variant === next.variant &&
     prev.tooltip === next.tooltip &&
     prev.fieldProps?.disabled === next.fieldProps?.disabled &&
     prev.readOnly === next.readOnly
@@ -262,6 +280,7 @@ RadioController.propTypes = {
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
   label: PropTypes.any,
+  variant: PropTypes.oneOf(['cards', 'plain']),
   tooltip: PropTypes.any,
   values: PropTypes.arrayOf(
     PropTypes.shape({

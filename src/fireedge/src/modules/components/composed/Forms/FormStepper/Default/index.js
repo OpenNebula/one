@@ -643,6 +643,7 @@ const FormStepper = ({
                 data={formData[stepId]}
                 setFormData={setFormData}
                 showMandatoryOnly={valueShowMandatoryOnly}
+                onStepChange={handleStep}
               />
             </Box>
           )}

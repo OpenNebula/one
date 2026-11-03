@@ -313,6 +313,87 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualNetworkMirrorCreateXRPC: public RequestXRPC, public VirtualNetworkAPI
+{
+public:
+    VirtualNetworkMirrorCreateXRPC()
+        : RequestXRPC("one.vn.mirror_create",
+                      "Creates a port mirror on a Virtual Network",
+                      "A:sis")
+        , VirtualNetworkAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributesXRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkMirrorUpdateXRPC: public RequestXRPC, public VirtualNetworkAPI
+{
+public:
+    VirtualNetworkMirrorUpdateXRPC()
+        : RequestXRPC("one.vn.mirror_update",
+                      "Updates a Virtual Network port mirror",
+                      "A:siisi")
+        , VirtualNetworkAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributesXRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkMirrorAddPortXRPC: public RequestXRPC, public VirtualNetworkAPI
+{
+public:
+    VirtualNetworkMirrorAddPortXRPC()
+        : RequestXRPC("one.vn.mirror_addport",
+                      "Adds ports to a Virtual Network port mirror",
+                      "A:siis")
+        , VirtualNetworkAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributesXRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkMirrorDelPortXRPC: public RequestXRPC, public VirtualNetworkAPI
+{
+public:
+    VirtualNetworkMirrorDelPortXRPC()
+        : RequestXRPC("one.vn.mirror_delport",
+                      "Removes ports from a Virtual Network port mirror",
+                      "A:siis")
+        , VirtualNetworkAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributesXRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkMirrorDeleteXRPC: public RequestXRPC, public VirtualNetworkAPI
+{
+public:
+    VirtualNetworkMirrorDeleteXRPC()
+        : RequestXRPC("one.vn.mirror_delete",
+                      "Deletes a Virtual Network port mirror",
+                      "A:sii")
+        , VirtualNetworkAPI(static_cast<Request&>(*this))
+    {}
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributesXRPC& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class VirtualNetworkPoolInfoXRPC : public RequestXRPC, public VirtualNetworkPoolAPI
 {
 public:

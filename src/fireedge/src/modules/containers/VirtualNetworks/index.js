@@ -14,5 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/containers/VirtualNetworks/Create'
+export * from '@modules/containers/VirtualNetworks/CreateMirror'
 export * from '@modules/containers/VirtualNetworks/Detail'
 export * from '@modules/containers/VirtualNetworks/VirtualNetworks'

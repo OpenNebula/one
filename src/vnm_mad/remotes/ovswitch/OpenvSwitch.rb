@@ -16,6 +16,7 @@
 
 require 'vnmmad'
 require 'fileutils'
+require_relative 'Mirror'
 
 # Implementation of the Open vSwitch driver
 class OpenvSwitchVLAN < VNMMAD::VNMDriver
@@ -39,7 +40,8 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         :outbound_peak_bw,
         :outbound_peak_kb,
         :outer_vlan_id,
-        :phydev
+        :phydev,
+        :mirrors
     ]
 
     def initialize(vm, xpath_filter = nil, deploy_id = nil)
@@ -53,6 +55,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         lock
 
         @bridges = list_bridges
+        mirror_nics = []
 
         process do |nic|
             @nic = nic
@@ -141,7 +144,11 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
             # IP-spoofing
             ip_spoofing if nic[:filter_ip_spoofing] =~ /yes/i
+
+            mirror_nics << nic
         end
+
+        reconcile_mirrors(:activate, mirror_nics)
 
         # MAC-spoofing & IP-spoofing for NIC ALIAS
         process_alias do |nalias|
@@ -205,9 +212,18 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
         lock
 
-        @bridges = list_bridges
-
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+        mirror_nics   = []
+
+        @vm.each_nic do |nic|
+            next if attach_nic_id && attach_nic_id != nic[:nic_id]
+
+            mirror_nics << nic
+        end
+
+        reconcile_mirrors(:deactivate, mirror_nics)
+
+        @bridges = list_bridges
 
         process do |nic|
             if attach_nic_id && attach_nic_id != nic[:nic_id]
@@ -261,8 +277,11 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
             return 0 if changes.empty?
 
+            mirror_nics = []
             process do |nic|
                 next unless Integer(nic[:network_id]) == vnet_id
+
+                mirror_nics << nic
 
                 @nic = nic
 
@@ -334,6 +353,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                     end
                 end
             end
+            reconcile_mirrors(:update, mirror_nics) if changes[:mirrors]
         ensure
             unlock
         end
@@ -569,6 +589,15 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     # rubocop:enable Style/StringLiterals
     # rubocop:enable Style/FormatString
     # rubocop:enable Style/FormatStringToken
+
+    # Only mirror reconciliation serializes shared OVSDB state.
+    def reconcile_mirrors(event, nics)
+        return if nics.empty?
+
+        mirrors = OpenvSwitchMirrors.new(command(:ovs_vsctl), command(:ip_unpriv))
+        mirrors.reconcile(event, Integer(@vm['ID']), nics,
+                          @vm.vm_root.get_elements('TEMPLATE/MIRROR'))
+    end
 
     private
 

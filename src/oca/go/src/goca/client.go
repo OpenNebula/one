@@ -1351,6 +1351,26 @@ func (c *Client) VNetRecover(ctx context.Context, id, operation int) (*Response,
 	return c.CallContext(ctx, "one.vn.recover", id, operation)
 }
 
+func (c *Client) VNetMirrorCreate(ctx context.Context, id int, tmpl string) (*Response, error) {
+	return c.CallContext(ctx, "one.vn.mirror_create", id, tmpl)
+}
+
+func (c *Client) VNetMirrorUpdate(ctx context.Context, id, mirrorID int, tmpl string, updateType int) (*Response, error) {
+	return c.CallContext(ctx, "one.vn.mirror_update", id, mirrorID, tmpl, updateType)
+}
+
+func (c *Client) VNetMirrorAddPort(ctx context.Context, id, mirrorID int, ports string) (*Response, error) {
+	return c.CallContext(ctx, "one.vn.mirror_addport", id, mirrorID, ports)
+}
+
+func (c *Client) VNetMirrorDelPort(ctx context.Context, id, mirrorID int, ports string) (*Response, error) {
+	return c.CallContext(ctx, "one.vn.mirror_delport", id, mirrorID, ports)
+}
+
+func (c *Client) VNetMirrorDelete(ctx context.Context, id, mirrorID int) (*Response, error) {
+	return c.CallContext(ctx, "one.vn.mirror_delete", id, mirrorID)
+}
+
 func (c *Client) VNetPoolInfo(ctx context.Context, filter, start, end int) (*Response, error) {
 	return c.CallContext(ctx, "one.vnpool.info", filter, start, end)
 }

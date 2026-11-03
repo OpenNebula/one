@@ -58,6 +58,27 @@ protected:
                                  const std::string& str_tmpl,
                                  RequestAttributes& att);
 
+    Request::ErrorCode mirror_create(int oid,
+                                     const std::string& str_tmpl,
+                                     int& mirror_id,
+                                     RequestAttributes& att);
+
+    Request::ErrorCode mirror_update(int oid,
+                                     int mirror_id,
+                                     const std::string& str_tmpl,
+                                     int update_type,
+                                     RequestAttributes& att);
+
+    Request::ErrorCode mirror_update_ports(int oid,
+                                           int mirror_id,
+                                           const std::string& ports,
+                                           bool add,
+                                           RequestAttributes& att);
+
+    Request::ErrorCode mirror_delete(int oid,
+                                     int mirror_id,
+                                     RequestAttributes& att);
+
     Request::ErrorCode reserve(int oid,
                                const std::string& str_tmpl,
                                int& rid,
@@ -120,6 +141,10 @@ private:
                                     int ar_id,
                                     bool force,
                                     RequestAttributes& att);
+
+    Request::ErrorCode authorize_mirror(int oid,
+                                        const std::string& ports,
+                                        RequestAttributes& att) const;
 
 };
 

@@ -50,7 +50,7 @@ import { VnTemplate as Resource } from '@ResourcesModule'
 import { useHistory } from 'react-router'
 
 const HIDDEN_ATTRIBUTES_REG = new RegExp(
-  '^(AR|CLUSTER|CLUSTERS|CLUSTER_IDS|SECURITY_GROUPS|' +
+  '^(MIRROR|AR|CLUSTER|CLUSTERS|CLUSTER_IDS|SECURITY_GROUPS|' +
     'VN_MAD|AUTOMATIC_VLAN_ID|VLAN_ID|' +
     'AUTOMATIC_OUTER_VLAN_ID|OUTER_VLAN_ID|' +
     'INBOUND_AVG_BW|INBOUND_PEAK_BW|INBOUND_PEAK_KB|' +
@@ -279,6 +279,8 @@ export const SingleView = ({
     nextAttributes.forEach(({ key, rawValue, value }) => {
       nextTemplate[key] = rawValue ?? value
     })
+
+    delete nextTemplate.MIRROR
 
     await update({
       id: vnTemplate?.ID,

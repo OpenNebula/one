@@ -61,6 +61,8 @@ int VirtualMachineNic::release_network_leases(int vmid)
         vn->free_addr(PoolObjectSQL::VM, vmid, this);
     }
 
+    vn->mirror_release_port(vmid, get_nic_id());
+
     vnpool->update(vn.get());
 
     return 0;

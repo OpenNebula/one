@@ -41,7 +41,12 @@ module OpenNebula
             :free_ar    => "vn.free_ar",
             :lock       => "vn.lock",
             :unlock     => "vn.unlock",
-            :recover    => "vn.recover"
+            :recover    => "vn.recover",
+            :mirror_create  => 'vn.mirror_create',
+            :mirror_update  => 'vn.mirror_update',
+            :mirror_addport => 'vn.mirror_addport',
+            :mirror_delport => 'vn.mirror_delport',
+            :mirror_delete  => 'vn.mirror_delete',
         }
 
         VN_STATES=%w{INIT READY LOCK_CREATE LOCK_DELETE DONE ERROR UPDATE_FAILURE}
@@ -296,6 +301,58 @@ module OpenNebula
         #   otherwise
         def recover(result)
             return call(VN_METHODS[:recover], @pe_id, result)
+        end
+
+        # Creates a traffic mirror and returns its VNet-scoped ID.
+        def mirror_create(mirror_template)
+            return Error.new('ID not defined') unless @pe_id
+
+            @client.call(VN_METHODS[:mirror_create], @pe_id, mirror_template)
+        end
+
+        # Updates mirror configuration. PORTS must be changed separately.
+        def mirror_update(mirror_id, mirror_template, append = false)
+            return Error.new('ID not defined') unless @pe_id
+
+            mirror_id_i = Integer(mirror_id.to_s, 10)
+
+            @client.call(VN_METHODS[:mirror_update], @pe_id, mirror_id_i,
+                         mirror_template, append ? 1 : 0)
+        rescue ArgumentError, TypeError
+            Error.new("Invalid mirror ID: #{mirror_id}")
+        end
+
+        # Adds VM_ID:NIC_ID entries to a mirror.
+        def mirror_addport(mirror_id, ports)
+            return Error.new('ID not defined') unless @pe_id
+
+            mirror_id_i = Integer(mirror_id.to_s, 10)
+
+            @client.call(VN_METHODS[:mirror_addport], @pe_id, mirror_id_i, ports)
+        rescue ArgumentError, TypeError
+            Error.new("Invalid mirror ID: #{mirror_id}")
+        end
+
+        # Removes VM_ID:NIC_ID entries from a mirror.
+        def mirror_delport(mirror_id, ports)
+            return Error.new('ID not defined') unless @pe_id
+
+            mirror_id_i = Integer(mirror_id.to_s, 10)
+
+            @client.call(VN_METHODS[:mirror_delport], @pe_id, mirror_id_i, ports)
+        rescue ArgumentError, TypeError
+            Error.new("Invalid mirror ID: #{mirror_id}")
+        end
+
+        # Deletes a mirror.
+        def mirror_delete(mirror_id)
+            return Error.new('ID not defined') unless @pe_id
+
+            mirror_id_i = Integer(mirror_id.to_s, 10)
+
+            @client.call(VN_METHODS[:mirror_delete], @pe_id, mirror_id_i)
+        rescue ArgumentError, TypeError
+            Error.new("Invalid mirror ID: #{mirror_id}")
         end
 
         #######################################################################
