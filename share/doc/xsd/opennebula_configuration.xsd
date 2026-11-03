@@ -328,6 +328,8 @@
               <xs:element name="DS_MIGRATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DS_LIVE_MIGRATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DS_MIGRATE_SNAP" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="INTERACTIVE_BACKUP" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="INTERACTIVE_BACKUP_FORMATS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="LN_TARGET" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="LN_TARGET_SHARED" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="LN_TARGET_SSH" type="xs:string" minOccurs="0" maxOccurs="1"/>
