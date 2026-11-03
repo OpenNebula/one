@@ -117,7 +117,7 @@ const generateGuacamoleSession = (
   userData = {},
   xmlrpc = defaultEmptyFunction
 ) => {
-  const { id: userAuthId, user: authUser } = userData
+  const { id: userAuthId, user: authUser, password: authToken } = userData
   const { id: vmId, type, download } = params
   const ensuredType = `${type}`.toLowerCase()
 
@@ -125,14 +125,15 @@ const generateGuacamoleSession = (
     const messageError = "Type connection isn't supported by Guacamole"
     res.locals.httpCode = httpResponse(badRequest, messageError)
     next()
-  }
 
-  const serverAdmin = getSunstoneAuth() ?? {}
-  const { token: authToken } = createTokenServerAdmin(serverAdmin) ?? {}
+    return
+  }
 
   if (!authToken || !authUser) {
     res.locals.httpCode = httpResponse(badRequest, '')
     next()
+
+    return
   }
 
   const oneClient = xmlrpc(authUser, authToken)

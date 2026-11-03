@@ -237,7 +237,8 @@ const guacamole = (appServer) => {
   if (appServer?.constructor?.name === 'Server') {
     const guacamoleServer = new GuacamoleOpennebula(
       {
-        server: appServer,
+        noServer: true,
+        port: null,
         path: endpointGuacamole,
         verifyClient: verifyGuacamoleClient,
       },
@@ -245,6 +246,15 @@ const guacamole = (appServer) => {
       clientOptions,
       clientCallbacks
     )
+    const { webSocketServer } = guacamoleServer
+    appServer.on('upgrade', (req, socket, head) => {
+      // Only accept upgrades on the previously passed path
+      if (!webSocketServer.shouldHandle(req)) return
+
+      webSocketServer.handleUpgrade(req, socket, head, (webSocket, request) => {
+        webSocketServer.emit('connection', webSocket, request)
+      })
+    })
     // The bridge reads the upgrade request from the pre-v3 ws API.
     guacamoleServer.webSocketServer.prependListener(
       'connection',
