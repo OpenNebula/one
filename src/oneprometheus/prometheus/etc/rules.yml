@@ -94,7 +94,8 @@ groups:
       description: "OpenNebula scheduler {{ $labels.one_server_fqdn }} of job {{ $labels.job }} has been down for more than 30 seconds"
     labels: { severity: critical }
   - alert: HookManagerDown
-    expr: opennebula_hem_state == 0
+    # the raft hooks run hem on the leader only: do not alert on HA followers
+    expr: opennebula_hem_state == 0 unless on(one_server_fqdn) opennebula_ha_is_leader == 0
     for: 30s
     annotations:
       title: "OpenNebula hook manager {{ $labels.one_server_fqdn }} down"
