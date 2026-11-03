@@ -24,6 +24,10 @@ jobs:
         run: sudo apt install -y cppcheck
       - name: Install AStyle
         run: sudo apt install -y astyle
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v6
 

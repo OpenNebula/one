@@ -19,7 +19,7 @@
 cd src/fireedge
 
 # Install dependencies
-npm i
+npm ci
 
 # Run linter
 npm run lint
