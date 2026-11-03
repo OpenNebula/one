@@ -89,19 +89,11 @@
 	</suppress>
 	<suppress>
 		<id>knownConditionTrueFalse</id>
-		<fileName>src/monitor/src/data_model/VMRPCPool.cc</fileName>
-	</suppress>
-	<suppress>
-		<id>knownConditionTrueFalse</id>
 		<fileName>src/vm/VirtualMachine.cc</fileName>
 	</suppress>
 	<suppress>
 		<id>knownConditionTrueFalse</id>
 		<fileName>src/rm/RequestManagerUser.cc</fileName>
-	</suppress>
-	<suppress>
-		<id>uninitMemberVar</id>
-		<fileName>include/Callbackable.h</fileName>
 	</suppress>
 	<suppress>
 		<id>noConstructor</id>

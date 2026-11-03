@@ -236,6 +236,8 @@ int RaftManager::get_leader_endpoint(string& endpoint, bool grpc)
         unsigned int _num_servers = get_zone_servers(_servers);
         lock.lock();
 
+        // Members may change while raft_mutex is released, cppcheck doesn't see it
+        // cppcheck-suppress knownConditionTrueFalse
         if ( state == FOLLOWER && term == _term && leader_id == _leader_id &&
              servers.find(leader_id) == servers.end() &&
              _servers.find(leader_id) != _servers.end() )
