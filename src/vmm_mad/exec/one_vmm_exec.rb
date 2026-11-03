@@ -166,6 +166,7 @@ class VmmAction
     # also required but added separately to the driver xml
     XPATH_LIST = [
         'ID', 'DEPLOY_ID', 'TEMPLATE/CONTEXT', 'USER_TEMPLATE', 'TEMPLATE/SECURITY_GROUP_RULE',
+        'TEMPLATE/MIRROR',
         'HISTORY_RECORDS/HISTORY/HOSTNAME', 'HISTORY_RECORDS/HISTORY/HID',
         'HISTORY_RECORDS/HISTORY/DS_ID', 'HISTORY_RECORDS/HISTORY/VM_MAD'
     ]
