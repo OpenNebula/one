@@ -237,10 +237,16 @@ const list = (
 
   return respond(response, next, async () => {
     const client = zendesk.createClient(session.zendesk)
-    const tickets = await client.requests.list({
-      sort_by: 'created_at',
-      sort_order: 'desc',
-    })
+    // requests.list() follows every pagination link. Fetch only the first
+    // cursor page to preserve the previous limit of 100 tickets.
+    const { result: tickets } = await client.requests.get([
+      'requests',
+      {
+        sort_by: 'created_at',
+        sort_order: 'desc',
+        page: 1,
+      },
+    ])
     const ticketCount = {
       new: 0,
       open: 0,
