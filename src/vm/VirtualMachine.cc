@@ -3568,6 +3568,31 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::validate_interactive_backup(string& error)
+{
+    vector<int> disk_ids;
+
+    backup_disk_ids(disk_ids);
+
+    for (int disk_id : disk_ids)
+    {
+        auto disk = disks.get_disk(disk_id);
+
+        if (disk != nullptr && !disk->support_interactive())
+        {
+            error = "Disk does not support interactive backup: "
+                    + to_string(disk_id);
+
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::get_disk_images(string& error_str)
 {
     vector<VectorAttribute *> adisks;

@@ -1909,6 +1909,13 @@ public:
         disks.backup_disk_ids(do_volatile, disk_ids);
     }
 
+    /**
+     *  Check that all disks selected for backup support interactive backups
+     *    @param error Error message if a disk does not support interactive backup
+     *    @return 0 on success, -1 otherwise
+     */
+    int validate_interactive_backup(std::string& error);
+
     long long backup_size(Template &ds_quota)
     {
         std::vector<int> disk_ids;

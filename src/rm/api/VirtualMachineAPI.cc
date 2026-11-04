@@ -3651,14 +3651,11 @@ Request::ErrorCode VirtualMachineAPI::backup(int vid,
 
                 return Request::ACTION;
             }
+        }
 
-            if (interactive && !disk->support_interactive())
-            {
-                att.resp_msg = "Disk does not support interactive backup: "
-                               + to_string(disk->get_disk_id());
-
-                return Request::ACTION;
-            }
+        if (interactive && vm->validate_interactive_backup(att.resp_msg) != 0)
+        {
+            return Request::ACTION;
         }
     }
     else
