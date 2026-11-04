@@ -1435,6 +1435,12 @@ Bash symbols must be escaped on STDIN passing'
 
             hash = hash['schema']['element']
 
+            # Schemas may define several top-level elements (e.g. vnet.xsd
+            # defines MIRROR and VNET), pick the one matching the resource
+            if hash.is_a?(Array)
+                hash = hash.find {|e| e['name'] == ename } || hash.first
+            end
+
             replace_refs(hash)
         end
 
