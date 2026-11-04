@@ -66,7 +66,8 @@ http.interceptors.request.use((config) => ({
   ...config,
   headers: {
     ...config.headers,
-    'Content-Type': 'application/json',
+    'Content-Type':
+      config.data instanceof FormData ? undefined : 'application/json',
   },
   ...(!config?.onUploadProgress
     ? { timeout: window.__GLOBAL_API_TIMEOUT__ }

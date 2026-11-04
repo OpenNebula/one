@@ -14,8 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-// eslint-disable-next-line node/no-deprecated-api
-const { parse } = require('url')
+const { URL } = require('node:url')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 const { getFireedgeConfig } = require('server/utils/yml')
 const { genPathResources } = require('server/utils/server')
@@ -37,16 +36,15 @@ const getZoneUrl = (req) => {
   let zoneURL = ''
   const externalURL = req?.url
   if (externalURL) {
-    const parsedURL = parse(externalURL, true)
-    const zone = parsedURL?.query?.zone
+    const parsedURL = new URL(externalURL, url)
+    const zone = parsedURL.searchParams.get('zone')
 
     if (zone) {
       const dataZone = getZone(zone)
       if (dataZone?.fireedge) {
         zoneURL = dataZone?.fireedge
       } else {
-        const URL = dataZone.rpc
-        const zoneDataURL = parse(URL)
+        const zoneDataURL = new URL(dataZone.rpc)
         zoneURL = `${protocol}://${zoneDataURL.hostname}:${defaultPort}`
       }
     }

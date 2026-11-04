@@ -14,8 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-// eslint-disable-next-line node/no-deprecated-api
-const { parse } = require('url')
+const { URL, urlToHttpOptions } = require('node:url')
 const rpc = require('xmlrpc')
 const { Map } = require('immutable')
 const { sprintf } = require('sprintf-js')
@@ -112,12 +111,13 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
   let rtn = defaultEmptyFunction
   if (username && password && zoneURL) {
     let xmlClient = null
-    const parsedHostname = parse(zoneURL)
+    const parsedHostname = new URL(zoneURL)
+    const options = urlToHttpOptions(parsedHostname)
     const protocol = parsedHostname.protocol
     if (protocol === 'https:') {
-      xmlClient = rpc.createSecureClient(zoneURL)
+      xmlClient = rpc.createSecureClient(options)
     } else {
-      xmlClient = rpc.createClient(zoneURL)
+      xmlClient = rpc.createClient(options)
     }
     if (xmlClient && xmlClient.methodCall) {
       rtn = ({

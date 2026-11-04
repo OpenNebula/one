@@ -24,8 +24,7 @@ const { Actions } = require('server/utils/constants/commands/user')
 const qrcode = require('qrcode')
 const { DateTime } = require('luxon')
 const { createCipheriv, randomBytes } = require('crypto')
-// eslint-disable-next-line node/no-deprecated-api
-const { parse } = require('url')
+const { URL } = require('node:url')
 const { global, Array } = require('window-or-global')
 const { Actions: ActionUsers } = require('server/utils/constants/commands/user')
 const { Actions: ActionZones } = require('server/utils/constants/commands/zone')
@@ -303,8 +302,7 @@ const setZones = ({ connect, next }) => {
                 : zonesOpennebula.ZONE_POOL.ZONE
               global.zones = oneZones.map((oneZone) => {
                 const rpc = oneZone?.TEMPLATE?.ENDPOINT || ''
-                const parsedURL = rpc && parse(rpc)
-                const parsedHost = parsedURL.hostname || ''
+                const parsedHost = URL.parse(rpc)?.hostname || ''
 
                 const data = {
                   id: oneZone.ID || '',

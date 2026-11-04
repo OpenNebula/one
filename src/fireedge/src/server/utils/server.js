@@ -21,15 +21,7 @@ const { env } = require('process')
 const { Map } = require('immutable')
 const { global } = require('window-or-global')
 const { resolve } = require('path')
-const {
-  createCipheriv,
-  // eslint-disable-next-line node/no-deprecated-api
-  createCipher,
-  createDecipheriv,
-  // eslint-disable-next-line node/no-deprecated-api
-  createDecipher,
-  createHash,
-} = require('crypto')
+const { createHash } = require('crypto')
 const {
   readFileSync,
   createWriteStream,
@@ -64,7 +56,6 @@ const {
   defaultWebpackMode,
   defaultEtcPath,
   defaultLabelsFilename,
-  defaultTypeCrypto,
   defaultHash,
   defaultSunstonePath,
   defaultSunstoneViews,
@@ -282,70 +273,6 @@ const middlewareValidateAuthWebsocket = (
   } else {
     server.disconnect(true)
   }
-}
-
-/**
- * Encrypt.
- *
- * @param {string} data - data to encrypt
- * @param {string} encryptKey - key to encrypt data
- * @param {string} iv - initialization vector to encrypt data
- * @returns {string} data encrypt
- */
-const encrypt = (data = '', encryptKey = '', iv = '') => {
-  let rtn
-  if (data && encryptKey) {
-    try {
-      const cipher = iv
-        ? createCipheriv(defaultTypeCrypto, encryptKey, iv)
-        : createCipher(defaultTypeCrypto, encryptKey)
-      let encryptData = cipher.update(data, 'ascii', 'base64')
-      encryptData += cipher.final('base64')
-      rtn = encryptData
-    } catch (err) {
-      const errorData = (err && err.message) || ''
-      writeInLogger(errorData)
-      messageTerminal({
-        color: 'red',
-        message: 'Error: %s',
-        error: errorData,
-      })
-    }
-  }
-
-  return rtn
-}
-
-/**
- * Decrypt.
- *
- * @param {string} data - data to decrypt
- * @param {string} decryptKey - key to decrypt data
- * @param {string} iv - initialization vector to decrypt data
- * @returns {string} data decrypt
- */
-const decrypt = (data = '', decryptKey = '', iv = '') => {
-  let rtn
-  if (data && decryptKey) {
-    try {
-      const cipher = iv
-        ? createDecipheriv(defaultTypeCrypto, decryptKey, iv)
-        : createDecipher(defaultTypeCrypto, decryptKey)
-      let decryptData = cipher.update(data, 'base64', 'ascii')
-      decryptData += cipher.final('ascii')
-      rtn = decryptData
-    } catch (err) {
-      const errorData = (err && err.message) || ''
-      writeInLogger(errorData)
-      messageTerminal({
-        color: 'red',
-        message: 'Error: %s',
-        error: errorData,
-      })
-    }
-  }
-
-  return rtn
 }
 
 const getSize = (limit) => {
@@ -1099,8 +1026,6 @@ const executeRequest = (data = {}, callbacks = {}) => {
 }
 
 module.exports = {
-  encrypt,
-  decrypt,
   getDataZone,
   existsFile,
   getSunstoneAuth,
