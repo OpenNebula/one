@@ -147,6 +147,13 @@ http://*|https://*)
     ;;
 esac
 
+cleanup_remote_tmp() {
+    $SSH "$DST_HOST" "$RM -rf $TMP_DST $TMP_DST.raw $TMP_DST.d" >/dev/null 2>&1 || true
+}
+trap cleanup_remote_tmp EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
 multiline_exec_and_log "set -e -o pipefail; $DUMP | $SSH $DST_HOST $DD of=$TMP_DST bs=${DD_BLOCK_SIZE:-64k}" \
              "Error dumping $SRC to $DST_HOST:$TMP_DST"
 
@@ -156,6 +163,9 @@ fi
 
 REGISTER_CMD=$(cat <<EOF
     set -e -o pipefail
+    trap '$RM -rf $TMP_DST $TMP_DST.raw $TMP_DST.d' EXIT
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
 
     if file $TMP_DST | grep -q gzip; then
         mkdir $TMP_DST.d
@@ -196,4 +206,5 @@ EOF
 ssh_exec_and_log "$DST_HOST" "$REGISTER_CMD" \
                  "Error registering $RBD_SOURCE in $DST_HOST"
 
+trap - EXIT INT TERM
 echo "$RBD_SOURCE raw"
