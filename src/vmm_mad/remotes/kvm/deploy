@@ -65,21 +65,24 @@ fi
 #-------------------------------------------------------------------------------
 # Create non-volatile memory to store firmware variables and convert if needed
 #-------------------------------------------------------------------------------
+os_firmware="$(xmllint --xpath 'string(/domain/os/@firmware)' "$DEP_FILE" 2>/dev/null)"
 nvram="$(xmllint --xpath '/domain/os/nvram/text()' $DEP_FILE 2>/dev/null)"
 nvram_fmt="$(xmllint --xpath 'string(/domain/os/nvram/@format)' "$DEP_FILE" 2>/dev/null)"
 if [ -n "${nvram}" ]; then
     mkdir -p "$(dirname "$nvram")"
 
-    if [ -z "$nvram_fmt" ]; then
-        nvram_fmt="raw"
-    fi
+    if [ "$os_firmware" != "efi" ]; then
+        if [ -z "$nvram_fmt" ]; then
+            nvram_fmt="raw"
+        fi
 
-    fmt="$(qemu-img info -U --output=json "$OVMF_NVRAM" | jq -r '.format')"
+        fmt="$(qemu-img info -U --output=json "$OVMF_NVRAM" | jq -r '.format')"
 
-    if [ "$fmt" != "$nvram_fmt" ]; then
-        qemu-img convert -O "$nvram_fmt" "$OVMF_NVRAM" "$nvram"
-    else
-        cp -n "$OVMF_NVRAM" "$nvram"
+        if [ "$fmt" != "$nvram_fmt" ]; then
+            qemu-img convert -O "$nvram_fmt" "$OVMF_NVRAM" "$nvram"
+        else
+            cp -n "$OVMF_NVRAM" "$nvram"
+        fi
     fi
 fi
 

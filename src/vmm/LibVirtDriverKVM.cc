@@ -995,41 +995,45 @@ int LibVirtDriver::deployment_description_kvm(
              << "</bootloader>\n";
     }
 
-    if ( is_efi_auto )
+    if ( is_efi_auto || is_uefi )
     {
-        // Check if secure boot is enabled
-        file << "\t\t<firmware>\n";
-
-        if (boot_secure)
-        {
-            file << "\t\t\t<feature enabled='yes' name='secure-boot'/>\n";
-        }
-        else
-        {
-            file << "\t\t\t<feature enabled='no' name='secure-boot'/>\n";
-        }
-
-        file << "\t\t</firmware>\n";
-    }
-    else if ( is_uefi )
-    {
-        string firmware_secure = "no";
         std::string nvram_format;
-
-        if (boot_secure)
-        {
-            firmware_secure = "yes";
-        }
 
         if (one_util::icasecmp(firmware_format, "qcow2"))
         {
             nvram_format = " format=\"qcow2\"";
         }
 
-        file << "\t\t<loader readonly=\"yes\" type=\"pflash\" "
-             << "secure=\"" << firmware_secure << "\">"
-             << firmware
-             << "</loader>\n";
+        if ( is_efi_auto )
+        {
+            // Check if secure boot is enabled
+            file << "\t\t<firmware>\n";
+
+            if (boot_secure)
+            {
+                file << "\t\t\t<feature enabled='yes' name='secure-boot'/>\n";
+            }
+            else
+            {
+                file << "\t\t\t<feature enabled='no' name='secure-boot'/>\n";
+            }
+
+            file << "\t\t</firmware>\n";
+        }
+        else
+        {
+            string firmware_secure = "no";
+
+            if (boot_secure)
+            {
+                firmware_secure = "yes";
+            }
+
+            file << "\t\t<loader readonly=\"yes\" type=\"pflash\" "
+                 << "secure=\"" << firmware_secure << "\">"
+                 << firmware
+                 << "</loader>\n";
+        }
 
         file << "\t\t<nvram" << nvram_format << ">"
             << vm->get_system_dir() << "/" << vm->get_name() << "_VARS.fd"
