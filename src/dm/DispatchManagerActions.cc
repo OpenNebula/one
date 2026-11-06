@@ -2764,7 +2764,11 @@ static int test_set_capacity(VirtualMachine * vm, float cpu, long mem, int vcpu,
          (vm->get_state() == VirtualMachine::ACTIVE &&
           vm->get_lcm_state() == VirtualMachine::RUNNING))
     {
-        HostShareCapacity sr;
+        HostShareCapacity old_sr, new_sr;
+
+        long omemory = 0;
+        float ocpu = 0;
+        int ovcpu = 0;
 
         auto host = hpool->get(vm->get_hid());
 
@@ -2774,25 +2778,53 @@ static int test_set_capacity(VirtualMachine * vm, float cpu, long mem, int vcpu,
             return -1;
         }
 
-        vm->get_capacity(sr);
+        vm->get_template_attribute("MEMORY", omemory);
+        vm->get_template_attribute("CPU", ocpu);
+        vm->get_template_attribute("VCPU", ovcpu);
 
-        host->del_capacity(sr);
+        vm->get_capacity(old_sr);
+
+        host->del_capacity(old_sr);
 
         rc = vm->resize(cpu, mem, vcpu, error);
 
         if ( rc == -1 )
         {
+            string rollback_error;
+
+            vm->resize(ocpu, omemory, ovcpu, rollback_error);
+            vm->get_capacity(old_sr);
+            host->add_capacity(old_sr);
+
             return -1;
         }
 
-        vm->get_capacity(sr);
+        vm->get_capacity(new_sr);
 
-        if (!host->test_capacity(sr, error, enforce))
+        HostShareCapacity test_sr = new_sr;
+
+        if (new_sr.cpu <= old_sr.cpu)
         {
+            test_sr.cpu = 0;
+        }
+
+        if (new_sr.mem <= old_sr.mem)
+        {
+            test_sr.mem = 0;
+        }
+
+        if (!host->test_capacity(test_sr, error, enforce))
+        {
+            string rollback_error;
+
+            vm->resize(ocpu, omemory, ovcpu, rollback_error);
+            vm->get_capacity(old_sr);
+            host->add_capacity(old_sr);
+
             return -1;
         }
 
-        host->add_capacity(sr);
+        host->add_capacity(new_sr);
 
         hpool->update(host.get());
     }
