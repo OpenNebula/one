@@ -3587,21 +3587,6 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        action: apply
-        change:
-        -   path:
-            - info-tabs
-            key: port_mirroring
-            value:
-                enabled: true
-                actions:
-                    mirror_create: true
-                    mirror_update: true
-                    mirror_addport: true
-                    mirror_delport: true
-                    mirror_delete: true
-            state: ins
-            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the VIRTUAL NETWORK tab
@@ -3687,15 +3672,6 @@ patches:
 
               cluster:
                 enabled: true
-
-              port_mirroring:
-                enabled: true
-                actions:
-                  mirror_create: true
-                  mirror_update: true
-                  mirror_addport: true
-                  mirror_delport: true
-                  mirror_delete: true
 
             create-tabs:
               address:
@@ -5167,21 +5143,6 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        action: apply
-        change:
-        -   path:
-            - info-tabs
-            key: port_mirroring
-            value:
-                enabled: true
-                actions:
-                    mirror_create: false
-                    mirror_update: false
-                    mirror_addport: false
-                    mirror_delport: false
-                    mirror_delete: false
-            state: ins
-            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the VIRTUAL NETWORK tab
@@ -5266,15 +5227,6 @@ patches:
 
               cluster:
                 enabled: true
-
-              port_mirroring:
-                enabled: true
-                actions:
-                  mirror_create: false
-                  mirror_update: false
-                  mirror_addport: false
-                  mirror_delport: false
-                  mirror_delete: false
     "/etc/one/fireedge/sunstone/views/groupadmin/vnet-template-tab.yaml":
         class: Yaml
         owner: root
@@ -6186,21 +6138,6 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        action: apply
-        change:
-        -   path:
-            - info-tabs
-            key: port_mirroring
-            value:
-                enabled: true
-                actions:
-                    mirror_create: true
-                    mirror_update: true
-                    mirror_addport: true
-                    mirror_delport: true
-                    mirror_delete: true
-            state: ins
-            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the VIRTUAL NETWORK tab
@@ -6285,15 +6222,6 @@ patches:
 
               cluster:
                 enabled: true
-
-              port_mirroring:
-                enabled: true
-                actions:
-                  mirror_create: true
-                  mirror_update: true
-                  mirror_addport: true
-                  mirror_delport: true
-                  mirror_delete: true
     "/etc/one/fireedge/sunstone/views/user/vnet-template-tab.yaml":
         class: Yaml
         owner: root
