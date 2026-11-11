@@ -304,10 +304,10 @@ bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
     one_util::toupper(proto);
 
     if ( proto != "TCP" && proto != "UDP" && proto != "ICMP" && proto != "ICMPV6"
-         && proto != "IPSEC" && proto != "ALL")
+         && proto != "IPSEC" && proto != "VRRP" && proto != "ALL")
     {
         error = "Wrong PROTOCOL in rule. Valid options: TCP, UDP, ICMP, ICMPV6,"
-                " IPSEC, ALL.";
+                " IPSEC, VRRP, ALL.";
         return false;
     }
 
