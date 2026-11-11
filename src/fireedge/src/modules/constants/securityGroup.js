@@ -123,6 +123,7 @@ export const PROTOCOL_STRING = {
   ICMP: T.ICMP,
   ICMPV6: T.ICMPV6,
   IPSEC: T.IPSEC,
+  VRRP: T.VRRP,
   ALL: T.All,
 }
 

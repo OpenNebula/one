@@ -80,6 +80,8 @@ export const PROTOCOL = {
           return T.ICMPV6
         case PROTOCOL_STRING.IPSEC:
           return T.IPSEC
+        case PROTOCOL_STRING.VRRP:
+          return T.VRRP
         case PROTOCOL_STRING.ALL:
           return T.All
         default:
