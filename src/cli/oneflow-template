@@ -273,8 +273,7 @@ CommandParser::CmdParser.new(ARGV) do
             response = client.get("#{RESOURCE_PATH}/#{args[0]}")
 
             if CloudClient.is_error?(response)
-                rc = [response.code.to_i, response.to_s]
-                break
+                next [response.code.to_i, response.to_s]
             end
 
             params['merge_template'] = {}
