@@ -21,6 +21,9 @@
 #include "ProtocolMessages.h"
 #include "Listener.h"
 
+#include <map>
+#include <mutex>
+
 class DatastorePool;
 class Image;
 class ImagePool;
@@ -309,6 +312,20 @@ public:
     int flatten_snapshot(int iid, int sid, std::string& error);
 
     /**
+     *  Resizes an image to a new size (only upsize supported).
+     *    @param iid id of image
+     *    @param size new size in MiB (as string)
+     *    @param cur_size the size the caller reserved quota against, the
+     *    resize is refused if the image no longer has it
+     *    @param uid, gid the owner the quota was reserved on, the driver
+     *    callback refunds the same one
+     *    @param error Error reason, if any
+     *    @return 0 on success
+     */
+    int resize_image(int iid, const std::string& size, long long cur_size,
+                     int uid, int gid, std::string& error);
+
+    /**
      *  Flattens the backup chain by commiting changes to first (full) backup
      *    @param iid id of image
      *    @param ds_id id of the datastore
@@ -354,6 +371,32 @@ private:
      *  Pointer to the DS Pool
      */
     DatastorePool *       dspool;
+
+    /**
+     *  Datastore quota reserved by an in-flight resize. Kept in memory, not in
+     *  the image template, so that the amount refunded on failure cannot be
+     *  set through oneimage update. The owner is stored along with it, the
+     *  image may be deleted before the driver answers. A restart with a resize
+     *  in flight leaves the image LOCKED and the reservation charged, as it
+     *  does for the other image operations. onedb fsck recomputes the quota,
+     *  the state has to be cleared by hand.
+     */
+    struct ResizeQuota
+    {
+        int       uid;
+        int       gid;
+        int       ds_id;
+        long long delta;
+    };
+
+    std::map<int, ResizeQuota> resize_quotas;
+
+    std::mutex                 resize_quotas_mutex;
+
+    /**
+     *  Returns the datastore quota reserved for a resize that did not happen
+     */
+    static void refund_resize_quota(const ResizeQuota& rq);
 
     /**
      *
@@ -422,6 +465,8 @@ private:
     void _increment_flatten(std::unique_ptr<image_msg_t> msg);
 
     void _restore(std::unique_ptr<image_msg_t> msg);
+
+    void _resize(std::unique_ptr<image_msg_t> msg);
 
     static void _log(std::unique_ptr<image_msg_t> msg);
 
