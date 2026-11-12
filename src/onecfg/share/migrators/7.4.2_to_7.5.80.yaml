@@ -1836,6 +1836,45 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: []
+            key: guacamole
+            value:
+                common:
+                    width: 1024
+                    height: 768
+                    dpi: 96
+                rdp:
+                    port: 3389
+                    disable-audio: true
+                    enable-audio-input: false
+                    resize-method: display-update
+                    enable-wallpaper: false
+                    enable-theming: false
+                    enable-font-smoothing: false
+                    enable-full-window-drag: false
+                    enable-desktop-composition: false
+                    enable-menu-animations: false
+                    disable-bitmap-caching: false
+                    disable-offscreen-caching: false
+                    disable-glyph-caching: false
+                vnc:
+                    port: 5900
+                ssh:
+                    port: 22
+                enforced:
+                    common:
+                        disable-copy: true
+                        disable-paste: true
+                        enable-sftp: false
+                    rdp:
+                        security: nla
+                        ignore-cert: true
+                        enable-drive: false
+                        enable-printing: false
+            state: ins
+            extra: {}
         content: |+
             ################################################################################
             # Server Configuration
@@ -1899,6 +1938,56 @@ patches:
             guacd:
               port: 4822
               host: 'localhost'
+
+            # Guacamole connection defaults for VNC, SSH and RDP.
+            # Priority (last wins): common -> protocol -> VM/NIC -> browser -> enforced.
+            # Browser options are limited to display/terminal settings and rangeports.
+            # enforced settings cannot be overridden by VM/NIC settings or the browser.
+            # Within enforced, protocol settings override common values.
+            # Add other options using their Guacamole parameter names:
+            # https://guacamole.apache.org/doc/gug/configuring-guacamole.html
+            guacamole:
+              common:
+                width: 1024
+                height: 768
+                dpi: 96
+
+              rdp:
+                port: 3389
+                # Disable audio and microphone
+                disable-audio: true
+                enable-audio-input: false
+
+                # Display and performance
+                resize-method: display-update
+                enable-wallpaper: false
+                enable-theming: false
+                enable-font-smoothing: false
+                enable-full-window-drag: false
+                enable-desktop-composition: false
+                enable-menu-animations: false
+                disable-bitmap-caching: false
+                disable-offscreen-caching: false
+                disable-glyph-caching: false
+
+              vnc:
+                port: 5900
+
+              ssh:
+                port: 22
+
+              # Server policy, applied whenever a Guacamole connection opens
+              enforced:
+                common:
+                  disable-copy: true
+                  disable-paste: true
+                  enable-sftp: false
+                rdp:
+                  # Requires NLA credentials and a trusted guest certificate
+                  security: nla
+                  ignore-cert: true
+                  enable-drive: false
+                  enable-printing: false
 
             # Local zone in a Federation setup
             # This attribute must point to the Zone ID of the local OpenNebula to which this FireEdge belongs to.
@@ -3709,6 +3798,21 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - info-tabs
+            key: port_mirroring
+            value:
+                enabled: true
+                actions:
+                    mirror_create: true
+                    mirror_update: true
+                    mirror_addport: true
+                    mirror_delport: true
+                    mirror_delete: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the VIRTUAL NETWORK tab
@@ -3794,6 +3898,15 @@ patches:
 
               cluster:
                 enabled: true
+
+              port_mirroring:
+                enabled: true
+                actions:
+                  mirror_create: true
+                  mirror_update: true
+                  mirror_addport: true
+                  mirror_delport: true
+                  mirror_delete: true
 
             create-tabs:
               address:
@@ -5620,6 +5733,21 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - info-tabs
+            key: port_mirroring
+            value:
+                enabled: true
+                actions:
+                    mirror_create: false
+                    mirror_update: false
+                    mirror_addport: false
+                    mirror_delport: false
+                    mirror_delete: false
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the VIRTUAL NETWORK tab
@@ -5704,6 +5832,15 @@ patches:
 
               cluster:
                 enabled: true
+
+              port_mirroring:
+                enabled: true
+                actions:
+                  mirror_create: false
+                  mirror_update: false
+                  mirror_addport: false
+                  mirror_delport: false
+                  mirror_delete: false
     "/etc/one/fireedge/sunstone/views/groupadmin/vnet-template-tab.yaml":
         class: Yaml
         owner: root
@@ -6674,6 +6811,21 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path:
+            - info-tabs
+            key: port_mirroring
+            value:
+                enabled: true
+                actions:
+                    mirror_create: true
+                    mirror_update: true
+                    mirror_addport: true
+                    mirror_delport: true
+                    mirror_delete: true
+            state: ins
+            extra: {}
         content: |
             ---
             # This file describes the information and actions available in the VIRTUAL NETWORK tab
@@ -6758,6 +6910,15 @@ patches:
 
               cluster:
                 enabled: true
+
+              port_mirroring:
+                enabled: true
+                actions:
+                  mirror_create: true
+                  mirror_update: true
+                  mirror_addport: true
+                  mirror_delport: true
+                  mirror_delete: true
     "/etc/one/fireedge/sunstone/views/user/vnet-template-tab.yaml":
         class: Yaml
         owner: root
@@ -7422,12 +7583,108 @@ patches:
                 multiple: true
         -   path:
             - TM_MAD_CONF
+            - '"shared"'
+            key: INTERACTIVE_BACKUP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"shared"'
+            key: INTERACTIVE_BACKUP_FORMATS
+            value: '"qcow2"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
             - '"lvm"'
             key: DS_MIGRATE
             value: '"NO"'
             old: '"YES"'
             state: set
             extra: {}
+        -   path:
+            - TM_MAD_CONF
+            - '"lvm"'
+            key: INTERACTIVE_BACKUP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"fs_lvm"'
+            key: INTERACTIVE_BACKUP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"fs_lvm_ssh"'
+            key: INTERACTIVE_BACKUP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"qcow2"'
+            key: INTERACTIVE_BACKUP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"qcow2"'
+            key: INTERACTIVE_BACKUP_FORMATS
+            value: '"qcow2"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"ssh"'
+            key: INTERACTIVE_BACKUP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"ssh"'
+            key: INTERACTIVE_BACKUP_FORMATS
+            value: '"qcow2"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"local"'
+            key: INTERACTIVE_BACKUP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"local"'
+            key: INTERACTIVE_BACKUP_FORMATS
+            value: '"qcow2"'
+            state: ins
+            extra:
+                multiple: false
+        -   path:
+            - TM_MAD_CONF
+            - '"ceph"'
+            key: INTERACTIVE_BACKUP
+            value: '"YES"'
+            state: ins
+            extra:
+                multiple: false
         -   path: []
             key: REUSE_ADDRESS
             value: '"NO"'
@@ -8571,6 +8828,11 @@ patches:
             #         |- snap_3
             #   persistent_snapshots: Save snaphosts back to the corresponding Image. Valid values:
             #                        "yes" (default) or "no".
+            #   interactive_backup: The driver supports interactive backups (exporting the
+            #                       disks through OneBEX). Valid values: "yes" or "no" (default).
+            #   interactive_backup_formats: Comma separated list of the image formats that
+            #                       support interactive backups, e.g. "qcow2". Empty for all
+            #                       formats (default).
             #*******************************************************************************
 
             TM_MAD_CONF = [
@@ -8582,25 +8844,27 @@ patches:
                 NAME = "shared", LN_TARGET = "NONE", CLONE_TARGET = "SYSTEM", SHARED = "YES",
                 TM_MAD_SYSTEM = "ssh", LN_TARGET_SSH = "SYSTEM", CLONE_TARGET_SSH = "SYSTEM",
                 DISK_TYPE_SSH = "FILE", ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES",
-                DS_LIVE_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES"
+                DS_LIVE_MIGRATE = "YES", DS_MIGRATE_SNAP = "YES", INTERACTIVE_BACKUP = "YES",
+                INTERACTIVE_BACKUP_FORMATS = "qcow2"
             ]
 
             TM_MAD_CONF = [
                 NAME = "lvm", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
                 DRIVER = "raw", DISK_TYPE = "BLOCK", ALLOW_ORPHANS = "YES", DS_MIGRATE = "NO",
-                DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
+                DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO", INTERACTIVE_BACKUP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "fs_lvm", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED="YES",
                 DRIVER = "raw", DISK_TYPE = "BLOCK", DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "NO",
-                DS_MIGRATE_SNAP = "NO"
+                DS_MIGRATE_SNAP = "NO", INTERACTIVE_BACKUP = "YES"
             ]
 
             TM_MAD_CONF = [
                 NAME = "fs_lvm_ssh", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED="YES",
                 DRIVER = "raw", DISK_TYPE = "BLOCK", PERSISTENT_SNAPSHOTS = "NO", ALLOW_ORPHANS = "YES",
-                DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "YES", DS_MIGRATE_SNAP = "NO"
+                DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "YES", DS_MIGRATE_SNAP = "NO",
+                INTERACTIVE_BACKUP = "YES"
             ]
 
             TM_MAD_CONF = [
@@ -8608,26 +8872,30 @@ patches:
                 TM_MAD_SYSTEM = "ssh", LN_TARGET_SSH = "SYSTEM",
                 CLONE_TARGET_SSH = "SYSTEM", DISK_TYPE_SSH = "FILE", DRIVER = "qcow2",
                 ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "YES",
-                DS_MIGRATE_SNAP = "YES"
+                DS_MIGRATE_SNAP = "YES", INTERACTIVE_BACKUP = "YES",
+                INTERACTIVE_BACKUP_FORMATS = "qcow2"
             ]
 
             TM_MAD_CONF = [
                 NAME = "ssh", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED = "NO",
                 ALLOW_ORPHANS="YES", DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "YES",
-                DS_MIGRATE_SNAP = "YES"
+                DS_MIGRATE_SNAP = "YES", INTERACTIVE_BACKUP = "YES",
+                INTERACTIVE_BACKUP_FORMATS = "qcow2"
             ]
 
             TM_MAD_CONF = [
                 NAME = "local", LN_TARGET = "SYSTEM", CLONE_TARGET = "SYSTEM", SHARED = "NO",
                 ALLOW_ORPHANS="FORMAT", DS_MIGRATE = "YES", DS_LIVE_MIGRATE = "YES",
-                DS_MIGRATE_SNAP = "YES"
+                DS_MIGRATE_SNAP = "YES", INTERACTIVE_BACKUP = "YES",
+                INTERACTIVE_BACKUP_FORMATS = "qcow2"
             ]
 
             TM_MAD_CONF = [
                 NAME = "ceph", LN_TARGET = "NONE", CLONE_TARGET = "SELF", SHARED = "YES",
                 DRIVER = "raw", ALLOW_ORPHANS="mixed", TM_MAD_SYSTEM = "ssh",
                 LN_TARGET_SSH = "SYSTEM", CLONE_TARGET_SSH = "SYSTEM",
-                DISK_TYPE_SSH = "FILE", DS_MIGRATE = "NO", DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO"
+                DISK_TYPE_SSH = "FILE", DS_MIGRATE = "NO", DS_LIVE_MIGRATE = "NO", DS_MIGRATE_SNAP = "NO",
+                INTERACTIVE_BACKUP = "YES"
             ]
 
             TM_MAD_CONF = [
@@ -9245,6 +9513,18 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
+        action: apply
+        change:
+        -   path: &15 []
+            key: DEBUG
+            value: false
+            state: ins
+            extra: {}
+        -   path: *15
+            key: ON_MISSING_VALUE
+            value: ERROR
+            state: ins
+            extra: {}
         content: "#*******************************************************************************\n#                       OpenNebula
             Configuration file\n#*******************************************************************************\n\n#*******************************************************************************\n#
             ILP Optimizer configuration attributes\n#-------------------------------------------------------------------------------\n#
@@ -9273,11 +9553,13 @@ patches:
             This factor scales the VM usage of the system DS with\n#  the memory size. This factor can be use to make the
             scheduler consider the\n#  overhead of checkpoint files:\n#       system_ds_usage = system_ds_usage + memory_system_ds_scale
             * memory\n#\n#  DIFFERENT_VNETS: When set (YES) the NICs of a VM will be forced to be in\n#  different Virtual
-            Networks.\n#*******************************************************************************\n\nDEFAULT_SCHED:\n
+            Networks.\n#  DEBUG: When set (YES), enables more verbose logging.\n#  ON_MISSING_VALUE:\n#     - ERROR: Missing
+            monitoring and forecast values are considered an\n#       error and optimization is skipped.\n#     - ZERO: Missing
+            monitoring and forecast values are replaced with\n#       zeros.\n#*******************************************************************************\n\nDEFAULT_SCHED:\n
             \ SOLVER: \"CBC\"\n  SOLVER_PATH: \"/usr/lib/one/python/pulp/solverdir/cbc/linux/$arch/cbc\"\n\nPLACE:\n  POLICY:
             \"BALANCE\"\n  WEIGHTS:\n    CPU: 1\n\nOPTIMIZE:\n  POLICY: \"BALANCE\"\n  MIGRATION_THRESHOLD: -1\n  HOST_MIGRATION_THRESHOLD:
             -1\n  DS_MIGRATION_THRESHOLD: 0\n  PRIORITIZE_STORAGE_MIGRATIONS: \"NO\"\n  WEIGHTS:\n    CPU_USAGE: 1\n\nPREDICTIVE:
-            0\n\nMEMORY_SYSTEM_DS_SCALE: 0\n\nDIFFERENT_VNETS: YES"
+            0\n\nMEMORY_SYSTEM_DS_SCALE: 0\n\nDIFFERENT_VNETS: YES\n\nDEBUG: NO\n\nON_MISSING_VALUE: ERROR"
     "/etc/one/onehem-server.conf":
         class: Yaml
         owner: root
@@ -9711,7 +9993,8 @@ patches:
                   description: "OpenNebula scheduler {{ $labels.one_server_fqdn }} of job {{ $labels.job }} has been down for more than 30 seconds"
                 labels: { severity: critical }
               - alert: HookManagerDown
-                expr: opennebula_hem_state == 0
+                # the raft hooks run hem on the leader only: do not alert on HA followers
+                expr: opennebula_hem_state == 0 unless on(one_server_fqdn) opennebula_ha_is_leader == 0
                 for: 30s
                 annotations:
                   title: "OpenNebula hook manager {{ $labels.one_server_fqdn }} down"
@@ -9724,17 +10007,17 @@ patches:
         mode: '0640'
         action: apply
         change:
-        -   path: &15 []
+        -   path: &16 []
             key: :host
             old: 127.0.0.1
             state: rm
             extra: {}
-        -   path: *15
+        -   path: *16
             key: :port
             old: 13013
             state: rm
             extra: {}
-        -   path: *15
+        -   path: *16
             key: :server
             value:
                 :environment: production
@@ -9744,22 +10027,22 @@ patches:
                     :permitted_hosts: []
             state: ins
             extra: {}
-        -   path: *15
+        -   path: *16
             key: :concurrency
             value: 10
             state: ins
             extra: {}
-        -   path: *15
+        -   path: *16
             key: :shutdown_timeout
             value: 30
             state: ins
             extra: {}
-        -   path: *15
+        -   path: *16
             key: :command_timeout
             value: 3600
             state: ins
             extra: {}
-        -   path: *15
+        -   path: *16
             key: :cancel_grace
             value: 30
             state: ins
@@ -9850,12 +10133,12 @@ patches:
             old: 127.0.0.1
             state: set
             extra: {}
-        -   path: &16 []
+        -   path: &17 []
             key: :appliance_auto_import
             value: true
             state: ins
             extra: {}
-        -   path: *16
+        -   path: *17
             key: :monitor
             value:
                 :endpoint: http://169.254.16.9:10780/api/v1
@@ -9970,6 +10253,138 @@ patches:
             :log:
               :level: 3
               :system: file
+    "/etc/one/fabricmanager.conf":
+        class: Augeas::Shell
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        content: |
+            # Configuration for the Fabric Manager VM
+
+            # Version of the Fabric Manager VM image.
+            VERSION="7.0.0-1-20251127"
+
+            # The URL to download the qcow2 image from.
+            IMAGE_URL="https://d24fmfybwxpuhu.cloudfront.net/service_FabricManager-${VERSION}.qcow2"
+
+            # Local path to store the downloaded image.
+            IMAGE_PATH="/var/lib/one/fabricmanager/service_FabricManager-${VERSION}.qcow2"
+
+            # SHA256 checksum of the image for verification.
+            IMAGE_SHA256="f3ea07971fcac47d5f3ddbbca46e25951cc5ae22ab0cd1a6f9aa38c7b102e5b5"
+
+            # Owner of the image file.
+            IMAGE_OWNER="oneadmin:oneadmin"
+
+            # Vendor & device IDs for NVIDIA NVSwitch PCI Devices
+            ## Important: All devices must use vfio-pci driver on the KVM host
+            VENDOR_ID="10de"
+            NVS_IDS="22a3"
+    "/etc/one/one-fabricmanager.xml":
+        class: Simple
+        owner: root
+        group: oneadmin
+        mode: '0640'
+        content: |
+            <domain type='kvm'>
+              <name>one-fabricmanager</name>
+              <memory unit='KiB'>4194304</memory>
+              <vcpu placement='static'>2</vcpu>
+              <cputune>
+                <shares>200</shares>
+              </cputune>
+              <cpu>
+                <topology sockets='2' cores='1' threads='1'/>
+              </cpu>
+              <features>
+                <acpi/>
+                <apic/>
+              </features>
+              <devices>
+                <emulator>/usr/bin/qemu-kvm-one</emulator>
+                <disk type='file' device='disk'>
+                  <driver name='qemu' type='qcow2'/>
+                  <source file='__IMAGE_PATH__'/>
+                  <target dev='vda' bus='virtio'/>
+                </disk>
+                <console type='pty'>
+                  <target type='serial' port='0'/>
+                </console>
+                <channel type='unix'>
+                  <source mode='bind' path='/var/lib/libvirt/qemu/channel/target/domain-one-fabricmanager/org.qemu.guest_agent.0'/>
+                  <target type='virtio' name='org.qemu.guest_agent.0'/>
+                </channel>
+
+                </devices>
+            </domain>
+    "/etc/one/ovirtapi-server.yml":
+        class: Yaml
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+            sinatra:
+              port: 5554
+              logging: true
+              bind: "0.0.0.0"
+
+            # Replace "nil" with the actual values for the ovirt api server configuration
+            app:
+              one_xmlrpc: "localhost"
+              endpoint_port: 2633
+              cert_path: "/etc/one/ovirtapi-ssl.crt"
+              public_ip: "nil"
+              onebex_port: 13014
+              onebex_port_ssl: 13015
+              finalize_marker_timeout: 300
+              tmp_images_path: "/var/tmp/one_ovirt_wrapper"
+              debug: "false"
+              backup_freeze: "NONE"
+              port_min: 3500
+              port_max: 4500
+              ports_path: "/var/lib/one"
+    "/etc/one/ovirtapi-puma.rb":
+        class: Simple
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+            # -------------------------------------------------------------------------- #
+            # Copyright 2002-2026, OpenNebula Project, OpenNebula Systems                #
+            #                                                                            #
+            # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+            # not use this file except in compliance with the License. You may obtain    #
+            # a copy of the License at                                                   #
+            #                                                                            #
+            # http://www.apache.org/licenses/LICENSE-2.0                                 #
+            #                                                                            #
+            # Unless required by applicable law or agreed to in writing, software        #
+            # distributed under the License is distributed on an "AS IS" BASIS,          #
+            # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+            # See the License for the specific language governing permissions and        #
+            # limitations under the License.                                             #
+            #--------------------------------------------------------------------------- #
+
+            # Puma configuration for the OpenNebula oVirt API server
+            # (opennebula-ovirtapi.service). The application itself is configured in
+            # ovirtapi-server.yml.
+
+            directory '/usr/lib/one/ovirtapi-server'
+            rackup '/usr/lib/one/ovirtapi-server/config.ru'
+            environment 'production'
+
+            # Request handler threads (min, max) and number of worker processes. With
+            # workers 0 the server runs in a single process, a worker count > 0 forks
+            # that many processes, each with its own thread pool.
+            threads 4, 16
+            workers 0
+
+            # The oVirt clients (Veeam) require the API on port 443. Plain HTTP on port
+            # 80 only serves the CA certificate, everything else is redirected to HTTPS.
+            bind 'tcp://0.0.0.0:80'
+            bind 'ssl://0.0.0.0:443?key=/etc/one/ovirtapi-ssl.key&cert=/etc/one/ovirtapi-ssl.crt'
+
+            stdout_redirect '/var/log/one/ovirtapi.log', '/var/log/one/ovirtapi.log', true
     "/var/lib/one/remotes/etc/datastore/datastore.conf":
         class: Augeas::Shell
         owner: oneadmin
@@ -10389,6 +10804,21 @@ patches:
 
             #  Block size for the dd commands
             DD_BLOCK_SIZE=64k
+    "/var/lib/one/remotes/etc/tm/san/backup.conf":
+        class: Augeas::Shell
+        owner: oneadmin
+        group: oneadmin
+        mode: '0640'
+        content: |-
+            #-------------------------------------------------------------------------------
+            # Configuration file for the backups taken with SAN-based storage drivers
+            #-------------------------------------------------------------------------------
+
+            # Block size to use when comparing two snapshots (in bytes)
+            BLOCK_SIZE=2097152 # 2MB
+
+            # Block size for PureStorage FlashArray API to use when getting Volume Differences (in bytes)
+            BLOCK_SIZE_PUREFA=4096 # 4KB
     "/var/lib/one/remotes/etc/tm/ssh/sshrc":
         class: Augeas::Shell
         owner: oneadmin
@@ -10731,23 +11161,6 @@ patches:
         owner: root
         group: oneadmin
         mode: '0640'
-        action: apply
-        change:
-        -   path: &17 []
-            key: :shutdown_delay
-            old: 2
-            state: rm
-            extra: {}
-        -   path: *17
-            key: :idle_timeout
-            old: 300
-            state: rm
-            extra: {}
-        -   path: *17
-            key: :onebex_timeout
-            old: 1800
-            state: rm
-            extra: {}
         content: |
             ################################################################################
             # Server Configuration
@@ -10815,7 +11228,7 @@ patches:
                   Component: Services
                 - title: Instantiate Service Template
                   path: /service/instantiate/
-                  Component: InstantiateServiceTemplate
+                  Component: CreateService
                 - title: Service
                   path: /service/:id
                   Component: ServiceDetail
@@ -10990,6 +11403,12 @@ patches:
                 - title: Update Virtual Network
                   path: /virtual-network/update
                   Component: CreateVirtualNetwork
+                - title: Create mirror
+                  path: /virtual-network/:id/mirror/create
+                  Component: CreateVirtualNetworkMirror
+                - title: Edit mirror
+                  path: /virtual-network/:id/mirror/:mirrorId/update
+                  Component: CreateVirtualNetworkMirror
                 - title: Virtual networks
                   path: /virtual-network/:id
                   Component: VirtualNetworkDetail
