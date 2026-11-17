@@ -111,7 +111,10 @@ begin
             #   0x01 - FINISH
             #          No additional data. Terminates the server.
             #-------------------------------------------------------------------
-            frame_type = read_exact(socket, 1).unpack1('C')
+            frame_type = socket.read(1)
+            next if frame_type.nil?
+
+            frame_type = frame_type.unpack1('C')
 
             case frame_type
             when 0x01
