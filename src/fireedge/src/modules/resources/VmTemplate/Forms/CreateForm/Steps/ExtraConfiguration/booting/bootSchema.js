@@ -67,7 +67,7 @@ export const MACHINE_TYPES = {
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: () => {
-    const { data: hosts = [] } = HostAPI.useGetHostsQuery()
+    const { data: hosts = [] } = HostAPI.useGetHostsAdminQuery()
     const kvmMachines = getKvmMachines(hosts)
 
     return arrayToOptions(kvmMachines)
