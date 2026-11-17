@@ -1309,7 +1309,7 @@ do_file() {
         rm "$DESTDIR$2/$(basename "$1")"
     else
         if [ "$LINK" = "yes" ]; then
-            ln -s "$SRC_DIR"/"$1" "$DESTDIR$2"
+            ln -sf "$SRC_DIR"/"$1" "$DESTDIR$2"
         else
             cp -RL "$SRC_DIR"/"$1" "$DESTDIR$2"
         fi
@@ -1345,7 +1345,7 @@ do_tree() {
         if [ "$UNINSTALL" = "yes" ]; then
             rm -rf "$DESTDIR${2:?}/$b"
         elif [ "$LINK" = "yes" ]; then
-            ln -s "$f" "$DESTDIR$2"
+            ln -sf "$f" "$DESTDIR$2"
         else
             cp -RL "$f" "$DESTDIR$2"
         fi
