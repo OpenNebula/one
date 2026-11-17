@@ -159,9 +159,15 @@ const LabelTable = () => {
         ),
         title: T.DeleteLabel,
         confirmLabel: T.Delete,
-        confirmButtonProps: { isDestructive: true },
-        dialogWidth: '500px',
-        dialogMaxWidth: '500px',
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
+        },
+        sx: {
+          width: '500px',
+          maxWidth: '500px',
+        },
       },
       onSubmit: () => handleRemove(row),
     })

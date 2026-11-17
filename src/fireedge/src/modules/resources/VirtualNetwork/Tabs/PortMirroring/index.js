@@ -189,7 +189,11 @@ export const PortMirroring = ({ data = {}, config = {} }) => {
         ),
         confirmLabel: T.Delete,
         cancelLabel: T.Cancel,
-        confirmButtonProps: { isDestructive: true },
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
+        },
       },
       onSubmit: async () => {
         const result = await runOperation(

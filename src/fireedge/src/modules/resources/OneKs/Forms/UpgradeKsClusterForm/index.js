@@ -145,8 +145,13 @@ export const useUpgradeKsClusterFormModal = () => {
         ),
         confirmLabel: isUpgradeAvailable ? T.Upgrade : T.Accept,
         cancelLabel: T.Cancel,
-        dialogWidth: { xs: 'calc(100vw - 32px)', md: '520px' },
-        dialogMaxWidth: 'calc(100vw - 32px)',
+        sx: {
+          width: {
+            xs: 'calc(100vw - 32px)',
+            md: '520px',
+          },
+          maxWidth: 'calc(100vw - 32px)',
+        },
       },
       onSubmit: isUpgradeAvailable ? submitUpgradeForm : () => true,
     })

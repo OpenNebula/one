@@ -116,8 +116,14 @@ export const Info = ({ data, config }) => {
       dialogProps: {
         title: T.ResizeCapacity,
         dataCy: 'modal-resize-capacity',
-        dialogWidth: { xs: 'calc(100vw - 32px)', sm: '560px', md: '640px' },
-        dialogMaxWidth: 'calc(100vw - 32px)',
+        sx: {
+          width: {
+            xs: 'calc(100vw - 32px)',
+            sm: '560px',
+            md: '640px',
+          },
+          maxWidth: 'calc(100vw - 32px)',
+        },
       },
       form: ResizeCapacityForm({
         initialValues: extendedVmData?.TEMPLATE ?? selectedVm?.TEMPLATE,

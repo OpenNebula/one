@@ -44,14 +44,18 @@ export const TAB_ID = 'PCI'
 const mapPCINameFunction = mapNameByIndex(TAB_ID)
 
 const PCI_FORM_DIALOG_PROPS = {
-  dialogWidth: {
-    xs: 'calc(100vw - 32px)',
-    md: '760px',
-    lg: '840px',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '760px',
+      lg: '840px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
+    content: {
+      maxHeight: '70vh',
+      overflowY: 'auto',
+    },
   },
-  dialogMaxWidth: 'calc(100vw - 32px)',
-  dialogContentMaxHeight: '70vh',
-  dialogContentOverflowY: 'auto',
 }
 
 const formatValue = (value) =>
@@ -317,8 +321,10 @@ const PciDevices = ({ oneConfig, adminGroup }) => {
           />
         ),
         confirmLabel: T.Detach,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: () => handleRemovePci(pci),

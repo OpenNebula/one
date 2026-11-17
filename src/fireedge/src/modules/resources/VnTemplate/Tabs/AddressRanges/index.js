@@ -147,8 +147,10 @@ export const AddressRanges = ({ data, config }) => {
         ),
         confirmLabel: T.Delete,
         cancelLabel: T.Cancel,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: () => handleDeleteAddressRange(index),

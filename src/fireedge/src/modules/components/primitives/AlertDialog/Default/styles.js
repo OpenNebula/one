@@ -15,130 +15,88 @@
  * ------------------------------------------------------------------------- */
 
 /**
- * @param {object} root0 - Params
- * @param {object} root0.theme - Current theme in use
- * @param {string|object} root0.dialogWidth - Dialog paper width
- * @param {string|object} root0.dialogMinWidth - Dialog paper min-width
- * @param {string|object} root0.dialogMaxWidth - Dialog paper max-width
- * @param {string|object} root0.dialogMaxHeight - Dialog paper max-height
- * @param {string} root0.dialogPaperOverflow - Dialog paper overflow
- * @returns {object} - AlertDialog container SX style
+ * Builds the dialog styles, applying section overrides and remaining paper styles.
+ *
+ * @param {object} params - Style configuration
+ * @param {object} params.theme - Current application theme
+ * @param {object} params.sx - Paper styles with optional header, content and actions overrides
+ * @returns {object} Dialog styles scoped to the backdrop, paper and section classes
  */
-export const useDialogStyles = ({
-  theme,
-  dialogWidth,
-  dialogMinWidth = '320px',
-  dialogMaxWidth = '480px',
-  dialogMaxHeight,
-  dialogPaperOverflow,
-}) => ({
-  '& .MuiBackdrop-root': {
-    backgroundColor: 'transparent',
-    backdropFilter: 'blur(6px)',
-    WebkitBackdropFilter: 'blur(6px)',
-  },
+export const getStyles = ({ theme, sx = {} }) => {
+  const { header = {}, content = {}, actions = {}, ...rest } = sx
 
-  '& .MuiDialog-paper': {
-    bgcolor: 'surface.page',
-    border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-    borderRadius: `${theme.borderRadius?.['3xl']}px`,
-    boxShadow:
-      '0 4px 6px -4px rgba(0, 0, 0, 0.10), 0 10px 15px -13px rgba(0, 0, 0, 0.10)',
-    padding: `${theme.scale[600] - theme.scale[100]}px`,
-    gap: 0,
-    minWidth: dialogMinWidth,
-    maxWidth: dialogMaxWidth,
-    ...(dialogWidth && { width: dialogWidth }),
-    ...(dialogMaxHeight && { maxHeight: dialogMaxHeight }),
-    ...(dialogPaperOverflow && { overflow: dialogPaperOverflow }),
-  },
-})
-
-/**
- * @param {object} root0 - Params
- * @param {object} root0.theme - Current theme in use
- * @returns {object} - AlertDialog content wrapper SX style
- */
-export const useContentWrapperStyles = ({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: 0,
-  padding: `${theme.scale[100]}px`,
-  boxSizing: 'border-box',
-})
-
-/**
- * @param {object} root0 - Params
- * @param {object} root0.theme - Current theme in use
- * @returns {object} - AlertDialog header SX style
- */
-export const useHeaderStyles = ({ theme }) => ({
-  padding: 0,
-  marginBottom: `${theme.scale[500]}px`,
-  color: 'text.headings',
-  fontSize: {
-    xs: theme.fontSize.heading.h5.mobile,
-    sm: theme.fontSize.heading.h5.tablet,
-    md: theme.fontSize.heading.h5.desktop,
-  },
-  fontWeight: {
-    xs: theme.fontWeight.heading.h5.mobile,
-    sm: theme.fontWeight.heading.h5.tablet,
-    md: theme.fontWeight.heading.h5.desktop,
-  },
-  lineHeight: {
-    xs: theme.lineHeight.heading.h5.mobile,
-    sm: theme.lineHeight.heading.h5.tablet,
-    md: theme.lineHeight.heading.h5.desktop,
-  },
-})
-
-/**
- * @param {object} root0 - Params
- * @param {object} root0.theme - Current theme in use
- * @returns {object} - AlertDialog description SX style
- */
-export const useDescriptionStyles = ({ theme }) => ({
-  padding: 0,
-  color: 'text.body',
-  fontSize: {
-    xs: theme.fontSize.body.md.mobile,
-    sm: theme.fontSize.body.md.tablet,
-    md: theme.fontSize.body.md.desktop,
-  },
-  fontWeight: {
-    xs: theme.fontWeight.body.md.mobile,
-    sm: theme.fontWeight.body.md.tablet,
-    md: theme.fontWeight.body.md.desktop,
-  },
-  lineHeight: {
-    xs: theme.lineHeight.body.md.mobile,
-    sm: theme.lineHeight.body.md.tablet,
-    md: theme.lineHeight.body.md.desktop,
-  },
-})
-
-/**
- * @param {object} root0 - Params
- * @param {object} root0.theme - Current theme in use
- * @returns {object} - AlertDialog actions container SX style
- */
-export const useActionsStyles = ({ theme }) => ({
-  padding: 0,
-  marginTop: `${theme.scale[400]}px`,
-  gap: `${theme.scale[200]}px`,
-  flexDirection: {
-    xs: 'column-reverse',
-    sm: 'row',
-  },
-  justifyContent: {
-    xs: 'stretch',
-    sm: 'flex-end',
-  },
-  '& > button': {
-    width: {
-      xs: '100%',
-      sm: 'auto',
+  const AlertDialogHeader = {
+    padding: 0,
+    marginBottom: `${theme.scale[200]}px`,
+    color: theme.palette.text.headings,
+    fontSize: {
+      xs: theme.fontSize.heading.h6.mobile,
+      sm: theme.fontSize.heading.h6.tablet,
+      md: theme.fontSize.heading.h6.desktop,
     },
-  },
-})
+    fontWeight: {
+      xs: theme.fontWeight.heading.h6.mobile,
+      sm: theme.fontWeight.heading.h6.tablet,
+      md: theme.fontWeight.heading.h6.desktop,
+    },
+    lineHeight: {
+      xs: theme.lineHeight.heading.h5.mobile,
+      sm: theme.lineHeight.heading.h5.tablet,
+      md: theme.lineHeight.heading.h5.desktop,
+    },
+
+    ...header,
+  }
+
+  const AlertDialogContent = {
+    minHeight: 0,
+    padding: `${theme.scale[200]}px`,
+    margin: `-${theme.scale[200]}px`,
+    color: theme.palette.text.body,
+    fontSize: {
+      xs: theme.fontSize.body.sm.mobile,
+      sm: theme.fontSize.body.sm.tablet,
+      md: theme.fontSize.body.sm.desktop,
+    },
+    fontWeight: 500,
+    lineHeight: {
+      xs: theme.lineHeight.body.sm.mobile,
+      sm: theme.lineHeight.body.sm.tablet,
+      md: theme.lineHeight.body.sm.desktop,
+    },
+
+    ...content,
+  }
+
+  const AlertDialogActions = {
+    padding: 0,
+    marginTop: `${theme.scale[500]}px`,
+    gap: `${theme.scale[200]}px`,
+
+    ...actions,
+  }
+
+  return {
+    '& .MuiBackdrop-root': {
+      backgroundColor: 'transparent',
+      backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)',
+    },
+
+    '& .MuiPaper-root': {
+      width: '475px',
+      backgroundColor: 'surface.page',
+      border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
+      borderRadius: `${theme.borderRadius?.['3xl']}px`,
+      padding: `${theme.scale[600]}px`,
+      boxShadow: theme.boxShadow.lg,
+      gap: 0,
+
+      ...rest,
+    },
+
+    '& .alert-dialog-header.MuiDialogTitle-root': AlertDialogHeader,
+    '& .alert-dialog-content.MuiDialogContent-root': AlertDialogContent,
+    '& .alert-dialog-actions.MuiDialogActions-root': AlertDialogActions,
+  }
+}

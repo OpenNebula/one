@@ -72,8 +72,7 @@ export const getStyles = ({ theme, status, progress = 0, progressTickMs }) => {
     overflow: 'hidden',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    boxShadow:
-      '0 4px 6px -4px rgba(0, 0, 0, 0.10), 0 10px 15px -13px rgba(0, 0, 0, 0.10)',
+    boxShadow: theme.boxShadow.lg,
   } // OK
 
   const innerContainer = {

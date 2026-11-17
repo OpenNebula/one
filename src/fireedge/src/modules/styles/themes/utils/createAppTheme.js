@@ -20,6 +20,7 @@ import {
   spacing,
   borderRadius,
   borderWidth,
+  boxShadow,
   breakpoints,
   fontSize,
   fontWeight,
@@ -79,6 +80,7 @@ export const createAppTheme = (scheme = SCHEMES.LIGHT) => {
     },
     borderRadius,
     borderWidth,
+    boxShadow,
     breakpoints: {
       values: breakpoints.width,
     },

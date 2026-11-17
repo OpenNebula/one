@@ -126,7 +126,9 @@ export const AggregatedView = ({
         title,
         description,
         confirmLabel,
-        confirmButtonProps,
+        actionsProps: {
+          confirm: confirmButtonProps,
+        },
       },
       onSubmit,
     })

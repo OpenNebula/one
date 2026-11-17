@@ -106,8 +106,10 @@ const AddressesContent = ({ oneConfig, adminGroup }) => {
         ),
         confirmLabel: T.Delete,
         cancelLabel: T.Cancel,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: () => remove(index),

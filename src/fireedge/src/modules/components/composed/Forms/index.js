@@ -17,6 +17,7 @@ export * from '@modules/components/composed/Forms/FormControl'
 export * from '@modules/components/composed/Forms/FormStepper'
 export * from '@modules/components/composed/Forms/FormUtils'
 export * from '@modules/components/composed/Forms/FormWithSchema'
+export * from '@modules/components/composed/Forms/SimpleFormDialog'
 export * from '@modules/components/composed/Forms/SelectableCardPanel'
 export {
   ChangeUserForm,

@@ -46,9 +46,17 @@ const VIRTUAL_NETWORK_CREATE_OPTIONS = [
 ]
 
 const TEMPLATE_SELECTION_DIALOG_PROPS = {
-  dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
-  dialogMaxWidth: 'calc(100vw - 32px)',
-  dialogContentMaxHeight: '70vh',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '900px',
+      lg: '1040px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
+    content: {
+      maxHeight: '70vh',
+    },
+  },
 }
 
 /**

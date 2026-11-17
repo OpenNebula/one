@@ -131,8 +131,13 @@ export const useRecoverKsFormModal = () => {
         ),
         confirmLabel: T.Recover,
         cancelLabel: T.Cancel,
-        dialogWidth: { xs: 'calc(100vw - 32px)', md: '520px' },
-        dialogMaxWidth: 'calc(100vw - 32px)',
+        sx: {
+          width: {
+            xs: 'calc(100vw - 32px)',
+            md: '520px',
+          },
+          maxWidth: 'calc(100vw - 32px)',
+        },
       },
       onSubmit: submitRecoverForm,
     })

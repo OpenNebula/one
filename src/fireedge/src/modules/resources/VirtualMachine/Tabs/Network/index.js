@@ -49,30 +49,42 @@ import {
 import { jsonToXml } from '@UtilsModule'
 
 const ALIAS_DIALOG_PROPS = {
-  dialogWidth: {
-    xs: 'calc(100vw - 32px)',
-    md: '760px',
-    lg: '840px',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '760px',
+      lg: '840px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
+    maxHeight: 'calc(100vh - 32px)',
+    content: {
+      maxHeight: 'calc(100vh - 184px)',
+      overflowY: 'auto',
+    },
   },
-  dialogMaxWidth: 'calc(100vw - 32px)',
-  dialogMaxHeight: 'calc(100vh - 32px)',
-  dialogContentMaxHeight: 'calc(100vh - 184px)',
-  dialogContentOverflowY: 'auto',
   confirmLabel: T.Accept,
-  cancelButtonProps: {
-    sx: { display: 'none' },
+  actionsProps: {
+    cancel: {
+      sx: {
+        display: 'none',
+      },
+    },
   },
 }
 
 const TABLE_FORM_DIALOG_PROPS = {
-  dialogWidth: {
-    xs: 'calc(100vw - 32px)',
-    md: '960px',
-    lg: '1200px',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '960px',
+      lg: '1200px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
+    content: {
+      maxHeight: '70vh',
+      overflowY: 'auto',
+    },
   },
-  dialogMaxWidth: 'calc(100vw - 32px)',
-  dialogContentMaxHeight: '70vh',
-  dialogContentOverflowY: 'auto',
 }
 
 const isPciNic = (nic) =>
@@ -406,8 +418,10 @@ export const Network = ({ data, config }) => {
         ),
         dataCy: 'modal-detach-nic',
         confirmLabel: T.Detach,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: handleDetachNic(nic),
@@ -442,8 +456,10 @@ export const Network = ({ data, config }) => {
         ),
         dataCy: `modal-detach-secgroup-${securityGroupId}-from-${nic?.NIC_ID}`,
         confirmLabel: T.Detach,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: handleDetachSecurityGroup(nic, securityGroup),

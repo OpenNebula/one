@@ -140,8 +140,10 @@ const NodeGroupActions = memo(({ node, id }) => {
           />
         ),
         confirmLabel: T.Delete,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: handleRemove,

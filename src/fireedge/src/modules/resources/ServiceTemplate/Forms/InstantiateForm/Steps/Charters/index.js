@@ -207,8 +207,10 @@ const ScheduleActionMenu = memo(function ScheduleActionMenu({
           />
         ),
         confirmLabel: T.Delete,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: onRemove,

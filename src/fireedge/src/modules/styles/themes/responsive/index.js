@@ -18,6 +18,7 @@ import { scale } from '@modules/styles/themes/responsive/scale'
 import { spacing } from '@modules/styles/themes/responsive/spacing'
 import { borderRadius } from '@modules/styles/themes/responsive/borderRadius'
 import { borderWidth } from '@modules/styles/themes/responsive/borderWidth'
+import { boxShadow } from '@modules/styles/themes/responsive/boxShadow'
 import { fontSize } from '@modules/styles/themes/responsive/fontSize'
 import { fontWeight } from '@modules/styles/themes/responsive/fontWeight'
 import { paragraphSpacing } from '@modules/styles/themes/responsive/paragraphSpacing'
@@ -34,6 +35,7 @@ export {
   scale,
   borderRadius,
   borderWidth,
+  boxShadow,
   fontSize,
   fontWeight,
   paragraphSpacing,

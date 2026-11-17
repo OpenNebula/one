@@ -254,9 +254,13 @@ export const useAddressRangeFormModal = () => {
         ),
         confirmLabel: T.Accept,
         cancelLabel: T.Cancel,
-        dialogWidth,
-        dialogMaxWidth,
-        dialogContentMaxHeight,
+        sx: {
+          width: dialogWidth,
+          maxWidth: dialogMaxWidth,
+          content: {
+            maxHeight: dialogContentMaxHeight,
+          },
+        },
       },
       onSubmit: submitAddressRangeForm,
     })
