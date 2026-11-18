@@ -158,6 +158,7 @@ group :cloud, :oneflow, :oneform, :oneks, :ods do
     else
         gem 'sinatra', '< 4.0.0'
         gem 'sinatra-contrib', '< 4.0.0'
+        gem 'puma', '< 7.0.0' # Puma 7+ requires Ruby >= 3.0
     end
 end
 

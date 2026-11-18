@@ -6,7 +6,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.9.0)
+    addressable (2.9.2)
       public_suffix (>= 2.0.2, < 8.0)
     async (1.32.1)
       console (~> 1.10)
@@ -41,7 +41,7 @@ GEM
     concurrent-ruby (1.3.8)
     console (1.15.3)
       fiber-local
-    curb (1.4.1)
+    curb (1.5.0)
     daemons (1.4.1)
     deep_merge (1.2.2)
     dry-configurable (0.12.1)
@@ -151,8 +151,10 @@ GEM
     prometheus-client (5.0.0)
       base64
     public_suffix (4.0.7)
+    puma (6.6.1)
+      nio4r (~> 2.0)
     racc (1.8.1)
-    rack (2.2.24)
+    rack (2.2.25)
     rack-protection (2.2.4)
       rack
     rbvmomi2 (3.11.0)
@@ -169,7 +171,7 @@ GEM
       nokogiri (>= 1.10.5)
       rexml
     ruby2_keywords (0.0.5)
-    sequel (5.109.0)
+    sequel (5.110.0)
       bigdecimal
     sinatra (2.2.4)
       mustermann (~> 2.0)
@@ -199,7 +201,7 @@ GEM
     unf_ext (0.0.9.1)
     uuidtools (3.0.0)
     webrick (1.9.2)
-    xmlrpc (0.3.4)
+    xmlrpc (0.3.5)
       rexml
       webrick
 
@@ -236,6 +238,7 @@ DEPENDENCIES
   parse-cron
   prometheus-client
   public_suffix (< 5.0.0)
+  puma (< 7.0.0)
   rack
   rbvmomi2
   rexml
