@@ -818,6 +818,24 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     ###########################################################################
+    # Reset oneadmin password
+    ###########################################################################
+    passwd_desc = <<-EOT.unindent
+        Resets the oneadmin password directly in the database.
+        OpenNebula must not be running when this command is executed.
+        After the update, ~/.one/one_auth must be updated manually.
+    EOT
+
+    command :passwd, passwd_desc do
+        begin
+            helper = OneDB.new(options)
+            helper.passwd
+        rescue StandardError => e
+            [-1, e.message]
+        end
+    end
+
+    ###########################################################################
     # Show body of a history record
     ###########################################################################
     show_history_desc = <<-EOT.unindent

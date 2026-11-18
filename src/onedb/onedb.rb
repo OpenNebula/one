@@ -23,6 +23,7 @@ else
 end
 
 require 'onedb_backend'
+require 'digest'
 
 require 'fiddle'
 require 'zlib'
@@ -560,6 +561,52 @@ class OneDB
         else
             raise "File was not found: #{file}"
         end
+    end
+
+    def passwd
+        one_not_running
+
+        password = get_password('New oneadmin password: ')
+        confirm  = get_password('Confirm new oneadmin password: ')
+
+        raise 'Passwords do not match.' if password != confirm
+        raise 'Password cannot be empty.' if password.empty?
+
+        row = @backend.db[:user_pool].where(:oid => 0).first
+        raise 'User record for oneadmin (oid=0) not found in database.' if row.nil?
+
+        doc = @backend.nokogiri_doc(row[:body], 'user_pool')
+
+        raise 'Invalid XML in user_pool body.' if doc.errors.any?
+        raise "Unexpected root element '#{doc.root.name}'." unless doc.root.name == 'USER'
+        raise "ID mismatch: expected 0, got '#{doc.root.at_xpath('ID')&.text}'." \
+            unless doc.root.at_xpath('ID')&.text == '0'
+        raise "NAME mismatch: expected oneadmin, got '#{doc.root.at_xpath('NAME')&.text}'." \
+            unless doc.root.at_xpath('NAME')&.text == 'oneadmin'
+        raise "AUTH_DRIVER is not 'core' (got '#{doc.root.at_xpath('AUTH_DRIVER')&.text}'). " \
+            'Only the core driver is supported.' \
+            unless doc.root.at_xpath('AUTH_DRIVER')&.text == 'core'
+
+        pw_nodes = doc.root.xpath('PASSWORD')
+        raise 'PASSWORD element not found in user record.' if pw_nodes.empty?
+        raise "Expected exactly one PASSWORD element, found #{pw_nodes.size}." if pw_nodes.size != 1
+
+        pw_nodes.first.content = Digest::SHA256.hexdigest(password)
+        new_xml = doc.root.to_xml
+
+        updated = 0
+        @backend.db.transaction do
+            updated = @backend.db[:user_pool].where(:oid => 0).update(:body => new_xml)
+            raise Sequel::Rollback, 'Update affected no rows.' if updated != 1
+        end
+
+        raise 'Database update failed: no rows were modified.' if updated != 1
+
+        puts 'Password successfully updated in OpenNebula database.'
+        puts
+        puts 'IMPORTANT: Update ~/.one/one_auth with the new password.'
+
+        0
     end
 
     def sqlite2mysql(options, sqlite)
