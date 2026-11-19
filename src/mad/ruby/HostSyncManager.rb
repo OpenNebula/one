@@ -66,7 +66,7 @@ class HostSyncManager
                 "cd '#{@local_scripts_base_path}'/",
                 "scp -rp #{sources} " \
                     "'#{hostname}':'#{@remote_scripts_base_path}'/"
-            ]
+            ], false
         when :rsync
             mkdir_cmd = assemble_cmd [
                 "mkdir -p '#{@remote_scripts_base_path}'/"
@@ -76,7 +76,7 @@ class HostSyncManager
                 "cd '#{@local_scripts_base_path}'/",
                 "rsync -LRaz --delete #{sources} " \
                     "'#{hostname}':'#{@remote_scripts_base_path}'/"
-            ]
+            ], false
         end
 
         # Escape the command so it fully runs on the remote side. Otherwise
@@ -121,8 +121,11 @@ class HostSyncManager
         [0, cmd.stdout.split]
     end
 
-    def assemble_cmd(steps)
-        "exec 2>/dev/null; #{steps.join(' && ')}"
+    # @param steps [Array] commands joined with &&
+    # @param quiet [Boolean] discard stderr. The local sync keeps it so a
+    #   failure (e.g. cd: Permission denied) is logged by the command runner.
+    def assemble_cmd(steps, quiet = true)
+        "#{quiet ? 'exec 2>/dev/null; ' : ''}#{steps.join(' && ')}"
     end
 
     def error?(cmd)
