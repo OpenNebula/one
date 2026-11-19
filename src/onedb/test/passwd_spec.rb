@@ -85,6 +85,7 @@ def build_onedb(body: VALID_BODY, update_rows: 1)
 
     backend = instance_double('BackEndMySQL')
     allow(backend).to receive(:db).and_return(db_obj)
+    allow(backend).to receive(:read_db_version).and_return({})
     allow(backend).to receive(:nokogiri_doc) do |b, _|
         Nokogiri::XML(b) {|c| c.default_xml.noblanks }
     end

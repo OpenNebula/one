@@ -572,6 +572,8 @@ class OneDB
         raise 'Passwords do not match.' if password != confirm
         raise 'Password cannot be empty.' if password.empty?
 
+        @backend.read_db_version
+
         row = @backend.db[:user_pool].where(:oid => 0).first
         raise 'User record for oneadmin (oid=0) not found in database.' if row.nil?
 
