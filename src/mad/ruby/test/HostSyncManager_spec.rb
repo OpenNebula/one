@@ -24,6 +24,9 @@ describe HostSyncManager do
         rc = HostSyncManager.new.update_remotes('host', logger)
 
         expect(rc).not_to eq(0)
-        expect(logs.join).to match(/No such file or directory/)
+        # The wording of the shell error differs (bash vs dash), the path not.
+        # The failed command is logged too, so look at the stderr entry only.
+        stderr = logs.reject {|m| m.include?('Command execution failed') }
+        expect(stderr.join).to include('/nonexistent-one-location/var/remotes')
     end
 end
