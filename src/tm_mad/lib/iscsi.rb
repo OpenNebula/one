@@ -1050,7 +1050,7 @@ module Iscsi
             :host => host,
             :nostdout => false
         )
-        if mpath_check.code == 0 && mpath.stdout.include?('running')
+        if mpath_check.code == 0 && mpath_check.stdout.include?('running')
             OpenNebula::DriverLogger.log_info "Path #{path} already exists on host #{host}"
             return
         end
