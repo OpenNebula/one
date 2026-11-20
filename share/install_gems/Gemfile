@@ -124,6 +124,7 @@ group :cli do
         gem 'sqlite3'
     end
     gem 'mini_portile2'
+    gem 'ruby-libvirt'
     gem 'sequel'
 end
 

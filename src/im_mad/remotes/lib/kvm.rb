@@ -23,6 +23,8 @@ require 'yaml'
 require 'rexml/document'
 require 'sqlite3'
 require 'csv'
+require 'shellwords'
+require 'libvirt'
 
 require_relative 'process_list'
 require_relative 'domain'
@@ -31,22 +33,14 @@ ENV['LANG'] = 'C'
 ENV['LC_ALL'] = 'C'
 
 #-------------------------------------------------------------------------------
-#  KVM Monitor Module. This module provides basic functionality to execute
-#  virsh commands and load KVM configuration in remotes/etc/vmm/kvm/kvmrc
+#  KVM Monitor Module. This module provides basic functionality to query
+#  libvirt and load KVM configuration in remotes/etc/vmm/kvm/kvmrc
 #
-#  The load_conf should be called before executing virsh commands
+#  The load_conf should be called before querying libvirt
 #-------------------------------------------------------------------------------
 module KVM
 
-    # Constants for KVM virsh commands
     CONF = {
-        :dominfo  => 'virsh --connect LIBVIRT_URI --readonly dominfo',
-        :domstate => 'virsh --connect LIBVIRT_URI --readonly domstate',
-        :list     => 'virsh --connect LIBVIRT_URI --readonly list',
-        :dumpxml  => 'virsh --connect LIBVIRT_URI --readonly dumpxml',
-        :domstats => 'virsh --connect LIBVIRT_URI --readonly domstats',
-        :qemuga   => 'virsh --connect LIBVIRT_URI qemu-agent-command',
-        :top      => 'top -b -d2 -n 2 -p ',
         'LIBVIRT_URI' => 'qemu:///system'
     }
 
@@ -62,12 +56,50 @@ module KVM
     # Variables to read from kvmrc
     CONF_VARS = ['LIBVIRT_URI']
 
-    # Execute a virsh command using the predefined command strings and URI
-    # @param command [Symbol] as defined in the module CONF constant
-    def self.virsh(command, arguments)
-        cmd = CONF[command].gsub('LIBVIRT_URI', CONF['LIBVIRT_URI'])
+    # Libvirt connection, shared by all the queries of a probe run. Every new
+    # connection consumes two libvirtd timer IDs, and libvirtd stops accepting
+    # connections once it has handed out 2^31 of them (OpenNebula/one#8209).
+    def self.conn
+        @conn ||= Libvirt.open(CONF['LIBVIRT_URI'])
+    end
 
-        Open3.capture3("#{cmd} #{arguments}")
+    # @return [Hash] active Libvirt::Domain by name
+    def self.domains
+        @domains ||= conn.list_all_domains(Libvirt::Connect::LIST_DOMAINS_ACTIVE)
+                         .to_h {|domain| [domain.name, domain] }
+    end
+
+    # Send a command to the QEMU guest agent of a domain
+    # @param name [String] of the domain
+    # @param json [String] guest agent command
+    # @param timeout [Integer] seconds to wait for the agent, forever by default
+    # @return [String] guest agent response (JSON)
+    def self.agent_command(name, json, timeout = Libvirt::Domain::QEMU_AGENT_COMMAND_BLOCK)
+        domains[name].qemu_agent_command(json, timeout)
+    end
+
+    # Syntax of the commands in guestagent.conf, the arguments of virsh
+    # qemu-agent-command optionally piped to a shell command:
+    #   <domain> '<json>' [--timeout <seconds>] [| <shell command>]
+    AGENT_CONF_COMMAND = /\A\s*(\S+)\s+'([^']*)'\s*(?:--timeout\s+(\d+))?\s*(?:\|(.*))?\z/m
+
+    # Run a guest agent command of guestagent.conf
+    # @return [Array] output, error message, success
+    def self.agent_conf_command(command)
+        name, json, timeout, filter = command.match(AGENT_CONF_COMMAND)&.captures
+
+        return ['', "Invalid guest agent command: #{command}", false] unless name
+        return ['', "Domain not found: #{name}", false] unless domains[name]
+
+        text =timeout ? agent_command(name, json, timeout.to_i) : agent_command(name, json)
+
+        return [text, '', true] unless filter
+
+        text, e, s = Open3.capture3(filter, :stdin_data => text)
+
+        [text, e, s.success?]
+    rescue Libvirt::Error => e
+        ['', e.message, false]
     end
 
     # Loads the rc variables and overrides the default values
@@ -115,21 +147,9 @@ module ProcessList
     PS_REGEX = /-uuid ([a-z0-9\-]+) /
 
     def self.retrieve_names
-        text, _e, s = KVM.virsh(:list, '')
-
-        if s.exitstatus != 0
-            raise 'Error retrieving names. Check Libvirtd service is up.'
-        end
-
-        lines = text.split("\n")[2..-1]
-
-        # rubocop:disable Style/RedundantAssignment
-        names = lines.map do |line|
-            line.split(/\s+/).delete_if {|d| d.empty? }[1]
-        end
-        # rubocop:enable Style/RedundantAssignment
-
-        names
+        KVM.domains.keys
+    rescue Libvirt::Error
+        raise 'Error retrieving names. Check Libvirtd service is up.'
     end
 
 end
@@ -140,8 +160,7 @@ end
 #    @vm[:id] from one-<id>, -1 if wild
 #    @vm[:uuid]
 #    @vm[:deploy_id]
-#    @vm[:kvm_state] KVM-qemu state
-#    @vm[:reason] reason for state transition
+#    @vm[:reason] libvirt reason for the paused state
 #    @vm[:state] OpenNebula state
 #    @vm[:netrx]
 #    @vm[:nettx]
@@ -170,27 +189,17 @@ class Domain < BaseDomain
         @db_retention = 4
     end
 
-    # Gets the information of the domain, fills the @vm hash using ProcessList
-    # and virsh dominfo
-    def info
-        text, _e, s = KVM.virsh(:dominfo, @name)
+    # Gets the identity and state of the domain. This is all the state probe
+    # needs, it runs too often to also gather the metrics
+    def state_info
+        domain = KVM.domains[@name]
 
-        return -1 if s.exitstatus != 0
+        @vm[:name] = @name
+        @vm[:uuid] = domain.uuid
 
-        lines = text.split("\n")
-        hash  = {}
+        @vm[:deploy_id] = @vm[:uuid]
 
-        lines.map do |line|
-            parts = line.split(/:\s+/)
-            hash[parts[0].upcase] = parts[1]
-        end
-
-        @vm[:name] = hash['NAME']
-        @vm[:uuid] = hash['UUID']
-
-        @vm[:deploy_id] = hash['UUID']
-
-        m = @vm[:name].match(/^one-(\d*)$/)
+        m = @name.match(/^one-(\d*)$/)
 
         if m
             @vm[:id] = m[1]
@@ -200,46 +209,34 @@ class Domain < BaseDomain
 
         return if @vm[:id] == -1 # Skip wild VMs
 
-        @vm[:kvm_state] = hash['STATE']
+        state, reason = domain.state
 
-        # Domain state
-
-        state  = 'UNKNOWN'
-        reason = 'missing'
-
-        if hash['STATE'] == 'paused'
-            text, _e, s = KVM.virsh(:domstate, "#{@name} --reason")
-
-            if s.exitstatus == 0
-                text =~ /^[^ ]+ \(([^)]+)\)/
-                reason = Regexp.last_match(1) || 'missing'
-            end
-
-            state = STATE_MAP['paused'][reason] || 'UNKNOWN'
+        if state == Libvirt::Domain::PAUSED
+            @vm[:reason] = reason
+            @vm[:state]  = PAUSED_STATE_MAP[reason] || 'UNKNOWN'
         else
-            state = STATE_MAP[hash['STATE']] || 'UNKNOWN'
+            @vm[:state] = STATE_MAP[state] || 'UNKNOWN'
+        end
+    rescue Libvirt::Error
+        -1
+    end
+
+    # Gets the information of the domain: state, ONE metadata and metrics
+    def info
+        return -1 if state_info == -1
+        return if @vm[:id] == -1 # Skip wild VMs
+
+        doc = REXML::Document.new(KVM.domains[@name].xml_desc)
+
+        [:system_datastore, :pci_devices].each do |k|
+            @vm[k] = doc.elements["/domain/metadata/one:vm/one:#{k}"]&.text
         end
 
-        @vm[:state]  = state
-        @vm[:reason] = reason
-
-        # Get VM virsh dumpxml ONE metadata
-        xml, _e, s = KVM.virsh(:dumpxml, @name)
-
-        begin
-            dkeys = [:system_datastore, :pci_devices]
-            doc   = REXML::Document.new(xml)
-
-            dkeys.each do |k|
-                @vm[k] = doc.elements["/domain/metadata/one:vm/one:#{k}"]&.text
-            end
-        rescue StandardError
-            dkeys.each {|key| @vm[key] = nil }
-        end if s.success?
-
         ga_stats
-        io_stats
+        io_stats(doc)
         gpu_stats
+    rescue Libvirt::Error
+        -1
     end
 
     # Convert the output of dumpxml for this domain to an OpenNebula template
@@ -247,10 +244,7 @@ class Domain < BaseDomain
     #
     #   @return [String] OpenNebula template encoded in base64
     def to_one
-        xml, _e, s = KVM.virsh(:dumpxml, @name)
-        return '' if s.exitstatus != 0
-
-        doc = REXML::Document.new(xml)
+        doc = REXML::Document.new(KVM.domains[@name].xml_desc)
 
         name = REXML::XPath.first(doc, '/domain/name').text
         uuid = REXML::XPath.first(doc, '/domain/uuid').text
@@ -320,41 +314,41 @@ class Domain < BaseDomain
 
     private
 
-    # --------------------------------------------------------------------------
-    # Libvirt states for the guest are
-    #  * 'running' state refers to guests which are currently active on a CPU.
-    #  * 'idle' ('blocked') not running or runnable (waiting on I/O or sleeping)
-    #  * 'paused' after virsh suspend.
-    #  * 'in shutdown' ('shutdown') guest in the process of shutting down.
-    #  * 'dying' the domain has not completely shutdown or crashed.
-    #  * 'crashed' guests have failed while running and are no longer running.
-    #  * 'pmsuspended' suspended by guest power management (e.g. S3 state)
-    # --------------------------------------------------------------------------
+    # Libvirt domain state => OpenNebula state. A domain in shutdown is still
+    # running, other states (no state, shut off) are not expected for an active
+    # domain
     STATE_MAP = {
-        'running'     => 'RUNNING',
-        'idle'        => 'RUNNING',
-        'blocked'     => 'RUNNING',
-        'in shutdown' => 'RUNNING',
-        'shutdown'    => 'RUNNING',
-        'dying'       => 'RUNNING',
-        'crashed'     => 'FAILURE',
-        'pmsuspended' => 'SUSPENDED',
-        'paused' => {
-            'migrating' => 'RUNNING',
-            'saving'    => 'RUNNING',
-            'starting up' => 'RUNNING',
-            'booted'    => 'RUNNING',
-            'I/O error' => 'FAILURE',
-            'watchdog'  => 'FAILURE',
-            'crashed'   => 'FAILURE',
-            'post-copy failed' => 'FAILURE',
-            'unknown'   => 'FAILURE',
-            'user'      => 'SUSPENDED'
-        }
+        Libvirt::Domain::RUNNING     => 'RUNNING',
+        Libvirt::Domain::BLOCKED     => 'RUNNING',
+        Libvirt::Domain::SHUTDOWN    => 'RUNNING',
+        Libvirt::Domain::CRASHED     => 'FAILURE',
+        Libvirt::Domain::PMSUSPENDED => 'SUSPENDED'
     }
 
-    # List of domain state reasons (for RUNNING) when to skip I/O monitoring
-    REASONS_SKIP_IO = ['migrating', 'starting up', 'saving']
+    # Reasons of the paused state (virDomainPausedReason) not defined by the
+    # libvirt gem
+    PAUSED_STARTING_UP     = 11
+    PAUSED_POSTCOPY_FAILED = 13
+
+    # Libvirt reason of the paused state => OpenNebula state
+    PAUSED_STATE_MAP = {
+        Libvirt::Domain::PAUSED_MIGRATION => 'RUNNING',
+        Libvirt::Domain::PAUSED_SAVE      => 'RUNNING',
+        PAUSED_STARTING_UP                => 'RUNNING',
+        Libvirt::Domain::PAUSED_IOERROR   => 'FAILURE',
+        Libvirt::Domain::PAUSED_WATCHDOG  => 'FAILURE',
+        Libvirt::Domain::PAUSED_CRASHED   => 'FAILURE',
+        PAUSED_POSTCOPY_FAILED            => 'FAILURE',
+        Libvirt::Domain::PAUSED_UNKNOWN   => 'FAILURE',
+        Libvirt::Domain::PAUSED_USER      => 'SUSPENDED'
+    }
+
+    # Reasons of the paused state (for RUNNING) when to skip I/O monitoring
+    REASONS_SKIP_IO = [
+        Libvirt::Domain::PAUSED_MIGRATION,
+        Libvirt::Domain::PAUSED_SAVE,
+        PAUSED_STARTING_UP
+    ]
 
     # --------------------------------------------------------------------------
     # GPU monitoring system - detects GPUs from PCI devices and collects metrics
@@ -371,9 +365,9 @@ class Domain < BaseDomain
         # }
     }.freeze
 
-    # Get the I/O stats of the domain as provided by Libvirt command domstats
-    # The metrics are aggregated for all DIKS and NIC
-    def io_stats
+    # Get the I/O stats of the domain, aggregated for all its disks and NICs
+    # @param doc [REXML::Document] XML description of the domain
+    def io_stats(doc)
         @vm[:netrx] = 0
         @vm[:nettx] = 0
         @vm[:diskrdbytes] = 0
@@ -384,28 +378,25 @@ class Domain < BaseDomain
         return if @vm[:state] != 'RUNNING' ||
                   REASONS_SKIP_IO.include?(@vm[:reason])
 
-        vm_stats, _e, s = KVM.virsh(:domstats, @name)
+        domain = KVM.domains[@name]
 
-        return if s.exitstatus != 0
+        doc.elements.each('/domain/devices/interface/target') do |target|
+            stats = domain.ifinfo(target.attributes['dev'])
 
-        vm_stats.each_line do |line|
-            columns = line.split(/=(\d+)/)
-
-            case columns[0]
-            when /rx.bytes/
-                @vm[:netrx] += columns[1].to_i
-            when /tx.bytes/
-                @vm[:nettx] += columns[1].to_i
-            when /rd.bytes/
-                @vm[:diskrdbytes] += columns[1].to_i
-            when /wr.bytes/
-                @vm[:diskwrbytes] += columns[1].to_i
-            when /rd.reqs/
-                @vm[:diskrdiops] += columns[1].to_i
-            when /wr.reqs/
-                @vm[:diskwriops] += columns[1].to_i
-            end
+            @vm[:netrx] += stats.rx_bytes
+            @vm[:nettx] += stats.tx_bytes
+        rescue Libvirt::Error
+            next
         end
+
+        # An empty device name returns the totals of all the disks
+        stats = domain.block_stats('')
+
+        @vm[:diskrdbytes] = stats.rd_bytes
+        @vm[:diskwrbytes] = stats.wr_bytes
+        @vm[:diskrdiops]  = stats.rd_req
+        @vm[:diskwriops]  = stats.wr_req
+    rescue Libvirt::Error
     end
 
     # Get OS metrics provided by the qemu guest agent
@@ -422,9 +413,9 @@ class Domain < BaseDomain
                 # Skip commands that don't match VM OS filter
                 next unless command_matches_filter?(KVM::QEMU_GA[:commands][ga_info])
 
-                text, e, s = KVM.virsh(:qemuga, ga_cmd)
+                text, e, success = KVM.agent_conf_command(ga_cmd)
 
-                if s.exitstatus != 0
+                if !success
                     @vm[ga_info] = e.chomp
                 else
                     begin
@@ -450,23 +441,19 @@ class Domain < BaseDomain
     def extract_ga_attributes
         return if @vm[:os_type]
 
-        osinfo_cmd = "one-#{@vm[:id]} '{\"execute\":\"guest-get-osinfo\"}' --timeout 10"
-        text, _e, s = KVM.virsh(:qemuga, osinfo_cmd)
+        text = KVM.agent_command(@name, '{"execute":"guest-get-osinfo"}', 10)
 
-        if s.success?
-            osinfo = JSON.parse(text)['return']
-            @vm[:os_id]      = osinfo['id'] || 'unknown'
-            @vm[:os_type]    = @vm[:os_id] == 'mswindows' ? 'mswindows' : 'posix'
-            @vm[:os_version] = osinfo['version-id'] || 'unknown'
-            @vm[:os_machine] = osinfo['machine'] || 'unknown'
-        end
+        osinfo = JSON.parse(text)['return']
+        @vm[:os_id]      = osinfo['id'] || 'unknown'
+        @vm[:os_type]    = @vm[:os_id] == 'mswindows' ? 'mswindows' : 'posix'
+        @vm[:os_version] = osinfo['version-id'] || 'unknown'
+        @vm[:os_machine] = osinfo['machine'] || 'unknown'
+    rescue Libvirt::Error
     end
 
     # Get network information
     def extract_network_attributes
-        net_command    = "one-#{@vm[:id]} '{\"execute\":\"guest-network-get-interfaces\"}'"
-        net_text, _e, s = KVM.virsh(:qemuga, net_command)
-        return unless s.success?
+        net_text = KVM.agent_command(@name, '{"execute":"guest-network-get-interfaces"}')
 
         net_info  = JSON.parse(net_text)['return']
         guest_ips = []
@@ -580,8 +567,7 @@ class Domain < BaseDomain
                 }
             }.to_json
 
-            text, _e, s = KVM.virsh(:qemuga, "#{@domain_name} '#{exec_ga}' --timeout 15")
-            return unless s.success?
+            text = KVM.agent_command(@domain_name, exec_ga, 15)
 
             response = JSON.parse(text) rescue nil
             return unless response&.dig('return', 'pid')
@@ -598,14 +584,15 @@ class Domain < BaseDomain
                     'arguments' => { 'pid' => pid }
                 }.to_json
 
-                text, _e, s = KVM.virsh(:qemuga, "#{@domain_name} '#{stat_ga}' --timeout 15")
-                next unless s.success?
+                text = KVM.agent_command(@domain_name, stat_ga, 15)
 
                 status = JSON.parse(text) rescue nil
                 if status&.dig('return', 'exited')
                     return Base64.decode64(status['return']['out-data']) rescue nil
                 end
             end
+            nil
+        rescue Libvirt::Error
             nil
         end
 
@@ -736,6 +723,19 @@ module DomainList
 
         include KVM
         include ProcessList
+
+        # Get the list of VMs with only their identity and state
+        #
+        #   @return [Hash] with KVM Domain classes indexed by their uuid
+        def state_info
+            info_each(false) do |name|
+                vm = Domain.new name
+
+                next if vm.state_info == -1
+
+                vm
+            end
+        end
 
         # Get the list of wild VMs (not known to OpenNebula) and their monitor
         # information including process usage

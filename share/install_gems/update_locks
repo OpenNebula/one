@@ -93,6 +93,10 @@ elif command -v zypper >/dev/null; then
     zypper -n install ruby rubygems findutils openssl libffi-devel
     rpm -e --nodeps rubygem-bundler ||:
 
+    # ruby package ships default bundler executables, which would
+    # conflict with the ones from the bundler gem installed below
+    rm -f /usr/bin/bundle.ruby[0-9]* /usr/bin/bundler.ruby[0-9]*
+
 elif command -v rpm >/dev/null; then
     if grep -m1 '^Red Hat' /etc/redhat-release; then
       export SMDEV_CONTAINER_OFF=1

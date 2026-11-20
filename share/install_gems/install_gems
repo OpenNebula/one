@@ -64,7 +64,7 @@ case "${TARGET}" in
         apt-get -y install \
             ruby-dev make gcc libsqlite3-dev libcurl4-openssl-dev \
             rake libxml2-dev libxslt1-dev patch g++ build-essential \
-            libssl-dev libaugeas-dev pkgconf \
+            libssl-dev libaugeas-dev libvirt-dev pkgconf \
             >/dev/null
 
         # default-libmysqlclient-dev OR libmysqlclient-dev
@@ -80,7 +80,7 @@ case "${TARGET}" in
         dnf -y install ruby-devel make gcc sqlite-devel \
             openssl-devel curl-devel rubygem-rake libxml2-devel \
             libxslt-devel patch expat-devel gcc-c++ rpm-build augeas-devel \
-            rubygems \
+            rubygems libvirt-devel \
             >/dev/null
         dnf -y install mysql-devel || dnf -y install mariadb-devel  # el10 missing mysql-devel
         ;;
@@ -90,7 +90,7 @@ case "${TARGET}" in
         zypper -n install \
             ruby-devel make gcc sqlite3-devel libcurl-devel \
             libxml2-devel libxslt-devel patch gcc-c++ \
-            libopenssl-devel augeas-devel rpm-build \
+            libopenssl-devel augeas-devel libvirt-devel rpm-build \
             >/dev/null
 
         zypper -n install pkgconf >/dev/null 2>&1 || \
