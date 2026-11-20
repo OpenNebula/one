@@ -17,16 +17,10 @@ require 'load_opennebula_paths'
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require_relative '../../../lib/kvm'
 require_relative '../../../lib/kvm_qemu_ga'
 
-host    = ARGV[-1]
-host_id = ARGV[-2]
-
-KVM.load_conf
-
 begin
-    puts VirshWrapper.qemu_ga_reaper(host, host_id)
+    puts VirshWrapper.qemu_ga_reaper
 rescue StandardError => e
     STDERR.puts e.message
     exit(-1)

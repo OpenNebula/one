@@ -155,23 +155,18 @@ module VirshWrapper
         )
     end
 
-    # Reap QEMU Guest Agent processes
-    #
-    # @param host [String] Host name
-    # @param host_id [Integer] Host ID
+    # Reap QEMU Guest Agent processes. Pending executions are found by their
+    # PID file (written by the exec action), so no libvirt connection is made
+    # when there is nothing to reap.
     #
     # @return [String] QEMU Guest Agent execution string
-    def self.qemu_ga_reaper(host, host_id)
+    def self.qemu_ga_reaper
         qemu_exec_str = ''
 
-        vms = DomainList.state_info(host, host_id)
         lock_exec do
-            vms.each do |_uuid, vm|
-                next if vm[:ignore] == true
-                next if vm[:id].to_i < 0
-
-                path = "/var/run/one/one-#{vm[:id]}"
-                next unless File.exist?(path)
+            Dir.glob('/var/run/one/one-*').each do |path|
+                vm_id = path[/one-(\d+)$/, 1]
+                next unless vm_id
 
                 pid = nil
 
@@ -180,7 +175,7 @@ module VirshWrapper
                     raise 'Empty QEMU guest agent PID file' if pid_str.empty?
 
                     pid = pid_str.to_i
-                    status_hash = guest_exec_status("one-#{vm[:id]}", pid)
+                    status_hash = guest_exec_status("one-#{vm_id}", pid)
                     next unless status_hash.is_a?(Hash) && status_hash['exited']
 
                     rc = status_hash['exitcode'].to_s
@@ -189,20 +184,20 @@ module VirshWrapper
 
                     File.delete(path)
                     qemu_exec_str << vm_to_exec(
-                        vm[:id].to_s, pid, 'DONE', rc, out_b64, err_b64
+                        vm_id, pid, 'DONE', rc, out_b64, err_b64
                     )
                 rescue StandardError => e
-                    STDERR.puts "qemu_ga_reaper error for VM #{vm[:id]}: #{e.message}"
+                    STDERR.puts "qemu_ga_reaper error for VM #{vm_id}: #{e.message}"
 
                     err_b64 = Base64.strict_encode64(e.message)
                     qemu_exec_str << vm_to_exec(
-                        vm[:id].to_s, pid, 'ERROR', '-1', '', err_b64
+                        vm_id, pid, 'ERROR', '-1', '', err_b64
                     )
 
                     begin
                         File.delete(path) if File.exist?(path)
                     rescue StandardError => cleanup_error
-                        STDERR.puts "qemu_ga_reaper cleanup error for VM #{vm[:id]}: " \
+                        STDERR.puts "qemu_ga_reaper cleanup error for VM #{vm_id}: " \
                                     "#{cleanup_error.message}"
                     end
                 end
