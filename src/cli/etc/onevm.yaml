@@ -28,6 +28,11 @@
   :desc: CPU assigned to the VM
   :size: 4
 
+:VCPU:
+  :desc: Number of virtual CPUs configured for the VM
+  :size: 4
+  :adjust: true
+
 :MEM:
   :desc: Memory assigned by the VM
   :size: 7
@@ -57,7 +62,9 @@
 - :USER
 - :GROUP
 - :NAME
+- :IP
 - :STAT
+- :VCPU
 - :CPU
 - :MEM
 - :HOST
@@ -69,6 +76,7 @@
     - :NAME
     - :IP
     - :STAT
+    - :VCPU
     - :CPU
     - :MEM
     - :HOST
