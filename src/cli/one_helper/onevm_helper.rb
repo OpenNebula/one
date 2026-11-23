@@ -311,6 +311,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 cpu
             end
 
+            column :VCPU, 'Number of virtual CPUs configured for the VM',
+                   :adjust, :size => 4 do |d|
+                vcpu = d.dig('TEMPLATE', 'VCPU')
+                vcpu.is_a?(String) && !vcpu.empty? ? vcpu : '-'
+            end
+
             column :MEM, 'Memory asigned to the VM', :size => 7 do |d|
                 OpenNebulaHelper.unit_to_str(d['TEMPLATE']['MEMORY'].to_i,
                                              options, 'M')
