@@ -462,7 +462,7 @@ module OneKS
             def safe_values(content)
                 return {} if content.strip.empty?
 
-                values = YAML.safe_load(content, :aliases => false) || {}
+                values = YAML.safe_load(content) || {}
                 return values if values.is_a?(Hash)
 
                 OpenNebula::Error.new(

@@ -147,9 +147,7 @@ module OneKS
             # @param directory [String] Root charts directory
             # @return [Chart, OpenNebula::Error] Parsed chart or validation error
             def load_file(path, directory)
-                attributes = YAML.safe_load(
-                    File.read(path, :encoding => 'UTF-8'), :aliases => false
-                )
+                attributes = YAML.safe_load(File.read(path, :encoding => 'UTF-8'))
 
                 return OpenNebula::Error.new(
                     "Invalid chart '#{path}': root must be an object", OpenNebula::Error::EACTION
@@ -204,7 +202,7 @@ module OneKS
                 values = attributes.fetch('defaultValuesContent', '')
 
                 unless values.strip.empty?
-                    parsed_values = YAML.safe_load(values, :aliases => false)
+                    parsed_values = YAML.safe_load(values)
 
                     return OpenNebula::Error.new(
                         "Invalid chart '#{path}': defaultValuesContent must contain an object",
