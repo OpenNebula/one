@@ -22,6 +22,7 @@ import {
   AclAPI,
   SystemAPI,
   GroupAPI,
+  useAuth,
   useGeneralApi,
 } from '@FeaturesModule'
 
@@ -51,6 +52,7 @@ export function CreateGroup() {
   const history = useHistory()
   const { state: { ID: groupId } = {} } = useLocation()
 
+  const { isOneAdmin } = useAuth()
   const { enqueueSuccess, enqueueError } = useGeneralApi()
   const [createGroup] = GroupAPI.useAllocateGroupMutation()
   const [updateGroup] = GroupAPI.useUpdateGroupMutation()
@@ -69,7 +71,7 @@ export function CreateGroup() {
     data: acls,
     isError: isAclsError,
     error: aclsError,
-  } = AclAPI.useGetAclsQuery(undefined, { skip: !groupId })
+  } = AclAPI.useGetAclsQuery(undefined, { skip: !groupId || !isOneAdmin })
 
   const updateTemplate = async (props, id) => {
     // Create group template with advanced options
@@ -171,11 +173,13 @@ export function CreateGroup() {
         enqueueSuccess(T.SuccessGroupCreated, newGroupId)
       } else {
         // Update case. Only update template
+        const updates = [updateTemplate(props, groupId)]
 
-        await Promise.all([
-          updateTemplate(props, groupId),
-          updatePermissions(props, groupId),
-        ])
+        if (isOneAdmin) {
+          updates.push(updatePermissions(props, groupId))
+        }
+
+        await Promise.all(updates)
 
         // Only show group message
         enqueueSuccess(T.SuccessGroupUpdated, groupId)
@@ -187,6 +191,9 @@ export function CreateGroup() {
       enqueueError(T.ErrorGroupCreated)
     }
   }
+
+  const isGroupUpdateReady = group && (!isOneAdmin || (acls && !isAclsError))
+  const hasAclError = isOneAdmin && isAclsError
 
   return (
     <>
@@ -202,19 +209,20 @@ export function CreateGroup() {
           >
             {(config) => <DefaultFormStepper {...config} />}
           </Group.Forms.CreateForm>
-        ) : group && acls && !isAclsError ? (
+        ) : isGroupUpdateReady ? (
           <Group.Forms.UpdateForm
             initialValues={{ group, acls }}
             onSubmit={onSubmit}
             stepProps={{
               views,
               version,
+              isOneAdmin,
             }}
             fallback={<SkeletonStepsForm />}
           >
             {(config) => <DefaultFormStepper {...config} update />}
           </Group.Forms.UpdateForm>
-        ) : isAclsError ? (
+        ) : hasAclError ? (
           <QueryState error={aclsError?.data} />
         ) : (
           <SkeletonStepsForm />

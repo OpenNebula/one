@@ -32,87 +32,95 @@ import { ACL_RESOURCES } from '@ConstantsModule'
 
 /**
  * Create steps for Groups Update Form:
- * 1. Permissions: Set permissions about some resources for the group
+ * 1. Permissions: Set permissions about some resources for the group (oneadmin only)
  * 2. Advanced options: Options that will be set on group template
  * 2.1. Views: Views of the group
  * 2.2. Default options
  */
-const Steps = createSteps([Permissions, Views, System], {
-  transformInitialValue: (initialValues, schema) => {
-    const group = initialValues?.group ?? initialValues
-    const acls = initialValues?.acls ?? []
-    const objectSchema = {
-      [PERMISSIONS_ID]: getGroupPermissionFormValues(acls, group?.ID),
-      [VIEWS_ID]: {
-        VIEWS: group?.TEMPLATE?.FIREEDGE?.VIEWS?.split(',').reduce(
-          (acc, view) => ({ ...acc, [view]: true }),
-          {}
-        ),
-        DEFAULT_VIEW: group?.TEMPLATE?.FIREEDGE?.DEFAULT_VIEW,
-        GROUP_ADMIN_VIEWS: group?.TEMPLATE?.FIREEDGE?.GROUP_ADMIN_VIEWS?.split(
-          ','
-        ).reduce((acc, view) => ({ ...acc, [view]: true }), {}),
-        GROUP_ADMIN_DEFAULT_VIEW:
-          group?.TEMPLATE?.FIREEDGE?.GROUP_ADMIN_DEFAULT_VIEW,
-      },
-      [SYSTEM_ID]: {
-        OPENNEBULA: group?.TEMPLATE?.OPENNEBULA,
-      },
-    }
+const Steps = createSteps(
+  ({ isOneAdmin }) =>
+    [isOneAdmin && Permissions, Views, System].filter(Boolean),
+  {
+    transformInitialValue: (initialValues, schema) => {
+      const group = initialValues?.group ?? initialValues
+      const acls = initialValues?.acls ?? []
+      const objectSchema = {
+        [PERMISSIONS_ID]: getGroupPermissionFormValues(acls, group?.ID),
+        [VIEWS_ID]: {
+          VIEWS: group?.TEMPLATE?.FIREEDGE?.VIEWS?.split(',').reduce(
+            (acc, view) => ({ ...acc, [view]: true }),
+            {}
+          ),
+          DEFAULT_VIEW: group?.TEMPLATE?.FIREEDGE?.DEFAULT_VIEW,
+          GROUP_ADMIN_VIEWS:
+            group?.TEMPLATE?.FIREEDGE?.GROUP_ADMIN_VIEWS?.split(',').reduce(
+              (acc, view) => ({ ...acc, [view]: true }),
+              {}
+            ),
+          GROUP_ADMIN_DEFAULT_VIEW:
+            group?.TEMPLATE?.FIREEDGE?.GROUP_ADMIN_DEFAULT_VIEW,
+        },
+        [SYSTEM_ID]: {
+          OPENNEBULA: group?.TEMPLATE?.OPENNEBULA,
+        },
+      }
 
-    const knownGroup = schema.cast(objectSchema, {
-      stripUnknown: true,
-    })
+      const knownGroup = schema.cast(objectSchema, {
+        stripUnknown: true,
+      })
 
-    return knownGroup
-  },
+      return knownGroup
+    },
 
-  transformBeforeSubmit: (formData) => {
-    // Get data from steps
-    const { [PERMISSIONS_ID]: permissionsData } = formData
-    const { [VIEWS_ID]: views } = formData
-    const { [SYSTEM_ID]: system } = formData
+    transformBeforeSubmit: (formData) => {
+      // Get data from steps
+      const { [PERMISSIONS_ID]: permissionsData } = formData
+      const { [VIEWS_ID]: views } = formData
+      const { [SYSTEM_ID]: system } = formData
 
-    const response = {}
+      const response = {}
 
-    // Permissions
-    const createResources = Object.entries(permissionsData?.create ?? {})
-      .filter((resource) => resource[1])
-      .map((resource) => ACL_RESOURCES[resource[0]])
-      .filter(Boolean)
-    const viewResources = Object.entries(permissionsData?.view ?? {})
-      .filter((resource) => resource[1])
-      .map((resource) => ACL_RESOURCES[resource[0]])
-      .filter(Boolean)
-
-    response.permissions = {
-      view: viewResources,
-      create: createResources,
-    }
-
-    // Views
-    response.views = {
-      FIREEDGE: {
-        VIEWS: Object.entries(views?.VIEWS)
+      if (permissionsData) {
+        // Permissions
+        const createResources = Object.entries(permissionsData.create ?? {})
           .filter((resource) => resource[1])
-          .map((resource) => resource[0])
-          .join(','),
-        DEFAULT_VIEW: views?.DEFAULT_VIEW,
-        GROUP_ADMIN_VIEWS: Object.entries(views?.GROUP_ADMIN_VIEWS)
+          .map((resource) => ACL_RESOURCES[resource[0]])
+          .filter(Boolean)
+        const viewResources = Object.entries(permissionsData.view ?? {})
           .filter((resource) => resource[1])
-          .map((resource) => resource[0])
-          .join(','),
-        GROUP_ADMIN_DEFAULT_VIEW: views?.GROUP_ADMIN_DEFAULT_VIEW,
-      },
-    }
+          .map((resource) => ACL_RESOURCES[resource[0]])
+          .filter(Boolean)
 
-    // System
-    response.system = {
-      OPENNEBULA: system?.OPENNEBULA,
-    }
+        response.permissions = {
+          view: viewResources,
+          create: createResources,
+        }
+      }
 
-    return response
-  },
-})
+      // Views
+      response.views = {
+        FIREEDGE: {
+          VIEWS: Object.entries(views?.VIEWS)
+            .filter((resource) => resource[1])
+            .map((resource) => resource[0])
+            .join(','),
+          DEFAULT_VIEW: views?.DEFAULT_VIEW,
+          GROUP_ADMIN_VIEWS: Object.entries(views?.GROUP_ADMIN_VIEWS)
+            .filter((resource) => resource[1])
+            .map((resource) => resource[0])
+            .join(','),
+          GROUP_ADMIN_DEFAULT_VIEW: views?.GROUP_ADMIN_DEFAULT_VIEW,
+        },
+      }
+
+      // System
+      response.system = {
+        OPENNEBULA: system?.OPENNEBULA,
+      }
+
+      return response
+    },
+  }
+)
 
 export default Steps
