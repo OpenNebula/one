@@ -869,12 +869,12 @@ public:
                           const std::vector<int>& disk_ids);
 
     /**
-     *  Returns true if all disks support incremental backups. This requires
-     *  QCOW2 format.
+     *  Returns true if the selected disks support incremental backups.
      *
      *  @param do_volatile consider volatile disks for incremental backups
+     *  @param disk_ids Selected disk IDs; empty means all disks
      */
-    bool backup_increment(bool do_volatile);
+    bool backup_increment(bool do_volatile, const std::vector<int>& disk_ids);
 
     /**
      *  Returns list of disk IDs, ready for backup

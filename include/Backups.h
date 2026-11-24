@@ -144,18 +144,39 @@ public:
      *  backup:
      *     - LAST_INCREMENT_ID
      *     - INCREMENTAL_BACKUP_ID
+     *
      * @param tmpl Template to parse, the root element must be BACKUP_CONFIG
-     * @param can_increment VM disks support incremental backup
      * @param append Only append new values from tmpl
-     * @param eligible_disk_ids VM disk IDs eligible for backup
+     * @param disk_ids
+     *   Input: eligible VM disk IDs.
+     *   Output on success: configured selection after append/replace.
+     *   Empty means all eligible disks.
+     *   In append mode, an omitted DISK_IDS retains the existing selection,
+     *   which may include disks that are no longer eligible. The backup
+     *   transfer list is the intersection of that selection and eligible disks.
      * @param error_str Returns the error reason, if any
+     *
+     * Note: Call validate() after parsing to finalize the backup mode and check
+     * mode-dependent constraints
+     *
      * @return 0 success, -1 error
      */
     int parse(Template *tmpl,
-              bool can_increment,
               bool append,
-              const std::vector<int>& eligible_disk_ids,
+              std::vector<int>& disk_ids,
               std::string& error_str);
+
+    /**
+     * Finalize the parsed configuration using the selected disks' capabilities.
+     * Falls back to FULL when incremental backups are unsupported, then checks
+     * mode-dependent constraints.
+     *
+     * @param can_increment Selected VM disks support incremental backup
+     * @param error_str Returns the error reason, if any
+     *
+     * @return 0 success, -1 error
+     */
+    int validate(bool can_increment, std::string& error_str);
 
     /**
      *  @return true if Backup includes configuration attributes

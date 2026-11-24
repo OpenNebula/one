@@ -439,25 +439,36 @@ void ScheduledActionManager::backup_jobs()
             }
 
             auto& disks = vm->get_disks();
-            bool inc = disks.backup_increment(bck_vol) && !vm->has_snapshots();
 
             string   err;
             Template tmpl;
 
-            bj->get_backup_config(tmpl);
-
+            bool inc;
             vector<int> disk_ids;
+
+            Request r("internal call");
+            VirtualMachineAPI api(r);
+
+            RequestAttributes ra(AuthRequest::ADMIN,
+                                 UserPool::ONEADMIN_ID,
+                                 GroupPool::ONEADMIN_ID,
+                                 PoolObjectSQL::VM);
+            Request::ErrorCode ec;
+
+            bj->get_backup_config(tmpl);
 
             vm->backup_disk_ids(bck_vol, disk_ids);
 
-            if ( backups.parse(&tmpl, inc, true, disk_ids, err) != 0 )
+            if ( backups.parse(&tmpl, true, disk_ids, err) != 0 )
             {
-                bj->set_template_error_message(err);
+                goto error_backup;
+            }
 
-                bj->add_error(vm_id);
+            inc = disks.backup_increment(bck_vol, disk_ids) && !vm->has_snapshots();
 
-                NebulaLog::error("SCH", err);
-                continue;
+            if ( backups.validate(inc, err) != 0 )
+            {
+                goto error_backup;
             }
 
             vm_pool->update(vm.get());
@@ -467,29 +478,16 @@ void ScheduledActionManager::backup_jobs()
             /* -------------------------------------------------------------- */
             /* Launch backup, notify backup job                               */
             /* -------------------------------------------------------------- */
-            Request r("internal call");
-            VirtualMachineAPI api(r);
-
-            RequestAttributes ra(AuthRequest::ADMIN,
-                                 UserPool::ONEADMIN_ID,
-                                 GroupPool::ONEADMIN_ID,
-                                 PoolObjectSQL::VM);
-
             NebulaLog::info("SCH", "Backup Job " + to_string(bj_id) +
                             " executing backup for VM " + to_string(vm_id) );
 
-            auto ec = api.backup(vm_id, ds_id, reset, bj_id, ra);
+            ec = api.backup(vm_id, ds_id, reset, bj_id, ra);
 
             if ( ec != Request::SUCCESS)
             {
                 err = Request::failure_message(ec, ra, "backup");
 
-                bj->set_template_error_message(err);
-
-                bj->add_error(vm_id);
-
-                NebulaLog::error("SCH", err);
-                continue;
+                goto error_backup;
             }
 
             bj->backup_started(vm_id);
@@ -499,6 +497,13 @@ void ScheduledActionManager::backup_jobs()
             /* -------------------------------------------------------------- */
             ++active_backups;
             ++host_backups[hid];
+
+            continue;
+
+        error_backup:
+            bj->set_template_error_message(err);
+            bj->add_error(vm_id);
+            NebulaLog::error("SCH", err);
         }
 
         bj_pool->update(bj.get());

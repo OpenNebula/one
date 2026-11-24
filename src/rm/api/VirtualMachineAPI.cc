@@ -3643,6 +3643,22 @@ Request::ErrorCode VirtualMachineAPI::backup(int vid,
             return Request::INTERNAL;
         }
 
+        // Disk selection and snapshots may have changed since configuration.
+        if (mode == Backups::INCREMENT)
+        {
+            vector<int> disk_ids;
+
+            vm->backups().get_disk_ids(disk_ids);
+
+            if (!vm->get_disks().backup_increment(vm->backups().do_volatile(), disk_ids) ||
+                vm->has_snapshots())
+            {
+                att.resp_msg = "VM cannot use backup increment mode, it has snapshots "
+                               "or selected disks do not support incremental backups.";
+                return Request::ACTION;
+            }
+        }
+
         for (auto *disk : vm->get_disks())
         {
             if (disk->is_filesystem())

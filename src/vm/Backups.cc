@@ -203,9 +203,8 @@ int Backups::from_xml(const ObjectXML* xml)
 /* -------------------------------------------------------------------------- */
 
 int Backups::parse(Template *tmpl,
-                   bool can_increment,
                    bool append,
-                   const vector<int>& eligible_ids,
+                   vector<int>& ids,
                    std::string& error_str)
 {
     vector<unique_ptr<Attribute>> cfg_a;
@@ -222,6 +221,8 @@ int Backups::parse(Template *tmpl,
 
     if ( tmpl->remove("BACKUP_CONFIG", cfg_a) == 0 )
     {
+        get_disk_ids(ids);
+
         return 0;
     }
 
@@ -277,7 +278,7 @@ int Backups::parse(Template *tmpl,
 
         for (int id : disk_ids)
         {
-            if (find(eligible_ids.begin(), eligible_ids.end(), id) == eligible_ids.end())
+            if (find(ids.begin(), ids.end(), id) == ids.end())
             {
                 error_str = "Invalid DISK_IDS, disk " + to_string(id) +
                             " cannot be backed up";
@@ -296,6 +297,10 @@ int Backups::parse(Template *tmpl,
         set_disk_ids(disk_ids);
 
         disk_ids_changed = !current_disk_ids.empty();
+    }
+    else
+    {
+        disk_ids = std::move(current_disk_ids);
     }
 
     sattr = cfg->vector_value("FS_FREEZE");
@@ -316,53 +321,41 @@ int Backups::parse(Template *tmpl,
         config.replace("FS_FREEZE", "NONE");
     }
 
-    if (!can_increment) //Only FULL backups for this VM
+    sattr = cfg->vector_value("MODE");
+
+    if (!sattr.empty() || !append)
     {
-        config.replace("INCREMENTAL_BACKUP_ID", -1);
-        config.replace("LAST_INCREMENT_ID", -1);
+        Mode new_mode = str_to_mode(sattr);
 
-        config.replace("MODE", mode_to_str(FULL));
-
-        config.erase("INCREMENT_MODE");
-    }
-    else
-    {
-        sattr = cfg->vector_value("MODE");
-
-        if (!sattr.empty() || !append)
+        // Reset incremental backup pointers if mode changed to/from FULL
+        if (new_mode != INCREMENT || mode() != INCREMENT)
         {
-            Mode new_mode = str_to_mode(sattr);
+            config.replace("INCREMENTAL_BACKUP_ID", -1);
+            config.replace("LAST_INCREMENT_ID", -1);
+        }
 
-            // Reset incremental backup pointers if mode changed to/from FULL
-            if (new_mode != INCREMENT || mode() != INCREMENT)
+        config.replace("MODE", mode_to_str(new_mode));
+
+        sattr = cfg->vector_value("INCREMENT_MODE");
+
+        one_util::toupper(sattr);
+
+        if ( !sattr.empty() )
+        {
+            if ((sattr != "CBT") && (sattr != "SNAPSHOT"))
             {
-                config.replace("INCREMENTAL_BACKUP_ID", -1);
-                config.replace("LAST_INCREMENT_ID", -1);
+                sattr = "CBT";
             }
 
-            config.replace("MODE", mode_to_str(new_mode));
-
-            sattr = cfg->vector_value("INCREMENT_MODE");
-
-            one_util::toupper(sattr);
-
-            if ( !sattr.empty() )
-            {
-                if ((sattr != "CBT") && (sattr != "SNAPSHOT"))
-                {
-                    sattr = "CBT";
-                }
-
-                config.replace("INCREMENT_MODE", sattr);
-            }
-            else if (!append)
-            {
-                config.replace("INCREMENT_MODE", "CBT");
-            }
+            config.replace("INCREMENT_MODE", sattr);
+        }
+        else if (!append)
+        {
+            config.replace("INCREMENT_MODE", "CBT");
         }
     }
 
-    if (can_increment && (disk_ids_changed || volatile_changed))
+    if (disk_ids_changed || volatile_changed)
     {
         // The effective disk set defines the incremental backup chain.
         config.replace("INCREMENTAL_BACKUP_ID", -1);
@@ -377,6 +370,30 @@ int Backups::parse(Template *tmpl,
     {
         config.replace("INTERACTIVE", "NO");
     }
+
+    ids = std::move(disk_ids);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int Backups::validate(bool can_increment, string& error_str)
+{
+    if (!configured())
+    {
+        return 0;
+    }
+
+    if (!can_increment)
+    {
+        config.replace("INCREMENTAL_BACKUP_ID", -1);
+        config.replace("LAST_INCREMENT_ID", -1);
+        config.replace("MODE", mode_to_str(FULL));
+        config.erase("INCREMENT_MODE");
+    }
+
+    string sattr;
 
     config.get("INCREMENT_MODE", sattr);
     one_util::toupper(sattr);

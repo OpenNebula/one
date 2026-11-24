@@ -1188,11 +1188,14 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     backup_disk_ids(do_volatile, disk_ids);
 
-    rc = _backups.parse(user_obj_template.get(),
-                        disks.backup_increment(do_volatile),
-                        false,
-                        disk_ids,
-                        error_str);
+    rc = _backups.parse(user_obj_template.get(), false, disk_ids, error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_backup;
+    }
+
+    rc = _backups.validate(disks.backup_increment(do_volatile, disk_ids), error_str);
 
     if ( rc != 0 )
     {
@@ -3516,11 +3519,21 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
             do_volatile = false;
         }
 
-        bool increment = disks.backup_increment(do_volatile) &&
-                         !has_snapshots();
-
         string smode        = backup_conf->vector_value("MODE");
         Backups::Mode bmode = Backups::str_to_mode(smode);
+
+        vector<int> disk_ids;
+
+        backup_disk_ids(do_volatile, disk_ids);
+
+        if ( _backups.parse(tmpl, append, disk_ids, err) != 0 )
+        {
+            NebulaLog::log("ONE", Log::ERROR, err);
+            return -1;
+        }
+
+        bool increment = disks.backup_increment(do_volatile, disk_ids) &&
+                         !has_snapshots();
 
         if (!smode.empty() && !increment && bmode == Backups::INCREMENT)
         {
@@ -3539,13 +3552,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
             return -1;
         }
 
-        backup_conf = nullptr;
-
-        vector<int> disk_ids;
-
-        backup_disk_ids(do_volatile, disk_ids);
-
-        if ( _backups.parse(tmpl, increment, append, disk_ids, err) != 0 )
+        if ( _backups.validate(increment, err) != 0 )
         {
             NebulaLog::log("ONE", Log::ERROR, err);
             return -1;

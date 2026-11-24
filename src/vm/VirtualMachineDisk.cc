@@ -1800,10 +1800,16 @@ long long VirtualMachineDisks::backup_size(Template &ds_quotas,
 
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachineDisks::backup_increment(bool do_volatile)
+bool VirtualMachineDisks::backup_increment(bool do_volatile,
+                                           const vector<int>& disk_ids)
 {
-    for (const auto disk : *this)
+    auto can_increment = [do_volatile](const VirtualMachineDisk* disk)
     {
+        if (disk == nullptr)
+        {
+            return true;
+        }
+
         string type = disk->vector_value("TYPE");
 
         one_util::toupper(type);
@@ -1812,7 +1818,7 @@ bool VirtualMachineDisks::backup_increment(bool do_volatile)
             ((type == "FS") && !do_volatile) ||
             (type == "FILESYSTEM"))
         {
-            continue;
+            return true;
         }
 
         string tm_mad = disk->vector_value("TM_MAD");
@@ -1837,6 +1843,29 @@ bool VirtualMachineDisks::backup_increment(bool do_volatile)
             ((tm_mad == "FS_LVM" || tm_mad == "FS_LVM_SSH") && !lvm_thin_enabled))
         {
             return false;
+        }
+
+        return true;
+    };
+
+    if (disk_ids.empty())
+    {
+        for (const auto disk : *this)
+        {
+            if (!can_increment(disk))
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        for (int id : disk_ids)
+        {
+            if (!can_increment(get_disk(id)))
+            {
+                return false;
+            }
         }
     }
 
