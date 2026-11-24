@@ -751,6 +751,9 @@ void RaftManager::timer_action()
         time_t sec  = last_heartbeat.tv_sec + broadcast_timeout.tv_sec;
         long   nsec = last_heartbeat.tv_nsec + broadcast_timeout.tv_nsec;
 
+        sec  += nsec / 1000000000;
+        nsec %= 1000000000;
+
         if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
                                         nsec <= the_time.tv_nsec))
         {
@@ -763,6 +766,9 @@ void RaftManager::timer_action()
     {
         time_t sec  = last_heartbeat.tv_sec + election_timeout.tv_sec;
         long   nsec = last_heartbeat.tv_nsec + election_timeout.tv_nsec;
+
+        sec  += nsec / 1000000000;
+        nsec %= 1000000000;
 
         if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
                                         nsec <= the_time.tv_nsec))
@@ -1105,6 +1111,8 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
 
     logdb->get_last_record_index(lindex, lterm);
 
+    uint64_t findex = nd.is_federation_enabled() ? logdb->last_federated() : UINT64_MAX;
+
     std::lock_guard<mutex> lock(raft_mutex);
 
     oss << "<RAFT>"
@@ -1127,7 +1135,7 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
 
     if ( nd.is_federation_enabled() )
     {
-        oss << "<FEDLOG_INDEX>" << logdb->last_federated() << "</FEDLOG_INDEX>";
+        oss << "<FEDLOG_INDEX>" << findex << "</FEDLOG_INDEX>";
     }
     else
     {

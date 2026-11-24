@@ -45,6 +45,10 @@ int LogDB::bootstrap(SqlDB *_db)
 
     rc += _db->exec_local_wr(oss);
 
+    oss.str("CREATE INDEX fed_applied_log_idx on logdb (fed_index, applied, log_index);");
+
+    rc += _db->exec_local_wr(oss);
+
     return rc;
 };
 
@@ -590,6 +594,11 @@ int LogDB::apply_log_records(uint64_t commit_index)
 
 int LogDB::purge_log()
 {
+    if ( log_retention == 0 )
+    {
+        return 0;
+    }
+
     std::ostringstream oss, foss;
 
     empty_cb cb;
@@ -604,7 +613,7 @@ int LogDB::purge_log()
     int frc = 0;
     uint64_t fed_min, fed_max = UINT64_MAX;
 
-    lock_guard<mutex> lock(_mutex);
+    unique_lock<mutex> lock(_mutex, std::defer_lock);
 
     /* ---------------- Record log state -------------------- */
 
@@ -622,17 +631,22 @@ int LogDB::purge_log()
     /* ---------------------------------------------------------------------- */
 
     oss.str("");
-    oss << "  SELECT MIN(i.log_index) FROM ("
-        << "    SELECT log_index FROM logdb WHERE fed_index = " << UINT64_MAX
-        << "      AND applied = '1' "
-        << "      ORDER BY log_index DESC " << db->limit_string(log_retention)
-        << "  ) AS i";
+    // Select the oldest retained record.
+    // No result means there are fewer than log_retention applied records.
+    oss << "SELECT log_index FROM logdb WHERE fed_index = " << UINT64_MAX
+        << " AND applied = '1' ORDER BY log_index DESC "
+        << db->limit_string(log_retention - 1, 1);
 
     cb_min_idx.set_callback(&min_idx);
 
-    db->exec_rd(oss, &cb_min_idx);
+    int read_rc = db->exec_rd(oss, &cb_min_idx);
 
     cb_min_idx.unset_callback();
+
+    if ( read_rc != 0 )
+    {
+        return -1;
+    }
 
     cb.set_affected_rows(0);
 
@@ -645,9 +659,20 @@ int LogDB::purge_log()
         oss << " " << db->limit_string(limit_purge);
     }
 
-    if ( db->exec_wr(oss, &cb) != -1 )
+    // Applied entries are immutable in Raft. Concurrent appends and applies
+    // can only increase the retained window after the boundary was selected.
+    if ( !min_idx.empty() )
     {
+        lock.lock();
+
+        if ( db->exec_wr(oss, &cb) != 0 )
+        {
+            return -1;
+        }
+
         rc = cb.get_affected_rows();
+
+        lock.unlock();
     }
 
     /* ---------------- Record log state -------------------- */
@@ -677,6 +702,8 @@ int LogDB::purge_log()
 
     foss << "Purging obsolete federated LogDB records: ";
 
+    lock.lock();
+
     if (!fed_log.empty())
     {
         fed_min = *(fed_log.begin());
@@ -697,18 +724,25 @@ int LogDB::purge_log()
         return rc;
     }
 
+    lock.unlock();
+
     oss.str("");
-    oss << "  SELECT MIN(i.log_index) FROM ("
-        << "    SELECT log_index FROM logdb WHERE fed_index != " << UINT64_MAX
-        << "      AND applied = '1' "
-        << "      ORDER BY log_index DESC " << db->limit_string(log_retention)
-        << "  ) AS i";
+    oss << "SELECT log_index FROM logdb WHERE fed_index != " << UINT64_MAX
+        << " AND applied = '1' ORDER BY log_index DESC "
+        << db->limit_string(log_retention - 1, 1);
+
+    min_idx.clear();
 
     cb_min_idx.set_callback(&min_idx);
 
-    db->exec_rd(oss, &cb_min_idx);
+    read_rc = db->exec_rd(oss, &cb_min_idx);
 
     cb_min_idx.unset_callback();
+
+    if ( read_rc != 0 )
+    {
+        return -1;
+    }
 
     cb.set_affected_rows(0);
 
@@ -721,18 +755,29 @@ int LogDB::purge_log()
         oss << " " << db->limit_string(limit_purge);
     }
 
-    if ( db->exec_wr(oss, &cb) != -1 )
+    lock.lock();
+
+    if ( !min_idx.empty() )
     {
+        if ( db->exec_wr(oss, &cb) != 0 )
+        {
+            return -1;
+        }
+
         frc = cb.get_affected_rows();
 
         rc += frc;
+
+        build_federated_index();
     }
 
-    build_federated_index();
-
     foss << frc << " records purged. Federated log size: " << fed_log.size()
-         << ". Federation log state: " << fed_min << "," << fed_max << " - "
-         << *(fed_log.begin()) << "," << *(fed_log.rbegin());
+         << ". Federation log state: " << fed_min << "," << fed_max;
+
+    if ( !fed_log.empty() )
+    {
+        foss << " - " << *(fed_log.begin()) << "," << *(fed_log.rbegin());
+    }
 
     NebulaLog::log("DBM", Log::INFO, foss);
 

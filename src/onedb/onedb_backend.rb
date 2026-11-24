@@ -392,11 +392,7 @@ class BackEndMySQL < OneDBBacKEnd
     end
 
     def create_idx(version = nil)
-        type = :index_sql
-
-        type = :index_sqlite unless @db.server_version >= 50600
-
-        schema = get_schema(type, version)
+        schema = get_schema(:index_sql, version)
 
         schema.each do |idx|
             next if idx? idx
@@ -411,11 +407,7 @@ class BackEndMySQL < OneDBBacKEnd
     end
 
     def delete_idx(version = nil)
-        type = :index_sql
-
-        type = :index_sqlite unless @db.server_version >= 50600
-
-        schema = get_schema(type, version)
+        schema = get_schema(:index_sql, version)
 
         return unless schema
 
@@ -564,9 +556,7 @@ class BackEndSQLite < OneDBBacKEnd
     end
 
     def create_idx(version = nil)
-        type = :index_sqlite
-
-        schema = get_schema(type, version)
+        schema = get_schema(:index_sql, version)
 
         schema.each do |idx|
             next if idx? idx
@@ -580,9 +570,7 @@ class BackEndSQLite < OneDBBacKEnd
     end
 
     def delete_idx(version = nil)
-        type = :index_sqlite
-
-        schema = get_schema(type, version)
+        schema = get_schema(:index_sql, version)
 
         return unless schema
 

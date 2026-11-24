@@ -61,9 +61,19 @@ module Migrator
 
         oneform_provision_bodies
 
+        logdb_purge_index
+
         log_time
 
         true
+    end
+
+    # Cover the applied non-federated log window used by periodic purges.
+    def logdb_purge_index
+        return if @db.indexes(:logdb).key?(:fed_applied_log_idx)
+
+        @db.add_index :logdb, [:fed_index, :applied, :log_index],
+                      :name => :fed_applied_log_idx
     end
 
     # Migrate OneForm provision data to its ODS representation.

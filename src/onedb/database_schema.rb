@@ -107,11 +107,7 @@ class OneDBBacKEnd
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER",
             index_sql: [{ :name =>'state_oid_idx', :table => 'vm_pool', :columns => '(state, oid)' },
                         { :name =>'applied_idx', :table => 'logdb', :columns => '(applied)' },
-                        { :name =>'fed_index_idx', :table => 'logdb', :columns => '(fed_index)' }],
-
-            index_sqlite: [{ :name =>'state_oid_idx', :table => 'vm_pool', :columns => '(state, oid)' },
-                           { :name =>'applied_idx', :table => 'logdb', :columns => '(applied)' },
-                           { :name =>'fed_index_idx', :table => 'logdb', :columns => '(fed_index)' }]
+                        { :name =>'fed_index_idx', :table => 'logdb', :columns => '(fed_index)' }]
         },
         "5.10.0" => {
             logdb: "log_index BIGINT UNSIGNED PRIMARY KEY, term INTEGER, sqlcmd MEDIUMTEXT, " <<
@@ -147,6 +143,15 @@ class OneDBBacKEnd
         },
         "7.4.0" => {
             group_vlans: "group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT"
+        },
+        '7.6.0' => {
+            index_sql: [
+                { :name => 'state_oid_idx', :table => 'vm_pool', :columns => '(state, oid)' },
+                { :name => 'applied_idx', :table => 'logdb', :columns => '(applied)' },
+                { :name => 'fed_index_idx', :table => 'logdb', :columns => '(fed_index)' },
+                { :name => 'fed_applied_log_idx', :table => 'logdb',
+                  :columns => '(fed_index, applied, log_index)' }
+            ]
         }
     }
 
