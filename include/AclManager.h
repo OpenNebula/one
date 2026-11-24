@@ -40,7 +40,7 @@ public:
      */
     AclManager(SqlDB * _db, int zone_id, bool is_federation_slave, time_t timer);
 
-    virtual ~AclManager();
+    ~AclManager() override;
 
     /**
      *  Loads the ACL rule set from the DB, and starts the refresh loop is
@@ -89,8 +89,8 @@ public:
      *    @param op The operation to be authorized
      *    @return true if the authorization is granted for oneadmin
      */
-    bool oneadmin_authorize(const PoolObjectAuth&  obj_perms,
-                            AuthRequest::Operation op) const;
+    static bool oneadmin_authorize(const PoolObjectAuth&  obj_perms,
+                                   AuthRequest::Operation op);
 
     /**
      *  Adds a new rule to the ACL rule set

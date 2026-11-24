@@ -39,7 +39,7 @@ protected:
         pool = upool;
     };
 
-    virtual ~UserAPI() = default;
+    ~UserAPI() override = default;
 
     /* API calls */
     Request::ErrorCode edit_group(int oid,
@@ -93,8 +93,8 @@ protected:
         return Request::SUCCESS;
     }
 
-    Request::ErrorCode quota_info(std::string& xml,
-                                  RequestAttributes& att);
+    static Request::ErrorCode quota_info(std::string& xml,
+                                         RequestAttributes& att);
 
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,
                 std::string& str) override

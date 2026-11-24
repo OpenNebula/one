@@ -85,7 +85,7 @@ grpc::Status RequestGRPC::execute(grpc::ServerContext* context,
 
     if ( (raftm->is_follower() || nd.is_cache()) && _leader_only)
     {
-        std::string leader_endpoint, error;
+        std::string leader_endpoint;
 
         if ( nd.is_cache() )
         {

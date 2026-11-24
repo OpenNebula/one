@@ -75,7 +75,10 @@ public:
         : id(_id), start_bit(0), bs(0), db_table(_db_table)
     {};
 
-    virtual ~BitMap()
+    BitMap(const BitMap&) = delete;
+    BitMap& operator=(const BitMap&) = delete;
+
+    ~BitMap() override
     {
         delete bs;
     };

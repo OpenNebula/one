@@ -192,7 +192,6 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
     int vmid;
     int uid;
     int gid;
-    string deploy_id;
     int vrid = -1;
 
     VirtualMachineTemplate quota_tmpl;

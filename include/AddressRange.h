@@ -825,7 +825,7 @@ private:
     /**
      * Deletes all restricted attributes
      */
-    void remove_restricted(VectorAttribute* va);
+    static void remove_restricted(VectorAttribute* va);
 
     /**
      * Checks if an update changes any restricted attribute
@@ -835,7 +835,7 @@ private:
     /**
      * Deletes all the attributes, except the restricted ones
      */
-    void remove_all_except_restricted(VectorAttribute* va);
+    static void remove_all_except_restricted(VectorAttribute* va);
 
     /* ---------------------------------------------------------------------- */
     /* Address Range data                                                     */

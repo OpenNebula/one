@@ -337,11 +337,9 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
         ostringstream os("prolog, ");
         string        xfr_name;
 
-        string  files;
         string  vm_tm_mad;
         string  opennebula_hostname;
         int     rc;
-        string  error_str;
 
         Nebula&          nd = Nebula::instance();
 
@@ -826,11 +824,9 @@ void TransferManager::trigger_prolog_attach(VirtualMachine * vm)
 
         const VirtualMachineDisk * disk;
 
-        string  files;
         string  vm_tm_mad;
         string  opennebula_hostname;
         int     rc;
-        string  error_str;
 
         Nebula&          nd = Nebula::instance();
 
@@ -1045,7 +1041,6 @@ void TransferManager::trigger_epilog(bool local, VirtualMachine * vm)
 
         string xfr_name;
         string vm_tm_mad;
-        string error_str;
         string host;
 
         Nebula&             nd = Nebula::instance();
@@ -1721,7 +1716,6 @@ void TransferManager::trigger_epilog_detach(VirtualMachine * vm)
         ostringstream   os;
         string xfr_name;
         string vm_tm_mad;
-        string error_str;
 
         const VirtualMachineDisk * disk;
 

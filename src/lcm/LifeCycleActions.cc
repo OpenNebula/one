@@ -32,8 +32,6 @@ void LifeCycleManager::trigger_deploy(int vid)
 {
     trigger([this, vid]
     {
-        ostringstream       os;
-
         auto vm = vmpool->get(vid);
 
         if ( vm == nullptr )
@@ -397,8 +395,6 @@ void LifeCycleManager::trigger_live_migrate(int vid, const RequestAttributes& ra
 
     trigger([this, vid, uid, gid, req_id]
     {
-        ostringstream os;
-
         auto vm = vmpool->get(vid);
 
         if ( vm == nullptr )
@@ -780,8 +776,6 @@ void LifeCycleManager::trigger_restore(int vid, const RequestAttributes& ra)
 
     trigger([this, vid, uid, gid, req_id]
     {
-        ostringstream os;
-
         auto vm = vmpool->get(vid);
 
         if ( vm == nullptr )

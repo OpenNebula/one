@@ -150,8 +150,6 @@ int HookLog::add(int hkid, int hkrc, const std::string &xml_result)
 
     char * sql_xml;
 
-    std::string xml_body;
-
     cb.set_callback(&query_output);
 
     oss << "SELECT coalesce(MAX(exeid), -1), COUNT(*) FROM " << one_db::hook_log_table << " WHERE hkid = " << hkid;

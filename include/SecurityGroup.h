@@ -27,8 +27,6 @@ class SecurityGroup : public PoolObjectSQL
 {
 public:
 
-    virtual ~SecurityGroup() = default;
-
     /**
      * Function to print the SecurityGroup object into a string in XML format
      *  @param xml the resulting XML string

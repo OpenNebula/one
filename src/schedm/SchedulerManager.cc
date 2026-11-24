@@ -46,11 +46,11 @@ int SchedulerManager::start()
     /**
      *  Register protocol actions
      */
-    register_action(SchedulerManagerMessages::PLACE, [this](auto msg) {
-            this->_place(std::move(msg));});
+    register_action(SchedulerManagerMessages::PLACE,
+                    &SchedulerManager::_place);
 
-    register_action(SchedulerManagerMessages::OPTIMIZE, [this](auto msg) {
-            this->_optimize(std::move(msg));});
+    register_action(SchedulerManagerMessages::OPTIMIZE,
+                    &SchedulerManager::_optimize);
 
     register_action(SchedulerManagerMessages::LOG,
             &SchedulerManager::_log);

@@ -35,16 +35,16 @@ protected:
         request.auth_op(AuthRequest::ADMIN);
     };
 
-    virtual ~SystemAPI() = default;
+    ~SystemAPI() override = default;
 
     /* API calls */
-    Request::ErrorCode version(std::string& version, RequestAttributes& att);
+    static Request::ErrorCode version(std::string& version, RequestAttributes& att);
 
-    Request::ErrorCode config(std::string& config_xml, RequestAttributes& att);
+    static Request::ErrorCode config(std::string& config_xml, RequestAttributes& att);
 
-    Request::ErrorCode sql(const std::string& sql, bool federate, RequestAttributes& att);
+    static Request::ErrorCode sql(const std::string& sql, bool federate, RequestAttributes& att);
 
-    Request::ErrorCode sql_query(std::string& sql, RequestAttributes& att);
+    static Request::ErrorCode sql_query(std::string& sql, RequestAttributes& att);
 
     /* Helpers */
     class select_cb : public Callbackable

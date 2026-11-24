@@ -54,8 +54,6 @@ public:
     {
     }
 
-    virtual ~TCPStream() = default;
-
     /**
      *  This functions initializes the UDP socket for the stream. It must be
      *  called once before using the streamer
@@ -240,7 +238,7 @@ int TCPStream<MSG>
 
     line.clear();
 
-    int sd = accept(_socket, (struct sockaddr *) &addr, &addr_size);
+    int sd = accept(_socket, reinterpret_cast<sockaddr *>(&addr), &addr_size);
 
     if ( sd == -1 )
     {

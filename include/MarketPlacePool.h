@@ -29,8 +29,6 @@ public:
     MarketPlacePool(SqlDB * db,
                     bool    is_federation_slave);
 
-    ~MarketPlacePool() {};
-
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */

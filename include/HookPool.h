@@ -31,8 +31,6 @@ public:
 
     HookPool(SqlDB * db) : PoolSQL(db, one_db::hook_table) {};
 
-    ~HookPool() {};
-
     /**
      *  Function to allocate a new Hook object
      *    @param oid the id assigned to the Hook

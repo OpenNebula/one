@@ -44,8 +44,6 @@ public:
                        const VectorAttribute * vlan_conf,
                        const VectorAttribute * vxlan_conf);
 
-    ~VirtualNetworkPool() {};
-
     //--------------------------------------------------------------------------
     // Virtual Network DB access functions
     //--------------------------------------------------------------------------

@@ -30,8 +30,6 @@ public:
 
     VirtualRouterPool(SqlDB * db) : PoolSQL(db, one_db::vr_table) {};
 
-    ~VirtualRouterPool() {};
-
     /**
      *  Allocates a new object, writing it in the pool database. No memory is
      *  allocated for the object.

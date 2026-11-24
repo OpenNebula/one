@@ -1,4 +1,21 @@
 <suppressions>
+    <!-- The string is lowercased in place. -->
+    <suppress>
+        <id>ignoredReturnValue</id>
+        <fileName>*.*</fileName>
+        <symbolName>one_util::tolower</symbolName>
+    </suppress>
+    <!-- Callback parameters must match the required callback signatures. -->
+    <suppress>
+        <id>constParameterCallback</id>
+        <fileName>*.*</fileName>
+    </suppress>
+    <!-- Older versions may skip a diagnostic above.
+         Cppcheck matches the configured file pattern exactly for unmatched suppressions. -->
+    <suppress>
+        <id>unmatchedSuppression</id>
+        <fileName>*.*</fileName>
+    </suppress>
     <!-- Global suppression, issues which we don't want to solve -->
 	<suppress>
 		<id>variableScope</id>

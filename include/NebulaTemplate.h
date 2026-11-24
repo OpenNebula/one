@@ -45,8 +45,6 @@ public:
         }
     }
 
-    virtual ~NebulaTemplate() = default;
-
     /**
      *  Parse and loads the configuration in the template
      */

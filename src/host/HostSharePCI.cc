@@ -83,7 +83,7 @@ void HostSharePCI::init()
 /*  Function to test PCI availability at the host                             */
 /* -------------------------------------------------------------------------- */
 
-bool HostSharePCI::is_allocatable(const PCIDevice* pci) const
+bool HostSharePCI::is_allocatable(const PCIDevice* pci)
 {
     return pci->vmid == -1 &&
            pci->attrs->vector_value("PASSTHROUGH") != "NO";

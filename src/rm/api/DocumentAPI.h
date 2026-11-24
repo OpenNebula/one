@@ -37,7 +37,7 @@ protected:
         pool = docpool;
     };
 
-    virtual ~DocumentAPI() = default;
+    ~DocumentAPI() override = default;
 
     /* API calls */
 

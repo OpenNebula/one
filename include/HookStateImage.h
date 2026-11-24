@@ -42,7 +42,7 @@ private:
 
     HookStateImage():state(Image::INIT) {};
 
-    virtual ~HookStateImage() = default;
+    ~HookStateImage() override = default;
 
     /**
      *  Check if type dependent attributes are well defined.

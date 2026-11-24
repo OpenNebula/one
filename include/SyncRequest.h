@@ -38,8 +38,6 @@ public:
     {
     }
 
-    virtual ~SyncRequest() = default;
-
     /**
      *  The result of the request, true if the operation succeeded
      */

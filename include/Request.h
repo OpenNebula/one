@@ -219,7 +219,7 @@ protected:
 
     /* ---------------------------------------------------------------------- */
     template <typename T>
-    void make_parameter(std::ostringstream& oss, int pos, const T& val)
+    static void make_parameter(std::ostringstream& oss, int pos, const T& val)
     {
         oss << "<PARAMETER>"
             << "<POSITION>" << pos << "</POSITION>"

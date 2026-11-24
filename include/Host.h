@@ -122,8 +122,6 @@ public:
         return st;
     }
 
-    virtual ~Host() = default;
-
     /**
      * Function to print the Host object into a string in XML format
      *  @param xml the resulting XML string

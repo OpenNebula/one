@@ -37,12 +37,12 @@ protected:
     }
 
     /* API calls */
-    Request::ErrorCode log_info(int min_ts,
-                                int max_ts,
-                                int hook_id,
-                                int rc_hook,
-                                std::string& xml,
-                                RequestAttributes& att);
+    static Request::ErrorCode log_info(int min_ts,
+                                       int max_ts,
+                                       int hook_id,
+                                       int rc_hook,
+                                       std::string& xml,
+                                       RequestAttributes& att);
     /* Helpers */
 };
 

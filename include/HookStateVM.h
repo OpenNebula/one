@@ -43,7 +43,7 @@ private:
     HookStateVM():state(VirtualMachine::INIT),
         lcm_state(VirtualMachine::LCM_INIT) {};
 
-    virtual ~HookStateVM() = default;
+    ~HookStateVM() override = default;
 
     /**
      *  Check if type dependent attributes are well defined.

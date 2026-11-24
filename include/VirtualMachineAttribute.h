@@ -41,7 +41,7 @@ protected:
     VirtualMachineAttribute(VectorAttribute *_va, int _id):
         ExtendedAttribute(_va, _id) {};
 
-    virtual ~VirtualMachineAttribute() {};
+    ~VirtualMachineAttribute() override = default;
 
     /* ---------------------------------------------------------------------- */
     /* VirtualMachineAttribute Interface                                      */
@@ -88,7 +88,7 @@ protected:
      */
     VirtualMachineAttributeSet(bool _dispose):ExtendedAttributeSet(_dispose) {};
 
-    virtual ~VirtualMachineAttributeSet() {};
+    ~VirtualMachineAttributeSet() override = default;
 
     /* ---------------------------------------------------------------------- */
     /* Methods to access attributes                                           */

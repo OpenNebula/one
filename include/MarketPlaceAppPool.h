@@ -27,8 +27,6 @@ class MarketPlaceAppPool : public PoolSQL
 public:
     MarketPlaceAppPool(SqlDB * db):PoolSQL(db, one_db::mp_app_table) {};
 
-    ~MarketPlaceAppPool() {};
-
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */

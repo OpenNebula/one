@@ -27,8 +27,6 @@ class UserTemplate : public Template
 public:
     UserTemplate() : Template(true, '=', "TEMPLATE") {}
 
-    ~UserTemplate() = default;
-
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------

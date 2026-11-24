@@ -52,8 +52,6 @@ public:
     {
     };
 
-    ~LifeCycleManager() = default;
-
     /**
      *  This functions starts a new thread for the Life-cycle Manager. This
      *  thread will wait in  an action loop till it receives ACTION_FINALIZE.

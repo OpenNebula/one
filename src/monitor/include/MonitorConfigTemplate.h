@@ -28,8 +28,6 @@ public:
         NebulaTemplate(etc, filename.c_str(), "MONITOR_CONFIGURATION")
     {};
 
-    ~MonitorConfigTemplate() = default;
-
 private:
     /**
      *  Sets the defaults value for the template

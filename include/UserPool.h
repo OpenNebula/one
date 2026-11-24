@@ -43,8 +43,6 @@ public:
              const std::vector<const SingleAttribute *>& restricted_attrs,
              const std::vector<const SingleAttribute *>& encrypted_attrs);
 
-    ~UserPool() = default;
-
     /**
      *  Function to allocate a new User object
      *    @param oid the id assigned to the User
@@ -116,7 +114,7 @@ public:
      */
     std::unique_ptr<User> get(const std::string& name)
     {
-        // The owner is set to -1, because it is not used in the key() method
+        // Look up the user by name alone.
         auto u = PoolSQL::get<User>(name, -1);
 
         if (u)
@@ -135,7 +133,7 @@ public:
      */
     std::unique_ptr<User> get_ro(const std::string& name)
     {
-        // The owner is set to -1, because it is not used in the key() method
+        // Look up the user by name alone.
         auto u = PoolSQL::get_ro<User>(name, -1);
 
         if (u)

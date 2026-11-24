@@ -32,8 +32,6 @@ public:
         root_elem(_root_elem)
     {};
 
-    ~DefaultQuotas() {};
-
     /**
      *  Generates a string representation of the quotas in XML format
      *    @param xml the string to store the XML

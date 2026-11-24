@@ -34,8 +34,6 @@ class HostPool : public PoolSQL
 public:
     HostPool(SqlDB * db, const std::vector<const SingleAttribute *>& secrets);
 
-    ~HostPool() = default;
-
     /**
      *  Function to allocate a new Host object
      *    @param oid the id assigned to the Host
@@ -91,7 +89,7 @@ public:
      */
     std::unique_ptr<Host> get(const std::string& name)
     {
-        // The owner is set to -1, because it is not used in the key() method
+        // Host names are unique, so look up by name alone.
         return PoolSQL::get<Host>(name, -1);
     }
 
@@ -103,22 +101,9 @@ public:
      */
     std::unique_ptr<Host> get_ro(const std::string& name)
     {
-        // The owner is set to -1, because it is not used in the key() method
+        // Host names are unique, so look up by name alone.
         return PoolSQL::get_ro<Host>(name, -1);
     }
-
-    /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
-     */
-    std::string key(const std::string& name, int uid)
-    {
-        // Name is enough key because Hosts can't repeat names.
-        return name;
-    };
 
     /**
      *  Bootstraps the database table(s) associated to the Host pool

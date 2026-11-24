@@ -98,8 +98,6 @@ class RaftReplicaManager : public ReplicaManager
 public:
     RaftReplicaManager():ReplicaManager() {};
 
-    virtual ~RaftReplicaManager() {};
-
 private:
     ReplicaThread * thread_factory(int follower_id) override;
 };
@@ -108,8 +106,6 @@ class HeartBeatManager : public ReplicaManager
 {
 public:
     HeartBeatManager():ReplicaManager() {};
-
-    virtual ~HeartBeatManager() {};
 
 private:
     ReplicaThread * thread_factory(int follower_id) override;

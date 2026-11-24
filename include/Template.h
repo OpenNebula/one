@@ -24,6 +24,7 @@
 #include <string_view>
 #include <functional>
 #include <memory>
+#include <utility>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -414,7 +415,8 @@ public:
 
     inline VectorAttribute * get(std::string_view name)
     {
-        return __get<VectorAttribute>(name);
+        // Const cast to be able to reuse const method
+        return const_cast<VectorAttribute *>(std::as_const(*this).get(name));
     }
 
     /**
@@ -531,7 +533,7 @@ protected:
      *
      *    @return the attribute, or 0 if the node doesn't contain a single att.
      */
-    Attribute* single_xml_att(const xmlNode * node);
+    static Attribute* single_xml_att(const xmlNode * node);
 
     /**
      *  Builds a VectorAttribute from the given node
@@ -539,7 +541,7 @@ protected:
      *
      *    @return the attribute, or 0 if the node doesn't contain a vector att.
      */
-    Attribute* vector_xml_att(const xmlNode * node);
+    static Attribute* vector_xml_att(const xmlNode * node);
 
     /**
      *  Parses a list of restricted attributes in the form ATTRIBUTE_NAME or
@@ -708,13 +710,6 @@ private:
         }
 
         return nullptr;
-    }
-
-    template<typename T, typename K = std::string>
-    T * __get(const K& s)
-    {
-        return const_cast<T *>(
-                       static_cast<const Template&>(*this).__get<T>(s));
     }
 };
 

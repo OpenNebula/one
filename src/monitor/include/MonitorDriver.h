@@ -84,7 +84,7 @@ public:
 
 private:
 
-    std::string format_message(const std::string& value) const
+    static std::string format_message(const std::string& value)
     {
         return "<MONITOR_DRIVER_ACTION>" + value + "</MONITOR_DRIVER_ACTION>";
     }

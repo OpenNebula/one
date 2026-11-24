@@ -27,8 +27,6 @@ class GroupTemplate : public Template
 public:
     GroupTemplate() : Template(false, '=', "TEMPLATE") {}
 
-    ~GroupTemplate() = default;
-
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------

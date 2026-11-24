@@ -46,8 +46,6 @@ public:
 
     IPAMRequest(AddressRange * _ar, const std::string& _address_xml);
 
-    virtual ~IPAMRequest() {};
-
     /* ---------------------------------------------------------------------- */
     /* Driver message formatting and processing                               */
     /* ---------------------------------------------------------------------- */

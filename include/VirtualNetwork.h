@@ -242,8 +242,6 @@ public:
     // Virtual Network Public Methods
     // *************************************************************************
 
-    virtual ~VirtualNetwork() = default;
-
     /**
      *  Return state of Virtual Network
      */

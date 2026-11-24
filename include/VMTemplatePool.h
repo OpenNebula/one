@@ -30,8 +30,6 @@ public:
 
     VMTemplatePool(SqlDB * db) : PoolSQL(db, one_db::vm_template_table) {};
 
-    ~VMTemplatePool() {};
-
     /**
      *  Allocates a new object, writting it in the pool database. No memory is
      *  allocated for the object.

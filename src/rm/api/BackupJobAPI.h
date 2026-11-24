@@ -40,7 +40,7 @@ protected:
         request.auth_op(AuthRequest::MANAGE);
     }
 
-    virtual ~BackupJobAPI() = default;
+    ~BackupJobAPI() override = default;
 
     /* API calls */
     Request::ErrorCode backup(int oid,

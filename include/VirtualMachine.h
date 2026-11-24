@@ -161,7 +161,10 @@ public:
 
     static std::string& lcm_state_to_str(std::string& st, LcmState state);
 
-    virtual ~VirtualMachine();
+    VirtualMachine(const VirtualMachine&) = delete;
+    VirtualMachine& operator=(const VirtualMachine&) = delete;
+
+    ~VirtualMachine() override;
 
     /**
      * Returns the VM state to string, using the lcm state if the current state

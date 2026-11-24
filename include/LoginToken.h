@@ -91,8 +91,6 @@ public:
 
     LoginToken():SessionToken(), egid(-1) {};
 
-    virtual ~LoginToken() {};
-
     /**
      *  Check if the token is valid (same as the one provided, and not expired)
      *    @param utk provided by the user

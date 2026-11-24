@@ -28,7 +28,6 @@ public:
     MarketPlaceAppTemplate():
         Template(false, '=', "TEMPLATE") {};
 
-    ~MarketPlaceAppTemplate() {};
 };
 
 /* -------------------------------------------------------------------------- */

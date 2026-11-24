@@ -34,8 +34,6 @@ class GroupVlans : public ObjectSQL
 public:
     GroupVlans(): ObjectSQL(), oid(-1), vlan_template(false, '=', "VLAN_RULES") {};
 
-    virtual ~GroupVlans() {};
-
     /**
      *  Parsed representation of a group VLAN rule. It normalizes the SCOPE,
      *  VLAN ID ranges, and optional VN Template ranges so validation and

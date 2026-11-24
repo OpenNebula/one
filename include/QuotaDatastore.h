@@ -43,8 +43,6 @@ public:
               is_default)
     {};
 
-    ~QuotaDatastore() {};
-
     /**
      *  Check if the resource allocation will exceed the quota limits. If not
      *  the usage counters are updated

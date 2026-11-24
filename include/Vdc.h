@@ -155,8 +155,6 @@ class Vdc : public PoolObjectSQL
 {
 public:
 
-    virtual ~Vdc() = default;
-
     /**
      * Function to print the Vdc object into a string in XML format
      *  @param xml the resulting XML string

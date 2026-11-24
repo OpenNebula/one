@@ -70,7 +70,7 @@ private:
 
     SystemDB(SqlDB *_db):db(_db) {};
 
-    ~SystemDB() {};
+    ~SystemDB() override = default;
 
     // Pool control table
     static const char * pc_names;

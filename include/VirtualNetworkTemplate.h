@@ -32,8 +32,6 @@ public:
                            const char * xml_root)
         : Template(replace_mode, separator, xml_root) {}
 
-    ~VirtualNetworkTemplate() {};
-
     VirtualNetworkTemplate(const Template& vnt):Template(vnt) {};
 
     // -------------------------------------------------------------------------

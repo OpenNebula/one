@@ -786,7 +786,6 @@ int ImageManager::clone_image(int   new_id,
 
     ostringstream oss;
 
-    string  path;
     string  img_tmpl;
 
     if ( imd == nullptr )

@@ -40,7 +40,7 @@ protected:
         request.auth_op(AuthRequest::MANAGE);
     }
 
-    virtual ~RMHookAPI() = default;
+    ~RMHookAPI() override = default;
 
     /* API calls */
     Request::ErrorCode retry(int oid,

@@ -38,8 +38,6 @@ public:
     SchedulerManager( time_t wtime, unsigned int wlength, time_t retry,
             const std::string& mad_location);
 
-    virtual ~SchedulerManager() = default;
-
     /**
      *  This functions starts the associated listener thread, and creates a
      *  new thread for the Scheduler Manager. This thread will wait in
@@ -123,12 +121,12 @@ private:
     /**
      *
      */
-    void _place(std::unique_ptr<scheduler_msg_t> msg);
+    static void _place(std::unique_ptr<scheduler_msg_t> msg);
 
     /**
      *
      */
-    void _optimize(std::unique_ptr<scheduler_msg_t> msg);
+    static void _optimize(std::unique_ptr<scheduler_msg_t> msg);
 
     /**
      *

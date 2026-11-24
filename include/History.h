@@ -44,8 +44,6 @@ public:
             int action_id,
             const std::string& vm_info);
 
-    ~History() {};
-
     /**
      *  Function to write the History Record in an output stream
      */

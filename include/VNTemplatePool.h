@@ -30,8 +30,6 @@ public:
 
     VNTemplatePool(SqlDB * db) : PoolSQL(db, one_db::vn_template_table) {};
 
-    ~VNTemplatePool() {};
-
     /**
      *  Allocates a new object, writting it in the pool database. No memory is
      *  allocated for the object.

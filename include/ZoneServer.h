@@ -28,8 +28,6 @@ public:
 
     ZoneServer(VectorAttribute *va, int id):ExtendedAttribute(va, id) {};
 
-    virtual ~ZoneServer() {};
-
     /**
      *  Initialized server metadata:
      *    - NAME
@@ -116,8 +114,6 @@ public:
         , next_id(-1)
     {}
 
-    virtual ~ZoneServers() = default;
-
     /* ---------------------------------------------------------------------- */
     /* Iterators                                                              */
     /* ---------------------------------------------------------------------- */
@@ -126,8 +122,6 @@ public:
     public:
         ZoneIterator():AttributeIterator() {};
         ZoneIterator(const AttributeIterator& dit):AttributeIterator(dit) {};
-        virtual ~ZoneIterator() {};
-
         ZoneServer * operator*() const
         {
             return static_cast<ZoneServer *>(map_it->second);

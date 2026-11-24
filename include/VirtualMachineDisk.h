@@ -37,7 +37,10 @@ public:
     VirtualMachineDisk(VectorAttribute *va, int id):
         VirtualMachineAttribute(va, id), snapshots(0) {};
 
-    virtual ~VirtualMachineDisk()
+    VirtualMachineDisk(const VirtualMachineDisk&) = delete;
+    VirtualMachineDisk& operator=(const VirtualMachineDisk&) = delete;
+
+    ~VirtualMachineDisk() override
     {
         delete snapshots;
     };
@@ -451,8 +454,6 @@ public:
      */
     VirtualMachineDisks(bool dispose):
         VirtualMachineAttributeSet(dispose) {};
-
-    virtual ~VirtualMachineDisks() {};
 
     /**
      *  Function used to initialize the attribute map based on a vector of DISK
@@ -903,7 +904,7 @@ private:
      *     with its bus (DEV_PREFIX)
      *     @param used_targets that cannot be used
      */
-    void assign_disk_targets(
+    static void assign_disk_targets(
             std::queue<std::pair <std::string, VirtualMachineDisk *> >& dqueue,
             std::set<std::string>& used_targets);
 };

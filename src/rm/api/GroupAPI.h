@@ -37,7 +37,7 @@ protected:
         pool = gpool;
     };
 
-    virtual ~GroupAPI() = default;
+    ~GroupAPI() override = default;
 
     /* API calls */
     Request::ErrorCode quota(int oid,
@@ -48,8 +48,8 @@ protected:
                             const std::string& vlan,
                             RequestAttributes& att);
 
-    Request::ErrorCode quota_info(std::string& xml,
-                                  RequestAttributes& att);
+    static Request::ErrorCode quota_info(std::string& xml,
+                                         RequestAttributes& att);
 
     /* Helpers */
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,

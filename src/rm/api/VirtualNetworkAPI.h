@@ -142,9 +142,9 @@ private:
                                     bool force,
                                     RequestAttributes& att);
 
-    Request::ErrorCode authorize_mirror(int oid,
-                                        const std::string& ports,
-                                        RequestAttributes& att) const;
+    static Request::ErrorCode authorize_mirror(int oid,
+                                               const std::string& ports,
+                                               RequestAttributes& att);
 
 };
 

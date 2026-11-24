@@ -42,7 +42,7 @@ private:
 
     HookStateVirtualNetwork():state(VirtualNetwork::INIT) {};
 
-    virtual ~HookStateVirtualNetwork() = default;
+    ~HookStateVirtualNetwork() override = default;
 
     /**
      *  Check if type dependent attributes are well defined.

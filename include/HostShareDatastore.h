@@ -30,8 +30,6 @@ public:
     HostShareDatastore() : Template(false, '=', "DATASTORES"), disk_usage(0),
         max_disk(0), free_disk(0), used_disk(0) {};
 
-    virtual ~HostShareDatastore() {};
-
     /**
      *  Updates the Datastore information from the monitorization template.
      *    @param ht monitoring template. DS information will be removed.

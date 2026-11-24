@@ -31,8 +31,6 @@ public:
     VirtualMachineNic(VectorAttribute *va, int id):
         VirtualMachineAttribute(va, id) {};
 
-    virtual ~VirtualMachineNic() {};
-
     /* ---------------------------------------------------------------------- */
     /* DISK get/set functions for boolean disk flags                          */
     /*   ATTACH                                                               */
@@ -315,8 +313,6 @@ public:
      */
     VirtualMachineNics(bool dispose):
         VirtualMachineAttributeSet(dispose) {};
-
-    virtual ~VirtualMachineNics() {};
 
     /**
      *  Function used to initialize the attribute map based on a vector of NIC

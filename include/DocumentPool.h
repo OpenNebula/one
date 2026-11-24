@@ -34,8 +34,6 @@ public:
         DocumentTemplate::parse_encrypted(ea);
     };
 
-    ~DocumentPool() {};
-
     /**
      *  Allocates a new object, writing it in the pool database. No memory is
      *  allocated for the object.

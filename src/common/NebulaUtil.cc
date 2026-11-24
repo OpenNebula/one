@@ -472,7 +472,7 @@ string one_util::uuid()
     // Generate from random numbers to avoid adding a dependency
     ostringstream oss;
 
-    oss.fill('0');
+    oss << std::setfill('0');
     oss << hex
         << setw(4) << random<short uint>()
         << setw(4) << random<short uint>()

@@ -40,8 +40,6 @@ public:
         , self_authorize(true)
     {}
 
-    ~AuthRequest() {};
-
     /**
      *  Authorization Request Type
      */

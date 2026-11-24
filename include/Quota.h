@@ -122,7 +122,7 @@ class QuotaDecorator : public QuotaInterface
 protected:
     QuotaDecorator(QuotaInterface * _quota):quota(_quota) {};
 
-    virtual ~QuotaDecorator() {};
+    ~QuotaDecorator() override = default;
 
     QuotaInterface * quota;
 };
@@ -201,7 +201,7 @@ protected:
           metrics(_metrics),
           is_default(_is_default) {};
 
-    virtual ~Quota() {};
+    ~Quota() override = default;
 
     /**
      *  Generic Quota Names
@@ -320,9 +320,9 @@ protected:
      *    @param va_name name of the quota in the vector attribute
      *    @param num value to add to the current quota;
      */
-    void add_to_quota(VectorAttribute * attr,
-                      const std::string& va_name,
-                      float num);
+    static void add_to_quota(VectorAttribute * attr,
+                             const std::string& va_name,
+                             float num);
 
     /**
      *  Sets new limit values for the quota

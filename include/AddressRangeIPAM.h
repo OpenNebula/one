@@ -29,8 +29,6 @@ public:
     AddressRangeIPAM(unsigned int _vid, unsigned int _id)
         : AddressRange(_vid, _id) {};
 
-    virtual ~AddressRangeIPAM() {};
-
     /* ---------------------------------------------------------------------- */
     /* AddressRange Interface                                                 */
     /* ---------------------------------------------------------------------- */

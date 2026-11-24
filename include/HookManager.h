@@ -38,8 +38,6 @@ public:
     {
     }
 
-    virtual ~HookManager() = default;
-
     /**
      *  This functions starts the associated listener thread, and creates a
      *  new thread for the Hook Manager. This thread will wait in
@@ -99,12 +97,12 @@ private:
     /**
      *
      */
-    void _execute(std::unique_ptr<hook_msg_t> msg);
+    static void _execute(std::unique_ptr<hook_msg_t> msg);
 
     /**
      *
      */
-    void _retry(std::unique_ptr<hook_msg_t> msg);
+    static void _retry(std::unique_ptr<hook_msg_t> msg);
 
     /**
      *

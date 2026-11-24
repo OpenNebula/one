@@ -33,8 +33,6 @@ public:
     {
     }
 
-    virtual ~BaseObject() = default;
-
     int oid() const
     {
         return _oid;

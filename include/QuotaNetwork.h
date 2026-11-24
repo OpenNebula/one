@@ -37,8 +37,6 @@ public:
         : Quota("NETWORK_QUOTA", "NETWORK", NET_METRICS, is_default)
     {}
 
-    virtual ~QuotaNetwork() {};
-
     /**
      *  Check if the resource allocation will exceed the quota limits. If not
      *  the usage counters are updated. Assumes calling object is a VM
@@ -116,8 +114,6 @@ class QuotaNetworkVirtualRouter: public QuotaDecorator
 {
 public:
     QuotaNetworkVirtualRouter(QuotaNetwork *qn):QuotaDecorator(qn) {};
-
-    virtual ~QuotaNetworkVirtualRouter() {};
 
     bool check(Template* tmpl, Quotas& default_quotas, std::string& err) override
     {

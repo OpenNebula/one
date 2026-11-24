@@ -384,7 +384,7 @@ bool AclManager::authorize(
 
 bool AclManager::oneadmin_authorize(
         const PoolObjectAuth&   obj_perms,
-        AuthRequest::Operation  op) const
+        AuthRequest::Operation  op)
 {
     if (op & 0x10LL) //No lockable object
     {

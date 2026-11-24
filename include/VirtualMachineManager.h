@@ -38,8 +38,6 @@ public:
     VirtualMachineManager(
             const std::string&        _mads);
 
-    ~VirtualMachineManager() = default;
-
     /**
      *  This functions starts the associated listener thread, and creates a
      *  new thread for the Virtual Machine Manager. This thread will wait in
@@ -201,7 +199,7 @@ private:
     /**
      *
      */
-    void _checkpoint(std::unique_ptr<vm_msg_t> msg);
+    static void _checkpoint(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
@@ -281,7 +279,7 @@ private:
     /**
      *
      */
-    void _driver_cancel(std::unique_ptr<vm_msg_t> msg);
+    static void _driver_cancel(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
@@ -316,9 +314,9 @@ private:
     /**
      *
      */
-    void log_error(VirtualMachine* vm_id,
-                   const std::string& payload,
-                   const std::string& msg);
+    static void log_error(VirtualMachine* vm,
+                          const std::string& payload,
+                          const std::string& msg);
 
     /**
      *

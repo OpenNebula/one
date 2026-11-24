@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include <iostream>
+#include <vector>
 #include <getopt.h>
 
 #include "Monitor.h"
@@ -94,16 +95,14 @@ int main(int argc, char **argv)
 
         int _argc = _argv.size() + 1;
 
-        char ** _argv_c = (char **) malloc(sizeof(char *) * (_argc + 1));
+        std::vector<char *> _argv_c(_argc + 1);
 
         _argv_c[0] = argv[0];
 
         for (int i=1 ; i < _argc ; ++i)
         {
-            _argv_c[i] = const_cast<char *>(_argv[i-1].c_str());
+            _argv_c[i] = _argv[i-1].data();
         }
-
-        _argv_c[_argc] = 0;
 
         static struct option long_options[] =
         {
@@ -117,7 +116,7 @@ int main(int argc, char **argv)
         int long_index = 0;
         int opt;
 
-        while ((opt = getopt_long(_argc, _argv_c, "vhc:o:",
+        while ((opt = getopt_long(_argc, _argv_c.data(), "vhc:o:",
                                   long_options, &long_index)) != -1)
         {
             switch(opt)
@@ -142,8 +141,6 @@ int main(int argc, char **argv)
                     break;
             }
         }
-
-        free(_argv_c);
     }
 
     try

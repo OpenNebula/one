@@ -55,7 +55,7 @@ private:
 
     HookAPI(const std::string& _call): call(_call) {};
 
-    virtual ~HookAPI() = default;
+    ~HookAPI() override = default;
 
     /**
      *  Check if type dependent attributes are well defined.
@@ -87,7 +87,7 @@ private:
      *
      *   @return true if the call exists, false otherwise
      */
-    bool call_exist(const std::string& api_call);
+    static bool call_exist(const std::string& api_call);
 
     // -------------------------------------------------------------------------
     // Hook API Attributes

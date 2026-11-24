@@ -28,8 +28,6 @@ public:
                 const VectorAttribute * vnc_conf,
                 const std::vector<const SingleAttribute *>& encrypted_attrs);
 
-    ~ClusterPool() {};
-
     /* ---------------------------------------------------------------------- */
     /* Constants for DB management                                            */
     /* ---------------------------------------------------------------------- */

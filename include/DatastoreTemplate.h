@@ -29,8 +29,6 @@ public:
     DatastoreTemplate():
         Template(false, '=', "TEMPLATE") {};
 
-    ~DatastoreTemplate() {};
-
     DatastoreTemplate(DatastoreTemplate& dt):Template(dt) {};
 
     // -------------------------------------------------------------------------

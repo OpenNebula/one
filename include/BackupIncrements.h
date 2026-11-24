@@ -38,8 +38,6 @@ class Increment : public ExtendedAttribute
 public:
     Increment(VectorAttribute *va, int id): ExtendedAttribute(va, id) {};
 
-    ~Increment() = default;
-
     enum Type
     {
         FULL      = 0, /** < Full backup*/
@@ -123,8 +121,6 @@ class IncrementSet : public ExtendedAttributeSet
 public:
     IncrementSet(): ExtendedAttributeSet(false) {};
 
-    ~IncrementSet() = default;
-
     void init(Template * tmpl)
     {
         std::vector<VectorAttribute *> incs;
@@ -184,8 +180,6 @@ public:
     public:
         IncIterator():AttributeIterator() {};
         IncIterator(const AttributeIterator& dit):AttributeIterator(dit) {};
-
-        virtual ~IncIterator() {};
 
         Increment * operator*() const
         {

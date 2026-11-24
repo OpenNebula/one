@@ -50,7 +50,7 @@ public:
             int                _connections,
             const std::string& _compare_binary);
 
-    ~MySqlDB();
+    ~MySqlDB() override;
 
     /**
      *  This function returns a legal SQL string that can be used in an SQL

@@ -49,7 +49,7 @@ protected:
         request.auth_op(AuthRequest::ADMIN);
     };
 
-    virtual ~VdcAPI() = default;
+    ~VdcAPI() override = default;
 
     /* API calls */
     Request::ErrorCode add_group(int oid,

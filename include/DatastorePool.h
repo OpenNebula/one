@@ -29,8 +29,6 @@ public:
                   const std::vector<const SingleAttribute *>& _inherit_attrs,
                   const std::vector<const SingleAttribute *>& encrypted_attrs);
 
-    ~DatastorePool() {};
-
     /* ---------------------------------------------------------------------- */
     /* Constants for DB management                                            */
     /* ---------------------------------------------------------------------- */

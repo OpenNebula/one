@@ -43,8 +43,6 @@ public:
     {
     }
 
-    ~IPAMManager() = default;
-
     /**
      *  This functions starts the associated listener thread, and creates a
      *  new thread for the IPAMManager. This thread will wait in
@@ -147,9 +145,9 @@ private:
      */
     void _notify_request(std::unique_ptr<ipam_msg_t> msg);
 
-    void _vnet_create(std::unique_ptr<ipam_msg_t> msg);
+    static void _vnet_create(std::unique_ptr<ipam_msg_t> msg);
 
-    void _vnet_delete(std::unique_ptr<ipam_msg_t> msg);
+    static void _vnet_delete(std::unique_ptr<ipam_msg_t> msg);
 
     /**
      *

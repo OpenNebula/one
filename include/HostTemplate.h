@@ -28,8 +28,6 @@ class HostTemplate : public Template
 public:
     HostTemplate() : Template(false, '=', "TEMPLATE") {};
 
-    ~HostTemplate() {};
-
     HostTemplate(HostTemplate& ht):Template(ht) {};
 
     // -------------------------------------------------------------------------

@@ -50,7 +50,6 @@ public:
                         &MonitorDriverProtocol::_exec_vm);
     };
 
-    ~UDPMonitorDriver() = default;
 };
 
 #endif // UDP_MONITOR_DRIVER_H_

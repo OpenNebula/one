@@ -37,7 +37,7 @@ public:
      */
     FedReplicaManager(LogDB * d);
 
-    virtual ~FedReplicaManager();
+    ~FedReplicaManager() override;
 
     /**
      *  Sends the replication event to the replica threads. [MASTER]

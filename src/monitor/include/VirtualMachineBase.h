@@ -45,8 +45,6 @@ public:
         init_attributes();
     }
 
-    virtual ~VirtualMachineBase() = default;
-
     /**
      * Rebuilds the object from an xml formatted string
      * @param xml_str The xml-formatted string

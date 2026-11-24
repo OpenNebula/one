@@ -29,8 +29,6 @@ public:
     ClusterTemplate():
         Template(true, '=', "TEMPLATE") {};
 
-    ~ClusterTemplate() {};
-
     ClusterTemplate(ClusterTemplate& ct):Template(ct) {};
 
     // -------------------------------------------------------------------------

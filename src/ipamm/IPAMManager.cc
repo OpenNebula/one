@@ -49,10 +49,10 @@ int IPAMManager::start()
                     bind(&IPAMManager::_notify_request, this, _1));
 
     register_action(IPAMManagerMessages::VNET_CREATE,
-                    bind(&IPAMManager::_vnet_create, this, _1));
+                    &IPAMManager::_vnet_create);
 
     register_action(IPAMManagerMessages::VNET_DELETE,
-                    bind(&IPAMManager::_vnet_delete, this, _1));
+                    &IPAMManager::_vnet_delete);
 
     register_action(IPAMManagerMessages::LOG,
                     &IPAMManager::_log);

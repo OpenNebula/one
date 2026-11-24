@@ -61,8 +61,6 @@ public:
               is_default)
     {};
 
-    ~QuotaVirtualMachine() {};
-
     int get_quota(const std::string& id, VectorAttribute **va) override
     {
         std::map<std::string, Attribute *>::iterator it;

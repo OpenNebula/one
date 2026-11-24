@@ -27,8 +27,6 @@ class DocumentTemplate : public Template
 public:
     DocumentTemplate() : Template(false, '=', "TEMPLATE") {};
 
-    ~DocumentTemplate() {};
-
     DocumentTemplate(DocumentTemplate& dt):Template(dt) {};
 
     DocumentTemplate(const Template& tmpl):Template(tmpl) {};

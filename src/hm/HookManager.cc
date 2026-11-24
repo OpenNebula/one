@@ -32,10 +32,10 @@ int HookManager::start()
                     &HookManager::_undefined);
 
     register_action(HookManagerMessages::EXECUTE,
-                    bind(&HookManager::_execute, this, _1));
+                    &HookManager::_execute);
 
     register_action(HookManagerMessages::RETRY,
-                    bind(&HookManager::_retry, this, _1));
+                    &HookManager::_retry);
 
     register_action(HookManagerMessages::LOG,
                     &HookManager::_log);

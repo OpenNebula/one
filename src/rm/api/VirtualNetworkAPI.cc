@@ -483,7 +483,7 @@ Request::ErrorCode VirtualNetworkAPI::update_ar(int oid,
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VirtualNetworkAPI::authorize_mirror(
-        int oid, const string& ports, RequestAttributes& att) const
+        int oid, const string& ports, RequestAttributes& att)
 {
     set<pair<int, int>> selected;
 

@@ -48,8 +48,6 @@ public:
     {
     }
 
-    ~ImageManager() = default;
-
     /**
      *  This functions starts the associated listener thread, and creates a
      *  new thread for the Information Manager. This thread will wait in

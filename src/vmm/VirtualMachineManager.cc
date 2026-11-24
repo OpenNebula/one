@@ -72,7 +72,7 @@ int VirtualMachineManager::start()
                     bind(&VirtualMachineManager::_cleanup, this, _1));
 
     register_action(VMManagerMessages::CHECKPOINT,
-                    bind(&VirtualMachineManager::_checkpoint, this, _1));
+                    &VirtualMachineManager::_checkpoint);
 
     register_action(VMManagerMessages::SAVE,
                     bind(&VirtualMachineManager::_save, this, _1));
@@ -117,7 +117,7 @@ int VirtualMachineManager::start()
                     bind(&VirtualMachineManager::_updatesg, this, _1));
 
     register_action(VMManagerMessages::DRIVER_CANCEL,
-                    bind(&VirtualMachineManager::_driver_cancel, this, _1));
+                    &VirtualMachineManager::_driver_cancel);
 
     register_action(VMManagerMessages::RESIZE,
                     bind(&VirtualMachineManager::_resize, this, _1));
@@ -132,7 +132,7 @@ int VirtualMachineManager::start()
                     bind(&VirtualMachineManager::_updatenic, this, _1));
 
     register_action(VMManagerMessages::BACKUPCANCEL,
-                    bind(&VirtualMachineManager::_driver_cancel, this, _1));
+                    &VirtualMachineManager::_driver_cancel);
 
     register_action(VMManagerMessages::EXEC,
                     bind(&VirtualMachineManager::_exec, this, _1));
@@ -1401,7 +1401,6 @@ void VirtualMachineManager::trigger_attach(int vid)
 
         string  vm_tmpl;
         string  drv_msg;
-        string  tm_command;
         string  vm_tm_mad;
         string  opennebula_hostname;
         string  prolog_cmd;
@@ -1538,12 +1537,10 @@ void VirtualMachineManager::trigger_detach(int vid)
         ostringstream os;
         string        vm_tmpl;
         string        drv_msg;
-        string        tm_command;
         string        vm_tm_mad;
         string        opennebula_hostname;
         string        epilog_cmd;
         string        disk_path;
-        string        error_str;
 
         const VirtualMachineDisk * disk;
         int disk_id;
@@ -1870,7 +1867,6 @@ void VirtualMachineManager::trigger_disk_snapshot_create(int vid)
         string  vm_tmpl;
         string  drv_msg;
 
-        string  vm_tm_mad;
         string  snap_cmd;
         string  disk_path;
 
@@ -2088,7 +2084,6 @@ void VirtualMachineManager::trigger_update_conf(int vid)
 
         string  password;
         string  prolog_cmd;
-        string  resize_cmd;
         string  disk_path;
 
         auto vm = vmpool->get(vid);
@@ -2167,7 +2162,6 @@ void VirtualMachineManager::trigger_attach_nic(int vid)
 
         string  vm_tmpl;
         string  drv_msg;
-        string  opennebula_hostname;
         string  prolog_cmd;
         string  disk_path;
         string  password;
@@ -2271,7 +2265,6 @@ void VirtualMachineManager::trigger_detach_nic(int vid)
         ostringstream os;
         string        vm_tmpl;
         string        drv_msg;
-        string        error_str;
         string  prolog_cmd;
         string  disk_path;
         string  password;

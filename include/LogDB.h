@@ -85,7 +85,10 @@ public:
     LogDB(SqlDB * _db, bool solo, bool cache, uint64_t log_retention,
           uint64_t limit_purge);
 
-    virtual ~LogDB();
+    LogDB(const LogDB&) = delete;
+    LogDB& operator=(const LogDB&) = delete;
+
+    ~LogDB() override;
 
     // -------------------------------------------------------------------------
     // Interface to access Log records
@@ -394,8 +397,6 @@ class FedLogDB: public SqlDB
 {
 public:
     FedLogDB(LogDB *db):_logdb(db) {};
-
-    virtual ~FedLogDB() {};
 
     int exec_wr(std::ostringstream& cmd) override;
 

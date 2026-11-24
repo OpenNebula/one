@@ -51,8 +51,6 @@ enum class VMGroupPolicy;
 class VMGroup : public PoolObjectSQL
 {
 public:
-    virtual ~VMGroup() = default;
-
     /**
      * Function to print the VMGroup object into a string in XML format
      *   @param xml the resulting XML string

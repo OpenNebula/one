@@ -36,6 +36,9 @@ public:
         memset(static_cast<void *>(buffer), 0, STRING_BUFFER_SIZE);
     }
 
+    StringBuffer(const StringBuffer&) = delete;
+    StringBuffer& operator=(const StringBuffer&) = delete;
+
     ~StringBuffer()
     {
         free(buffer);

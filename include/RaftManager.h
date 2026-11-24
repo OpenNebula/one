@@ -456,7 +456,7 @@ private:
     /**
      * Init the raft state status row.
      */
-    int init_raft_state(const std::string& raft_xml);
+    static int init_raft_state(const std::string& raft_xml);
 };
 
 #endif /*RAFT_MANAGER_H_*/

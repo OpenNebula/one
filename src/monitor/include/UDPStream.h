@@ -54,8 +54,6 @@ public:
     {
     }
 
-    virtual ~UDPStream() = default;
-
     /**
      *  This functions initializes the UDP socket for the stream. It must be
      *  called once before using the streamer
@@ -194,7 +192,7 @@ int UDPStream<MSG>
     socklen_t addr_size = sizeof(struct sockaddr_storage);
 
     ssize_t rc = recvfrom(_socket, buffer, MESSAGE_SIZE, 0,
-                          (struct sockaddr *) &addr, &addr_size);
+                          reinterpret_cast<sockaddr *>(&addr), &addr_size);
 
     if (rc > 0 && rc < MESSAGE_SIZE)
     {

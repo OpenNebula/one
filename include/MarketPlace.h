@@ -78,8 +78,6 @@ public:
         return st;
     }
 
-    virtual ~MarketPlace() = default;
-
     /**
      * Function to print the MarketPlace object into a string in XML format
      *  @param xml the resulting XML string

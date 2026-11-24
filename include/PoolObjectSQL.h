@@ -192,7 +192,7 @@ public:
     {
     };
 
-    virtual ~PoolObjectSQL()
+    ~PoolObjectSQL() override
     {
         if (!ro && _mutex != nullptr)
         {
@@ -701,7 +701,7 @@ protected:
      *   must be checked before
      *   @param new_perm the new value. If it is -1, it will be ignored
      */
-    void set_perm(int &perm, const int &new_perm)
+    static void set_perm(int &perm, const int &new_perm)
     {
         if ( new_perm != -1 )
         {

@@ -167,8 +167,6 @@ void LifeCycleManager::trigger_save_success(int vid)
 {
     trigger([this, vid]
     {
-        ostringstream       os;
-
         auto vm = vmpool->get(vid);
 
         if ( vm == nullptr )
@@ -666,7 +664,6 @@ void LifeCycleManager::trigger_prolog_success(int vid)
     trigger([this, vid]
     {
         time_t                  the_time = time(0);
-        ostringstream           os;
 
         auto vm = vmpool->get(vid);
 
@@ -1268,7 +1265,6 @@ void LifeCycleManager::trigger_monitor_poweron(int vid)
              vm->get_state() == VirtualMachine::SUSPENDED )
         {
             VirtualMachineTemplate quota_tmpl;
-            string error;
 
             time_t the_time = time(0);
 

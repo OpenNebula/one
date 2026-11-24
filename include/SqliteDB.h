@@ -39,7 +39,7 @@ public:
 
     SqliteDB(const std::string& db_name, int timeout);
 
-    ~SqliteDB();
+    ~SqliteDB() override;
 
     /**
      *  This function returns a legal SQL string that can be used in an SQL

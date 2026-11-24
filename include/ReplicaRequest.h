@@ -29,8 +29,6 @@ class ReplicaRequest : public SyncRequest
 public:
     ReplicaRequest(uint64_t i):_index(i), _to_commit(-1), _replicas(1) {};
 
-    ~ReplicaRequest() {};
-
     /**
      *  This function updates the number of replicas of the record and decrement
      *  the number of servers left to reach majority consensus. If it reaches 0,

@@ -36,19 +36,19 @@ public:
      *    @param oid host id
      *    @param state for the host
      */
-    void host_state(int oid, const std::string& state);
+    static void host_state(int oid, const std::string& state);
 
     /**
      *  Send a VM state message to oned
      *    @param oid host id
      *    @param state for the host
      */
-    void vm_state(int oid, const std::string& state);
+    static void vm_state(int oid, const std::string& state);
 
     /**
      *  Send a message with the VM command execution result to oned
      */
-    void vm_exec(int oid, const std::string& qemu_ga_exec);
+    static void vm_exec(int oid, const std::string& qemu_ga_exec);
 
     /**
      *  Send host system information to oned
@@ -56,7 +56,7 @@ public:
      *    @param status result of the system monitor
      *    @param payload system data
      */
-    void host_system_info(int oid, const std::string& status, const std::string& payload);
+    static void host_system_info(int oid, const std::string& status, const std::string& payload);
 
 private:
     //--------------------------------------------------------------------------

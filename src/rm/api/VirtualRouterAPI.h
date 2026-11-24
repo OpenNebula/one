@@ -37,7 +37,7 @@ protected:
         pool = vrpool;
     }
 
-    virtual ~VirtualRouterAPI() = default;
+    ~VirtualRouterAPI() override = default;
 
     /* API calls */
     Request::ErrorCode instantiate(int oid,

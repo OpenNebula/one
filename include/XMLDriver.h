@@ -34,8 +34,6 @@ public:
         VirtualMachineManagerDriver(mad_location, attrs)
     {}
 
-    ~XMLDriver() = default;
-
 private:
     /**
      *  Generates a neutral XML deployment file:

@@ -43,9 +43,9 @@ protected:
      * @param oss stream to write v
      * @param limit of characters to wirte
      */
-     void log_xmlrpc_value(const xmlrpc_c::value& v,
-                           std::ostringstream& oss,
-                           const unsigned int limit);
+    static void log_xmlrpc_value(const xmlrpc_c::value& v,
+                                 std::ostringstream& oss,
+                                 const unsigned int limit);
 };
 
 #endif //REQUEST_LOGGER_XRPC_H_

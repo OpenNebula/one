@@ -47,8 +47,6 @@ public:
     {
     }
 
-    ~DispatchManager() = default;
-
     /**
      * Initializes internal pointers to other managers. Must be called when
      * all the other managers exist in Nebula::instance

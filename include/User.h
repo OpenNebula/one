@@ -35,8 +35,6 @@ class User : public PoolObjectSQL
 {
 public:
 
-    virtual ~User() = default;
-
     /**
      *  Characters that can not be in a name
      */

@@ -52,7 +52,7 @@ protected:
         pool = zpool;
     };
 
-    virtual ~ZoneAPI() = default;
+    ~ZoneAPI() override = default;
 
     /* API calls */
     Request::ErrorCode allocate(const std::string& str_tmpl,
@@ -76,22 +76,22 @@ protected:
                               bool enable,
                               RequestAttributes& att);
 
-    Request::ErrorCode replicate_log(const ReplicateLogParams& params,
-                                     RequestAttributes& att);
+    static Request::ErrorCode replicate_log(const ReplicateLogParams& params,
+                                            RequestAttributes& att);
 
-    Request::ErrorCode vote(unsigned int candidate_term,
-                            int candidate_id,
-                            uint64_t candidate_log_index,
-                            unsigned int candidate_log_term,
-                            RequestAttributes& att);
+    static Request::ErrorCode vote(unsigned int candidate_term,
+                                   int candidate_id,
+                                   uint64_t candidate_log_index,
+                                   unsigned int candidate_log_term,
+                                   RequestAttributes& att);
 
     Request::ErrorCode raft_status(std::string& xml,
                                    RequestAttributes& att);
 
-    Request::ErrorCode replicate_fed_log(uint64_t index,
-                                         uint64_t prev,
-                                         std::string sql,
-                                         RequestAttributes& att);
+    static Request::ErrorCode replicate_fed_log(uint64_t index,
+                                                uint64_t prev,
+                                                std::string sql,
+                                                RequestAttributes& att);
 
     /* Helpers */
     int drop(std::unique_ptr<PoolObjectSQL> obj,

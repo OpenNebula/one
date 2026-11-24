@@ -80,7 +80,7 @@ void RequestXRPC::execute(
 
     if ( (raftm->is_follower() || nd.is_cache()) && _leader_only)
     {
-        string leader_endpoint, error;
+        string leader_endpoint;
 
         if ( nd.is_cache() )
         {

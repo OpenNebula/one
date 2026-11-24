@@ -41,8 +41,6 @@ public:
               is_default)
     {};
 
-    ~QuotaImage() {};
-
     /**
      *  Check if the resource allocation will exceed the quota limits. If not
      *  the usage counters are updated

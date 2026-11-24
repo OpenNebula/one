@@ -28,8 +28,6 @@ class VMGroupPool : public PoolSQL
 public:
     VMGroupPool(SqlDB * db):PoolSQL(db, one_db::vm_group_table) {};
 
-    ~VMGroupPool() {};
-
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */

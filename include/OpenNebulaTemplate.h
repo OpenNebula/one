@@ -36,8 +36,6 @@ public:
         var_location(_var_location)
     {};
 
-    ~OpenNebulaTemplate() = default;
-
     /**
      *  Read or Generate the master key file to encrypt DB data when needed
      *  this key is added to the configuration of OpenNebula and can be obtained

@@ -53,7 +53,7 @@ int Quota::get_quota(
         return -1;
     }
 
-    for ( it = attributes.begin(); it != attributes.end(); it++)
+    for ( it = attributes.begin(); it != attributes.end(); ++it)
     {
         q = static_cast<VectorAttribute *>(it->second);
 

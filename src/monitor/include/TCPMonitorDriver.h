@@ -50,7 +50,6 @@ public:
                         &MonitorDriverProtocol::_exec_vm);
     };
 
-    ~TCPMonitorDriver() = default;
 };
 
 #endif // TCP_MONITOR_DRIVER_H_

@@ -116,7 +116,7 @@ protected:
     ExtendedAttribute(VectorAttribute *_va, int _id):
         Attribute(_va->name()), va(_va), id(_id) {};
 
-    virtual ~ExtendedAttribute() {};
+    ~ExtendedAttribute() override = default;
 
     /* ---------------------------------------------------------------------- */
     /* Attribute Interface                                                    */

@@ -76,7 +76,10 @@ public:
         return st;
     }
 
-    virtual ~Zone();
+    Zone(const Zone&) = delete;
+    Zone& operator=(const Zone&) = delete;
+
+    ~Zone() override;
 
     /**
      * Function to print the Zone object into a string in XML format

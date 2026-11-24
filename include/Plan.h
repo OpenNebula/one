@@ -120,7 +120,7 @@ public:
      */
     Plan(int cid):_cid(cid) {};
 
-    ~Plan()
+    ~Plan() override
     {
         if (!ro && _mutex != nullptr)
         {

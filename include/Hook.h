@@ -29,7 +29,10 @@ class Hook : public PoolObjectSQL
 {
 public:
 
-    ~Hook();
+    Hook(const Hook&) = delete;
+    Hook& operator=(const Hook&) = delete;
+
+    ~Hook() override;
 
     /**
      *  Defines the hook type, so a whole hook class can be masked

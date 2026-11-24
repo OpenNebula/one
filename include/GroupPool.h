@@ -28,8 +28,6 @@ public:
     GroupPool(SqlDB * db, bool is_federation_slave,
               const std::vector<const SingleAttribute *>& restricted_attrs);
 
-    ~GroupPool() = default;
-
     /* ---------------------------------------------------------------------- */
     /* Constants for DB management                                            */
     /* ---------------------------------------------------------------------- */

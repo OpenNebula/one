@@ -75,7 +75,7 @@ protected:
         ObjectSQL(),
         oid(-1) {};
 
-    virtual ~QuotasSQL() {};
+    ~QuotasSQL() override = default;
 
     virtual const char * table() const = 0;
 
@@ -157,8 +157,6 @@ public:
                 "/QUOTAS/NETWORK_QUOTA",
                 "/QUOTAS/IMAGE_QUOTA",
                 "/QUOTAS/VM_QUOTA") {};
-
-    virtual ~GroupQuotas() {};
 
     /**
      *  Bootstraps the database table for group quotas

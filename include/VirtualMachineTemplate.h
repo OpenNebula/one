@@ -36,8 +36,6 @@ public:
             const char * _xml_root):
         Template(_replace_mode, _separator, _xml_root) {};
 
-    ~VirtualMachineTemplate() {};
-
     VirtualMachineTemplate(const Template& vmt):Template(vmt) {};
 
     VirtualMachineTemplate(const VirtualMachineTemplate& t) = default;

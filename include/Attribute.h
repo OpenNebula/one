@@ -150,8 +150,6 @@ public:
         , attribute_value(sa.attribute_value)
     {}
 
-    ~SingleAttribute() {};
-
     /**
      *  Returns the attribute value, a string.
      */
@@ -307,8 +305,6 @@ public:
     {}
 
     VectorAttribute& operator=(const VectorAttribute& va) = default;
-
-    ~VectorAttribute() {};
 
     /**
      *  Returns the attribute value, a string.

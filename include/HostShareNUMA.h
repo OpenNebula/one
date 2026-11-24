@@ -62,8 +62,6 @@ public:
         replace("NODE_ID", i);
     }
 
-    virtual ~HostShareNode() = default;
-
     /**
      *  Builds the node from its XML representation. This function is used when
      *  loading the host from the DB.

@@ -29,8 +29,6 @@ public:
     AddressRangeInternal(unsigned int _vid, unsigned int _id)
         : AddressRange(_vid, _id) {};
 
-    virtual ~AddressRangeInternal() {};
-
     /* ---------------------------------------------------------------------- */
     /* AddressRange Interface                                                 */
     /* ---------------------------------------------------------------------- */

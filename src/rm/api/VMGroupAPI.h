@@ -37,7 +37,7 @@ protected:
         pool = vmgpool;
     };
 
-    virtual ~VMGroupAPI() = default;
+    ~VMGroupAPI() override = default;
 
     /* API calls */
     Request::ErrorCode add_role(int oid,

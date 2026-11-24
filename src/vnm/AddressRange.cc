@@ -22,6 +22,7 @@
 
 #include <arpa/inet.h>
 #include <algorithm>
+#include <iomanip>
 #include <regex>
 
 using namespace std;
@@ -1113,7 +1114,7 @@ string AddressRange::mac_to_s(const unsigned int i_mac[])
         temp_byte &= 255;
 
         oss.width(2);
-        oss.fill('0');
+        oss << std::setfill('0');
         oss << hex << temp_byte;
 
         if(i!=0)

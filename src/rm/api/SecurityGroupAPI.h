@@ -37,7 +37,7 @@ protected:
         pool = sgpool;
     };
 
-    virtual ~SecurityGroupAPI() = default;
+    ~SecurityGroupAPI() override = default;
 
     /* API calls */
     Request::ErrorCode commit(int oid,

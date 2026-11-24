@@ -32,8 +32,6 @@ class Group : public PoolObjectSQL
 {
 public:
 
-    virtual ~Group() = default;
-
     static const std::string INVALID_NAME_CHARS;
 
     /**

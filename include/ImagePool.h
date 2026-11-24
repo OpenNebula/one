@@ -43,8 +43,6 @@ public:
             const std::vector<const SingleAttribute *>& encrypted_attrs,
             const std::vector<const SingleAttribute *>& inherit_attrs);
 
-    ~ImagePool() {};
-
     /**
      *  Function to allocate a new Image object
      *    @param uid the user id of the image's owner

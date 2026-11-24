@@ -297,7 +297,7 @@ int ScheduledAction::ends_in_range(std::string& error)
     {
         struct tm val_tm;
 
-        localtime_r((time_t *)&_end_value, &val_tm);
+        localtime_r(&_end_value, &val_tm);
 
         time_t out = mktime(&val_tm);
 

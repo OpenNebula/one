@@ -257,7 +257,7 @@ protected:
             RequestAttributes&  att,
             PoolObjectAuth&     vm_perms);
 
-    Request::ErrorCode get_host_information(
+    static Request::ErrorCode get_host_information(
             int                hid,
             std::string&       name,
             std::string&       vmm,
@@ -265,7 +265,7 @@ protected:
             PoolObjectAuth&    host_perms,
             RequestAttributes& att);
 
-    Request::ErrorCode get_ds_information(
+    static Request::ErrorCode get_ds_information(
             int ds_id,
             std::set<int>& ds_cluster_ids,
             std::string& tm_mad,
@@ -274,13 +274,13 @@ protected:
             bool& ds_live_migr,
             bool& ds_migr_snap);
 
-    Request::ErrorCode get_default_ds_information(
+    static Request::ErrorCode get_default_ds_information(
             int cluster_id,
             int& ds_id,
             std::string& tm_mad,
             RequestAttributes& att);
 
-    bool check_host(int hid,
+    static bool check_host(int hid,
                     bool enforce,
                     VirtualMachine* vm,
                     std::string& error);

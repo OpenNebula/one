@@ -33,8 +33,6 @@ public:
         context(_context)
     {};
 
-    virtual ~RequestLoggerGRPC() = default;
-
 protected:
     void client_ip(char * const ip,
                    char * const port) override;

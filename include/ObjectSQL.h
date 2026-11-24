@@ -30,8 +30,6 @@ public:
 
     ObjectSQL() = default;
 
-    virtual ~ObjectSQL() = default;
-
 protected:
     /**
      *  Reads the ObjectSQL (identified with its OID) from the database.

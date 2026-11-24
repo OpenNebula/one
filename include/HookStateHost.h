@@ -42,7 +42,7 @@ private:
 
     HookStateHost():state(Host::INIT) {};
 
-    virtual ~HookStateHost() = default;
+    ~HookStateHost() override = default;
 
     /**
      *  Check if type dependent attributes are well defined.

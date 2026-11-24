@@ -39,8 +39,6 @@ public:
                        float                        default_disk_cost,
                        bool                         showback_only_running);
 
-    ~VirtualMachinePool() {};
-
     /**
      *  Function to allocate a new VM object
      *    @param uid user id (the owner of the VM)

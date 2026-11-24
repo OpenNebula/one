@@ -173,8 +173,6 @@ public:
     // Image Public Methods
     // *************************************************************************
 
-    virtual ~Image() = default;
-
     /**
      * Function to print the Image object into a string in XML format
      *  @param xml the resulting XML string

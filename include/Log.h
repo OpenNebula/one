@@ -114,8 +114,6 @@ public:
             const MessageType       level    = WARNING,
             std::ios_base::openmode mode     = std::ios_base::app);
 
-    virtual ~FileLog();
-
     void log(
             const char *            module,
             const MessageType       type,
@@ -137,8 +135,6 @@ public:
         :FileLog(file_name, level, mode)
     {
     }
-
-    ~FileLogTS() = default;
 
     void log(
             const char *            module,
@@ -169,8 +165,6 @@ public:
            int oid,
            const PoolObjectSQL::ObjectType obj_type);
 
-    ~StdLog() {};
-
     void log(
             const char *            module,
             const MessageType       type,
@@ -195,8 +189,6 @@ public:
     SysLog(const MessageType level,
            int oid,
            const PoolObjectSQL::ObjectType obj_type);
-
-    ~SysLog() {};
 
     void log(
             const char *            module,

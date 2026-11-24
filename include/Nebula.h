@@ -679,10 +679,11 @@ public:
     {
     };
 
-    ~Nebula();
+    ~Nebula() override;
 
 private:
-    Nebula& operator=(Nebula const&) = delete;
+    Nebula(const Nebula&) = delete;
+    Nebula& operator=(const Nebula&) = delete;
 
     // ---------------------------------------------------------------
     // Environment variables

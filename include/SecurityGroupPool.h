@@ -27,8 +27,6 @@ class SecurityGroupPool : public PoolSQL
 public:
     SecurityGroupPool(SqlDB * db);
 
-    ~SecurityGroupPool() {};
-
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */

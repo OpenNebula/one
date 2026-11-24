@@ -127,8 +127,6 @@ public:
      */
     static Type str_to_type(std::string& str_type);
 
-    virtual ~MarketPlaceApp() = default;
-
     /**
      * Function to print the MarketPlaceApp object into a string in XML format
      *  @param xml the resulting XML string

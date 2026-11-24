@@ -43,8 +43,6 @@ public:
      */
     MarketPlaceManager(time_t t, time_t m, const std::string& _mad_location);
 
-    ~MarketPlaceManager() = default;
-
     /**
      * Initializes internal pointers to other managers. Must be called when
      * all the other managers exist in Nebula::instance

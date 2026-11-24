@@ -100,8 +100,6 @@ class RaftReplicaThread : public ReplicaThread
 public:
     RaftReplicaThread(int follower_id);
 
-    virtual ~RaftReplicaThread() {};
-
 private:
     /**
      * Specific logic for the replicate process
@@ -127,8 +125,6 @@ class FedReplicaThread : public ReplicaThread
 public:
     FedReplicaThread(int zone_id);
 
-    virtual ~FedReplicaThread() {};
-
 private:
     /**
      * Specific logic for the replicate process
@@ -148,8 +144,6 @@ class HeartBeatThread : public ReplicaThread
 {
 public:
     HeartBeatThread(int follower_id);
-
-    virtual ~HeartBeatThread() {};
 
 private:
     /**

@@ -31,8 +31,6 @@ public:
         : VirtualMachineManagerDriver(mad_location, attrs), emulator(emu)
     {}
 
-    ~LibVirtDriver() = default;
-
     int validate_raw(const std::string& raw_section,
                      std::string& error) const override;
 

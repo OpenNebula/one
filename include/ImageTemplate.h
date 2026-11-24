@@ -29,8 +29,6 @@ public:
 
     ImageTemplate(const Template& tmpl):Template(tmpl) {};
 
-    ~ImageTemplate() {};
-
     bool is_saving()
     {
         bool save_as_hot;

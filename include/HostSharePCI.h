@@ -55,7 +55,7 @@ public:
 
     HostSharePCI(const HostSharePCI& src);
 
-    virtual ~HostSharePCI()
+    ~HostSharePCI() override
     {
         HostSharePCI::clear();
     };
@@ -190,7 +190,7 @@ private:
      *  Checks whether the device is free and monitoring allows passthrough.
      *  An absent PASSTHROUGH attribute is allowed for older probes.
      */
-    bool is_allocatable(const PCIDevice* pci) const;
+    static bool is_allocatable(const PCIDevice* pci);
 
     /**
      *  Test if there is a suitable PCI device for the VM request. The test
@@ -256,7 +256,7 @@ private:
      *  @param pci Host device
      *  @param sp if true set the "PREVIOUS_ADDRESS" attribute
      */
-    void pci_attribute(VectorAttribute *device, PCIDevice *pci, bool sp,
+    static void pci_attribute(VectorAttribute *device, PCIDevice *pci, bool sp,
             const std::string& vprofile);
 };
 

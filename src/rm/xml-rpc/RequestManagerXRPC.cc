@@ -119,7 +119,7 @@ void RequestManagerXRPC::xml_server_loop()
 
         socklen_t addr_len = sizeof(struct sockaddr_storage);
 
-        int client_fd = accept(socket_fd, (struct sockaddr*) &addr, &addr_len);
+        int client_fd = accept(socket_fd, reinterpret_cast<sockaddr *>(&addr), &addr_len);
 
         if (client_fd == -1)
         {
@@ -142,7 +142,7 @@ void RequestManagerXRPC::xml_server_loop()
 
             // The extra getpeername solves bug in xml-rpc, which crashes
             // if the socket is terminated immediatelly after creating connection
-            if (getpeername(client_fd, (struct sockaddr *)&addr, &addr_len) == 0)
+            if (getpeername(client_fd, reinterpret_cast<sockaddr *>(&addr), &addr_len) == 0)
             {
                 xmlrpc_c::serverAbyss * as = create_abyss();
 

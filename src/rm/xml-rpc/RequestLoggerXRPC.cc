@@ -38,7 +38,7 @@ void RequestLoggerXRPC::client_ip(char * const ip,
     socklen_t               addr_len = sizeof(addr_storage);
 
     // 2. This fills addr_storage with the remote address information.
-    if ( getpeername(client_fd, (struct sockaddr*)&addr_storage, &addr_len) != 0 )
+    if ( getpeername(client_fd, reinterpret_cast<sockaddr *>(&addr_storage), &addr_len) != 0 )
     {
         ip[0] = '-';
         ip[1] = '\0';
@@ -50,7 +50,7 @@ void RequestLoggerXRPC::client_ip(char * const ip,
     }
 
     // 3. Read the IP and Port from addr_storage
-    int rc = getnameinfo((struct sockaddr*)&addr_storage,
+    int rc = getnameinfo(reinterpret_cast<sockaddr *>(&addr_storage),
                          addr_len,
                          ip,
                          NI_MAXHOST, port, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);

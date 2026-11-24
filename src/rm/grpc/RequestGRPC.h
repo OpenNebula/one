@@ -36,9 +36,7 @@ public:
         , method_full_name(grpc_name)
     {}
 
-    virtual ~RequestGRPC() = default;
-
-    ErrorCode to_error_code(grpc::StatusCode gsc)
+    static ErrorCode to_error_code(grpc::StatusCode gsc)
     {
         switch (gsc)
         {
@@ -64,7 +62,7 @@ public:
         }
     }
 
-    grpc::StatusCode to_status_code(ErrorCode ec)
+    static grpc::StatusCode to_status_code(ErrorCode ec)
     {
         switch (ec)
         {

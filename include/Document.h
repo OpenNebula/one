@@ -30,8 +30,6 @@ class Document : public PoolObjectSQL
 {
 public:
 
-    virtual ~Document() = default;
-
     /**
      * Function to print the Document object into a string in XML format
      *  @param xml the resulting XML string

@@ -154,8 +154,8 @@ private:
     /**
      *  Returns action set from a string of actions seperated by commas
      */
-    int set_auth_ops(const std::string& ops_str,
-                     ActionSet<Action>& ops_set, std::string& error);
+    static int set_auth_ops(const std::string& ops_str,
+                            ActionSet<Action>& ops_set, std::string& error);
 };
 
 #endif /*VMACTIONS_H*/

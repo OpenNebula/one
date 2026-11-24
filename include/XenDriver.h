@@ -34,8 +34,6 @@ public:
         VirtualMachineManagerDriver(mad_location, attrs)
     {}
 
-    ~XenDriver() = default;
-
 private:
     /**
      *  Generates a xen-specific deployment file seexmdomain.cfg(5):
