@@ -147,6 +147,12 @@ public:
     }
 
     /**
+     *  Gets a locked user for authentication or login token management.
+     *  Prefer an exact name, then try the lowercase name for LDAP accounts.
+     */
+    std::unique_ptr<User> get_auth_user(const std::string& name);
+
+    /**
      *  Function to get the token password of an user from the pool
      *    @param uid creator of the object
      *    @param uid owner of the object, only used if the creator not exists

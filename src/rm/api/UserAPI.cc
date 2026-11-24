@@ -250,7 +250,7 @@ Request::ErrorCode UserAPI::login(const std::string& uname,
 
     PoolObjectAuth perms;
 
-    if (auto user = upool->get_ro(uname))
+    if (auto user = upool->get_auth_user(uname))
     {
         user->get_permissions(perms);
     }
@@ -270,7 +270,7 @@ Request::ErrorCode UserAPI::login(const std::string& uname,
         return Request::AUTHORIZATION;
     }
 
-    auto user = upool->get(uname);
+    auto user = upool->get(perms.oid);
 
     if ( user == nullptr )
     {

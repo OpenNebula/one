@@ -25,7 +25,9 @@
 #include "NebulaUtil.h"
 #include "Client.h"
 
+#include <algorithm>
 #include <fstream>
+#include <string_view>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -1250,6 +1252,100 @@ auth_failure:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+// Keep this in sync with URI_PARSER.unescape and URI_PARSER.escape(...).downcase
+// in src/authm_mad/remotes/ldap/authenticate.
+static string ldap_canonical_name(const string& name)
+{
+    auto hex_value = [](unsigned char c) -> int
+    {
+        if (c >= '0' && c <= '9') return c - '0';
+        if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+        if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+        return -1;
+    };
+
+    string decoded;
+
+    decoded.reserve(name.size());
+
+    for (size_t i = 0; i < name.size(); ++i)
+    {
+        if (name[i] == '%' && i + 2 < name.size())
+        {
+            int hi = hex_value(static_cast<unsigned char>(name[i + 1]));
+            int lo = hex_value(static_cast<unsigned char>(name[i + 2]));
+
+            if (hi >= 0 && lo >= 0)
+            {
+                decoded += static_cast<char>((hi << 4) | lo);
+                i       += 2;
+
+                continue;
+            }
+        }
+
+        decoded += name[i];
+    }
+
+    constexpr char hex[]       = "0123456789abcdef";
+    constexpr string_view safe =
+        "!$&'()*+,-./0123456789:;=?@"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ[]_abcdefghijklmnopqrstuvwxyz~";
+
+    string result;
+
+    result.reserve(decoded.size());
+
+    for (unsigned char c : decoded)
+    {
+        if (safe.find(static_cast<char>(c)) != string_view::npos)
+        {
+            if (c >= 'A' && c <= 'Z')
+            {
+                c += 'a' - 'A';
+            }
+
+            result += static_cast<char>(c);
+        }
+        else
+        {
+            result += '%';
+            result += hex[c >> 4];
+            result += hex[c & 0x0f];
+        }
+    }
+
+    return result;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+std::unique_ptr<User> UserPool::get_auth_user(const string& name)
+{
+    if (auto user = get(name))
+    {
+        return user;
+    }
+
+    string canonical_name = ldap_canonical_name(name);
+
+    if (canonical_name != name)
+    {
+        auto ldap_user = get(canonical_name);
+
+        if (ldap_user && ldap_user->get_auth_driver() == "ldap")
+        {
+            return ldap_user;
+        }
+    }
+
+    return nullptr;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 bool UserPool::authenticate(const string& session,
                             string&       password,
                             int&          user_id,
@@ -1279,7 +1375,7 @@ bool UserPool::authenticate(const string& session,
         return false;
     }
 
-    if ( auto user = get(username) ) //User known to OpenNebula
+    if (auto user = get_auth_user(username))
     {
         if (!user->isEnabled())
         {
