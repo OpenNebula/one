@@ -70,6 +70,8 @@ import { useResourceSingleViewContext, useTranslation } from '@ProvidersModule'
  * @param {Function} props.getRowId - Row ID handler
  * @param {Function} props.onVisibleRowIdsChange - Handler called with the IDs
  * of the rows in the current page.
+ * @param {boolean} [props.autoResetPageIndex=false] - Reset the page index
+ * when table data changes.
  * @param {number} props.defaultPageSize - Initial/Default page size to use
  * @param {Array} props.pageSizeOptions - Array of page size options to use
  * @param {Function} props.onRefresh - Refresh handler
@@ -99,6 +101,7 @@ export const Table = ({
   onRowClick,
   getRowId,
   onVisibleRowIdsChange,
+  autoResetPageIndex,
   isCopyColumn = false,
   size = 'small',
   isRowsSelectable = false,
@@ -164,6 +167,7 @@ export const Table = ({
     rowSelection,
     onRowSelectionChange,
     getRowId,
+    autoResetPageIndex,
     defaultPageSize: Number(ROW_SIZE) || defaultPageSize,
     globalFilter,
     onGlobalFilterChange: setGlobalFilter,
@@ -661,6 +665,7 @@ Table.propTypes = {
   onRowClick: PropTypes.func,
   getRowId: PropTypes.func,
   onVisibleRowIdsChange: PropTypes.func,
+  autoResetPageIndex: PropTypes.bool,
   isMultiRowSelection: PropTypes.bool,
   isRowsSelectable: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   isDisablePagination: PropTypes.bool,

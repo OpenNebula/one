@@ -234,6 +234,7 @@ export function VirtualMachines() {
                 onRowSelectionChange={handleRowSelectionChange}
                 getRowId={(row) => row.ID}
                 onVisibleRowIdsChange={handleVisibleVmIdsChange}
+                autoResetPageIndex={false}
                 onRowClick={(row) => handleSelect(row.ID)}
                 size="medium"
                 defaultPageSize={25}

@@ -75,6 +75,7 @@ export const initTable = (options) => {
     sorting,
     onSortingChange,
     defaultPageSize = 10,
+    autoResetPageIndex = false,
     ...rest
   } = options
 
@@ -128,6 +129,7 @@ export const initTable = (options) => {
     globalFilterFn,
     enableRowSelection,
     enableMultiRowSelection,
+    autoResetPageIndex,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
