@@ -194,6 +194,28 @@ _onebackupjob() {
     fi
 }
 
+_onecfg() {
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="patch generate init status validate upgrade diff"
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        patch|generate)
+            _one_complete_files "$cur"
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 5 ] && [ "${COMP_WORDS[1]}" == generate ]; then
+        _one_complete_files "$cur"
+        return 0
+    fi
+}
+
 _onecluster() {
     local cur prev opts cmd
     COMPREPLY=()
