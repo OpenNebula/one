@@ -278,6 +278,7 @@ export function CreateVmTemplate() {
           initialValues={formattedTemplate}
           stepProps={{
             apiTemplateDataExtended: formattedTemplate,
+            apiTemplateData,
             oneConfig,
             adminGroup,
             store,

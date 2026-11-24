@@ -102,6 +102,7 @@ export const TABS = [
 const Content = ({
   data,
   setFormData,
+  apiTemplateData,
   oneConfig,
   adminGroup,
   isUpdate,
@@ -183,6 +184,7 @@ const Content = ({
             {...{
               data,
               setFormData,
+              apiTemplateData,
               hypervisor,
               control,
               oneConfig,
@@ -193,7 +195,7 @@ const Content = ({
           />
         ),
       })),
-    [view, control, oneConfig, adminGroup, translate]
+    [view, control, apiTemplateData, oneConfig, adminGroup, translate]
   )
 
   const ActiveTab = tabs[selected] ?? tabs[0]
@@ -246,6 +248,7 @@ const Content = ({
  */
 const ExtraConfiguration = ({
   apiTemplateDataExtended: vmTemplate,
+  apiTemplateData,
   oneConfig,
   adminGroup,
   store,
@@ -267,13 +270,21 @@ const ExtraConfiguration = ({
     },
     optionsValidate: { abortEarly: false },
     content: (props) =>
-      Content({ ...props, oneConfig, adminGroup, isUpdate, isVrouter }),
+      Content({
+        ...props,
+        apiTemplateData,
+        oneConfig,
+        adminGroup,
+        isUpdate,
+        isVrouter,
+      }),
   }
 }
 
 Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
+  apiTemplateData: PropTypes.object,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
   isUpdate: PropTypes.bool,

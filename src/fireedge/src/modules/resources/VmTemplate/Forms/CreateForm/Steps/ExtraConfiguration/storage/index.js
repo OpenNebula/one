@@ -222,7 +222,17 @@ AttachDiskTypeDialog.propTypes = {
   onSelect: PropTypes.func,
 }
 
-const Storage = ({ hypervisor, oneConfig, adminGroup, vmTemplate }) => {
+const Storage = ({
+  hypervisor,
+  oneConfig,
+  adminGroup,
+  vmTemplate,
+  apiTemplateData,
+}) => {
+  const [originalDisks, setOriginalDisks] = useState(() =>
+    [apiTemplateData?.TEMPLATE?.DISK].flat().filter(Boolean)
+  )
+
   const [isAttachDiskTypeDialogOpen, setAttachDiskTypeDialogOpen] =
     useState(false)
   const {
@@ -358,6 +368,9 @@ const Storage = ({ hypervisor, oneConfig, adminGroup, vmTemplate }) => {
       const updatedDisks = disks
         .filter(({ id }) => id !== disk?.id)
         .map(mapNameFunction)
+      setOriginalDisks((currentDisks) =>
+        currentDisks.filter((_, index) => index !== disk?.DISK_ID)
+      )
       const currentBootOrder = getValues(BOOT_ORDER_NAME())
       const updatedBootOrder = reorderBootAfterRemove(
         disk?.NAME,
@@ -489,9 +502,15 @@ const Storage = ({ hypervisor, oneConfig, adminGroup, vmTemplate }) => {
 
   const getDiskActions = useCallback(
     (disk) => {
+      const originalDisk = originalDisks[disk?.DISK_ID]
+
       const disableDetach =
         !adminGroup &&
-        hasRestrictedAttributes(disk, 'DISK', oneConfig?.VM_RESTRICTED_ATTR)
+        hasRestrictedAttributes(
+          originalDisk,
+          'DISK',
+          oneConfig?.VM_RESTRICTED_ATTR
+        )
 
       return [
         {
@@ -514,6 +533,7 @@ const Storage = ({ hypervisor, oneConfig, adminGroup, vmTemplate }) => {
     [
       adminGroup,
       oneConfig?.VM_RESTRICTED_ATTR,
+      originalDisks,
       openDetachDiskConfirm,
       openEditDiskForm,
     ]
@@ -621,6 +641,7 @@ Storage.propTypes = {
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
   vmTemplate: PropTypes.any,
+  apiTemplateData: PropTypes.object,
 }
 
 /** @type {object} */
