@@ -48,6 +48,7 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/EC_POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_KEY \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF \
@@ -55,6 +56,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
 
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
+EC_POOL_NAME="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
@@ -137,7 +139,7 @@ MONITOR_STATUS=$?
 
 if [ "$MONITOR_STATUS" = "0" ]; then
     XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-    echo -e "$(rbd_df_monitor ${MONITOR_DATA} ${POOL_NAME})"
+    echo -e "$(rbd_df_monitor "$MONITOR_DATA" "${EC_POOL_NAME:-$POOL_NAME}")"
 else
     echo "$MONITOR_DATA"
     exit $MONITOR_STATUS
