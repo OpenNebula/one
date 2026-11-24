@@ -27,9 +27,6 @@ const Content = () => (
     fields={FIELDS}
     cy={`${STEP_ID}`}
     columns={COLUMNS}
-    gridContainerSx={{
-      gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-    }}
   />
 )
 
@@ -40,6 +37,7 @@ const Content = () => (
  */
 const General = () => ({
   id: STEP_ID,
+  maxContentWidth: 400,
   label: T.Configuration,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },

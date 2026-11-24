@@ -151,6 +151,7 @@ export const PORT = {
     .trim()
     .notRequired()
     .default(() => undefined),
+  grid: { md: 12 },
 }
 
 /** @type {Field} Keymap field */

@@ -61,11 +61,11 @@ export function CreateSecurityGroup() {
   return (
     <>
       {secID && !data ? (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm maxContentWidth={400} />
       ) : (
         <SecurityGroup.Forms.CreateForm
           onSubmit={onSubmit}
-          fallback={<SkeletonStepsForm />}
+          fallback={<SkeletonStepsForm maxContentWidth={400} />}
           initialValues={data}
           stepProps={data}
         >

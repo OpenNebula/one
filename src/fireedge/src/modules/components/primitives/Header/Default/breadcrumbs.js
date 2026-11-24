@@ -140,15 +140,23 @@ BreadcrumbTrail.displayName = 'BreadcrumbTrail'
 /**
  * @param {object} params - Params
  * @param {string} params.className - Classname override
+ * @param {boolean} params.showHome - Whether to render home button
  * @returns {Component} - Breadcrumb header
  */
-export const Breadcrumbs = ({ className }) => {
+export const Breadcrumbs = ({ className, showHome = true }) => {
   const { breadcrumbs } = useFunctionality()
 
   return (
-    <BreadcrumbTrail breadcrumbs={breadcrumbs} className={className} showHome />
+    <BreadcrumbTrail
+      breadcrumbs={breadcrumbs}
+      className={className}
+      showHome={showHome}
+    />
   )
 }
 
-Breadcrumbs.propTypes = { className: PropTypes.string }
+Breadcrumbs.propTypes = {
+  className: PropTypes.string,
+  showHome: PropTypes.bool,
+}
 Breadcrumbs.displayName = 'Breadcrumbs'

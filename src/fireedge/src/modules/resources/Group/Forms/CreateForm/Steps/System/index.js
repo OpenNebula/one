@@ -33,7 +33,7 @@ const Content = () => (
     display="grid"
     gap="1em"
     sx={{
-      gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' },
+      gridTemplateColumns: 'minmax(0, 1fr)',
       padding: '0.5em',
     }}
   >
@@ -53,6 +53,7 @@ const Content = () => (
  */
 const System = () => ({
   id: STEP_ID,
+  maxContentWidth: 673,
   label: T.System,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },

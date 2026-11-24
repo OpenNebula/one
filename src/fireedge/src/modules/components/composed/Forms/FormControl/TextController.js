@@ -92,7 +92,7 @@ export const TextController = memo(
         }}
         inputRef={ref}
         onChange={handleChange}
-        minRows={8}
+        minRows={restFieldProps.minRows ?? 8}
         type={type}
         label={trLabel}
         placeholder={placeholder || `${T.Enter} ${trLabel}`}

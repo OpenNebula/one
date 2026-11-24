@@ -48,10 +48,7 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
           id={STEP_ID}
           cy={`${STEP_ID}-${id}`}
           fields={fields}
-          columns={[[], fields, []]}
-          gridContainerSx={{
-            gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-          }}
+          columns={[fields]}
           {...section}
         />
       ))}
@@ -73,6 +70,7 @@ const General = ({ data, oneConfig, adminGroup }) => {
 
   return {
     id: STEP_ID,
+    maxContentWidth: 400,
     label: T.General,
     resolver: () => SCHEMA(isUpdate, oneConfig, adminGroup),
     optionsValidate: { abortEarly: false },

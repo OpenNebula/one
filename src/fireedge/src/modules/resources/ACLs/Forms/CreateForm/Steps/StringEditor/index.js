@@ -31,7 +31,7 @@ import { useWatch } from 'react-hook-form'
 import { validACL } from '@ModelsModule'
 
 export const STEP_ID = 'stringEditor'
-const COLUMNS = [[], FIELDS, []]
+const COLUMNS = [FIELDS]
 
 const Content = (users, groups, clusters, zones) => {
   const { translate } = useTranslation()
@@ -99,9 +99,6 @@ const Content = (users, groups, clusters, zones) => {
           cy={`${STEP_ID}`}
           fields={FIELDS}
           columns={COLUMNS}
-          gridContainerSx={{
-            gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-          }}
         />
       </Stack>
     </Stack>

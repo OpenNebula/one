@@ -23,7 +23,10 @@ import { fontSize } from '@modules/styles/themes/responsive/fontSize'
 import { fontWeight } from '@modules/styles/themes/responsive/fontWeight'
 import { paragraphSpacing } from '@modules/styles/themes/responsive/paragraphSpacing'
 import { lineHeight } from '@modules/styles/themes/responsive/lineHeight'
-import { breakpoints } from '@modules/styles/themes/responsive/breakpoints'
+import {
+  breakpoints,
+  formStepperBreakpoints,
+} from '@modules/styles/themes/responsive/breakpoints'
 import {
   sidebar,
   toolbar,
@@ -41,6 +44,7 @@ export {
   paragraphSpacing,
   lineHeight,
   breakpoints,
+  formStepperBreakpoints,
   sidebar,
   toolbar,
   footer,

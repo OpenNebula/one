@@ -42,6 +42,7 @@ const Content = (oneConfig, adminGroup) => (
  */
 const General = ({ oneConfig, adminGroup }) => ({
   id: STEP_ID,
+  maxContentWidth: 400,
   label: T.Configuration,
   resolver: SCHEMA(oneConfig, adminGroup),
   optionsValidate: { abortEarly: false },

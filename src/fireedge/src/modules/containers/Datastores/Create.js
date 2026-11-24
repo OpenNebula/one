@@ -66,13 +66,13 @@ export function CreateDatastore() {
   return (
     <>
       {datastoreId && !data ? (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm maxContentWidth={673} />
       ) : (
         <Datastore.Forms.CreateForm
           onSubmit={onSubmit}
           initialValues={data}
           stepProps={{ ...data, datastoreId }}
-          fallback={<SkeletonStepsForm />}
+          fallback={<SkeletonStepsForm maxContentWidth={673} />}
         >
           {(config) => <DefaultFormStepper {...config} />}
         </Datastore.Forms.CreateForm>

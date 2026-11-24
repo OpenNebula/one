@@ -14,20 +14,17 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { forwardRef } from 'react'
-import {
-  Stepper as MUIStepper,
-  Step,
-  StepLabel,
-  StepConnector,
-  Box,
-} from '@mui/material'
+import { forwardRef, useEffect, useRef } from 'react'
+import { Box } from '@mui/material'
+import { Wrapper } from '@modules/components/primitives/Wrapper/Default'
 import { getStyles } from '@modules/components/primitives/Stepper/Default/styles'
-import { OpenNebulaStepIcon } from '@modules/components/primitives/Stepper/Default/stepIcon'
-import { OpenNebulaStepLabel } from '@modules/components/primitives/Stepper/Default/stepLabel'
+import { StepMarker } from '@modules/components/primitives/Stepper/Default/StepMarker'
+import { StepLabel } from '@modules/components/primitives/Stepper/Default/StepLabel'
 import { Tooltip } from '@modules/components/primitives/Tooltip'
-import { T } from '@ConstantsModule'
+import { T, STEP_STATUS } from '@ConstantsModule'
 import { useTranslation } from '@ProvidersModule'
+
+const COMPACT_STEP_THRESHOLD = 6
 
 /**
  * Gets the error messages to display for a step.
@@ -101,73 +98,138 @@ const getStepErrorTooltip = (messages, translate) => (
 /**
  * Custom Stepper for OpenNebula.
  *
- * @param {object} props - Step label properties
- * @param {string} props.steps - List of steps
- * @param {string} props.activeStep - Id of the active step
+ * @param {object} props - Stepper properties
+ * @param {Array} props.steps - List of steps
+ * @param {number} props.activeStep - Index of the active step
+ * @param {Function} props.onClick - Step click handler
+ * @param {object} props.stepStatuses - Status indexed by step id
+ * @param {object} props.errors - Errors indexed by step id
+ * @param {string} props.orientation - Stepper orientation
+ * @param {'vertical'|'horizontal'} props.direction - Stepper direction
  * @returns {object} The component to use as stepper
  */
 export const Stepper = forwardRef(
   (
-    { steps = [], activeStep = 0, onClick, stepStatuses = {}, errors = {} },
+    {
+      steps = [],
+      activeStep = 0,
+      onClick,
+      stepStatuses = {},
+      errors = {},
+      direction = 'vertical',
+    },
     ref
   ) => {
     const { translate } = useTranslation()
+    const listRef = useRef(null)
+    const isCompact = steps.length > COMPACT_STEP_THRESHOLD
+
+    useEffect(() => {
+      const list = listRef.current
+      if (direction !== 'vertical' || !list) return
+
+      const showActiveStep = () => {
+        const currentStep = list.children[activeStep]
+        if (!currentStep) return
+
+        const stepTop = currentStep.offsetTop
+        const stepBottom = stepTop + currentStep.offsetHeight
+
+        if (stepTop < list.scrollTop) {
+          list.scrollTop = stepTop
+        } else if (stepBottom > list.scrollTop + list.clientHeight) {
+          list.scrollTop = Math.min(stepTop, stepBottom - list.clientHeight)
+        }
+      }
+
+      showActiveStep()
+
+      const observer = new ResizeObserver(showActiveStep)
+      observer.observe(list)
+      Array.from(list.children).forEach((step) => observer.observe(step))
+
+      return () => observer.disconnect()
+    }, [activeStep, direction, steps])
 
     return (
-      <>
-        <MUIStepper
-          ref={ref}
-          connector={<StepConnector />}
-          activeStep={activeStep}
-          alternativeLabel
-          nonLinear
-          sx={(theme) => getStyles({ theme })}
-        >
-          {steps?.map(({ id, label, optional, icon: stepIcon }, stepIdx) => {
-            // Get status of the step and errors
-            const stepStatus = stepStatuses[id]
+      <Box
+        ref={ref}
+        className="stepper"
+        sx={(theme) => getStyles({ theme, direction, isCompact })}
+      >
+        <Box component="ol" ref={listRef} tabIndex={0} className="stepper-list">
+          {steps.map(({ id, label, optional, icon }, index) => {
+            const status = stepStatuses[id]
             const stepErrorMessages = getStepErrorMessages(errors[id])
             const hasStepErrors = stepErrorMessages.length > 0
+            const isPending = status === STEP_STATUS.PENDING
+            const isActive = index === activeStep
+            const number = index + 1
+            const translatedLabel = optional
+              ? `${translate(label)} - ${translate(T.Optional)}`
+              : translate(label)
+            const isHorizontal = direction === 'horizontal'
+            const isExpandedConnector =
+              isCompact && (isActive || index === activeStep - 1)
 
             return (
-              <Step key={id}>
-                <Tooltip
-                  title={
-                    hasStepErrors
-                      ? getStepErrorTooltip(stepErrorMessages, translate)
-                      : ''
-                  }
-                  placement="bottom"
+              <Box component="li" key={id} className="step">
+                <Wrapper
+                  condition={hasStepErrors}
+                  component={Tooltip}
+                  title={getStepErrorTooltip(stepErrorMessages, translate)}
+                  placement={isHorizontal ? 'top' : 'bottom'}
+                  PopperProps={{
+                    anchorEl: () =>
+                      listRef.current?.children[index]?.querySelector(
+                        isHorizontal ? '.stepper-button' : '.step-label'
+                      ),
+                  }}
                 >
-                  <StepLabel
-                    StepIconComponent={(props) => (
-                      <OpenNebulaStepIcon
-                        {...props}
-                        dataCy={`step-${id}`}
-                        stepIcon={stepIcon}
-                        onClick={onClick}
-                        stepIdx={stepIdx}
-                        stepStatus={stepStatus}
-                      />
-                    )}
+                  <Box
+                    component="button"
+                    className={`stepper-button ${isActive ? 'active' : ''}`}
+                    disabled={isPending}
+                    aria-current={isActive ? 'step' : undefined}
+                    aria-invalid={hasStepErrors || undefined}
+                    onClick={isActive ? undefined : () => onClick?.(index)}
                   >
-                    <OpenNebulaStepLabel
-                      label={
-                        optional
-                          ? `${translate(label)} - ${translate(T.Optional)}`
-                          : translate(label)
-                      }
-                      stepStatus={stepStatus}
-                      stepNumber={stepIdx + 1}
-                      stepIcon={stepIcon}
+                    <Box className="stepper-rail">
+                      {isHorizontal && (
+                        <Box aria-hidden="true" className="stepper-connector" />
+                      )}
+
+                      <StepMarker
+                        dataCy={`step-${id}`}
+                        number={number}
+                        icon={icon}
+                        status={status}
+                        active={isActive}
+                      />
+
+                      {(isHorizontal || index < steps.length - 1) && (
+                        <Box
+                          aria-hidden="true"
+                          className={`stepper-connector${
+                            isExpandedConnector ? ' expanded' : ''
+                          }`}
+                        />
+                      )}
+                    </Box>
+
+                    <StepLabel
+                      number={number}
+                      icon={icon}
+                      status={status}
+                      label={translatedLabel}
                     />
-                  </StepLabel>
-                </Tooltip>
-              </Step>
+                  </Box>
+                </Wrapper>
+              </Box>
             )
           })}
-        </MUIStepper>
-      </>
+        </Box>
+      </Box>
     )
   }
 )
@@ -185,6 +247,7 @@ Stepper.propTypes = {
   onClick: PropTypes.func,
   stepStatuses: PropTypes.object,
   errors: PropTypes.object,
+  direction: PropTypes.oneOf(['vertical', 'horizontal']),
 }
 
 Stepper.displayName = 'Stepper'

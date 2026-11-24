@@ -46,7 +46,7 @@ export function CreateHost() {
     <>
       <Host.Forms.CreateForm
         onSubmit={onSubmit}
-        fallback={<SkeletonStepsForm />}
+        fallback={<SkeletonStepsForm maxContentWidth={673} />}
       >
         {(config) => <DefaultFormStepper {...config} />}
       </Host.Forms.CreateForm>

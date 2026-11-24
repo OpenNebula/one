@@ -35,6 +35,8 @@ const DESCRIPTION_FIELD = {
   name: 'description',
   label: T.Description,
   type: INPUT_TYPES.TEXT,
+  multiline: true,
+  fieldProps: { minRows: 3 },
   validation: string().trim(),
   grid: { md: 12 },
 }

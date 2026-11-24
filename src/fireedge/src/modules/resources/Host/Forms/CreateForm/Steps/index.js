@@ -22,6 +22,7 @@ import General, {
 import { createSteps } from '@UtilsModule'
 
 const Steps = createSteps([General, ClustersTable], {
+  maxContentWidth: 673,
   transformBeforeSubmit: (formData) => {
     const { [GENERAL_ID]: general, [CLUSTER_ID]: { cluster } = {} } = formData
 

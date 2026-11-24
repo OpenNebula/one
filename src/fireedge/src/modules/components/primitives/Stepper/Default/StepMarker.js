@@ -22,62 +22,48 @@ import { renderIcon } from '@UtilsModule'
 import { STEP_STATUS } from '@ConstantsModule'
 
 const STEP_ICON_CLASS_BY_STATUS = {
-  [STEP_STATUS.PENDING]: ({ stepIcon }) =>
-    stepIcon && 'stepper-icon-pending-with-icon',
-  [STEP_STATUS.IN_PROGRESS]: ({ stepIcon }) =>
-    clsx('stepper-icon-active', stepIcon && 'stepper-icon-active-with-icon'),
-  [STEP_STATUS.COMPLETED]: () => 'stepper-icon-completed',
-  [STEP_STATUS.REVIEWING]: () => 'stepper-icon-reviewing',
-  [STEP_STATUS.ERROR]: () => 'stepper-icon-hasErrors',
+  [STEP_STATUS.PENDING]: 'pending',
+  [STEP_STATUS.IN_PROGRESS]: 'in-progress',
+  [STEP_STATUS.COMPLETED]: 'completed',
+  [STEP_STATUS.REVIEWING]: 'reviewing',
+  [STEP_STATUS.ERROR]: 'error',
 }
 
-const getStepIconClassName = ({ stepStatus, stepIcon }) =>
-  STEP_ICON_CLASS_BY_STATUS[stepStatus]?.({ stepIcon })
+const getStatusClassName = (status) => STEP_ICON_CLASS_BY_STATUS[status]
 
 /**
- * Custom step icon for OpenNebula.
+ * Custom step icon for Stepper component.
  *
  * @param {object} props - Step icon properties
- * @param {string} props.icon - Number of the step
- * @param {string} props.stepIcon - Icond defined for the step
- * @param {string} props.stepStatus - Status of the step
- * @param {number} props.stepIdx - Index of the step
- * @param {Function} props.onClick - Step click handler
+ * @param {string} props.number - Number of the step
+ * @param {string} props.icon - Icond defined for the step
+ * @param {string} props.status - Status of the step
+ * @param {boolean} props.active - Whether the step is active or not
  * @param {string} props.dataCy - Cypress selector
  * @returns {Component} The component to use as step icon
  */
-export const OpenNebulaStepIcon = ({
-  dataCy,
-  icon,
-  stepIdx,
-  stepIcon,
-  onClick,
-  stepStatus,
-}) => (
-  <Box
-    data-cy={dataCy}
-    onClick={() => stepStatus !== STEP_STATUS.PENDING && onClick(stepIdx)}
-    className={clsx(
-      'stepper-icon',
-      getStepIconClassName({ stepStatus, stepIcon }),
-      stepStatus !== STEP_STATUS.PENDING && 'stepper-step-button-clickable'
-    )}
-  >
-    {stepIcon
-      ? renderIcon(stepStatus === STEP_STATUS.COMPLETED ? <Check /> : stepIcon)
-      : icon}
-  </Box>
-)
+export const StepMarker = ({ number, icon, status, active, dataCy }) => {
+  const finalIcon = status === STEP_STATUS.COMPLETED ? <Check /> : icon
 
-OpenNebulaStepIcon.propTypes = {
+  return (
+    <Box
+      data-cy={dataCy}
+      className={clsx(
+        'step-marker',
+        icon && 'has-icon',
+        active && 'active',
+        getStatusClassName(status)
+      )}
+    >
+      {icon ? renderIcon(finalIcon) : number}
+    </Box>
+  )
+}
+
+StepMarker.propTypes = {
+  number: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  icon: PropTypes.oneOfType([PropTypes.node, PropTypes.elementType]),
+  status: PropTypes.string,
+  active: PropTypes.bool,
   dataCy: PropTypes.string,
-  icon: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.node,
-  ]),
-  stepIcon: PropTypes.oneOfType([PropTypes.node, PropTypes.elementType]),
-  stepIdx: PropTypes.number,
-  onClick: PropTypes.func,
-  stepStatus: PropTypes.string,
 }

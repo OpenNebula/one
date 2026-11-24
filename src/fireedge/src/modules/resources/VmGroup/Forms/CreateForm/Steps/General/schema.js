@@ -36,6 +36,8 @@ const DESCRIPTION_FIELD = {
   name: 'DESCRIPTION',
   label: T.Description,
   type: INPUT_TYPES.TEXT,
+  multiline: true,
+  fieldProps: { minRows: 3 },
   validation: string()
     .trim()
     .max(128, 'Description over 128 characters')

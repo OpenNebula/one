@@ -34,3 +34,8 @@ export const breakpoints = {
     xxxl: 2160,
   },
 }
+
+export const formStepperBreakpoints = {
+  medium: 800,
+  wide: 1200,
+}

@@ -34,6 +34,8 @@ const DESCRIPTION = {
   name: 'DESCRIPTION',
   label: T['cluster.create.description'],
   type: INPUT_TYPES.TEXT,
+  multiline: true,
+  fieldProps: { minRows: 3 },
   validation: string()
     .trim()
     .default(() => undefined),

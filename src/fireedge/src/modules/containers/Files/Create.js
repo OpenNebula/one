@@ -70,7 +70,7 @@ export function CreateFile() {
     <>
       <Files.Forms.CreateForm
         onSubmit={onSubmit}
-        fallback={<SkeletonStepsForm />}
+        fallback={<SkeletonStepsForm maxContentWidth={400} />}
       >
         {(config) => <DefaultFormStepper {...config} />}
       </Files.Forms.CreateForm>

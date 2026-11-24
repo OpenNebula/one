@@ -82,6 +82,45 @@ export const FIELDS = [
   COMPATIBLE_SYSTEM_DATASTORES,
 ]
 
+const COMMON_COLUMNS = [
+  [
+    'RESTRICTED_DIRS',
+    'SAFE_DIRS',
+    'LIMIT_MB',
+    'LIMIT_TRANSFER_BW',
+    'LVM_THIN_ENABLE',
+    'CACHE_PATH',
+    'CACHE_MIN_AGE',
+  ],
+  [
+    'BRIDGE_LIST',
+    'STAGING_DIR',
+    'NO_DECOMPRESS',
+    'CACHE_ENABLE',
+    'CACHE_MAX_SIZE',
+    'CACHE_UPSTREAMS',
+    'DATASTORE_CAPACITY_CHECK',
+    'QCOW2_STANDALONE',
+    'NFS_AUTO_ENABLE',
+    'NFS_AUTO_HOST',
+    'NFS_AUTO_PATH',
+    'NFS_AUTO_OPTS',
+  ],
+]
+
+/** @type {string[][]} Input columns; the datastore table remains outside them. */
+export const COLUMNS = COMMON_COLUMNS.map((column, columnIndex) => [
+  ...column,
+  ...[CEPH_FIELDS, RESTIC_FIELDS, RSYNC_FIELDS, NETAPP_FIELDS].flatMap(
+    (fields) =>
+      fields
+        .filter(
+          (_, fieldIndex) => fieldIndex % COMMON_COLUMNS.length === columnIndex
+        )
+        .map(({ name }) => name)
+  ),
+])
+
 /**
  * @param {object} [stepProps] - Step props
  * @returns {ObjectSchema} Schema

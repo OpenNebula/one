@@ -17,7 +17,7 @@ import { STEP_ID } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Ste
 import { Component, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import PropTypes from 'prop-types'
-import { Box, Stack } from '@mui/material'
+import { Box } from '@mui/material'
 import { SCHEMA } from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/schema'
 
 import Networking from '@modules/resources/ServiceTemplate/Forms/CreateForm/Steps/Extra/networking'
@@ -78,7 +78,15 @@ const Content = () => {
   } = tabs[selected] ?? tabs[0] ?? {}
 
   return (
-    <Stack sx={{ height: 'auto', mt: 2 }}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr)',
+        rowGap: (theme) => `${theme.scale[600]}px`,
+        height: 'auto',
+        mt: 2,
+      }}
+    >
       <Tabs
         type="line"
         defaultSelect={0}
@@ -96,6 +104,8 @@ const Content = () => {
           key={`tab-${activeId ?? activeTitle}`}
           data-cy={`tab-content-${activeId ?? activeTitle}`}
           sx={{
+            gridColumn: '1 / -1',
+            minWidth: 0,
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
@@ -104,7 +114,7 @@ const Content = () => {
           <ActiveContent />
         </Box>
       )}
-    </Stack>
+    </Box>
   )
 }
 

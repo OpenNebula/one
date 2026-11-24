@@ -22,7 +22,7 @@ const useStyles = (theme) => ({
     gridTemplateColumns: '1fr 1fr',
     gridTemplateRows: 'auto',
     gap: `${theme.scale[600]}px`,
-    overflow: 'auto',
+    overflow: 'visible',
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: '1fr',
     },

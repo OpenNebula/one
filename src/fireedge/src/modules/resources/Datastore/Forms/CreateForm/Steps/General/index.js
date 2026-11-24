@@ -32,6 +32,7 @@ const Content = () => (
  */
 const General = () => ({
   id: STEP_ID,
+  maxContentWidth: 673,
   label: T.General,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },

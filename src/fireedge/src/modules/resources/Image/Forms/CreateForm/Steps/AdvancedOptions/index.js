@@ -41,6 +41,7 @@ const Content = (oneConfig, adminGroup) => (
  */
 const AdvancedOptions = ({ oneConfig, adminGroup }) => ({
   id: STEP_ID,
+  maxContentWidth: 400,
   label: T.AdvancedOptions,
   resolver: SCHEMA(oneConfig, adminGroup),
   optionsValidate: { abortEarly: false },

@@ -34,6 +34,8 @@ const DESCRIPTION = {
   name: 'DESCRIPTION',
   label: T.Description,
   type: INPUT_TYPES.TEXT,
+  multiline: true,
+  fieldProps: { minRows: 3 },
   validation: string()
     .trim()
     .notRequired()
@@ -61,7 +63,7 @@ const TYPE = {
 
 const FIELDS = [NAME, DESCRIPTION, TYPE]
 
-const COLUMNS = [[], FIELDS, []]
+const COLUMNS = [FIELDS]
 
 const SCHEMA = getObjectSchemaFromFields(FIELDS)
 

@@ -67,12 +67,12 @@ export const CreateVnTemplate = () => {
             adminGroup,
           }}
           onSubmit={onSubmit}
-          fallback={<SkeletonStepsForm />}
+          fallback={<SkeletonStepsForm maxContentWidth={400} />}
         >
           {(config) => <DefaultFormStepper {...config} update={!!vnetId} />}
         </VnTemplate.Forms.CreateForm>
       ) : (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm maxContentWidth={400} />
       )}
     </>
   )

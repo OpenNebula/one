@@ -60,7 +60,7 @@ const ACLRulePreview = ({ users, groups, clusters, zones, rule }) => {
 
   return (
     <AlertNotification
-      type="primary"
+      type="secondary"
       status="information"
       title={`${translate(
         T['acls.form.create.summary.info.rule']

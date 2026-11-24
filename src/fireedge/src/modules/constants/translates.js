@@ -1465,6 +1465,8 @@ module.exports = {
     'Just add a NIC to your configuration, and you&apos;ll gain access to configure network settings for your virtual routers. This includes setting up IP addresses, Security Groups, and more, making your cloud environment more manageable and secure.',
   VirtualRouterNICConfigured: "Configured NIC's",
   VirtualRouterNICAdd: 'Add NIC',
+  VirtualRouterNICOptional:
+    'NICs are optional. You can attach them after creation.',
   VirtualRouterNICNetworkName: 'Network name',
   VirtualRouterNICNetworkConfiguration: 'Network configuration',
   VirtualRouterNICForceIpv4: 'Force IPv4',
@@ -1871,6 +1873,7 @@ module.exports = {
     Values that will be copied to each new NIC.
     Final users may not be aware of this`,
   NoNics: 'No NICs',
+  NoNicsAdded: 'No NICs added',
   AttachedNicsWillAppearHere:
     'Attached NICs will appear here. Please, click on Attach NIC to attach a NIC.',
   NoAliases: 'No aliases',
@@ -2489,6 +2492,7 @@ gpgkey=https://downloads.opennebula.io/repo/repo2.key...`,
   UsedLeases: 'Used leases',
   TotalLeases: 'Total leases',
   TotalClusters: 'Total clusters',
+  Step: 'Step',
   Completed: 'Completed',
   InProgress: 'In progress',
   Reviewing: 'Reviewing',

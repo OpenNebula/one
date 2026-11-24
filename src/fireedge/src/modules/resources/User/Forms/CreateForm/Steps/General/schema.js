@@ -107,7 +107,7 @@ const FIELDS = [
   CONFIRM_PASSWORD_FIELD,
 ]
 
-const COLUMNS = [[], FIELDS, []]
+const COLUMNS = [FIELDS]
 
 export {
   SCHEMA,

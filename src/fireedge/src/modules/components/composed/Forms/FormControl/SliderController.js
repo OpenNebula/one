@@ -21,6 +21,7 @@ import { useController, useWatch } from 'react-hook-form'
 
 import { Slider } from '@modules/components/primitives/Slider/Default'
 import { InputField } from '@modules/components/primitives/Fields'
+import { Label } from '@modules/components/primitives/Labels/Default'
 import { ErrorHelper } from '@modules/components/composed/Forms/FormControl/ErrorHelper'
 import { isTranslationInput, generateKey } from '@UtilsModule'
 import { useTranslation } from '@ProvidersModule'
@@ -116,6 +117,8 @@ export const SliderController = memo(
 
     const sliderId = `${cy}-slider`
     const inputId = `${cy}-input`
+    const labelId = `${cy}-label`
+    const errorId = `${cy}-error`
 
     const handleChange = useCallback(
       (_, newValue) => {
@@ -131,17 +134,32 @@ export const SliderController = memo(
     )
 
     return (
-      <>
+      <Stack
+        alignItems="flex-start"
+        sx={(theme) => ({ gap: `${theme.scale[100]}px` })}
+      >
+        {label && (
+          <Label
+            component="label"
+            id={labelId}
+            htmlFor={inputId}
+            tooltip={tooltip}
+            style={{ fontWeight: 500 }}
+          >
+            {isTranslationInput(label) ? translate(label) : label}
+          </Label>
+        )}
         <Stack
           direction="row"
-          pl="1em"
-          mt="0.5rem"
+          pl="10px"
           spacing={2}
           alignItems="center"
+          width="100%"
         >
           <Slider
             value={typeof value === 'number' ? value : 0}
-            aria-labelledby={sliderId}
+            aria-labelledby={label ? labelId : undefined}
+            aria-describedby={error ? errorId : undefined}
             valueLabelDisplay="auto"
             isDisabled={readOnly}
             data-cy={sliderId}
@@ -155,25 +173,32 @@ export const SliderController = memo(
             type="number"
             status={error ? 'error' : 'default'}
             isDisabled={readOnly}
-            label={isTranslationInput(label) ? translate(label) : label}
-            tooltip={tooltip}
             InputProps={{
               readOnly,
             }}
             inputProps={{
+              id: inputId,
               'data-cy': inputId,
-              'aria-labelledby': sliderId,
+              'aria-labelledby': label ? labelId : undefined,
+              'aria-describedby': error ? errorId : undefined,
+              'aria-invalid': !!error,
               min,
               max,
               step,
             }}
             onChange={handleInputChange}
             onBlur={handleInputBlur}
-            error={error?.message && <ErrorHelper label={error.message} />}
-            errorDataCy={`${cy}-error`}
           />
         </Stack>
-      </>
+        {error?.message && (
+          <ErrorHelper
+            id={errorId}
+            data-cy={errorId}
+            role="alert"
+            label={error.message}
+          />
+        )}
+      </Stack>
     )
   }
 )

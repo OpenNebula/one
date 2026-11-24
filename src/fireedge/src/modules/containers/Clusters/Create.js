@@ -224,7 +224,7 @@ export function CreateCluster() {
           stepProps={{
             version,
           }}
-          fallback={<SkeletonStepsForm />}
+          fallback={<SkeletonStepsForm maxContentWidth={400} />}
         >
           {(config) => (
             <DefaultFormStepper
@@ -235,7 +235,7 @@ export function CreateCluster() {
           )}
         </Cluster.Forms.CreateForm>
       ) : (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm maxContentWidth={400} />
       )}
     </>
   )

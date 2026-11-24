@@ -16,13 +16,22 @@
 
 import { FormWithSchema } from '@ComponentsModule'
 
-import { SCHEMA, FIELDS } from './schema'
+import { SCHEMA, FIELDS, COLUMNS } from './schema'
 import { T } from '@ConstantsModule'
 
 export const STEP_ID = 'confAttributes'
 
 const Content = () => (
-  <FormWithSchema id={STEP_ID} fields={FIELDS} cy={`${STEP_ID}`} />
+  <FormWithSchema
+    id={STEP_ID}
+    fields={FIELDS}
+    columns={COLUMNS}
+    cy={`${STEP_ID}`}
+    gridContainerSx={{
+      gridAutoFlow: 'row dense',
+      '& > .MuiGrid-item': { gridRow: 'auto' },
+    }}
+  />
 )
 
 /**

@@ -32,6 +32,7 @@ const DESCRIPTION = {
   label: T.Description,
   type: INPUT_TYPES.TEXT,
   multiline: true,
+  fieldProps: { minRows: 3 },
   validation: string().trim(),
   grid: { xs: 12, md: 12 },
 }
@@ -40,7 +41,7 @@ const DESCRIPTION = {
  * @returns {Field[]} Fields
  */
 const FIELDS = [NAME, DESCRIPTION]
-const COLUMNS = [[], FIELDS, []]
+const COLUMNS = [FIELDS]
 
 /**
  * @param {object} [stepProps] - Step props

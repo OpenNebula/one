@@ -82,7 +82,7 @@ export function CreateVirtualNetwork() {
             adminGroup,
           }}
           onSubmit={onSubmit}
-          fallback={<SkeletonStepsForm />}
+          fallback={<SkeletonStepsForm maxContentWidth={673} />}
         >
           {(config) => (
             <DefaultFormStepper
@@ -93,7 +93,7 @@ export function CreateVirtualNetwork() {
           )}
         </VirtualNetwork.Forms.CreateForm>
       ) : (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm maxContentWidth={673} />
       )}
     </>
   )

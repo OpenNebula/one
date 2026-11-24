@@ -24,7 +24,7 @@ import { T } from '@ConstantsModule'
 
 export const STEP_ID = 'general'
 const FIELDS_LIST = FIELDS()
-const COLUMNS = [[], FIELDS_LIST, []]
+const COLUMNS = [FIELDS_LIST]
 
 const Content = () => (
   <FormWithSchema
@@ -32,9 +32,6 @@ const Content = () => (
     fields={FIELDS_LIST}
     cy={`${STEP_ID}`}
     columns={COLUMNS}
-    gridContainerSx={{
-      gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-    }}
   />
 )
 
@@ -49,6 +46,7 @@ const General = (securityGroupData = {}) => {
 
   return {
     id: STEP_ID,
+    maxContentWidth: 400,
     label: T.Configuration,
     resolver: (formdata) => SCHEMA(isUpdate),
     optionsValidate: { abortEarly: false },

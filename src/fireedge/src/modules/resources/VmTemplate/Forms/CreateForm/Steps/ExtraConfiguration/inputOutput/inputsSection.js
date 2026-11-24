@@ -13,9 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback, memo, useMemo } from 'react'
+import {
+  ReactElement,
+  useCallback,
+  memo,
+  useMemo,
+  useLayoutEffect,
+  useRef,
+} from 'react'
 import PropTypes from 'prop-types'
-import { Stack, FormControl, Divider } from '@mui/material'
+import { Box, Stack, FormControl, Divider, useTheme } from '@mui/material'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
@@ -46,7 +53,9 @@ const InputsSection = memo(
    * @returns {ReactElement} - Inputs section
    */
   ({ stepId, hypervisor, oneConfig, adminGroup }) => {
+    const theme = useTheme()
     const { translate } = useTranslation()
+    const inputFormRef = useRef(null)
     const fields = useMemo(
       () => INPUTS_FIELDS(hypervisor, oneConfig, adminGroup),
       [hypervisor]
@@ -82,6 +91,33 @@ const InputsSection = memo(
       remove(index)
     }
 
+    useLayoutEffect(() => {
+      const form = inputFormRef.current
+      const controls = form?.querySelectorAll('.textfield-input-wrapper')
+      const control = controls?.[controls.length - 1]
+
+      if (!form || !control) return
+
+      const alignButton = () => {
+        const controlRect = control.getBoundingClientRect()
+        const top = controlRect.top - form.getBoundingClientRect().top
+
+        form.style.setProperty('--io-input-control-top', `${top}px`)
+        form.style.setProperty(
+          '--io-input-control-height',
+          `${controlRect.height}px`
+        )
+      }
+
+      alignButton()
+
+      const observer = new ResizeObserver(alignButton)
+      observer.observe(form)
+      observer.observe(control)
+
+      return () => observer.disconnect()
+    }, [fields])
+
     if (fields.length === 0) {
       return null
     }
@@ -91,11 +127,13 @@ const InputsSection = memo(
         <Legend title={T.Inputs} />
         <FormProvider {...methods}>
           <Stack
+            ref={inputFormRef}
             direction="row"
-            alignItems="center"
+            alignItems="flex-start"
             gap="0.5rem"
             component="form"
             onSubmit={methods.handleSubmit(onSubmit)}
+            sx={{ marginBottom: `${theme.scale[600]}px` }}
           >
             <FormWithSchema
               cy={getCyPath('io-inputs')}
@@ -104,12 +142,22 @@ const InputsSection = memo(
               saveState={true}
               fieldPath={`${stepId}.InputOutput`}
             />
-            <SubmitButton
-              startIcon={<Plus />}
-              data-cy={getCyPath('add-io-inputs')}
-              label={T.Add}
-              type={STYLE_BUTTONS.TYPE.SECONDARY}
-            ></SubmitButton>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                flexShrink: 0,
+                marginTop: 'var(--io-input-control-top, 0px)',
+                height: 'var(--io-input-control-height, auto)',
+              }}
+            >
+              <SubmitButton
+                startIcon={<Plus />}
+                data-cy={getCyPath('add-io-inputs')}
+                label={T.Add}
+                type={STYLE_BUTTONS.TYPE.SECONDARY}
+              />
+            </Box>
           </Stack>
         </FormProvider>
         <Divider />

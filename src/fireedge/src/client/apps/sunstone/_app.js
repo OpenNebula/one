@@ -116,6 +116,10 @@ const SunstoneApp = () => {
     () => isDisabledLayoutRoute(pathname, endpoints),
     [endpoints, pathname]
   )
+  const isCreationFormRoute = !!matchPath(pathname, {
+    path: ['/:resource/create', '/:resource/instantiate'],
+    exact: true,
+  })
 
   return (
     <AuthLayout
@@ -135,6 +139,7 @@ const SunstoneApp = () => {
       <Router
         redirectWhenAuth={externalRedirect || PATH.DASHBOARD}
         endpoints={endpoints}
+        layoutVariant={isCreationFormRoute ? 'creation' : 'default'}
       />
     </AuthLayout>
   )

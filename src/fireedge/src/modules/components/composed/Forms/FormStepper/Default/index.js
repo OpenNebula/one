@@ -21,6 +21,7 @@ import {
   useCallback,
   useEffect,
   ReactElement,
+  ReactNode,
   isValidElement,
   useRef,
 } from 'react'
@@ -28,7 +29,7 @@ import PropTypes from 'prop-types'
 import { BaseSchema } from 'yup'
 import { useForm, FormProvider, useFormContext } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useMediaQuery, Box, Stack } from '@mui/material'
+import { Box } from '@mui/material'
 import {
   useGeneral,
   updateDisabledSteps,
@@ -43,11 +44,13 @@ import {
   StepsForm,
   isDevelopment,
   deepStringify,
+  cleanEmpty,
 } from '@UtilsModule'
 import { T, STEP_STATUS } from '@ConstantsModule'
 import get from 'lodash.get'
-import { set, isEmpty } from 'lodash'
+import { set, isEmpty, cloneDeep, isEqual } from 'lodash'
 import { useSelector, useDispatch } from 'react-redux'
+import { useCreationForm } from '@ProvidersModule'
 
 import { Stepper } from '@modules/components/primitives/Stepper'
 import { Button } from '@modules/components/primitives/Buttons'
@@ -55,6 +58,7 @@ import { DocumentationDrawer } from '@modules/components/composed/DetailsDrawer/
 import { SubmitButton } from '@modules/components/primitives/Buttons/Submit'
 
 import { getStyles } from '@modules/components/composed/Forms/FormStepper/Default/styles'
+import useFormStepperLayout from '@modules/components/composed/Forms/FormStepper/Default/useLayout'
 
 import { useHistory } from 'react-router-dom'
 
@@ -101,18 +105,22 @@ const getInitialStepStatuses = ({ steps = [], update = false }) =>
  * Default stepper form by configuration.
  *
  * @param {StepsForm} stepsForm - Steps form config
+ * @param {ReactNode} [stepsForm.extra] - Optional extra content for the form stepper
+ * @param {number|string} stepsForm.maxContentWidth - Optional maximum width for centered form content, overridden by the active step
  * @returns {ReactElement} Stepper form component
  */
 const DefaultFormStepper = ({
   onSubmit,
   onCancel,
   steps,
+  extra,
   defaultValues,
   resolver,
   initialValues,
   saveState = false,
   update = false,
   isPopup = false,
+  maxContentWidth,
 }) => {
   const methods = useForm({
     mode: 'onSubmit',
@@ -135,9 +143,11 @@ const DefaultFormStepper = ({
         schema={resolver}
         onSubmit={onSubmit}
         onCancel={onCancel}
+        extra={extra}
         saveState={saveState}
         update={update}
         isPopup={isPopup}
+        maxContentWidth={maxContentWidth}
       />
     </FormProvider>
   )
@@ -147,12 +157,14 @@ DefaultFormStepper.propTypes = {
   onSubmit: PropTypes.func,
   onCancel: PropTypes.func,
   steps: PropTypes.arrayOf(PropTypes.object),
+  extra: PropTypes.node,
   defaultValues: PropTypes.object,
   initialValues: PropTypes.object,
   resolver: PropTypes.func,
   saveState: PropTypes.bool,
   update: PropTypes.bool,
   isPopup: PropTypes.bool,
+  maxContentWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 }
 
 const DisableStepContext = createContext(() => {})
@@ -188,6 +200,8 @@ export const useRegisterModifiedFields = () => useContext(ModifiedFieldsContext)
  * @param {Function} props.onCancel - Cancel function
  * @param {boolean} props.update - Whether the form is used to update an existing resource
  * @param {boolean} props.isPopup - Whether the stepper is rendered in a popup
+ * @param {ReactNode} [props.extra] - Extra content for the form stepper
+ * @param {number|string} props.maxContentWidth - Optional maximum width for centered form content, overridden by the active step
  * @returns {ReactElement} Stepper form component
  */
 const FormStepper = ({
@@ -195,13 +209,17 @@ const FormStepper = ({
   schema,
   onSubmit,
   onCancel,
+  extra,
   saveState = false,
   update = false,
   isPopup = false,
+  maxContentWidth,
 }) => {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
+  const { layout, canvasHeight, setCanvasRef } = useFormStepperLayout()
+  const stepperDirection = layout === 'wide' ? 'vertical' : 'horizontal'
   const {
     watch,
+    getValues,
     reset,
     formState: { errors },
     setError,
@@ -210,14 +228,46 @@ const FormStepper = ({
   const { setModifiedFields } = useGeneralApi()
   const { showModal } = useModalsApi()
   const history = useHistory()
+  const { isCreation, registerCreationForm, unregisterCreationForm } =
+    useCreationForm()
+  const hasCreationHeader = isCreation && !isPopup
   const { isLoading } = useGeneral()
   const [steps, setSteps] = useState(initialSteps)
+  const hasStepper = steps.length > 1
   const [disabledSteps, setDisabledSteps] = useState({})
   const [openDocumentation, setOpenDocumentation] = useState(false)
   const dispatch = useDispatch()
   const currentState = useSelector((state) => state)
   const modifiedFieldsCallbacks = useRef(new Set())
   const formContentRef = useRef(null)
+  const initialFormValuesRef = useRef()
+
+  if (!initialFormValuesRef.current) {
+    initialFormValuesRef.current = cloneDeep(getValues())
+  }
+
+  const progressRef = useRef(null)
+  const [progressHeight, setProgressHeight] = useState(0)
+
+  useEffect(() => {
+    const progress = progressRef.current
+    if (!progress) {
+      setProgressHeight(0)
+
+      return
+    }
+
+    const updateProgressHeight = () => {
+      setProgressHeight(Math.ceil(progress.getBoundingClientRect().height))
+    }
+
+    updateProgressHeight()
+
+    const observer = new ResizeObserver(updateProgressHeight)
+    observer.observe(progress)
+
+    return () => observer.disconnect()
+  }, [hasStepper])
 
   // State to control the status of each step. Object because idx could change when disable steps.
   const [stepStatuses, setStepStatuses] = useState(() =>
@@ -246,8 +296,17 @@ const FormStepper = ({
     history.goBack()
   }, [onCancel, history])
 
-  // On cancel confirm progress loss before leaving the form
+  // Confirm cancellation only when values differ from the initial form
   const handleCancel = useCallback(() => {
+    const currentValues = cleanEmpty(getValues()) ?? {}
+    const initialValues = cleanEmpty(initialFormValuesRef.current) ?? {}
+
+    if (isEqual(currentValues, initialValues)) {
+      executeCancel()
+
+      return
+    }
+
     showModal({
       isConfirmDialog: true,
       dialogProps: {
@@ -263,7 +322,7 @@ const FormStepper = ({
       },
       onSubmit: executeCancel,
     })
-  }, [executeCancel, showModal])
+  }, [executeCancel, getValues, showModal])
 
   // Used to control the default visibility of a step
   useEffect(() => {
@@ -338,6 +397,28 @@ const FormStepper = ({
   const totalSteps = useMemo(() => steps?.length, [steps])
   const lastStep = useMemo(() => totalSteps - 1, [totalSteps])
   const disabledBack = useMemo(() => activeStep === FIRST_STEP, [activeStep])
+
+  useEffect(() => {
+    if (!hasCreationHeader) return
+
+    registerCreationForm({
+      activeStep,
+      totalSteps,
+      onCancel: handleCancel,
+    })
+  }, [
+    activeStep,
+    handleCancel,
+    hasCreationHeader,
+    registerCreationForm,
+    totalSteps,
+  ])
+
+  useEffect(() => {
+    if (!hasCreationHeader) return undefined
+
+    return () => unregisterCreationForm()
+  }, [hasCreationHeader, unregisterCreationForm])
 
   useEffect(() => {
     reset({ ...formData }, { keepErrors: false })
@@ -583,6 +664,7 @@ const FormStepper = ({
     id: stepId,
     content: Content,
     documentation: Documentation,
+    maxContentWidth: stepMaxContentWidth,
   } = useMemo(
     () => steps[activeStep] || { id: null, content: null, documentation: null },
     [steps, activeStep]
@@ -614,33 +696,47 @@ const FormStepper = ({
   return (
     <DisableStepContext.Provider value={disableStep}>
       <ModifiedFieldsContext.Provider value={registerModifiedFields}>
-        <Stack
-          className="form-stepper-root"
-          sx={(theme) => getStyles({ theme, isPopup })}
+        <Box
+          ref={setCanvasRef}
+          className="form-stepper"
+          sx={(theme) =>
+            getStyles({
+              theme,
+              isPopup,
+              progressHeight,
+              canvasHeight,
+              hasStepper,
+              hasExtra: !!extra,
+              layout,
+              maxContentWidth: stepMaxContentWidth ?? maxContentWidth,
+            })
+          }
         >
-          {/* STEPPER */}
           {useMemo(
-            () => (
-              <Stepper
-                steps={steps}
-                activeStep={activeStep}
-                onClick={handleStep}
-                stepStatuses={stepStatuses}
-                errors={errors}
-              />
-            ),
+            () =>
+              hasStepper && (
+                <Stepper
+                  ref={progressRef}
+                  steps={steps}
+                  activeStep={activeStep}
+                  onClick={handleStep}
+                  stepStatuses={stepStatuses}
+                  errors={errors}
+                  direction={stepperDirection}
+                />
+              ),
             [
+              hasStepper,
               isLoading,
-              isMobile,
               activeStep,
               errors[stepId],
               steps,
               valueShowMandatoryOnly,
+              stepperDirection,
             ]
           )}
-          {/* FORM CONTENT */}
           {Content && (
-            <Box ref={formContentRef} className="form-stepper-content">
+            <Box ref={formContentRef} className="content">
               <Content
                 data={formData[stepId]}
                 setFormData={setFormData}
@@ -649,9 +745,10 @@ const FormStepper = ({
               />
             </Box>
           )}
-          <Box className="form-footer-buttons">
+          {extra && <Box className="extra">{extra}</Box>}
+          <Box className="footer">
             {Documentation && (
-              <Box className="form-help-buttons">
+              <Box className="help-buttons">
                 <Button
                   data-cy="stepper-help-button"
                   onClick={() => setOpenDocumentation((isOpen) => !isOpen)}
@@ -660,13 +757,23 @@ const FormStepper = ({
                 />
               </Box>
             )}
-            <Box className="form-stepper-buttons">
-              <SubmitButton
-                data-cy="stepper-cancel-button"
-                label={T.Cancel}
-                type={'transparent'}
-                onClick={handleCancel}
-              />
+            <Box className="stepper-buttons">
+              {hasCreationHeader ? (
+                <SubmitButton
+                  data-cy="stepper-back-button"
+                  isDisabled={disabledBack || isLoading}
+                  type={'secondary'}
+                  onClick={handleBack}
+                  label={T.Back}
+                />
+              ) : (
+                <SubmitButton
+                  data-cy="stepper-cancel-button"
+                  label={T.Cancel}
+                  type={'transparent'}
+                  onClick={handleCancel}
+                />
+              )}
               <Box className="form-stepper-buttons-progress">
                 {canDisplaySave() && (
                   <SubmitButton
@@ -676,13 +783,15 @@ const FormStepper = ({
                     onClick={handleSave}
                   />
                 )}
-                <SubmitButton
-                  data-cy="stepper-back-button"
-                  isDisabled={disabledBack || isLoading}
-                  type={'secondary'}
-                  onClick={handleBack}
-                  label={T.Back}
-                />
+                {!hasCreationHeader && (
+                  <SubmitButton
+                    data-cy="stepper-back-button"
+                    isDisabled={disabledBack || isLoading}
+                    type={'secondary'}
+                    onClick={handleBack}
+                    label={T.Back}
+                  />
+                )}
                 <SubmitButton
                   data-cy="stepper-next-button"
                   isSubmitting={isLoading}
@@ -692,7 +801,7 @@ const FormStepper = ({
               </Box>
             </Box>
           </Box>
-        </Stack>
+        </Box>
       </ModifiedFieldsContext.Provider>
       <DocumentationDrawer
         isOpen={openDocumentation}
@@ -711,6 +820,8 @@ FormStepper.propTypes = {
   saveState: PropTypes.bool,
   update: PropTypes.bool,
   isPopup: PropTypes.bool,
+  extra: PropTypes.node,
+  maxContentWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 }
 
 export { DefaultFormStepper, SkeletonStepsForm, FormStepper }

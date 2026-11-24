@@ -17,22 +17,39 @@
 /**
  * @param {object} root0 - Params
  * @param {object} root0.theme - Current theme
+ * @param {boolean} root0.isCreation - Whether the header is in creation mode
+ * @param {boolean} root0.showProgress - Whether the progress bar is visible
  * @returns {object} - Header styles
  */
-export const getStyles = ({ theme }) => {
+export const getStyles = ({ theme, isCreation, showProgress = false }) => {
   const baseStyles = {
     display: 'flex',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'stretch',
     bgcolor: 'surface.primary',
     color: 'text.body',
-    borderBottom: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-    height: 'var(--sidebar-header-height)',
-    padding: `0 ${theme.scale[200]}px`,
+    borderBottom: showProgress
+      ? 'none'
+      : `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
+    height: `var(--sidebar-header-height, ${theme.scale[900]}px)`,
     position: 'fixed',
     top: 0,
     zIndex: theme.zIndex.topBar,
-    left: `calc(var(--sidebar-width) + ${theme.borderWidth.sm}px)`,
-    width: `calc(100% - var(--sidebar-width) - ${theme.borderWidth.sm}px)`,
+    left: `calc(var(--sidebar-width, 0px) + var(--sidebar-border-width, ${theme.borderWidth.sm}px))`,
+    width: `calc(100% - var(--sidebar-width, 0px) - var(--sidebar-border-width, ${theme.borderWidth.sm}px))`,
+  }
+
+  const content = {
+    '& .header-content': {
+      display: 'flex',
+      alignItems: 'center',
+      flex: '1 1 auto',
+      minHeight: 0,
+      padding: isCreation
+        ? `0 ${theme.scale[600]}px`
+        : `0 ${theme.scale[200]}px`,
+      width: '100%',
+    },
   }
 
   const breadcrumbs = {
@@ -138,12 +155,24 @@ export const getStyles = ({ theme }) => {
     },
   }
 
+  const progress = {
+    '& .header-progress': {
+      flex: `0 0 ${theme.scale[100]}px`,
+
+      '& .progress-track, & .progress-fill': {
+        borderRadius: 0,
+      },
+    },
+  }
+
   return {
     ...baseStyles,
+    ...content,
     ...breadcrumbs,
     ...slots,
     ...homeButton,
     ...divider,
     ...overrides,
+    ...progress,
   }
 }

@@ -19,13 +19,16 @@ import PropTypes from 'prop-types'
 import { useMemo, useRef } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import { Header } from '@ComponentsModule'
+import { CreationFormProvider } from '@ProvidersModule'
 import internalStyles from 'client/router/InternalLayout/styles'
 import { footer } from '@StylesModule'
 
-const InternalLayout = ({ children, ...route }) => {
+const InternalLayout = ({ children, layoutVariant = 'default', ...route }) => {
   const theme = useTheme()
   const classes = useMemo(() => internalStyles(theme), [theme])
   const container = useRef()
+  const isCreation = layoutVariant === 'creation'
+  const creationHeaderHeight = theme.scale[900] + theme.scale[100]
 
   if (route.disableLayout) {
     return (
@@ -41,49 +44,57 @@ const InternalLayout = ({ children, ...route }) => {
   }
 
   return (
-    <Box
-      data-cy="main-layout"
-      className={classes.root}
-      sx={{
-        pt: 'var(--sidebar-header-height, 0px)',
-        pl: 'var(--sidebar-width, 0px)',
-        transition: 'margin-left 0.2s ease', // Makes it a bit less snappy
-      }}
-    >
-      <Box component="main" className={classes.main}>
-        <CSSTransition
-          in
-          classNames={{
-            appear: classes.appear,
-            appearActive: classes.appearActive,
-            enter: classes.enter,
-            enterActive: classes.enterActive,
-            enterDone: classes.enterDone,
-            exit: classes.exit,
-            exitActive: classes.exitActive,
-            exitDone: classes.exitDone,
-          }}
-          timeout={300}
-          unmountOnExit
-        >
-          <Container
-            ref={container}
-            className={
-              route.removeStyles ? classes.noScrollable : classes.scrollable
-            }
-            maxWidth={route.removeStyles ? false : 'xl'}
+    <CreationFormProvider isCreation={isCreation}>
+      <Box
+        data-cy="main-layout"
+        className={classes.root}
+        sx={{
+          ...(isCreation && {
+            '&:has(.header-progress)': {
+              '--sidebar-header-height': `${creationHeaderHeight}px`,
+            },
+          }),
+          pt: 'var(--sidebar-header-height, 0px)',
+          pl: 'var(--sidebar-width, 0px)',
+          transition: 'margin-left 0.2s ease', // Makes it a bit less snappy
+        }}
+      >
+        <Box component="main" className={classes.main}>
+          <CSSTransition
+            in
+            classNames={{
+              appear: classes.appear,
+              appearActive: classes.appearActive,
+              enter: classes.enter,
+              enterActive: classes.enterActive,
+              enterDone: classes.enterDone,
+              exit: classes.exit,
+              exitActive: classes.exitActive,
+              exitDone: classes.exitDone,
+            }}
+            timeout={300}
+            unmountOnExit
           >
-            <Header />
-            {children}
-          </Container>
-        </CSSTransition>
+            <Container
+              ref={container}
+              className={
+                route.removeStyles ? classes.noScrollable : classes.scrollable
+              }
+              maxWidth={route.removeStyles ? false : 'xl'}
+            >
+              <Header variant={layoutVariant} />
+              {children}
+            </Container>
+          </CSSTransition>
+        </Box>
       </Box>
-    </Box>
+    </CreationFormProvider>
   )
 }
 
 InternalLayout.propTypes = {
   disableLayout: PropTypes.bool,
+  layoutVariant: PropTypes.oneOf(['default', 'creation']),
   children: PropTypes.any,
 }
 

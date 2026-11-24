@@ -112,6 +112,7 @@ export const getStyles = ({ theme, direction, ...opts }) => {
     '& .checkbox-input-container': {
       width: `${checkboxSize}px`,
       height: `${checkboxSize}px`,
+      flexShrink: 0,
       display: 'flex',
       padding: 0,
       alignItems: 'center',

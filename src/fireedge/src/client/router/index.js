@@ -31,11 +31,11 @@ import InternalLayout from 'client/router/InternalLayout'
 import NoAuthRoute from 'client/router/NoAuthRoute'
 import ProtectedRoute from 'client/router/ProtectedRoute'
 
-const renderRoute = () => {
+const renderRoute = (layoutProps = {}) => {
   const RouteRenderer = ({ Component, ...route }) => (
     <ProtectedRoute key={route.path} exact {...route}>
       <ResourceSingleViewHost>
-        <InternalLayout {...route}>
+        <InternalLayout {...route} {...layoutProps}>
           <Component fallback={<LinearProgress />} />
         </InternalLayout>
       </ResourceSingleViewHost>
@@ -122,9 +122,10 @@ const getExactResourceActionRoutePath = (paths = [], pathname = '') => {
  * @param {string} props.redirectWhenAuth
  * - Pathname to redirect when user isn authenticated
  * @param {object[]} props.endpoints - App endpoints
+ * @param {string} props.layoutVariant - Layout variant
  * @returns {JSXElementConstructor} Router
  */
-const Router = ({ redirectWhenAuth, endpoints }) => {
+const Router = ({ redirectWhenAuth, endpoints, layoutVariant }) => {
   const { pathname, state } = useLocation()
   const { user: supportUser } = useSupportAuth()
   const getBreadcrumbs = useMemo(
@@ -154,8 +155,8 @@ const Router = ({ redirectWhenAuth, endpoints }) => {
       <Switch>
         {endpoints?.map(({ routes: subRoutes, ...rest }, index) =>
           Array.isArray(subRoutes)
-            ? subRoutes?.map(renderRoute(endpoints))
-            : renderRoute(endpoints)(rest, index)
+            ? subRoutes?.map(renderRoute({ layoutVariant }))
+            : renderRoute({ layoutVariant })(rest, index)
         )}
         {COMMON_ENDPOINTS?.map(({ Component, ...rest }, index) => (
           <NoAuthRoute
@@ -186,11 +187,13 @@ Router.propTypes = {
       routes: PropTypes.array,
     })
   ),
+  layoutVariant: PropTypes.oneOf(['default', 'creation']),
 }
 
 Router.defaultProps = {
   redirectWhenAuth: '/dashboard',
   endpoints: [],
+  layoutVariant: 'default',
 }
 
 Router.displayName = 'Router'

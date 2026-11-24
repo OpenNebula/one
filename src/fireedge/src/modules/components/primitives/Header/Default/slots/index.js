@@ -15,5 +15,6 @@
  * ------------------------------------------------------------------------- */
 
 export * from '@modules/components/primitives/Header/Default/slots/createButton'
+export * from '@modules/components/primitives/Header/Default/slots/cancelButton'
 export * from '@modules/components/primitives/Header/Default/slots/userGroupDropdown'
 export * from '@modules/components/primitives/Header/Default/slots/zoneDropdown'

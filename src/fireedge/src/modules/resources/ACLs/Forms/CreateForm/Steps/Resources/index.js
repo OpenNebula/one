@@ -24,7 +24,7 @@ import {
 } from '@modules/resources/ACLs/Forms/CreateForm/Utils/helper'
 
 export const STEP_ID = 'resources'
-const COLUMNS = [[], FIELDS, []]
+const COLUMNS = [FIELDS]
 
 const Content = (users, groups, clusters, zones) => (
   <Grid mt={2} container>
@@ -42,9 +42,6 @@ const Content = (users, groups, clusters, zones) => (
         cy={`${STEP_ID}`}
         fields={FIELDS}
         columns={COLUMNS}
-        gridContainerSx={{
-          gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-        }}
       />
     </Grid>
   </Grid>

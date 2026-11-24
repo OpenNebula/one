@@ -92,7 +92,7 @@ export function CreateServiceTemplate() {
   return (
     <>
       {templateId && !dataTemplate ? (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm maxContentWidth={400} />
       ) : (
         <ServiceTemplate.Forms.CreateForm
           initialValues={dataTemplate}
@@ -100,7 +100,7 @@ export function CreateServiceTemplate() {
             dataTemplate,
           }}
           onSubmit={onSubmit}
-          fallback={<SkeletonStepsForm />}
+          fallback={<SkeletonStepsForm maxContentWidth={400} />}
         >
           {(config) => <DefaultFormStepper {...config} update={!!templateId} />}
         </ServiceTemplate.Forms.CreateForm>

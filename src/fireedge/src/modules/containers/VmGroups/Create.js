@@ -198,13 +198,13 @@ export function CreateVmGroup() {
   return (
     <>
       {templateId && !data ? (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm maxContentWidth={400} />
       ) : (
         <VmGroup.Forms.CreateForm
           onSubmit={onSubmit}
           initialValues={data}
           stepProps={data}
-          fallback={<SkeletonStepsForm />}
+          fallback={<SkeletonStepsForm maxContentWidth={400} />}
         >
           {(config) => <DefaultFormStepper {...config} />}
         </VmGroup.Forms.CreateForm>

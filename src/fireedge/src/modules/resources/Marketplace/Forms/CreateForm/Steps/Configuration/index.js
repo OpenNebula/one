@@ -23,18 +23,12 @@ import { generateDocLink } from '@UtilsModule'
 
 export const STEP_ID = 'configuration'
 
-const CENTERED_GRID_CONTAINER_SX = {
-  gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-}
-
 const FORM_LAYOUTS = {
   [MARKET_TYPES.OPENNEBULA.value]: {
-    columns: [[], ['ENDPOINT'], []],
-    gridContainerSx: CENTERED_GRID_CONTAINER_SX,
+    columns: [['ENDPOINT']],
   },
   [MARKET_TYPES.HTTP.value]: {
-    columns: [[], ['BASE_URL', 'PUBLIC_DIR', 'BRIDGE_LIST'], []],
-    gridContainerSx: CENTERED_GRID_CONTAINER_SX,
+    columns: [['BASE_URL', 'PUBLIC_DIR', 'BRIDGE_LIST']],
   },
   [MARKET_TYPES.S3.value]: {
     columns: [
@@ -166,7 +160,7 @@ ConfigurationDocumentation.propTypes = {
 const Content = (update) => {
   const { watch } = useFormContext()
   const marketType = watch('general.MARKET_MAD')
-  const { columns, gridContainerSx } = FORM_LAYOUTS[marketType] ?? {}
+  const { columns } = FORM_LAYOUTS[marketType] ?? {}
 
   return (
     <Stack direction="column" spacing="1em" sx={{ paddingTop: '24px' }}>
@@ -175,7 +169,6 @@ const Content = (update) => {
         cy={`${STEP_ID}`}
         fields={FIELDS(update)}
         columns={columns}
-        gridContainerSx={gridContainerSx}
       />
     </Stack>
   )

@@ -47,19 +47,7 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
           id={STEP_ID}
           cy={`${STEP_ID}-${id}`}
           {...section}
-          {...(!adminGroup && {
-            columns: [section.fields],
-            rootProps: {
-              sx: {
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-                columnGap: (theme) => `${theme.scale[600]}px`,
-                '& > *': {
-                  gridColumn: { xs: '1', md: '2' },
-                },
-              },
-            },
-          })}
+          {...(!adminGroup && { columns: [section.fields] })}
         />
       ))}
     </>
@@ -80,6 +68,7 @@ const General = ({ data, oneConfig, adminGroup }) => {
 
   return {
     id: STEP_ID,
+    maxContentWidth: 673,
     label: T.General,
     resolver: () => SCHEMA(isUpdate, oneConfig, adminGroup),
     optionsValidate: { abortEarly: false },

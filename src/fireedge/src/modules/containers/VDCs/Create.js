@@ -63,13 +63,13 @@ export function CreateVDC() {
         <Vdc.Forms.CreateForm
           initialValues={state}
           onSubmit={onSubmit}
-          fallback={<SkeletonStepsForm />}
+          fallback={<SkeletonStepsForm maxContentWidth={400} />}
           stepProps={zones}
         >
           {(config) => <DefaultFormStepper {...config} update={!!vdcId} />}
         </Vdc.Forms.CreateForm>
       ) : (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm maxContentWidth={400} />
       )}
     </>
   )

@@ -155,9 +155,20 @@ const Content = ({
     name: activeName,
     Content: ActiveContent,
   } = tabs[selected] ?? tabs[0] ?? {}
+  const isConfigurationCentered = !isInstantiate && activeId === 'configuration'
 
   return (
-    <Box sx={{ height: 'auto', overflow: 'auto' }}>
+    <Box
+      sx={{
+        height: 'auto',
+        overflow: 'auto',
+        ...(!isInstantiate && {
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr)',
+          rowGap: (theme) => `${theme.scale[600]}px`,
+        }),
+      }}
+    >
       <Tabs
         type="line"
         defaultSelect={0}
@@ -173,6 +184,17 @@ const Content = ({
         <Box
           key={`tab-${activeId ?? activeName}`}
           data-cy={`tab-content-${activeId ?? activeName}`}
+          sx={{
+            ...(!isInstantiate && {
+              gridColumn: '1 / -1',
+              minWidth: 0,
+            }),
+            ...(isConfigurationCentered && {
+              width: '100%',
+              maxWidth: 400,
+              justifySelf: 'center',
+            }),
+          }}
         >
           <ActiveContent />
         </Box>

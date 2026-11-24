@@ -88,12 +88,12 @@ export function CreateImage() {
             oneConfig,
             adminGroup,
           }}
-          fallback={<SkeletonStepsForm />}
+          fallback={<SkeletonStepsForm maxContentWidth={400} />}
         >
           {(config) => <DefaultFormStepper {...config} />}
         </Image.Forms.CreateForm>
       ) : (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm maxContentWidth={400} />
       )}
     </>
   )

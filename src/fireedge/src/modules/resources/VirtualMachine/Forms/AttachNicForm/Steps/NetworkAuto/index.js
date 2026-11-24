@@ -47,10 +47,7 @@ const Content = (props) => {
           cy={id}
           saveState={true}
           fields={fields}
-          columns={[[], fields, []]}
-          gridContainerSx={{
-            gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-          }}
+          columns={[fields]}
           legend={legend}
           id={STEP_ID}
         />

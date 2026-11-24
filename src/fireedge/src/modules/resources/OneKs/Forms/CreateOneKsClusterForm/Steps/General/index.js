@@ -22,7 +22,7 @@ import { useTranslation } from '@ProvidersModule'
 import styles from '@modules/resources/OneKs/Forms/CreateOneKsClusterForm/Steps/styles'
 
 export const STEP_ID = 'general'
-const COLUMNS = [[], FIELDS, []]
+const COLUMNS = [FIELDS]
 
 const Content = () => {
   const { translate } = useTranslation()
@@ -48,9 +48,6 @@ const Content = () => {
             cy={`${STEP_ID}`}
             fields={FIELDS}
             columns={COLUMNS}
-            gridContainerSx={{
-              gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-            }}
           />
         </Grid>
       </Grid>

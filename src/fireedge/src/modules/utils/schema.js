@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/valid-types */
 
 // eslint-disable-next-line no-unused-vars
-import { ReactElement, SetStateAction } from 'react'
+import { ReactElement, ReactNode, SetStateAction } from 'react'
 
 import { BaseSchema, array, boolean, number, object, string } from 'yup'
 // eslint-disable-next-line no-unused-vars
@@ -153,6 +153,7 @@ import {
  * @property {string} label - Label
  * @property {BaseSchema|function(object):BaseSchema} resolver - Schema
  * @property {function(object, SetStateAction):ReactElement} content - Content
+ * @property {number|string} [maxContentWidth] - Maximum width for this step's content, overriding the form width
  * @property {ValidateOptions|undefined} optionsValidate - Validate options
  */
 
@@ -161,6 +162,8 @@ import {
  * @property {Step[]} steps - Steps
  * @property {BaseSchema|function():BaseSchema} resolver - Schema
  * @property {object} defaultValues - Default values
+ * @property {ReactNode} [extra] - Optional extra content for the form stepper
+ * @property {number|string} [maxContentWidth] - Maximum content width when the active step does not override it
  */
 
 /**

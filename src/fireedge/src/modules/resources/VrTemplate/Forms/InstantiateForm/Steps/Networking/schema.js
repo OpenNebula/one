@@ -44,6 +44,7 @@ const NETWORK = {
   selectOnRowClick: true,
   fieldProps: {
     preserveState: true,
+    emptyContentProps: { size: 'small' },
   },
   validation: mixed()
     .notRequired('Network ID missing or malformed!')

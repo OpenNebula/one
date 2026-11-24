@@ -18,11 +18,12 @@ import {
   FIELDS,
   SCHEMA,
 } from '@modules/resources/VrTemplate/Forms/InstantiateForm/Steps/Networking/schema'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { ServerConnection as NetworkIcon } from 'iconoir-react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 import {
   CollapsiblePanel,
+  EmptyContent,
   FormWithSchema,
   SelectableCardPanel,
 } from '@ComponentsModule'
@@ -91,6 +92,7 @@ const Content = () => {
       onSelect={setSelectedNic}
       onAdd={handleAdd}
       onRemove={handleRemove}
+      showSidebar={nics.length > 0}
       addLabel={T.VirtualRouterNICAdd}
       addButtonCy="add-nic"
       getItemKey={(nic, idx) => `nic-${idx}-${nic?.id}`}
@@ -110,6 +112,19 @@ const Content = () => {
         return values.length > 0 ? values.join(' - ') : T.SecurityGroups
       }}
     >
+      {nics.length === 0 && (
+        <EmptyContent
+          size="small"
+          title={T.NoNicsAdded}
+          subtitle={T.VirtualRouterNICOptional}
+          action={handleAdd}
+          actionTitle={T.VirtualRouterNICAdd}
+          actionProps={{
+            dataCy: 'add-nic',
+            type: STYLE_BUTTONS.TYPE.SECONDARY,
+          }}
+        />
+      )}
       {selectedNic != null && selectedNic >= 0 && nics?.length > 0 && (
         <CollapsiblePanel
           title={T.VirtualRouterNICNetworkConfiguration}

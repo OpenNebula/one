@@ -17,9 +17,10 @@
 /**
  * @param {object} root0 - Params
  * @param {object} root0.theme - Current theme in use
+ * @param {boolean} root0.isCreation - Whether the current route is a creation form
  * @returns {object} - Detailsdrawer styles
  */
-export const getStyles = ({ theme }) => {
+export const getStyles = ({ theme, isCreation = false }) => {
   const paperProps = {
     '& .documentationdrawer-paper': {
       display: 'flex',
@@ -128,6 +129,9 @@ export const getStyles = ({ theme }) => {
   }
 
   return {
+    ...(isCreation && {
+      '--sidebar-header-height': `${theme.scale[900] + theme.scale[100]}px`,
+    }),
     ...content,
     ...paperProps,
   }

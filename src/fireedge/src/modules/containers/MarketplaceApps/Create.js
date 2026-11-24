@@ -56,7 +56,7 @@ export function CreateMarketplaceApp() {
       <MarketplaceApp.Forms.CreateForm
         initialValues={{ type: resourceName, id: ID }}
         onSubmit={handleTriggerSubmit}
-        fallback={<SkeletonStepsForm />}
+        fallback={<SkeletonStepsForm maxContentWidth={400} />}
       >
         {(config) => <DefaultFormStepper {...config} />}
       </MarketplaceApp.Forms.CreateForm>

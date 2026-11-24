@@ -17,12 +17,13 @@ import { Box, Stack, styled } from '@mui/material'
 import { EditPencil, Plus, Trash } from 'iconoir-react'
 import {
   Button,
+  EmptyContent,
   ResourceActionConfirmation,
   ToggleGroup,
 } from '@ComponentsModule'
 import { useModalsApi } from '@FeaturesModule'
 import ScheduleActionCard from '@modules/resources/BackupJobs/Components/ScheduleActionCard'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import * as BackupJobs from '@modules/resources/BackupJobs'
 import { Step, cleanEmpty, sentenceCase } from '@UtilsModule'
 import { useCallback } from 'react'
@@ -134,6 +135,24 @@ const Content = () => {
     })
 
   const actions = scheduleActions ?? []
+
+  if (actions.length === 0) {
+    return (
+      <StyledContainer>
+        <EmptyContent
+          size="small"
+          title={T.NoScheduleActions}
+          subtitle={T.ScheduleActionsWillAppearHere}
+          action={handleOpenCreateForm}
+          actionTitle={T.AddAction}
+          actionProps={{
+            dataCy: 'sched-add',
+            type: STYLE_BUTTONS.TYPE.SECONDARY,
+          }}
+        />
+      </StyledContainer>
+    )
+  }
 
   return (
     <StyledContainer>

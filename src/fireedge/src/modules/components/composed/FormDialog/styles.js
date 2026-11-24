@@ -48,9 +48,10 @@ export const getStyles = ({ theme }) => ({
     minHeight: 0,
     maxHeight: 'none',
     overflowY: 'auto',
+    scrollbarGutter: 'stable',
   },
 
-  '& .form-stepper-root': {
+  '& .form-stepper': {
     width: '100%',
     padding: 0,
   },
@@ -84,7 +85,7 @@ export const getStyles = ({ theme }) => ({
     },
   },
 
-  '& .form-stepper-buttons': {
+  '& .form-stepper > .footer > .stepper-buttons': {
     marginTop: `${theme.scale[600]}px`,
   },
 

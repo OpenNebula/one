@@ -14,9 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { forwardRef, useState, useEffect, useRef } from 'react'
+import { forwardRef, useState, useEffect, useLayoutEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import { Box, Drawer } from '@mui/material'
+import { Box, Drawer, useTheme } from '@mui/material'
 import { getStyles } from '@modules/components/primitives/Sidebar/Default/styles'
 import { SidebarItem } from '@modules/components/primitives/Sidebar/Default/sidebarItem'
 import { OpenNebulaLogo } from '@modules/components/composed/OpenNebulaLogo'
@@ -39,6 +39,7 @@ const SIDEBAR_FIXED_STORAGE_KEY = 'fireedge.sidebar.fixed'
 export const Sidebar = forwardRef(
   ({ isOpen = false, endpoints = [], ...opts }, ref) => {
     const { translate } = useTranslation()
+    const sidebarTheme = useTheme()
     const [hovered, setHovered] = useState(false)
     const [fixedMenu, setFixedMenu] = useState(() => {
       try {
@@ -53,6 +54,7 @@ export const Sidebar = forwardRef(
     const open = isOpen || hovered || isFixedMenu
     const internalRef = useRef()
     const headerRef = useRef()
+    const collapsedWidthRef = useRef(sidebarTheme.scale[900])
 
     const handleFixedMenuToggle = () => {
       setFixedMenu((prev) => {
@@ -71,18 +73,22 @@ export const Sidebar = forwardRef(
       })
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (!internalRef.current) return
       const observer = new ResizeObserver(([entry]) => {
+        if (!open) collapsedWidthRef.current = entry.contentRect.width
+
         document.documentElement.style.setProperty(
           '--sidebar-width',
-          `${entry.contentRect.width}px`
+          `${
+            isFixedMenu ? entry.contentRect.width : collapsedWidthRef.current
+          }px`
         )
       })
       observer.observe(internalRef.current)
 
       return () => observer.disconnect()
-    }, [])
+    }, [isFixedMenu, open])
 
     useEffect(() => {
       const header = headerRef.current
@@ -137,6 +143,12 @@ export const Sidebar = forwardRef(
           PaperProps={{
             ref: internalRef,
             'data-cy': 'sidebar-paper',
+            sx: {
+              zIndex:
+                open && !isFixedMenu
+                  ? sidebarTheme.zIndex.topBar + 1
+                  : sidebarTheme.zIndex.drawer,
+            },
           }}
           {...opts}
         >

@@ -86,7 +86,7 @@ export const FormDialog = ({
         initialValues={initialValues}
         stepProps={stepProps}
         onSubmit={onSubmit}
-        fallback={<SkeletonStepsForm />}
+        fallback={<SkeletonStepsForm isPopup />}
       >
         {(config) => (
           <DefaultFormStepper

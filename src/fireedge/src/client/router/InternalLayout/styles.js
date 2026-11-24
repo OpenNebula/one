@@ -44,6 +44,7 @@ export default (theme) => ({
     paddingLeft: 0,
     paddingRight: 0,
     padding: `${theme.scale[700]}px ${theme.scale[700]}px`,
+    scrollbarGutter: 'stable',
   }),
   noScrollable: css({
     height: '100%',

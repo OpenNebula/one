@@ -149,6 +149,7 @@ export const ToggleController = memo(
           data-cy={cy}
           sx={(theme) => ({
             display: 'flex',
+            flexWrap: 'wrap',
             gap: `${theme.scale[500]}px`,
             '& > span': {
               flex: 1,

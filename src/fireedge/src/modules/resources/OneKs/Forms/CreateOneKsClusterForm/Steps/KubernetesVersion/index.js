@@ -31,7 +31,7 @@ const Content = (families) => {
   // Style classes
   const classes = useMemo(() => styles(theme), [theme])
   const fields = FIELDS(families)
-  const columns = [[], fields, []]
+  const columns = [fields]
 
   return (
     <>
@@ -50,9 +50,6 @@ const Content = (families) => {
             cy={`${STEP_ID}`}
             fields={fields}
             columns={columns}
-            gridContainerSx={{
-              gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-            }}
           />
         </Grid>
       </Grid>

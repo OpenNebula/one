@@ -73,6 +73,50 @@ const NOT_DEPEND_ATTRIBUTES = [
 ]
 
 /**
+ * Applies field widths using the available form width inside a stepper.
+ *
+ * @param {object} gridProps - Responsive field grid sizes
+ * @returns {Function} Container query styles
+ */
+const getFieldContainerSx = (gridProps) => (theme) => {
+  const sizes = { xs: 12, md: 6, ...gridProps }
+
+  return Object.fromEntries(
+    theme.breakpoints.keys
+      .filter((key) => sizes[key])
+      .map((key) => {
+        const size = sizes[key]
+        const styles = (() => {
+          if (size === true) {
+            return { flexBasis: 0, flexGrow: 1, maxWidth: '100%' }
+          }
+
+          if (size === 'auto') {
+            return {
+              flexBasis: 'auto',
+              flexGrow: 0,
+              flexShrink: 0,
+              maxWidth: 'none',
+              width: 'auto',
+            }
+          }
+
+          const fraction = Number(size) / 12
+          const gapOffset = theme.scale[600] * (1 - fraction)
+          const width = `calc(${fraction * 100}% - ${gapOffset}px)`
+
+          return { flexBasis: width, flexGrow: 0, maxWidth: width }
+        })()
+
+        return [
+          `@container form-stepper-main (min-width: ${theme.breakpoints.values[key]}px)`,
+          styles,
+        ]
+      })
+  )
+}
+
+/**
  * Returns the numeric minimum declared by a Yup validation schema.
  *
  * Conditional and lazy schemas are resolved with the current form values
@@ -442,13 +486,22 @@ export const FormWithSchema = ({
     md: 12,
     lg: 12,
     xl: 12,
-    sx: {
+    sx: (theme) => ({
       alignSelf: 'center',
       gridColumn: { md: `${columnIndex + 1}` },
       gridRow: { md: `${rowIndex + 1}` },
       minWidth: 0,
       width: '100%',
-    },
+      '@container form-stepper-main (min-width: 0px)': {
+        gridColumn: 'auto',
+        gridRow: 'auto',
+      },
+      [`@container form-stepper-main (min-width: ${theme.breakpoints.values.md}px)`]:
+        {
+          gridColumn: `${columnIndex + 1}`,
+          gridRow: `${rowIndex + 1}`,
+        },
+    }),
   })
 
   const getFieldOutsideColumnGrid = () => ({
@@ -501,6 +554,13 @@ export const FormWithSchema = ({
         minWidth: 0,
         width: '100%',
         ...gridContainerSx,
+        '@container form-stepper-main (min-width: 0px)': {
+          gridTemplateColumns: 'minmax(0, 1fr)',
+        },
+        [`@container form-stepper-main (min-width: ${theme.breakpoints.values.md}px)`]:
+          {
+            gridTemplateColumns: `repeat(${getColumns.length}, minmax(0, 1fr))`,
+          },
       })}
     >
       {columnFields.map(({ columnIndex, field, rowIndex }) =>
@@ -516,7 +576,17 @@ export const FormWithSchema = ({
       spacing={1}
       alignContent="flex-start"
       alignItems="flex-start"
-      sx={gridContainerSx}
+      sx={(theme) => ({
+        '@container form-stepper-main (min-width: 0px)': {
+          gap: `${theme.scale[600]}px`,
+          width: '100%',
+          margin: 0,
+          '& > .MuiGrid-item': {
+            padding: 0,
+          },
+        },
+        ...gridContainerSx,
+      })}
     >
       {getFields?.map?.((field) => renderField(field))}
     </Grid>
@@ -718,7 +788,9 @@ const FieldComponent = memo(
               xs={12}
               md={6}
               {...gridProps}
-              sx={[gridSx, gridItemSx].filter(Boolean)}
+              sx={[gridSx, gridItemSx, getFieldContainerSx(gridProps)].filter(
+                Boolean
+              )}
             >
               {disabledTooltip ? (
                 <Tooltip title={disabledTooltip}>

@@ -97,14 +97,14 @@ export function CreateMarketplace() {
             version,
             update: !!marketplaceId,
           }}
-          fallback={<SkeletonStepsForm />}
+          fallback={<SkeletonStepsForm maxContentWidth={400} />}
         >
           {(config) => (
             <DefaultFormStepper {...config} update={!!marketplaceId} />
           )}
         </Marketplace.Forms.CreateForm>
       ) : (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm maxContentWidth={400} />
       )}
     </>
   )

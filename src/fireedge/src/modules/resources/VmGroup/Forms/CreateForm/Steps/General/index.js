@@ -31,10 +31,7 @@ const Content = ({ isUpdate }) => {
       id={STEP_ID}
       cy={`${STEP_ID}`}
       fields={fields}
-      columns={[[], fields, []]}
-      gridContainerSx={{
-        gridTemplateColumns: { xs: '1fr', md: '1fr 2fr 1fr' },
-      }}
+      columns={[fields]}
     />
   )
 }
@@ -50,6 +47,7 @@ const General = (data) => {
 
   return {
     id: STEP_ID,
+    maxContentWidth: 400,
     label: T.General,
     resolver: SCHEMA,
     optionsValidate: { abortEarly: false },

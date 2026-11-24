@@ -27,7 +27,7 @@ import { AlertNotification, FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 
 const QoSContent = ({ oneConfig, adminGroup }) => (
-  <>
+  <Box sx={{ width: '100%', maxWidth: 673, mx: 'auto' }}>
     <Box sx={alertWrapperStyles}>
       <AlertNotification
         className="vn-template-alert"
@@ -37,15 +37,17 @@ const QoSContent = ({ oneConfig, adminGroup }) => (
         isDismissible={false}
       />
     </Box>
-    {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
+    {SECTIONS(oneConfig, adminGroup).map(({ id, fields, ...section }) => (
       <FormWithSchema
         key={id}
         id={EXTRA_ID}
         cy={`${EXTRA_ID}-${id}`}
+        fields={fields}
+        columns={[fields]}
         {...section}
       />
     ))}
-  </>
+  </Box>
 )
 
 QoSContent.propTypes = {

@@ -27,7 +27,7 @@ import { T } from '@ConstantsModule'
 export const TAB_ID = 'advanced'
 
 const Content = () => (
-  <Box sx={{ width: '100%', height: '100%' }}>
+  <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto', height: '100%' }}>
     <Stack
       key={`inputs-${TAB_ID}`}
       direction="column"

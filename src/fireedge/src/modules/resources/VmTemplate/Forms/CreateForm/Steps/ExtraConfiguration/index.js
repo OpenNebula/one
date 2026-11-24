@@ -220,7 +220,16 @@ const Content = ({
         <Box
           key={`tab-${ActiveTab.id ?? ActiveTab.name}`}
           data-cy={`tab-content-${ActiveTab.id ?? ActiveTab.name}`}
-          sx={TAB_CONTENT_SX}
+          sx={[
+            TAB_CONTENT_SX,
+            isVrouter &&
+              !isUpdate &&
+              ActiveTab.id === Storage.id && {
+                width: '100%',
+                maxWidth: 673,
+                mx: 'auto',
+              },
+          ]}
         >
           <ActiveTab.Content />
         </Box>

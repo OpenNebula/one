@@ -22,6 +22,7 @@ import { T } from '@ConstantsModule'
 import { generateDocLink } from '@UtilsModule'
 import { ArrowTrSquare, Cancel } from 'iconoir-react'
 import { Button } from '@modules/components/primitives/Buttons/Default'
+import { useCreationForm } from '@ProvidersModule'
 
 /**
  * DocumentationDrawer component.
@@ -39,6 +40,7 @@ export const DocumentationDrawer = forwardRef(
     { isOpen = false, title, content, version = 'stable', link, onClose },
     ref
   ) => {
+    const { isCreation } = useCreationForm()
     const drawerContent = Array.isArray(content)
       ? content.map((paragraph, idx) => (
           <Box key={idx} className="documentationdrawer-paragraph">
@@ -58,7 +60,7 @@ export const DocumentationDrawer = forwardRef(
     return (
       <Drawer
         anchor={'right'}
-        sx={(theme) => getStyles({ theme })}
+        sx={(theme) => getStyles({ theme, isCreation })}
         open={isOpen}
         onClose={onClose}
         PaperProps={{

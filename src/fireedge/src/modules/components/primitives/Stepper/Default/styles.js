@@ -16,157 +16,201 @@
 
 /**
  * @param {object} props - Params
- * @param {string} props.type - Button type
  * @param {object} props.theme - Current theme in use
- * @param {boolean} props.iconOnly - Render icon only
- * @returns {object} - Button SX style
+ * @param {'vertical'|'horizontal'} props.direction - Stepper direction
+ * @param {boolean} props.isCompact - Compact steps and expand the active step connectors
+ * @returns {object} - Stepper SX styles
  */
-export const getStyles = ({ type, theme, iconOnly }) => {
-  const baseStyle = {
-    // Styles for the line that connects the steps
-    '& .MuiStepConnector-line': {
-      borderTopWidth: `${theme.scale[25]}px`,
-      borderColor: 'border.primary',
+export const getStyles = ({
+  theme,
+  direction = 'vertical',
+  isCompact = false,
+}) => {
+  const isHorizontal = direction === 'horizontal'
+
+  const stepMarker = {
+    width: `${theme.scale[600]}px`,
+    height: `${theme.scale[600]}px`,
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: `1px solid transparent`,
+    color: theme.palette.text.headings,
+    backgroundColor: theme.palette.surface.page,
+    fontSize: {
+      xs: theme.fontSize.body.md.mobile,
+      sm: theme.fontSize.body.md.tablet,
+      md: theme.fontSize.body.md.desktop,
+    },
+    lineHeight: {
+      xs: theme.lineHeight.body.md.mobile,
+      sm: theme.lineHeight.body.md.tablet,
+      md: theme.lineHeight.body.md.desktop,
     },
 
-    // Distance between step and label
-    '& .MuiStepLabel-label.MuiStepLabel-alternativeLabel': {
-      marginTop: `${theme.scale[100]}px`,
-    },
-
-    // Styles for the step icon
-    '& .stepper-icon': {
-      width: '24px',
-      height: '24px',
-      minWidth: '24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxSizing: 'border-box',
-      fontSize: {
-        xs: theme.fontSize.body.md.mobile,
-        sm: theme.fontSize.body.md.tablet,
-        md: theme.fontSize.body.md.desktop,
-      },
-      lineHeight: {
-        xs: theme.lineHeight.body.md.mobile,
-        sm: theme.lineHeight.body.md.tablet,
-        md: theme.lineHeight.body.md.desktop,
-      },
-      color: 'text.headings',
+    '&.has-icon': {
+      color: theme.palette.icon.primary,
 
       '& svg': {
-        width: '16px',
-        height: '16px',
-      },
-
-      '&.stepper-icon-pending-with-icon, &.stepper-icon-active-with-icon, &.stepper-icon-active, &.stepper-icon-completed, &.stepper-icon-reviewing, &.stepper-icon-hasErrors':
-        {
-          borderRadius: `${theme.borderRadius.round}px`,
-        },
-
-      '&.stepper-icon-pending-with-icon': {
-        border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
-      },
-
-      '&.stepper-icon-active-with-icon': {
-        border: `${theme.borderWidth.sm}px solid ${theme.palette.border.action}`,
-      },
-
-      '&.stepper-icon-completed': {
-        backgroundColor: 'surface.success',
-        color: 'text.success',
-      },
-
-      '&.stepper-icon-reviewing': {
-        border: `${theme.borderWidth.sm}px solid ${theme.palette.border.warning}`,
-      },
-
-      '&.stepper-icon-hasErrors': {
-        border: `${theme.borderWidth.sm}px solid ${theme.palette.border.error}`,
+        width: `${theme.scale[500]}px`,
+        height: `${theme.scale[500]}px`,
       },
     },
 
-    '& .stepper-icon, & .stepper-label-title, & .stepper-label-status, & .stepper-label-step':
-      {
-        fontStyle: 'normal',
-      },
+    '&.pending': {
+      backgroundColor: 'transparent',
+      color: theme.palette.text.disabled,
 
-    '& .stepper-icon, & .stepper-label-title, & .stepper-label-status': {
-      fontWeight: 500,
-    },
-
-    '& .stepper-step-button-clickable': {
-      cursor: 'pointer',
-    },
-
-    '& .stepper-label-status, & .stepper-label-step': {
-      color: 'text.body',
-      fontSize: {
-        xs: theme.fontSize.body.caption.mobile,
-        sm: theme.fontSize.body.caption.tablet,
-        md: theme.fontSize.body.caption.desktop,
-      },
-      lineHeight: {
-        xs: theme.lineHeight.body.caption.mobile,
-        sm: theme.lineHeight.body.caption.tablet,
-        md: theme.lineHeight.body.caption.desktop,
+      '&.has-icon': {
+        backgroundColor: theme.palette.surface.disabled2,
+        color: theme.palette.icon.primary,
       },
     },
 
-    '& .stepper-label-step': {
-      color: 'text.onDisabled',
+    '&.completed': {
+      color: theme.palette.text.success,
+      backgroundColor: theme.palette.surface.success,
     },
 
-    // Styles for the step label
-    '& .stepper-label-title': {
-      color: 'text.body',
-      fontSize: {
-        xs: theme.fontSize.body.sm.mobile,
-        sm: theme.fontSize.body.sm.tablet,
-        md: theme.fontSize.body.sm.desktop,
+    '&.active': {
+      '&.in-progress': {
+        borderColor: theme.palette.border.action,
       },
-      lineHeight: {
-        xs: theme.lineHeight.body.sm.mobile,
-        sm: theme.lineHeight.body.sm.tablet,
-        md: theme.lineHeight.body.sm.desktop,
+
+      '&.reviewing': {
+        borderColor: theme.palette.border.warning,
       },
-    },
 
-    // Color of the title label
-    '& .stepper-label-title-pending': {
-      color: 'text.disabled',
-    },
-
-    '& .stepper-label-title-completed': {
-      color: 'text.onDisabled',
-    },
-
-    '& .stepper-label-title-active, & .stepper-label-title-error': {
-      color: 'text.headings',
-    },
-
-    '& .stepper-label-title-reviewing': {
-      color: 'text.warning',
-    },
-
-    // Color of the status label
-    '& .stepper-label-status-active': {
-      color: 'text.action',
-    },
-
-    '& .stepper-label-status-completed': {
-      color: 'text.success',
-    },
-
-    '& .stepper-label-status-reviewing': {
-      color: 'text.warning',
-    },
-
-    '& .stepper-label-status-error': {
-      color: 'text.error',
+      '&.error': {
+        borderColor: theme.palette.border.error,
+      },
     },
   }
 
-  return { ...baseStyle }
+  const stepLabel = {
+    display: 'flex',
+    flexDirection: 'column',
+    textAlign: isHorizontal ? 'center' : 'left',
+    width: isHorizontal ? 'auto' : '111px',
+    alignItems: isHorizontal ? 'center' : 'flex-start',
+
+    '& .number, & .title': {
+      color: theme.palette.text.onDisabled,
+    },
+
+    '&.in-progress, &.reviewing, &.error': {
+      '& .title': {
+        color: theme.palette.text.headings,
+      },
+    },
+
+    '&.pending .title': {
+      color: theme.palette.text.disabled,
+    },
+
+    '&.in-progress .status': {
+      color: theme.palette.text.action,
+    },
+
+    '&.completed .status': {
+      color: theme.palette.text.success,
+    },
+
+    '&.reviewing .status': {
+      color: theme.palette.text.warning,
+    },
+
+    '&.error .status': {
+      color: theme.palette.text.error,
+    },
+  }
+
+  return {
+    zIndex: theme.zIndex.mobileStepper,
+
+    '& > .stepper-list': {
+      position: 'relative',
+      listStyle: 'none',
+      margin: 0,
+      padding: 0,
+      display: 'flex',
+      maxHeight: 'inherit',
+      flexDirection: isHorizontal ? 'row' : 'column',
+      alignItems: isHorizontal ? 'flex-start' : 'stretch',
+      gap: isHorizontal ? 0 : `${theme.scale[100]}px`,
+      paddingBottom: isHorizontal ? `${theme.scale[1000]}px` : 0,
+      ...(!isHorizontal && {
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        overscrollBehaviorY: 'contain',
+      }),
+    },
+
+    '& .step': {
+      listStyle: 'none',
+      userSelect: 'none',
+      flex: isHorizontal ? '1 1 0' : '0 0 auto',
+      minWidth: 0,
+
+      '& .stepper-button': {
+        cursor: 'pointer',
+        display: 'flex',
+        flexDirection: isHorizontal ? 'column' : 'row',
+        alignItems: isHorizontal ? 'center' : 'flex-start',
+        width: '100%',
+        padding: 0,
+        border: 'none',
+        gap: isHorizontal ? `${theme.scale[100]}px` : `${theme.scale[400]}px`,
+        backgroundColor: 'transparent',
+        ...(!isHorizontal && {
+          minHeight: `${isCompact ? theme.scale[1100] : theme.scale[1400]}px`,
+        }),
+
+        '&.active, &:disabled': {
+          cursor: 'initial',
+        },
+
+        '& .stepper-rail': {
+          display: 'flex',
+          flexDirection: isHorizontal ? 'row' : 'column',
+          alignItems: 'center',
+          alignSelf: isHorizontal ? 'auto' : 'stretch',
+          width: isHorizontal ? '100%' : 'auto',
+          gap: `${theme.scale[100]}px`,
+
+          '& .step-marker': {
+            ...stepMarker,
+          },
+
+          '& .stepper-connector': {
+            backgroundColor: theme.palette.border.primary,
+            height: isHorizontal ? '1px' : `${theme.scale[600]}px`,
+            flex: isHorizontal ? 1 : '1 0 auto',
+            width: isHorizontal ? 'auto' : '1px',
+            ...(!isHorizontal && {
+              minHeight: `${theme.scale[600]}px`,
+              transition: isCompact
+                ? theme.transitions.create('min-height', {
+                    duration: theme.transitions.duration.short,
+                  })
+                : 'none',
+
+              '&.expanded': {
+                minHeight: `${theme.scale[1300]}px`,
+              },
+
+              '@media (prefers-reduced-motion: reduce)': {
+                transition: 'none',
+              },
+            }),
+          },
+        },
+
+        '& .step-label': {
+          ...stepLabel,
+        },
+      },
+    },
+  }
 }

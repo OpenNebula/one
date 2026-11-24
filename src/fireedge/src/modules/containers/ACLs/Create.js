@@ -47,6 +47,7 @@ export function CreateACL() {
   const hasCreateMode =
     state === true || state === false || typeof state?.fromString === 'boolean'
   const fromString = state === true || state?.fromString === true
+  const maxContentWidth = fromString ? 400 : undefined
   const shouldSelectCreateType = !hasCreateMode
 
   // General api for enqueue
@@ -115,12 +116,22 @@ export function CreateACL() {
             zones,
             oneConfig,
           }}
-          fallback={<SkeletonStepsForm />}
+          fallback={
+            <SkeletonStepsForm
+              stepCount={fromString ? 1 : 6}
+              maxContentWidth={maxContentWidth}
+            />
+          }
         >
-          {(config) => <DefaultFormStepper {...config} />}
+          {(config) => (
+            <DefaultFormStepper {...config} maxContentWidth={maxContentWidth} />
+          )}
         </ACLs.Forms.CreateForm>
       ) : (
-        <SkeletonStepsForm />
+        <SkeletonStepsForm
+          stepCount={fromString ? 1 : 6}
+          maxContentWidth={maxContentWidth}
+        />
       )}
     </>
   )

@@ -46,7 +46,7 @@ export function CreateUser() {
     <>
       <User.Forms.CreateForm
         onSubmit={onSubmit}
-        fallback={<SkeletonStepsForm />}
+        fallback={<SkeletonStepsForm maxContentWidth={400} />}
       >
         {(config) => <DefaultFormStepper {...config} />}
       </User.Forms.CreateForm>
