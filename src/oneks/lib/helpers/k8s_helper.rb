@@ -229,12 +229,7 @@ module OneKS
                 kubeconfig_string = K8s.kubeconfig(group.client, group.vm_ids.first)
                 return kubeconfig_string if OpenNebula.is_error?(kubeconfig_string)
 
-                kubeconfig_hash = if Gem::Version.new(Psych.const_get(:VERSION)) >=
-                                     Gem::Version.new('3.1')
-                                      YAML.safe_load(kubeconfig_string, :aliases => true)
-                                  else
-                                      YAML.safe_load(kubeconfig_string, [], [], true)
-                                  end
+                kubeconfig_hash = YAML.safe_load(kubeconfig_string, :aliases => true)
 
                 return OpenNebula::Error.new(
                     "Group #{group.id} endpoint not available", OpenNebula::Error::EACTION

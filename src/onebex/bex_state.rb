@@ -162,11 +162,10 @@ module OneBEX
                     @backup_dir = backup_dir
                     return if @state == :cancelled
 
-                    @transfers = transfers.each_with_object({}) do |transfer, result|
+                    @transfers = transfers.to_h do |transfer|
                         transfer[:closing]    = false
                         transfer[:active_ops] = 0
-
-                        result[transfer[:transfer_id]] = transfer
+                        [transfer[:transfer_id], transfer]
                     end
                 end
 
@@ -360,14 +359,11 @@ module OneBEX
         attr_accessor :exit_code, :puma
 
         def initialize(config_file: CONFIGURATION_FILE, log_file: ONEBEX_LOG)
-            config = File.read(config_file)
-
-            @conf = if Gem::Version.new(Psych.const_get(:VERSION)) >= Gem::Version.new('3.1')
-                        YAML.safe_load(config, :permitted_classes => [Symbol],
-                                              :aliases => false)
-                    else
-                        YAML.safe_load(config, [Symbol], [], false)
-                    end
+            @conf = YAML.safe_load(
+                File.read(config_file),
+                :permitted_classes => [Symbol],
+                :aliases           => false
+            )
 
             @logger = if @conf.dig(:log, :system) == 'syslog'
                           require 'syslog/logger'

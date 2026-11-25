@@ -106,7 +106,7 @@ module OneKS
             ) unless File.file?(path)
 
             raw  = File.read(path, :encoding => 'UTF-8')
-            data = YAML.safe_load(raw)
+            data = YAML.safe_load(raw, :aliases => false)
 
             return OpenNebula::Error.new(
                 "Invalid YAML structure in #{path}",

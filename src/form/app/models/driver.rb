@@ -349,12 +349,7 @@ module OneForm
                     raise "Driver configuration file #{driver_file} does not exist" \
                         unless File.exist?(driver_file)
 
-                    conf = if Gem::Version.new(Psych.const_get(:VERSION)) >=
-                              Gem::Version.new('4.0')
-                               YAML.load_file(driver_file, :symbolize_names => true)
-                           else
-                               YAML.load(File.read(driver_file), :symbolize_names => true)
-                           end
+                    conf = YAML.load_file(driver_file, :symbolize_names => true)
 
                     body = {
                         :name             => conf[:name],
