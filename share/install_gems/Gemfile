@@ -21,7 +21,7 @@
 ruby '>=2.0.0', '<5'
 source 'https://rubygems.org'
 ruby_version = Gem::Version.new(RUBY_VERSION)
-rubygems_version = Gem::Version.new(`gem -v`)
+rubygems_version = Gem::Version.new(Gem::VERSION)
 
 debian_version_file = '/etc/debian_version'
 is_lower_than_debian_13 = true

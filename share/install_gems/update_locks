@@ -85,12 +85,29 @@ if command -v dpkg >/dev/null; then
     dpkg -r ruby-bundler
 
 elif command -v zypper >/dev/null; then
-    if [ -x /usr/bin/SUSEConnect ] && [ -n "${SUSE_REGCODE}" ]; then
-        SUSEConnect -r ${SUSE_REGCODE} -e ${SUSE_EMAIL} ||:
+    # SLE images come without SUSEConnect, the build dependencies
+    # (e.g. libvirt-devel) are only in the registered modules
+    if grep -qs '^ID="sles"' /etc/os-release; then
+        if [ -z "${SUSE_REGCODE}" ]; then
+            echo 'ERROR: SLE target requires exported SUSE_REGCODE' >&2
+            exit 1
+        fi
+
+        zypper -n install suseconnect-ng
+        SUSEConnect -r ${SUSE_REGCODE} ${SUSE_EMAIL:+-e ${SUSE_EMAIL}}
     fi
 
     zypper -n refresh
-    zypper -n install ruby rubygems findutils openssl libffi-devel
+
+    # SLE 15 default Ruby is 2.5, OpenNebula runs there with ruby3.4,
+    # which comes only with the versioned binaries
+    if grep -qs '^VERSION_ID="15' /etc/os-release; then
+        zypper -n install ruby3.4 findutils openssl libffi-devel
+        ln -s /usr/bin/ruby.ruby3.4 /usr/local/bin/ruby
+        ln -s /usr/bin/gem.ruby3.4 /usr/local/bin/gem
+    else
+        zypper -n install ruby rubygems findutils openssl libffi-devel
+    fi
     rpm -e --nodeps rubygem-bundler ||:
 
     # ruby package ships default bundler executables, which would

@@ -52,6 +52,21 @@ elif command -v rpm >/dev/null; then
     TARGET=${TARGET:-redhat}
 fi
 
+# Ruby commands and devel package
+RUBY='ruby'
+GEM='gem'
+BUNDLE='bundle'
+RUBY_DEVEL='ruby-devel'
+
+# SLE 15 default Ruby is 2.5, OpenNebula runs there with ruby3.4,
+# which comes only with the versioned binaries
+if [ "${TARGET}" = 'suse' ] && grep -qs '^VERSION_ID="15' /etc/os-release; then
+    RUBY='ruby.ruby3.4'
+    GEM='gem.ruby3.4'
+    BUNDLE='bundle.ruby3.4'
+    RUBY_DEVEL='ruby3.4-devel'
+fi
+
 # Install packages
 case "${TARGET}" in
     'debian')
@@ -88,7 +103,7 @@ case "${TARGET}" in
         echo "* Install Build Dependencies for ${TARGET}"
 
         zypper -n install \
-            ruby-devel make gcc sqlite3-devel libcurl-devel \
+            "${RUBY_DEVEL}" make gcc sqlite3-devel libcurl-devel \
             libxml2-devel libxslt-devel patch gcc-c++ \
             libopenssl-devel augeas-devel libvirt-devel rpm-build \
             >/dev/null
@@ -105,28 +120,28 @@ case "${TARGET}" in
 esac
 
 # Install Bundler
-if ! command -v bundler >/dev/null; then
+if ! command -v "${BUNDLE}" >/dev/null; then
     echo '* Install Bundler'
 
     for VERSION in '' '2.3.27' '<2'; do
         if [ -z "$VERSION" ]; then
-            if gem install bundler >/dev/null 2>&1; then
+            if "${GEM}" install bundler >/dev/null 2>&1; then
                 break
             fi
         else
-            if gem install bundler --version "$VERSION" >/dev/null 2>&1; then
+            if "${GEM}" install bundler --version "$VERSION" >/dev/null 2>&1; then
                 break
             fi
         fi
     done
 
     # SUSE update-alternatives creates bundler.ruby* instead of bundler
-    if ! command -v bundler >/dev/null; then
+    if ! command -v "${BUNDLE}" >/dev/null; then
         ln -sf $(ls /usr/bin/bundler.ruby* 2>/dev/null | head -1) /usr/bin/bundler 2>/dev/null ||:
         ln -sf $(ls /usr/bin/bundle.ruby* 2>/dev/null | head -1) /usr/bin/bundle 2>/dev/null ||:
     fi
 
-    if ! command -v bundler >/dev/null; then
+    if ! command -v "${BUNDLE}" >/dev/null; then
         echo "ERROR: Failed to install Bundler" >&2
         exit 1
     fi
@@ -135,10 +150,10 @@ fi
 # Find Gemfile location and pass to Bundler
 echo '* Install Gem Dependencies'
 
-bundler_version=$(bundler --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-bundle_higher_or_eq_4_0_0=$(ruby -e "require 'rubygems'; puts Gem::Version.new('$bundler_version') >= Gem::Version.new('4.0.0') ? 1 : 0")
+bundler_version=$("${BUNDLE}" --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+bundle_higher_or_eq_4_0_0=$("${RUBY}" -e "require 'rubygems'; puts Gem::Version.new('$bundler_version') >= Gem::Version.new('4.0.0') ? 1 : 0")
 if [ "$bundle_higher_or_eq_4_0_0" -eq 1 ]; then
-    bundle config set --global path.system true
+    "${BUNDLE}" config set --global path.system true
 fi
 
 for GEMFILE in \
@@ -147,8 +162,8 @@ for GEMFILE in \
     "/usr/share/one/Gemfile"
 do
     if [ -f "${GEMFILE}" ]; then
-        bundle config set path.system true
-        bundle install --gemfile="${GEMFILE}"
+        "${BUNDLE}" config set path.system true
+        "${BUNDLE}" install --gemfile="${GEMFILE}"
 
         echo 'Successfully done!'
         exit 0
