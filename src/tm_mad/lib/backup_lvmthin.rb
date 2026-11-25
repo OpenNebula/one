@@ -41,6 +41,7 @@ require 'tempfile'
 require 'open3'
 require 'rexml/document'
 require 'English'
+require 'shellwords'
 require 'CommandManager'
 require 'DriverLogger'
 
@@ -51,7 +52,17 @@ module LVMHelper
 
     # Gets a specific attribute for logical volumes.
     def self.get_lv_attr(attr, lv_path)
-        LocalCommand.run("sudo lvs --noheadings -o #{attr} #{lv_path}").stdout.strip
+        command = ['sudo', 'lvs', '--noheadings', '-o', attr, lv_path]
+        result  = LocalCommand.run(command.shelljoin)
+
+        unless result.code == 0
+            raise "Cannot read #{attr} for #{lv_path}: #{result.stderr}"
+        end
+
+        value = result.stdout.strip
+        raise "Missing #{attr} for #{lv_path}" if value.empty?
+
+        value
     end
 
     # Constructs the device mapper path for a thin pool.
@@ -163,17 +174,17 @@ class ExtentWriter
 
 end
 
-def main(origin_lv, from_snap_lv, to_snap_lv, output_file, opts = {})
-    interactive       = opts[:interactive]
-    interactive_ready = false
-    activated         = false
+def checked_command(*args)
+    result = LocalCommand.run(args.shelljoin)
+    raise "Command failed: #{args.first}: #{result.stderr}" unless result.code == 0
 
-    delta_file      = Tempfile.new(['thin_delta', '.xml'])
-    delta_file_path = delta_file.path
+    result.stdout
+end
 
+# Called while the frontend holds the VG lock.
+def prepare_delta(origin_lv, from_snap_lv, to_snap_lv, delta_file_path)
     # Activate LV
-    LocalCommand.run("sudo lvchange -K -ay #{to_snap_lv}")
-    activated = true
+    checked_command('sudo', 'lvchange', '-K', '-ay', to_snap_lv)
 
     # LVM metadata
     vg_name   = LVMHelper.get_lv_attr('vg_name', origin_lv)
@@ -184,6 +195,34 @@ def main(origin_lv, from_snap_lv, to_snap_lv, output_file, opts = {})
     from_id = LVMHelper.get_lv_attr('thin_id', from_snap_lv)
     to_id   = LVMHelper.get_lv_attr('thin_id', to_snap_lv)
 
+    # Reserve and release snapshot metadata
+    reserved = false
+    begin
+        OpenNebula::DriverLogger.log_info "Getting changed blocks from #{from_id} to #{to_id}"
+
+        checked_command('sudo', 'dmsetup', 'message', tpool_dev, '0', 'reserve_metadata_snap')
+        reserved = true
+
+        File.open(delta_file_path, 'w') do |file|
+            pid = Process.spawn(
+                'thin_delta', '--metadata-snap', '--thin1', from_id,
+                '--thin2', to_id, tmeta_dev, :out => file
+            )
+
+            _, status = Process.wait2(pid)
+            raise 'thin_delta failed' unless status.success?
+        end
+    ensure
+        # Release only a successfully reserved snapshot
+        if reserved
+            checked_command('sudo', 'dmsetup', 'message', tpool_dev, '0', 'release_metadata_snap')
+        end
+    end
+end
+
+# Called without the frontend lock after preparation has completed.
+def export_delta(to_snap_lv, delta_file_path, output_file, opts = {})
+    interactive = opts[:interactive]
     source_dev = LVMHelper.get_mapper_path(to_snap_lv)
 
     if interactive
@@ -205,30 +244,10 @@ def main(origin_lv, from_snap_lv, to_snap_lv, output_file, opts = {})
             :format   => 'qcow2',
             :mode     => 'incremental',
             :size     => size.to_i,
-            :from_id  => from_id,
-            :to_id    => to_id,
-            :tpool    => tpool_dev,
-            :tmeta    => tmeta_dev
+            :delta    => delta_file_path
         )
-
-        interactive_ready = true
 
         return
-    end
-
-    # Reserve and release snapshot metadata
-    begin
-        OpenNebula::DriverLogger.log_info "Getting changed blocks from #{from_id} to #{to_id}"
-
-        LocalCommand.run("sudo dmsetup message #{tpool_dev} 0 reserve_metadata_snap")
-        LocalCommand.run(
-            "thin_delta --metadata-snap --thin1 #{from_id} " \
-            "--thin2 #{to_id} #{tmeta_dev} > #{delta_file_path}"
-        )
-    ensure
-        # Release the snapshot
-        LocalCommand.run("sudo dmsetup message #{tpool_dev} 0 release_metadata_snap", nil, nil,
-                         nil, nil)
     end
 
     # Parse delta file (get changed blocks)
@@ -239,8 +258,8 @@ def main(origin_lv, from_snap_lv, to_snap_lv, output_file, opts = {})
     if parser.records.empty?
         OpenNebula::DriverLogger.log_info 'No changes between snapshots. Empty qcow2 incremental.'
 
-        size = LocalCommand.run("blockdev --getsize64 #{source_dev}").stdout.strip
-        LocalCommand.run("qemu-img create -f qcow2 #{output_file} #{size}")
+        size = checked_command('blockdev', '--getsize64', source_dev).strip
+        checked_command('qemu-img', 'create', '-f', 'qcow2', output_file, size)
         return
     end
 
@@ -249,43 +268,37 @@ def main(origin_lv, from_snap_lv, to_snap_lv, output_file, opts = {})
     ExtentWriter.write(source_dev, output_file, parser.records)
 
     OpenNebula::DriverLogger.log_info "LVM Thin Backup completed successfully: #{output_file}"
-ensure
-    # Deactivate LV
-    if activated && (!interactive || !interactive_ready)
-        LocalCommand.run("sudo lvchange -an #{to_snap_lv}", nil, nil, nil, nil)
-    end
-
-    # Cleanup
-    if delta_file
-        delta_file.close
-        delta_file.unlink
-    end
 end
 
 # --- Entry ---
 if __FILE__ == $PROGRAM_NAME
-    interactive = ARGV.first == '--interactive'
+    operation   = ARGV.shift
+    interactive = operation == '--export' && ARGV.first == '--interactive'
+
     ARGV.shift if interactive
 
-    expected_args = interactive ? 6 : 4
+    expected = if operation == '--prepare'
+                   4
+               elsif interactive
+                   5
+               else
+                   3
+               end
 
-    if ARGV.length != expected_args
-        puts "Usage: #{$PROGRAM_NAME} <origin_lv> <from_snap> <to_snap> <qcow2_output>"
-        puts "       #{$PROGRAM_NAME} --interactive <origin_lv> <from_snap> " \
-             '<to_snap> <qcow2_output> <disk_id> <size_mib>'
+    unless ['--prepare', '--export'].include?(operation) && ARGV.length == expected
+        warn "Usage: #{$PROGRAM_NAME} --prepare <origin> <previous> <current> <delta>"
+        warn "       #{$PROGRAM_NAME} --export [--interactive] " \
+             '<current> <delta> <output> [<disk_id> <size_mib>]'
         exit 1
     end
 
     begin
-        main(
-            ARGV[0],
-            ARGV[1],
-            ARGV[2],
-            ARGV[3],
-            :interactive => interactive,
-            :disk_id     => ARGV[4],
-            :size        => ARGV[5]
-        )
+        if operation == '--prepare'
+            prepare_delta(*ARGV)
+        else
+            export_delta(ARGV[0], ARGV[1], ARGV[2],
+                         :interactive => interactive, :disk_id => ARGV[3], :size => ARGV[4])
+        end
     rescue StandardError => e
         OpenNebula::DriverLogger.report "LVM Thin Backup failed: #{e.message}"
         OpenNebula::DriverLogger.report e.backtrace.join("\n")

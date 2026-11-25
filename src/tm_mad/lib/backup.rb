@@ -48,13 +48,16 @@ module TransferManager
 
             kvm = KVMDomain.new(@xml.to_s, @vm_dir, :backup_dir => backup_dir)
 
-            snap_cmd = ''
-            expo_cmd = ''
+            snap_cmd     = ''
+            activate_cmd = ''
+            prepare_cmd  = ''
+            expo_cmd     = ''
 
             snap_clup  = ''
             expo_clup  = ''
             snap_abort = ''
             onebex_cmd = ''
+            locks      = []
 
             vm_id = @xml.elements['ID'].text
             ds_id = File.basename(File.dirname(@vm_dir.to_s))
@@ -81,11 +84,14 @@ module TransferManager
                 cmds = d.backup_cmds(backup_dir, ds, live, disk_format)
                 return nil unless cmds
 
-                snap_cmd   << cmds[:snapshot].to_s
-                expo_cmd   << cmds[:export].to_s
-                snap_clup  << cmds[:snapshot_clup].to_s
-                expo_clup  << cmds[:export_clup].to_s
-                snap_abort << cmds[:snapshot_abort].to_s
+                snap_cmd     << cmds[:snapshot].to_s
+                activate_cmd << cmds[:activate].to_s
+                prepare_cmd  << cmds[:prepare].to_s
+                expo_cmd     << cmds[:export].to_s
+                snap_clup    << cmds[:snapshot_clup].to_s
+                expo_clup    << cmds[:export_clup].to_s
+                snap_abort   << cmds[:snapshot_abort].to_s
+                locks      << cmds[:lock_path] if cmds[:lock_path]
 
                 next unless cmds[:start_onebex]
 
@@ -142,6 +148,11 @@ module TransferManager
                 trap - EXIT
             EOS
 
+            setup = <<~EOS
+                [ -d #{backup_dir} ] && rm -rf #{backup_dir}
+                mkdir -p #{backup_dir}
+            EOS
+
             export = <<~EOS
                 # -------------------------------------------------------
                 # Remove disk snapshots created by this backup on failure
@@ -158,13 +169,12 @@ module TransferManager
                     exit "$rc"
                 }
 
-                trap abort_cleanup EXIT
+                #{'trap abort_cleanup EXIT' if locks.empty?}
 
                 # ---------------------
                 # Prepare backup folder
                 # ---------------------
-                [ -d #{backup_dir} ] && rm -rf #{backup_dir}
-                mkdir -p #{backup_dir}
+                #{setup if locks.empty?}
 
                 echo "#{Base64.encode64(@xml.to_s)}" > #{backup_dir}/vm.xml
 
@@ -187,10 +197,24 @@ module TransferManager
                 # -----------------
                 # Cleanup snapshots
                 # -----------------
-                #{snap_clup}
+                #{snap_clup if locks.empty?}
 
                 trap - EXIT
             EOS
+
+            # LVM backups lock metadata phases on the frontend
+            unless locks.empty?
+                return {
+                    :locks    => locks,
+                    :snapshot => header + snapshot,
+                    :activate => (header + activate_cmd unless activate_cmd.empty?),
+                    :setup    => header + setup,
+                    :prepare  => (header + prepare_cmd unless prepare_cmd.empty?),
+                    :export   => header + export,
+                    :cleanup  => header + "cd #{backup_dir}\n" + snap_clup,
+                    :abort    => header + "set +e\n" + snap_abort
+                }
+            end
 
             # Phased live backup:
             #   hypervisor  -> freeze VM, create snapshots, thaw VM

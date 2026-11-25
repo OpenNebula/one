@@ -88,9 +88,15 @@ module MAD
             File.join(LOCK_DIR, "tm-onelvm-#{lockname}.lock")
         end
 
-        def self.with_lvm_lock(vgname)
-            lockpath = lock_path(vgname)
+        def self.with_lvm_lock(vgname, &block)
+            with_lock_path(lock_path(vgname), &block)
+        end
 
+        def with_lvm_lock(vgname, &block)
+            LVMWrapper.with_lvm_lock(vgname, &block)
+        end
+
+        def self.with_lock_path(lockpath)
             FileUtils.mkdir_p(LOCK_DIR)
 
             File.open(lockpath, File::RDWR | File::CREAT, 0o640) do |file|
@@ -108,30 +114,14 @@ module MAD
             raise StandardError, "Could not acquire exclusive lock on #{lockpath}"
         end
 
-        def with_lvm_lock(vgname, &block)
-            LVMWrapper.with_lvm_lock(vgname, &block)
-        end
+        # Always acquire lock paths in the same order to avoid deadlocks.
+        def self.with_lock_paths(paths)
+            first, *rest = paths.uniq.sort
+            return yield unless first
 
-        def self.with_lvm_lock_sh(vgname, sh)
-            lockpath = lock_path(vgname)
-
-            <<~EOF
-                (
-                    mkdir -p '#{LOCK_DIR}'
-                    umask 0027
-                    exec 9> '#{lockpath}'
-                    if ! flock -w #{LOCK_TIMEOUT} 9; then
-                        echo "Could not acquire exclusive lock on #{lockpath}" >&2
-                        exit 1
-                    fi
-
-                    #{sh.strip.hd_indent}
-                )
-            EOF
-        end
-
-        def with_lvm_lock_sh(vgname, sh)
-            LVMWrapper.with_lvm_lock_sh(vgname, sh)
+            with_lock_path(first) do
+                with_lock_paths(rest) { yield }
+            end
         end
 
     end

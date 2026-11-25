@@ -27,9 +27,6 @@ module OneBEX
 
             SECTOR_SIZE = 512
 
-            # Shared across exporters; hash collisions only serialize unrelated pools.
-            POOL_LOCKS = Array.new(512) { Mutex.new }.freeze
-
             # Stores shared exporter configuration and logging dependencies.
             def initialize(config:, logger:)
                 @config = config
@@ -49,20 +46,14 @@ module OneBEX
             #
             #   :disk attributes read:
             #     mode    - full or incremental
-            #     from_id - older thin volume id for incremental exports
-            #     to_id   - newer thin volume id for incremental exports
-            #     tpool   - thin-pool device used by dmsetup
-            #     tmeta   - thin metadata device used by thin_delta
+            #     delta   - prepared thin_delta XML for incremental exports
             #     size    - fallback device size in MiB
             #
             #   Written:
             #     :device  - block device used by reads
             #     :mode    - normalized export mode
             #     :format  - normalized transfer format
-            #     :from_id - older thin volume id
-            #     :to_id   - newer thin volume id
-            #     :tpool   - thin-pool device
-            #     :tmeta   - thin metadata device
+            #     :delta   - prepared thin_delta XML path
             # ----------------------------------------------------------------
             def start(xfr)
                 disk = xfr[:disk] || {}
@@ -70,10 +61,7 @@ module OneBEX
                 xfr[:device]  = xfr[:source].to_s
                 xfr[:mode]    = (disk['mode'] || 'full').to_s.downcase
                 xfr[:format]  = (xfr[:format] || 'qcow2').to_s
-                xfr[:from_id] = disk['from_id']
-                xfr[:to_id]   = disk['to_id']
-                xfr[:tpool]   = disk['tpool']
-                xfr[:tmeta]   = disk['tmeta']
+                xfr[:delta]   = disk['delta']
 
                 if xfr[:device].empty?
                     raise 'Missing LVM source device'
@@ -119,9 +107,9 @@ module OneBEX
                         }
                     ]
                 when 'incremental'
-                    POOL_LOCKS[xfr[:tpool].hash % POOL_LOCKS.length].synchronize do
-                        thin_delta_extents(xfr)
-                    end
+                    raise 'Missing prepared LVM incremental map' if xfr[:delta].to_s.empty?
+
+                    parse_thin_delta(File.read(xfr[:delta]))
                 else
                     raise "Unsupported LVM export mode: #{xfr[:mode]}"
                 end
@@ -192,62 +180,6 @@ module OneBEX
             # ----------------------------------------------------------------
 
             private
-
-            # Queries thin_delta for changed extents between two thin volume ids.
-            def thin_delta_extents(xfr)
-                missing = [:from_id, :to_id, :tpool, :tmeta].select do |key|
-                    xfr[key].to_s.empty?
-                end
-
-                unless missing.empty?
-                    raise "Missing LVM incremental field(s): #{missing.join(', ')}"
-                end
-
-                reserved = false
-
-                begin
-                    cmd(
-                        'sudo',
-                        '-n',
-                        'dmsetup',
-                        'message',
-                        xfr[:tpool],
-                        '0',
-                        'reserve_metadata_snap'
-                    )
-
-                    reserved = true
-
-                    xml = cmd(
-                        'thin_delta',
-                        '--metadata-snap',
-                        '--thin1', xfr[:from_id].to_s,
-                        '--thin2', xfr[:to_id].to_s,
-                        xfr[:tmeta]
-                    )
-
-                    parse_thin_delta(xml)
-                ensure
-                    if reserved
-                        begin
-                            cmd(
-                                'sudo',
-                                '-n',
-                                'dmsetup',
-                                'message',
-                                xfr[:tpool],
-                                '0',
-                                'release_metadata_snap'
-                            )
-                        rescue StandardError => e
-                            @logger.warn(
-                                'Failed to release LVM metadata snapshot ' \
-                                "#{xfr[:tpool]}: #{e.message}"
-                            )
-                        end
-                    end
-                end
-            end
 
             # Parses thin_delta XML into OneBEX extent entries.
             def parse_thin_delta(xml)

@@ -36,6 +36,43 @@ module TransferManager
                 super(vm_xml, vm_dir, disks)
             end
 
+            def run_backup(action, host, options)
+                script = backup_disks_sh(options)
+                return unless script
+
+                run = proc do |cmds|
+                    action.ssh(:host => host, :cmds => cmds, :nostdout => false, :nostderr => false)
+                end
+                return run.call(script) unless script.is_a?(Hash)
+
+                # Wrap only the existing locked operations
+                run_locked = proc do |cmds|
+                    MAD::LVMWrapper.with_lock_paths(script[:locks]) { run.call(cmds) }
+                end
+
+                rc = run_locked.call(script[:snapshot])
+                return rc unless rc.code == 0
+
+                complete = false
+                begin
+                    rc = run.call(script[:setup])
+                    rc = run_locked.call(script[:activate]) if rc.code == 0 && script[:activate]
+                    rc = run_locked.call(script[:prepare]) if rc.code == 0 && script[:prepare]
+                    rc = run.call(script[:export]) if rc.code == 0
+                    rc = run_locked.call(script[:cleanup]) if rc.code == 0
+                    complete = rc.code == 0
+                    rc
+                ensure
+                    unless complete
+                        begin
+                            run_locked.call(script[:abort])
+                        rescue StandardError => e
+                            STDERR.puts "Error cleaning backup snapshots: #{e.message}"
+                        end
+                    end
+                end
+            end
+
         end
 
         # LVM disks
@@ -93,6 +130,11 @@ module TransferManager
                 end
 
                 @pool = MAD::ThinPool.new(@vgname, @poolname) if @is_thin
+                @lock_path = if @tm_mad == 'lvm'
+                                 MAD::LVMWrapper.lock_path(@vgname)
+                             else # fs_lvm, fs_lvm_ssh
+                                 File.join(MAD::LVMWrapper::LOCK_DIR, "tm-fs_lvm-#{sysds_id}.lock")
+                             end
 
                 bc   = @vm.elements['BACKUPS/BACKUP_CONFIG']
                 mode = bc.elements['MODE']&.text if bc
@@ -140,11 +182,13 @@ module TransferManager
             # @param _format [String, nil] Unused. Included for compatibility with ceph.rb.
             # @return [Disk]
             def backup_cmds(backup_dir, ds, live, _format = nil)
-                snap_cmd    = ''
-                expo_cmd    = ''
-                snap_clup   = ''
-                snap_abort  = ''
-                backup_util = '/var/lib/one-remotes/tm/lib/backup_lvmthin.rb'
+                snap_cmd     = ''
+                activate_cmd = ''
+                prepare_cmd  = ''
+                expo_cmd     = ''
+                snap_clup    = ''
+                snap_abort   = ''
+                backup_util  = '/var/lib/one-remotes/tm/lib/backup_lvmthin.rb'
 
                 if @interactive
                     return backup_cmds_interactive(backup_dir, ds, live, backup_util)
@@ -165,12 +209,12 @@ module TransferManager
                             snapshot = "#{@lvname}_one_backup"
                             orig = path(snapshot)
 
-                            snap_cmd << lvm_lock_sh(<<~EOF)
+                            snap_cmd << <<~EOF
                                 sudo lvremove -y #{qual(snapshot)} || true
                                 sudo lvcreate -s -n #{snapshot} #{qual(@lvname)}
                             EOF
-                            snap_clup << lvm_lock_sh("sudo lvremove -y #{qual(snapshot)}")
-                            snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snapshot)}")
+                            snap_clup << "sudo lvremove -y #{qual(snapshot)}\n"
+                            snap_abort << "sudo lvremove -y #{qual(snapshot)}\n"
                         else
                             # Full, live, non-thin: UNSUPPORTED
                             return
@@ -180,12 +224,12 @@ module TransferManager
                         orig = path(@lvname)
                     end
 
+                    activate_cmd = "sudo lvchange -K -ay #{orig}\n"
                     expo_cmd << ds.cmd_confinement(<<~EOF, backup_dir)
-                        #{lvm_lock_sh("sudo lvchange -K -ay #{orig}").strip}
                         qemu-img convert -m 4 -O qcow2 #{orig} #{ddst}
                     EOF
 
-                    snap_clup << lvm_lock_sh(remove_increment_snapshots_sh) if @is_thin
+                    snap_clup << remove_increment_snapshots_sh if @is_thin
                 elsif @vm_backup_config[:last_increment] == -1
                     # First incremental backup (initial full backup)
                     return unless @is_thin
@@ -195,19 +239,19 @@ module TransferManager
                     snap_curr = "#{@lvname}_#{INC_SNAP_PREFIX}#{incid}"
                     snap_path = path(snap_curr)
 
-                    snap_cmd << lvm_lock_sh(<<~EOF)
+                    snap_cmd << <<~EOF
                         #{remove_increment_snapshots_sh}
                         sudo lvcreate -s -n #{snap_curr} #{qual(@lvname)}
                         #{@pool.adjust_sh if @pool}
                     EOF
 
+                    activate_cmd = "sudo lvchange -K -ay #{snap_path}\n"
                     expo_cmd << ds.cmd_confinement(<<~EOF, backup_dir)
-                        sudo lvchange -K -ay #{snap_path}
                         qemu-img convert -m 4 -O qcow2 #{snap_path} #{dexp}
                     EOF
 
-                    snap_clup << lvm_lock_sh("sudo lvchange -K -an #{snap_path}")
-                    snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snap_curr)}")
+                    snap_clup << "sudo lvchange -K -an #{snap_path}\n"
+                    snap_abort << "sudo lvremove -y #{qual(snap_curr)}\n"
                 else
                     # Incremental backup
                     return unless @is_thin
@@ -216,39 +260,51 @@ module TransferManager
                     dinc      = "#{backup_dir}/disk.#{@id}.#{incid}"
                     snap_curr = "#{@lvname}_#{INC_SNAP_PREFIX}#{incid}"
                     snap_prev = "#{@lvname}_#{INC_SNAP_PREFIX}#{@vm_backup_config[:last_increment]}"
+                    delta     = "#{backup_dir}/disk.#{@id}.#{incid}.delta.xml"
 
-                    snap_cmd << lvm_lock_sh(<<~EOF)
+                    snap_cmd << <<~EOF
                         sudo lvchange --refresh #{qual(@poolname)}
                         #{remove_increment_snapshots_sh(@vm_backup_config[:last_increment])}
                         sudo lvcreate -s -n #{snap_curr} #{qual(@lvname)}
                         #{@pool.adjust_sh if @pool}
                     EOF
 
+                    prepare_cmd << ds.cmd_confinement(
+                        "ruby #{backup_util} --prepare #{qual(@lvname)} " \
+                        "#{qual(snap_prev)} #{qual(snap_curr)} #{delta}\n",
+                        backup_dir
+                    )
                     expo_cmd << ds.cmd_confinement(
-                        "ruby #{backup_util} #{qual(@lvname)} " \
-                        "#{qual(snap_prev)} #{qual(snap_curr)} #{dinc}\n",
+                        "ruby #{backup_util} --export #{qual(snap_curr)} #{delta} #{dinc}\n",
                         backup_dir
                     )
 
-                    snap_clup << lvm_lock_sh("sudo lvremove -y #{qual(snap_prev)}")
-                    snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snap_curr)}")
+                    snap_clup << "sudo lvchange -K -an #{qual(snap_curr)}\n"
+                    snap_clup << "sudo lvremove -y #{qual(snap_prev)}\n"
+                    snap_abort << "sudo lvremove -y #{qual(snap_curr)}\n"
+                    snap_abort << "rm -f #{delta}\n"
                 end
 
                 {
                     :snapshot      => snap_cmd,
+                    :activate      => activate_cmd,
+                    :prepare       => prepare_cmd,
                     :export        => expo_cmd,
                     :snapshot_clup => snap_clup,
-                    :export_clup   => '',
+                    :export_clup   => (delta ? "rm -f #{delta}\n" : ''),
                     :snapshot_abort => snap_abort,
-                    :cleanup       => snap_clup
+                    :cleanup       => snap_clup,
+                    :lock_path     => @lock_path
                 }
             end
 
             def backup_cmds_interactive(backup_dir, ds, live, backup_util)
-                snap_cmd  = ''
-                expo_cmd  = ''
-                snap_clup = ''
-                snap_abort = ''
+                snap_cmd     = ''
+                activate_cmd = ''
+                prepare_cmd  = ''
+                expo_cmd     = ''
+                snap_clup    = ''
+                snap_abort   = ''
 
                 # Supported configurations
                 # Legend: (T)hin, (F)at
@@ -267,18 +323,18 @@ module TransferManager
                         snapshot = "#{@lvname}_one_backup"
                         orig = path(snapshot)
 
-                        snap_cmd << lvm_lock_sh(<<~EOF)
+                        snap_cmd << <<~EOF
                             sudo lvremove -y #{qual(snapshot)} || true
                             sudo lvcreate -s -n #{snapshot} #{qual(@lvname)}
                         EOF
-                        snap_clup << lvm_lock_sh("sudo lvremove -y #{qual(snapshot)}")
-                        snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snapshot)}")
+                        snap_clup << "sudo lvremove -y #{qual(snapshot)}\n"
+                        snap_abort << "sudo lvremove -y #{qual(snapshot)}\n"
                     else
                         orig = path(@lvname)
                     end
 
+                    activate_cmd = "sudo lvchange -K -ay #{orig}\n"
                     expo_cmd << ds.cmd_confinement(<<~EOF, backup_dir)
-                        #{lvm_lock_sh("sudo lvchange -K -ay #{orig}").strip}
                         #{TransferManager::OneBEX.write_exports_sh(
                             backup_dir,
                             @id,
@@ -291,7 +347,7 @@ module TransferManager
                         )}
                     EOF
 
-                    snap_clup << lvm_lock_sh(remove_increment_snapshots_sh) if @is_thin
+                    snap_clup << remove_increment_snapshots_sh if @is_thin
                 elsif @vm_backup_config[:last_increment] == -1
                     # First interactive incremental backup (initial full backup)
                     return unless @is_thin
@@ -301,14 +357,14 @@ module TransferManager
                     snap_curr = "#{@lvname}_#{INC_SNAP_PREFIX}#{incid}"
                     snap_path = path(snap_curr)
 
-                    snap_cmd << lvm_lock_sh(<<~EOF)
+                    snap_cmd << <<~EOF
                         #{remove_increment_snapshots_sh}
                         sudo lvcreate -s -n #{snap_curr} #{qual(@lvname)}
                         #{@pool.adjust_sh if @pool}
                     EOF
 
+                    activate_cmd = "sudo lvchange -K -ay #{snap_path}\n"
                     expo_cmd << ds.cmd_confinement(<<~EOF, backup_dir)
-                        #{lvm_lock_sh("sudo lvchange -K -ay #{snap_path}").strip}
                         #{TransferManager::OneBEX.write_exports_sh(
                             backup_dir,
                             @id,
@@ -321,8 +377,8 @@ module TransferManager
                         )}
                     EOF
 
-                    snap_clup << lvm_lock_sh("sudo lvchange -K -an #{snap_path}")
-                    snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snap_curr)}")
+                    snap_clup << "sudo lvchange -K -an #{snap_path}\n"
+                    snap_abort << "sudo lvremove -y #{qual(snap_curr)}\n"
                 else
                     # Interactive incremental backup
                     return unless @is_thin
@@ -333,34 +389,43 @@ module TransferManager
                     snap_prev = "#{@lvname}_#{INC_SNAP_PREFIX}" \
                                 "#{@vm_backup_config[:last_increment]}"
                     snap_path = path(snap_curr)
+                    delta = "#{backup_dir}/disk.#{@id}.#{incid}.delta.xml"
 
-                    snap_cmd << lvm_lock_sh(<<~EOF)
+                    snap_cmd << <<~EOF
                         sudo lvchange --refresh #{qual(@poolname)}
                         #{remove_increment_snapshots_sh(@vm_backup_config[:last_increment])}
                         sudo lvcreate -s -n #{snap_curr} #{qual(@lvname)}
                         #{@pool.adjust_sh if @pool}
                     EOF
 
+                    prepare_cmd << ds.cmd_confinement(
+                        "ruby #{backup_util} --prepare #{qual(@lvname)} " \
+                        "#{qual(snap_prev)} #{qual(snap_curr)} #{delta}\n",
+                        backup_dir
+                    )
                     expo_cmd << ds.cmd_confinement(
-                        "ruby #{backup_util} --interactive #{qual(@lvname)} " \
-                        "#{qual(snap_prev)} #{qual(snap_curr)} #{dinc} " \
+                        "ruby #{backup_util} --export --interactive #{qual(snap_curr)} #{delta} #{dinc} " \
                         "#{@id} #{@size}\n",
                         backup_dir
                     )
 
-                    snap_clup << lvm_lock_sh("sudo lvchange -K -an #{snap_path}")
-                    snap_clup << lvm_lock_sh("sudo lvremove -y #{qual(snap_prev)}")
-                    snap_abort << lvm_lock_sh("sudo lvremove -y #{qual(snap_curr)}")
+                    snap_clup << "sudo lvchange -K -an #{snap_path}\n"
+                    snap_clup << "sudo lvremove -y #{qual(snap_prev)}\n"
+                    snap_abort << "sudo lvremove -y #{qual(snap_curr)}\n"
+                    snap_abort << "rm -f #{delta}\n"
                 end
 
                 {
                     :snapshot      => snap_cmd,
+                    :activate      => activate_cmd,
+                    :prepare       => prepare_cmd,
                     :export        => expo_cmd,
                     :snapshot_clup => snap_clup,
-                    :export_clup   => '',
+                    :export_clup   => (delta ? "rm -f #{delta}\n" : ''),
                     :snapshot_abort => snap_abort,
                     :cleanup       => snap_clup,
-                    :start_onebex  => true
+                    :start_onebex  => true,
+                    :lock_path     => @lock_path
                 }
             end
 
@@ -381,10 +446,6 @@ module TransferManager
                 EOS
                 cleanup_cmd = "rm -f '#{qcow_path}' '#{qcow_path}.raw'"
                 [restore_cmds, cleanup_cmd]
-            end
-
-            def lvm_lock_sh(sh)
-                MAD::LVMWrapper.with_lvm_lock_sh(@vgname, sh)
             end
 
             ####################################################################
