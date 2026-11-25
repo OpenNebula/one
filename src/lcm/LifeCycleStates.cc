@@ -368,6 +368,8 @@ void LifeCycleManager::trigger_deploy_success(int vid)
 
             vm->set_etime(0);
 
+            vm->set_running_stime(time(0));
+
             vm->set_running_etime(0);
 
             vmpool->update_history(vm.get());
