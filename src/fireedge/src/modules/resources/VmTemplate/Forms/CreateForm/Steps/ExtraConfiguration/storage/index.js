@@ -475,8 +475,10 @@ const Storage = ({ hypervisor, oneConfig, adminGroup, vmTemplate }) => {
             />
           ),
           confirmLabel: T.Detach,
-          confirmButtonProps: {
-            isDestructive: true,
+          actionsProps: {
+            confirm: {
+              isDestructive: true,
+            },
           },
         },
         onSubmit: () => removeAndReorder(disk),

@@ -255,8 +255,10 @@ const FormStepper = ({
         description: T['form.cancel.progress.confirmation'],
         confirmLabel: T.Continue,
         cancelLabel: T.Cancel,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: executeCancel,

@@ -234,7 +234,11 @@ export const DetailsDrawer = ({ selectedData = [], onEdit }) => {
         ),
         confirmLabel: T.Delete,
         cancelLabel: T.Cancel,
-        confirmButtonProps: { isDestructive: true },
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
+        },
       },
       onSubmit: async () => {
         const result = await runOperation(
@@ -264,7 +268,11 @@ export const DetailsDrawer = ({ selectedData = [], onEdit }) => {
         ),
         confirmLabel: T.Remove,
         cancelLabel: T.Cancel,
-        confirmButtonProps: { isDestructive: true },
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
+        },
       },
       onSubmit: () =>
         runOperation(() =>

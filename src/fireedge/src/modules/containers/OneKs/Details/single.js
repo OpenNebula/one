@@ -98,7 +98,7 @@ export const SingleView = ({
   )
   const { currentData: installedApplications } =
     OneKsAPI.useGetOneKsClusterApplicationsQuery(
-      { id: selectedId },
+      { id: selectedId, showNotification: false },
       { skip: !isOpen || selectedId === undefined }
     )
   const { data: families = [], isLoading: isLoadingFamilies } =

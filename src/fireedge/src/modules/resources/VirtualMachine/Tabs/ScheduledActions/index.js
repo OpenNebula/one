@@ -90,8 +90,10 @@ export const ScheduledActions = ({ data, config }) => {
           />
         ),
         confirmLabel: T.Delete,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: async () => {

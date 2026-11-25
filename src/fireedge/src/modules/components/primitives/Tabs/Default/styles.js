@@ -112,6 +112,12 @@ const getDefaultModifiers = (theme) => ({
 const getLineModifiers = (theme) => ({
   base: {
     borderRadius: `${theme.borderRadius.xlg + theme.borderWidth.sm}px`,
+
+    '& .MuiTabs-flexContainer::after': {
+      content: '""',
+      flexGrow: 1,
+      borderBottom: `${theme.borderWidth.md}px solid ${theme.palette.border.primary}`,
+    },
   },
   tab: {
     borderRadius: `${theme.borderRadius.xlg - theme.borderWidth.sm}px ${

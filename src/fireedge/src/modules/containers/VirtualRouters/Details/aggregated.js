@@ -185,8 +185,10 @@ export const AggregatedView = ({
           />
         ),
         confirmLabel: T.Delete,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: async () => {

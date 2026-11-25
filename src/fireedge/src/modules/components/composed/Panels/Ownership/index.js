@@ -26,12 +26,20 @@ import { Table } from '@modules/components/primitives/Tables'
 import { Edit } from 'iconoir-react'
 
 const CHANGE_OWNERSHIP_DIALOG_PROPS = {
-  dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
-  dialogMaxWidth: 'calc(100vw - 32px)',
-  dialogMaxHeight: 'calc(100vh - 64px)',
-  dialogPaperOverflow: 'visible',
-  dialogContentMaxHeight: '50vh',
-  dialogContentOverflowY: 'auto',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '900px',
+      lg: '1040px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
+    maxHeight: 'calc(100vh - 64px)',
+    overflow: 'visible',
+    content: {
+      maxHeight: '50vh',
+      overflowY: 'auto',
+    },
+  },
 }
 
 export const OwnershipTab = forwardRef(

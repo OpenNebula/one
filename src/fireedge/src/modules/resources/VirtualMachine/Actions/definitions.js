@@ -63,11 +63,19 @@ export default {
     form: Forms.VmGroupForm,
     success: T.SuccessVMGroupAssociated,
     dialogProps: {
-      dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
-      dialogMaxWidth: 'calc(100vw - 32px)',
-      dialogMaxHeight: 'calc(100vh - 64px)',
-      dialogContentMaxHeight: 'calc(100vh - 220px)',
-      dialogContentOverflowY: 'auto',
+      sx: {
+        width: {
+          xs: 'calc(100vw - 32px)',
+          md: '900px',
+          lg: '1040px',
+        },
+        maxWidth: 'calc(100vw - 32px)',
+        maxHeight: 'calc(100vh - 64px)',
+        content: {
+          maxHeight: 'calc(100vh - 220px)',
+          overflowY: 'auto',
+        },
+      },
       validateOn: 'onBlur',
     },
   },
@@ -86,11 +94,19 @@ export default {
         initialValues: { ...vm, _HYPERVISOR: getHypervisor(vm) },
       }),
     dialogProps: {
-      dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
-      dialogMaxWidth: 'calc(100vw - 32px)',
-      dialogMaxHeight: 'calc(100vh - 64px)',
-      dialogContentMaxHeight: 'calc(100vh - 220px)',
-      dialogContentOverflowY: 'auto',
+      sx: {
+        width: {
+          xs: 'calc(100vw - 32px)',
+          md: '900px',
+          lg: '1040px',
+        },
+        maxWidth: 'calc(100vw - 32px)',
+        maxHeight: 'calc(100vh - 64px)',
+        content: {
+          maxHeight: 'calc(100vh - 220px)',
+          overflowY: 'auto',
+        },
+      },
     },
     params: {
       replace: 0,
@@ -168,10 +184,17 @@ export default {
     form: Forms.CreateSnapshotForm,
     success: T.CreateSnapshotSuccess,
     dialogProps: {
-      dialogWidth: { xs: 'calc(100vw - 32px)', sm: '520px' },
-      dialogMaxWidth: 'calc(100vw - 32px)',
-      dialogPaperOverflow: 'visible',
-      dialogContentOverflowY: 'visible',
+      sx: {
+        width: {
+          xs: 'calc(100vw - 32px)',
+          sm: '520px',
+        },
+        maxWidth: 'calc(100vw - 32px)',
+        overflow: 'visible',
+        content: {
+          overflowY: 'visible',
+        },
+      },
     },
   },
   [VM_ACTION_ENUM.ATTACH_PCI]: {
@@ -245,8 +268,13 @@ export default {
     form: () => Forms.SaveAsDiskForm(),
     success: T.SaveAsDiskSuccess,
     dialogProps: {
-      dialogWidth: { xs: 'calc(100vw - 32px)', sm: '520px' },
-      dialogMaxWidth: 'calc(100vw - 32px)',
+      sx: {
+        width: {
+          xs: 'calc(100vw - 32px)',
+          sm: '520px',
+        },
+        maxWidth: 'calc(100vw - 32px)',
+      },
     },
     params: ({ DISK_ID, NAME, SNAPSHOT_ID } = {}) => ({
       disk: DISK_ID,
@@ -268,10 +296,17 @@ export default {
     form: () => Forms.CreateDiskSnapshotForm(),
     success: T.CreateDiskSnapshotSuccess,
     dialogProps: {
-      dialogWidth: { xs: 'calc(100vw - 32px)', sm: '520px' },
-      dialogMaxWidth: 'calc(100vw - 32px)',
-      dialogPaperOverflow: 'visible',
-      dialogContentOverflowY: 'visible',
+      sx: {
+        width: {
+          xs: 'calc(100vw - 32px)',
+          sm: '520px',
+        },
+        maxWidth: 'calc(100vw - 32px)',
+        overflow: 'visible',
+        content: {
+          overflowY: 'visible',
+        },
+      },
     },
     params: ({ DISK_ID, NAME } = {}) => ({
       disk: DISK_ID,
@@ -351,10 +386,18 @@ export default {
       }),
     dialogProps: {
       title: T.CreateApp,
-      dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
-      dialogMaxWidth: 'calc(100vw - 32px)',
-      dialogMaxHeight: 'calc(100vh - 64px)',
-      dialogContentOverflowY: 'auto',
+      sx: {
+        width: {
+          xs: 'calc(100vw - 32px)',
+          md: '900px',
+          lg: '1040px',
+        },
+        maxWidth: 'calc(100vw - 32px)',
+        maxHeight: 'calc(100vh - 64px)',
+        content: {
+          overflowY: 'auto',
+        },
+      },
       PaperProps: {
         sx: {
           overflow: 'hidden',
@@ -371,8 +414,13 @@ export default {
     form: () => Forms.SaveAsTemplateForm(),
     dialogProps: {
       title: T.SaveAsTemplate,
-      dialogWidth: { xs: 'calc(100vw - 32px)', sm: '520px' },
-      dialogMaxWidth: 'calc(100vw - 32px)',
+      sx: {
+        width: {
+          xs: 'calc(100vw - 32px)',
+          sm: '520px',
+        },
+        maxWidth: 'calc(100vw - 32px)',
+      },
     },
   },
   [VM_ACTION_ENUM.BACKUP_CONFIGURE]: {
@@ -384,11 +432,19 @@ export default {
         initialValues: vm,
       }),
     dialogProps: {
-      dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
-      dialogMaxWidth: 'calc(100vw - 32px)',
-      dialogMaxHeight: 'calc(100vh - 64px)',
-      dialogContentMaxHeight: 'calc(100vh - 220px)',
-      dialogContentOverflowY: 'auto',
+      sx: {
+        width: {
+          xs: 'calc(100vw - 32px)',
+          md: '900px',
+          lg: '1040px',
+        },
+        maxWidth: 'calc(100vw - 32px)',
+        maxHeight: 'calc(100vh - 64px)',
+        content: {
+          maxHeight: 'calc(100vh - 220px)',
+          overflowY: 'auto',
+        },
+      },
     },
   },
   [VM_ACTION_ENUM.BACKUP_CREATE]: {
@@ -404,11 +460,21 @@ export default {
       }),
     dialogProps: {
       title: 'Create Backup',
-      dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
-      dialogMaxWidth: 'calc(100vw - 32px)',
-      dialogMaxHeight: 'calc(100vh - 64px)',
-      dialogContentOverflowY: 'auto',
-      hideActions: true,
+      sx: {
+        width: {
+          xs: 'calc(100vw - 32px)',
+          md: '900px',
+          lg: '1040px',
+        },
+        maxWidth: 'calc(100vw - 32px)',
+        maxHeight: 'calc(100vh - 64px)',
+        content: {
+          overflowY: 'auto',
+        },
+      },
+      actionsProps: {
+        hide: true,
+      },
       PaperProps: {
         sx: {
           overflow: 'hidden',
@@ -436,10 +502,18 @@ export default {
       }),
     dialogProps: {
       title: 'Restore Backup',
-      dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
-      dialogMaxWidth: 'calc(100vw - 32px)',
-      dialogMaxHeight: 'calc(100vh - 64px)',
-      dialogContentOverflowY: 'auto',
+      sx: {
+        width: {
+          xs: 'calc(100vw - 32px)',
+          md: '900px',
+          lg: '1040px',
+        },
+        maxWidth: 'calc(100vw - 32px)',
+        maxHeight: 'calc(100vh - 64px)',
+        content: {
+          overflowY: 'auto',
+        },
+      },
       PaperProps: {
         sx: {
           overflow: 'hidden',

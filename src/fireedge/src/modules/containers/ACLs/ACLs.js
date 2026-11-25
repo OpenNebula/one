@@ -110,8 +110,10 @@ export function ACLs() {
           />
         ),
         confirmLabel: T.Delete,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: async () => {

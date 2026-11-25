@@ -124,8 +124,10 @@ const Content = () => {
           />
         ),
         confirmLabel: T.Delete,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: () => handleAction('delete', undefined, index),

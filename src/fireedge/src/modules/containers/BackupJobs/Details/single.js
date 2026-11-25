@@ -126,8 +126,10 @@ export const SingleView = ({
         ),
         confirmLabel: title,
         ...([T.Delete, T.Cancel].includes(title) && {
-          confirmButtonProps: {
-            isDestructive: true,
+          actionsProps: {
+            confirm: {
+              isDestructive: true,
+            },
           },
         }),
       },

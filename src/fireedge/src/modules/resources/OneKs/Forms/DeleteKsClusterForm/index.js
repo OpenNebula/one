@@ -86,8 +86,10 @@ export const useDeleteKsClusterConfirmation = () => {
           />
         ),
         confirmLabel: T.Delete,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: () => onSubmit(forceDelete.current),

@@ -49,11 +49,13 @@ import {
 
 const SECTION_ID = 'AR'
 const FORM_DIALOG_SIZE = {
-  dialogWidth: {
-    xs: 'calc(100vw - 32px)',
-    md: '960px',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '960px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
   },
-  dialogMaxWidth: 'calc(100vw - 32px)',
 }
 
 const getRange = (start, end) => [start, end].filter(Boolean).join(' | ') || '-'
@@ -145,8 +147,10 @@ const AddressRanges = ({ selectedNetwork }) => {
           />
         ),
         confirmLabel: T.Delete,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: () => handleRemove(idx),

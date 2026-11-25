@@ -162,9 +162,13 @@ export const Clusters = ({ data, config }) => {
       dialogProps: {
         title: T.SelectClusters,
         dataCy: 'modal-select-template-clusters',
-        dialogWidth,
-        dialogMaxWidth: 'calc(100vw - 32px)',
-        dialogContentMaxHeight: '70vh',
+        sx: {
+          width: dialogWidth,
+          maxWidth: 'calc(100vw - 32px)',
+          content: {
+            maxHeight: '70vh',
+          },
+        },
       },
       form: ChangeClusterForm({
         initialValues: clusterIds.map(String),
@@ -187,8 +191,10 @@ export const Clusters = ({ data, config }) => {
         ),
         confirmLabel: T.Remove,
         cancelLabel: T.Cancel,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: () => handleRemoveCluster(cluster?.ID),

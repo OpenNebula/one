@@ -240,18 +240,26 @@ class ImageTransferController
         proxy_url = "https://#{PUBLIC_IP}/images/#{transfer_uuid}"
 
         file_size = disk_hash['IMAGE']['SIZE'].to_i
+        image_state = disk_hash['IMAGE']['STATE'].to_i
+        if image_state == 5
+            LOGGER.error "Image #{image_id} is in ERROR state"
+            return 409, Helper.fault_response('Image is in ERROR state')
+        end
+
+        phase = upload_phase_for_image(image_state, port)
 
         # New transfer is saved in memory. uuid is random and 128bit, we assume it will never
         # collide (with 100 concurrent imagetransfers per day, it would take 26 quadrillion years)
         add_to_active_transfers(transfer_uuid, 'upload', proxy_url, transfer_format,
-                                file_size, :image_id => image_id.to_i, :port => port)
+                                file_size, :image_id => image_id.to_i, :port => port,
+                                :phase => phase)
 
         imagetransfer_data = {
             :active => 'false',
           :direction => 'upload',
           :format => transfer_format.to_s,
           :inactivity_timeout => '3600',
-          :phase => 'transferring',
+          :phase => phase,
           :proxy_url => proxy_url.to_s,
           :shallow => 'false',
           :timeout_policy => 'legacy',
@@ -547,13 +555,48 @@ class ImageTransferController
         return 200, { :status => 'complete' }
     end
 
-    def self.get_transfer(transfer_uuid)
+    def self.get_transfer(client, transfer_uuid)
         update_transfer_timestamp(transfer_uuid)
         clean_expired_transfers
         transfer = active_transfers.find {|t| t[:uuid] == transfer_uuid }
 
         if transfer.nil?
             return 404, { :error => 'Transfer not found' }
+        end
+
+        if transfer[:phase] == 'initializing' && transfer[:direction] == 'upload'
+            disk = OpenNebula::Image.new(
+                OpenNebula::Image.build_xml(transfer[:image_id].to_i), client
+            )
+            rc = disk.info
+
+            if OpenNebula.is_error?(rc)
+                LOGGER.warn "Could not retrieve image #{transfer[:image_id]}: #{rc.message}"
+                phase = if rc.errno == OpenNebula::Error::ENO_EXISTS
+                            'finished_failure'
+                        else
+                            'initializing'
+                        end
+            else
+                phase = upload_phase_for_image(disk.state.to_i, transfer[:port])
+            end
+
+            if phase != 'initializing'
+                @db.transaction do
+                    transfers = @db.fetch(:transfers, [])
+                    current = transfers.find {|t| t[:uuid] == transfer_uuid }
+
+                    if current && current[:phase] == 'initializing' &&
+                       current[:direction] == 'upload'
+                        current[:phase] = phase
+                        current[:updated_at] = Time.now.to_i
+                        current[:proxy_url] = nil if phase == 'finished_failure'
+                        @db[:transfers] = transfers
+                    end
+
+                    transfer = current if current
+                end
+            end
         end
 
         LOGGER.info "Retrieving transfer #{transfer_uuid}, current phase: #{transfer[:phase]}"
@@ -598,14 +641,14 @@ class ImageTransferController
     # rubocop:disable-next Metrics/ParameterLists
     def self.add_to_active_transfers(transfer_uuid, direction, proxy_url, transfer_format,
                                      file_size, image_id: nil, onebex_url: nil,
-                                     port: nil, vm_id: nil)
+                                     port: nil, vm_id: nil, phase: 'transferring')
         new_transfer = {
             :uuid => transfer_uuid.to_s,
             :direction => direction.to_s,
             :proxy_url => proxy_url.to_s,
             :format => transfer_format.to_s, # "raw" or "cow"
             :file_size => file_size.to_i,
-            :phase => 'transferring',
+            :phase => phase,
             :created_at => Time.now, # Add timestamp for debugging
             :updated_at => Time.now.to_i, # Adds last update timestamp to detect old transfers
             :image_id => image_id.to_s,
@@ -629,7 +672,7 @@ class ImageTransferController
             transfers = @db.fetch(:transfers, [])
             transfer = transfers.find {|t| t[:uuid].to_s == uuid.to_s }
 
-            if transfer && transfer[:phase] == 'transferring'
+            if transfer && ['initializing', 'transferring'].include?(transfer[:phase])
                 transfer[:updated_at] = Time.now.to_i
                 @db[:transfers] = transfers
             elsif transfer.nil?
@@ -904,6 +947,18 @@ class ImageTransferController
         end
 
         true
+    end
+
+    def self.upload_phase_for_image(image_state, port)
+        return 'finished_failure' if image_state == 5
+        return 'initializing' unless image_state == 4
+
+        # Check if the writer is ready to accept connections.
+        Socket.tcp(ONE_XMLRPC, port, :connect_timeout => 1) {}
+
+        'transferring'
+    rescue StandardError
+        'initializing'
     end
 
     # This method returns the OneBEX transfer ID for the given VM and disk

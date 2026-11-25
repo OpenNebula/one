@@ -133,8 +133,10 @@ const SnapshotDeleteAction = memo(({ id, snapshot, isDisabled = false }) => {
           />
         ),
         confirmLabel: T.Delete,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: handleDelete,

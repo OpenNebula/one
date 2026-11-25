@@ -31,12 +31,20 @@ const normalizeGroupIds = (groups) =>
     .filter((id) => id !== undefined && id !== null && id !== '')
 
 const groupDialogSizeProps = {
-  dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1040px' },
-  dialogMaxWidth: 'calc(100vw - 32px)',
-  dialogMaxHeight: 'calc(100vh - 64px)',
-  dialogPaperOverflow: 'visible',
-  dialogContentMaxHeight: '50vh',
-  dialogContentOverflowY: 'auto',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '900px',
+      lg: '1040px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
+    maxHeight: 'calc(100vh - 64px)',
+    overflow: 'visible',
+    content: {
+      maxHeight: '50vh',
+      overflowY: 'auto',
+    },
+  },
 }
 
 const AddToGroup = memo(({ filterData, submit }) => {

@@ -97,8 +97,10 @@ export const AggregatedView = ({
         ),
         confirmLabel: `${title}`.startsWith(T.Delete) ? T.Delete : title,
         ...(`${title}`.startsWith(T.Delete) && {
-          confirmButtonProps: {
-            isDestructive: true,
+          actionsProps: {
+            confirm: {
+              isDestructive: true,
+            },
           },
         }),
       },

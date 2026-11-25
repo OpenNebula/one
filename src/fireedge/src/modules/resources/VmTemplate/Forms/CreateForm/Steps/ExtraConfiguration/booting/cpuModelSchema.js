@@ -50,7 +50,7 @@ export const MODEL = {
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: () => {
-    const { data: hosts = [] } = HostAPI.useGetHostsQuery()
+    const { data: hosts = [] } = HostAPI.useGetHostsAdminQuery()
     const kvmCpuModels = getKvmCpuModels(hosts)
     kvmCpuModels.unshift(...DEFAULT_CPU_MODELS)
 
@@ -71,7 +71,7 @@ export const FEATURES = {
   optionsOnly: true,
   multiple: true,
   values: () => {
-    const { data: hosts = [] } = HostAPI.useGetHostsQuery()
+    const { data: hosts = [] } = HostAPI.useGetHostsAdminQuery()
     const kvmFeatures = getKvmCpuFeatures(hosts)
 
     return arrayToOptions(kvmFeatures, { addEmpty: false })

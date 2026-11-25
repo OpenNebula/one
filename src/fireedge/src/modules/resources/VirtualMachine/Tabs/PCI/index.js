@@ -27,14 +27,18 @@ import { useGeneralApi, useModalsApi, useSystemData } from '@FeaturesModule'
 import { isVmAvailableAction, vmpcisTable } from '@ModelsModule'
 
 const PCI_FORM_DIALOG_PROPS = {
-  dialogWidth: {
-    xs: 'calc(100vw - 32px)',
-    md: '760px',
-    lg: '840px',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '760px',
+      lg: '840px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
+    content: {
+      maxHeight: '70vh',
+      overflowY: 'auto',
+    },
   },
-  dialogMaxWidth: 'calc(100vw - 32px)',
-  dialogContentMaxHeight: '70vh',
-  dialogContentOverflowY: 'auto',
 }
 
 /**
@@ -108,8 +112,10 @@ export const PCI = ({ data, config }) => {
           />
         ),
         confirmLabel: T.Detach,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: handleDetachPci(pci),

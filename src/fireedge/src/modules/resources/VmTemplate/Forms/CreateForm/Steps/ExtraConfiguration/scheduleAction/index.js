@@ -62,14 +62,18 @@ export const TAB_ID = 'SCHED_ACTION'
 const mapNameFunction = mapNameByIndex(TAB_ID)
 
 const SCHED_ACTION_FORM_DIALOG_PROPS = {
-  dialogWidth: {
-    xs: 'calc(100vw - 32px)',
-    md: '760px',
-    lg: '840px',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '760px',
+      lg: '840px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
+    content: {
+      maxHeight: '70vh',
+      overflowY: 'auto',
+    },
   },
-  dialogMaxWidth: 'calc(100vw - 32px)',
-  dialogContentMaxHeight: '70vh',
-  dialogContentOverflowY: 'auto',
 }
 
 const formatValue = (value) => {
@@ -425,8 +429,10 @@ const ScheduleAction = ({ oneConfig, adminGroup }) => {
           />
         ),
         confirmLabel: T.Delete,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: () => handleRemoveAction(schedule),

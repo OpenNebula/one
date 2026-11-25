@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { Component, forwardRef } from 'react'
+import { forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import {
   Box,
@@ -25,181 +25,198 @@ import {
   DialogActions,
 } from '@mui/material'
 import { Button } from '@modules/components/primitives/Buttons'
-import {
-  useDialogStyles,
-  useContentWrapperStyles,
-  useHeaderStyles,
-  useDescriptionStyles,
-  useActionsStyles,
-} from '@modules/components/primitives/AlertDialog/Default/styles'
+import { getStyles } from '@modules/components/primitives/AlertDialog/Default/styles'
 import { T } from '@ConstantsModule'
 
 /**
- * @param {object} root0 - Params
- * @param {boolean} root0.open - Controls dialog visibility
- * @param {string} root0.title - Dialog header text
- * @param {string|object} root0.description - Dialog description
- * @param {string} root0.confirmLabel - Confirm button label
- * @param {string} root0.cancelLabel - Cancel button label
- * @param {Function} root0.onSubmit - Confirm action handler
- * @param {Function} root0.onCancel - Cancel action handler
- * @param {boolean} root0.isConfirmDisabled - Disable confirm button
- * @param {boolean} root0.isCancelDisabled - Disable cancel button
- * @param {boolean} root0.hideActions - Hide dialog action buttons
- * @param {object} root0.confirmButtonProps - Additional props for confirm button
- * @param {object} root0.cancelButtonProps - Additional props for cancel button
- * @param {string|object} root0.dialogWidth - Dialog paper width
- * @param {string|object} root0.dialogMinWidth - Dialog paper min-width
- * @param {string|object} root0.dialogMaxWidth - Dialog paper max-width
- * @param {string|object} root0.dialogMaxHeight - Dialog paper max-height
- * @param {string} root0.dialogPaperOverflow - Dialog paper overflow
- * @param {string|object} root0.dialogContentMaxHeight - Dialog content max-height
- * @param {string} root0.dialogContentOverflowY - Dialog content overflow-y
- * @param {string} root0.dataCy - Dialog data-cy attribute
- * @param {object} root0.children - Component children
- * @returns {Component} - Custom MUI AlertDialog component
+ * Renders a text title or custom dialog header.
+ *
+ * @param {object} props - Header properties
+ * @param {*} props.children - Header content; strings use DialogTitle
+ * @param {object} props.rest - Additional properties forwarded to DialogTitle or Box
+ * @returns {object} Dialog header
+ */
+const AlertDialogHeader = ({ children, ...rest }) => {
+  const Container = typeof children === 'string' ? DialogTitle : Box
+
+  return (
+    <Container className="alert-dialog-header" {...rest}>
+      {children}
+    </Container>
+  )
+}
+
+AlertDialogHeader.propTypes = {
+  children: PropTypes.node,
+}
+
+/**
+ * Renders dialog content, wrapping strings in DialogContentText.
+ *
+ * @param {object} props - Content properties
+ * @param {*} props.children - Dialog body
+ * @param {object} props.rest - Additional properties forwarded to DialogContent
+ * @returns {object} Dialog content
+ */
+const AlertDialogContent = ({ children, ...rest }) => {
+  const Container = typeof children === 'string' ? DialogContentText : Box
+
+  return (
+    <DialogContent className="alert-dialog-content" {...rest}>
+      <Container>{children}</Container>
+    </DialogContent>
+  )
+}
+
+AlertDialogContent.propTypes = {
+  children: PropTypes.node,
+}
+
+/**
+ * Renders custom actions or the configured cancel and confirm buttons.
+ *
+ * @param {object} props - Action properties
+ * @param {*} [props.children] - Custom content replacing the default buttons
+ * @param {boolean} [props.hide] - Whether to omit the actions section
+ * @param {object} props.cancel - Cancel button properties, used without custom actions
+ * @param {*} [props.cancel.label=T.Cancel] - Cancel button label
+ * @param {Function} [props.cancel.onClick] - Cancel button handler
+ * @param {object} props.confirm - Confirm button properties, used without custom actions
+ * @param {*} [props.confirm.label=T.Continue] - Confirm button label
+ * @param {Function} [props.confirm.onClick] - Confirm button handler
+ * @param {object} props.rest - Default button configuration
+ * @returns {object|null} Dialog actions, or null when hidden
+ */
+const AlertDialogActions = ({ children, hide, ...rest }) => {
+  if (hide) {
+    return null
+  }
+
+  if (children) {
+    return (
+      <DialogActions className="alert-dialog-actions" disableSpacing {...rest}>
+        {children}
+      </DialogActions>
+    )
+  }
+
+  const { cancel = {}, confirm = {}, ...others } = rest
+  const { label: confirmLabel = T.Continue, ...confirmProps } = confirm
+  const { label: cancelLabel = T.Cancel, ...cancelProps } = cancel
+
+  return (
+    <DialogActions className="alert-dialog-actions" disableSpacing {...others}>
+      <Button type="secondary" data-cy="dg-cancel-button" {...cancelProps}>
+        {cancelLabel}
+      </Button>
+
+      <Button type="primary" data-cy="dg-accept-button" {...confirmProps}>
+        {confirmLabel}
+      </Button>
+    </DialogActions>
+  )
+}
+
+AlertDialogActions.propTypes = {
+  children: PropTypes.node,
+  hide: PropTypes.bool,
+  cancel: PropTypes.shape({
+    label: PropTypes.node,
+    onClick: PropTypes.func,
+    isDisabled: PropTypes.bool,
+  }),
+  confirm: PropTypes.shape({
+    label: PropTypes.node,
+    onClick: PropTypes.func,
+    isDisabled: PropTypes.bool,
+  }),
+}
+
+/**
+ * Renders a dialog with configurable header, content and actions.
+ *
+ * @param {object} props - Dialog properties
+ * @param {boolean} [props.open=true] - Controls dialog visibility
+ * @param {string} [props.title=T.DefaultConfirmationTitle] - Fallback header text
+ * @param {*} [props.header] - Custom header taking precedence over title
+ * @param {string} [props.content=T.DefaultConfirmationBody] - Fallback dialog body
+ * @param {*} [props.children] - Body content taking precedence over content
+ * @param {*} [props.actions] - Custom content replacing the default action buttons
+ * @param {string} [props.dataCy] - Dialog data-cy attribute
+ * @param {object} [props.actionsProps={}] - Action section and button configuration
+ * @param {boolean} [props.actionsProps.hide] - Whether to omit the actions section
+ * @param {object} [props.actionsProps.cancel] - Cancel button properties
+ * @param {*} [props.actionsProps.cancel.label=T.Cancel] - Cancel button label
+ * @param {Function} [props.actionsProps.cancel.onClick] - Cancel button handler
+ * @param {object} [props.actionsProps.confirm] - Confirm button properties
+ * @param {*} [props.actionsProps.confirm.label=T.Continue] - Confirm button label
+ * @param {Function} [props.actionsProps.confirm.onClick] - Confirm button handler
+ * @param {object} [props.headerProps={}] - Properties forwarded to the header container
+ * @param {object} [props.contentProps={}] - Properties forwarded to DialogContent
+ * @param {object} [props.sx] - Paper styles and section-specific style overrides
+ * @param {object} [props.sx.header] - Header style overrides
+ * @param {object} [props.sx.content] - Content style overrides
+ * @param {object} [props.sx.actions] - Action section style overrides
+ * @param {Function} [props.onClose] - Close handler; defaults to the cancel button handler or a no-op
+ * @param {object} props.rest - Additional properties forwarded to MUI Dialog
+ * @param {object|Function} ref - Ref forwarded to MUI Dialog
+ * @returns {object} Alert dialog
  */
 export const AlertDialog = forwardRef(
   (
     {
       open = true,
-      title,
-      description,
-      confirmLabel = 'Continue',
-      cancelLabel = 'Cancel',
-      onSubmit = () => {},
-      onCancel = () => {},
-      isConfirmDisabled = false,
-      isCancelDisabled = false,
-      hideActions = false,
-      confirmButtonProps = {},
-      cancelButtonProps = {},
-      dialogWidth,
-      dialogMinWidth,
-      dialogMaxWidth,
-      dialogMaxHeight,
-      dialogPaperOverflow,
-      dialogContentMaxHeight,
-      dialogContentOverflowY,
-      dataCy,
+      title = T.DefaultConfirmationTitle,
+      header,
+      content = T.DefaultConfirmationBody,
       children,
-      ...opts
+      actions,
+      dataCy,
+      actionsProps = {},
+      headerProps = {},
+      contentProps = {},
+      sx = {},
+      onClose = actionsProps?.cancel?.onClick ?? (() => {}),
+      ...rest
     },
     ref
-  ) => {
-    const headerText = title ?? T.DefaultConfirmationTitle
-    const descriptionText = description ?? T.DefaultConfirmationBody
-    const hasScrollableContent = dialogContentOverflowY
-      ? dialogContentOverflowY !== 'visible'
-      : Boolean(dialogContentMaxHeight)
+  ) => (
+    <Dialog
+      ref={ref}
+      open={open}
+      onClose={onClose}
+      data-cy={dataCy}
+      sx={(theme) => getStyles({ theme, sx })}
+      {...rest}
+    >
+      <AlertDialogHeader {...headerProps}>{header ?? title}</AlertDialogHeader>
 
-    return (
-      <Dialog
-        ref={ref}
-        open={open}
-        onClose={onCancel}
-        sx={(theme) =>
-          useDialogStyles({
-            theme,
-            dialogWidth,
-            dialogMinWidth,
-            dialogMaxWidth,
-            dialogMaxHeight,
-            dialogPaperOverflow,
-          })
-        }
-        data-cy={dataCy}
-        {...opts}
-      >
-        <Box sx={(theme) => useContentWrapperStyles({ theme })}>
-          <DialogTitle sx={(theme) => useHeaderStyles({ theme })}>
-            {headerText}
-          </DialogTitle>
-          <DialogContent
-            sx={(theme) => ({
-              padding: hasScrollableContent
-                ? `${theme.scale[100]}px !important`
-                : 0,
-              margin: hasScrollableContent ? `-${theme.scale[100]}px` : 0,
-              boxSizing: 'border-box',
-              color: 'text.body',
-              overflowY: hasScrollableContent
-                ? dialogContentOverflowY ?? 'auto'
-                : 'visible',
-              ...(dialogContentMaxHeight && {
-                maxHeight: dialogContentMaxHeight,
-              }),
-            })}
-          >
-            {children ??
-              (typeof descriptionText === 'string' ? (
-                <DialogContentText
-                  sx={(theme) => useDescriptionStyles({ theme })}
-                >
-                  {descriptionText}
-                </DialogContentText>
-              ) : (
-                <Box sx={(theme) => useDescriptionStyles({ theme })}>
-                  {descriptionText}
-                </Box>
-              ))}
-          </DialogContent>
-          {!hideActions && (
-            <DialogActions
-              disableSpacing
-              sx={(theme) => useActionsStyles({ theme })}
-            >
-              <Button
-                type="secondary"
-                onClick={onCancel}
-                isDisabled={isCancelDisabled}
-                data-cy="dg-cancel-button"
-                {...cancelButtonProps}
-              >
-                {cancelLabel}
-              </Button>
-              <Button
-                type="primary"
-                onClick={onSubmit}
-                isDisabled={isConfirmDisabled}
-                data-cy="dg-accept-button"
-                {...confirmButtonProps}
-              >
-                {confirmLabel}
-              </Button>
-            </DialogActions>
-          )}
-        </Box>
-      </Dialog>
-    )
-  }
+      <AlertDialogContent {...contentProps}>
+        {children ?? content}
+      </AlertDialogContent>
+
+      <AlertDialogActions {...actionsProps}>{actions}</AlertDialogActions>
+    </Dialog>
+  )
 )
 
 AlertDialog.propTypes = {
   open: PropTypes.bool,
   title: PropTypes.string,
-  description: PropTypes.node,
-  confirmLabel: PropTypes.string,
-  cancelLabel: PropTypes.string,
-  onSubmit: PropTypes.func,
-  onCancel: PropTypes.func,
-  isConfirmDisabled: PropTypes.bool,
-  isCancelDisabled: PropTypes.bool,
-  hideActions: PropTypes.bool,
-  confirmButtonProps: PropTypes.object,
-  cancelButtonProps: PropTypes.object,
-  dialogWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  dialogMinWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  dialogMaxWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  dialogMaxHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  dialogPaperOverflow: PropTypes.string,
-  dialogContentMaxHeight: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object,
-  ]),
-  dialogContentOverflowY: PropTypes.string,
+  header: PropTypes.node,
+  content: PropTypes.node,
+  actions: PropTypes.node,
   dataCy: PropTypes.string,
   children: PropTypes.node,
+  actionsProps: PropTypes.shape(AlertDialogActions.propTypes),
+  headerProps: PropTypes.object,
+  contentProps: PropTypes.object,
+  sx: PropTypes.shape({
+    header: PropTypes.object,
+    content: PropTypes.object,
+    actions: PropTypes.object,
+  }),
+  onClose: PropTypes.func,
 }
 
 AlertDialog.displayName = 'AlertDialog'

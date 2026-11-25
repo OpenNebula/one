@@ -505,8 +505,7 @@ export const getStyles = ({ theme, isOpen }) => {
 
       '#sidebar-role-menu': {
         zIndex: theme.zIndex.drawer + 1,
-        boxShadow:
-          '0 4px 6px -4px rgba(0, 0, 0, 0.10), 0 10px 15px -13px rgba(0, 0, 0, 0.10)',
+        boxShadow: theme.boxShadow.lg,
 
         '& .popup': {
           '& .panel': {

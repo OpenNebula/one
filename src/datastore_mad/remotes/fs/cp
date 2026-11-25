@@ -54,7 +54,6 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/STAGING_DIR \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TYPE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
@@ -76,7 +75,6 @@ BASE_PATH="${XPATH_ELEMENTS[i++]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[i++]}"
 SAFE_DIRS="${XPATH_ELEMENTS[i++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
-STAGING_DIR="${XPATH_ELEMENTS[i++]:-/var/tmp}"
 TYPE="${XPATH_ELEMENTS[i++]}"
 SRC="${XPATH_ELEMENTS[i++]}"
 MD5="${XPATH_ELEMENTS[i++]}"
@@ -153,14 +151,60 @@ CONVERT_CMD=$(cat <<EOF
 EOF
 )
 
+# Prints the format of SRC when it can be converted straight into DST, instead
+# of copying it first and converting the copy. That is when SRC is a plain local
+# file in a format other than DRIVER, without a backing file, and downloader.sh
+# has nothing to do for it (hash checks, decompression). Fails otherwise.
+function direct_convert_format
+{
+    local src="$1" mime info format
+
+    [ "x$CONVERT" = 'xyes' ] || return 1
+    [ "x$DRIVER" = 'xqcow2' ] || [ "x$DRIVER" = 'xraw' ] || return 1
+    [ -z "$MD5" ] && [ -z "$SHA1" ] || return 1
+    [[ "$src" =~ ^[a-zA-Z][a-zA-Z0-9+.-]*:// ]] && return 1
+    [ -f "$src" ] && [ -r "$src" ] || return 1
+
+    mime=$(file -b --mime-type "$src" 2>/dev/null) || return 1
+
+    case "$mime" in
+    application/x-gzip|application/gzip|application/x-bzip2|application/x-xz|\
+    application/x-tar|application/zip)
+        return 1
+        ;;
+    esac
+
+    info=$($QEMU_IMG info "$src" 2>/dev/null) || return 1
+    echo "$info" | grep -q '^backing file:' && return 1
+
+    format=$(echo "$info" | awk '/^file format:/ {print $3}')
+
+    [ -n "$format" ] && [ "$format" != "$DRIVER" ] && [ "$format" != "luks" ] || return 1
+
+    echo "$format"
+}
+
+# Removes a partially written image when the copy or the conversion fails, as
+# nothing else references it once the action fails
+function cleanup_partial_image
+{
+    [ "$IMAGE_COPIED" = "yes" ] && return
+
+    if [ -n "$DST_HOST" ]; then
+        $SSH "$DST_HOST" "rm -f $DST $DST.tmp" &> /dev/null || :
+    else
+        rm -f "$DST" "$DST.tmp" &> /dev/null || :
+    fi
+}
+
+trap cleanup_partial_image EXIT
+
 if [ -n "$DST_HOST" ]; then
-    TMP_DST="$STAGING_DIR/$IMAGE_HASH"
-
-    multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND | $SSH $DST_HOST $DD of=$TMP_DST bs=${DD_BLOCK_SIZE:-64k} conv=sparse" \
-                 "Error dumping $SRC to $DST_HOST:$TMP_DST"
-
-    ssh_exec_and_log    "$DST_HOST" "set -e -o pipefail; mkdir -p $BASE_PATH; mv -f $TMP_DST $DST" \
-                        "Error moving $TMP_DST to $DST in $DST_HOST"
+    # The image is written straight into the datastore (BASE_PATH is created by
+    # NFS_MOUNT_CMD), moving it from a staging directory on another filesystem
+    # would copy it again
+    multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND | $SSH $DST_HOST $DD of=$DST bs=${DD_BLOCK_SIZE:-64k} conv=sparse" \
+                 "Error dumping $SRC to $DST_HOST:$DST"
 
     if [ "x$CONVERT" = 'xyes' ] && [ -n "$DRIVER" ]; then
         ssh_exec_and_log "$DST_HOST" "$CONVERT_CMD" \
@@ -176,10 +220,18 @@ if [ -n "$DST_HOST" ]; then
 
 else
     mkdir -p "$BASE_PATH"
-    multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND" "Error copying $SRC to $DST"
 
-    if [ "x$CONVERT" = 'xyes' ] && [ -n "$DRIVER" ]; then
-        multiline_exec_and_log "$CONVERT_CMD" "Error converting $DST"
+    if SRC_FORMAT=$(direct_convert_format "$SRC"); then
+        log "Converting local image $SRC from $SRC_FORMAT to $DRIVER"
+
+        multiline_exec_and_log "set -e -o pipefail; $QEMU_IMG convert -f $SRC_FORMAT -O $DRIVER $(printf '%q' "$SRC") $DST" \
+                               "Error converting $SRC to $DST"
+    else
+        multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND" "Error copying $SRC to $DST"
+
+        if [ "x$CONVERT" = 'xyes' ] && [ -n "$DRIVER" ]; then
+            multiline_exec_and_log "$CONVERT_CMD" "Error converting $DST"
+        fi
     fi
 
     if [ "$(echo "$SPARSE" | tr A-Z a-z)" != "no" ]; then
@@ -197,4 +249,7 @@ fi
 
 [[ "$FORMAT" = "luks" ]] && FORMAT="raw"
 
+IMAGE_COPIED="yes"
+
 echo "$DST $FORMAT"
+

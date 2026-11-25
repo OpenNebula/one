@@ -23,12 +23,20 @@ import { useModalsApi } from '@FeaturesModule'
 import { AddHostForm, DeleteHostForm } from '@modules/resources/Cluster/Forms'
 
 const deleteHostDialogSizeProps = {
-  dialogWidth: { xs: 'calc(100vw - 32px)', md: '900px', lg: '1120px' },
-  dialogMaxWidth: 'calc(100vw - 32px)',
-  dialogMaxHeight: 'calc(100vh - 64px)',
-  dialogPaperOverflow: 'visible',
-  dialogContentMaxHeight: '70vh',
-  dialogContentOverflowY: 'auto',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '900px',
+      lg: '1120px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
+    maxHeight: 'calc(100vh - 64px)',
+    overflow: 'visible',
+    content: {
+      maxHeight: '70vh',
+      overflowY: 'auto',
+    },
+  },
 }
 
 const AddHost = memo(({ formType, submit, filter }) => {

@@ -547,8 +547,10 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
           />
         ),
         confirmLabel: T.Detach,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: () => removeAndReorder(nic, nic?.id),
@@ -561,18 +563,26 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
       dialogProps: {
         title: `${T.Alias} - ${nic?.NAME}`,
         dataCy: 'modal-show-alias',
-        dialogWidth: {
-          xs: 'calc(100vw - 32px)',
-          md: '760px',
-          lg: '840px',
+        sx: {
+          width: {
+            xs: 'calc(100vw - 32px)',
+            md: '760px',
+            lg: '840px',
+          },
+          maxWidth: 'calc(100vw - 32px)',
+          maxHeight: 'calc(100vh - 32px)',
+          content: {
+            maxHeight: 'calc(100vh - 184px)',
+            overflowY: 'auto',
+          },
         },
-        dialogMaxWidth: 'calc(100vw - 32px)',
-        dialogMaxHeight: 'calc(100vh - 32px)',
-        dialogContentMaxHeight: 'calc(100vh - 184px)',
-        dialogContentOverflowY: 'auto',
         confirmLabel: T.Accept,
-        cancelButtonProps: {
-          sx: { display: 'none' },
+        actionsProps: {
+          cancel: {
+            sx: {
+              display: 'none',
+            },
+          },
         },
       },
       form: VirtualMachine.Forms.AliasForm({

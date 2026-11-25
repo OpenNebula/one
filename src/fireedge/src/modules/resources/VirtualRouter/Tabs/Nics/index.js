@@ -145,8 +145,10 @@ export const Nics = ({ data, config }) => {
         ),
         dataCy: 'modal-detach-nic',
         confirmLabel: T.Detach,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: handleDetachNic(nic),

@@ -91,8 +91,10 @@ const generateOption = ({
             ),
             confirmLabel: confirmLabel ?? title,
             ...(optionProps?.isDestructive && {
-              confirmButtonProps: {
-                isDestructive: true,
+              actionsProps: {
+                confirm: {
+                  isDestructive: true,
+                },
               },
             }),
           }),

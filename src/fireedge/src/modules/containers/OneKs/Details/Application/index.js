@@ -59,7 +59,11 @@ export const DetailsDrawer = ({ selectedData = [] }) => {
           />
         ),
         confirmLabel: T.Uninstall,
-        confirmButtonProps: { isDestructive: true },
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
+        },
       },
       onSubmit: async () => {
         await uninstall({ id, release_name: releaseName }).unwrap()

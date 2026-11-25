@@ -66,28 +66,37 @@ const DialogForm = ({
   const {
     title,
     description,
-    subheader,
     confirmLabel,
     cancelLabel,
     validateOn,
     dataCy,
     fixedWidth,
     fixedHeight,
+    actionsProps,
     ...alertDialogProps
-  } = dialogProps // TODO: Rename all occurances of subheader to description
+  } = dialogProps
 
   return (
     <AlertDialog
+      {...alertDialogProps}
       dataCy={dataCy}
       title={title}
-      onSubmit={handleSubmit && methods.handleSubmit(callbackSubmit)}
-      onCancel={handleCancel}
-      isCancelDisabled={isSubmitting}
-      isConfirmDisabled={isSubmitting}
-      description={description || subheader}
-      confirmLabel={confirmLabel}
-      cancelLabel={cancelLabel}
-      {...alertDialogProps}
+      actionsProps={{
+        ...actionsProps,
+        cancel: {
+          ...actionsProps?.cancel,
+          label: actionsProps?.cancel?.label ?? cancelLabel,
+          onClick: handleCancel,
+          isDisabled: isSubmitting || actionsProps?.cancel?.isDisabled,
+        },
+        confirm: {
+          ...actionsProps?.confirm,
+          label: actionsProps?.confirm?.label ?? confirmLabel,
+          onClick: handleSubmit && methods.handleSubmit(callbackSubmit),
+          isDisabled: isSubmitting || actionsProps?.confirm?.isDisabled,
+        },
+      }}
+      content={description}
     >
       <FormProvider {...methods}>{children}</FormProvider>
     </AlertDialog>

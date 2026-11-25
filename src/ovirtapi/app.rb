@@ -1022,9 +1022,9 @@ end
 
 get "#{API_PREFIX}/imagetransfers/:uuid" do
     begin
-        get_client(request.env['HTTP_AUTHORIZATION']&.split(' ')&.last)
+        client = get_client(request.env['HTTP_AUTHORIZATION']&.split(' ')&.last)
 
-        status_code, response = ImageTransferController.get_transfer(params[:uuid])
+        status_code, response = ImageTransferController.get_transfer(client, params[:uuid])
 
         halt status_code, response.to_json
     rescue OpenNebula::Error => e

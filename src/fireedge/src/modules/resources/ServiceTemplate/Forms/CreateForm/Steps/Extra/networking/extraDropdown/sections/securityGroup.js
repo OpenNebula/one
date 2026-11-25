@@ -33,11 +33,13 @@ import { SubmitButton, Table } from '@ComponentsModule'
 
 const SECTION_ID = 'SECURITY_GROUPS'
 const FORM_DIALOG_SIZE = {
-  dialogWidth: {
-    xs: 'calc(100vw - 32px)',
-    md: '960px',
+  sx: {
+    width: {
+      xs: 'calc(100vw - 32px)',
+      md: '960px',
+    },
+    maxWidth: 'calc(100vw - 32px)',
   },
-  dialogMaxWidth: 'calc(100vw - 32px)',
 }
 
 const SecurityGroups = ({ selectedNetwork }) => {

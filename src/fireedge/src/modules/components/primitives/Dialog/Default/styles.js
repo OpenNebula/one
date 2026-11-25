@@ -36,8 +36,7 @@ export const getStyles = ({ theme }) => ({
     borderRadius: `${theme.borderRadius?.['3xl']}px`,
     border: `${theme.borderWidth.sm}px solid ${theme.palette.border.primary}`,
     bgcolor: 'surface.page',
-    boxShadow:
-      '0 4px 6px -4px rgba(0, 0, 0, 0.10), 0 10px 15px -13px rgba(0, 0, 0, 0.10)',
+    boxShadow: theme.boxShadow.lg,
   },
 
   '& .MuiDialogTitle-root': {

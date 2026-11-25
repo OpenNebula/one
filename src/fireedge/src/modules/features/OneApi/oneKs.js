@@ -287,13 +287,14 @@ const oneKsApi = oneApi.injectEndpoints({
        * @param {object} params - Request params
        * @param {string|number} params.id - Cluster ID
        * @param {boolean} [params.all] - Include dependency applications
+       * @param {boolean} [params.showNotification] - Whether to display request errors
        * @returns {object[]} Installed applications
        */
-      query: (params) => {
+      query: ({ showNotification = true, ...params }) => {
         const name = Actions.LIST_CLUSTER_APPLICATIONS
         const command = { name, ...Commands[name] }
 
-        return { params, command }
+        return { params, command, showNotification }
       },
       transformResponse: (data) => (Array.isArray(data) ? data : []),
       providesTags: (_, __, { id }) => [oneKsDetailTag(id)],

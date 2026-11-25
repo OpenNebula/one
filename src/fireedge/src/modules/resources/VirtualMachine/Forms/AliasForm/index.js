@@ -227,8 +227,10 @@ const Content = ({ parent, methods, vmId }) => {
         ),
         dataCy: 'modal-detach-alias',
         confirmLabel: T.Detach,
-        confirmButtonProps: {
-          isDestructive: true,
+        actionsProps: {
+          confirm: {
+            isDestructive: true,
+          },
         },
       },
       onSubmit: handleRemove(index, item?.NIC_ID, item),

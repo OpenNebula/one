@@ -625,8 +625,9 @@ Request::ErrorCode VirtualNetworkAPI::mirror_update(
         return Request::ACTION;
     }
 
-    if (auto ec = authorize_mirror(oid, vn->get_mirror(mirror_id)->vector_value("PORTS"), att);
-        ec != Request::SUCCESS)
+    ec = authorize_mirror(oid, vn->get_mirror(mirror_id)->vector_value("PORTS"), att);
+
+    if (ec != Request::SUCCESS)
     {
         return ec;
     }

@@ -352,6 +352,34 @@
   mode: '0640'
   src: src/oneks/etc/oneks-server.conf
 
+- name: /etc/one/fabricmanager.conf
+  class: Augeas::Shell
+  owner: root
+  group: oneadmin
+  mode: '0640'
+  src: src/onefabric/host/etc/fabricmanager.conf
+
+- name: /etc/one/one-fabricmanager.xml
+  class: Simple
+  owner: root
+  group: oneadmin
+  mode: '0640'
+  src: src/onefabric/host/etc/one-fabricmanager.xml
+
+- name: /etc/one/ovirtapi-server.yml
+  class: Yaml
+  owner: root
+  group: root
+  mode: '0644'
+  src: src/ovirtapi/etc/ovirtapi-server.yml
+
+- name: /etc/one/ovirtapi-puma.rb
+  class: Simple
+  owner: root
+  group: root
+  mode: '0644'
+  src: src/ovirtapi/etc/ovirtapi-puma.rb
+
 ### Dir: /var/lib/one/remotes/etc/ #########################
 
 - name: /var/lib/one/remotes/etc/datastore/datastore.conf

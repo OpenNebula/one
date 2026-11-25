@@ -70,23 +70,32 @@ const ModalWrapper = ({ modal, hideModal }) => {
     const {
       title,
       description,
-      subheader,
       confirmLabel,
       cancelLabel,
+      actionsProps,
       ...alertDialogProps
-    } = dialogProps // TODO: Rename all occurances of subheader to description
+    } = dialogProps
 
     return (
       <AlertDialog
         {...alertDialogProps}
         title={title}
-        onSubmit={handleTriggerSubmit}
-        onCancel={cancel}
-        isConfirmDisabled={isLoading}
-        isCancelDisabled={isLoading}
-        description={description || subheader}
-        confirmLabel={confirmLabel}
-        cancelLabel={cancelLabel}
+        content={description}
+        actionsProps={{
+          ...actionsProps,
+          cancel: {
+            ...actionsProps?.cancel,
+            label: actionsProps?.cancel?.label ?? cancelLabel,
+            onClick: cancel,
+            isDisabled: isLoading || actionsProps?.cancel?.isDisabled,
+          },
+          confirm: {
+            ...actionsProps?.confirm,
+            label: actionsProps?.confirm?.label ?? confirmLabel,
+            onClick: handleTriggerSubmit,
+            isDisabled: isLoading || actionsProps?.confirm?.isDisabled,
+          },
+        }}
       />
     )
   }

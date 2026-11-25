@@ -157,9 +157,13 @@ export const useReserveFormModal = () => {
         confirmLabel: T.Accept,
         cancelLabel: T.Cancel,
         dataCy: 'modal-reserve',
-        dialogWidth,
-        dialogMaxWidth,
-        dialogContentMaxHeight,
+        sx: {
+          width: dialogWidth,
+          maxWidth: dialogMaxWidth,
+          content: {
+            maxHeight: dialogContentMaxHeight,
+          },
+        },
       },
       onSubmit: submitReserveForm,
     })

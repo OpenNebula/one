@@ -143,7 +143,9 @@ export const SingleView = ({
         dataCy,
         description,
         confirmLabel,
-        confirmButtonProps,
+        actionsProps: {
+          confirm: confirmButtonProps,
+        },
       },
       onSubmit,
     })

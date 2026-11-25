@@ -158,7 +158,9 @@ export const SingleView = ({
         title,
         description,
         confirmLabel,
-        confirmButtonProps,
+        actionsProps: {
+          confirm: confirmButtonProps,
+        },
       },
       onSubmit,
     })
