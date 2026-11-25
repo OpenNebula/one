@@ -45,8 +45,7 @@ module TransferManager
             @result_file    = File.join(backup_dir, 'interactive-result.json')
 
             conf = self.class.load_config(config_file)
-
-            @uri = URI("http://#{conf[:host]}:#{conf[:port]}")
+            @uri = URI("http://127.0.0.1:#{conf[:port]}")
         end
 
         def self.start(vm_id:, ds_id:, backup_dir:, exports: nil,
@@ -176,8 +175,9 @@ module TransferManager
             uri = @uri + path
 
             Net::HTTP.start(
-                uri.host,
+                uri.hostname,
                 uri.port,
+                nil,
                 :open_timeout => 2,
                 :read_timeout => 5
             ) do |http|
@@ -226,8 +226,9 @@ module TransferManager
             )
 
             res = Net::HTTP.start(
-                uri.host,
+                uri.hostname,
                 uri.port,
+                nil,
                 :open_timeout => 2,
                 :read_timeout => 300
             ) {|http| http.request(req) }
