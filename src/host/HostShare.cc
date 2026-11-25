@@ -289,8 +289,8 @@ HostShare::PinPolicy HostShare::str_to_pin_policy(std::string& pp_s)
 
 bool HostShare::test_compute(int cpu, long long mem, std::string &error) const
 {
-    bool cpu_fit  = (max_cpu  - cpu_usage ) >= cpu;
-    bool mem_fit  = (max_mem  - mem_usage ) >= mem;
+    bool cpu_fit  = (cpu <= 0) || ((max_cpu  - cpu_usage ) >= cpu);
+    bool mem_fit  = (mem <= 0) || ((max_mem  - mem_usage ) >= mem);
 
     bool fits = cpu_fit && mem_fit;
 
