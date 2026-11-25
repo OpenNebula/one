@@ -79,6 +79,10 @@ protected:
                                         int snap_id,
                                         RequestAttributes& att);
 
+    Request::ErrorCode resize(int oid,
+                              const std::string& size,
+                              RequestAttributes& att);
+
     Request::ErrorCode restore(int oid,
                                int ds_id,
                                const std::string& opt_tmpl,
