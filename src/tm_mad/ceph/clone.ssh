@@ -43,6 +43,7 @@ source $TMCOMMON
 source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
 
 CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
+source "$CEPH_UTILS"
 
 #-------------------------------------------------------------------------------
 # Compute the destination image name
@@ -73,13 +74,15 @@ done < <(onevm show -x $VM_ID| $XPATH  \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE \
+                    /VM/USER_TEMPLATE/CEPH_RBD_CONCURRENT_MANAGEMENT_OPS)
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+rbd_set_management_ops "${XPATH_ELEMENTS[j++]}" || exit 1
 
 #-------------------------------------------------------------------------------
 # Create @snap and export it

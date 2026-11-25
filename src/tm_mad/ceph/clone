@@ -43,6 +43,7 @@ source $TMCOMMON
 source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
 
 CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
+source "$CEPH_UTILS"
 
 #-------------------------------------------------------------------------------
 # Compute the destination image name
@@ -74,13 +75,26 @@ done < <(onevm show -x $VM_ID| $XPATH  \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE )
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE \
+                    /VM/USER_TEMPLATE/CEPH_FULL_COPY \
+                    /VM/USER_TEMPLATE/CEPH_RBD_CONCURRENT_MANAGEMENT_OPS)
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+CEPH_FULL_COPY="${XPATH_ELEMENTS[j++]}"
+rbd_set_management_ops "${XPATH_ELEMENTS[j++]}" || exit 1
+
+case "${CEPH_FULL_COPY^^}" in
+    YES) FULL_COPY=yes ;;
+    NO|'') FULL_COPY=no ;;
+    *)
+        error_message "CEPH_FULL_COPY must be YES or NO"
+        exit 1
+        ;;
+esac
 
 #-------------------------------------------------------------------------------
 # Get Datastore information
@@ -125,15 +139,28 @@ CLONE_CMD=$(cat <<EOF
     rbd_make_snap $SRC_PATH
 
     set -e -o pipefail
+    SRC_RBD_FORMAT=\$(rbd_format "$SRC_PATH")
 
-    if [ "\$(rbd_format $SRC_PATH)" = "2" ]; then
-        $RBD ${EC_POOL_OPT} clone "$SRC_PATH@snap" $RBD_DST
+    if [ "\$SRC_RBD_FORMAT" = "2" ] && [ "$FULL_COPY" = "no" ]; then
+        $RBD ${EC_POOL_OPT} clone "$SRC_PATH@snap" "$RBD_DST"
     else
-        $RBD copy $SRC_PATH $RBD_DST
+        COPY_SRC="$SRC_PATH"
+        COPY_POOL_OPT=
+        if [ "\$SRC_RBD_FORMAT" = "2" ]; then
+            COPY_SRC="$SRC_PATH@snap"
+            COPY_POOL_OPT="${EC_POOL_OPT}"
+        fi
+
+        # Don't let a retry mistake a partial copy for a finished disk.
+        $RBD \$COPY_POOL_OPT copy "\$COPY_SRC" "$RBD_DST" || {
+            rc=\$?
+            $RBD rm "$RBD_DST" || true
+            exit "\$rc"
+        }
     fi
 
     if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
-        $RBD resize $RBD_DST --size $SIZE
+        $RBD resize "$RBD_DST" --size $SIZE
     fi
 EOF
 )

@@ -50,6 +50,7 @@ source ${DRIVER_PATH}/../../etc/datastore/datastore.conf
 source ${DRIVER_PATH}/../../datastore/libfs.sh
 
 CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
+source "$CEPH_UTILS"
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -77,7 +78,8 @@ done < <(onevm show -x $VMID | $XPATH  \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/POOL_NAME \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RBD_FORMAT \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/FS)
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/FS \
+                            /VM/USER_TEMPLATE/CEPH_RBD_CONCURRENT_MANAGEMENT_OPS)
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
@@ -85,6 +87,7 @@ CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 RBD_FORMAT="${XPATH_ELEMENTS[j++]:-$RBD_FORMAT}"
 FS="${XPATH_ELEMENTS[j++]}"
+rbd_set_management_ops "${XPATH_ELEMENTS[j++]}" || exit 1
 
 #-------------------------------------------------------------------------------
 # Get Datastore information

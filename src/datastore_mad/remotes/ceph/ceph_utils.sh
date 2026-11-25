@@ -15,6 +15,23 @@
 #------------------------------------------------------------------------------ #
 
 #--------------------------------------------------------------------------------
+# Apply the VM's optional RBD management concurrency override
+#  @param $1 value from the VM template
+#--------------------------------------------------------------------------------
+rbd_set_management_ops() {
+    if [ -z "$1" ]; then
+        return 0
+    fi
+
+    if ! [[ $1 =~ ^[0-9]*[1-9][0-9]*$ ]]; then
+        error_message "CEPH_RBD_CONCURRENT_MANAGEMENT_OPS must be a positive integer"
+        return 1
+    fi
+
+    RBD="$RBD --rbd-concurrent-management-ops $1"
+}
+
+#--------------------------------------------------------------------------------
 # Make a base @snap for image clones
 #  @param $1 the volume
 #--------------------------------------------------------------------------------
