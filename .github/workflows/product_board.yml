@@ -29,13 +29,28 @@ jobs:
       PB_GH_STATUS_FIELD_ID: ${{ vars.PB_GH_STATUS_FIELD_ID }}
 
       GH_PB_FIELD_NAME: ProductBoard
+      GH_CUSTOMERS_PROJECT_TITLE: Unit - Dev - Customers
+      GH_CUSTOMER_FIELD_NAME: Customer
 
       ISSUE_NUMBER: ${{ github.event.issue.number }}
       GH_TOKEN: ${{ github.token }}
+      EVENT_ACTION: ${{ github.event.action }}
 
     steps:
+      - name: Generate GitHub App token for organization Projects
+        id: project-app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.PB_SYNC_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PB_SYNC_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
       - name: Sync GitHub issue with Productboard
         shell: bash
+        env:
+          GH_PROJECT_TOKEN: ${{ steps.project-app-token.outputs.token }}
         run: |
           set -euo pipefail
 
@@ -45,7 +60,7 @@ jobs:
           echo
           echo "Repository: $GITHUB_REPOSITORY"
           echo "Issue:      #$ISSUE_NUMBER"
-          echo "Event:      ${{ github.event.action }}"
+          echo "Event:      $EVENT_ACTION"
           echo
 
           #
@@ -61,6 +76,7 @@ jobs:
             "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER")
 
           ISSUE_URL=$(printf '%s' "$ISSUE" | jq -r '.html_url')
+          ISSUE_NODE_ID=$(printf '%s' "$ISSUE" | jq -r '.node_id')
           ISSUE_STATE=$(printf '%s' "$ISSUE" | jq -r '.state')
           MILESTONE_TITLE=$(printf '%s' "$ISSUE" \
             | jq -r '.milestone.title // empty')
@@ -137,13 +153,15 @@ jobs:
             || true)
           
           #
-          # New Productboard URL format:
+          # New Productboard URL formats:
           # https://...productboard.com/detail/<BASE64>/details
+          # https://...productboard.com/detail/<BASE64>
 
           if [ -z "$FEATURE_ID" ]; then
           
             PB_ENTITY_ID=$(printf '%s' "$PB_FEATURE_URL" \
-              | sed -nE 's#^.*/detail/([^/]+)/details.*#\1#p')
+              | sed -nE \
+                's|^.*/detail/([^/?#]+)(/details)?/?([?#].*)?$|\1|p')
           
             if [ -n "$PB_ENTITY_ID" ]; then
           
@@ -193,7 +211,324 @@ jobs:
 
           #
           # ============================================================
-          # 5. UPDATE TEST-GH Issue + TEST-GH Status
+          # 5. SYNC PRODUCTBOARD COMPANY TO GITHUB CUSTOMER PROJECT
+          # ============================================================
+          #
+
+          if [ "$EVENT_ACTION" = "field_added" ]; then
+
+            set +e
+            (
+              set -euo pipefail
+
+            echo
+            echo "Looking for a Productboard Company..."
+
+            COMPANY_RELATIONSHIPS=$(curl -fsSL --get \
+              "$PB_BASE/entities/$FEATURE_ID/relationships" \
+              -H "Authorization: Bearer $PB_TOKEN" \
+              -H 'Accept: application/json' \
+              --data-urlencode 'type=link' \
+              --data-urlencode 'target[type]=company')
+
+            COMPANY_ID=$(printf '%s' "$COMPANY_RELATIONSHIPS" \
+              | jq -r '.data[0].target.id // empty')
+
+            if [ -z "$COMPANY_ID" ]; then
+              echo "Productboard Feature has no Company."
+              echo "GitHub customer project synchronization skipped."
+            else
+              COMPANY=$(curl -fsSL \
+                "$PB_BASE/entities/$COMPANY_ID" \
+                -H "Authorization: Bearer $PB_TOKEN" \
+                -H 'Accept: application/json')
+
+              COMPANY_NAME=$(printf '%s' "$COMPANY" \
+                | jq -r '.data.fields.name // empty')
+
+              if [ -z "$COMPANY_NAME" ]; then
+                echo "ERROR: Productboard Company '$COMPANY_ID' has no name"
+                exit 1
+              fi
+
+              echo "Productboard Company: $COMPANY_NAME"
+
+              if [ -z "${GH_PROJECT_TOKEN:-}" ]; then
+                echo "ERROR: GitHub App installation token is empty"
+                echo "Check PB_SYNC_APP_CLIENT_ID and PB_SYNC_APP_PRIVATE_KEY."
+                exit 1
+              fi
+
+              github_graphql() {
+                local query="$1"
+                local variables="$2"
+                local payload
+                local response
+
+                payload=$(jq -cn \
+                  --arg query "$query" \
+                  --argjson variables "$variables" \
+                  '{query: $query, variables: $variables}')
+
+                response=$(curl -fsSL \
+                  -X POST \
+                  'https://api.github.com/graphql' \
+                  -H "Authorization: Bearer $GH_PROJECT_TOKEN" \
+                  -H 'Accept: application/vnd.github+json' \
+                  -H 'Content-Type: application/json' \
+                  -H 'X-GitHub-Api-Version: 2026-03-10' \
+                  -d "$payload")
+
+                if printf '%s' "$response" \
+                  | jq -e '.errors? | length > 0' >/dev/null; then
+                  echo "ERROR: GitHub GraphQL request failed" >&2
+                  printf '%s' "$response" | jq '.errors' >&2
+                  return 1
+                fi
+
+                printf '%s' "$response"
+              }
+
+              GH_ORG="${GITHUB_REPOSITORY%%/*}"
+
+              PROJECT_QUERY='query($org: String!, $title: String!) {
+                organization(login: $org) {
+                  projectsV2(first: 100, query: $title) {
+                    nodes {
+                      id
+                      title
+                      fields(first: 100) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }'
+
+              PROJECT_VARIABLES=$(jq -cn \
+                --arg org "$GH_ORG" \
+                --arg title "$GH_CUSTOMERS_PROJECT_TITLE" \
+                '{org: $org, title: $title}')
+
+              PROJECT_RESPONSE=$(github_graphql \
+                "$PROJECT_QUERY" \
+                "$PROJECT_VARIABLES")
+
+              PROJECT=$(printf '%s' "$PROJECT_RESPONSE" \
+                | jq -c --arg TITLE "$GH_CUSTOMERS_PROJECT_TITLE" '
+                    .data.organization.projectsV2.nodes[]
+                    | select(.title == $TITLE)
+                  ' \
+                | head -n1)
+
+              if [ -z "$PROJECT" ]; then
+                echo "ERROR: GitHub Project '$GH_CUSTOMERS_PROJECT_TITLE' not found"
+                exit 1
+              fi
+
+              PROJECT_ID=$(printf '%s' "$PROJECT" | jq -r '.id')
+              CUSTOMER_FIELD_ID=$(printf '%s' "$PROJECT" \
+                | jq -r --arg NAME "$GH_CUSTOMER_FIELD_NAME" '
+                    .fields.nodes[]
+                    | select(.name == $NAME)
+                    | .id
+                  ' \
+                | head -n1)
+              CUSTOMER_OPTION_ID=$(printf '%s' "$PROJECT" \
+                | jq -r \
+                    --arg FIELD "$GH_CUSTOMER_FIELD_NAME" \
+                    --arg COMPANY "$COMPANY_NAME" '
+                      .fields.nodes[]
+                      | select(.name == $FIELD)
+                      | .options[]
+                      | select(
+                          (.name | ascii_downcase)
+                          | contains($COMPANY | ascii_downcase)
+                        )
+                      | .id
+                    ' \
+                | head -n1)
+              CUSTOMER_OPTION_NAME=$(printf '%s' "$PROJECT" \
+                | jq -r \
+                    --arg FIELD "$GH_CUSTOMER_FIELD_NAME" \
+                    --arg COMPANY "$COMPANY_NAME" '
+                      .fields.nodes[]
+                      | select(.name == $FIELD)
+                      | .options[]
+                      | select(
+                          (.name | ascii_downcase)
+                          | contains($COMPANY | ascii_downcase)
+                        )
+                      | .name
+                    ' \
+                | head -n1)
+              CUSTOMER_OPTIONS=$(printf '%s' "$PROJECT" \
+                | jq -r --arg FIELD "$GH_CUSTOMER_FIELD_NAME" '
+                    .fields.nodes[]
+                    | select(.name == $FIELD)
+                    | [.options[].name]
+                    | join(", ")
+                  ' \
+                | head -n1)
+              SINGLE_SELECT_FIELDS=$(printf '%s' "$PROJECT" \
+                | jq -r '
+                    [.fields.nodes[] | .name // empty]
+                    | join(", ")
+                  ')
+
+              echo "GitHub Project: $GH_CUSTOMERS_PROJECT_TITLE"
+
+              ISSUE_PROJECTS_QUERY='query($issueId: ID!, $fieldName: String!) {
+                node(id: $issueId) {
+                  ... on Issue {
+                    projectItems(first: 100) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                        fieldValueByName(name: $fieldName) {
+                          ... on ProjectV2ItemFieldSingleSelectValue {
+                            name
+                            optionId
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }'
+
+              ISSUE_PROJECTS_VARIABLES=$(jq -cn \
+                --arg issueId "$ISSUE_NODE_ID" \
+                --arg fieldName "$GH_CUSTOMER_FIELD_NAME" \
+                '{issueId: $issueId, fieldName: $fieldName}')
+
+              ISSUE_PROJECTS_RESPONSE=$(github_graphql \
+                "$ISSUE_PROJECTS_QUERY" \
+                "$ISSUE_PROJECTS_VARIABLES")
+
+              PROJECT_ITEM=$(printf '%s' "$ISSUE_PROJECTS_RESPONSE" \
+                | jq -c --arg PROJECT_ID "$PROJECT_ID" '
+                    .data.node.projectItems.nodes[]
+                    | select(.project.id == $PROJECT_ID)
+                  ' \
+                | head -n1)
+
+              if [ -z "$PROJECT_ITEM" ]; then
+                ADD_ITEM_MUTATION='mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: {
+                    projectId: $projectId
+                    contentId: $contentId
+                  }) {
+                    item {
+                      id
+                    }
+                  }
+                }'
+
+                ADD_ITEM_VARIABLES=$(jq -cn \
+                  --arg projectId "$PROJECT_ID" \
+                  --arg contentId "$ISSUE_NODE_ID" \
+                  '{projectId: $projectId, contentId: $contentId}')
+
+                ADD_ITEM_RESPONSE=$(github_graphql \
+                  "$ADD_ITEM_MUTATION" \
+                  "$ADD_ITEM_VARIABLES")
+
+                PROJECT_ITEM_ID=$(printf '%s' "$ADD_ITEM_RESPONSE" \
+                  | jq -r '.data.addProjectV2ItemById.item.id // empty')
+                CURRENT_CUSTOMER=""
+
+                if [ -z "$PROJECT_ITEM_ID" ]; then
+                  echo "ERROR: GitHub Project item was not created"
+                  exit 1
+                fi
+
+                echo "Issue added to GitHub Project."
+              else
+                PROJECT_ITEM_ID=$(printf '%s' "$PROJECT_ITEM" | jq -r '.id')
+                CURRENT_CUSTOMER=$(printf '%s' "$PROJECT_ITEM" \
+                  | jq -r '.fieldValueByName.name // empty')
+                echo "Issue is already in GitHub Project."
+              fi
+
+              if [ -n "$CURRENT_CUSTOMER" ]; then
+                echo "Customer already set to '$CURRENT_CUSTOMER'."
+              elif [ -z "$CUSTOMER_FIELD_ID" ]; then
+                echo "WARNING: Customer field '$GH_CUSTOMER_FIELD_NAME' not found."
+                echo "Available single-select fields: ${SINGLE_SELECT_FIELDS:-none}"
+              elif [ -z "$CUSTOMER_OPTION_ID" ]; then
+                echo "WARNING: No Customer option contains Productboard Company '$COMPANY_NAME'."
+                echo "Available Customer options: ${CUSTOMER_OPTIONS:-none}"
+                echo "Customer left empty."
+              else
+                UPDATE_CUSTOMER_MUTATION='mutation(
+                  $projectId: ID!
+                  $itemId: ID!
+                  $fieldId: ID!
+                  $optionId: String!
+                ) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: {
+                      singleSelectOptionId: $optionId
+                    }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }'
+
+                UPDATE_CUSTOMER_VARIABLES=$(jq -cn \
+                  --arg projectId "$PROJECT_ID" \
+                  --arg itemId "$PROJECT_ITEM_ID" \
+                  --arg fieldId "$CUSTOMER_FIELD_ID" \
+                  --arg optionId "$CUSTOMER_OPTION_ID" \
+                  '{
+                    projectId: $projectId,
+                    itemId: $itemId,
+                    fieldId: $fieldId,
+                    optionId: $optionId
+                  }')
+
+                github_graphql \
+                  "$UPDATE_CUSTOMER_MUTATION" \
+                  "$UPDATE_CUSTOMER_VARIABLES" \
+                  >/dev/null
+
+                echo "Customer set to '$CUSTOMER_OPTION_NAME'."
+                echo "Matched Productboard Company: '$COMPANY_NAME'."
+              fi
+            fi
+
+            )
+            CUSTOMER_SYNC_STATUS=$?
+            set -e
+
+            if [ "$CUSTOMER_SYNC_STATUS" -ne 0 ]; then
+              echo
+              echo "WARNING: GitHub customer project synchronization failed."
+              echo "Continuing with Productboard fields and Release synchronization."
+            fi
+          fi
+
+
+          #
+          # ============================================================
+          # 6. UPDATE TEST-GH Issue + TEST-GH Status
           # ============================================================
           #
 
@@ -269,7 +604,7 @@ jobs:
 
           #
           # ============================================================
-          # 6. FIND TARGET PRODUCTBOARD RELEASE
+          # 7. FIND TARGET PRODUCTBOARD RELEASE
           # ============================================================
           #
 
@@ -334,7 +669,7 @@ jobs:
 
           #
           # ============================================================
-          # 7. READ CURRENT PRODUCTBOARD RELEASES
+          # 8. READ CURRENT PRODUCTBOARD RELEASES
           # ============================================================
           #
 
@@ -354,7 +689,7 @@ jobs:
 
           #
           # ============================================================
-          # 8. CHECK WHETHER RELEASE IS ALREADY CORRECT
+          # 9. CHECK WHETHER RELEASE IS ALREADY CORRECT
           # ============================================================
           #
 
@@ -388,7 +723,7 @@ jobs:
 
           #
           # ============================================================
-          # 9. REMOVE CURRENT PRODUCTBOARD RELEASES
+          # 10. REMOVE CURRENT PRODUCTBOARD RELEASES
           # ============================================================
           #
 
@@ -415,7 +750,7 @@ jobs:
 
           #
           # ============================================================
-          # 10. SET NEW PRODUCTBOARD RELEASE
+          # 11. SET NEW PRODUCTBOARD RELEASE
           # ============================================================
           #
 
