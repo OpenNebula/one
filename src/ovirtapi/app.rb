@@ -727,7 +727,7 @@ end
 get "#{API_PREFIX}/vms/:id/diskattachments" do
     client = get_client(request.env['HTTP_AUTHORIZATION'].split(' ').last)
     vm_id = Helper.uuid_to_int(params[:id])
-    DiskController.get_vm_diskattachments(client, vm_id.to_i).to_json
+    DiskController.get_vm_diskattachments(client, vm_id.to_i, :follows => params[:follow]).to_json
 end
 
 # Reference: http://ovirt.github.io/ovirt-engine-api-model/master/#services/disk_attachment/methods/get

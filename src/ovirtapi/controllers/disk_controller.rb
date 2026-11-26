@@ -17,6 +17,7 @@
 require 'json'
 require 'fileutils'
 require 'opennebula'
+require 'open3'
 require 'socket'
 
 require_relative 'vm_controller'
@@ -411,15 +412,17 @@ class DiskController
             end
             vm_disks.each do |disk|
                 if disk['PERSISTENT'] == 'YES' && disk.key?('IMAGE_ID')
-                    persistent_disks[disk['IMAGE_ID'].to_i] = disk
+                    persistent_disks[disk['IMAGE_ID'].to_i] = [disk, vm]
                 elsif disk.key?('IMAGE_ID')
                     # Non-persistent disks
                     uuid = generate_disk_uuid(1, vm.id, disk['DISK_ID'].to_i)
-                    vm_disks_formatted << nonpersistentdisk_to_ovirtdisk(client, disk, uuid, vm.id)
+                    response = nonpersistentdisk_to_ovirtdisk(client, disk, uuid, vm.id)
+                    vm_disks_formatted << apply_guest_capacity(response, disk, vm, client)
                 elsif backup_volatiles && backup_volatiles == 'YES' && !disk.key?('IMAGE_ID')
                     # Volatile disks
                     uuid = generate_disk_uuid(2, vm.id, disk['DISK_ID'].to_i)
-                    vm_disks_formatted << volatiledisk_to_ovirtdisk(client, disk, uuid, vm.id)
+                    response = volatiledisk_to_ovirtdisk(client, disk, uuid, vm.id)
+                    vm_disks_formatted << apply_guest_capacity(response, disk, vm, client)
                 end
             end
         rescue VmController::LookupError => e
@@ -430,8 +433,9 @@ class DiskController
 
         images.each do |image|
             if image['PERSISTENT'] == '1'
-                disks << persistentdisk_to_ovirtdisk(client, image,
-                                                     :vm_disk => persistent_disks[image.id.to_i])
+                disk, vm = persistent_disks[image.id.to_i]
+                response = persistentdisk_to_ovirtdisk(client, image, :vm_disk => disk)
+                disks << apply_guest_capacity(response, disk, vm, client)
             end
         rescue VmController::LookupError => e
             raise unless [401, 404].include?(e.status)
@@ -458,6 +462,7 @@ class DiskController
             end
 
             vm_disk = nil
+            vm = nil
             image_hash = Helper.resource_hash(client, onedisk)['IMAGE']
             vms = image_hash['VMS']
             vm_ids = vms.is_a?(Hash) ? Array(vms['ID']) : []
@@ -475,29 +480,75 @@ class DiskController
                 end
             end
 
-            return 200, persistentdisk_to_ovirtdisk(client, onedisk, :vm_disk => vm_disk)
+            response = persistentdisk_to_ovirtdisk(client, onedisk, :vm_disk => vm_disk)
+            return 200, apply_guest_capacity(response, vm_disk, vm, client)
         else
             vm = VmController.get_one_vms(client, :vm_id => disk_info[:vm_id])
-            disks = vm.to_hash['VM']['TEMPLATE']['DISK']
-            if disks.is_a?(Hash)
-                disk = disks
-            else
-                disk = disks.find {|d| d['DISK_ID'].to_i == disk_info[:disk_id].to_i }
-                LOGGER.info("Disk found: #{disk}")
-            end
+            disks = vm.to_hash.dig('VM', 'TEMPLATE', 'DISK')
+            disks = [disks] if disks.is_a?(Hash)
+            disk = Array(disks).find {|d| d['DISK_ID'].to_i == disk_info[:disk_id].to_i }
             if disk.nil?
                 LOGGER.error('Unable to obtain disk')
                 return 500, Helper.fault_response('Unable to obtain disk')
             end
             if disk_info[:type] == 1
-                return 200, nonpersistentdisk_to_ovirtdisk(client, disk, uuid, disk_info[:vm_id])
+                response = nonpersistentdisk_to_ovirtdisk(client, disk, uuid, disk_info[:vm_id])
             elsif disk_info[:type] == 2
-                return 200, volatiledisk_to_ovirtdisk(client, disk, uuid, vm.id)
+                response = volatiledisk_to_ovirtdisk(client, disk, uuid, vm.id)
             else
                 LOGGER.error("Unknown disk type: #{disk_info[:type]}")
                 return 500, Helper.fault_response("Unknown disk type: #{disk_info[:type]}")
             end
+            return 200, apply_guest_capacity(response, disk, vm, client)
         end
+    end
+
+    # LINSTOR can expose a RAW device larger than the size in the VM template.
+    def self.apply_guest_capacity(response, disk, vm, client)
+        return response unless vm && disk && disk['FORMAT'].to_s.casecmp('raw').zero?
+
+        unless disk['TM_MAD'].to_s.casecmp('linstor').zero?
+            LOGGER.debug("Skipping LINSTOR capacity lookup for VM #{vm.id} disk " \
+                         "#{disk['DISK_ID']}: TM_MAD=#{disk['TM_MAD'].inspect}")
+            return response
+        end
+
+        vm = VmController.get_one_vms(client, :vm_id => vm.id, :full => true)
+        vm_info = Helper.resource_hash(client, vm)['VM']
+
+        history = vm_info.dig('HISTORY_RECORDS', 'HISTORY')
+        history = history.last if history.is_a?(Array)
+        host = history&.fetch('HOSTNAME', nil).to_s
+        domain = vm_info['DEPLOY_ID'].to_s
+        target = disk['TARGET'].to_s
+
+        # ssh invokes a remote shell. Only pass plain host and libvirt identifiers.
+        unless host.match?(/\A[a-zA-Z0-9][a-zA-Z0-9.:-]*\z/) &&
+               domain.match?(/\A[a-zA-Z0-9][a-zA-Z0-9_.-]*\z/) &&
+               target.match?(/\A[a-zA-Z][a-zA-Z0-9]*\z/)
+            LOGGER.warn("Missing or invalid libvirt identifiers for VM #{vm.id} disk " \
+                        "#{disk['DISK_ID']}: host=#{host.inspect}, " \
+                        "domain=#{domain.inspect}, target=#{target.inspect}")
+            return response
+        end
+
+        output, error, status = Open3.capture3(
+            'ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=5',
+            '-o', 'ServerAliveInterval=5', '-o', 'ServerAliveCountMax=1',
+            '--', "oneadmin@#{host}", 'timeout', '5', 'env', 'LC_ALL=C',
+            'virsh', '-c', 'qemu:///system', 'domblkinfo', domain, target
+        )
+        capacity = output[/^Capacity:[ \t]+([0-9]+)[ \t]*$/, 1].to_i
+        if status.success? && capacity.positive?
+            LOGGER.debug("Libvirt capacity for VM #{vm.id} disk #{target}: #{capacity} bytes")
+            response[:provisioned_size] = capacity
+        else
+            LOGGER.warn("Unable to get libvirt capacity for VM #{vm.id} disk #{target}: #{error.strip}")
+        end
+        response
+    rescue SystemCallError, VmController::LookupError => e
+        LOGGER.warn("Unable to get libvirt capacity for VM #{vm.id} disk #{target}: #{e.message}")
+        response
     end
 
     # Create a new empty disk
@@ -573,7 +624,7 @@ class DiskController
 
     # Struct Reference: http://ovirt.github.io/ovirt-engine-api-model/master/#types/disk_attachment
     # rubocop:disable-next Metrics/ParameterLists
-    def self.format_diskattachment(client, disk, disk_uuid, vm_id, type, disk_follow: nil)
+    def self.format_diskattachment(client, disk, disk_uuid, vm_id, type, disk_follow: nil, vm: nil)
         response = {
             :active => 'true',
           :interface => 'virtio_scsi',
@@ -611,6 +662,7 @@ class DiskController
             end
         end
 
+        apply_guest_capacity(response[:disk], disk, vm, client) if disk_follow
         return response
     end
 
@@ -649,17 +701,17 @@ class DiskController
             if disk['PERSISTENT'] == 'YES'
                 disk_uuid = generate_disk_uuid(0, 0, disk['IMAGE_ID'].to_i)
                 attachments << format_diskattachment(client, disk, disk_uuid, vm_id, 'PERSISTENT',
-                                                     :disk_follow => disk_follow)
+                                                     :disk_follow => disk_follow, :vm => vm)
             elsif disk.key?('IMAGE_ID') && disk['PERSISTENT'] != 'YES'
                 disk_uuid = generate_disk_uuid(1, vm.id, disk['DISK_ID'].to_i)
                 attachments << format_diskattachment(client, disk, disk_uuid,
                                                      vm.id, 'NONPERSISTENT',
-                                                     :disk_follow => disk_follow)
+                                                     :disk_follow => disk_follow, :vm => vm)
             elsif backup_volatiles && backup_volatiles == 'YES' && !disk.key?('IMAGE_ID')
                 disk_uuid = generate_disk_uuid(2, vm.id, disk['DISK_ID'].to_i)
                 attachments << format_diskattachment(client, disk, disk_uuid,
                                                      vm.id, 'VOLATILE',
-                                                     :disk_follow => disk_follow)
+                                                     :disk_follow => disk_follow, :vm => vm)
             end
         end
 
