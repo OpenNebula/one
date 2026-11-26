@@ -47,7 +47,7 @@ const toId = (value) => {
 const Steps = createSteps(
   (formProps) => [
     () => General(),
-    () => Cluster(),
+    () => Cluster(formProps),
     () => Public(),
     () => Private(),
     () => KubernetesVersion(formProps),
@@ -56,16 +56,16 @@ const Steps = createSteps(
   ],
   {
     transformBeforeSubmit: (formData, _, stepProps) => {
-      const clusterId = formData?.cluster?.cluster ?? stepProps?.clusterId
+      const clusterId = stepProps?.adminGroup
+        ? toId(formData?.cluster?.cluster ?? stepProps?.clusterId)
+        : undefined
 
       return {
         name: formData?.general?.NAME,
         description: formData?.general?.DESCRIPTION,
         kubernetes_version: formData?.kubernetes_version?.KUBERNETES_VERSION,
         deployment: {
-          cluster: {
-            id: toId(clusterId),
-          },
+          ...(clusterId !== undefined && { cluster: { id: clusterId } }),
           networks: {
             public: {
               id: toId(formData?.public?.PUBLIC_NETWORK),

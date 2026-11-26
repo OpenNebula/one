@@ -33,6 +33,7 @@ require 'shellwords'
 require 'set'
 require 'uri'
 require 'digest'
+require 'xmlrpc/marshal'
 
 # Helpers
 require_relative File.join(APP_ROOT, 'lib', 'helpers', 'appliance_helper')

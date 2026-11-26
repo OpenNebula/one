@@ -142,7 +142,7 @@ export const getStyles = ({ theme, variant }) => {
         alignItems: 'flex-start',
         bgcolor: 'transparent',
         borderRadius: 0,
-        color: 'text.secondary',
+        color: 'text.body',
         fontWeight: 400,
       },
       '& .item-content': {

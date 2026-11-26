@@ -47,10 +47,13 @@ module OneKS
                     'Creating probe VM'                  => proc { create_probe_vm },
                     'Waiting for probe VM RUNNING state' => proc { wait_probe_vm_running },
                     'Waiting for probe VM context'       => proc { wait_probe_vm_context },
+                    'Checking connectivity'              => proc { check_internet_access },
                     'Checking OneGate access'            => proc { check_onegate_access },
-                    'Checking Internet connectivity'     => proc { check_internet_access },
-                    'Checking private network paths'     => proc { check_network_access }
+                    'Checking OpenNebula XML-RPC access' => proc { check_network_access }
                 }
+
+                checks['Checking OneKS monitor access'] = proc { check_oneks_access } \
+                    if Features::Monitor.configured?
 
                 checks.each do |name, action|
                     progress(name, EVENTS::STARTED)
@@ -120,18 +123,20 @@ module OneKS
                 OpenNebula::Error::EACTION
             ) if appliance.nil?
 
+            extra_template = {
+                :SCHED_REQUIREMENTS => OneHelper::Template.sched_requirements(
+                    appliance[:template], @one_cluster.nil? ? nil : "CLUSTER_ID = #{@one_cluster}"
+                ),
+                :NIC => [
+                    { :NETWORK_ID => @public_network },
+                    { :NETWORK_ID => @private_network }
+                ]
+            }
+
             vm_id = appliance[:template].instantiate(
                 "oneks-readiness-check-#{Time.now.to_i}",
                 false,
-                Hash.to_raw(
-                    {
-                        :NIC => [
-                            { :NETWORK_ID => @public_network },
-                            { :NETWORK_ID => @private_network }
-                        ],
-                        :SCHED_REQUIREMENTS => "CLUSTER_ID = #{@one_cluster}"
-                    }
-                )
+                Hash.to_raw(extra_template.compact)
             )
 
             return OpenNebula::Error.new(
@@ -260,20 +265,37 @@ module OneKS
         #------------------------------------------------------
 
         def check_onegate_access
-            rc = OneHelper::VirtualMachine.exec(
-                @client,
-                @id,
-                '/bin/sh -s',
-                :stdin   => Base64.strict_encode64(onegate_access_script),
-                :timeout => TIMEOUT
+            output = probe_output(onegate_access_script, 'OneGate access failed')
+            return output if OpenNebula.is_error?(output)
+
+            response = JSON.parse(output)
+            return true if response.is_a?(Hash) && response['VM'].is_a?(Hash) &&
+                           response['VM']['ID'].to_s == @id.to_s
+
+            OpenNebula::Error.new(
+                'OneGate did not return information for the probe VM', OpenNebula::Error::EACTION
+            )
+        rescue JSON::ParserError
+            OpenNebula::Error.new('OneGate returned invalid JSON', OpenNebula::Error::EACTION)
+        end
+
+        def check_oneks_access
+            endpoint = SERVER_CONF[:monitor][:endpoint].to_s.sub(%r{/+\z}, '') + '/'
+
+            status_format = '%{http_code}' # rubocop:disable Style/FormatStringToken
+            script = probe_script(
+                "http_request --output /dev/null --write-out '#{status_format}' " \
+                "#{Shellwords.escape(endpoint)}"
             )
 
-            return OpenNebula::Error.new(
-                "OneKS cluster cannot reach OneGate endpoint: #{rc.message}",
-                OpenNebula::Error::EACTION
-            ) if OpenNebula.is_error?(rc)
+            output = probe_output(script, 'OneKS API access failed')
+            return output if OpenNebula.is_error?(output)
+            return true if ['200', '401', '403'].include?(output.strip)
 
-            true
+            OpenNebula::Error.new(
+                "OneKS API returned unexpected HTTP status #{output.strip}",
+                OpenNebula::Error::EACTION
+            )
         end
 
         def check_internet_access
@@ -295,43 +317,44 @@ module OneKS
         end
 
         def check_network_access
-            targets = network_probe_targets
-
-            return OpenNebula::Error.new(
-                'OneKS cluster cannot reach the required private network ' \
-                "path: #{targets.message}",
-                OpenNebula::Error::EACTION
-            ) if OpenNebula.is_error?(targets)
-
-            rc = OneHelper::VirtualMachine.exec(
-                @client,
-                @id,
-                '/bin/sh -s',
-                :stdin   => Base64.strict_encode64(network_access_script(targets)),
-                :timeout => TIMEOUT
+            request = XMLRPC::Marshal.dump_call('one.system.version', '')
+            script  = probe_script(
+                "http_request --fail --header 'Content-Type: text/xml' " \
+                "--data-binary #{Shellwords.escape(request)} " \
+                "#{Shellwords.escape(SERVER_CONF[:one_xmlrpc_tproxy].to_s)}"
             )
+            output = probe_output(script, 'OpenNebula XML-RPC access failed')
+            return output if OpenNebula.is_error?(output)
 
-            return OpenNebula::Error.new(
-                'OneKS cluster cannot reach the required private network ' \
-                "path: #{rc.message}",
-                OpenNebula::Error::EACTION
-            ) if OpenNebula.is_error?(rc)
+            begin
+                response = XMLRPC::Marshal.load_response(output)
+            rescue StandardError
+                return OpenNebula::Error.new(
+                    'OpenNebula returned an invalid XML-RPC response', OpenNebula::Error::EACTION
+                )
+            end
 
-            true
+            return true if response.is_a?(Array) && response[0] == true &&
+                           response[1].is_a?(String) && response[1].match?(/\A\d+\.\d+/)
+            return true if response.is_a?(Array) && response[0] == false &&
+                           [OpenNebula::Error::EAUTHENTICATION,
+                            OpenNebula::Error::EAUTHORIZATION].include?(response[2])
+
+            OpenNebula::Error.new(
+                'OpenNebula returned an unexpected XML-RPC response', OpenNebula::Error::EACTION
+            )
         end
 
         def onegate_access_script
-            <<~SCRIPT
-                set -eu
-                #{context_loader}
-                #{http_probe_helpers}
-
-                if [ -z "${ONEGATE_ENDPOINT:-}" ]; then
-                    echo "ONEGATE_ENDPOINT not found in the cluster context" >&2
+            probe_script(<<~SCRIPT)
+                if [ -z "${ONEGATE_ENDPOINT:-}" ] || [ -z "${VMID:-}" ] ||
+                    [ -z "${TOKENTXT:-}" ]; then
+                    echo "OneGate endpoint, VM ID or token missing from the VM context" >&2
                     exit 1
                 fi
 
-                probe_url "$ONEGATE_ENDPOINT" "OneGate endpoint"
+                http_request --fail --header "X-ONEGATE-VMID: $VMID" \
+                    --header "X-ONEGATE-TOKEN: $TOKENTXT" "${ONEGATE_ENDPOINT%/}/vm"
             SCRIPT
         end
 
@@ -341,7 +364,6 @@ module OneKS
 
             <<~SCRIPT
                 set -eu
-                #{http_probe_helpers}
 
                 if command -v getent >/dev/null 2>&1; then
                     getent hosts #{Shellwords.escape(external_host)}
@@ -354,20 +376,40 @@ module OneKS
                     exit 127
                 fi
 
-                probe_url_strict #{Shellwords.escape(EXTERNAL_URL)} "Internet probe"
+                url=#{Shellwords.escape(EXTERNAL_URL)}
+
+                if command -v curl >/dev/null 2>&1; then
+                    curl -fsSL --connect-timeout 5 --max-time 15 \
+                        -o /dev/null "$url" && exit 0
+                elif command -v wget >/dev/null 2>&1; then
+                    wget -q -T 15 -O /dev/null "$url" && exit 0
+                else
+                    echo "Neither curl nor wget is available for the Internet probe" >&2
+                    exit 127
+                fi
+
+                echo "Internet probe is not reachable through $url" >&2
+                exit 1
             SCRIPT
         end
 
-        def network_access_script(targets)
-            probes = targets.map do |target|
-                "probe_url #{Shellwords.escape(target[:url])} #{Shellwords.escape(target[:name])}"
-            end.join("\n")
-
+        # Loads the VM context and runs a probe command using the VM routing table
+        def probe_script(command)
             <<~SCRIPT
                 set -eu
-                #{http_probe_helpers}
+                #{context_loader}
 
-                #{probes}
+                if ! command -v curl >/dev/null 2>&1; then
+                    echo "curl is required for service checks" >&2
+                    exit 127
+                fi
+
+                http_request() {
+                    curl -sS --noproxy '*' \
+                        --connect-timeout 5 --max-time 15 "$@"
+                }
+
+                #{command}
             SCRIPT
         end
 
@@ -379,129 +421,28 @@ module OneKS
                     /etc/one-context.d/one_env \
                     /mnt/context.sh \
                     /context.sh; do
-                    [ -r "$context_file" ] && . "$context_file"
+                    if [ -r "$context_file" ]; then
+                        . "$context_file"
+                    fi
                 done
             SCRIPT
-        end
-
-        def http_probe_helpers
-            <<~SCRIPT
-                probe_url() {
-                    url="$1"
-                    label="$2"
-
-                    if command -v curl >/dev/null 2>&1; then
-                        http_code="$(curl -sS --connect-timeout 5 --max-time 15 \
-                            -o /dev/null -w '%%{http_code}' "$url")" || {
-                            echo "$label network is not reachable through $url" >&2
-                            return 1
-                        }
-
-                        [ "$http_code" != "000" ] || {
-                            echo "$label did not return an HTTP response through $url" >&2
-                            return 1
-                        }
-
-                        return 0
-                    fi
-
-                    if command -v nc >/dev/null 2>&1 ||
-                        { command -v timeout >/dev/null 2>&1 &&
-                            command -v bash >/dev/null 2>&1; }; then
-                        probe_tcp_url "$url" "$label"
-                        return $?
-                    fi
-
-                    if command -v wget >/dev/null 2>&1; then
-                        wget -q -T 15 -O /dev/null "$url" && return 0
-                    fi
-
-                    echo "No HTTP or TCP probe tool is available to probe $label" >&2
-                    return 127
-                }
-
-                probe_tcp_url() {
-                    url="$1"
-                    label="$2"
-                    target="${url#*://}"
-                    target="${target%%/*}"
-                    host="${target%%:*}"
-                    port="${target##*:}"
-
-                    if [ "$host" = "$port" ]; then
-                        case "$url" in
-                            https://*) port=443 ;;
-                            http://*)  port=80 ;;
-                            *)
-                                echo "$label URL does not include a port: $url" >&2
-                                return 1
-                                ;;
-                        esac
-                    fi
-
-                    if command -v nc >/dev/null 2>&1; then
-                        nc -z -w 5 "$host" "$port" && return 0
-                        echo "$label TCP connection failed to $host:$port" >&2
-                        return 1
-                    fi
-
-                    if command -v timeout >/dev/null 2>&1 &&
-                        command -v bash >/dev/null 2>&1; then
-                        timeout 5 bash -c ': > "/dev/tcp/$1/$2"' sh "$host" "$port" &&
-                            return 0
-                        echo "$label TCP connection failed to $host:$port" >&2
-                        return 1
-                    fi
-
-                    return 1
-                }
-
-                probe_url_strict() {
-                    url="$1"
-                    label="$2"
-
-                    if command -v curl >/dev/null 2>&1; then
-                        curl -fsSL --connect-timeout 5 --max-time 15 \
-                            -o /dev/null "$url" && return 0
-                    elif command -v wget >/dev/null 2>&1; then
-                        wget -q -T 15 -O /dev/null "$url" && return 0
-                    else
-                        echo "Neither curl nor wget is available to probe $label" >&2
-                        return 127
-                    fi
-
-                    echo "$label is not reachable through $url" >&2
-                    return 1
-                }
-            SCRIPT
-        end
-
-        def network_probe_targets
-            targets = []
-            xmlrpc_tproxy = SERVER_CONF[:one_xmlrpc_tproxy].to_s
-
-            unless xmlrpc_tproxy.strip.empty?
-                private_network = OneHelper::VirtualNetwork.name(
-                    @client, @private_network
-                )
-                return private_network if OpenNebula.is_error?(private_network)
-
-                targets << {
-                    :name => "OpenNebula XML-RPC TPROXY for #{private_network}",
-                    :url  => xmlrpc_tproxy
-                }
-            end
-
-            return OpenNebula::Error.new(
-                'No private network targets configured', OpenNebula::Error::EACTION
-            ) if targets.empty?
-
-            targets
         end
 
         #------------------------------------------------------
         # Helpers
         #------------------------------------------------------
+
+        def probe_output(script, failure)
+            rc = OneHelper::VirtualMachine.exec(
+                @client, @id, '/bin/sh -s',
+                :stdin => Base64.strict_encode64(script), :timeout => TIMEOUT
+            )
+            return OpenNebula::Error.new(
+                "#{failure}: #{rc.message}", OpenNebula::Error::EACTION
+            ) if OpenNebula.is_error?(rc)
+
+            rc[:stdout].to_s
+        end
 
         def oneks_appliance
             family = ControlPlane.family_by_name(@family)

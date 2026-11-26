@@ -196,12 +196,14 @@ class OneKSGroupHelper < ODSHelper
         client.update_cluster_nodegroup(cluster_id, group_id, { :name => name })
     end
 
-    def scale(client, group_id, target)
-        cluster_id = resolve_cluster_group(client, group_id)
-        return cluster_id if is_error?(cluster_id)
+    def scale(client, group_ids, target)
+        group_ids.each do |group_id|
+            cluster_id = resolve_cluster_group(client, group_id)
+            return cluster_id if is_error?(cluster_id)
 
-        rc = client.scale_cluster_nodegroup(cluster_id, group_id, { :target => target })
-        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+            rc = client.scale_cluster_nodegroup(cluster_id, group_id, { :target => target })
+            return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+        end
 
         0
     end
@@ -218,12 +220,14 @@ class OneKSGroupHelper < ODSHelper
         0
     end
 
-    def recover(client, group_id, action = :retry)
-        cluster_id = resolve_cluster_group(client, group_id)
-        return cluster_id if is_error?(cluster_id)
+    def recover(client, group_ids, action = :retry)
+        group_ids.each do |group_id|
+            cluster_id = resolve_cluster_group(client, group_id)
+            return cluster_id if is_error?(cluster_id)
 
-        rc = client.recover_cluster_nodegroup(cluster_id, group_id, action)
-        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+            rc = client.recover_cluster_nodegroup(cluster_id, group_id, action)
+            return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+        end
 
         0
     end

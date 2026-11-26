@@ -983,6 +983,8 @@ module OneKS
         #------------------------------------------------------
 
         def deployment_cluster
+            return {} if deployment_cluster_id.nil?
+
             OneHelper::Cluster.body(@client, deployment_cluster_id)
         end
 
@@ -1016,6 +1018,8 @@ module OneKS
         end
 
         def sched_requirements
+            return '' if deployment_cluster_id.nil?
+
             "CLUSTER_ID = #{deployment_cluster_id}"
         end
 
@@ -1027,7 +1031,7 @@ module OneKS
             return target_networks if OpenNebula.is_error?(target_networks)
 
             deployment.merge(
-                :cluster  => target_cluster.deep_merge(deployment[:cluster]),
+                :cluster  => target_cluster.deep_merge(deployment[:cluster] || {}),
                 :networks => target_networks,
                 :sched_requirements => sched_requirements
             )

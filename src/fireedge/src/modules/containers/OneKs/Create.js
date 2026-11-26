@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import { generatePath, useHistory, useLocation } from 'react-router-dom'
-import { OneKsAPI, useGeneralApi } from '@FeaturesModule'
+import { OneKsAPI, useGeneralApi, useSystemData } from '@FeaturesModule'
 
 import { DefaultFormStepper, SkeletonStepsForm } from '@ComponentsModule'
 import { OneKs } from '@ResourcesModule'
@@ -31,7 +31,8 @@ import { T, ONEKS_OPERATIONS, PATH } from '@ConstantsModule'
 export function CreateOneKsCluster() {
   const history = useHistory()
   const { state } = useLocation()
-  const clusterId = state?.ID
+  const { adminGroup } = useSystemData()
+  const clusterId = adminGroup ? state?.ID : undefined
 
   const { enqueueSuccess, enqueueError } = useGeneralApi()
   const [createOneKsCluster] = OneKsAPI.useCreateOneKsClusterMutation()
@@ -75,6 +76,7 @@ export function CreateOneKsCluster() {
           stepProps={{
             families: familiesUserInputs,
             clusterId,
+            adminGroup,
           }}
           fallback={<SkeletonStepsForm />}
         >

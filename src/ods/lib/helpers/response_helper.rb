@@ -119,6 +119,9 @@ module OpenNebula
                     @out        = out
                     @event_name = event_name
                     @closed     = false
+                    @mutex      = Mutex.new
+                    @condition  = ConditionVariable.new
+                    @heartbeat_thread = nil
                 end
 
                 # Emit a Server-Sent Event to the stream
@@ -128,15 +131,25 @@ module OpenNebula
                 #
                 # @return [Boolean] true if written, false if the stream is closed
                 def emit(event, payload = {})
-                    return false if @closed
+                    write("event: #{event}\ndata: #{payload.to_json}\n\n")
+                end
 
-                    @out << "event: #{event}\n"
-                    @out << "data: #{payload.to_json}\n\n"
+                # Starts optional keepalive comments without emitting progress events.
+                #
+                # @param interval [Numeric] Seconds between heartbeat comments
+                # @return [Thread, nil] Managed heartbeat thread, or nil if already closed
+                def start_heartbeat(interval)
+                    interval = Float(interval)
+                    raise ArgumentError, 'Heartbeat interval must be positive and finite' \
+                        unless interval.finite? && interval.positive?
 
-                    true
-                rescue IOError, Errno::EPIPE, Puma::ConnectionError
-                    @closed = true
-                    false
+                    @mutex.synchronize do
+                        return if @closed
+
+                        @heartbeat_thread ||= ThreadManager.instance.start(:sse_heartbeat) do
+                            heartbeat_loop(interval)
+                        end
+                    end
                 end
 
                 # Emit a progress notification using the default event name
@@ -168,9 +181,55 @@ module OpenNebula
                 end
 
                 def close
+                    thread = @mutex.synchronize do
+                        @closed = true
+                        @condition.broadcast
+                        @heartbeat_thread
+                    end
+
+                    thread&.join
                     @out.close
                 rescue IOError
                     nil
+                end
+
+                private
+
+                # Serializes complete frames with heartbeats and stream closure.
+                def write(frame)
+                    @mutex.synchronize do
+                        return false if @closed
+
+                        begin
+                            @out << frame
+                            true
+                        rescue IOError, Errno::EPIPE, Puma::ConnectionError
+                            @closed = true
+                            @condition.broadcast
+                            false
+                        end
+                    end
+                end
+
+                def heartbeat_loop(interval)
+                    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + interval
+
+                    loop do
+                        return if ThreadManager.instance.stop?
+
+                        @mutex.synchronize do
+                            return if @closed
+
+                            remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+                            @condition.wait(@mutex, [remaining, 1].min) if remaining.positive?
+                            return if @closed
+                        end
+
+                        next if Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
+                        return unless write(": heartbeat\n\n")
+
+                        deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + interval
+                    end
                 end
 
             end
@@ -202,6 +261,7 @@ module OpenNebula
             # @option opts [Hash] :headers ({}) extra response headers merged with
             #   the SSE defaults
             # @option opts [Integer] :status_code (200) HTTP status code
+            # @option opts [Numeric, nil] :heartbeat_interval seconds between keepalive comments
             # @yieldparam events [EventStream] object used to emit SSE events
             # @return [Object] Sinatra streaming response
             def stream_events(opts = {})
@@ -229,6 +289,9 @@ module OpenNebula
                     events = EventStream.new(out, :event_name => event_name)
 
                     begin
+                        if opts[:heartbeat_interval]
+                            events.start_heartbeat(opts[:heartbeat_interval])
+                        end
                         yield events
                     rescue IOError, Errno::EPIPE, StreamClosed
                         nil

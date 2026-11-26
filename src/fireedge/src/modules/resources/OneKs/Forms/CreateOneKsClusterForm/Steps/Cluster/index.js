@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
+import { object } from 'yup'
 import { FormWithSchema } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { SCHEMA, FIELDS } from './schema'
@@ -27,18 +28,21 @@ const Content = () => (
 /**
  * Cluster configuration.
  *
+ * @param {object} props - Form props
+ * @param {boolean} props.adminGroup - Whether the user belongs to the admin group
  * @returns {object} Cluster configuration step
  */
-const Cluster = () => ({
+const Cluster = ({ adminGroup }) => ({
   id: STEP_ID,
   label: T.SelectCluster,
-  resolver: SCHEMA,
+  resolver: adminGroup ? SCHEMA : object().strip(),
   optionsValidate: { abortEarly: false },
   content: () => Content(),
+  defaultDisabled: { condition: () => !adminGroup },
 })
 
 Cluster.propTypes = {
-  families: PropTypes.array,
+  adminGroup: PropTypes.bool,
 }
 
 export default Cluster

@@ -16,6 +16,7 @@
 import Application from '@modules/resources/OneKs/Forms/InstallApplicationForm/Steps/Application'
 import Configuration from '@modules/resources/OneKs/Forms/InstallApplicationForm/Steps/Configuration'
 import UserInputs from '@modules/resources/OneKs/Forms/InstallApplicationForm/Steps/UserInputs'
+import { toUserInputValues } from '@modules/resources/OneKs/Forms/InstallApplicationForm/Steps/UserInputs/schema'
 import { createSteps } from '@UtilsModule'
 
 const Steps = createSteps([Application, Configuration, UserInputs], {
@@ -24,7 +25,10 @@ const Steps = createSteps([Application, Configuration, UserInputs], {
     release_name: formData?.configuration?.RELEASE_NAME,
     target_namespace: formData?.configuration?.TARGET_NAMESPACE,
     create_namespace: formData?.configuration?.CREATE_NAMESPACE,
-    user_input_values: formData?.user_inputs ?? {},
+    user_input_values: toUserInputValues(
+      formData?.application?.DEFINITION,
+      formData?.user_inputs
+    ),
   }),
 })
 

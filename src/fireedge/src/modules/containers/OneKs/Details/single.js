@@ -96,9 +96,9 @@ export const SingleView = ({
     { id: selectedId, expand: true },
     { skip: !isOpen || selectedId === undefined }
   )
-  const { currentData: installedApplications } =
+  const { currentData: installedApplications, refetch: refetchApplications } =
     OneKsAPI.useGetOneKsClusterApplicationsQuery(
-      { id: selectedId, showNotification: false },
+      { id: selectedId, all: true, showNotification: false },
       { skip: !isOpen || selectedId === undefined }
     )
   const { data: families = [], isLoading: isLoadingFamilies } =
@@ -137,7 +137,8 @@ export const SingleView = ({
     isChangingPermissions ||
     isChangingOwnership
 
-  const refreshCurrentData = async () => ID !== undefined && (await refetch())
+  const refreshCurrentData = async () =>
+    ID !== undefined && (await Promise.all([refetch(), refetchApplications()]))
 
   const handleRename = async (newName) => {
     await updateDocument({ id: ID, template: { name: newName } })
@@ -356,7 +357,10 @@ export const SingleView = ({
               ],
               [
                 Array.isArray(installedApplications)
-                  ? String(installedApplications.length)
+                  ? String(
+                      installedApplications.filter(({ parent }) => !parent)
+                        .length
+                    )
                   : '-',
                 T.InstalledApplications,
               ],

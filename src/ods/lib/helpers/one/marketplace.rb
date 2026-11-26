@@ -29,8 +29,11 @@ module OpenNebula
                 # @param name [String] Export name.
                 # @param app_id [String] Appliance import ID.
                 # @param datastore_id [Integer] Destination datastore ID.
+                # @param options [Hash] Settings for exported images and templates.
+                # @option options [String] :permissions Resource permissions.
+                # @option options [Integer] :lock_level Resource lock level.
                 # @return [OpenNebula::MarketPlaceApp, OpenNebula::Error] appliance or an API error.
-                def self.import(client, name, app_id, datastore_id)
+                def self.import(client, name, app_id, datastore_id, options = {})
                     return OpenNebula::Error.new(
                         'Marketplace appliance ID cannot be empty',
                         OpenNebula::Error::EACTION
@@ -60,6 +63,25 @@ module OpenNebula
                     tmplt_ids   = Array(rc[:vmtemplate])
                     tmplt_error = tmplt_ids.find {|tmplt_id| OpenNebula.is_error?(tmplt_id) }
                     return tmplt_error if tmplt_error
+
+                    permissions = options[:permissions]
+                    lock_level  = options[:lock_level]
+                    return app unless permissions || lock_level
+
+                    resources = image_ids.map {|id| OpenNebula::Image.new_with_id(id, client) } +
+                                tmplt_ids.map {|id| OpenNebula::Template.new_with_id(id, client) }
+
+                    resources.each do |resource|
+                        if permissions
+                            rc = resource.chmod_octet(permissions)
+                            return rc if OpenNebula.is_error?(rc)
+                        end
+
+                        next unless lock_level
+
+                        rc = resource.lock(lock_level)
+                        return rc if OpenNebula.is_error?(rc)
+                    end
 
                     app
                 end

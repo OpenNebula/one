@@ -101,7 +101,12 @@ module OpenNebula
                 )
                 request.body = body.is_a?(String) ? body : body.to_json
 
-                Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https') do |http|
+                Net::HTTP.start(
+                    uri.host,
+                    uri.port,
+                    :use_ssl => uri.scheme == 'https',
+                    :read_timeout => 60
+                ) do |http|
                     http.request(request) do |response|
                         unless response.is_a?(Net::HTTPSuccess)
                             response_body = +''
@@ -229,10 +234,13 @@ module OpenNebula
             end
 
             def parse_event(raw_event)
+                lines = raw_event.lines
+                return [nil, nil] if lines.all? {|line| line.strip.empty? || line.start_with?(':') }
+
                 event = 'message'
                 data  = +''
 
-                raw_event.each_line do |line|
+                lines.each do |line|
                     line = line.chomp
                     next if line.empty? || line.start_with?(':')
 

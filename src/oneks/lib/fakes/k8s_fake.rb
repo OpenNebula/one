@@ -297,11 +297,35 @@ module OneKS
 
                 image = OneHelper::Image.find(client, name)
                 return image if OpenNebula.is_error?(image)
-                next if image
 
-                content = Hash.to_raw(content) if content.is_a?(Hash)
-                rc      = OneHelper::Image.create(client, append_name(content, name), datastore_id)
-                return rc if OpenNebula.is_error?(rc)
+                unless image
+                    content = Hash.to_raw(content) if content.is_a?(Hash)
+                    image = OneHelper::Image.create(
+                        client, append_name(content, name), datastore_id
+                    )
+                    return image if OpenNebula.is_error?(image)
+                end
+
+                deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + K8s::K8S_TIMEOUT
+
+                loop do
+                    rc = image.info
+                    return rc if OpenNebula.is_error?(rc)
+
+                    state = image.state_str
+                    break if ['READY', 'USED'].include?(state)
+
+                    return OpenNebula::Error.new(
+                        "Image '#{name}' entered ERROR", OpenNebula::Error::EACTION
+                    ) if state == 'ERROR'
+
+                    return OpenNebula::Error.new(
+                        "Image '#{name}' did not become ready within #{K8s::K8S_TIMEOUT} seconds",
+                        OpenNebula::Error::EACTION
+                    ) if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
+
+                    sleep 2
+                end
             end
 
             true

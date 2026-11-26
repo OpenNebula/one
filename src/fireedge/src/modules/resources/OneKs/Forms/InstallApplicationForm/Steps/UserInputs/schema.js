@@ -18,6 +18,8 @@ import {
   schemaOdsUserInputField,
   sentenceCase,
 } from '@UtilsModule'
+import { INPUT_TYPES, T } from '@ConstantsModule'
+import { number } from 'yup'
 
 /**
  * @param {object} application - Selected application definition
@@ -26,6 +28,43 @@ import {
 export const FIELDS = (application = {}) =>
   (application?.user_inputs ?? []).map((userInput) => {
     const field = schemaOdsUserInputField(userInput)
+    const regex = userInput.match?.values?.regex
+    const units = regex
+      ?.match(/\(((?:[KMGTPE]i\|)*[KMGTPE]i)\)\\z$/)?.[1]
+      .split('|')
+
+    if (
+      userInput.type === 'string' &&
+      !userInput.sensitive &&
+      units?.includes('Mi')
+    ) {
+      const match = new RegExp(regex.replace(/\\A/g, '^').replace(/\\z/g, '$'))
+      const defaultQuantity = userInput.default?.match(/^(\d+)([KMGTPE]i)$/)
+      const defaultValue = defaultQuantity
+        ? Number(defaultQuantity[1]) *
+          1024 ** ('KMGTPE'.indexOf(defaultQuantity[2][0]) - 1)
+        : undefined
+
+      field.type = INPUT_TYPES.UNITS
+      field.defaultValue = defaultValue
+      field.validation = number()
+        .positive()
+        .integer()
+        .test(
+          'memory-quantity',
+          T.PositiveNumber,
+          (value) => value == null || match.test(`${value}Mi`)
+        )
+        .default(defaultValue)
+      if (userInput.mandatory) field.validation = field.validation.required()
+      field.fieldProps = {
+        ...field.fieldProps,
+        min: 1,
+        step: 1,
+        isRequired: !!userInput.mandatory,
+        isOptional: !userInput.mandatory,
+      }
+    }
 
     return {
       ...field,
@@ -36,6 +75,28 @@ export const FIELDS = (application = {}) =>
       },
     }
   })
+
+/**
+ * Serializes memory inputs stored by the unit controller in MB.
+ *
+ * @param {object} application - Selected application definition
+ * @param {object} values - Form input values
+ * @returns {object} Application input values ready for submission
+ */
+export const toUserInputValues = (application, values = {}) => {
+  const result = { ...values }
+  FIELDS(application).forEach(({ name, type }) => {
+    if (
+      type === INPUT_TYPES.UNITS &&
+      result[name] != null &&
+      result[name] !== ''
+    ) {
+      result[name] = `${result[name]}Mi`
+    }
+  })
+
+  return result
+}
 
 /**
  * @param {object} form - Form values

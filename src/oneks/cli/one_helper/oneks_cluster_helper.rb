@@ -17,6 +17,8 @@
 require 'ods_helper'
 require 'one_helper/oneks_helper'
 require 'cloud/CloudClient'
+require 'opennebula/cluster'
+require 'opennebula/cluster_pool'
 
 # OneKS cluster helper
 class OneKSClusterHelper < ODSHelper
@@ -276,23 +278,29 @@ class OneKSClusterHelper < ODSHelper
         client.update_cluster(cluster_id, { :name => name })
     end
 
-    def chown(client, cluster_id, owner_id, group_id = nil)
-        rc = client.chown_cluster(cluster_id, owner_id, group_id)
-        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+    def chown(client, cluster_ids, owner_id, group_id = nil)
+        cluster_ids.each do |cluster_id|
+            rc = client.chown_cluster(cluster_id, owner_id, group_id)
+            return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+        end
 
         0
     end
 
-    def chgrp(client, cluster_id, group_id)
-        rc = client.chgrp_cluster(cluster_id, group_id)
-        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+    def chgrp(client, cluster_ids, group_id)
+        cluster_ids.each do |cluster_id|
+            rc = client.chgrp_cluster(cluster_id, group_id)
+            return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+        end
 
         0
     end
 
-    def chmod(client, cluster_id, octet)
-        rc = client.chmod_cluster(cluster_id, octet)
-        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+    def chmod(client, cluster_ids, octet)
+        cluster_ids.each do |cluster_id|
+            rc = client.chmod_cluster(cluster_id, octet)
+            return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+        end
 
         0
     end
@@ -306,24 +314,26 @@ class OneKSClusterHelper < ODSHelper
         0
     end
 
-    def upgrade(client, cluster_id, options = {})
-        cluster = client.get_cluster(cluster_id, :expand => true)
-        return [cluster[:err_code], cluster[:message]] if CloudClient.is_error?(cluster)
+    def upgrade(client, cluster_ids, options = {})
+        cluster_ids.each do |cluster_id|
+            cluster = client.get_cluster(cluster_id, :expand => true)
+            return [cluster[:err_code], cluster[:message]] if CloudClient.is_error?(cluster)
 
-        family_name = cluster.dig(:TEMPLATE, :CLUSTER_BODY, :control_plane, :family)
-        return [-1, "Unable to determine control plane family for cluster #{cluster_id}"] \
-            if family_name.nil? || family_name.to_s.empty?
+            family_name = cluster.dig(:TEMPLATE, :CLUSTER_BODY, :control_plane, :family)
+            return [-1, "Unable to determine control plane family for cluster #{cluster_id}"] \
+                if family_name.nil? || family_name.to_s.empty?
 
-        family = client.get_cluster_family(family_name)
-        return [family[:err_code], family[:message]] if CloudClient.is_error?(family)
+            family = client.get_cluster_family(family_name)
+            return [family[:err_code], family[:message]] if CloudClient.is_error?(family)
 
-        current_version = cluster.dig(:TEMPLATE, self.class.template_tag, :kubernetes_version)
-        puts "Current Kubernetes version: #{current_version}"
+            current_version = cluster.dig(:TEMPLATE, self.class.template_tag, :kubernetes_version)
+            puts "Current Kubernetes version: #{current_version}"
 
-        version = resolve_k8s_version(family, options[:kubernetes_version])
-        rc = client.upgrade_cluster(cluster_id, version)
+            version = resolve_k8s_version(family, options[:kubernetes_version])
+            rc = client.upgrade_cluster(cluster_id, version)
 
-        return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+            return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
+        end
 
         0
     end
@@ -383,6 +393,8 @@ class OneKSClusterHelper < ODSHelper
         end
 
         failed ? 1 : 0
+    rescue Timeout::Error, Errno::ETIMEDOUT
+        [-1, '[ERROR] Operation timeout reached']
     rescue StandardError => e
         [-1, e.message]
     ensure
@@ -526,6 +538,7 @@ class OneKSClusterHelper < ODSHelper
     end
 
     def ask_cluster_body(client)
+        select_cluster = can_select_cluster?
         str_h1 = '%-80s'
 
         # Inputs processed in prompt order
@@ -534,17 +547,17 @@ class OneKSClusterHelper < ODSHelper
         puts
         CLIHelper.print_header(str_h1 % 'DEPLOYMENT PLACEMENT')
 
-        cluster_id      = ask_required_integer('OpenNebula cluster ID')
+        cluster_id      = ask_required_integer('OpenNebula cluster ID') if select_cluster
         public_network  = ask_required_integer('Public network ID')
         private_network = ask_required_integer('Private network ID')
 
         deployment = {
-            :cluster  => { :id => cluster_id },
+            :cluster => cluster_id.nil? ? nil : { :id => cluster_id },
             :networks => {
                 :public  => { :id => public_network },
                 :private => { :id => private_network }
             }
-        }
+        }.compact
 
         rc = client.validate_cluster_deployment(deployment)
         return [rc[:err_code], rc[:message]] if CloudClient.is_error?(rc)
@@ -595,12 +608,10 @@ class OneKSClusterHelper < ODSHelper
         return [-1, "Missing #{self.class.template_tag} for cluster #{cluster_id}"] unless body
 
         deployment = (body[:deployment] || {}).dup
-        deployment_id   = deployment.dig(:cluster, :id)
         public_network  = deployment.dig(:networks, :public, :id)
         private_network = deployment.dig(:networks, :private, :id)
         missing         = []
 
-        missing << 'deployment.cluster.id' if deployment_id.nil?
         missing << 'deployment.networks.public.id' if public_network.nil?
         missing << 'deployment.networks.private.id' if private_network.nil?
 
@@ -614,21 +625,38 @@ class OneKSClusterHelper < ODSHelper
     end
 
     def ask_cluster_check(body = {})
+        select_cluster = can_select_cluster?
+
         cluster_id      = body.dig(:cluster, :id)
         public_network  = body.dig(:networks, :public, :id)
         private_network = body.dig(:networks, :private, :id)
 
-        cluster_id      ||= ask_required_integer('OpenNebula cluster ID') if cluster_id.nil?
+        cluster_id = ask_required_integer('OpenNebula cluster ID') \
+            if select_cluster && cluster_id.nil?
+
         public_network  ||= ask_required_integer('Public network ID')
         private_network ||= ask_required_integer('Private network ID')
 
         {
-            :cluster  => { :id => cluster_id },
+            :cluster => cluster_id.nil? ? nil : { :id => cluster_id },
             :networks => {
                 :public  => { :id => public_network },
                 :private => { :id => private_network }
             }
-        }
+        }.compact
+    end
+
+    def can_select_cluster?
+        clusters = OpenNebula::ClusterPool.new(@client)
+        rc = clusters.info
+
+        if OpenNebula.is_error?(rc)
+            return false if rc.errno == OpenNebula::Error::EAUTHORIZATION
+
+            raise rc.message
+        end
+
+        clusters.any?
     end
 
 end

@@ -45,13 +45,13 @@ const AboutSection = ({ section, releaseName }) => {
 
   return (
     <Box sx={(theme) => getAboutStyles({ theme })}>
-      {title && <Typography variant="h6">{title}</Typography>}
+      {title && (
+        <Typography variant="h6" color="text.headings">
+          {title}
+        </Typography>
+      )}
       {description && (
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          whiteSpace="pre-line"
-        >
+        <Typography variant="body2" color="text.body" whiteSpace="pre-line">
           {description}
         </Typography>
       )}
@@ -61,12 +61,14 @@ const AboutSection = ({ section, releaseName }) => {
           items={steps.map((step, index) => (
             <Box key={index} className="about-step">
               {step.title && (
-                <Typography variant="subtitle2">{step.title}</Typography>
+                <Typography variant="subtitle2" color="text.headings">
+                  {step.title}
+                </Typography>
               )}
               {step.description && (
                 <Typography
                   variant="body2"
-                  color="text.secondary"
+                  color="text.body"
                   whiteSpace="pre-line"
                 >
                   {step.description}

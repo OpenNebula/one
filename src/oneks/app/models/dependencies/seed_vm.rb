@@ -78,13 +78,17 @@ module OneKS
             return spec if OpenNebula.is_error?(spec)
 
             extra_template = {
-                :SCHED_REQUIREMENTS        => cluster.sched_requirements,
                 :ONEAPP_ONEKS_CLUSTER_NAME => cluster.uuid,
                 :ONEAPP_ONEKS_CLUSTER_SPEC => Base64.strict_encode64(spec),
-                :NIC => [{ :NETWORK_ID => cluster.public_network_id }]
+                :NIC => [{ :NETWORK_ID => cluster.public_network_id }],
+                :SCHED_REQUIREMENTS => OneHelper::Template.sched_requirements(
+                    appliance[:template], cluster.sched_requirements
+                )
             }
 
-            seed_id = appliance[:template].instantiate(vm_name, false, Hash.to_raw(extra_template))
+            seed_id = appliance[:template].instantiate(
+                vm_name, false, Hash.to_raw(extra_template.compact)
+            )
 
             return OpenNebula::Error.new(
                 seed_id.message, OpenNebula::Error::EACTION
@@ -254,7 +258,12 @@ module OneKS
                 return rc if OpenNebula.is_error?(rc)
 
                 rc = OneHelper::Marketplace.import(
-                    client, appliance_name, appliance_id, datastore_id
+                    client,
+                    appliance_name,
+                    appliance_id,
+                    datastore_id,
+                    :permissions => '744',
+                    :lock_level => 2
                 )
                 return rc if OpenNebula.is_error?(rc)
 

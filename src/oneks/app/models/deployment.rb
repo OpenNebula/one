@@ -20,8 +20,8 @@ module OneKS
     class ClusterDeployment
 
         SCHEMA = Dry::Schema.Params do
-            required(:cluster).hash do
-                required(:id).filled(:integer)
+            optional(:cluster).hash do
+                optional(:id).filled(:integer)
             end
 
             required(:networks).hash do
@@ -55,7 +55,7 @@ module OneKS
                 ) unless deployment
 
                 cluster_id = deployment.dig(:cluster, :id)
-                cluster    = OneHelper::Cluster.get(client, cluster_id)
+                cluster    = OneHelper::Cluster.get(client, cluster_id) unless cluster_id.nil?
 
                 return OpenNebula::Error.new(
                     "OpenNebula cluster #{cluster_id} does not exist: #{cluster.message}",
@@ -68,7 +68,7 @@ module OneKS
                 rc = validate_datastores(client, cluster, deployment[:datastores])
                 return rc if OpenNebula.is_error?(rc)
 
-                rc = validate_appliances(client, cluster, family)
+                rc = validate_appliances(client, deployment, family)
                 return rc if OpenNebula.is_error?(rc)
 
                 true
@@ -79,23 +79,26 @@ module OneKS
                 )
             end
 
-            # Resolves the appliance image and VM template in a datastore available to the
-            # target OpenNebula cluster
+            # Resolves the appliance in an image datastore compatible with the selected
+            # networks, explicit datastore and optional OpenNebula cluster.
             # @param client [OpenNebula::Client] OpenNebula client
             # @param deployment [Hash] Deployment placement section
             # @param appliance_id [String] OneKS appliance ID
             # @return [Hash, OpenNebula::Error] appliance image and template
             def appliance(client, deployment, appliance_id)
                 cluster_id = deployment.dig(:cluster, :id)
-                cluster    = OneHelper::Cluster.get(client, cluster_id)
+                cluster    = OneHelper::Cluster.get(client, cluster_id) unless cluster_id.nil?
                 return cluster if OpenNebula.is_error?(cluster)
 
+                datastore_ids = appliance_datastores(client, deployment, cluster)
+                return datastore_ids if OpenNebula.is_error?(datastore_ids)
+
                 OneHelper::Template.find_by_appliance_id(
-                    client, appliance_id, cluster.datastore_ids
+                    client, appliance_id, datastore_ids
                 )
             rescue StandardError => e
                 OpenNebula::Error.new(
-                    "Error resolving deployment appliance: #{e.message}",
+                    "Error resolving appliance: #{e.message}",
                     OpenNebula::Error::EACTION
                 )
             end
@@ -133,6 +136,56 @@ module OneKS
 
             private
 
+            # Reads membership from accessible resources, without requiring Cluster USE
+            def appliance_datastores(client, deployment, cluster)
+                networks = deployment[:networks]
+                return OpenNebula::Error.new(
+                    'Missing deployment networks section', ODS::ResponseHelper::VALIDATION_EC
+                ) if networks.nil? || networks.empty?
+
+                cluster_ids = [cluster.id.to_s] if cluster
+
+                networks.each_value do |net|
+                    network = OneHelper::VirtualNetwork.get(client, net[:id])
+                    return network if OpenNebula.is_error?(network)
+
+                    ids = Array(network.retrieve_elements('CLUSTERS/ID'))
+                    cluster_ids = cluster_ids.nil? ? ids : cluster_ids & ids
+                end
+
+                return OpenNebula::Error.new(
+                    'Selected networks and OpenNebula cluster have no common placement',
+                    ODS::ResponseHelper::VALIDATION_EC
+                ) if cluster_ids.empty?
+
+                image_ds = deployment.dig(:datastores, :image, :id)
+
+                if image_ds
+                    selected = OneHelper::Datastore.get(client, image_ds)
+                    return selected if OpenNebula.is_error?(selected)
+
+                    datastores = [selected]
+                else
+                    datastores = OpenNebula::DatastorePool.new(client)
+                    rc = datastores.info
+                    return rc if OpenNebula.is_error?(rc)
+                end
+
+                ids = datastores.filter_map do |datastore|
+                    next unless OneHelper::Datastore.image?(datastore)
+                    next if (cluster_ids & Array(datastore.retrieve_elements('CLUSTERS/ID'))).empty?
+
+                    datastore.id
+                end
+
+                return ids unless ids.empty?
+
+                OpenNebula::Error.new(
+                    'No accessible image datastore is compatible with the selected networks ' \
+                    'and deployment placement', ODS::ResponseHelper::VALIDATION_EC
+                )
+            end
+
             # Checks that each deployment network exists and belongs to the
             # selected OpenNebula cluster, when one is provided.
             def validate_networks(client, cluster, networks)
@@ -150,7 +203,7 @@ module OneKS
                         ODS::ResponseHelper::VALIDATION_EC
                     ) if OpenNebula.is_error?(network)
 
-                    next if cluster.contains_vnet?(net_id)
+                    next if cluster.nil? || cluster.contains_vnet?(net_id)
 
                     return OpenNebula::Error.new(
                         "Deployment #{role} network #{net_id} (#{network.name}) is not " \
@@ -176,7 +229,7 @@ module OneKS
                         ODS::ResponseHelper::VALIDATION_EC
                     ) if OpenNebula.is_error?(datastore)
 
-                    next if cluster.contains_datastore?(ds_id)
+                    next if cluster.nil? || cluster.contains_datastore?(ds_id)
 
                     return OpenNebula::Error.new(
                         "Deployment #{role} datastore #{ds_id} " \
@@ -191,7 +244,7 @@ module OneKS
 
             # Checks that every family appliance has a valid image and VM Template
             # in a datastore available to the target OpenNebula cluster
-            def validate_appliances(client, cluster, family)
+            def validate_appliances(client, deployment, family)
                 family ||= ControlPlane.family_by_name(K8sGroup::DEFAULT_FAMILY)
 
                 return OpenNebula::Error.new(
@@ -203,17 +256,15 @@ module OneKS
                 return true if appliances.empty?
 
                 appliances.each do |appliance|
-                    template = OneHelper::Template.find_by_appliance_id(
-                        client, appliance[:id], cluster.datastore_ids
-                    )
+                    template = self.appliance(client, deployment, appliance[:id])
 
                     return template if OpenNebula.is_error?(template)
                     next if template
 
                     return OpenNebula::Error.new(
-                        "Deployment appliance #{appliance[:name]} (#{appliance[:id]}) " \
-                        'is not available in an image datastore associated with the ' \
-                        "target OpenNebula cluster #{cluster.id} (#{cluster.name})",
+                        "Appliance #{appliance[:name]} (#{appliance[:id]}) " \
+                        'is not available in any image datastore accessible ' \
+                        'with the selected configuration',
                         ODS::ResponseHelper::VALIDATION_EC
                     )
                 end

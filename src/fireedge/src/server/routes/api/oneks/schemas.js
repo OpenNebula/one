@@ -20,11 +20,11 @@ const oneKsDeploymentSchema = {
   properties: {
     cluster: {
       type: 'object',
-      required: true,
+      required: false,
       properties: {
         id: {
           type: 'integer',
-          required: true,
+          required: false,
         },
       },
     },

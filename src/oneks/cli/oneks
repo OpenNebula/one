@@ -262,8 +262,19 @@ CommandParser::CmdParser.new(ARGV) do
         [0, arg]
     end
 
-    set :format, :clusterid_list, OneKS::Client.list_to_id_desc('OneKS Clusters') do |arg|
-        OneKS::Client.list_to_id(arg, :clusters)
+    set :format, :resourceid_list, OneKS::Client.list_to_id_desc('OneKS resources') do |arg|
+        case args[0]
+        when 'cluster'
+            OneKS::Client.list_to_id(arg, :clusters)
+        when 'group'
+            OneKS::Client.list_to_id(arg, :groups)
+        else
+            [-1]
+        end
+    end
+
+    set :format, :release_name, 'Application release name' do |arg|
+        args[0] == 'app' ? [0, arg] : [-1]
     end
 
     ########################################################################
@@ -542,6 +553,11 @@ CommandParser::CmdParser.new(ARGV) do
 
         case resource
         when 'cluster'
+            kscluster.set_client(
+                :user => options[:username] || ENV['ONEKS_USER'],
+                :password => options[:password] || ENV['ONEKS_PASSWORD']
+            ) unless body
+
             rc = kscluster.create(client, body, options)
             return rc if kscluster.is_error?(rc)
         when 'group'
@@ -664,15 +680,16 @@ CommandParser::CmdParser.new(ARGV) do
             oneks chgrp cluster <cluster_id> <group_id>
     EOT
 
-    command :chgrp, chgrp_desc, :resource, :resource_id, :groupid do
-        client      = OneKSHelper.client(options)
-        resource    = args[0]
-        resource_id = args[1]
-        group_id    = args[2].to_i
+    command :chgrp, chgrp_desc, :resource, [:range, :resourceid_list], :groupid do
+        client       = OneKSHelper.client(options)
+        resource     = args[0]
+        resource_ids = args[1]
+        group_id     = args[2].to_i
 
         case resource
         when 'cluster'
-            rc = kscluster.chgrp(client, resource_id, group_id)
+            rc = kscluster.chgrp(client, resource_ids, group_id)
+            return rc if kscluster.is_error?(rc)
         when 'group', 'app'
             STDERR.puts(
                 "chgrp operation is not supported for #{resource}. " \
@@ -701,16 +718,17 @@ CommandParser::CmdParser.new(ARGV) do
             oneks chown cluster <cluster_id> <user_id> <group_id>
     EOT
 
-    command :chown, chown_desc, :resource, :resource_id, :userid, [:groupid, nil] do
-        client      = OneKSHelper.client(options)
-        resource    = args[0]
-        resource_id = args[1]
-        owner_id    = args[2].to_i
-        group_id    = args[3] ? args[3].to_i : nil
+    command :chown, chown_desc, :resource, [:range, :resourceid_list], :userid, [:groupid, nil] do
+        client       = OneKSHelper.client(options)
+        resource     = args[0]
+        resource_ids = args[1]
+        owner_id     = args[2].to_i
+        group_id     = args[3] ? args[3].to_i : nil
 
         case resource
         when 'cluster'
-            rc = kscluster.chown(client, resource_id, owner_id, group_id)
+            rc = kscluster.chown(client, resource_ids, owner_id, group_id)
+            return rc if kscluster.is_error?(rc)
         when 'group', 'app'
             STDERR.puts(
                 "chown operation is not supported for #{resource}. " \
@@ -736,20 +754,21 @@ CommandParser::CmdParser.new(ARGV) do
             oneks chmod cluster <cluster_id> 640
     EOT
 
-    command :chmod, chmod_desc, :resource, :resource_id, :octet do
+    command :chmod, chmod_desc, :resource, [:range, :resourceid_list], :octet do
         if !/\A\d+\z/.match(args[2])
             STDERR.puts "Invalid '#{args[2]}' octed permissions"
             exit(-1)
         end
 
-        client      = OneKSHelper.client(options)
-        resource    = args[0]
-        resource_id = args[1]
-        octet       = OpenNebulaHelper.to_octet(args[2])
+        client       = OneKSHelper.client(options)
+        resource     = args[0]
+        resource_ids = args[1]
+        octet        = OpenNebulaHelper.to_octet(args[2])
 
         case resource
         when 'cluster'
-            rc = kscluster.chmod(client, resource_id, octet)
+            rc = kscluster.chmod(client, resource_ids, octet)
+            return rc if kscluster.is_error?(rc)
         when 'group', 'app'
             STDERR.puts(
                 "chmod operation is not supported for #{resource}. " \
@@ -790,13 +809,13 @@ CommandParser::CmdParser.new(ARGV) do
     command :recover,
             recover_desc,
             :resource,
-            :resource_id,
+            [:range, :resourceid_list],
             :options => [
                 RECOVER_RETRY, RECOVER_SUCCESS, RECOVER_FAILURE, RECOVER_DELETE_DB
             ] do
-        client      = OneKSHelper.client(options)
-        resource    = args[0]
-        resource_id = args[1]
+        client       = OneKSHelper.client(options)
+        resource     = args[0]
+        resource_ids = args[1]
 
         actions = {
             :retry     => options[:retry],
@@ -820,9 +839,12 @@ CommandParser::CmdParser.new(ARGV) do
         rc =
             case resource
             when 'cluster'
-                kscluster.recover(client, [resource_id], action)
+                kscluster.recover(client, resource_ids, action)
             when 'group'
-                ksgroup.recover(client, resource_id, action)
+                result = ksgroup.recover(client, resource_ids, action)
+                return result if ksgroup.is_error?(result)
+
+                result
             when 'app'
                 STDERR.puts('Recover is only supported for clusters and groups')
                 exit(-1)
@@ -835,21 +857,6 @@ CommandParser::CmdParser.new(ARGV) do
         puts
         exit(1)
     end
-
-    delete_desc = <<-EOT.unindent
-        Delete a specific OneKS resource.
-        Supported resources: #{all_resources_supported}.
-
-        Examples:
-            # Delete a cluster
-            oneks delete cluster <cluster_id>
-
-            # Delete a nodegroup
-            oneks delete group <group_id>
-
-            # Uninstall an Application by release name
-            oneks delete app <release_name> --cluster-id <cluster_id>
-    EOT
 
     check_desc = <<-EOT.unindent
         Run the OneKS readiness check service to validate public and private
@@ -884,25 +891,21 @@ CommandParser::CmdParser.new(ARGV) do
         if deployment_id || public_network || private_network
             missing = []
 
-            missing << '--opennebula-cluster' if deployment_id.nil?
             missing << '--public-network'    if public_network.nil?
             missing << '--private-network'   if private_network.nil?
 
             unless missing.empty?
-                STDERR.puts(
-                    "#{missing.join(', ')} must be provided together."
-                )
-
+                STDERR.puts("#{missing.join(', ')} must be provided together.")
                 exit(-1)
             end
 
             body = {
-                :cluster  => { :id => deployment_id },
+                :cluster => deployment_id.nil? ? nil : { :id => deployment_id },
                 :networks => {
                     :public  => { :id => public_network },
                     :private => { :id => private_network }
                 }
-            }
+            }.compact
         end
 
         client = OneKSHelper.client(options)
@@ -931,24 +934,39 @@ CommandParser::CmdParser.new(ARGV) do
             body = { :cluster_id => resource_id }
         end
 
+        kscluster.set_client(
+            :user => options[:username] || ENV['ONEKS_USER'],
+            :password => options[:password] || ENV['ONEKS_PASSWORD']
+        ) if body.empty?
+
         kscluster.check(client, body)
     rescue Interrupt
         puts 'Aborting...'
         exit(1)
     end
 
+    delete_desc = <<-EOT.unindent
+        Delete a specific OneKS resource.
+        Supported resources: #{all_resources_supported}.
+
+        Examples:
+            # Delete a cluster
+            oneks delete cluster <cluster_id>
+
+            # Delete a nodegroup
+            oneks delete group <group_id>
+
+            # Uninstall an Application by release name
+            oneks delete app <release_name> --cluster-id <cluster_id>
+    EOT
+
     command :delete,
             delete_desc,
             :resource,
-            :resource_id,
+            [:release_name, :range, :resourceid_list],
             :options => [OpenNebulaHelper::FORCE, CLUSTER_ID] do
         resource   = args[0]
         identifier = args[1]
-
-        if resource != 'app' && !identifier.to_s.match?(/^\d+$/)
-            STDERR.puts "Argument '#{identifier}' is not a valid ID"
-            exit(-1)
-        end
 
         if options[:force] && resource != 'cluster'
             STDERR.puts '--force is only supported for cluster deletion'
@@ -965,9 +983,9 @@ CommandParser::CmdParser.new(ARGV) do
         rc =
             case resource
             when 'cluster'
-                kscluster.delete(client, [identifier.to_i], options)
+                kscluster.delete(client, identifier, options)
             when 'group'
-                ksgroup.delete(client, [identifier.to_i])
+                ksgroup.delete(client, identifier)
             when 'app'
                 ksapp.delete(client, options[:cluster_id], identifier)
             end
@@ -1029,15 +1047,16 @@ CommandParser::CmdParser.new(ARGV) do
     command :upgrade,
             upgrade_desc,
             :resource,
-            :resource_id,
+            [:range, :resourceid_list],
             :options => [KUBERNETES_VERSION] do
-        client      = OneKSHelper.client(options)
-        resource    = args[0]
-        resource_id = args[1]
+        client       = OneKSHelper.client(options)
+        resource     = args[0]
+        resource_ids = args[1]
 
         case resource
         when 'cluster'
-            rc = kscluster.upgrade(client, resource_id, options)
+            rc = kscluster.upgrade(client, resource_ids, options)
+            return rc if kscluster.is_error?(rc)
         when 'group', 'app'
             STDERR.puts(
                 "Upgrade operation is not supported for #{resource}. " \
@@ -1066,12 +1085,12 @@ CommandParser::CmdParser.new(ARGV) do
     command :scale,
             scale_desc,
             :resource,
-            :resource_id,
+            [:range, :resourceid_list],
             :options => [TARGET] do
-        client      = OneKSHelper.client(options)
-        resource    = args[0]
-        resource_id = args[1]
-        target      = options[:target]
+        client       = OneKSHelper.client(options)
+        resource     = args[0]
+        resource_ids = args[1]
+        target       = options[:target]
 
         case resource
         when 'cluster'
@@ -1082,7 +1101,8 @@ CommandParser::CmdParser.new(ARGV) do
             )
             exit(-1)
         when 'group'
-            rc = ksgroup.scale(client, resource_id, target)
+            rc = ksgroup.scale(client, resource_ids, target)
+            return rc if ksgroup.is_error?(rc)
         when 'app'
             STDERR.puts('Scale is only supported for groups')
             exit(-1)

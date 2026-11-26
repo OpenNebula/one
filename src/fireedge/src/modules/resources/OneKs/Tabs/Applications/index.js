@@ -13,22 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { AlertNotification, Button, Image, TablePanel } from '@ComponentsModule'
-import { Box, Typography } from '@mui/material'
+import {
+  AlertDialog,
+  AlertNotification,
+  Button,
+  CodeSnippet,
+  Image,
+  ProgressBar,
+  StatusTag,
+  TablePanel,
+} from '@ComponentsModule'
+import { Box, Link, Stack, Typography } from '@mui/material'
 import { ArrowTrSquare, Plus } from 'iconoir-react'
 import PropTypes from 'prop-types'
-import { Component } from 'react'
+import { Component, useEffect, useMemo, useRef } from 'react'
 import { generatePath, useHistory } from 'react-router-dom'
 
 import { PATH, RESOURCE_NAMES, T } from '@ConstantsModule'
-import { SystemAPI } from '@FeaturesModule'
+import { SystemAPI, useModalsApi } from '@FeaturesModule'
+import { useClipboard } from '@HooksModule'
 import { useResourceSingleViewContext, useTranslation } from '@ProvidersModule'
-import { generateDocLink } from '@UtilsModule'
+import { generateDocLink, sentenceCase } from '@UtilsModule'
 import { scale } from '@StylesModule'
 import {
   getApplicationDescription,
   getApplicationImage,
   getApplicationName,
+  getApplicationStateColor,
   oneksApplicationTable,
 } from '@ModelsModule'
 import { ApplicationImagePlaceholder } from '@modules/resources/OneKs/ApplicationImagePlaceholder'
@@ -37,8 +48,146 @@ import { getStyles } from '@modules/resources/OneKs/Tabs/Applications/styles'
 const MONITORING_DOC_PATH =
   'platform_services/oneks/management/configuration/#monitor-configuration'
 
-const columns = oneksApplicationTable.columns().map((column) =>
-  column.id === 'application'
+/**
+ * @param {object} props - Dialog properties
+ * @param {string} props.releaseName - Application release name
+ * @param {Function} props.onClose - Close the dialog
+ * @returns {object} Application log instructions dialog
+ */
+const ApplicationLogInstructions = ({ releaseName, onClose }) => {
+  const { translate } = useTranslation()
+  const { copy, isCopied } = useClipboard()
+  const code = `kubectl -n kube-system logs -f --all-containers=true --tail=-1 -l helmcharts.helm.cattle.io/chart=${releaseName}`
+
+  return (
+    <AlertDialog
+      title={translate(T.ApplicationLogInstructions)}
+      dataCy="oneks-application-log-instructions"
+      onClose={onClose}
+      actionsProps={{
+        cancel: { label: translate(T.Close), onClick: onClose },
+        confirm: {
+          label: translate(isCopied(code) ? T.Copied : T.Copy),
+          onClick: () => copy(code),
+        },
+      }}
+      sx={{
+        width: '680px',
+        maxWidth: 'calc(100vw - 32px)',
+        actions: { justifyContent: 'flex-end' },
+      }}
+    >
+      <Stack
+        gap={2}
+        sx={{
+          '&& .topbar': { py: 0 },
+          '&& .code-container': {
+            pt: 0,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'normal',
+            overflowWrap: 'anywhere',
+            '& > code': { minWidth: 0 },
+          },
+        }}
+      >
+        <Typography variant="body2">
+          {translate(T.ApplicationInstallationLogsHint, [releaseName])}
+        </Typography>
+        <CodeSnippet code={code} />
+      </Stack>
+    </AlertDialog>
+  )
+}
+
+ApplicationLogInstructions.propTypes = {
+  releaseName: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+}
+
+/**
+ * @param {object} props - Table cell properties
+ * @param {object} props.row - Application row
+ * @returns {object} Application state and component progress
+ */
+const ApplicationStateCell = ({ row }) => {
+  const { translate } = useTranslation()
+  const { showModal } = useModalsApi()
+  const application = row.original
+  const dependencies = application.dependencies ?? []
+  const components = [...dependencies, application]
+  const ready = components.filter(({ state }) => state === 'ready').length
+  const deleting = application.deleting
+  const total = application.componentsTotal ?? components.length
+  const completed = deleting ? Math.max(0, total - components.length) : ready
+  const progress = Math.round((completed / total) * 100)
+
+  return (
+    <Stack gap={1}>
+      <Stack direction="row" alignItems="center" gap={1}>
+        {application.state ? (
+          <StatusTag
+            statusColor={getApplicationStateColor(application.state)}
+            statusName={sentenceCase(application.state)}
+          />
+        ) : (
+          '-'
+        )}
+      </Stack>
+      {(deleting ||
+        application.state === 'installing' ||
+        dependencies.length > 0) &&
+        completed < total && (
+          <Stack gap={1}>
+            <ProgressBar
+              size="extraSmall"
+              value={progress}
+              label={translate(
+                deleting
+                  ? T.ApplicationComponentsDeleted
+                  : T.ApplicationComponentsReady,
+                [completed, total]
+              )}
+              isLabelVisible
+            />
+            <Link
+              component="button"
+              type="button"
+              variant="body2"
+              underline="hover"
+              sx={{
+                alignSelf: 'flex-start',
+                textAlign: 'left',
+                color: 'text.action',
+              }}
+              onClick={(event) => {
+                event.stopPropagation()
+                showModal({
+                  isCustomDialog: true,
+                  form: ApplicationLogInstructions,
+                  customDialogProps: { releaseName: application.release_name },
+                })
+              }}
+            >
+              {translate(T.ViewLogInstructions)}
+            </Link>
+          </Stack>
+        )}
+    </Stack>
+  )
+}
+
+ApplicationStateCell.propTypes = { row: PropTypes.object }
+
+const columns = oneksApplicationTable.columns().map((column) => {
+  if (column.id === 'state') {
+    return {
+      ...column,
+      cell: ApplicationStateCell,
+      meta: { ...column.meta, disableCellTooltip: true },
+    }
+  }
+
+  return column.id === 'application'
     ? {
         ...column,
         cell: ({ row }) => {
@@ -72,7 +221,7 @@ const columns = oneksApplicationTable.columns().map((column) =>
                   {name}
                 </Typography>
                 {description && (
-                  <Typography variant="caption" color="text.secondary" noWrap>
+                  <Typography variant="caption" color="text.body" noWrap>
                     {description}
                   </Typography>
                 )}
@@ -82,7 +231,7 @@ const columns = oneksApplicationTable.columns().map((column) =>
         },
       }
     : column
-)
+})
 
 /**
  * Render applications tab.
@@ -111,13 +260,59 @@ const Applications = ({ data }) => {
       : undefined
   const id = data?.selected?.ID ?? data?.id
   const {
-    data: applications = [],
+    data: allApplications = [],
     isFetching,
     isError,
   } = oneksApplicationTable.useData(
-    { id },
+    { id, all: true, showNotification: false },
     { skip: !id || !isMonitoringEnabled }
   )
+  const applicationProgress = useRef(new Map())
+  const applications = useMemo(
+    () =>
+      allApplications
+        .filter(({ parent }) => !parent)
+        .map((application) => {
+          const dependencies = allApplications.filter(
+            ({ parent }) => parent === application.release_name
+          )
+          const previous = applicationProgress.current.get(
+            `${id}:${application.release_name}`
+          )
+          const componentsTotal = Math.max(
+            previous?.componentsTotal ?? 0,
+            dependencies.length + 1
+          )
+          const deleting =
+            application.state === 'deleting' ||
+            dependencies.some(({ state }) => state === 'deleting') ||
+            previous?.deleting === true ||
+            dependencies.length + 1 < componentsTotal
+
+          return {
+            ...application,
+            state:
+              deleting && application.state !== 'error'
+                ? 'deleting'
+                : application.state,
+            dependencies,
+            componentsTotal,
+            deleting,
+          }
+        }),
+    [allApplications, id]
+  )
+  useEffect(() => {
+    applicationProgress.current = new Map(
+      applications.map((application) => [
+        `${id}:${application.release_name}`,
+        {
+          componentsTotal: application.componentsTotal,
+          deleting: application.deleting,
+        },
+      ])
+    )
+  }, [applications, id])
   const openApplication = (application) => {
     const releaseName = application?.release_name
     if (!id || !releaseName) return

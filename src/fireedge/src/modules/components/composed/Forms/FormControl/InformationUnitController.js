@@ -51,6 +51,7 @@ export const InformationUnitController = memo(
     fieldProps = {},
     readOnly = false,
     onConditionChange,
+    defaultValue,
   }) => {
     const { translate } = useTranslation()
     const watch = useWatch({
@@ -62,7 +63,7 @@ export const InformationUnitController = memo(
     const {
       field: { ref, value = '', onChange, ...inputProps },
       fieldState: { error },
-    } = useController({ name, control })
+    } = useController({ name, control, defaultValue })
 
     const safeFieldProps =
       fieldProps && typeof fieldProps === 'object' ? fieldProps : {}
@@ -187,6 +188,7 @@ InformationUnitController.propTypes = {
   fieldProps: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
   readOnly: PropTypes.bool,
   onConditionChange: PropTypes.func,
+  defaultValue: PropTypes.number,
 }
 
 InformationUnitController.displayName = 'InformationUnitController'

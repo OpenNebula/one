@@ -28,6 +28,16 @@ module OpenNebula
                     set key, value
                 end
 
+                options = respond_to?(:server_settings) ? server_settings.dup : {}
+                events = options[:events] ||= Puma::Events.new
+
+                # Stop ODS before Puma waits for requests that depend on its workers
+                events.register(:state) do |state|
+                    ThreadManager.instance.stop! if [:stop, :halt, :restart].include?(state)
+                end
+
+                set :server_settings, options
+
                 # Configure custom logger
                 disable :logging
                 set :logger, Log.instance(SERVER_CONF[:log])

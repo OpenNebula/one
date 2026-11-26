@@ -27,27 +27,27 @@ module OneKS
             # Finds appliance images in any of the provided datastores.
             # Marketplace imports identified by their path take precedence
             # over manually imported images marked with ONEKS_APPLIANCE_ID.
-            def find_all_by_appliance_id(client, appliance_id, datastore_ids)
+            def find_all_by_appliance_id(client, appliance_id, datastore_ids = nil)
                 return OpenNebula::Error.new(
                     'OneKS appliance ID cannot be empty', OpenNebula::Error::EACTION
                 ) if appliance_id.to_s.empty?
 
-                datastore_ids = Array(datastore_ids).map(&:to_s)
+                unless datastore_ids.nil?
+                    datastore_ids = Array(datastore_ids).map(&:to_s)
 
-                return OpenNebula::Error.new(
-                    'Datastore IDs cannot be empty', OpenNebula::Error::EACTION
-                ) if datastore_ids.empty?
+                    return OpenNebula::Error.new(
+                        'Datastore IDs cannot be empty', OpenNebula::Error::EACTION
+                    ) if datastore_ids.empty?
+                end
 
-                image_pool = OpenNebula::ImagePool.new(
-                    client, OpenNebula::Pool::INFO_ALL
-                )
+                image_pool = OpenNebula::ImagePool.new(client, OpenNebula::Pool::INFO_ALL)
 
                 rc = image_pool.info
                 return rc if OpenNebula.is_error?(rc)
 
                 images = image_pool.sort_by {|image| image.id.to_i }.filter_map do |image|
                     # Skip if the datastore is not inclided in the target cluster datastores
-                    next unless datastore_ids.include?(image['DATASTORE_ID'].to_s)
+                    next if datastore_ids && !datastore_ids.include?(image['DATASTORE_ID'].to_s)
 
                     rc = image.info
                     return rc if OpenNebula.is_error?(rc)
@@ -71,17 +71,26 @@ module OneKS
         # OneKS appliance VM Template discovery
         module Template
 
+            # Adds placement restrictions while preserving the appliance requirements
+            def sched_requirements(template, requirements)
+                return if requirements.to_s.empty?
+
+                existing = template['TEMPLATE/SCHED_REQUIREMENTS'].to_s.strip
+                return requirements if existing.empty?
+
+                "(#{existing}) & (#{requirements})"
+            end
+
             # Finds the image and VM Template for a Marketplace or
             # manually imported OneKS appliance.
-            def find_by_appliance_id(client, appliance_id, datastore_ids)
+            def find_by_appliance_id(client, appliance_id, datastore_ids = nil)
                 images = ::OneHelper::Image.find_all_by_appliance_id(
                     client, appliance_id, datastore_ids
                 )
                 return images if OpenNebula.is_error?(images)
 
                 return OpenNebula::Error.new(
-                    "Cannot find OneKS appliance image #{appliance_id} in datastores " \
-                    "#{Array(datastore_ids).join(', ')}",
+                    "Cannot find OneKS appliance image #{appliance_id}",
                     OpenNebula::Error::EACTION
                 ) if images.empty?
 
@@ -94,9 +103,7 @@ module OneKS
                         Log.warn(
                             'ONE',
                             'Multiple appliance images found for appliance ID ' \
-                            "#{appliance_id} in datastores " \
-                            "#{Array(datastore_ids).join(', ')}. Using image " \
-                            "#{image.id} with template #{template.id}."
+                            "#{appliance_id}. Using image #{image.id} with template #{template.id}."
                         )
                     end
 

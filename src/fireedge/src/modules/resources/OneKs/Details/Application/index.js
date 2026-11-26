@@ -17,7 +17,13 @@
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 import { useTheme } from '@mui/material'
-import { Cancel, RefreshDouble, Trash } from 'iconoir-react'
+import {
+  Cancel,
+  Check as CopiedIcon,
+  Copy as CopyIcon,
+  RefreshDouble,
+  Trash,
+} from 'iconoir-react'
 import {
   DetailsDrawer as ResourceDetailsDrawer,
   InfoSlot,
@@ -27,6 +33,8 @@ import {
   ToggleGroup,
 } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
+import { useClipboard } from '@HooksModule'
+import { sentenceCase } from '@UtilsModule'
 import { getApplicationImage, getApplicationStateColor } from '@ModelsModule'
 import { ApplicationImagePlaceholder } from '@modules/resources/OneKs/ApplicationImagePlaceholder'
 import { ApplicationTabs } from '@modules/resources/OneKs/Details/Application/Tabs'
@@ -56,10 +64,11 @@ export const Application = ({
   onClose,
 }) => {
   const { palette } = useTheme()
+  const { copy, isCopied } = useClipboard()
   const releaseName = application?.release_name
+  const namespace = application?.target_namespace
   const applicationName = application?.metadata?.name
   const version = application?.version ?? '-'
-  const resourceVersion = application?.resource_version
   const hasRelease = Boolean(application?.cluster_id && releaseName)
 
   return (
@@ -141,15 +150,40 @@ export const Application = ({
                   <StatusTag
                     key="application-state"
                     statusColor={getApplicationStateColor(application.state)}
-                    statusName={application.state}
+                    statusName={sentenceCase(application.state)}
                   />
                 ) : (
                   '-'
                 ),
                 T.State,
               ],
+              [
+                <Tag
+                  key="application-release"
+                  title={releaseName ?? '-'}
+                  endIcon={
+                    releaseName &&
+                    (isCopied(releaseName) ? <CopiedIcon /> : <CopyIcon />)
+                  }
+                  onClick={releaseName ? () => copy(releaseName) : undefined}
+                  type="button"
+                />,
+                T.ReleaseName,
+              ],
+              [
+                <Tag
+                  key="application-namespace"
+                  title={namespace ?? '-'}
+                  endIcon={
+                    namespace &&
+                    (isCopied(namespace) ? <CopiedIcon /> : <CopyIcon />)
+                  }
+                  onClick={namespace ? () => copy(namespace) : undefined}
+                  type="button"
+                />,
+                T.TargetNamespace,
+              ],
               [<Tag key="application-version" title={version} />, T.Version],
-              [resourceVersion ?? '-', T.ResourceVersion],
             ],
           },
         ],

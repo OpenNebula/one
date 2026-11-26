@@ -156,7 +156,7 @@ module OneKS
                 rc = ClusterDeployment.validate(@client, deployment)
                 next rc if OpenNebula.is_error?(rc)
 
-                stream_events(:event_name => 'check_cluster') do |events|
+                stream_events(:event_name => 'check_cluster', :heartbeat_interval => 15) do |events|
                     OneKS::ClusterReadiness.run(@client, deployment, :stream => events)
                 end
             end
