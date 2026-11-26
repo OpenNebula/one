@@ -125,7 +125,7 @@ class ImageTransferController
 
         vm ||= VmController.get_one_vms(client, :vm_id => vm_id)
 
-        if (fault = BackupController.raw_disk_backup_fault(vm))
+        if (fault = BackupController.raw_disk_backup_fault(vm, [disk_id]))
             LOGGER.error "Download transfer rejected for VM #{vm_id}: #{fault[:fault][:detail]}"
             return 409, fault
         end

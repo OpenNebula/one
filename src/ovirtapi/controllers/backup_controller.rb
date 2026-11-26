@@ -569,7 +569,7 @@ class BackupController
             next false unless disk['FORMAT'].to_s.casecmp('raw').zero?
 
             tm_mad = disk['TM_MAD'].to_s.upcase
-            !['LVM', 'FS_LVM', 'FS_LVM_SSH', 'CEPH'].include?(tm_mad)
+            !['LVM', 'FS_LVM', 'FS_LVM_SSH', 'CEPH', 'LINSTOR'].include?(tm_mad)
         end
         return if raw_disk.nil?
 
