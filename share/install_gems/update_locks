@@ -131,6 +131,12 @@ elif command -v rpm >/dev/null; then
         dnf -q -y install 'dnf-command(config-manager)'
         dnf config-manager --set-enabled powertools ||:
         dnf config-manager --set-enabled crb        ||: # alma9
+
+        # EL9 default Ruby is 3.0, OpenNebula runs there with
+        # the ruby:3.3 module stream
+        if grep -qs '^VERSION_ID="9' /etc/os-release; then
+            dnf -q -y module enable ruby:3.3
+        fi
     fi
 
     yum -q -y install rubygems findutils openssl libffi-devel
