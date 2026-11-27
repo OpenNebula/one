@@ -24,7 +24,7 @@ module VNMNetwork
     #
     # PROTOCOL (mandatory)
     #   - Specifies the protocol of the rule
-    #   - values: ['ALL', 'TCP', 'UDP', 'ICMP', 'ICMPV6', 'IPSEC']
+    #   - values: ['ALL', 'TCP', 'UDP', 'ICMP', 'ICMPV6', 'IPSEC', 'VRRP']
     #
     # RULE_TYPE (mandatory)
     #   - Specifies the direction of application of the rule
@@ -63,6 +63,7 @@ module VNMNetwork
             @rule     = rule
             @protocol = @rule[:protocol].downcase.to_sym
             @protocol = :esp if @protocol == :ipsec
+            @protocol = :"112" if @protocol == :vrrp
 
             @rule_type = @rule[:rule_type].downcase.to_sym
             @icmp_type = @rule[:icmp_type]
