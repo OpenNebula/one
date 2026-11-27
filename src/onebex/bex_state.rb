@@ -364,7 +364,15 @@ module OneBEX
                 :permitted_classes => [Symbol],
                 :aliases           => false
             )
+          
+            begin
+                @conf[:max_readers] = Integer(@conf.fetch(:max_readers, 5))
+            rescue ArgumentError, TypeError
+                @conf[:max_readers] = 0
+            end
 
+            @conf[:max_readers] = 5 if @conf[:max_readers] <= 0
+        
             @logger = if @conf.dig(:log, :system) == 'syslog'
                           require 'syslog/logger'
                           Syslog::Logger.new('onebex')

@@ -213,18 +213,16 @@ module OneBEX
             # ---------------------------------------------------------------- #
 
             app.options '/images/:transfer_id' do
-                response = {
-                    :features => [
-                        'checksum',
-                        'extents',
-                        'flush',
-                        'zero'
-                    ],
-                    :max_readers => 1,
-                    :max_writers => 1
-                }
+                with_transfer do |transfer|
+                    response = transfer[:exporter].options(transfer)
+                    response[:max_writers] = 1
 
-                [200, json_response(response)]
+                    log.info "Returning options for #{transfer[:transfer_id]} " \
+                             "(max_readers=#{response[:max_readers]}, " \
+                             "max_writers=#{response[:max_writers]})"
+
+                    [200, json_response(response)]
+                end
             end
 
             app.get '/images/:transfer_id/extents' do

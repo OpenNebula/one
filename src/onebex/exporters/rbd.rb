@@ -19,6 +19,8 @@ require 'json'
 require 'open3'
 require 'timeout'
 
+require_relative 'nbd_pool'
+
 require File.expand_path('../../tm/lib/rbd_parser', __dir__)
 
 module OneBEX
@@ -53,6 +55,7 @@ module OneBEX
             #     :uri          - NBD URI used by later operations
             #     :pid          - qemu-nbd process id for managed exports
             #     :socket       - unix socket path for managed exports
+            #     :nbd_pool     - persistent clients, one per concurrent reader
             # ----------------------------------------------------------------
             def start(xfr)
                 disk = xfr[:disk] || {}
@@ -80,6 +83,7 @@ module OneBEX
                     '-k', socket,
                     '-f', 'rbd',
                     '-t',
+                    "--shared=#{(@config[:max_readers] || 5).to_i + 1}",
                     xfr[:source]
                 ]
 
@@ -109,17 +113,34 @@ module OneBEX
                     raise "qemu-nbd exited before creating socket #{socket}: #{error}"
                 end
 
+                start_nbd_pool(xfr)
+
                 true
             rescue StandardError => e
                 err.close if err && !err.closed?
 
                 @logger.error("Failed to start RBD transfer #{xfr[:transfer_id]}: #{e.message}")
 
+                xfr[:nbd_pool]&.close(:force => true)
                 stop_process(pid) if pid
                 FileUtils.rm_f(socket) if socket
                 FileUtils.rm_f(errlog) if errlog
 
                 raise
+            end
+
+            # ----------------------------------------------------------------
+            # Get exporter options
+            # Returns exporter's supported features and reader and writer limits.
+            # ----------------------------------------------------------------
+            def options(_xfr)
+                readers = Integer(@config[:max_readers] || 5)
+
+                {
+                    :features    => ['checksum', 'extents', 'flush', 'zero'],
+                    :max_readers => readers,
+                    :max_writers => 1
+                }
             end
 
             # ----------------------------------------------------------------
@@ -152,36 +173,19 @@ module OneBEX
                 expected = range[:length].to_i
                 offset   = range[:start].to_i
 
-                if expected <= 0
+                if !expected.positive? || offset < 0
                     raise "Invalid read range: #{range}"
                 end
 
-                script = <<~PY
-                    import sys
-                    buf = h.pread(#{expected}, #{offset})
-                    sys.stdout.buffer.write(buf)
-                PY
-
-                stdout, stderr, status = Open3.capture3(
-                    'nbdsh',
-                    '-u', xfr[:uri],
-                    '-c', script
-                )
-
-                raise "nbdsh failed: #{stderr}" unless status.success?
-
-                if stdout.bytesize != expected
-                    raise "nbdsh returned #{stdout.bytesize} bytes, expected #{expected}"
-                end
-
-                stdout.b
+                xfr.fetch(:nbd_pool).read(offset, expected)
             end
 
             # ----------------------------------------------------------------
             # Finish RBD exporter
-            # Stops a managed qemu-nbd process and removes its unix socket.
+            # Stops persistent clients, then the managed qemu-nbd and its socket.
             # ----------------------------------------------------------------
             def finish(xfr, force: false)
+                xfr[:nbd_pool]&.close(:force => force)
                 stop_process(xfr[:pid], :force => force)
 
                 FileUtils.rm_f(xfr[:socket]) if xfr[:socket]
@@ -214,6 +218,15 @@ module OneBEX
             # ----------------------------------------------------------------
 
             private
+
+            # Creates a separate pool for each transfer.
+            def start_nbd_pool(xfr)
+                xfr[:nbd_pool] = NBDPool.new(
+                    :uri           => xfr[:uri],
+                    :size          => Integer(@config[:max_readers] || 5),
+                    :start_timeout => (@config[:nbd_start_timeout] || 10).to_i
+                )
+            end
 
             # Queries nbdinfo for allocation extents.
             def extents(uri)

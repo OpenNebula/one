@@ -80,13 +80,25 @@ if __FILE__ == $PROGRAM_NAME
 
     user_config = bex.conf[:puma] || {}
 
-    min_threads = user_config[:min_threads] || 1
-    max_threads = user_config[:max_threads] || 4
+    begin
+        min_threads = Integer(user_config[:min_threads] || 1)
+        max_threads = Integer(user_config[:max_threads] || 15)
+    rescue ArgumentError, TypeError
+        min_threads = 0
+        max_threads = 0
+    end
+
+    if min_threads <= 0 || max_threads <= 0 || min_threads > max_threads
+        bex.logger.warn 'Invalid OneBEX Puma thread settings; using 1:15'
+        min_threads = 1
+        max_threads = 15
+    end
 
     puma_config = Puma::Configuration.new do |puma|
         puma.app OneBEX::OneBEXServer
         puma.bind "tcp://#{bex.conf[:host]}:#{bex.conf[:port]}"
-        puma.threads min_threads.to_i, max_threads.to_i
+        puma.threads min_threads, max_threads
+        puma.workers 0
     end
 
     bex.puma = Puma::Launcher.new(puma_config)

@@ -144,6 +144,15 @@ module TransferManager
 
             conf
         end
+    
+        def self.max_readers(config_file = CONFIG_FILE)
+            conf    = load_config(config_file)
+            readers = Integer(conf.fetch(:max_readers, 5))
+
+            readers.positive? ? readers : 5
+        rescue StandardError
+            5
+        end
 
         # Starts the OneBEX server, writes the exports, and waits for completion.
         def start(exports = nil)

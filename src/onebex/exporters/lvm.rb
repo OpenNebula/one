@@ -91,6 +91,20 @@ module OneBEX
             end
 
             # ----------------------------------------------------------------
+            # Get exporter options
+            # Returns exporter's supported features and reader and writer limits.
+            # ----------------------------------------------------------------
+            def options(_xfr)
+                readers = Integer(@config[:max_readers] || 5)
+
+                {
+                    :features    => ['checksum', 'extents', 'flush', 'zero'],
+                    :max_readers => readers,
+                    :max_writers => 1
+                }
+            end
+
+            # ----------------------------------------------------------------
             # Get block map
             # Returns full-disk or thin_delta-derived OneBEX extent entries.
             # ----------------------------------------------------------------

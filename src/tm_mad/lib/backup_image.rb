@@ -19,6 +19,7 @@ require 'fileutils'
 require 'shellwords'
 
 require_relative 'backup_command'
+require_relative 'onebex'
 
 #-------------------------------------------------------------------------------
 # CONFIGURATION CONSTANTS
@@ -110,8 +111,11 @@ class Nbd
     def start
         return if @server
 
+        max_readers = TransferManager::OneBEX.max_readers
+
         @server = fork do
             args  = ['-r', '-k', @socket, '-f', 'qcow2', '-t']
+            args << "--shared=#{max_readers + 1}"
             args << '-B' << @map unless @map.empty?
             args << @file
 
