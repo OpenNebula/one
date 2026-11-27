@@ -26,6 +26,7 @@
 #include <string>
 #include <thread>
 #include <atomic>
+#include <mutex>
 #include "StreamManager.h"
 
 /**
@@ -91,7 +92,9 @@ public:
      */
     void write(const std::string&  str) const
     {
-        (void) ::write(to_drv, str.c_str(), str.size());
+        std::lock_guard<std::mutex> lock(write_mutex);
+
+        (void) write_all(to_drv, str);
     };
 
     /**
@@ -99,7 +102,14 @@ public:
      */
     void write(const MSG& msg) const
     {
-        msg.write_to(to_drv);
+        std::string out;
+
+        if (msg.write_to(out) == -1)
+        {
+            return;
+        }
+
+        write(out);
     };
 
     /**
@@ -141,6 +151,14 @@ private:
      *  Communication pipe file descriptor (daemon -> driver)
      */
     int to_drv = -1;
+
+    /**
+     *  Serializes writes to the driver. Messages are written from several
+     *  threads (API requests, driver listener callbacks) and are usually larger
+     *  than PIPE_BUF, so unsynchronized writes can interleave and the driver
+     *  silently drops the garbled lines.
+     */
+    mutable std::mutex write_mutex;
 
     /**
      *  Driver configuration: path and arguments
@@ -209,12 +227,14 @@ void Driver<MSG>
         return;
     }
 
-    char buf[]="FINALIZE\n";
+    {
+        std::lock_guard<std::mutex> lock(write_mutex);
 
-    ::write(to_drv, buf, strlen(buf));
+        (void) write_all(to_drv, "FINALIZE\n");
 
-    close(from_drv);
-    close(to_drv);
+        close(from_drv);
+        close(to_drv);
+    }
 
     bool success = false;
 

@@ -18,6 +18,7 @@
 #define DRIVER_MESSAGE_H
 
 #include <unistd.h>
+#include <errno.h>
 
 #include <string>
 #include <iostream>
@@ -25,6 +26,38 @@
 
 #include "EnumString.h"
 #include "SSLUtil.h"
+
+/**
+ *  Writes the whole buffer to the file descriptor, retrying on short writes
+ *  and EINTR. Writes larger than PIPE_BUF are not atomic, so callers sharing
+ *  a fd between threads need to serialize the calls.
+ *    @return 0 on success, -1 on error
+ */
+inline int write_all(int fd, const std::string& buf)
+{
+    const char * ptr  = buf.c_str();
+    size_t       left = buf.size();
+
+    while (left > 0)
+    {
+        ssize_t rc = ::write(fd, ptr, left);
+
+        if (rc == -1)
+        {
+            if (errno == EINTR)
+            {
+                continue;
+            }
+
+            return -1;
+        }
+
+        ptr  += rc;
+        left -= rc;
+    }
+
+    return 0;
+}
 
 /**
  *  This class represents a generic message used by the Monitoring Protocol.
@@ -343,9 +376,7 @@ int Message<E, compress, encode, encrypt, has_timestamp>
         return -1;
     }
 
-    ::write(fd, (const void *) out.c_str(), out.size());
-
-    return 0;
+    return write_all(fd, out);
 }
 
 /* -------------------------------------------------------------------------- */

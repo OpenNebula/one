@@ -18,6 +18,7 @@
 #define _OPENNEBULA_DRIVER_H
 
 #include <atomic>
+#include <mutex>
 #include <string>
 #include <unistd.h>
 
@@ -117,7 +118,11 @@ protected:
      */
     static void write2one(const std::string& buf)
     {
-        write(1, buf.c_str(), buf.size());
+        static std::mutex write_mutex;
+
+        std::lock_guard<std::mutex> lock(write_mutex);
+
+        (void) write_all(1, buf);
     }
 
     /**
@@ -125,7 +130,14 @@ protected:
      */
     static void write2one(const message_t& msg)
     {
-        msg.write_to(1);
+        std::string out;
+
+        if (msg.write_to(out) == -1)
+        {
+            return;
+        }
+
+        write2one(out);
     }
 };
 
