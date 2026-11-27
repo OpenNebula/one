@@ -1,0 +1,118 @@
+---
+# NVIDIA GB200 Grace Blackwell profile with four passthrough GPUs.
+"General":
+  NAME: "NVIDIA GB200 4 GPU"
+  HYPERVISOR: "kvm"
+  DESCRIPTION: "NVIDIA GB200 with 4 GPUs"
+  CPU: 120
+  VCPU: 120
+  MEMORY: 380928
+  MEMORYUNIT: "MB"
+
+"Advanced options":
+  OsCpu:
+    OS:
+      ARCH: "aarch64"
+      FIRMWARE: "/usr/share/AAVMF/AAVMF_CODE.fd"
+      FIRMWARE_SECURE: "No"
+      MACHINE: "virt-10.1"
+    CPU_MODEL:
+      MODEL: "host-passthrough"
+    FEATURES:
+      ACPI: "Yes"
+      APIC: "Yes"
+      GIC: "3"
+      PCIHOLE64: 4294967296
+      RAS: "Yes"
+
+  PciDevices:
+    PCI:
+      - NAME: "PCI0"
+        ACPI_NODES: "2-9"
+        CLASS: "0302"
+        DEVICE: "2941"
+        IOMMU: "YES"
+        IOMMUFD: "YES"
+        ROOT: "dedicated"
+        VENDOR: "10de"
+      - NAME: "PCI1"
+        ACPI_NODES: "10-17"
+        CLASS: "0302"
+        DEVICE: "2941"
+        IOMMU: "YES"
+        IOMMUFD: "YES"
+        ROOT: "dedicated"
+        VENDOR: "10de"
+      - NAME: "PCI2"
+        ACPI_NODES: "18-25"
+        CLASS: "0302"
+        DEVICE: "2941"
+        IOMMU: "YES"
+        IOMMUFD: "YES"
+        ROOT: "dedicated"
+        VENDOR: "10de"
+      - NAME: "PCI3"
+        ACPI_NODES: "26-33"
+        CLASS: "0302"
+        DEVICE: "2941"
+        IOMMU: "YES"
+        IOMMUFD: "YES"
+        ROOT: "dedicated"
+        VENDOR: "10de"
+
+  Context:
+    CONTEXT:
+      NETWORK: "YES"
+      SSH_PUBLIC_KEY: "$USER[SSH_PUBLIC_KEY]"
+      TOKEN: "YES"
+
+  Placement:
+    SCHED_REQUIREMENTS: "HYPERVISOR=kvm & ARCH=aarch64"
+
+"Custom Variables":
+  TOPOLOGY:
+    CORES: "60"
+    HUGEPAGE_SIZE: "512"
+    MEMORY_ACCESS: "shared"
+    PIN_POLICY: "THREAD"
+    SOCKETS: "2"
+    THREADS: "1"
+  IOMMU:
+    MODE: "device"
+    MODEL: "smmuv3"
+    OPTIONS: "accel=on ats=on ril=off pasid=on oas=48"
+  NUMA_NODE:
+    - { DISTANCE: "2-33:254", MEMORY: "190464", TOTAL_CPUS: "60" }
+    - { DISTANCE: "2-33:254", MEMORY: "190464", TOTAL_CPUS: "60" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }
+    - { DISTANCE: "0-1:254", MEMORY: "0", TOTAL_CPUS: "0" }

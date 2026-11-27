@@ -37,10 +37,11 @@ import {
   deepmerge,
   filterTemplateData,
   isDevelopment,
+  mergeProfileModifiedFields,
   transformActionsCreate,
 } from '@UtilsModule'
 
-import { STEP_MAP, T, TAB_FORM_MAP, PATH, FILTER_POOL } from '@ConstantsModule'
+import { T, TAB_FORM_MAP, PATH, FILTER_POOL } from '@ConstantsModule'
 import { getHostPciTopology, getNicPciFormValues } from '@ModelsModule'
 
 const _ = require('lodash')
@@ -181,27 +182,13 @@ export function CreateVmTemplate() {
       // This loads the OS profile and marks all fields of it as modified so they wont be filtered out
       if (osProfile && osProfile !== '-') {
         try {
-          const convertLeafValuesToBoolean = (obj) =>
-            Object.fromEntries(
-              Object.entries(obj).map(([key, value]) => {
-                if (typeof value === 'object' && value !== null) {
-                  return [key, convertLeafValuesToBoolean(value)]
-                }
-
-                return [key, value != null]
-              })
-            )
-
           const { data: fetchedProfile } = await fetchProfile({
             id: osProfile,
           })
-          const mappedSteps = Object.fromEntries(
-            Object.entries(fetchedProfile).map(([step, values]) => [
-              STEP_MAP[step] || step,
-              convertLeafValuesToBoolean(values),
-            ])
+          modifiedFields = mergeProfileModifiedFields(
+            modifiedFields,
+            fetchedProfile
           )
-          modifiedFields = deepmerge(modifiedFields, mappedSteps)
         } catch (error) {
           isDevelopment() &&
             console.error('Failed mapping profile filter: ', error)

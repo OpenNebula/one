@@ -1,0 +1,40 @@
+---
+# NVIDIA H100 profile with one passthrough GPU.
+"General":
+  NAME: "NVIDIA H100 1 GPU"
+  HYPERVISOR: "kvm"
+  DESCRIPTION: "NVIDIA H100 with 1 GPU"
+  CPU: 16
+  VCPU: 16
+  MEMORY: 65536
+  MEMORYUNIT: "MB"
+
+"Advanced options":
+  OsCpu:
+    OS:
+      ARCH: "x86_64"
+      FIRMWARE: "/usr/share/OVMF/OVMF_CODE_4M.fd"
+      FIRMWARE_SECURE: "No"
+      MACHINE: "q35"
+    CPU_MODEL:
+      MODEL: "host-passthrough"
+    FEATURES:
+      ACPI: "Yes"
+      APIC: "Yes"
+      PCIHOLE64: 2147483648
+
+  PciDevices:
+    PCI:
+      - NAME: "PCI0"
+        CLASS: "0302"
+        DEVICE: "2330"
+        VENDOR: "10de"
+
+  Context:
+    CONTEXT:
+      NETWORK: "YES"
+      SSH_PUBLIC_KEY: "$USER[SSH_PUBLIC_KEY]"
+      TOKEN: "YES"
+
+  Placement:
+    SCHED_REQUIREMENTS: "HYPERVISOR=kvm & ARCH=x86_64"

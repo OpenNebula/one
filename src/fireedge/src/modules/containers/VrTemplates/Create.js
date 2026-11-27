@@ -25,6 +25,7 @@ import {
   filterTemplateData,
   isDevelopment,
   jsonToXml,
+  mergeProfileModifiedFields,
   transformActionsCreate,
 } from '@UtilsModule'
 
@@ -40,7 +41,7 @@ import {
   DatastoreAPI,
 } from '@FeaturesModule'
 
-import { PATH, STEP_MAP, T, TAB_FORM_MAP } from '@ConstantsModule'
+import { PATH, T, TAB_FORM_MAP } from '@ConstantsModule'
 
 // Should match ResourcesModules' VmTemplate form
 const EXTRA_ID = 'extra'
@@ -150,25 +151,11 @@ export function CreateVrTemplate() {
 
       if (osProfile && osProfile !== '-') {
         try {
-          const convertLeafValuesToBoolean = (obj) =>
-            Object.fromEntries(
-              Object.entries(obj).map(([key, value]) => {
-                if (typeof value === 'object' && value !== null) {
-                  return [key, convertLeafValuesToBoolean(value)]
-                }
-
-                return [key, value != null]
-              })
-            )
-
           const { data: fetchedProfile } = await fetchProfile({ id: osProfile })
-          const mappedSteps = Object.fromEntries(
-            Object.entries(fetchedProfile).map(([step, values]) => [
-              STEP_MAP[step] || step,
-              convertLeafValuesToBoolean(values),
-            ])
+          modifiedFields = mergeProfileModifiedFields(
+            modifiedFields,
+            fetchedProfile
           )
-          modifiedFields = deepmerge(modifiedFields, mappedSteps)
         } catch (error) {
           isDevelopment() &&
             console.error('Failed mapping profile filter: ', error)

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { MEMORY_RESIZE_OPTIONS, T } from '@ConstantsModule'
+import { MEMORY_RESIZE_OPTIONS, STEP_MAP, T } from '@ConstantsModule'
 import { scaleVcpuByCpuFactor } from '@modules/utils'
+import { deepmerge } from '@modules/utils/merge'
 import _, { cloneDeep, get, merge } from 'lodash'
 
 // Attributes that will be always modify with the value of the form (except Storage, Network and PCI sections)
@@ -101,6 +102,41 @@ const defaultValuesUpdate = {
       },
     },
   },
+}
+
+const markProfileFields = (value) => {
+  if (Array.isArray(value)) {
+    return value.map(markProfileFields)
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, field]) => [
+        key,
+        markProfileFields(field),
+      ])
+    )
+  }
+
+  return value != null
+}
+
+/**
+ * Include fields supplied by an OS profile in template submission.
+ *
+ * @param {object} modifiedFields - Fields modified in the form
+ * @param {object} profile - OS profile data
+ * @returns {object} - Field modifications including the profile fields
+ */
+const mergeProfileModifiedFields = (modifiedFields, profile) => {
+  const profileFields = Object.fromEntries(
+    Object.entries(profile).map(([step, fields]) => [
+      STEP_MAP[step] || step,
+      markProfileFields(fields),
+    ])
+  )
+
+  return deepmerge(modifiedFields, profileFields)
 }
 
 /**
@@ -900,6 +936,7 @@ const transformActionsCommon = (template) => {
 
 export {
   filterTemplateData,
+  mergeProfileModifiedFields,
   transformActionsCreate,
   transformActionsInstantiate,
 }

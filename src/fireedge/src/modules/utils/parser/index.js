@@ -30,6 +30,7 @@ import parseTouchedDirty from '@modules/utils/parser/parseTouchedDirty'
 import isDeeplyEmpty from '@modules/utils/parser/isDeeplyEmpty'
 import {
   filterTemplateData,
+  mergeProfileModifiedFields,
   transformActionsCreate,
   transformActionsInstantiate,
 } from '@modules/utils/parser/vmTemplateFilter'
@@ -39,6 +40,7 @@ export {
   convertKeysToCase,
   filterTemplateData,
   isDeeplyEmpty,
+  mergeProfileModifiedFields,
   parseAcl,
   parseCustomInputString,
   templateToObject,
