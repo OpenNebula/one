@@ -97,7 +97,13 @@ Request::ErrorCode UserAPI::change_auth(int oid,
         return ec;
     }
 
-    auto user = upool->get(oid);;
+    if ((new_auth == "server_cipher" || new_auth == "server_x509") && !att.is_admin())
+    {
+        att.resp_msg = "Only cloud administrators can assign the " + new_auth + " authentication driver.";
+        return Request::AUTHORIZATION;
+    }
+
+    auto user = upool->get(oid);
 
     if ( user == nullptr )
     {
