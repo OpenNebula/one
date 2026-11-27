@@ -373,25 +373,21 @@ bool PlanManager::start_action(int plan_id, PlanAction& action)
 
 void PlanManager::action_finished(int plan_id, int action_id, PlanState state)
 {
-    auto plan = plan_pool->get(plan_id);
-
-    if (!plan)
-    {
-        return;
-    }
-
     bool trigger_placement = false;
 
-    if (plan->action_finished(action_id, state))
+    if (auto plan = plan_pool->get(plan_id))
     {
-        plan->check_completed();
-
-        if (plan_id == -1 && plan->state() != PlanState::APPLYING)
+        if (plan->action_finished(action_id, state))
         {
-            trigger_placement = true;
-        }
+            plan->check_completed();
 
-        plan_pool->update(plan.get());
+            if (plan_id == -1 && plan->state() != PlanState::APPLYING)
+            {
+                trigger_placement = true;
+            }
+
+            plan_pool->update(plan.get());
+        }
     }
 
     if (trigger_placement)
